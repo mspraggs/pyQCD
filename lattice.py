@@ -52,6 +52,20 @@ class Lattice:
         product *= self.link(tuple(site), nu).H
         return 1./3 * np.real(np.trace(product))
 
+    def Pav(self):
+        """Calculates average value of the plaquette on the lattice"""
+        indices = itertools.product(range(self.n),range(self.n), \
+                                    range(self.n),range(self.n), \
+                                    range(4))
+        planes = [(i,j) for i in range(4) for j in range(4) if i>j]
+
+        Ps = []
+        for index in indices:
+            for plane in planes:
+                Ps.append(self.P(index,plane[0],plane[1]))
+
+        return np.mean(Ps)
+
     def Si(self,link):
         """Calculates the contribution to the action by the given
         site"""
@@ -92,4 +106,3 @@ class Lattice:
             dS = self.Si(index) - Si_old
             if dS > 0 and np.exp(-dS) < npr.rand():
                 self.links[index] = linki_old
-    
