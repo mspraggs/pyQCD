@@ -21,7 +21,7 @@ class Lattice:
         self.Ncf = Ncf
         self.eps = eps
         
-        self.links = np.zeros((n,n,n,n,4,3,3))
+        self.links = np.zeros((n,n,n,n,4,3,3),dtype=complex)
         indices = itertools.product(range(n),range(n), \
                                     range(n),range(n),range(4))
         for i,j,k,l,m in indices:
@@ -90,6 +90,6 @@ class Lattice:
             self.links[index] = \
                 randSU3 * self.link(index[:-1],index[-1])
             dS = self.Si(index) - Si_old
-            if dS > 0 and pl.exp(-dS) < npr.rand():
+            if dS > 0 and np.exp(-dS) < npr.rand():
                 self.links[index] = linki_old
     
