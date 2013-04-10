@@ -30,7 +30,7 @@ class Lattice:
         self.randSU3s = []
 
         for i in xrange(50):
-            SU3 = randomSU3()
+            SU3 = self.randomSU3()
             self.randSU3s.append(SU3)
             self.randSU3s.append(SU3.H)
 
@@ -66,15 +66,14 @@ class Lattice:
                 Psum += self.P(s,link[-1],plane)
 
         return -self.beta * Psum
-    
+
     def randomSU3(self):
-        """Generates random SU3 matrix"""
+            """Generates random SU3 matrix"""
         
-        A = npr.rand(3,3) * np.exp(1j * 2 * np.pi * npr.rand(3,3))
-        B = np.eye(3) + 1j * self.eps * A        
-        q,r = spla.qr(B)
-        
-        return np.matrix(q) / spla.det(q)**(1./3)
+            A = npr.rand(3,3) * np.exp(1j * 2 * np.pi * npr.rand(3,3))
+            B = np.eye(3) + 1j * self.eps * A        
+            q,r = spla.qr(B)        
+            return np.matrix(q) / spla.det(q)**(1./3)
 
     def update(self):
         """Iterate through the sites and update the link variables"""
