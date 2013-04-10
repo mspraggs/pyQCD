@@ -2,6 +2,7 @@ import numpy as np
 import numpy.random as npr
 import scipy.linalg as spla
 import itertools
+import IPython
 
 class Lattice:
 
@@ -27,6 +28,7 @@ class Lattice:
 
     def link(self,site,dir):
         """Returns given link variable as np matrix"""
+        site = tuple([i%self.n for i in site])
         return np.matrix(self.sites[site + (dir,)])
 
     def P(self,site,mu,nu):
@@ -36,7 +38,7 @@ class Lattice:
         muv[mu] = nuv[nu] = 1
         site = np.array(site)
         
-        product = self.link(tuple(site),mu))
+        product = self.link(tuple(site),mu)
         product *= self.link(tuple(site + muv),nu)
         product *= self.link(tuple(site + nuv),mu).H
         product *= self.link(tuple(site), nu).H
@@ -47,11 +49,11 @@ class Lattice:
         site"""
         
     
-    def randomSU3(eps=0.24):
+    def randomSU3(self):
         """Generates random SU3 matrix"""
         
         A = npr.rand(3,3) * np.exp(1j * 2 * np.pi * npr.rand(3,3))
-        B = np.eye(3) + 1j * eps * A        
+        B = np.eye(3) + 1j * self.eps * A        
         q,r = spla.qr(B)
         
         return np.matrix(q) / spla.det(q)**(1./3)
