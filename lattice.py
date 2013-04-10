@@ -78,8 +78,9 @@ class Lattice:
     def update(self):
         """Iterate through the sites and update the link variables"""
 
-        indices = itertools.product(range(n),range(n), \
-                                    range(n),range(n),range(4))
+        indices = itertools.product(range(self.n),range(self.n), \
+                                    range(self.n),range(self.n), \
+                                    range(4))
 
         for index in indices:
             Si_old = self.Si(index)
