@@ -44,10 +44,24 @@ class Lattice:
         product *= self.link(tuple(site), nu).H
         return 1./3 * np.real(np.trace(product))
 
-    def Si(site):
+    def Si(self,site):
         """Calculates the contribution to the action by the given
         site"""
-        
+        sites = []
+        offsets = itertools.product(range(-1,1),range(-1,1), \
+                                    range(-1,1),range(-1,1))
+        for i,j,k,l in offsets:
+            sites.append(map(lambda x,y: x+y, site,(i,j,k,l)))
+
+        planes = [(i,j) for i in range(4) for j in range(4) if i < j]
+
+        Psum = 0
+
+        for plane in planes:
+            for s in sites:
+                Psum += self.P(s,plane[0],plane[1])
+
+        return Psum
     
     def randomSU3(self):
         """Generates random SU3 matrix"""
@@ -57,3 +71,9 @@ class Lattice:
         q,r = spla.qr(B)
         
         return np.matrix(q) / spla.det(q)**(1./3)
+
+
+
+
+
+
