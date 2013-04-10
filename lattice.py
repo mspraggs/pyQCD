@@ -19,7 +19,7 @@ class Lattice:
         self.Ncf = Ncf
         self.eps = eps
         
-        self.sites = np.zeros(n,n,n,n,3,3)
+        self.sites = np.zeros((n,n,n,n,3,3))
         indices = itertools.product(range(n),range(n),range(n),range(n))
         for i,j,k,l in indices:
             self.sites[i,j,k,l,:,:] = np.eye(3)
