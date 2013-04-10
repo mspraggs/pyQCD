@@ -106,3 +106,11 @@ class Lattice:
             dS = self.Si(index) - Si_old
             if dS > 0 and np.exp(-dS) < npr.rand():
                 self.links[index] = linki_old
+
+
+if __name__ == "__main__":
+    import profile
+
+    L = Lattice()
+
+    profile.run("L.update()")
