@@ -1,6 +1,7 @@
 import numpy as np
 import numpy.random as npr
 import scipy.linalg as spla
+import itertools
 
 class Lattice:
 
@@ -13,12 +14,15 @@ class Lattice:
                  eps=0.24,):
         """Constructor"""
         self.sites = np.zeros(n,n,n,n,3,3)
-        
+
+        indices = itertools.product(range(n),range(n),range(n),range(n))
+        for i,j,k,l in indices:
+            self.sites[i,j,k,l,:,:] = np.eye(3)
     
     def randomSU3(eps=0.24):
         """Generates random SU3 matrix"""
         
-        A = -1 + 2 * npr.rand(3,3) + 1j * (-1 + 2 * npr.rand(3,3))
+        A = npr.rand(3,3) * np.exp(1j * 2 * np.pi * npr.rand(3,3))
         B = np.eye(3) + 1j * eps * A        
         q,r = spla.qr(B)
         
