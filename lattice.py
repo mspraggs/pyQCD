@@ -19,10 +19,28 @@ class Lattice:
         self.Ncf = Ncf
         self.eps = eps
         
-        self.sites = np.zeros((n,n,n,n,3,3))
-        indices = itertools.product(range(n),range(n),range(n),range(n))
-        for i,j,k,l in indices:
-            self.sites[i,j,k,l,:,:] = np.eye(3)
+        self.sites = np.matrix(np.zeros((n,n,n,n,4,3,3)))
+        indices = itertools.product(range(n),range(n), \
+                                    range(n),range(n),range(4))
+        for i,j,k,l,m in indices:
+            self.sites[i,j,k,l,m,:,:] = np.eye(3)
+
+    def P(self,site,mu,nu):
+        """Calculates a single plaquette"""
+        #Create some arrays for the directions we've been given
+        muv = nuv = np.zeros(4,dtype=int)
+        muv[mu] = nuv[nu] = 1
+        site = np.array(site)
+        
+        product = self.sites[tuple(site) + (mu,)]
+        product *= self.sites[tuple(site + muv) + (nu,)]
+        product *= self.sites[tuple(site + nuv) + (mu,)].H
+        product *= self.sites[typle(site) + (nu,)].H
+        return 1./3 * np.real(np.trace(product))
+
+    def Si(site):
+        """Calculates the contribution to the action by the given site"""
+        
     
     def randomSU3(eps=0.24):
         """Generates random SU3 matrix"""
