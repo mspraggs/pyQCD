@@ -41,15 +41,21 @@ class Lattice:
 
     def P(self,site,mu,nu):
         """Calculates a single plaquette"""
-        #Create some arrays for the directions we've been given
-        muv = nuv = np.zeros(4,dtype=int)
-        muv[mu] = nuv[nu] = 1
-        site = np.array(site)
-        
-        product = self.link(tuple(site),mu)
-        product *= self.link(tuple(site + muv),nu)
-        product *= self.link(tuple(site + nuv),mu).H
-        product *= self.link(tuple(site), nu).H
+        site = [i%self.n for i in site]        
+        site_mu = site[:]
+        site_mu[mu] += 1
+        site_mu = [i%self.n for i in site_mu]
+        site_nu = site[:]
+        site_nu[nu] += 1
+        site_nu = [i%self.n for i in site_nu]
+
+        product = self.links[tuple(site) + (mu,)]
+        product = np.dot(product, \
+                         self.links[tuple(site_mu) + (nu,)])
+        product = np.dot(product, \
+                         np.conj(self.links[tuple(site_nu) + (mu,)].T))
+        product = np.dot(product, \
+                         np.conj(self.links[tuple(site) + (nu,)].T))
         return 1./3 * np.real(np.trace(product))
 
     def Pav(self):
