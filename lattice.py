@@ -9,12 +9,16 @@ class Lattice:
                  beta=5.5,
                  a=0.25,
                  Ncor=50,
-                 N=20,
                  Ncf=1000,
                  eps=0.24,):
         """Constructor"""
+        self.beta = beta
+        self.n = n
+        self.Ncor = 50
+        self.Ncf = Ncf
+        self.eps = eps
+        
         self.sites = np.zeros(n,n,n,n,3,3)
-
         indices = itertools.product(range(n),range(n),range(n),range(n))
         for i,j,k,l in indices:
             self.sites[i,j,k,l,:,:] = np.eye(3)
