@@ -102,7 +102,6 @@ class Lattice:
                                     range(4))
 
         for index in indices:
-            print(index)
             Si_old = self.Si(index)
             linki_old = self.links[index]
             randSU3 = \
