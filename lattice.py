@@ -5,7 +5,8 @@ import itertools
 
 class Lattice:
 
-    def __init__(n=8,
+    def __init__(self,
+                 n=8,
                  beta=5.5,
                  a=0.25,
                  Ncor=50,
