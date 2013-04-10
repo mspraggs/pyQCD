@@ -1,5 +1,6 @@
 import lattice
 import numpy as np
+import fileio
 
 L = lattice.Lattice()
 
@@ -9,10 +10,12 @@ for i in xrange(5*L.Ncor):
     print("Thermalizing: %d" % i)
     L.update()
 
-Ps = np.zeros(L.Ncf)
+Ps = [0] * L.Ncf
     
 for i in xrange(L.Ncf):
     for j in xrange(L.Ncor):
         print("Configuration: %d; Update: %d" % (i,j))
         L.update()
     Ps[i] = L.Pav()
+
+fileio.writedata("plaquettes.txt",[Ps])
