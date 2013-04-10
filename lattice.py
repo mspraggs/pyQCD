@@ -55,8 +55,7 @@ class Lattice:
     def Pav(self):
         """Calculates average value of the plaquette on the lattice"""
         indices = itertools.product(range(self.n),range(self.n), \
-                                    range(self.n),range(self.n), \
-                                    range(4))
+                                    range(self.n),range(self.n))
         planes = [(i,j) for i in range(4) for j in range(4) if i>j]
 
         Ps = []
@@ -97,6 +96,7 @@ class Lattice:
                                     range(4))
 
         for index in indices:
+            print(index)
             Si_old = self.Si(index)
             linki_old = self.links[index]
             randSU3 = \
