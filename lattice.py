@@ -114,8 +114,8 @@ class Lattice:
 
 
 if __name__ == "__main__":
-    import profile
+    import cProfile
 
     L = Lattice()
 
-    profile.run("L.update()")
+    cProfile.run("L.update()")
