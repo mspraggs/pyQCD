@@ -115,12 +115,12 @@ class Lattice:
 
 
 if __name__ == "__main__":
-    if sys.argv[1] == "-p"
+    if sys.argv[1] == "-p":
         import cProfile
         L = Lattice()
         cProfile.run("L.update()")
 
-    if sys.argv[1] == "-t"
+    if sys.argv[1] == "-t":
         import time
         t1 = time.time()
         L = Lattice()
