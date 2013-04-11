@@ -23,4 +23,13 @@ private:
   double beta, eps;
   Matrix3cd ***** links;
   
+};
+
+Lattice::Lattice(const int n = 8,
+		 const double beta = 5.5,
+		 const int Ncor = 50,
+		 const int Ncf = 1000,
+		 const double eps = 0.24) {
+  /*Default constructor. Assigns function arguments to member variables
+   and initializes links.*/
 }
