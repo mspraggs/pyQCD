@@ -20,6 +20,6 @@ public:
 private:
   int n, Ncor, Ncf;
   double beta, eps;
-  Matrix3cd***** links;
+  Matrix3cd ***** links;
   
 }
