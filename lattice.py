@@ -41,14 +41,13 @@ class Lattice:
 
     def P(self,site,mu,nu):
         """Calculates a single plaquette"""
-        n = copy.copy(self.n)
-        site = [i%n for i in site]        
+        site = [i%self.n for i in site]        
         site_mu = site[:]
         site_mu[mu] += 1
-        site_mu = [i%n for i in site_mu]
+        site_mu = [i%self.n for i in site_mu]
         site_nu = site[:]
         site_nu[nu] += 1
-        site_nu = [i%n for i in site_nu]
+        site_nu = [i%self.n for i in site_nu]
 
         product = self.links[tuple(site) + (mu,)]
         product = np.dot(product, \
