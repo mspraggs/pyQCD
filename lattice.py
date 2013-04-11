@@ -4,6 +4,7 @@ import scipy.linalg as spla
 import itertools
 import IPython
 import copy
+import sys
 
 class Lattice:
 
@@ -114,8 +115,15 @@ class Lattice:
 
 
 if __name__ == "__main__":
-    import cProfile
+    if sys.argv[1] == "-p"
+        import cProfile
+        L = Lattice()
+        cProfile.run("L.update()")
 
-    L = Lattice()
-
-    cProfile.run("L.update()")
+    if sys.argv[1] == "-t"
+        import time
+        t1 = time.time()
+        L = Lattice()
+        L.update()
+        t2 = time.time()
+        print("Run time = %f" % (t2-t1))
