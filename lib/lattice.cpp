@@ -16,6 +16,7 @@ public:
   double Pav();
   double Si(const int link[5]);
   Matrix3cd randomSU3();
+  void update();
 
 private:
   int n, Ncor, Ncf;
