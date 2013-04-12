@@ -1,6 +1,7 @@
 #include <Eigen/Dense>
 #include <complex>
 #include <boost/python.hpp>
+#include <vector>
 using namespace Eigen;
 using namespace boost::python;
 
@@ -23,7 +24,7 @@ public:
 private:
   int n, Ncor, Ncf;
   double beta, eps;
-  Matrix3cd***** links;
+  vector< vector< vector< vector< vector<Matrix3cd> > > > > links;
   
 };
 
@@ -64,6 +65,7 @@ Lattice::Lattice(const int n, const double beta, const int Ncor, const int Ncf, 
 Lattice::~Lattice()
 {
   /*Destructor*/
+  
 }
 
 BOOST_PYTHON_MODULE(lattice)
