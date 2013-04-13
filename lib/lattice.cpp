@@ -169,8 +169,8 @@ void Lattice::update()
 double Lattice::Pav()
 {
   /*Calculate average plaquette operator value*/
-  int nus = {0,0,0,1,1,2};
-  int mus = {1,2,3,2,3,3};
+  int nus[6] = {0,0,0,1,1,2};
+  int mus[6] = {1,2,3,2,3,3};
   double Ptot = 0;
   for(int i = 0; i < this->n; i++) {
     for(int j = 0; j < this->n; j++) {
