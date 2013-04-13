@@ -55,9 +55,9 @@ Lattice::~Lattice()
 
 double Lattice::P(const int site[4],const int mu, const int nu)
 {
-  int mu_vec = {0,0,0,0};
+  int mu_vec[4] = {0,0,0,0};
   mu_vec[mu] = 1;
-  int nu_vec = {0,0,0,0};
+  int nu_vec[4] = {0,0,0,0};
   nu_vec[nu] = 1;
 
   Matrix3cd product = Matrix3cd::Identity();
