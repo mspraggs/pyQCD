@@ -72,11 +72,12 @@ double Lattice::P(const int site[4],const int mu, const int nu)
   mu_vec[mu] = 1;
   int nu_vec[4] = {0,0,0,0};
   nu_vec[nu] = 1;
+  int site2[4] = {0,0,0,0};
   int os1[4] = {0,0,0,0};
   int os2[4] = {0,0,0,0};
 
   for(int i = 0; i < this->n; i++) {
-    site[i] = site[i] % this->n;
+    site2[i] = site[i] % this->n;
     os1[i] = (site[i] + mu_vec[i]) % this->n;
     os2[i] = (site[i] + nu_vec[i]) % this->n;
   }
@@ -84,10 +85,10 @@ double Lattice::P(const int site[4],const int mu, const int nu)
   cout << "Initialised offset vectors" <<endl;
 
   Matrix3cd product = Matrix3cd::Identity();
-  product *= this->links[site[0]][site[1]][site[2]][site[3]][mu];
+  product *= this->links[site2[0]][site2[1]][site2[2]][site2[3]][mu];
   product *= this->links[os1[0]][os1[1]][os1[2]][os1[3]][nu];
   product *= this->links[os2[0]][os2[1]][os2[2]][os2[3]][mu].adjoint();
-  product *= this->links[site[0]][site[1]][site[2]][site[3]][nu].adjoint();
+  product *= this->links[site2[0]][site2[1]][site2[2]][site2[3]][nu].adjoint();
 
   return 1./3 * product.trace().real();
 }
