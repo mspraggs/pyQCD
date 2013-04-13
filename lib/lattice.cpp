@@ -2,8 +2,10 @@
 #include <complex>
 #include <boost/python.hpp>
 #include <vector>
+
 using namespace Eigen;
 using namespace boost::python;
+using namespace std;
 
 class Lattice
 {
@@ -38,28 +40,12 @@ Lattice::Lattice(const int n, const double beta, const int Ncor, const int Ncf, 
   this->Ncf = Ncf;
   this->eps = eps;
 
-  //Initialize the array of matrices
-  this->links = new Matrix3cd**** [n];
+  vector<Matrix3cd> A (4,Matrix3cd::Identity());
+  vector< vector<Matrix3cd> > B (n,A);
+  vector< vector< vector<Matrix3cd> > > C (n,B);
+  vector< vector< vector< vector<Matrix3cd> > > > D (n,C);
 
-  for(int i = 0; i < n; i++) {
-    this->links[i] = new Matrix3cd*** [n];
-    
-    for(int j = 0; j < n; j++) {
-      this->links[i][j] = new Matrix3cd** [n];
-      
-      for(int k = 0; k < n; k++) {
-	this->links[i][j][k] = new Matrix3cd* [n];
-
-	for(int l = 0; l < n; l++) {
-	  this->links[i][j][k][l] = new Matrix3cd[4];
-
-	  for(int m = 0; m < 4; m++) {
-	    this->links[i][j][k][l][m] = Matrix3cd::Identity();
-	  }	  
-	}
-      }
-    }
-  }
+  this->links = vector< vector< vector< vector< vector<Matrix3cd> > > > > (m,D);
 }
 
 Lattice::~Lattice()
