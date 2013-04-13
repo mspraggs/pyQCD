@@ -45,7 +45,7 @@ Lattice::Lattice(const int n, const double beta, const int Ncor, const int Ncf, 
   vector< vector< vector<Matrix3cd> > > C (n,B);
   vector< vector< vector< vector<Matrix3cd> > > > D (n,C);
 
-  this->links = vector< vector< vector< vector< vector<Matrix3cd> > > > > (m,D);
+  this->links = vector< vector< vector< vector< vector<Matrix3cd> > > > > (n,D);
 }
 
 Lattice::~Lattice()
