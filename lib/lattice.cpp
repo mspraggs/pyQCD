@@ -50,8 +50,23 @@ Lattice::Lattice(const int n, const double beta, const int Ncor, const int Ncf, 
 
 Lattice::~Lattice()
 {
-  /*Destructor*/
-  
+  /*Destructor*/  
+}
+
+double Lattice::P(const int site[4],const int mu, const int nu)
+{
+  int mu_vec = {0,0,0,0};
+  mu_vec[mu] = 1;
+  int nu_vec = {0,0,0,0};
+  nu_vec[nu] = 1;
+
+  Matrix3cd product = Matrix3cd::Identity();
+  product *= this->links[site[0]][site[1]][site[2]][site[3]][mu];
+  product *= this->links[site[0]+mu_vec[0]][site[1]+mu_vec[1]][site[2]+mu_vec[2]][site[3]+mu_vec[3]][nu];
+  product *= this->links[site[0]+nu_vec[0]][site[1]+nu_vec[1]][site[2]+nu_vec[2]][site[3]+nu_vec[3]][mu].adjoint();
+  product *= this->links[site[0]][site[1]][site[2]][site[3]][nu].adjoint();
+
+  return 1./3 * product.trace().real();
 }
 
 BOOST_PYTHON_MODULE(lattice)
