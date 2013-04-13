@@ -191,5 +191,5 @@ BOOST_PYTHON_MODULE(lattice)
 {
   class_<Lattice>("Lattice", init<optional<int,double,int,int,double> >())
     .def("update",&Lattice::update)
-    .deff("Pav",&Lattice::Pav);
+    .def("Pav",&Lattice::Pav);
 }
