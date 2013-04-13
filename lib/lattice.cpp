@@ -55,6 +55,8 @@ Lattice::~Lattice()
 
 double Lattice::P(const int site[4],const int mu, const int nu)
 {
+  /*Calculate the plaquette operator at the given site, on plaquette
+    specified by directions mu and nu.*/
   int mu_vec[4] = {0,0,0,0};
   mu_vec[mu] = 1;
   int nu_vec[4] = {0,0,0,0};
@@ -67,6 +69,30 @@ double Lattice::P(const int site[4],const int mu, const int nu)
   product *= this->links[site[0]][site[1]][site[2]][site[3]][nu].adjoint();
 
   return 1./3 * product.trace().real();
+}
+
+double Lattice::Si(const int link[5])
+{
+  /*Calculate the contribution to the action from the given link*/
+  int planes[3];
+  double Psum = 0;
+
+  int j = 0;
+  for(int i = 0; i < 4; i++) {
+    if(link[4] != i) {
+      planes[j] = i;
+      j++;
+    }
+  }
+
+  for(int i = 0; i < 3; i++) {
+    int site[4] = {link[0],link[1],link[2],link[3]};
+    Psum += this->P(site,link[4],planes[i]);
+    site[planes[i]] -= 1;
+    Psum += this->P(site,link[4],planes[i]);
+  }
+
+  return -this->beta * Psum;
 }
 
 BOOST_PYTHON_MODULE(lattice)
