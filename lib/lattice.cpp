@@ -10,6 +10,17 @@ using namespace Eigen;
 using namespace boost::python;
 using namespace std;
 
+namespace lattice
+{
+  int mod(int n, const int d)
+  {
+    while(n < 0) {
+      n += d;
+    }
+    return n%d;
+  }
+}
+
 class Lattice
 {
 public:
@@ -67,7 +78,10 @@ double Lattice::P(const int site[4],const int mu, const int nu)
 {
   /*Calculate the plaquette operator at the given site, on plaquette
     specified by directions mu and nu.*/
-  cout << "Entered plaquette calculation" <<endl;
+  cout << "Entered plaquette calculation:" <<endl;
+  cout << "site = {";
+  for(int i = 0; i < 4; i++) cout << site[i] << ",";
+  cout << "} mu=" << mu << ",nu=" << nu << endl;
   int mu_vec[4] = {0,0,0,0};
   mu_vec[mu] = 1;
   int nu_vec[4] = {0,0,0,0};
@@ -77,9 +91,9 @@ double Lattice::P(const int site[4],const int mu, const int nu)
   int os2[4] = {0,0,0,0};
 
   for(int i = 0; i < this->n; i++) {
-    site2[i] = site[i] % this->n;
-    os1[i] = (site[i] + mu_vec[i]) % this->n;
-    os2[i] = (site[i] + nu_vec[i]) % this->n;
+    site2[i] = lattice::mod(site[i], this->n);
+    os1[i] = lattice::mod(site[i] + mu_vec[i],this->n);
+    os2[i] = lattice::mod(site[i] + nu_vec[i],this->n);
   }
 
   cout << "Initialised offset vectors" <<endl;
