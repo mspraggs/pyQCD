@@ -37,8 +37,6 @@ public:
   Matrix3cd randomSU3();
   void update();
 
-  double Pav();
-
 private:
   int n, Ncor, Ncf;
   double beta, eps;
