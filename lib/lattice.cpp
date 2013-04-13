@@ -4,6 +4,7 @@
 #include <boost/python.hpp>
 #include <vector>
 #include <cstdlib>
+#include <iostream>
 
 using namespace Eigen;
 using namespace boost::python;
@@ -66,15 +67,26 @@ double Lattice::P(const int site[4],const int mu, const int nu)
 {
   /*Calculate the plaquette operator at the given site, on plaquette
     specified by directions mu and nu.*/
+  cout << "Entered plaquette calculation" <<endl;
   int mu_vec[4] = {0,0,0,0};
   mu_vec[mu] = 1;
   int nu_vec[4] = {0,0,0,0};
   nu_vec[nu] = 1;
+  int os1[4] = {0,0,0,0};
+  int os2[4] = {0,0,0,0};
+
+  for(int i = 0; i < this->n; i++) {
+    site[i] = site[i] % this->n;
+    os1[i] = (site[i] + mu_vec[i]) % this->n;
+    os2[i] = (site[i] + nu_vec[i]) % this->n;
+  }
+
+  cout << "Initialised offset vectors" <<endl;
 
   Matrix3cd product = Matrix3cd::Identity();
   product *= this->links[site[0]][site[1]][site[2]][site[3]][mu];
-  product *= this->links[site[0]+mu_vec[0]][site[1]+mu_vec[1]][site[2]+mu_vec[2]][site[3]+mu_vec[3]][nu];
-  product *= this->links[site[0]+nu_vec[0]][site[1]+nu_vec[1]][site[2]+nu_vec[2]][site[3]+nu_vec[3]][mu].adjoint();
+  product *= this->links[os1[0][os1[1]][os1[2]][os1[3]][nu];
+  product *= this->links[os2[0]][os2[1][os2[2]][os2[3]][mu].adjoint();
   product *= this->links[site[0]][site[1]][site[2]][site[3]][nu].adjoint();
 
   return 1./3 * product.trace().real();
@@ -93,13 +105,16 @@ double Lattice::Si(const int link[5])
       j++;
     }
   }
+  cout << "Initialized planes array" << endl;
 
   for(int i = 0; i < 3; i++) {
     int site[4] = {link[0],link[1],link[2],link[3]};
+    cout << "Initialized site" <<endl;
     Psum += this->P(site,link[4],planes[i]);
     site[planes[i]] -= 1;
     Psum += this->P(site,link[4],planes[i]);
   }
+  cout << "Summed the Ps" << endl;
 
   return -this->beta * Psum;
 }
@@ -126,11 +141,19 @@ void Lattice::update()
       for(int k = 0; k < this->n; k++) {
 	for(int l = 0; l < this->n; l++) {
 	  for(int m = 0; m < 4; m++) {
-	    double Si_old = this->Si({i,j,k,l,m});
+	    cout << "Step:" << i << j << k << l << m << endl;
+	    int link[5] = {i,j,k,l,m};
+	    cout << "Created int link[5]" << endl;
+	    double Si_old = this->Si(link);
+	    cout << "Stored old Si" << endl;
 	    Matrix3cd linki_old = this->links[i][j][k][l][m];
+	    cout << "Stored old linki" << endl;
 	    Matrix3cd randSU3 = this->randSU3s[rand() % this->randSU3s.size()];
+	    cout << "Retrieved random SU3" <<endl;
 	    this->links[i][j][k][l][m] *= randSU3;
-	    dS = this->Si({i,j,k,l,m}) - Si_old;
+	    cout << "Multiplied matrix" << endl;
+	    double dS = this->Si(link) - Si_old;
+	    cout << "Calculated action difference" << endl;
 	    
 	    if(dS > 0 && exp(-dS) < double(rand()) / double(RAND_MAX)) {
 	      this->links[i][j][k][l][m] = linki_old;
@@ -144,5 +167,6 @@ void Lattice::update()
 
 BOOST_PYTHON_MODULE(lattice)
 {
-  class_<Lattice>("Lattice", init<optional<int,double,int,int,double> >());
+  class_<Lattice>("Lattice", init<optional<int,double,int,int,double> >())
+    .def("update",&Lattice::update);
 }
