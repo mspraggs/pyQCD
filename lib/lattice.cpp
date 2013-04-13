@@ -1,7 +1,9 @@
 #include <Eigen/Dense>
+#include <Eigen/QR>
 #include <complex>
 #include <boost/python.hpp>
 #include <vector>
+#include <cstdlib>
 
 using namespace Eigen;
 using namespace boost::python;
@@ -27,6 +29,7 @@ private:
   int n, Ncor, Ncf;
   double beta, eps;
   vector< vector< vector< vector< vector<Matrix3cd> > > > > links;
+  vector<Matrix3cd> randSU3s;
   
 };
 
@@ -46,6 +49,12 @@ Lattice::Lattice(const int n, const double beta, const int Ncor, const int Ncf, 
   vector< vector< vector< vector<Matrix3cd> > > > D (n,C);
 
   this->links = vector< vector< vector< vector< vector<Matrix3cd> > > > > (n,D);
+
+  for(int i = 0; i < 50; i++) {
+    Matrix3cd randSU3 = this->randomSU3();
+    this->randSU3s.push_back(randSU3);
+    this->randSU3s.push_back(randSU3.adjoint());
+  }
 }
 
 Lattice::~Lattice()
@@ -93,6 +102,44 @@ double Lattice::Si(const int link[5])
   }
 
   return -this->beta * Psum;
+}
+
+Matrix3cd Lattice::randomSU3()
+{
+  /*Generate a random SU3 matrix, weighted by eps*/
+
+  Matrix3cd A = Matrix3cd::Random();
+  Matrix3cd B = Matrix3cd::Identity() + this->eps * A;
+  
+  ColPivHouseholderQR<Matrix3cd> decomp(B);
+  Matrix3cd Q = decomp.householderQ();
+
+  return Q / pow(Q.determinant(),1./3);
+}
+
+void Lattice::update()
+{
+  /*Iterate through the lattice and update the links using Metropolis
+    algorithm*/
+  for(int i = 0; i < this->n; i++) {
+    for(int j = 0; j < this->n; j++) {
+      for(int k = 0; k < this->n; k++) {
+	for(int l = 0; l < this->n; l++) {
+	  for(int m = 0; m < 4; m++) {
+	    double Si_old = this->Si({i,j,k,l,m});
+	    Matrix3cd linki_old = this->links[i][j][k][l][m];
+	    Matrix3cd randSU3 = this->randSU3s[rand() % this->randSU3s.size()];
+	    this->links[i][j][k][l][m] *= randSU3;
+	    dS = this->Si({i,j,k,l,m}) - Si_old;
+	    
+	    if(dS > 0 && exp(-dS) < double(rand()) / double(RAND_MAX)) {
+	      this->links[i][j][k][l][m] = linki_old;
+	    }
+	  }
+	}
+      }
+    }
+  }
 }
 
 BOOST_PYTHON_MODULE(lattice)
