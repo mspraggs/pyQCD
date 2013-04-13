@@ -78,10 +78,6 @@ double Lattice::P(const int site[4],const int mu, const int nu)
 {
   /*Calculate the plaquette operator at the given site, on plaquette
     specified by directions mu and nu.*/
-  cout << "Entered plaquette calculation:" <<endl;
-  cout << "site = {";
-  for(int i = 0; i < 4; i++) cout << site[i] << ",";
-  cout << "} mu=" << mu << ",nu=" << nu << endl;
   int mu_vec[4] = {0,0,0,0};
   mu_vec[mu] = 1;
   int nu_vec[4] = {0,0,0,0};
@@ -95,8 +91,6 @@ double Lattice::P(const int site[4],const int mu, const int nu)
     os1[i] = lattice::mod(site[i] + mu_vec[i],this->n);
     os2[i] = lattice::mod(site[i] + nu_vec[i],this->n);
   }
-
-  cout << "Initialised offset vectors" <<endl;
 
   Matrix3cd product = Matrix3cd::Identity();
   product *= this->links[site2[0]][site2[1]][site2[2]][site2[3]][mu];
@@ -120,7 +114,6 @@ double Lattice::Si(const int link[5])
       j++;
     }
   }
-  cout << "Initialized planes array" << endl;
 
   for(int i = 0; i < 3; i++) {
     int site[4] = {link[0],link[1],link[2],link[3]};
@@ -129,7 +122,6 @@ double Lattice::Si(const int link[5])
     site[planes[i]] -= 1;
     Psum += this->P(site,link[4],planes[i]);
   }
-  cout << "Summed the Ps" << endl;
 
   return -this->beta * Psum;
 }
@@ -156,19 +148,12 @@ void Lattice::update()
       for(int k = 0; k < this->n; k++) {
 	for(int l = 0; l < this->n; l++) {
 	  for(int m = 0; m < 4; m++) {
-	    cout << "Step:" << i << j << k << l << m << endl;
 	    int link[5] = {i,j,k,l,m};
-	    cout << "Created int link[5]" << endl;
 	    double Si_old = this->Si(link);
-	    cout << "Stored old Si" << endl;
 	    Matrix3cd linki_old = this->links[i][j][k][l][m];
-	    cout << "Stored old linki" << endl;
 	    Matrix3cd randSU3 = this->randSU3s[rand() % this->randSU3s.size()];
-	    cout << "Retrieved random SU3" <<endl;
 	    this->links[i][j][k][l][m] *= randSU3;
-	    cout << "Multiplied matrix" << endl;
 	    double dS = this->Si(link) - Si_old;
-	    cout << "Calculated action difference" << endl;
 	    
 	    if(dS > 0 && exp(-dS) < double(rand()) / double(RAND_MAX)) {
 	      this->links[i][j][k][l][m] = linki_old;
