@@ -37,6 +37,8 @@ public:
   Matrix3cd randomSU3();
   void update();
 
+  double Pav();
+
 private:
   int n, Ncor, Ncf;
   double beta, eps;
@@ -164,8 +166,30 @@ void Lattice::update()
   }
 }
 
+double Lattice::Pav()
+{
+  /*Calculate average plaquette operator value*/
+  int nus = {0,0,0,1,1,2};
+  int mus = {1,2,3,2,3,3};
+  double Ptot = 0;
+  for(int i = 0; i < this->n; i++) {
+    for(int j = 0; j < this->n; j++) {
+      for(int k = 0; k < this->n; k++) {
+	for(int l = 0; l < this->n; l++) {
+	  for(int m = 0; m < 6; m++) {
+	    int site[4] = {i,j,k,l};
+	    Ptot += this->P(site,mus[m],nus[m]);
+	  }
+	}
+      }
+    }
+  }
+  return Ptot / (pow(this->n,4) * 6);
+}
+
 BOOST_PYTHON_MODULE(lattice)
 {
   class_<Lattice>("Lattice", init<optional<int,double,int,int,double> >())
-    .def("update",&Lattice::update);
+    .def("update",&Lattice::update)
+    .deff("Pav",&Lattice::Pav);
 }
