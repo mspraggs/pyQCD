@@ -117,7 +117,6 @@ double Lattice::Si(const int link[5])
 
   for(int i = 0; i < 3; i++) {
     int site[4] = {link[0],link[1],link[2],link[3]};
-    cout << "Initialized site" <<endl;
     Psum += this->P(site,link[4],planes[i]);
     site[planes[i]] -= 1;
     Psum += this->P(site,link[4],planes[i]);
