@@ -42,12 +42,19 @@ class Lattice:
 
     def P(self,site,mu,nu):
         """Calculates a single plaquette"""
+        site = [i%self.n for i in site]        
+        site_mu = site[:]
+        site_mu[mu] += 1
+        site_mu = [i%self.n for i in site_mu]
+        site_nu = site[:]
+        site_nu[nu] += 1
+        site_nu = [i%self.n for i in site_nu]
 
         product = self.links[tuple(site) + (mu,)]
         product = np.dot(product, \
-                         np.roll(self.links,-1,axis=mu)[tuple(site) + (nu,)])
+                         self.links[tuple(site_mu) + (nu,)])
         product = np.dot(product, \
-                         np.conj(np.roll(self.links,-1,axis=nu)[tuple(site) + (mu,)].T))
+                         np.conj(self.links[tuple(site_nu) + (mu,)].T))
         product = np.dot(product, \
                          np.conj(self.links[tuple(site) + (nu,)].T))
         return 1./3 * np.real(np.trace(product))
@@ -108,15 +115,15 @@ class Lattice:
 
 
 if __name__ == "__main__":
-    if sys.argv[1] == "-p":
+    if sys.argv[1] == "-p"
         import cProfile
         L = Lattice()
-        cProfile.run("L.update()",sort=2)
+        cProfile.run("L.update()")
 
-    elif sys.argv[1] == "-t":
+    if sys.argv[1] == "-t"
         import time
         t1 = time.time()
         L = Lattice()
         L.update()
         t2 = time.time()
-        print("Run time = %f s" % (t2-t1))
+        print("Run time = %f" % (t2-t1))
