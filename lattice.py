@@ -5,6 +5,7 @@ import itertools
 import IPython
 import copy
 import sys
+import time
 
 class Lattice:
 
@@ -26,14 +27,14 @@ class Lattice:
         indices = itertools.product(range(n),range(n), \
                                     range(n),range(n),range(4))
         for i,j,k,l,m in indices:
-            self.links[i,j,k,l,m,:,:] = np.eye(3)
+            self.links[i,j,k,l,m,:,:] = self.randomSU3()
 
         self.randSU3s = []
 
         for i in xrange(50):
             SU3 = self.randomSU3()
             self.randSU3s.append(SU3)
-            self.randSU3s.append(SU3.H)
+        self.randSU3s.append(self.randSU3s[0].H)
 
     def link(self,site,dir):
         """Returns given link variable as np matrix"""
@@ -104,7 +105,7 @@ class Lattice:
 
         for index in indices:
             Si_old = self.Si(index)
-            linki_old = self.links[index]
+            linki_old = copy.copy(self.links[index])
             randSU3 = \
                 self.randSU3s[npr.randint(0,high=len(self.randSU3s))]
             self.links[index] = \
