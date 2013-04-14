@@ -5,6 +5,7 @@
 #include <vector>
 #include <cstdlib>
 #include <iostream>
+#include <ctime>
 
 using namespace Eigen;
 using namespace boost::python;
@@ -12,6 +13,9 @@ using namespace std;
 
 namespace lattice
 {
+  const complex<double> i (0,1);
+  const double pi = 3.1415926535897932384626433;
+  
   int mod(int n, const int d)
   {
     while(n < 0) {
@@ -36,6 +40,7 @@ public:
   double Si(const int link[5]);
   Matrix3cd randomSU3();
   void update();
+  void printL();
 
 private:
   int n, Ncor, Ncf;
@@ -55,13 +60,24 @@ Lattice::Lattice(const int n, const double beta, const int Ncor, const int Ncf, 
   this->Ncf = Ncf;
   this->eps = eps;
 
-  vector<Matrix3cd> A (4,Matrix3cd::Identity());
-  vector< vector<Matrix3cd> > B (n,A);
-  vector< vector< vector<Matrix3cd> > > C (n,B);
-  vector< vector< vector< vector<Matrix3cd> > > > D (n,C);
-
-  this->links = vector< vector< vector< vector< vector<Matrix3cd> > > > > (n,D);
-
+  srand(time(NULL));
+  this->links.resize(this->n);
+  for(int i = 0; i < this->n; i++) {
+    this->links[i].resize(this->n);
+    for(int j = 0; j < this->n; j++) {
+      this->links[i][j].resize(this->n);
+      for(int k = 0; k < this->n; k++) {
+	this->links[i][j][k].resize(this->n);
+	for(int l = 0; l < this->n; l++) {
+	  this->links[i][j][k][l].resize(4);
+	  for(int m = 0; m < 4; m++) {
+	    this->links[i][j][k][l][m] = this->randomSU3();
+	  }
+	}
+      }
+    }
+  }
+  
   for(int i = 0; i < 50; i++) {
     Matrix3cd randSU3 = this->randomSU3();
     this->randSU3s.push_back(randSU3);
@@ -86,7 +102,7 @@ double Lattice::P(const int site[4],const int mu, const int nu)
   int os1[4] = {0,0,0,0};
   int os2[4] = {0,0,0,0};
 
-  for(int i = 0; i < this->n; i++) {
+  for(int i = 0; i < 4; i++) {
     site2[i] = lattice::mod(site[i], this->n);
     os1[i] = lattice::mod(site[i] + mu_vec[i],this->n);
     os2[i] = lattice::mod(site[i] + nu_vec[i],this->n);
@@ -97,7 +113,6 @@ double Lattice::P(const int site[4],const int mu, const int nu)
   product *= this->links[os1[0]][os1[1]][os1[2]][os1[3]][nu];
   product *= this->links[os2[0]][os2[1]][os2[2]][os2[3]][mu].adjoint();
   product *= this->links[site2[0]][site2[1]][site2[2]][site2[3]][nu].adjoint();
-
   return 1./3 * product.trace().real();
 }
 
@@ -129,10 +144,15 @@ Matrix3cd Lattice::randomSU3()
 {
   /*Generate a random SU3 matrix, weighted by eps*/
 
-  Matrix3cd A = Matrix3cd::Random();
-  Matrix3cd B = Matrix3cd::Identity() + this->eps * A;
-  
-  ColPivHouseholderQR<Matrix3cd> decomp(B);
+  Matrix3cd A;
+  for(int i = 0; i < 3; i++) {
+    for(int j = 0; j < 3; j++) {
+      A(i,j) = double(rand()) / double(RAND_MAX);
+      A(i,j) *= exp(2 * lattice::pi * lattice::i * double(rand()) / double(RAND_MAX));
+    }
+  }
+  Matrix3cd B = Matrix3cd::Identity() + lattice::i * this->eps * A;
+  HouseholderQR<Matrix3cd> decomp(B);
   Matrix3cd Q = decomp.householderQ();
 
   return Q / pow(Q.determinant(),1./3);
@@ -154,7 +174,7 @@ void Lattice::update()
 	    this->links[i][j][k][l][m] *= randSU3;
 	    double dS = this->Si(link) - Si_old;
 	    
-	    if(dS > 0 && exp(-dS) < double(rand()) / double(RAND_MAX)) {
+	    if((dS > 0) && (exp(-dS) < double(rand()) / double(RAND_MAX))) {
 	      this->links[i][j][k][l][m] = linki_old;
 	    }
 	  }
@@ -185,9 +205,25 @@ double Lattice::Pav()
   return Ptot / (pow(this->n,4) * 6);
 }
 
+void Lattice::printL()
+{
+  for(int i = 0; i < this->n; i++) {
+    for(int j = 0; j < this->n; j++) {
+      for(int k = 0; k < this->n; k++) {
+	for(int l = 0; l < this->n; l++) {
+	  for(int m = 0; m < 4; m++) {
+	    cout << this->links[i][j][k][l][m] << endl;
+	  }
+	}
+      }
+    }
+  }
+}
+
 BOOST_PYTHON_MODULE(lattice)
 {
   class_<Lattice>("Lattice", init<optional<int,double,int,int,double> >())
     .def("update",&Lattice::update)
-    .def("Pav",&Lattice::Pav);
+    .def("Pav",&Lattice::Pav)
+    .def("printL",&Lattice::printL);
 }
