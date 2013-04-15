@@ -1,4 +1,4 @@
-import lattice
+import lib.lattice as lattice
 import numpy as np
 import fileio
 import sys
