@@ -2,6 +2,8 @@
 #include <Eigen/QR>
 #include <complex>
 #include <boost/python.hpp>
+#include <boost/thread.hpp>
+#include <boost/shared_prt.hpp>
 #include <vector>
 #include <cstdlib>
 #include <iostream>
@@ -10,6 +12,7 @@
 using namespace Eigen;
 using namespace boost::python;
 using namespace std;
+using namespace boost;
 
 namespace lattice
 {
@@ -39,6 +42,7 @@ public:
   double Pav();
   double Si(const int link[5]);
   Matrix3cd randomSU3();
+  void update_link(int link[5]);
   void update();
   void printL();
 
@@ -163,25 +167,33 @@ Matrix3cd Lattice::randomSU3()
   return Q / pow(Q.determinant(),1./3);
 }
 
+void Lattice::update_link(int link[5])
+{
+  double Si_old = this->Si(link);
+  Matrix3cd linki_old = this->links[i][j][k][l][m];
+  Matrix3cd randSU3 = this->randSU3s[rand() % this->randSU3s.size()];
+  this->links[i][j][k][l][m] *= randSU3;
+  double dS = this->Si(link) - Si_old;
+  
+  if((dS > 0) && (exp(-dS) < double(rand()) / double(RAND_MAX))) {
+    this->links[i][j][k][l][m] = linki_old;
+  }
+}
+
 void Lattice::update()
 {
   /*Iterate through the lattice and update the links using Metropolis
     algorithm*/
+  /*ScopedGILRelease scope = ScopedGILRelease();
+  vector<shared_ptr<thread> > even_threads;
+  vector<shared_prt<thread> > odd_thread;*/
   for(int i = 0; i < this->n; i++) {
     for(int j = 0; j < this->n; j++) {
       for(int k = 0; k < this->n; k++) {
 	for(int l = 0; l < this->n; l++) {
 	  for(int m = 0; m < 4; m++) {
 	    int link[5] = {i,j,k,l,m};
-	    double Si_old = this->Si(link);
-	    Matrix3cd linki_old = this->links[i][j][k][l][m];
-	    Matrix3cd randSU3 = this->randSU3s[rand() % this->randSU3s.size()];
-	    this->links[i][j][k][l][m] *= randSU3;
-	    double dS = this->Si(link) - Si_old;
-	    
-	    if((dS > 0) && (exp(-dS) < double(rand()) / double(RAND_MAX))) {
-	      this->links[i][j][k][l][m] = linki_old;
-	    }
+	    this->update_link(link);
 	  }
 	}
       }
