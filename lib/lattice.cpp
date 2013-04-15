@@ -3,16 +3,16 @@
 #include <complex>
 #include <boost/python.hpp>
 #include <boost/thread.hpp>
-#include <boost/shared_ptr.hpp>
+#include <boost/shared_prt.hpp>
 #include <vector>
 #include <cstdlib>
 #include <iostream>
 #include <ctime>
-#include "gil.cpp"
 
 using namespace Eigen;
 using namespace boost::python;
 using namespace std;
+using namespace boost;
 
 namespace lattice
 {
@@ -42,7 +42,7 @@ public:
   double Pav();
   double Si(const int link[5]);
   Matrix3cd randomSU3();
-  void update_link(const int link[5]);
+  void update_link(int link[5]);
   void update();
   void printL();
 
@@ -167,16 +167,16 @@ Matrix3cd Lattice::randomSU3()
   return Q / pow(Q.determinant(),1./3);
 }
 
-void Lattice::update_link(const int link[5])
+void Lattice::update_link(int link[5])
 {
   double Si_old = this->Si(link);
-  Matrix3cd linki_old = this->links[link[0]][link[1]][link[2]][link[3]][link[4]];
+  Matrix3cd linki_old = this->links[i][j][k][l][m];
   Matrix3cd randSU3 = this->randSU3s[rand() % this->randSU3s.size()];
-  this->links[link[0]][link[1]][link[2]][link[3]][link[4]] *= randSU3;
+  this->links[i][j][k][l][m] *= randSU3;
   double dS = this->Si(link) - Si_old;
   
   if((dS > 0) && (exp(-dS) < double(rand()) / double(RAND_MAX))) {
-    this->links[link[0]][link[1]][link[2]][link[3]][link[4]] = linki_old;
+    this->links[i][j][k][l][m] = linki_old;
   }
 }
 
@@ -184,45 +184,19 @@ void Lattice::update()
 {
   /*Iterate through the lattice and update the links using Metropolis
     algorithm*/
-  ScopedGILRelease scope = ScopedGILRelease();
-  vector<vector<boost::shared_ptr<boost::thread> > > even_threads;
-  vector<vector<boost::shared_ptr<boost::thread> > > odd_threads;
-  int n_sites = this->n*this->n*this->n*this->n;
-  even_threads.resize(4);
-  odd_threads.resize(4);
+  /*ScopedGILRelease scope = ScopedGILRelease();
+  vector<shared_ptr<thread> > even_threads;
+  vector<shared_prt<thread> > odd_thread;*/
   for(int i = 0; i < this->n; i++) {
     for(int j = 0; j < this->n; j++) {
       for(int k = 0; k < this->n; k++) {
 	for(int l = 0; l < this->n; l++) {
-	  int index = l + this->n * (k + this->n * (j + this->n * i));
-	  if(index % 2 == 0) {
-	    for(int m = 0; m < 4; m++) {
-	      int link[5] = {i,j,k,l,m};
-	      boost::shared_ptr<boost::thread> m_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&Lattice::update_link,this,_1),boost::ref(link)));
-	      even_threads[m].push_back(m_thread);
-	    }
-	  }
-	  else {
-	    for(int m = 0; m < 4; m++) {
-	      int link[5] = {i,j,k,l,m};
-	      boost::shared_ptr<boost::thread> m_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&Lattice::update_link,this,_1),boost::ref(link)));
-	      odd_threads[m].push_back(m_thread);
-	    }	    
+	  for(int m = 0; m < 4; m++) {
+	    int link[5] = {i,j,k,l,m};
+	    this->update_link(link);
 	  }
 	}
       }
-    }
-  }
-
-  for(int j = 0; j < 4; j++) { 
-    for(int i = 0; i < n_sites/2; i++) {
-      odd_threads[j][i]->join();
-    }
-  }
-
-  for(int j = 0; j < 4; j++) { 
-    for(int i = 0; i < n_sites/2; i++) {
-      even_threads[j][i]->join();
     }
   }
 }
@@ -265,7 +239,6 @@ void Lattice::printL()
 
 BOOST_PYTHON_MODULE(lattice)
 {
-  PyEval_InitThreads();
   class_<Lattice>("Lattice", init<optional<int,double,int,int,double> >())
     .def("update",&Lattice::update)
     .def("Pav",&Lattice::Pav)
