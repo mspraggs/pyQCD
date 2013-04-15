@@ -47,8 +47,11 @@ public:
 private:
   int n;
   double beta, eps;
-  vector< vector< vector< vector< vector<Matrix3cd> > > > > links;
-  vector<Matrix3cd> randSU3s;
+  vector< vector< vector< vector< vector<Matrix3cd, aligned_allocator<Matrix3cd> > > > > > links;
+  vector<Matrix3cd, aligned_allocator<Matrix3cd> > randSU3s;
+
+public:
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   
 };
 
