@@ -2,6 +2,7 @@
 #include <Eigen/QR>
 #include <complex>
 #include <boost/python.hpp>
+#include <boost/python/list.hpp>
 #include <vector>
 #include <cstdlib>
 #include <iostream>
@@ -41,11 +42,11 @@ public:
   Matrix3cd randomSU3();
   void update();
   void printL();
+  list getLink(const int i, const int j, const int k, const int l, const int m);
 
-  int Ncor, Ncf;
+  int Ncor, Ncf, n;
 
 private:
-  int n;
   double beta, eps;
   vector< vector< vector< vector< vector<Matrix3cd, aligned_allocator<Matrix3cd> > > > > > links;
   vector<Matrix3cd, aligned_allocator<Matrix3cd> > randSU3s;
@@ -225,12 +226,27 @@ void Lattice::printL()
   }
 }
 
+list Lattice::getLink(const int i, const int j, const int k, const int l, const int m)
+{
+  list out;
+  for(int n = 0; n < 3; n++) {
+    list temp;
+    for(int o = 0; o < 3; o++) {
+      temp.append(this->links[i][j][k][l][m](n,o));
+    }
+    out.append(temp);
+  }
+  return out;
+}
+
 BOOST_PYTHON_MODULE(lattice)
 {
   class_<Lattice>("Lattice", init<optional<int,double,int,int,double> >())
     .def("update",&Lattice::update)
     .def("Pav",&Lattice::Pav)
     .def("printL",&Lattice::printL)
+    .def("getLink",&Lattice::getLink)
     .def_readonly("Ncor",&Lattice::Ncor)
-    .def_readonly("Ncf",&Lattice::Ncf);
+    .def_readonly("Ncf",&Lattice::Ncf)
+    .def_readonly("n",&Lattice::n);
 }
