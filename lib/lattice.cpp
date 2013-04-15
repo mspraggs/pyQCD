@@ -42,8 +42,10 @@ public:
   void update();
   void printL();
 
+  int Ncor, Ncf;
+
 private:
-  int n, Ncor, Ncf;
+  int n;
   double beta, eps;
   vector< vector< vector< vector< vector<Matrix3cd> > > > > links;
   vector<Matrix3cd> randSU3s;
@@ -225,5 +227,7 @@ BOOST_PYTHON_MODULE(lattice)
   class_<Lattice>("Lattice", init<optional<int,double,int,int,double> >())
     .def("update",&Lattice::update)
     .def("Pav",&Lattice::Pav)
-    .def("printL",&Lattice::printL);
+    .def("printL",&Lattice::printL)
+    .def_readonly("Ncor",&Lattice::Ncor)
+    .def_readonly("Ncf",&Lattice::Ncf);
 }
