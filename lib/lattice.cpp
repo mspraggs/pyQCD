@@ -118,7 +118,6 @@ Matrix3cd Lattice::calcPath(const vector<vector<int> > path)
   Matrix3cd out = Matrix3cd::Identity();
   
   for(int i = 0; i < path.size() - 1; i++) {
-    cout << "Link:" << path[i][0] << "," << path[i][1] << "," << path[i][2] << "," << path[i][3] << "," << path[i][4] << endl;
     //Which dimension are we moving in?
     int dim = path[i][4];
     int dim_diff = path[i+1][dim] - path[i][dim];
@@ -229,7 +228,7 @@ double Lattice::W_p(const list cnr1, const list cnr2)
     lie in the same plane)*/
   int c1[4] = {extract<int>(cnr1[0]),extract<int>(cnr1[1]),extract<int>(cnr1[2]),extract<int>(cnr1[3])};
   int c2[4] = {extract<int>(cnr2[0]),extract<int>(cnr2[1]),extract<int>(cnr2[2]),extract<int>(cnr2[3])};
-  return this->W(c1,c2);c3);
+  return this->W(c1,c2);
 }
 
 double Lattice::P(const int site[4],const int mu, const int nu)
