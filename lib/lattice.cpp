@@ -227,32 +227,9 @@ double Lattice::W_p(const list cnr1, const list cnr2)
 {
   /*Calculates the loop specified by corners c1 and c2 (which must
     lie in the same plane)*/
-  Matrix3cd out = Matrix3cd::Identity();
   int c1[4] = {extract<int>(cnr1[0]),extract<int>(cnr1[1]),extract<int>(cnr1[2]),extract<int>(cnr1[3])};
   int c2[4] = {extract<int>(cnr2[0]),extract<int>(cnr2[1]),extract<int>(cnr2[2]),extract<int>(cnr2[3])};
-
-  //Check that c1 and c2 are on the same plane
-  int dim_count = 0;
-  for(int i = 0; i < 4; i++) {
-    if(c1[i] != c2[i]) {
-      dim_count++;
-    }
-  }
-  
-  if(dim_count != 2) {
-    cout << "Error! Two corner points are not in the same plane." << endl;
-  }
-  else {
-    int c3[4] = {c1[0],c1[1],c1[2],c1[3]};
-    c3[0] = c2[0];
-    out *= this->calcLine(c1,c3);
-    out *= this->calcLine(c3,c2);
-    int c4[4] = {c2[0],c2[1],c2[2],c2[3]};
-    c4[0] = c1[0];
-    out *= this->calcLine(c2,c4);
-    out *= this->calcLine(c4,c1);
-  }
-  return 1./3 * out.trace().real();
+  return this->W(c1,c2);c3);
 }
 
 double Lattice::P(const int site[4],const int mu, const int nu)
@@ -288,28 +265,7 @@ double Lattice::P_p(const list site2,const int mu, const int nu)
   /*Calculate the plaquette operator at the given site, on plaquette
     specified by directions mu and nu.*/
   int site[4] = {extract<int>(site2[0]),extract<int>(site2[1]),extract<int>(site2[2]),extract<int>(site2[3])};
-  int mu_vec[4] = {0,0,0,0};
-  mu_vec[mu] = 1;
-  int nu_vec[4] = {0,0,0,0};
-  nu_vec[nu] = 1;
-  int link1[5] = {0,0,0,0,mu};
-  int link2[5] = {0,0,0,0,nu};
-  int link3[5] = {0,0,0,0,mu};
-  int link4[5] = {0,0,0,0,nu};
-
-  for(int i = 0; i < 4; i++) {
-    link1[i] = site[i];
-    link2[i] = site[i] + mu_vec[i];
-    link3[i] = site[i] + nu_vec[i];
-    link4[i] = site[i];
-  }
-
-  Matrix3cd product = Matrix3cd::Identity();
-  product *= this->link(link1);
-  product *= this->link(link2);
-  product *= this->link(link3).adjoint();
-  product *= this->link(link4).adjoint();
-  return 1./3 * product.trace().real();
+  return this->P(site,mu,nu);
 }
 
 double Lattice::Si(const int link[5])
