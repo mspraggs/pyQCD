@@ -120,7 +120,19 @@ Matrix3cd Lattice::calcPath(const vector<vector<int> > path)
     if(abs(dim_diff) != 1) {
       // Consecutive points don't match link direction, so throw an error
     }
+    else if(dim_diff == -1) {
+      //We're going backwards, so the link must be the adjoint of the link matrix
+      int link[5] = {path[i+1][0],path[i+1][1],path[i+1][2],path[i+1][3],path[i][4]};
+      out *= this->link(link).adjoint();
+    }
+    else {
+      //We're going forwards, so it's just the normal matrix
+      int link[5] = {path[i][0],path[i][1],path[i][2],path[i][3],path[i][4]};
+      out *= this->link(link);
+    }
   }
+
+  return out;
 }
 
 double Lattice::P(const int site[4],const int mu, const int nu)
