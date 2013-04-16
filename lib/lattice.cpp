@@ -116,7 +116,8 @@ Matrix3cd Lattice::calcPath(const vector<vector<int> > path)
   for(int i = 0; i < path.size() - 1; i++) {
     //Which dimension are we moving in?
     int dim = path[i][4];
-    if(path[i+1][dim] - path[i][dim] == 0) {
+    int dim_diff = path[i+1][dim] - path[i][dim];
+    if(abs(dim_diff) != 1) {
       // Consecutive points don't match link direction, so throw an error
     }
   }
