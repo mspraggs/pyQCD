@@ -73,6 +73,7 @@ Lattice::Lattice(const int n, const double beta, const int Ncor, const int Ncf, 
   this->eps = eps;
 
   srand(time(NULL));
+  //Resize the link vector and assign each link a random SU3 matrix
   this->links.resize(this->n);
   for(int i = 0; i < this->n; i++) {
     this->links[i].resize(this->n);
@@ -89,7 +90,7 @@ Lattice::Lattice(const int n, const double beta, const int Ncor, const int Ncf, 
       }
     }
   }
-  
+  //Generate a set of random SU3 matrices for use in the updates
   for(int i = 0; i < 50; i++) {
     Matrix3cd randSU3 = this->randomSU3();
     this->randSU3s.push_back(randSU3);
@@ -126,7 +127,8 @@ Matrix3cd Lattice::calcPath(const vector<vector<int> > path)
       cout << "Error! Path contains non-consecutive link variables." << endl;
     }
     else if(dim_diff == -1) {
-      //We're going backwards, so the link must be the adjoint of the link matrix
+      /*We're going backwards, so the link must be the adjoint of the link 
+	matrix, which we get by using the next site on the lattice.*/
       int link[5] = {path[i+1][0],path[i+1][1],path[i+1][2],path[i+1][3],path[i][4]};
       out *= this->link(link).adjoint();
     }
@@ -149,6 +151,9 @@ Matrix3cd Lattice::calcLine(const int start[4], const int finish[4])
   int dim = 0;
   for(int i = 0; i < 4; i++) {
     if(abs(start[i] - finish[i]) != 0) {
+      /*Keep trac of the most recent dimension that differs between start
+	and finish, as if we're good to go then we'll need this when
+	defining the path.*/
       dim = i;
       count_dims++;
     }
@@ -164,22 +169,24 @@ Matrix3cd Lattice::calcLine(const int start[4], const int finish[4])
     //Now need to know if we're going backwards or forwards
     if(start[dim] > finish[dim]) {
       for(int i = start[dim]; i >= finish[dim]; i--) {
+	//Create the link vector to append, and initialize it's elements
 	vector<int> link(5);
-	for(int j = 0; j < 4; j++) {
-	  link[j] = start[j];
-	}
+	link.assign(start,start+4);
+	//Update the index that's parallel to the line with the current
+	//location
 	link[dim] = i;
+	//The direction is going to be equal to the direction of the line
 	link[4] = dim;
+	//Push it onto the line
 	line.push_back(link);
       }
       out = this->calcPath(line);
     }
     else {
+      //Same again, but this time we deal with the case of going backwards
       for(int i = start[dim]; i <= finish[dim]; i++) {
 	vector<int> link(5);
-	for(int j = 0; j < 5; j++) {
-	  link[j] = start[j];
-	}
+	link.assign(start,start+4);
 	link[dim] = i;
 	link[4] = dim;
 	line.push_back(link);	
@@ -235,15 +242,21 @@ double Lattice::P(const int site[4],const int mu, const int nu)
 {
   /*Calculate the plaquette operator at the given site, on plaquette
     specified by directions mu and nu.*/
+
+  //We define some variables to contain the offsets of the various
+  //links around the lattice
   int mu_vec[4] = {0,0,0,0};
   mu_vec[mu] = 1;
   int nu_vec[4] = {0,0,0,0};
   nu_vec[nu] = 1;
+  //The links also contain direction information, so we must create a new
+  //set of variables
   int link1[5] = {0,0,0,0,mu};
   int link2[5] = {0,0,0,0,nu};
   int link3[5] = {0,0,0,0,mu};
   int link4[5] = {0,0,0,0,nu};
 
+  //Do some assignment
   for(int i = 0; i < 4; i++) {
     link1[i] = site[i];
     link2[i] = site[i] + mu_vec[i];
@@ -251,8 +264,8 @@ double Lattice::P(const int site[4],const int mu, const int nu)
     link4[i] = site[i];
   }
 
-  Matrix3cd product = Matrix3cd::Identity();
-  product *= this->link(link1);
+  //Run through the links and multiply them together.
+  Matrix3cd product = this->link(link1);
   product *= this->link(link2);
   product *= this->link(link3).adjoint();
   product *= this->link(link4).adjoint();
@@ -261,8 +274,7 @@ double Lattice::P(const int site[4],const int mu, const int nu)
 
 double Lattice::P_p(const list site2,const int mu, const int nu)
 {
-  /*Calculate the plaquette operator at the given site, on plaquette
-    specified by directions mu and nu.*/
+  /*Python wrapper for the plaquette function.*/
   int site[4] = {extract<int>(site2[0]),extract<int>(site2[1]),extract<int>(site2[2]),extract<int>(site2[3])};
   return this->P(site,mu,nu);
 }
@@ -273,6 +285,7 @@ double Lattice::Si(const int link[5])
   int planes[3];
   double Psum = 0;
 
+  //Work out which dimension the link is in, since it'll be irrelevant here
   int j = 0;
   for(int i = 0; i < 4; i++) {
     if(link[4] != i) {
@@ -281,6 +294,7 @@ double Lattice::Si(const int link[5])
     }
   }
 
+  /*For each plane, calculate the two plaquettes that share the given link*/
   for(int i = 0; i < 3; i++) {
     int site[4] = {link[0],link[1],link[2],link[3]};
     Psum += this->P(site,link[4],planes[i]);
@@ -296,16 +310,20 @@ Matrix3cd Lattice::randomSU3()
   /*Generate a random SU3 matrix, weighted by eps*/
 
   Matrix3cd A;
+  //First generate a random matrix whos elements all lie in/on unit circle
   for(int i = 0; i < 3; i++) {
     for(int j = 0; j < 3; j++) {
       A(i,j) = double(rand()) / double(RAND_MAX);
       A(i,j) *= exp(2 * lattice::pi * lattice::i * double(rand()) / double(RAND_MAX));
     }
   }
+  //Weight the generation by the weighting eps
   Matrix3cd B = Matrix3cd::Identity() + lattice::i * this->eps * A;
   HouseholderQR<Matrix3cd> decomp(B);
+  //QR decompose B to make unitary
   Matrix3cd Q = decomp.householderQ();
 
+  //Divide by cube root of determinant to move from U(3) to SU(3)
   return Q / pow(Q.determinant(),1./3);
 }
 
@@ -318,13 +336,19 @@ void Lattice::update()
       for(int k = 0; k < this->n; k++) {
 	for(int l = 0; l < this->n; l++) {
 	  for(int m = 0; m < 4; m++) {
+	    //We'll need an array with the link indices
 	    int link[5] = {i,j,k,l,m};
+	    //Record the old action contribution
 	    double Si_old = this->Si(link);
+	    //Record the old link in case we need it
 	    Matrix3cd linki_old = this->links[i][j][k][l][m];
+	    //Get ourselves a random SU3 matrix for the update
 	    Matrix3cd randSU3 = this->randSU3s[rand() % this->randSU3s.size()];
+	    //Multiply the site
 	    this->links[i][j][k][l][m] *= randSU3;
+	    //What's the change in the action?
 	    double dS = this->Si(link) - Si_old;
-	    
+	    //Was the change favourable? If not, revert the change
 	    if((dS > 0) && (exp(-dS) < double(rand()) / double(RAND_MAX))) {
 	      this->links[i][j][k][l][m] = linki_old;
 	    }
@@ -338,9 +362,11 @@ void Lattice::update()
 double Lattice::Pav()
 {
   /*Calculate average plaquette operator value*/
+  //mu > nu, so there are six plaquettes at each site.
   int nus[6] = {0,0,0,1,1,2};
   int mus[6] = {1,2,3,2,3,3};
   double Ptot = 0;
+  //Pretty simple: step through the matrix and add all plaquettes up
   for(int i = 0; i < this->n; i++) {
     for(int j = 0; j < this->n; j++) {
       for(int k = 0; k < this->n; k++) {
@@ -353,11 +379,14 @@ double Lattice::Pav()
       }
     }
   }
+  //Divide through by number of plaquettes to get mean (simples!)
   return Ptot / (pow(this->n,4) * 6);
 }
 
 void Lattice::printL()
 {
+  /*Print the links out. A bit redundant due to the interfaces library,
+   but here in case it's needed.*/
   for(int i = 0; i < this->n; i++) {
     for(int j = 0; j < this->n; j++) {
       for(int k = 0; k < this->n; k++) {
@@ -373,6 +402,9 @@ void Lattice::printL()
 
 list Lattice::getLink(const int i, const int j, const int k, const int l, const int m)
 {
+  /*Returns the given link as a python nested list. Used in conjunction
+   with python interfaces library to extract the links as a nested list
+   of numpy matrices.*/
   list out;
   for(int n = 0; n < 3; n++) {
     list temp;
@@ -384,6 +416,7 @@ list Lattice::getLink(const int i, const int j, const int k, const int l, const 
   return out;
 }
 
+//Boost python wrapping of the class
 BOOST_PYTHON_MODULE(lattice)
 {
   class_<Lattice>("Lattice", init<optional<int,double,int,int,double> >())
