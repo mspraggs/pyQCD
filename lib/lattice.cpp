@@ -36,12 +36,14 @@ public:
 	  const double eps = 0.24);
 
   ~Lattice();
+  Matrix3cd calcPath(const vector<vector<int> > path);
   double P(const int site[4], const int mu, const int nu);
   double Pav();
   double Si(const int link[5]);
   Matrix3cd randomSU3();
   void update();
   void printL();
+  Matrix3cd link(const int link[5]);
   list getLink(const int i, const int j, const int k, const int l, const int m);
 
   int Ncor, Ncf, n;
@@ -93,7 +95,31 @@ Lattice::Lattice(const int n, const double beta, const int Ncor, const int Ncf, 
 
 Lattice::~Lattice()
 {
-  /*Destructor*/  
+  /*Destructor*/
+}
+
+Matrix3cd Lattice::link(const int[5] link)
+{
+  /*Return link specified by index (sanitizes link indices)*/
+  int link2[5];
+  for(int i = 0; i < 5; i++) {
+    link2[i] = lattice::mod(link[i],this->n);
+  }
+  return this->links[link2[0]][link2[1]][link2[2]][link2[3]][link2[4]];
+}
+
+Matrix3cd Lattice::calcPath(const vector<vector<int> > path)
+{
+  /*Multiplies the matrices together specified by the indices in path*/
+  Matrix3cd out = Matrix3cd::Identity();
+  
+  for(int i = 0; i < path.size() - 1; i++) {
+    //Which dimension are we moving in?
+    int dim = path[i][4];
+    if(path[i+1][dim] - path[i][dim] == 0) {
+      // Consecutive points don't match link direction, so throw and error
+    }
+  }
 }
 
 double Lattice::P(const int site[4],const int mu, const int nu)
