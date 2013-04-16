@@ -98,7 +98,7 @@ Lattice::~Lattice()
   /*Destructor*/
 }
 
-Matrix3cd Lattice::link(const int[5] link)
+Matrix3cd Lattice::link(const int link[5])
 {
   /*Return link specified by index (sanitizes link indices)*/
   int link2[5];
@@ -117,7 +117,7 @@ Matrix3cd Lattice::calcPath(const vector<vector<int> > path)
     //Which dimension are we moving in?
     int dim = path[i][4];
     if(path[i+1][dim] - path[i][dim] == 0) {
-      // Consecutive points don't match link direction, so throw and error
+      // Consecutive points don't match link direction, so throw an error
     }
   }
 }
@@ -130,21 +130,21 @@ double Lattice::P(const int site[4],const int mu, const int nu)
   mu_vec[mu] = 1;
   int nu_vec[4] = {0,0,0,0};
   nu_vec[nu] = 1;
-  int site2[4] = {0,0,0,0};
-  int os1[4] = {0,0,0,0};
-  int os2[4] = {0,0,0,0};
+  int link1[5] = {0,0,0,0,mu};
+  int link2[5] = {0,0,0,0,nu};
+  int link3[5] = {0,0,0,0,mu};
+  int link4[5] = {0,0,0,0,nu};
 
   for(int i = 0; i < 4; i++) {
-    site2[i] = lattice::mod(site[i], this->n);
-    os1[i] = lattice::mod(site[i] + mu_vec[i],this->n);
-    os2[i] = lattice::mod(site[i] + nu_vec[i],this->n);
+    link2[i] += mu_vec[i];
+    link3[i] += nu_vec[i];
   }
 
   Matrix3cd product = Matrix3cd::Identity();
-  product *= this->links[site2[0]][site2[1]][site2[2]][site2[3]][mu];
-  product *= this->links[os1[0]][os1[1]][os1[2]][os1[3]][nu];
-  product *= this->links[os2[0]][os2[1]][os2[2]][os2[3]][mu].adjoint();
-  product *= this->links[site2[0]][site2[1]][site2[2]][site2[3]][nu].adjoint();
+  product *= this->link(link1);
+  product *= this->link(link2);
+  product *= this->link(link3).adjoint();
+  product *= this->link(link4).adjoint();
   return 1./3 * product.trace().real();
 }
 
