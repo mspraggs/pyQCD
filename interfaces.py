@@ -11,7 +11,7 @@ def getLinks(lattice):
                 klist = []
                 for l in xrange(lattice.n):
                     llist = []
-                    for m in xrange(lattice.n):
+                    for m in xrange(4):
                         llist.append(np.matrix(lattice.getLink(i,j,k,l,m)))
                     klist.append(llist)
                 jlist.append(klist)
