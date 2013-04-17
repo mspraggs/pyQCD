@@ -160,7 +160,7 @@ Matrix3cd Lattice::calcLine(const int start[4], const int finish[4])
   }
 
   if(count_dims != 1) {
-    cout << "Error! Start and end points are not joined by a straight line." << endl;
+    cout << "Error! Start and end points do not form a straight line." << endl;
   }
   else {
     //If the two points are on the same line, we're good to go
@@ -214,13 +214,16 @@ double Lattice::W(const int c1[4], const int c2[4])
   }
   
   if(dim_count != 2) {
-    cout << "Error! Two corner points are not in the same plane." << endl;
+    cout << "Error! The two corner points do not form a rectangle." << endl;
   }
   else {
+    //Get the second corner (going round the loop)
     int c3[4] = {c1[0],c1[1],c1[2],c1[3]};
     c3[0] = c2[0];
+    //Calculate the line segments between the first three corners
     out *= this->calcLine(c1,c3);
     out *= this->calcLine(c3,c2);
+    //And repeat for the second set of sides
     int c4[4] = {c2[0],c2[1],c2[2],c2[3]};
     c4[0] = c1[0];
     out *= this->calcLine(c2,c4);
