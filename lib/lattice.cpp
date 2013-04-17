@@ -33,7 +33,9 @@ public:
 	  const double beta = 5.5,
 	  const int Ncor = 50,
 	  const int Ncf = 1000,
-	  const double eps = 0.24);
+	  const double eps = 0.24,
+	  const double a = 0.25,
+	  const double u0 = 0);
 
   ~Lattice();
   Matrix3cd calcPath(const vector<vector<int> > path);
@@ -48,12 +50,14 @@ public:
   void update();
   void printL();
   Matrix3cd link(const int link[5]);
+  Matrix3cd smear(const int link[5], const int n_smears);
+  Matrix3cd fdiff(const int link[5]);
   list getLink(const int i, const int j, const int k, const int l, const int m);
 
   int Ncor, Ncf, n;
 
 private:
-  double beta, eps;
+  double beta, eps, a, u0;
   vector< vector< vector< vector< vector<Matrix3cd, aligned_allocator<Matrix3cd> > > > > > links;
   vector<Matrix3cd, aligned_allocator<Matrix3cd> > randSU3s;
 
@@ -71,6 +75,8 @@ Lattice::Lattice(const int n, const double beta, const int Ncor, const int Ncf, 
   this->Ncor = Ncor;
   this->Ncf = Ncf;
   this->eps = eps;
+  this->a = a;
+  this->u0 = u0;
 
   srand(time(NULL));
   //Resize the link vector and assign each link a random SU3 matrix
@@ -111,6 +117,60 @@ Matrix3cd Lattice::link(const int link[5])
     link2[i] = lattice::mod(link[i],this->n);
   }
   return this->links[link2[0]][link2[1]][link2[2]][link2[3]][link2[4]];
+}
+
+Matrix3cd Lattice:fdiff(const int link[5])
+{
+  /*Calculate the finite difference at the given link*/
+  Matrix3cd out = Matrix3cd::Zero();
+  //Array to keep track of current link
+  int clink[5] = {0,0,0,0,0};
+  
+  for(int rho = 0; rho < 4; rho++) {
+    //Temporary matrix to apply operations to
+    Matrix3cd temp = Matrix3cd::Identity();
+    //Update the link index
+    clink = {link[0],link[1],link[2],link[3],rho};
+    temp *= this->link(clink);
+    //Update the link
+    clink[4] = link[4];
+    clink[rho] = link[rho] + 1;
+    temp *= this->link(clink);
+    //Update the link
+    clink = {link[0],link[1],link[2],link[3],rho};
+    clink[link[4]] += 1;
+    temp *= this->link(clink).adjoint();
+
+    //Add the first term then reset
+    out += temp;
+
+    //Next term is just the given link
+    out -= 2*pow(this->u0,2) * this->link(link);
+
+    //Reset temp
+    temp = Matrix3cd::Identity();
+    //Set the current link
+    clink = {link[0],link[1],link[2],link[3],rho};
+    clink[rho] -= 1;
+    temp *= this->link(clink).adjoint();
+    //Set the link again
+    clink[4] = link[4];
+    temp *= this->link(clink);
+    //And again
+    clink[4] = rho;
+    clink[link[4]] += 1;
+    temp *= this->link(clink);
+    
+    out += temp;
+  }
+  return out / pow(this->a * this->u0, 2);
+}
+
+Matrix3cd Lattice::smear(const int link[5], const int n_smears)
+{
+  /*Smear the specified link*/
+  Matrix3cd out;
+  return out;
 }
 
 Matrix3cd Lattice::calcPath(const vector<vector<int> > path)
