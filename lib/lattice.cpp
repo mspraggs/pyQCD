@@ -24,6 +24,13 @@ namespace lattice
     }
     return n%d;
   }
+  
+  void copyarray(int a1[], const int a2[], const int length)
+  {
+    for(int i = 0; i < length; i++) {
+      a1[i] = a2[i];
+    }
+  }
 }
 
 class Lattice
@@ -35,7 +42,8 @@ public:
 	  const int Ncf = 1000,
 	  const double eps = 0.24,
 	  const double a = 0.25,
-	  const double u0 = 0);
+	  const double u0 = 0
+	  const double smear_eps = 1./12);
 
   ~Lattice();
   Matrix3cd calcPath(const vector<vector<int> > path);
@@ -57,7 +65,7 @@ public:
   int Ncor, Ncf, n;
 
 private:
-  double beta, eps, a, u0;
+  double beta, eps, a, u0, smear_eps;
   vector< vector< vector< vector< vector<Matrix3cd, aligned_allocator<Matrix3cd> > > > > > links;
   vector<Matrix3cd, aligned_allocator<Matrix3cd> > randSU3s;
 
@@ -66,7 +74,7 @@ public:
   
 };
 
-Lattice::Lattice(const int n, const double beta, const int Ncor, const int Ncf, const double eps, const double a, const double u0)
+Lattice::Lattice(const int n, const double beta, const int Ncor, const int Ncf, const double eps, const double a, const double u0, const double smear_eps)
 {
   /*Default constructor. Assigns function arguments to member variables
    and initializes links.*/
@@ -77,6 +85,7 @@ Lattice::Lattice(const int n, const double beta, const int Ncor, const int Ncf, 
   this->eps = eps;
   this->a = a;
   this->u0 = u0;
+  this->smear_eps = smear_eps;
 
   srand(time(NULL));
   //Resize the link vector and assign each link a random SU3 matrix
@@ -130,14 +139,16 @@ Matrix3cd Lattice::fdiff(const int link[5])
     //Temporary matrix to apply operations to
     Matrix3cd temp = Matrix3cd::Identity();
     //Update the link index
-    clink = {link[0],link[1],link[2],link[3],rho};
+    lattice::copyarray(clink,link,5);
+    clink[4] = rho;
     temp *= this->link(clink);
     //Update the link
     clink[4] = link[4];
     clink[rho] = link[rho] + 1;
     temp *= this->link(clink);
     //Update the link
-    clink = {link[0],link[1],link[2],link[3],rho};
+    lattice::copyarray(clink,link,5);
+    clink[4] = rho;
     clink[link[4]] += 1;
     temp *= this->link(clink).adjoint();
 
@@ -150,7 +161,8 @@ Matrix3cd Lattice::fdiff(const int link[5])
     //Reset temp
     temp = Matrix3cd::Identity();
     //Set the current link
-    clink = {link[0],link[1],link[2],link[3],rho};
+    lattice::copyarray(clink,link,5);
+    clink[4] = rho;
     clink[rho] -= 1;
     temp *= this->link(clink).adjoint();
     //Set the link again
@@ -166,11 +178,38 @@ Matrix3cd Lattice::fdiff(const int link[5])
   return out / pow(this->a * this->u0, 2);
 }
 
-Matrix3cd Lattice::smear(const int link[5], const int n_smears)
+void Lattice::smear(const int time, const int n_smears)
 {
-  /*Smear the specified link by recursively calling this function*/
-  Matrix3cd out;
-  return out;
+  /*Smear the specified time slice by recursively calling this function*/
+  if(n_smears > 1) {
+    //Depending on the number of smears, recurse
+    this->smear(time,n_smears-1);
+  }
+  else {
+    //Iterate through all the links and calculate the new ones from the existing ones.
+    vector< vector< vector< vector<Matrix3cd, aligned_allocator<Matrix3cd> > > > > newlinks;
+    for(int i = 0; i < this->n; i++) {
+      vector< vector< vector<Matrix3cd, aligned_allocator<Matrix3cd> > > > temp1;
+      for(int j = 0; j < this->n; j++) {
+	vector< vector<Matrix3cd, aligned_allocator<Matrix3cd> > > temp2;
+	for(int k = 0; k < this->n; k++) {
+	  vector<Matrix3cd, aligned_allocator<Matrix3cd> > temp3;
+	  for(int l = 0; l < 4; l++) {
+	    //Create a temporary matrix to store the new link
+	    Matrix3cd temp_mat = this->links[time][i][j][k][l];
+	    int link[5] = {time,i,j,k,l};
+	    temp_mat += this->smear_eps * pow(this->a,2) * this->fdiff(link);
+	    temp3.push_back(temp_mat);
+	  }
+	  temp2.push_back(temp3);
+	}
+	temp1.push_back(temp2);
+      }
+      newlinks.push_back(temp1);
+    }
+    //Apply the changes to the existing lattice.
+    this->links[time] = newLinks;
+  }
 }
 
 Matrix3cd Lattice::calcPath(const vector<vector<int> > path)
@@ -211,7 +250,7 @@ Matrix3cd Lattice::calcLine(const int start[4], const int finish[4])
   int dim = 0;
   for(int i = 0; i < 4; i++) {
     if(abs(start[i] - finish[i]) != 0) {
-      /*Keep trac of the most recent dimension that differs between start
+      /*Keep track of the most recent dimension that differs between start
 	and finish, as if we're good to go then we'll need this when
 	defining the path.*/
       dim = i;
@@ -230,13 +269,13 @@ Matrix3cd Lattice::calcLine(const int start[4], const int finish[4])
     if(start[dim] > finish[dim]) {
       for(int i = start[dim]; i >= finish[dim]; i--) {
 	//Create the link vector to append, and initialize it's elements
-	vector<int> link(5);
+	vector<int> link;
 	link.assign(start,start+4);
 	//Update the index that's parallel to the line with the current
 	//location
 	link[dim] = i;
 	//The direction is going to be equal to the direction of the line
-	link[4] = dim;
+	link.push_back(dim);
 	//Push it onto the line
 	line.push_back(link);
       }
@@ -245,11 +284,11 @@ Matrix3cd Lattice::calcLine(const int start[4], const int finish[4])
     else {
       //Same again, but this time we deal with the case of going backwards
       for(int i = start[dim]; i <= finish[dim]; i++) {
-	vector<int> link(5);
+	vector<int> link;
 	link.assign(start,start+4);
 	link[dim] = i;
-	link[4] = dim;
-	line.push_back(link);	
+	link.push_back(dim);
+	line.push_back(link);
       }
       out = this->calcPath(line);
     }
@@ -480,7 +519,7 @@ list Lattice::getLink(const int i, const int j, const int k, const int l, const 
 //Boost python wrapping of the class
 BOOST_PYTHON_MODULE(lattice)
 {
-  class_<Lattice>("Lattice", init<optional<int,double,int,int,double> >())
+  class_<Lattice>("Lattice", init<optional<int,double,int,int,double,double,double,double> >())
     .def("update",&Lattice::update)
     .def("P",&Lattice::P)
     .def("P",&Lattice::P_p)
