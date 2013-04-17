@@ -213,8 +213,9 @@ double Lattice::W(const int c1[4], const int c2[4])
     }
   }
   
-  if(dim_count != 2) {
-    cout << "Error! The two corner points do not form a rectangle." << endl;
+  if(dim_count != 2 || c1[0] == c2[0]) {
+    cout << "Error! The two corner points do not form a rectangle" << endl;
+    cout << "with a two spatial and two temporal sides." << endl;
   }
   else {
     //Get the second corner (going round the loop)
