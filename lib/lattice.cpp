@@ -42,7 +42,7 @@ public:
 	  const int Ncf = 1000,
 	  const double eps = 0.24,
 	  const double a = 0.25,
-	  const double u0 = 0
+	  const double u0 = 0,
 	  const double smear_eps = 1./12);
 
   ~Lattice();
