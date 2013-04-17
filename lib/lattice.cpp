@@ -49,7 +49,8 @@ public:
   Matrix3cd calcPath(const vector<vector<int> > path);
   Matrix3cd calcLine(const int start[4], const int finish[4]);
   double W(const int c1[4], const int c2[4]);
-  double W_p(const list cnr1, const list cnr2);
+  double W(const int c[4], const int r, const int t, const int dim);
+  double W_p(const list cnr, const int r, const int t, const int dim);
   double P(const int site[4], const int mu, const int nu);
   double P_p(const list site2,const int mu, const int nu);
   double Pav();
@@ -134,8 +135,8 @@ Matrix3cd Lattice::fdiff(const int link[5])
   Matrix3cd out = Matrix3cd::Zero();
   //Array to keep track of current link
   int clink[5] = {0,0,0,0,0};
-  
-  for(int rho = 0; rho < 4; rho++) {
+  //Loop over *spatial* dimensions
+  for(int rho = 1; rho < 4; rho++) {
     //Temporary matrix to apply operations to
     Matrix3cd temp = Matrix3cd::Identity();
     //Update the link index
@@ -329,13 +330,56 @@ double Lattice::W(const int c1[4], const int c2[4])
   return 1./3 * out.trace().real();
 }
 
-double Lattice::W_p(const list cnr1, const list cnr2)
+double Lattice::W(const int c1[4], const int c2[4])
 {
   /*Calculates the loop specified by corners c1 and c2 (which must
     lie in the same plane)*/
-  int c1[4] = {extract<int>(cnr1[0]),extract<int>(cnr1[1]),extract<int>(cnr1[2]),extract<int>(cnr1[3])};
-  int c2[4] = {extract<int>(cnr2[0]),extract<int>(cnr2[1]),extract<int>(cnr2[2]),extract<int>(cnr2[3])};
-  return this->W(c1,c2);
+  Matrix3cd out = Matrix3cd::Identity();
+
+  //Check that c1 and c2 are on the same plane
+  int dim_count = 0;
+  for(int i = 0; i < 4; i++) {
+    if(c1[i] != c2[i]) {
+      dim_count++;
+    }
+  }
+  
+  if(dim_count != 2 || c1[0] == c2[0]) {
+    cout << "Error! The two corner points do not form a rectangle with two spatial and two temporal sides." << endl;
+  }
+  else {
+    //Get the second corner (going round the loop)
+    int c3[4] = {c1[0],c1[1],c1[2],c1[3]};
+    c3[0] = c2[0];
+    //Calculate the line segments between the first three corners
+    out *= this->calcLine(c1,c3);
+    out *= this->calcLine(c3,c2);
+    //And repeat for the second set of sides
+    int c4[4] = {c2[0],c2[1],c2[2],c2[3]};
+    c4[0] = c1[0];
+    out *= this->calcLine(c2,c4);
+    out *= this->calcLine(c4,c1);
+  }
+  return 1./3 * out.trace().real();
+}
+
+double Lattice::W(const int c[4], const int r, const int t, const int dim)
+{
+  /*Calculates the loop specified by initial corner, width, height and 
+   dimension*/
+  const int c2[4];
+  lattice::copyarray(c,c2,4);
+  c2[dim] += r;
+  c2[0] += t;
+  return this->W(c,c2);
+}
+
+double Lattice::W_p(const list cnr, const int r, const int t, const int dim)
+{
+  /*Calculates the loop specified by corners c1 and c2 (which must
+    lie in the same plane)*/
+  int c[4] = {extract<int>(cnr[0]),extract<int>(cnr[1]),extract<int>(cnr[2]),extract<int>(cnr[3])};
+  return this->W(c,r,t,dim);
 }
 
 double Lattice::P(const int site[4],const int mu, const int nu)
