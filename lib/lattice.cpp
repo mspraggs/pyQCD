@@ -168,7 +168,7 @@ Matrix3cd Lattice:fdiff(const int link[5])
 
 Matrix3cd Lattice::smear(const int link[5], const int n_smears)
 {
-  /*Smear the specified link*/
+  /*Smear the specified link by recursively calling this function*/
   Matrix3cd out;
   return out;
 }
