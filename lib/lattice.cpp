@@ -66,7 +66,7 @@ public:
   
 };
 
-Lattice::Lattice(const int n, const double beta, const int Ncor, const int Ncf, const double eps)
+Lattice::Lattice(const int n, const double beta, const int Ncor, const int Ncf, const double eps, const double a, const double u0)
 {
   /*Default constructor. Assigns function arguments to member variables
    and initializes links.*/
@@ -119,7 +119,7 @@ Matrix3cd Lattice::link(const int link[5])
   return this->links[link2[0]][link2[1]][link2[2]][link2[3]][link2[4]];
 }
 
-Matrix3cd Lattice:fdiff(const int link[5])
+Matrix3cd Lattice::fdiff(const int link[5])
 {
   /*Calculate the finite difference at the given link*/
   Matrix3cd out = Matrix3cd::Zero();
