@@ -42,7 +42,6 @@ public:
 	  const int Ncf = 1000,
 	  const double eps = 0.24,
 	  const double a = 0.25,
-	  const double u0 = 0.5,
 	  const double smear_eps = 1./12);
 
   ~Lattice();
@@ -56,6 +55,7 @@ public:
   double Pav();
   double Si(const int link[5]);
   Matrix3cd randomSU3();
+  void thermalize();
   void update();
   void printL();
   Matrix3cd link(const int link[5]);
@@ -75,7 +75,7 @@ public:
   
 };
 
-Lattice::Lattice(const int n, const double beta, const int Ncor, const int Ncf, const double eps, const double a, const double u0, const double smear_eps)
+Lattice::Lattice(const int n, const double beta, const int Ncor, const int Ncf, const double eps, const double a, const double smear_eps)
 {
   /*Default constructor. Assigns function arguments to member variables
    and initializes links.*/
@@ -85,7 +85,6 @@ Lattice::Lattice(const int n, const double beta, const int Ncor, const int Ncf, 
   this->Ncf = Ncf;
   this->eps = eps;
   this->a = a;
-  this->u0 = u0;
   this->smear_eps = smear_eps;
 
   srand(time(NULL));
@@ -447,6 +446,15 @@ Matrix3cd Lattice::randomSU3()
 
   //Divide by cube root of determinant to move from U(3) to SU(3)
   return Q / pow(Q.determinant(),1./3);
+}
+
+void Lattice::thermalize()
+{
+  /*Update all links until we're at thermal equilibrium*/
+
+  for(int i = 0; i < 5 * this->Ncor; i++) {
+    this->update();
+  }
 }
 
 void Lattice::update()
