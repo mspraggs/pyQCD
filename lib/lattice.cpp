@@ -43,6 +43,7 @@ public:
 	  const double eps = 0.24,
 	  const double a = 0.25,
 	  const double smear_eps = 1./12);
+  void init_u0();
 
   ~Lattice();
   Matrix3cd calcPath(const vector<vector<int> > path);
@@ -111,6 +112,25 @@ Lattice::Lattice(const int n, const double beta, const int Ncor, const int Ncf, 
     this->randSU3s.push_back(randSU3);
     this->randSU3s.push_back(randSU3.adjoint());
   }
+}
+
+void Lattice::init_u0()
+{
+  /*Calculate u0*/
+  this->thermalize();
+  double sum = 0;
+  for(int i = 0; i < this->n; i++) {
+    for(int j = 0; j < this->n; j++) {
+      for(int k = 0; k < this->n; k++) {
+	for(int l = 0; l < this->n; l++) {
+	  for(int m = 0; m < 4; m++) {
+	    sum+=1./3 * this->links[i][j][k][l][m].trace().real();
+	  }
+	}
+      }
+    }
+  }
+  this->u0 = sum / (pow(this->n,4)*4);
 }
 
 Lattice::~Lattice()
