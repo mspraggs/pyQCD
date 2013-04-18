@@ -469,7 +469,6 @@ Matrix3cd Lattice::randomSU3()
   //Make the matrix traceless and Hermitian
   A(2,2) = -(A(1,1) + A(0,0));
   Matrix3cd B = 0.5 * (A - A.adjoint());
-  cout << "U = A.exp() = " << endl;
   Matrix3cd U = B.exp();
   //Compute the matrix exponential to get a special unitary matrix
   return U;
