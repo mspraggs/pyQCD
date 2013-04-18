@@ -68,6 +68,7 @@ public:
 
 private:
   double beta, eps, a, u0, smear_eps;
+  int nupdates;
   vector< vector< vector< vector< vector<Matrix3cd, aligned_allocator<Matrix3cd> > > > > > links;
   vector<Matrix3cd, aligned_allocator<Matrix3cd> > randSU3s;
 
@@ -87,6 +88,7 @@ Lattice::Lattice(const int n, const double beta, const int Ncor, const int Ncf, 
   this->eps = eps;
   this->a = a;
   this->smear_eps = smear_eps;
+  this->nupdates = 0;
 
   srand(time(NULL));
   //Resize the link vector and assign each link a random SU3 matrix
@@ -473,7 +475,7 @@ void Lattice::thermalize()
 {
   /*Update all links until we're at thermal equilibrium*/
 
-  for(int i = 0; i < 5 * this->Ncor; i++) {
+  while(this->nupdates < 5 * this->Ncor) {
     this->update();
   }
 }
@@ -508,6 +510,7 @@ void Lattice::update()
       }
     }
   }
+  this->nupdates++;
 }
 
 double Lattice::Pav()
