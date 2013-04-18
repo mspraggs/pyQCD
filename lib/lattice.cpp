@@ -124,20 +124,8 @@ double Lattice::init_u0()
 {
   /*Calculate u0*/
   this->thermalize();
-  double sum = 0;
-  for(int i = 0; i < this->n; i++) {
-    for(int j = 0; j < this->n; j++) {
-      for(int k = 0; k < this->n; k++) {
-	for(int l = 0; l < this->n; l++) {
-	  for(int m = 0; m < 4; m++) {
-	    sum += 1./3 * this->links[i][j][k][l][m].trace().real();
-	  }
-	}
-      }
-    }
-  }
-  this->u0 = sum / (pow(this->n,4)*4);
-  return sum / (pow(this->n,4)*4);
+  this->u0 = pow(this->Pav(),0.25)
+    return pow(this->Pav(),0.25);
 }
 
 Lattice::~Lattice()
@@ -513,6 +501,7 @@ void Lattice::update()
       }
     }
   }
+  cout << this->Pav() << endl;
   this->nupdates++;
 }
 
