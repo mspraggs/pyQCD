@@ -48,9 +48,9 @@ public:
   ~Lattice();
   Matrix3cd calcPath(const vector<vector<int> > path);
   Matrix3cd calcLine(const int start[4], const int finish[4]);
-  double W(const int c1[4], const int c2[4]);
-  double W(const int c[4], const int r, const int t, const int dim);
-  double W_p(const list cnr, const int r, const int t, const int dim);
+  double W(const int c1[4], const int c2[4], const int n_smears = 0);
+  double W(const int c[4], const int r, const int t, const int dim, const int n_smears = 0);
+  double W_p(const list cnr, const int r, const int t, const int dim, const int n_smears = 0);
   double P(const int site[4], const int mu, const int nu);
   double P_p(const list site2,const int mu, const int nu);
   double Pav();
@@ -297,11 +297,20 @@ Matrix3cd Lattice::calcLine(const int start[4], const int finish[4])
   return out;
 }
 
-double Lattice::W(const int c1[4], const int c2[4])
+double Lattice::W(const int c1[4], const int c2[4], const int n_smears)
 {
   /*Calculates the loop specified by corners c1 and c2 (which must
     lie in the same plane)*/
   Matrix3cd out = Matrix3cd::Identity();
+  vector<vector<vector<vector<Matrix3cd, aligned_allocator<Matrix3cd> > > > > linkstore1;
+  vector<vector<vector<vector<Matrix3cd, aligned_allocator<Matrix3cd> > > > > linkstore2;
+  //Smear the links if specified, whilst storing the non-smeared ones.
+  if(n_smears > 0) {
+    linkstore1 = this->links[c1[0]];
+    linkstore2 = this->links[c2[0]];
+    this->smear(c1[0],n_smears);
+    this->smear(c2[0],n_smears);
+  }
 
   //Check that c1 and c2 are on the same plane
   int dim_count = 0;
@@ -327,10 +336,16 @@ double Lattice::W(const int c1[4], const int c2[4])
     out *= this->calcLine(c2,c4);
     out *= this->calcLine(c4,c1);
   }
+  //Restore the old links
+  if(n_smears > 0) {
+    this->links[c1[0]] = linkstore1;
+    this->links[c2[0]] = linkstore2;
+  }
+
   return 1./3 * out.trace().real();
 }
 
-double Lattice::W(const int c[4], const int r, const int t, const int dim)
+double Lattice::W(const int c[4], const int r, const int t, const int dim, const int n_smears)
 {
   /*Calculates the loop specified by initial corner, width, height and 
    dimension*/
@@ -338,15 +353,15 @@ double Lattice::W(const int c[4], const int r, const int t, const int dim)
   lattice::copyarray(c2,c,4);
   c2[dim] += r;
   c2[0] += t;
-  return this->W(c,c2);
+  return this->W(c,c2,n_smears);
 }
 
-double Lattice::W_p(const list cnr, const int r, const int t, const int dim)
+double Lattice::W_p(const list cnr, const int r, const int t, const int dim, const int n_smears)
 {
   /*Calculates the loop specified by corners c1 and c2 (which must
     lie in the same plane)*/
   int c[4] = {extract<int>(cnr[0]),extract<int>(cnr[1]),extract<int>(cnr[2]),extract<int>(cnr[3])};
-  return this->W(c,r,t,dim);
+  return this->W(c,r,t,dim,n_smears);
 }
 
 double Lattice::P(const int site[4],const int mu, const int nu)
@@ -528,6 +543,8 @@ list Lattice::getLink(const int i, const int j, const int k, const int l, const 
 }
 
 //Boost python wrapping of the class
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(LatticeWOverload,W_p,4,5)
+
 BOOST_PYTHON_MODULE(lattice)
 {
   class_<Lattice>("Lattice", init<optional<int,double,int,int,double,double,double,double> >())
@@ -535,7 +552,7 @@ BOOST_PYTHON_MODULE(lattice)
     .def("P",&Lattice::P)
     .def("P",&Lattice::P_p)
     .def("Pav",&Lattice::Pav)
-    .def("W",&Lattice::W_p)
+    .def("W",&Lattice::W_p,LatticeWOverload(args("cnr","r","t","dim","n_smears"), "Calculate Wilson loop"))
     .def("printL",&Lattice::printL)
     .def("getLink",&Lattice::getLink)
     .def_readonly("Ncor",&Lattice::Ncor)
