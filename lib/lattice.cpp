@@ -59,7 +59,7 @@ public:
   void update();
   void printL();
   Matrix3cd link(const int link[5]);
-  Matrix3cd smear(const int link[5], const int n_smears);
+  void smear(const int time, const int n_smears);
   Matrix3cd fdiff(const int link[5]);
   list getLink(const int i, const int j, const int k, const int l, const int m);
 
@@ -209,7 +209,7 @@ void Lattice::smear(const int time, const int n_smears)
       newlinks.push_back(temp1);
     }
     //Apply the changes to the existing lattice.
-    this->links[time] = newLinks;
+    this->links[time] = newlinks;
   }
 }
 
@@ -330,45 +330,12 @@ double Lattice::W(const int c1[4], const int c2[4])
   return 1./3 * out.trace().real();
 }
 
-double Lattice::W(const int c1[4], const int c2[4])
-{
-  /*Calculates the loop specified by corners c1 and c2 (which must
-    lie in the same plane)*/
-  Matrix3cd out = Matrix3cd::Identity();
-
-  //Check that c1 and c2 are on the same plane
-  int dim_count = 0;
-  for(int i = 0; i < 4; i++) {
-    if(c1[i] != c2[i]) {
-      dim_count++;
-    }
-  }
-  
-  if(dim_count != 2 || c1[0] == c2[0]) {
-    cout << "Error! The two corner points do not form a rectangle with two spatial and two temporal sides." << endl;
-  }
-  else {
-    //Get the second corner (going round the loop)
-    int c3[4] = {c1[0],c1[1],c1[2],c1[3]};
-    c3[0] = c2[0];
-    //Calculate the line segments between the first three corners
-    out *= this->calcLine(c1,c3);
-    out *= this->calcLine(c3,c2);
-    //And repeat for the second set of sides
-    int c4[4] = {c2[0],c2[1],c2[2],c2[3]};
-    c4[0] = c1[0];
-    out *= this->calcLine(c2,c4);
-    out *= this->calcLine(c4,c1);
-  }
-  return 1./3 * out.trace().real();
-}
-
 double Lattice::W(const int c[4], const int r, const int t, const int dim)
 {
   /*Calculates the loop specified by initial corner, width, height and 
    dimension*/
-  const int c2[4];
-  lattice::copyarray(c,c2,4);
+  int c2[4];
+  lattice::copyarray(c2,c,4);
   c2[dim] += r;
   c2[0] += t;
   return this->W(c,c2);
