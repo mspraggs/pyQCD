@@ -11,7 +11,6 @@
 
 using namespace Eigen;
 namespace py = boost::python;
-//using namespace boost::python;
 using namespace std;
 
 namespace lattice
