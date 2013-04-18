@@ -58,12 +58,14 @@ public:
   double Si(const int link[5]);
   Matrix3cd randomSU3();
   void thermalize();
+  void updateLink(const py::list link);
   void update();
   void printL();
   Matrix3cd link(const int link[5]);
   void smear(const int time, const int n_smears);
   Matrix3cd fdiff(const int link[5]);
   py::list getLink(const int i, const int j, const int k, const int l, const int m);
+  py::list getRandSU3(const int i);
 
   int Ncor, Ncf, n;
 
@@ -110,7 +112,7 @@ Lattice::Lattice(const int n, const double beta, const int Ncor, const int Ncf, 
     }
   }
   //Generate a set of random SU3 matrices for use in the updates
-  for(int i = 0; i < 50; i++) {
+  for(int i = 0; i < 200; i++) {
     Matrix3cd randSU3 = this->randomSU3();
     this->randSU3s.push_back(randSU3);
     this->randSU3s.push_back(randSU3.adjoint());
@@ -463,8 +465,33 @@ void Lattice::thermalize()
 {
   /*Update all links until we're at thermal equilibrium*/
 
-  while(this->nupdates < 10 * this->Ncor) {
+  while(this->nupdates < 30 * this->Ncor) {
     this->update();
+  }
+}
+
+void Lattice::updateLink(const py::list link)
+{
+  //We'll need an array with the link indices
+  int i = py::extract<int>(link[0]);
+  int j = py::extract<int>(link[1]);
+  int k = py::extract<int>(link[2]);
+  int l = py::extract<int>(link[3]);
+  int m = py::extract<int>(link[4]);
+  int link2[5] = {i,j,k,l,m};
+  //Record the old action contribution
+  double Si_old = this->Si(link2);
+  //Record the old link2 in case we need it
+  Matrix3cd linki_old = this->links[i][j][k][l][m];
+  //Get ourselves a random SU3 matrix for the update
+  Matrix3cd randSU3 = this->randSU3s[rand() % this->randSU3s.size()];
+  //Multiply the site
+  this->links[i][j][k][l][m] = randSU3 * this->links[i][j][k][l][m];
+  //What's the change in the action?
+  double dS = this->Si(link2) - Si_old;
+  //Was the change favourable? If not, revert the change
+  if((dS > 0) && (exp(-dS) < double(rand()) / double(RAND_MAX))) {
+    this->links[i][j][k][l][m] = linki_old;
   }
 }
 
@@ -558,12 +585,27 @@ py::list Lattice::getLink(const int i, const int j, const int k, const int l, co
   return out;
 }
 
+py::list Lattice::getRandSU3(const int i)
+{
+  /*Returns the given random SU3 matrix as a python list*/
+  py::list out;
+  for(int n = 0; n < 3; n++) {
+    py::list temp;
+    for(int o = 0; o < 3; o++) {
+      temp.append(this->randSU3s[i](n,o));
+    }
+    out.append(temp);
+  }
+  return out;
+}
+
 //Boost python wrapping of the class
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(LatticeWOverload,W_p,4,5)
 
 BOOST_PYTHON_MODULE(lattice)
 {
   py::class_<Lattice>("Lattice", py::init<py::optional<int,double,int,int,double,double,double> >())
+    .def("updateLink",&Lattice::updateLink)
     .def("update",&Lattice::update)
     .def("thermalize",&Lattice::thermalize)
     .def("init_u0",&Lattice::init_u0)
@@ -572,6 +614,7 @@ BOOST_PYTHON_MODULE(lattice)
     .def("W",&Lattice::W_p,LatticeWOverload(py::args("cnr","r","t","dim","n_smears"), "Calculate Wilson loop"))
     .def("printL",&Lattice::printL)
     .def("getLink",&Lattice::getLink)
+    .def("getRandSU3",&Lattice::getRandSU3)
     .def_readonly("Ncor",&Lattice::Ncor)
     .def_readonly("Ncf",&Lattice::Ncf)
     .def_readonly("n",&Lattice::n);
