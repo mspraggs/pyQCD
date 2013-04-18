@@ -8,8 +8,10 @@ L = lattice.Lattice()
 #Thermalize the lattice
 
 print("Thermalizing...")
+sys.stdout.flush()
 L.thermalize()
 print("Done!")
+sys.stdout.flush()
 
 Ps = [0] * L.Ncf
     
