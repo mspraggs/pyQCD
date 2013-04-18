@@ -42,7 +42,7 @@ public:
 	  const int Ncf = 1000,
 	  const double eps = 0.24,
 	  const double a = 0.25,
-	  const double u0 = 0,
+	  const double u0 = 0.5,
 	  const double smear_eps = 1./12);
 
   ~Lattice();
@@ -181,12 +181,8 @@ Matrix3cd Lattice::fdiff(const int link[5])
 
 void Lattice::smear(const int time, const int n_smears)
 {
-  /*Smear the specified time slice by recursively calling this function*/
-  if(n_smears > 1) {
-    //Depending on the number of smears, recurse
-    this->smear(time,n_smears-1);
-  }
-  else {
+  /*Smear the specified time slice by iterating calling this function*/
+  for(int i = 0; i < n_smears; i++) {
     //Iterate through all the links and calculate the new ones from the existing ones.
     vector< vector< vector< vector<Matrix3cd, aligned_allocator<Matrix3cd> > > > > newlinks;
     for(int i = 0; i < this->n; i++) {
