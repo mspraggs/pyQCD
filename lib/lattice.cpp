@@ -501,7 +501,7 @@ void Lattice::update()
 	    //Get ourselves a random SU3 matrix for the update
 	    Matrix3cd randSU3 = this->randSU3s[rand() % this->randSU3s.size()];
 	    //Multiply the site
-	    this->links[i][j][k][l][m] *= randSU3;
+	    this->links[i][j][k][l][m] = randSU3 * this->links[i][j][k][l][m];
 	    //What's the change in the action?
 	    double dS = this->Si(link) - Si_old;
 	    //Was the change favourable? If not, revert the change
