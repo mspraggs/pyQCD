@@ -471,11 +471,6 @@ Matrix3cd Lattice::randomSU3()
   Matrix3cd B = 0.5 * (A - A.adjoint());
   cout << "U = A.exp() = " << endl;
   Matrix3cd U = B.exp();
-  cout << U << endl;
-  cout << "U * U.H = " << endl;
-  cout << U*U.adjoint() << endl;
-  cout << "U.det()" << endl;
-  cout << U.determinant() << endl;
   //Compute the matrix exponential to get a special unitary matrix
   return U;
 }
