@@ -7,10 +7,9 @@ L = lattice.Lattice()
 
 #Thermalize the lattice
 
-for i in xrange(5*L.Ncor):
-    print("Thermalizing: %d" % i)
-    sys.stdout.flush()
-    L.update()
+print("Thermalizing...")
+L.thermalize()
+print("Done!")
 
 Ps = [0] * L.Ncf
     
