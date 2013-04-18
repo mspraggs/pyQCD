@@ -464,7 +464,7 @@ void Lattice::thermalize()
 {
   /*Update all links until we're at thermal equilibrium*/
 
-  while(this->nupdates < 5 * this->Ncor) {
+  while(this->nupdates < 10 * this->Ncor) {
     this->update();
   }
 }
