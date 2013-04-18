@@ -571,8 +571,10 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(LatticeWOverload,W_p,4,5)
 
 BOOST_PYTHON_MODULE(lattice)
 {
-  class_<Lattice>("Lattice", init<optional<int,double,int,int,double,double,double,double> >())
+  class_<Lattice>("Lattice", init<optional<int,double,int,int,double,double,double> >())
     .def("update",&Lattice::update)
+    .def("thermalize",&Lattice::thermalize)
+    .def("init_u0",&Lattice::init_u0)
     .def("P",&Lattice::P)
     .def("P",&Lattice::P_p)
     .def("Pav",&Lattice::Pav)
