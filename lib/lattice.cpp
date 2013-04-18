@@ -499,7 +499,6 @@ void Lattice::update()
       }
     }
   }
-  cout << this->Pav() << endl;
   this->nupdates++;
 }
 
