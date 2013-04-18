@@ -7,9 +7,11 @@
 #include <cstdlib>
 #include <iostream>
 #include <ctime>
+#include <unsupported/Eigen/MatrixFunctions>
 
 using namespace Eigen;
-using namespace boost::python;
+namespace py = boost::python;
+//using namespace boost::python;
 using namespace std;
 
 namespace lattice
@@ -50,9 +52,9 @@ public:
   Matrix3cd calcLine(const int start[4], const int finish[4]);
   double W(const int c1[4], const int c2[4], const int n_smears = 0);
   double W(const int c[4], const int r, const int t, const int dim, const int n_smears = 0);
-  double W_p(const list cnr, const int r, const int t, const int dim, const int n_smears = 0);
+  double W_p(const py::list cnr, const int r, const int t, const int dim, const int n_smears = 0);
   double P(const int site[4], const int mu, const int nu);
-  double P_p(const list site2,const int mu, const int nu);
+  double P_p(const py::list site2,const int mu, const int nu);
   double Pav();
   double Si(const int link[5]);
   Matrix3cd randomSU3();
@@ -62,7 +64,7 @@ public:
   Matrix3cd link(const int link[5]);
   void smear(const int time, const int n_smears);
   Matrix3cd fdiff(const int link[5]);
-  list getLink(const int i, const int j, const int k, const int l, const int m);
+  py::list getLink(const int i, const int j, const int k, const int l, const int m);
 
   int Ncor, Ncf, n;
 
@@ -113,6 +115,8 @@ Lattice::Lattice(const int n, const double beta, const int Ncor, const int Ncf, 
     Matrix3cd randSU3 = this->randomSU3();
     this->randSU3s.push_back(randSU3);
     this->randSU3s.push_back(randSU3.adjoint());
+    //cout << randSU3 * randSU3.adjoint() << endl;
+    //cout << randSU3.determinant() << endl;
   }
 }
 
@@ -132,8 +136,8 @@ double Lattice::init_u0()
       }
     }
   }
-  this->u0 = fabs(sum / (pow(this->n,4)*4));
-  return fabs(sum / (pow(this->n,4)*4));
+  this->u0 = sum / (pow(this->n,4)*4);
+  return sum / (pow(this->n,4)*4);
 }
 
 Lattice::~Lattice()
@@ -374,11 +378,11 @@ double Lattice::W(const int c[4], const int r, const int t, const int dim, const
   return this->W(c,c2,n_smears);
 }
 
-double Lattice::W_p(const list cnr, const int r, const int t, const int dim, const int n_smears)
+double Lattice::W_p(const py::list cnr, const int r, const int t, const int dim, const int n_smears)
 {
   /*Calculates the loop specified by corners c1 and c2 (which must
     lie in the same plane)*/
-  int c[4] = {extract<int>(cnr[0]),extract<int>(cnr[1]),extract<int>(cnr[2]),extract<int>(cnr[3])};
+  int c[4] = {py::extract<int>(cnr[0]),py::extract<int>(cnr[1]),py::extract<int>(cnr[2]),py::extract<int>(cnr[3])};
   return this->W(c,r,t,dim,n_smears);
 }
 
@@ -416,10 +420,10 @@ double Lattice::P(const int site[4],const int mu, const int nu)
   return 1./3 * product.trace().real();
 }
 
-double Lattice::P_p(const list site2,const int mu, const int nu)
+double Lattice::P_p(const py::list site2,const int mu, const int nu)
 {
   /*Python wrapper for the plaquette function.*/
-  int site[4] = {extract<int>(site2[0]),extract<int>(site2[1]),extract<int>(site2[2]),extract<int>(site2[3])};
+  int site[4] = {py::extract<int>(site2[0]),py::extract<int>(site2[1]),py::extract<int>(site2[2]),py::extract<int>(site2[3])};
   return this->P(site,mu,nu);
 }
 
@@ -452,23 +456,28 @@ double Lattice::Si(const int link[5])
 Matrix3cd Lattice::randomSU3()
 {
   /*Generate a random SU3 matrix, weighted by eps*/
-
   Matrix3cd A;
-  //First generate a random matrix whos elements all lie in/on unit circle
+  //First generate a random matrix whos elements all lie in/on unit circle  
   for(int i = 0; i < 3; i++) {
     for(int j = 0; j < 3; j++) {
       A(i,j) = double(rand()) / double(RAND_MAX);
       A(i,j) *= exp(2 * lattice::pi * lattice::i * double(rand()) / double(RAND_MAX));
     }
   }
-  //Weight the generation by the weighting eps
-  Matrix3cd B = Matrix3cd::Identity() + lattice::i * this->eps * A;
-  HouseholderQR<Matrix3cd> decomp(B);
-  //QR decompose B to make unitary
-  Matrix3cd Q = decomp.householderQ();
-
-  //Divide by cube root of determinant to move from U(3) to SU(3)
-  return Q / pow(Q.determinant(),1./3);
+  //Weight the matrix with weighting eps
+  A *= this->eps;
+  //Make the matrix traceless and Hermitian
+  A(2,2) = -(A(1,1) + A(0,0));
+  Matrix3cd B = 0.5 * (A - A.adjoint());
+  cout << "U = A.exp() = " << endl;
+  Matrix3cd U = B.exp();
+  cout << U << endl;
+  cout << "U * U.H = " << endl;
+  cout << U*U.adjoint() << endl;
+  cout << "U.det()" << endl;
+  cout << U.determinant() << endl;
+  //Compute the matrix exponential to get a special unitary matrix
+  return U;
 }
 
 void Lattice::thermalize()
@@ -554,14 +563,14 @@ void Lattice::printL()
   }
 }
 
-list Lattice::getLink(const int i, const int j, const int k, const int l, const int m)
+py::list Lattice::getLink(const int i, const int j, const int k, const int l, const int m)
 {
   /*Returns the given link as a python nested list. Used in conjunction
    with python interfaces library to extract the links as a nested list
    of numpy matrices.*/
-  list out;
+  py::list out;
   for(int n = 0; n < 3; n++) {
-    list temp;
+    py::list temp;
     for(int o = 0; o < 3; o++) {
       temp.append(this->links[i][j][k][l][m](n,o));
     }
@@ -575,14 +584,13 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(LatticeWOverload,W_p,4,5)
 
 BOOST_PYTHON_MODULE(lattice)
 {
-  class_<Lattice>("Lattice", init<optional<int,double,int,int,double,double,double> >())
+  py::class_<Lattice>("Lattice", py::init<py::optional<int,double,int,int,double,double,double> >())
     .def("update",&Lattice::update)
     .def("thermalize",&Lattice::thermalize)
     .def("init_u0",&Lattice::init_u0)
-    .def("P",&Lattice::P)
     .def("P",&Lattice::P_p)
     .def("Pav",&Lattice::Pav)
-    .def("W",&Lattice::W_p,LatticeWOverload(args("cnr","r","t","dim","n_smears"), "Calculate Wilson loop"))
+    .def("W",&Lattice::W_p,LatticeWOverload(py::args("cnr","r","t","dim","n_smears"), "Calculate Wilson loop"))
     .def("printL",&Lattice::printL)
     .def("getLink",&Lattice::getLink)
     .def_readonly("Ncor",&Lattice::Ncor)
