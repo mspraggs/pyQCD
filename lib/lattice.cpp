@@ -115,8 +115,6 @@ Lattice::Lattice(const int n, const double beta, const int Ncor, const int Ncf, 
     Matrix3cd randSU3 = this->randomSU3();
     this->randSU3s.push_back(randSU3);
     this->randSU3s.push_back(randSU3.adjoint());
-    //cout << randSU3 * randSU3.adjoint() << endl;
-    //cout << randSU3.determinant() << endl;
   }
 }
 
@@ -124,8 +122,8 @@ double Lattice::init_u0()
 {
   /*Calculate u0*/
   this->thermalize();
-  this->u0 = pow(this->Pav(),0.25)
-    return pow(this->Pav(),0.25);
+  this->u0 = pow(this->Pav(),0.25);
+  return pow(this->Pav(),0.25);
 }
 
 Lattice::~Lattice()
