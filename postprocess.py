@@ -48,9 +48,11 @@ if __name__ == "__main__":
     filename = "results/%s" % files[file_num]
     Ws = load(filename)
 
-    N_bstrp = 10000
+    N_bstrp = 100
+    binsize = 1
     aVs = pl.zeros((N_bstrp,) + pl.shape(Ws)[1:])
-
+    Ws = bin(Ws)
+        
     for i in xrange(N_bstrp):
         W = pl.mean(bootstrap(Ws),axis=0)
         aVs[i] = calcaV(W)
