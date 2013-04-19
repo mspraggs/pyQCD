@@ -22,7 +22,7 @@ def getLinks(lattice):
 
 def calcWs(lattice,rmax,tmax,dim=1,n_smears=0):
     """Calculates a series of Wilson loops up to the maximum r and t values"""
-    out = np.zeros(rmax-1,tmax-1)
+    out = np.zeros((rmax-1,tmax-1))
 
     for r in xrange(1,rmax):
         for t in xrange(1,tmax):
