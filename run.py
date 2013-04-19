@@ -16,10 +16,8 @@ sys.stdout.flush()
 Ps = [0] * L.Ncf
     
 for i in xrange(L.Ncf):
-    for j in xrange(L.Ncor):
-        print("Configuration: %d; Update: %d" % (i,j))
-        sys.stdout.flush()
-        L.update()
+    L.nextConfig()
+    print("Configuration: %d" % i)
     Ps[i] = L.Pav()
 
 fileio.writedata("plaquettes.txt",[Ps])
