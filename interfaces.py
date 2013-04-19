@@ -26,4 +26,4 @@ def calcWs(lattice,rmax,tmax,dim=1,n_smears=0):
 
     for r in xrange(1,rmax):
         for t in xrange(1,tmax):
-            out[r,t] = lattice.W([0,0,0,0],r,t,dim,n_smears)
+            out[r-1,t-1] = lattice.W([0,0,0,0],r,t,dim,n_smears)
