@@ -22,6 +22,7 @@ Ws = np.zeros((L.Ncf,rmax-1,tmax-1))
     
 for i in xrange(L.Ncf):
     print("Configuration: %d" % i)
+    sys.stdout.flush()
     L.nextConfig()
     Ws[i] = interfaces.calcWs(L,rmax,tmax)
 
