@@ -10,7 +10,7 @@ from os.path import join
 L = lattice.Lattice(8, #n
                     5.5, #beta
                     50, #Ncor
-                    10000, #Ncf
+                    1000, #Ncf
                     0.24, #eps
                     0.25, #a
                     1./12) #smear_eps
