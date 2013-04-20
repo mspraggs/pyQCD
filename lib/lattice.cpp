@@ -18,7 +18,7 @@ namespace lattice
   const complex<double> i (0,1);
   const double pi = 3.1415926535897932384626433;
   
-  int mod(int n, const int d)
+  int mod(int n, const int &d)
   {
     while(n < 0) {
       n += d;
@@ -26,7 +26,7 @@ namespace lattice
     return n%d;
   }
   
-  void copyarray(int a1[], const int a2[], const int length)
+  void copyarray(int a1[], const int a2[], const int &length)
   {
     for(int i = 0; i < length; i++) {
       a1[i] = a2[i];
