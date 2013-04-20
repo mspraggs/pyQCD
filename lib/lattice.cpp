@@ -43,8 +43,7 @@ public:
 	  const int Ncf = 1000,
 	  const double eps = 0.24,
 	  const double a = 0.25,
-	  const double smear_eps = 1./12,
-	  const double u0 = 0.7);
+	  const double smear_eps = 1./12);
   double init_u0();
 
   ~Lattice();
@@ -85,7 +84,7 @@ public:
   
 };
 
-Lattice::Lattice(const int n, const double beta, const int Ncor, const int Ncf, const double eps, const double a, const double smear_eps, const double u0)
+Lattice::Lattice(const int n, const double beta, const int Ncor, const int Ncf, const double eps, const double a, const double smear_eps)
 {
   /*Default constructor. Assigns function arguments to member variables
    and initializes links.*/
@@ -97,7 +96,6 @@ Lattice::Lattice(const int n, const double beta, const int Ncor, const int Ncf, 
   this->a = a;
   this->smear_eps = smear_eps;
   this->nupdates = 0;
-  this->u0 = u0;
 
   srand(time(NULL));
   //Resize the link vector and assign each link a random SU3 matrix
@@ -212,8 +210,8 @@ void Lattice::smear(const int time, const int n_smears)
 	  vector<Matrix3cd, aligned_allocator<Matrix3cd> > temp3;
 	  for(int l = 0; l < 4; l++) {
 	    //Create a temporary matrix to store the new link
+	    Matrix3cd temp_mat = this->links[time][i][j][k][l];
 	    int link[5] = {time,i,j,k,l};
-	    Matrix3cd temp_mat = this->link(link);;
 	    temp_mat += this->smear_eps * pow(this->a,2) * this->fdiff(link);
 	    temp3.push_back(temp_mat);
 	  }
@@ -224,7 +222,7 @@ void Lattice::smear(const int time, const int n_smears)
       newlinks.push_back(temp1);
     }
     //Apply the changes to the existing lattice.
-    this->links[lattice::mod(time,this->n)] = newlinks;
+    this->links[time] = newlinks;
   }
 }
 
@@ -321,8 +319,8 @@ double Lattice::W(const int c1[4], const int c2[4], const int n_smears)
   vector<vector<vector<vector<Matrix3cd, aligned_allocator<Matrix3cd> > > > > linkstore2;
   //Smear the links if specified, whilst storing the non-smeared ones.
   if(n_smears > 0) {
-    linkstore1 = this->links[lattice::mod(c1[0],this->n)];
-    linkstore2 = this->links[lattice::mod(c2[0],this->n)];
+    linkstore1 = this->links[c1[0]];
+    linkstore2 = this->links[c2[0]];
     this->smear(c1[0],n_smears);
     this->smear(c2[0],n_smears);
   }
@@ -353,10 +351,10 @@ double Lattice::W(const int c1[4], const int c2[4], const int n_smears)
   }
   //Restore the old links
   if(n_smears > 0) {
-    this->links[lattice::mod(c1[0],this->n)] = linkstore1;
-    this->links[lattice::mod(c2[0],this->n)] = linkstore2;
+    this->links[c1[0]] = linkstore1;
+    this->links[c2[0]] = linkstore2;
   }
-  
+
   return 1./3 * out.trace().real();
 }
 
@@ -685,7 +683,7 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(LatticeWavOverload,Wav,2,3)
 
 BOOST_PYTHON_MODULE(lattice)
 {
-  py::class_<Lattice>("Lattice", py::init<py::optional<int,double,int,int,double,double,double,double> >())
+  py::class_<Lattice>("Lattice", py::init<py::optional<int,double,int,int,double,double,double> >())
     .def("update",&Lattice::update)
     .def("nextConfig",&Lattice::nextConfig)
     .def("thermalize",&Lattice::thermalize)
