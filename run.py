@@ -7,13 +7,19 @@ import time
 import datetime
 from os.path import join
 
+if len(sys.argv) > 1:
+    n_smears = eval(sys.argv[1])
+else:
+    n_smears = 0
+
 L = lattice.Lattice(8, #n
                     5.5, #beta
                     50, #Ncor
                     1000, #Ncf
                     0.24, #eps
                     0.25, #a
-                    1./12) #smear_eps
+                    1./12, #smear_eps
+                    0.7) #u0        
 
 #Thermalize the lattice
 print("Thermalizing...")
@@ -30,7 +36,7 @@ for i in xrange(L.Ncf):
     print("Configuration: %d" % i)
     sys.stdout.flush()
     L.nextConfig()
-    Ws[i] = interfaces.calcWs(L,rmax,tmax)
+    Ws[i] = interfaces.calcWs(L,rmax,tmax,n_smears=n_smears)
 
 time = datetime.datetime.now()
 filename = join("results","results_%s.npy" % time.strftime("%H:%M:%S_%d-%m-%Y"))
