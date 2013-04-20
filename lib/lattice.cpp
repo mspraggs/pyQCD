@@ -58,6 +58,7 @@ public:
   double R(const int site[4], const int mu, const int nu);
   double R_p(const py::list site2,const int mu, const int nu);
   double Pav();
+  double Rav();
   double Si(const int link[5]);
   Matrix3cd randomSU3();
   void thermalize();
@@ -605,6 +606,30 @@ double Lattice::Pav()
   return Ptot / (pow(this->n,4) * 6);
 }
 
+double Lattice::Rav()
+{
+  /*Calculate average plaquette operator value*/
+  //mu > nu, so there are six plaquettes at each site.
+  int nus[6] = {0,0,0,1,1,2};
+  int mus[6] = {1,2,3,2,3,3};
+  double Rtot = 0;
+  //Pretty simple: step through the matrix and add all plaquettes up
+  for(int i = 0; i < this->n; i++) {
+    for(int j = 0; j < this->n; j++) {
+      for(int k = 0; k < this->n; k++) {
+	for(int l = 0; l < this->n; l++) {
+	  for(int m = 0; m < 6; m++) {
+	    int site[4] = {i,j,k,l};
+	    Rtot += this->R(site,mus[m],nus[m]);
+	  }
+	}
+      }
+    }
+  }
+  //Divide through by number of plaquettes to get mean (simples!)
+  return Rtot / (pow(this->n,4) * 6);
+}
+
 void Lattice::printL()
 {
   /*Print the links out. A bit redundant due to the interfaces library,
@@ -666,6 +691,7 @@ BOOST_PYTHON_MODULE(lattice)
     .def("P",&Lattice::P_p)
     .def("Pav",&Lattice::Pav)
     .def("R",&Lattice::R_p)
+    .def("Rav",&Lattice::Rav)
     .def("W",&Lattice::W_p,LatticeWOverload(py::args("cnr","r","t","dim","n_smears"), "Calculate Wilson loop"))
     .def("Wav",&Lattice::Wav,LatticeWavOverload(py::args("r","t","n_smears"), "Calculate average Wilson loop"))
     .def("printL",&Lattice::printL)
