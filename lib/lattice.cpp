@@ -51,6 +51,7 @@ public:
   Matrix3cd calcLine(const int start[4], const int finish[4]);
   double W(const int c1[4], const int c2[4], const int n_smears = 0);
   double W(const int c[4], const int r, const int t, const int dim, const int n_smears = 0);
+  double Wav(const int r, const int t, const int n_smears = 0);
   double W_p(const py::list cnr, const int r, const int t, const int dim, const int n_smears = 0);
   double P(const int site[4], const int mu, const int nu);
   double P_p(const py::list site2,const int mu, const int nu);
@@ -365,6 +366,26 @@ double Lattice::W(const int c[4], const int r, const int t, const int dim, const
   return this->W(c,c2,n_smears);
 }
 
+double Lattice::Wav(const int r, const int t, const int n_smears)
+{
+  /*Calculates the average of all possible Wilson loops of a given
+    dimension*/
+  double Wtot = 0;
+  for(int i = 0; i < this->n; i++) {
+    for(int j = 0; j < this->n; j++) {
+      for(int k = 0; k < this->n; k++) {
+	for(int l = 0; l < this->n; l++) {
+	  for(int m = 1; m < 4; m++) {
+	    int site[4] = {i,j,k,l};
+	    Wtot += this->W(site,r,t,m,n_smears);
+	  }
+	}
+      }
+    }
+  }
+  return Wtot / (pow(this->n,4)*3);
+}
+
 double Lattice::W_p(const py::list cnr, const int r, const int t, const int dim, const int n_smears)
 {
   /*Calculates the loop specified by corners c1 and c2 (which must
@@ -584,6 +605,7 @@ py::list Lattice::getRandSU3(const int i)
 
 //Boost python wrapping of the class
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(LatticeWOverload,W_p,4,5)
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(LatticeWavOverload,Wav,2,3)
 
 BOOST_PYTHON_MODULE(lattice)
 {
@@ -595,6 +617,7 @@ BOOST_PYTHON_MODULE(lattice)
     .def("P",&Lattice::P_p)
     .def("Pav",&Lattice::Pav)
     .def("W",&Lattice::W_p,LatticeWOverload(py::args("cnr","r","t","dim","n_smears"), "Calculate Wilson loop"))
+    .def("Wav",&Lattice::Wav,LatticeWavOverload(py::args("r","t","n_smears"), "Calculate average Wilson loop"))
     .def("printL",&Lattice::printL)
     .def("getLink",&Lattice::getLink)
     .def("getRandSU3",&Lattice::getRandSU3)
