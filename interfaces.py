@@ -1,9 +1,5 @@
 import numpy as np
-
-try:
-    from multiprocessing import Process,Array
-except:
-    from processing import Process,Array
+from multiprocessing import Process,Array
 
 def getLinks(lattice):
     """Extracts links from lattice as a compound list of numpy arrays"""
