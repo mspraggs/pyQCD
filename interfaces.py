@@ -24,7 +24,7 @@ def calcWs(lattice,rmax,tmax,n_smears=0):
     """Calculates a series of Wilson loops up to the maximum r and t values"""
     out = np.zeros((rmax-1,tmax-1))
 
-    indices = [(i,j,k,l,m) for i in range(lattice.n) for j in range(lattice.n) for k in range(lattice.n) for l in range(lattice.n) for m in range(4)]
+    indices = [(i,j,k,l,m) for i in range(lattice.n) for j in range(lattice.n) for k in range(lattice.n) for l in range(lattice.n) for m in range(1,4)]
 
     for r in xrange(1,rmax):
         for t in xrange(1,tmax):
