@@ -529,7 +529,7 @@ double Lattice::SiImp(const int link[5])
     site[planes[i]] -=1;
     Rsum += this->R(site,planes[i],link[4]);
   }
-  Rsum *= this->beta / (6 * pow(this->u0,6));
+  Rsum *= this->beta / (12 * pow(this->u0,6));
   return out + Rsum;
 }
 
