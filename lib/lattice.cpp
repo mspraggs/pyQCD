@@ -212,26 +212,20 @@ void Lattice::smear(const int time, const int n_smears)
 {
   /*Smear the specified time slice by iterating calling this function*/
   for(int i = 0; i < n_smears; i++) {
-    //Iterate through all the links and calculate the new ones from the existing ones.
-    vector< vector< vector< vector<Matrix3cd, aligned_allocator<Matrix3cd> > > > > newlinks;
+    //Iterate through all the links and calculate the new ones from the existing ones.    
+    vector< vector< vector< vector<Matrix3cd, aligned_allocator<Matrix3cd> > > > > newlinks(this->n, vector< vector< vector<Matrix3cd, aligned_allocator<Matrix3cd> > > >(this->n,vector< vector<Matrix3cd, aligned_allocator<Matrix3cd> > >(this->n, vector< Matrix3cd, aligned_allocator<Matrix3cd> >(4))));
     for(int i = 0; i < this->n; i++) {
-      vector< vector< vector<Matrix3cd, aligned_allocator<Matrix3cd> > > > temp1;
       for(int j = 0; j < this->n; j++) {
-	vector< vector<Matrix3cd, aligned_allocator<Matrix3cd> > > temp2;
 	for(int k = 0; k < this->n; k++) {
-	  vector<Matrix3cd, aligned_allocator<Matrix3cd> > temp3;
 	  for(int l = 0; l < 4; l++) {
 	    //Create a temporary matrix to store the new link
 	    int link[5] = {time,i,j,k,l};
 	    Matrix3cd temp_mat = this->link(link);;
 	    temp_mat += this->smear_eps * pow(this->a,2) * this->fdiff(link);
-	    temp3.push_back(temp_mat);
+	    newlinks[i][j][k][l] = temp_mat;
 	  }
-	  temp2.push_back(temp3);
 	}
-	temp1.push_back(temp2);
       }
-      newlinks.push_back(temp1);
     }
     //Apply the changes to the existing lattice.
     this->links[lattice::mod(time,this->n)] = newlinks;
