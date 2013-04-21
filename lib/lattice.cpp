@@ -44,7 +44,7 @@ public:
 	  const double eps = 0.24,
 	  const double a = 0.25,
 	  const double smear_eps = 1./12,
-	  const double u0 = 0.7,
+	  const double u0 = 1,
 	  const int action = 0);
   double init_u0();
 
@@ -79,6 +79,7 @@ private:
   double beta, eps, a, u0, smear_eps;
   int nupdates;
   double SiW(const int link[5]);
+  double SiImp(const int link[5]);
   vector< vector< vector< vector< vector<Matrix3cd, aligned_allocator<Matrix3cd> > > > > > links;
   vector<Matrix3cd, aligned_allocator<Matrix3cd> > randSU3s;
 
@@ -130,7 +131,11 @@ Lattice::Lattice(const int n, const double beta, const int Ncor, const int Ncf, 
   if(action == 0) {
     this->Si = &Lattice::SiW;
   }
+  else if(action == 1) {
+    this->Si = &Lattice::SiImp;
+  }
   else {
+    cout << "Warning! Specified action does not exist." << endl;
     this->Si = &Lattice::SiW;
   }
 }
@@ -491,6 +496,43 @@ double Lattice::P_p(const py::list site2,const int mu, const int nu)
   return this->P(site,mu,nu);
 }
 
+double Lattice::SiImp(const int link[5])
+{
+  /*Calculate contribution to improved action from given link*/
+
+  //First contrbution is from standard Wilson action, so add that in
+  double out = 5./3 * this->SiW(link);
+  double Rsum = 0;
+
+  int planes[3];
+
+  //Work out which dimension the link is in, since it'll be irrelevant here
+  int j = 0;
+  for(int i = 0; i < 4; i++) {
+    if(link[4] != i) {
+      planes[j] = i;
+      j++;
+    }
+  }
+  
+  for(int i = 0; i < 3; i++) {
+    int site[4] = {link[0],link[1],link[2],link[3]};
+    Rsum += this->R(site,link[4],planes[i]);
+    Rsum += this->R(site,planes[i],link[4]);
+    site[planes[i]] -= 1;
+    Rsum += this->R(site,link[4],planes[i]);
+    site[planes[i]] -= 1;
+    Rsum += this->R(site,planes[i],link[4]);
+    lattice::copyarray(site,link,4);
+    site[link[4]] -= 1;
+    Rsum += this->R(site,planes[i],link[4]);
+    site[planes[i]] -=1;
+    Rsum += this->R(site,planes[i],link[4]);
+  }
+  Rsum *= this->beta / (6 * pow(this->u0,6));
+  return out + Rsum;
+}
+
 double Lattice::SiW(const int link[5])
 {
   /*Calculate the contribution to the Wilson action from the given link*/
@@ -503,7 +545,7 @@ double Lattice::SiW(const int link[5])
     if(link[4] != i) {
       planes[j] = i;
       j++;
-    }
+    }    
   }
 
   /*For each plane, calculate the two plaquettes that share the given link*/
@@ -514,7 +556,7 @@ double Lattice::SiW(const int link[5])
     Psum += this->P(site,link[4],planes[i]);
   }
 
-  return -this->beta * Psum;
+  return -this->beta * Psum / pow(this->u0,4);
 }
 
 Matrix3cd Lattice::randomSU3()
