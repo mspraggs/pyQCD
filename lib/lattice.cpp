@@ -44,7 +44,8 @@ public:
 	  const double eps = 0.24,
 	  const double a = 0.25,
 	  const double smear_eps = 1./12,
-	  const double u0 = 0.7);
+	  const double u0 = 0.7,
+	  const int action = 0);
   double init_u0();
 
   ~Lattice();
@@ -60,7 +61,7 @@ public:
   double R_p(const py::list site2,const int mu, const int nu);
   double Pav();
   double Rav();
-  double Si(const int link[5]);
+  double (Lattice::*Si)(const int link[5]);
   Matrix3cd randomSU3();
   void thermalize();
   void nextConfig();
@@ -77,6 +78,7 @@ public:
 private:
   double beta, eps, a, u0, smear_eps;
   int nupdates;
+  double SiW(const int link[5]);
   vector< vector< vector< vector< vector<Matrix3cd, aligned_allocator<Matrix3cd> > > > > > links;
   vector<Matrix3cd, aligned_allocator<Matrix3cd> > randSU3s;
 
@@ -85,7 +87,7 @@ public:
   
 };
 
-Lattice::Lattice(const int n, const double beta, const int Ncor, const int Ncf, const double eps, const double a, const double smear_eps, const double u0)
+Lattice::Lattice(const int n, const double beta, const int Ncor, const int Ncf, const double eps, const double a, const double smear_eps, const double u0, const int action)
 {
   /*Default constructor. Assigns function arguments to member variables
    and initializes links.*/
@@ -122,6 +124,14 @@ Lattice::Lattice(const int n, const double beta, const int Ncor, const int Ncf, 
     Matrix3cd randSU3 = this->randomSU3();
     this->randSU3s.push_back(randSU3);
     this->randSU3s.push_back(randSU3.adjoint());
+  }
+
+  //Set the action to point to the correct function
+  if(action == 0) {
+    this->Si = &Lattice::SiW;
+  }
+  else {
+    this->Si = &Lattice::SiW;
   }
 }
 
@@ -487,9 +497,9 @@ double Lattice::P_p(const py::list site2,const int mu, const int nu)
   return this->P(site,mu,nu);
 }
 
-double Lattice::Si(const int link[5])
+double Lattice::SiW(const int link[5])
 {
-  /*Calculate the contribution to the action from the given link*/
+  /*Calculate the contribution to the Wilson action from the given link*/
   int planes[3];
   double Psum = 0;
 
@@ -563,7 +573,7 @@ void Lattice::update()
 	    //We'll need an array with the link indices
 	    int link[5] = {i,j,k,l,m};
 	    //Record the old action contribution
-	    double Si_old = this->Si(link);
+	    double Si_old = (this->*Si)(link);
 	    //Record the old link in case we need it
 	    Matrix3cd linki_old = this->links[i][j][k][l][m];
 	    //Get ourselves a random SU3 matrix for the update
@@ -571,7 +581,7 @@ void Lattice::update()
 	    //Multiply the site
 	    this->links[i][j][k][l][m] = randSU3 * this->links[i][j][k][l][m];
 	    //What's the change in the action?
-	    double dS = this->Si(link) - Si_old;
+	    double dS = (this->*Si)(link) - Si_old;
 	    //Was the change favourable? If not, revert the change
 	    if((dS > 0) && (exp(-dS) < double(rand()) / double(RAND_MAX))) {
 	      this->links[i][j][k][l][m] = linki_old;
@@ -685,7 +695,7 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(LatticeWavOverload,Wav,2,3)
 
 BOOST_PYTHON_MODULE(lattice)
 {
-  py::class_<Lattice>("Lattice", py::init<py::optional<int,double,int,int,double,double,double,double> >())
+  py::class_<Lattice>("Lattice", py::init<py::optional<int,double,int,int,double,double,double,double,int> >())
     .def("update",&Lattice::update)
     .def("nextConfig",&Lattice::nextConfig)
     .def("thermalize",&Lattice::thermalize)
