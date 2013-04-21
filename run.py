@@ -56,13 +56,10 @@ if options.test:
 
 else:    
     for i in xrange(L.Ncf):
-        t1 = time.time()
         print("Configuration: %d" % i)
         sys.stdout.flush()
         L.nextConfig()
         Ws[i] = interfaces.calcWs(L,rmax,tmax,n_smears=options.n_smears)
-        t2 = time.time()
-        print(t2-t1)
 
     filename = "results_n=%d,beta=%f,Ncor=%d,Ncf=%d,u0=%d,action=%d,n_smears=%d" % (options.n,options.beta,options.Ncor,options.Ncf,options.u0,options.action)
     time = datetime.datetime.now()
