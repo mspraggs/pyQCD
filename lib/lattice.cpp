@@ -518,19 +518,22 @@ double Lattice::SiImp(const int link[5])
   for(int i = 0; i < 3; i++) {
     int site[4] = {link[0],link[1],link[2],link[3]};
     Rsum += this->R(site,link[4],planes[i]);
-    Rsum += this->R(site,planes[i],link[4]);
+    site[link[4]] -= 1;
+    Rsum += this->R(site,link[4],planes[i]);
+
+    lattice::copyarray(site,link,4);
     site[planes[i]] -= 1;
     Rsum += this->R(site,link[4],planes[i]);
-    site[planes[i]] -= 1;
-    Rsum += this->R(site,planes[i],link[4]);
-    lattice::copyarray(site,link,4);
     site[link[4]] -= 1;
+    Rsum += this->R(site,link[4],planes[i]);
+    
+    lattice::copyarray(site,link,4);
     Rsum += this->R(site,planes[i],link[4]);
-    site[planes[i]] -=1;
-    Rsum += this->R(site,planes[i],link[4]);
+    site[planes[i]] -= 2;
+    Rsum += this->R(site, planes[i],link[4]);
   }
-  Rsum *= this->beta / (12 * pow(this->u0,6));
-  return out + Rsum;
+  out += this->beta / (12 * pow(this->u0,6)) * Rsum;
+  return out;
 }
 
 double Lattice::SiW(const int link[5])
