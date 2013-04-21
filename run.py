@@ -61,7 +61,7 @@ else:
         L.nextConfig()
         Ws[i] = interfaces.calcWs(L,rmax,tmax,n_smears=options.n_smears)
 
-    filename = "results_n=%d,beta=%f,Ncor=%d,Ncf=%d,u0=%d,action=%d,n_smears=%d" % (options.n,options.beta,options.Ncor,options.Ncf,options.u0,options.action)
+    filename = "results_n=%d,beta=%f,Ncor=%d,Ncf=%d,u0=%d,action=%d,n_smears=%d" % (options.n,options.beta,options.Ncor,options.Ncf,options.u0,options.action,options.n_smears)
     time = datetime.datetime.now()
     filepath = join("results",filename)
     np.save(filepath,Ws)
