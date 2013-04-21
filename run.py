@@ -6,38 +6,66 @@ import sys
 import time
 import datetime
 from os.path import join
+from optparse import OptionParser
 
-if len(sys.argv) > 1:
-    n_smears = eval(sys.argv[1])
-else:
-    n_smears = 0
+parser = OptionParser()
+parser.add_option("-b","--beta",action="store", type="float", dest="beta",default=5.5)
+parser.add_option("-u","--u0",action="store", type="float", dest="u0",default=1)
+parser.add_option("-a","--action",action="store", type="int", dest="action",default=0)
+parser.add_option("--nsmears",action="store", type="int", dest="n_smears",default=0)
+parser.add_option("-n","--n",action="store", type="int", dest="n",default=8)
+parser.add_option("--Ncor",action="store", type="int", dest="Ncor",default=50)
+parser.add_option("--Ncf",action="store", type="int", dest="Ncf",default=1000)
+parser.add_option("-e","--eps",action="store", type="float", dest="eps",default=0.24)
+parser.add_option("-s","--spacing",action="store", type="float", dest="a",default=0.25)
+parser.add_option("--smeareps",action="store", type="float", dest="smear_eps",default=1./12)
+parser.add_option("--test","-t",action="store_true",dest="test")
 
-L = lattice.Lattice(8, #n
-                    5.5, #beta
-                    50, #Ncor
-                    1000, #Ncf
-                    0.24, #eps
-                    0.25, #a
-                    1./12, #smear_eps
-                    0.7) #u0        
+(options, args) = parser.parse_args()
+
+L = lattice.Lattice(options.n, #n
+                    options.beta, #beta
+                    options.Ncor, #Ncor
+                    options.Ncf, #Ncf
+                    options.eps, #eps
+                    options.a, #a
+                    options.smear_eps, #smear_eps
+                    options.u0, #u0
+                    options.action) #action
 
 #Thermalize the lattice
 print("Thermalizing...")
+t0 = time.time()
 sys.stdout.flush()
 L.thermalize()
 print("Done!")
 sys.stdout.flush()
 
-rmax = 7
-tmax = 7
+rmax = L.n-1
+tmax = L.n-1
 Ws = np.zeros((L.Ncf,rmax-1,tmax-1))
-    
-for i in xrange(L.Ncf):
-    print("Configuration: %d" % i)
+
+if options.test:
+    t1 = time.time()
+    print("Calculating run time...")
     sys.stdout.flush()
     L.nextConfig()
-    Ws[i] = interfaces.calcWs(L,rmax,tmax,n_smears=n_smears)
+    interfaces.calcWs(L,rmax,tmax,n_smears=options.n_smears)
+    t2 = time.time()
+    print("Estimated run time: %f hours" % (((t2-t1) * options.Ncf + t2 - t1) / 3600))
 
-time = datetime.datetime.now()
-filename = join("results","results_%s.npy" % time.strftime("%H:%M:%S_%d-%m-%Y"))
-np.save(filename,Ws)
+else:    
+    for i in xrange(L.Ncf):
+        t1 = time.time()
+        print("Configuration: %d" % i)
+        sys.stdout.flush()
+        L.nextConfig()
+        Ws[i] = interfaces.calcWs(L,rmax,tmax,n_smears=options.n_smears)
+        t2 = time.time()
+        print(t2-t1)
+
+    filename = "results_n=%d,beta=%f,Ncor=%d,Ncf=%d,u0=%d,action=%d,n_smears=%d" % (options.n,options.beta,options.Ncor,options.Ncf,options.u0,options.action)
+    time = datetime.datetime.now()
+    filepath = join("results",filename)
+    np.save(filepath,Ws)
+    
