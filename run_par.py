@@ -29,7 +29,6 @@ parser.add_option("--smeareps",action="store", type="float", dest="smear_eps",de
 parser.add_option("--test","-t",action="store_true",dest="test")
 
 options, args = parser.parse_args()
-options = comm.bcast(options,root=0)
 
 if rank == 0:    
     L = lattice.Lattice(options.n, #n
