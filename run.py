@@ -62,8 +62,8 @@ else:
         L.nextConfig()
         Ws[i] = interfaces.calcWs(L,rmax,tmax,n_smears=options.n_smears)
 
-    filename = "results_n=%d,beta=%f,Ncor=%d,Ncf=%d,u0=%d,action=%d,n_smears=%d" % (options.n,options.beta,options.Ncor,options.Ncf,options.u0,options.action,options.n_smears)
     time = datetime.datetime.now()
+    filename = "results_n=%d,beta=%f,Ncor=%d,Ncf=%d,u0=%d,action=%d,n_smears=%d_%s" % (options.n,options.beta,options.Ncor,options.Ncf,options.u0,options.action,options.n_smears,time.strftime("%H:%M:%S_%d-%m-%Y"))
     filepath = join("results",filename)
     np.save(filepath,Ws)
     os.system("git add %s" % filepath)
