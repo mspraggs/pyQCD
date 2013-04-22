@@ -8,6 +8,7 @@ import datetime
 from os.path import join
 from optparse import OptionParser
 
+
 parser = OptionParser()
 parser.add_option("-b","--beta",action="store", type="float", dest="beta",default=5.5)
 parser.add_option("-u","--u0",action="store", type="float", dest="u0",default=1)
@@ -21,8 +22,6 @@ parser.add_option("-s","--spacing",action="store", type="float", dest="a",defaul
 parser.add_option("--smeareps",action="store", type="float", dest="smear_eps",default=1./12)
 parser.add_option("--test","-t",action="store_true",dest="test")
 
-(options, args) = parser.parse_args()
-
 L = lattice.Lattice(options.n, #n
                     options.beta, #beta
                     options.Ncor, #Ncor
@@ -32,6 +31,8 @@ L = lattice.Lattice(options.n, #n
                     options.smear_eps, #smear_eps
                     options.u0, #u0
                     options.action) #action
+
+(options,args) = parser.parse_args()
 
 #Thermalize the lattice
 print("Thermalizing...")
@@ -65,4 +66,6 @@ else:
     time = datetime.datetime.now()
     filepath = join("results",filename)
     np.save(filepath,Ws)
+    os.system("git add %s" % filepath)
+    os.system("git commit %s -m 'Adding results'" % filepath)
     
