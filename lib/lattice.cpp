@@ -817,8 +817,7 @@ struct my_pickle_suite : py::pickle_suite
 	      Matrix3cd temp_mat;
 	      for(int n = 0; n < 3; n++) {
 		for(int o = 0; o < 3; o++) {
-		  complex<double> temp_complex = py::extract<complex<double> >(link_states[i][j][k][l][m][n][o]);
-		  temp_mat(n,o) = temp_complex;
+		  temp_mat(n,o) = py::extract<complex<double> >(link_states[i][j][k][l][m][n][o]);
 		}
 	      }
 	      temp4.push_back(temp_mat);
@@ -832,7 +831,7 @@ struct my_pickle_suite : py::pickle_suite
       links.push_back(temp1);
     }
     //And the same for the random SU3 matrices.
-    for(int i = 0; i < 200; i++) {
+    for(int i = 0; i < 400; i++) {
       Matrix3cd temp_mat;
       for(int j = 0; j < 3; j++) {
 	for(int k = 0; k < 3; k++) {
