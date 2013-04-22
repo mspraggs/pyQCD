@@ -784,8 +784,14 @@ struct my_pickle_suite : py::pickle_suite
     
     //Same for the randSU3s
     py::list randSU3s;
-    for(int i = 0; i < 400; i++) {
-      randSU3s.append(L.getRandSU3(i));
+    int index = 0;
+    for(int i = 0; i < 20; i++) {
+      py::list temp_list;
+      for(int j = 0; j < 20; j++) {
+	temp_list.append(L.getRandSU3(index));
+	index++;
+      }
+      randSU3s.append(temp_list);
     }
     return py::make_tuple(links,randSU3s);
   }
@@ -803,7 +809,7 @@ struct my_pickle_suite : py::pickle_suite
     vector<Matrix3cd, aligned_allocator<Matrix3cd> > randSU3s;
     py::list link_states = py::extract<py::list>(state[0]);
     py::list randSU3_states = py::extract<py::list>(state[1]);
-    
+
     //Convert the compound list of links back to a vector...
     for(int i = 0; i < L.n; i++) {
       vector< vector< vector< vector<Matrix3cd, aligned_allocator<Matrix3cd> > > > > temp1;
@@ -831,15 +837,19 @@ struct my_pickle_suite : py::pickle_suite
       links.push_back(temp1);
     }
     //And the same for the random SU3 matrices.
-    for(int i = 0; i < 400; i++) {
-      Matrix3cd temp_mat;
-      for(int j = 0; j < 3; j++) {
+    int index = 0;
+    for(int i = 0; i < 20; i++) {
+      for(int j = 0; j < 20; j++) {
+	Matrix3cd temp_mat;
 	for(int k = 0; k < 3; k++) {
-	  temp_mat(j,k) = py::extract<complex<double> >(randSU3_states[i][j][k]);
+	  for(int l = 0; l < 3; l++) {
+	    temp_mat(k,l) = py::extract<complex<double> >(randSU3_states[i][j][k][l]);
+	  }
 	}
+	randSU3s.push_back(temp_mat);
       }
-      randSU3s.push_back(temp_mat);
     }
+    
     L.links = links;
     L.randSU3s = randSU3s;
   }
