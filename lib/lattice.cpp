@@ -46,6 +46,7 @@ public:
 	  const double smear_eps = 1./12,
 	  const double u0 = 1,
 	  const int action = 0);
+  Lattice(const Lattice& L);
   double init_u0();
 
   ~Lattice();
@@ -138,6 +139,24 @@ Lattice::Lattice(const int n, const double beta, const int Ncor, const int Ncf, 
     cout << "Warning! Specified action does not exist." << endl;
     this->Si = &Lattice::SiW;
   }
+}
+
+Lattice::Lattice(const Lattice& L)
+{
+  /*Default constructor. Assigns function arguments to member variables
+   and initializes links.*/
+  this->n = L.n;
+  this->beta = L.beta;
+  this->Ncor = L.Ncor;
+  this->Ncf = L.Ncf;
+  this->eps = L.eps;
+  this->a = L.a;
+  this->smear_eps = L.smear_eps;
+  this->nupdates = L.nupdates;
+  this->u0 = L.u0;
+  this->links = L.links;
+  this->randSU3s = L.randSU3s;
+  this->Si = L.Si;
 }
 
 double Lattice::init_u0()
@@ -735,6 +754,7 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(LatticeWavOverload,Wav,2,3)
 BOOST_PYTHON_MODULE(lattice)
 {
   py::class_<Lattice>("Lattice", py::init<py::optional<int,double,int,int,double,double,double,double,int> >())
+    .def(py::init<Lattice&>())
     .def("update",&Lattice::update)
     .def("nextConfig",&Lattice::nextConfig)
     .def("thermalize",&Lattice::thermalize)
