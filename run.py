@@ -22,6 +22,8 @@ parser.add_option("-s","--spacing",action="store", type="float", dest="a",defaul
 parser.add_option("--smeareps",action="store", type="float", dest="smear_eps",default=1./12)
 parser.add_option("--test","-t",action="store_true",dest="test")
 
+(options,args) = parser.parse_args()
+
 L = lattice.Lattice(options.n, #n
                     options.beta, #beta
                     options.Ncor, #Ncor
@@ -31,8 +33,6 @@ L = lattice.Lattice(options.n, #n
                     options.smear_eps, #smear_eps
                     options.u0, #u0
                     options.action) #action
-
-(options,args) = parser.parse_args()
 
 #Thermalize the lattice
 print("Thermalizing...")
