@@ -15,22 +15,22 @@ from mpi4py import MPI
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 size = comm.Get_size()
+parser = OptionParser()
+parser.add_option("-b","--beta",action="store", type="float", dest="beta",default=5.5)
+parser.add_option("-u","--u0",action="store", type="float", dest="u0",default=1)
+parser.add_option("-a","--action",action="store", type="int", dest="action",default=0)
+parser.add_option("--nsmears",action="store", type="int", dest="n_smears",default=0)
+parser.add_option("-n","--n",action="store", type="int", dest="n",default=8)
+parser.add_option("--Ncor",action="store", type="int", dest="Ncor",default=50)
+parser.add_option("--Ncf",action="store", type="int", dest="Ncf",default=1000)
+parser.add_option("-e","--eps",action="store", type="float", dest="eps",default=0.24)
+parser.add_option("-s","--spacing",action="store", type="float", dest="a",default=0.25)
+parser.add_option("--smeareps",action="store", type="float", dest="smear_eps",default=1./12)
+parser.add_option("--test","-t",action="store_true",dest="test")
+
+(options, args) = parser.parse_args()
 
 if rank == 0:
-    parser = OptionParser()
-    parser.add_option("-b","--beta",action="store", type="float", dest="beta",default=5.5)
-    parser.add_option("-u","--u0",action="store", type="float", dest="u0",default=1)
-    parser.add_option("-a","--action",action="store", type="int", dest="action",default=0)
-    parser.add_option("--nsmears",action="store", type="int", dest="n_smears",default=0)
-    parser.add_option("-n","--n",action="store", type="int", dest="n",default=8)
-    parser.add_option("--Ncor",action="store", type="int", dest="Ncor",default=50)
-    parser.add_option("--Ncf",action="store", type="int", dest="Ncf",default=1000)
-    parser.add_option("-e","--eps",action="store", type="float", dest="eps",default=0.24)
-    parser.add_option("-s","--spacing",action="store", type="float", dest="a",default=0.25)
-    parser.add_option("--smeareps",action="store", type="float", dest="smear_eps",default=1./12)
-    parser.add_option("--test","-t",action="store_true",dest="test")
-    
-    (options, args) = parser.parse_args()
     
     L = lattice.Lattice(options.n, #n
                         options.beta, #beta
@@ -48,12 +48,8 @@ if rank == 0:
 
 else:
     Ls = None
-    options = None
-    args = None
 
 Ls = comm.scatter(Ls,root=0)
-options = comm.bcast(options,root=0)
-args = comm.bcast(args,root=0)
 
 #Thermalize the lattice
 print("Thermalizing...")
