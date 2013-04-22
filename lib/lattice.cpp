@@ -784,7 +784,7 @@ struct my_pickle_suite : py::pickle_suite
     
     //Same for the randSU3s
     py::list randSU3s;
-    for(int i = 0; i < 200; i++) {
+    for(int i = 0; i < 400; i++) {
       randSU3s.append(L.getRandSU3(i));
     }
     return py::make_tuple(links,randSU3s);
