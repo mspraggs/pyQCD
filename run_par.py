@@ -60,16 +60,16 @@ sys.stdout.flush()
 
 rmax = Ls.n-1
 tmax = Ls.n-1
-Ws = np.zeros((L.Ncf,rmax-1,tmax-1))
+Ws = np.zeros((Ls.Ncf,rmax-1,tmax-1))
 chunk = (Ls.Ncf)/size
 my_start = rank * chunk
 my_end = my_start + chunk
 
-for i in xrange(L.Ncf):
+for i in xrange(my_start,my_end):
     print("Configuration: %d" % i)
     sys.stdout.flush()
     Ls.nextConfig()
-    Ws[i] = interfaces.calcWs(L,rmax,tmax,n_smears=options.n_smears)
+    Ws[i] = interfaces.calcWs(Ls,rmax,tmax,n_smears=options.n_smears)
 
 Ws = comm.gather(Ws,root=0)
 
