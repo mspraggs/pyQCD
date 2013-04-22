@@ -5,6 +5,7 @@ import fileio
 import sys
 import time
 import datetime
+import os
 from os.path import join
 from optparse import OptionParser
 import copy
@@ -78,8 +79,11 @@ for i in xrange(L.Ncf):
 Ws = comm.gather(Ws,root=0)
 
 if rank == 0:
-    filename = "results_n=%d,beta=%f,Ncor=%d,Ncf=%d,u0=%d,action=%d,n_smears=%d" % (options.n,options.beta,options.Ncor,options.Ncf,options.u0,options.action,options.n_smears)
     time = datetime.datetime.now()
+    filename = "results_n=%d,beta=%f,Ncor=%d,Ncf=%d,u0=%d,action=%d,n_smears=%d_%s" % (options.n,options.beta,options.Ncor,options.Ncf,options.u0,options.action,options.n_smears,time.strftime("%H:%M:%S_%d-%m-%Y"))
     filepath = join("results",filename)
     np.save(filepath,Ws)
+    os.system("git add %s" % filepath)
+    os.system("git commit %s -m 'Adding results'" % filepath)
+
 
