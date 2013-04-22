@@ -28,10 +28,10 @@ parser.add_option("-s","--spacing",action="store", type="float", dest="a",defaul
 parser.add_option("--smeareps",action="store", type="float", dest="smear_eps",default=1./12)
 parser.add_option("--test","-t",action="store_true",dest="test")
 
-(options, args) = parser.parse_args()
+options, args = parser.parse_args()
+options = comm.bcast(options,root=0)
 
-if rank == 0:
-    
+if rank == 0:    
     L = lattice.Lattice(options.n, #n
                         options.beta, #beta
                         options.Ncor, #Ncor
