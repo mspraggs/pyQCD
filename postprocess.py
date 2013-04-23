@@ -93,7 +93,7 @@ if __name__ == "__main__":
     r_fit = pl.arange(0.25,r[-1]+1,0.1)
     aV_fit = V(b,r_fit)
        
-    pl.errorbar(r,aV[:,0],yerr=e,fmt='ok')
+    pl.errorbar(r,aV[:,0],yerr=e[:,0],fmt='ok')
     pl.plot(r_fit,aV_fit,'r--')
     pl.ylim([0,pl.nanmax(aV)+0.25])
     pl.xlim([0,pl.nanmax(r_fit)+0.25])
