@@ -615,7 +615,7 @@ double Lattice::SiImpT(const int link[5])
     site[planes[i]] -= 1;
     Tsum += this->T(site, planes[i],link[4]);
   }
-  out += this->beta / (12 * pow(this->u0,6)) * Tsum;
+  out += this->beta / (12 * pow(this->u0,8)) * Tsum;
   return out;
 }
 
