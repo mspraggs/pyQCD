@@ -60,6 +60,8 @@ public:
   double P_p(const py::list site2,const int mu, const int nu);
   double R(const int site[4], const int mu, const int nu);
   double R_p(const py::list site2,const int mu, const int nu);
+  double T(const int site[4],const int mu, const int nu);
+  double T_p(const py::list site2,const int mu, const int nu);
   double Pav();
   double Rav();
   double (Lattice::*Si)(const int link[5]);
@@ -429,6 +431,58 @@ double Lattice::W_p(const py::list cnr, const int r, const int t, const int dim,
     lie in the same plane)*/
   int c[4] = {py::extract<int>(cnr[0]),py::extract<int>(cnr[1]),py::extract<int>(cnr[2]),py::extract<int>(cnr[3])};
   return this->W(c,r,t,dim,n_smears);
+}
+
+double Lattice::T(const int site[4],const int mu, const int nu)
+{
+  /*Calculate the twisted rectangle operator*/
+  
+  //Define some variables to offset the given site
+  int mu_vec[4] = {0,0,0,0};
+  mu_vec[mu] = 1;
+  int nu_vec[4] = {0,0,0,0};
+  nu_vec[nu] = 1;
+  //Links also contain direction information, so must create a new set of
+  //variables
+  int link1[5] = {0,0,0,0,mu};
+  int link2[5] = {0,0,0,0,nu};
+  int link3[5] = {0,0,0,0,mu};
+  int link4[5] = {0,0,0,0,nu};
+  int link5[5] = {0,0,0,0,mu};
+  int link6[5] = {0,0,0,0,nu};
+  int link7[5] = {0,0,0,0,mu};
+  int link8[5] = {0,0,0,0,nu};
+
+  for(int i = 0; i < 4; i++) {
+    link1[i] = site[i];
+    link2[i] = site[i] + mu_vec[i];
+    link3[i] = site[i] + mu_vec[i] + nu_vec[i];
+    link4[i] = site[i] + 2 * mu_vec[i];
+    link5[i] = site[i] + mu_vec[i];
+    link6[i] = site[i] + mu_vec[i];
+    link7[i] = site[i] + nu_vec[i];
+    link8[i] = site[i];
+  }
+
+  //Multiply all the links together to get the product.
+  Matrix3cd product = this->link(link1);
+  product *= this->link(link2);
+  product *= this->link(link3);
+  product *= this->link(link4).adjoint();
+  product *= this->link(link5).adjoint();
+  product *= this->link(link6);
+  product *= this->link(link7).adjoint();
+  product *= this->link(link8).adjoint();
+
+  return 1./3 * product.trace().real();
+}
+
+double Lattice::T_p(const py::list site2,const int mu, const int nu)
+{
+  //Python wrapper for rectangle function
+  int site[4] = {py::extract<int>(site2[0]),py::extract<int>(site2[1]),py::extract<int>(site2[2]),py::extract<int>(site2[3])};
+  return this->T(site,mu,nu);
+  
 }
 
 double Lattice::R(const int site[4],const int mu, const int nu)
@@ -872,6 +926,7 @@ BOOST_PYTHON_MODULE(lattice)
     .def("Pav",&Lattice::Pav)
     .def("R",&Lattice::R_p)
     .def("Rav",&Lattice::Rav)
+    .def("T",&Lattice::T_p)
     .def("W",&Lattice::W_p,LatticeWOverload(py::args("cnr","r","t","dim","n_smears"), "Calculate Wilson loop"))
     .def("Wav",&Lattice::Wav,LatticeWavOverload(py::args("r","t","n_smears"), "Calculate average Wilson loop"))
     .def("printL",&Lattice::printL)
