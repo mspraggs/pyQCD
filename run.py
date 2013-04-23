@@ -6,6 +6,7 @@ import sys
 import time
 import datetime
 from os.path import join
+import os
 from optparse import OptionParser
 
 
@@ -45,12 +46,14 @@ sys.stdout.flush()
 rmax = L.n-1
 tmax = L.n-1
 Ws = np.zeros((L.Ncf,rmax-1,tmax-1))
+Pavs = np.zeros(L.Ncf)
 
 if options.test:
     t1 = time.time()
     print("Calculating run time...")
     sys.stdout.flush()
     L.nextConfig()
+    L.Pav()    
     interfaces.calcWs(L,rmax,tmax,n_smears=options.n_smears)
     t2 = time.time()
     print("Estimated run time: %f hours" % (((t2-t1) * options.Ncf + t2 - t1) / 3600))
@@ -61,11 +64,14 @@ else:
         sys.stdout.flush()
         L.nextConfig()
         Ws[i] = interfaces.calcWs(L,rmax,tmax,n_smears=options.n_smears)
+        Ps[i] = L.Pav()
 
     time = datetime.datetime.now()
-    filename = "results_n=%d,beta=%f,Ncor=%d,Ncf=%d,u0=%d,action=%d,n_smears=%d_%s" % (options.n,options.beta,options.Ncor,options.Ncf,options.u0,options.action,options.n_smears,time.strftime("%H:%M:%S_%d-%m-%Y"))
-    filepath = join("results",filename)
-    np.save(filepath,Ws)
-    os.system("git add %s" % filepath)
-    os.system("git commit %s -m 'Adding results'" % filepath)
+    folder = "results_n=%d,beta=%f,Ncor=%d,Ncf=%d,u0=%d,action=%d,n_smears=%d_%s" % (options.n,options.beta,options.Ncor,options.Ncf,options.u0,options.action,options.n_smears,time.strftime("%H:%M:%S_%d-%m-%Y"))
+    filepath = join("results",folder)
+    os.makedirs(filepath)
+    Ws_filepath = join(filepath,"Ws")
+    Ps_filepath = join(filepath,"Ps")
+    np.save(Ws_filepath,Ws)
+    np.save(Ps_filepath,Ps)
     
