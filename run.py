@@ -64,7 +64,7 @@ else:
         sys.stdout.flush()
         L.nextConfig()
         Ws[i] = interfaces.calcWs(L,rmax,tmax,n_smears=options.n_smears)
-        Ps[i] = L.Pav()
+        Pavs[i] = L.Pav()
 
     time = datetime.datetime.now()
     folder = "results_n=%d,beta=%f,Ncor=%d,Ncf=%d,u0=%d,action=%d,n_smears=%d_%s" % (options.n,options.beta,options.Ncor,options.Ncf,options.u0,options.action,options.n_smears,time.strftime("%H:%M:%S_%d-%m-%Y"))
@@ -73,5 +73,5 @@ else:
     Ws_filepath = join(filepath,"Ws")
     Ps_filepath = join(filepath,"Ps")
     np.save(Ws_filepath,Ws)
-    np.save(Ps_filepath,Ps)
+    np.save(Ps_filepath,Pavs)
     
