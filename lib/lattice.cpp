@@ -84,7 +84,8 @@ private:
   double beta, eps, a, u0, smear_eps;
   int nupdates, action;
   double SiW(const int link[5]);
-  double SiImp(const int link[5]);
+  double SiImpR(const int link[5]);
+  double SiImpT(const int link[5]);
   vector< vector< vector< vector< vector<Matrix3cd, aligned_allocator<Matrix3cd> > > > > > links;
   vector<Matrix3cd, aligned_allocator<Matrix3cd> > randSU3s;
 
@@ -138,7 +139,10 @@ Lattice::Lattice(const int n, const double beta, const int Ncor, const int Ncf, 
     this->Si = &Lattice::SiW;
   }
   else if(action == 1) {
-    this->Si = &Lattice::SiImp;
+    this->Si = &Lattice::SiImpR;
+  }
+  else if(action == 2) {
+    this->Si = &Lattice::SiImpT;
   }
   else {
     cout << "Warning! Specified action does not exist." << endl;
@@ -573,7 +577,49 @@ double Lattice::P_p(const py::list site2,const int mu, const int nu)
   return this->P(site,mu,nu);
 }
 
-double Lattice::SiImp(const int link[5])
+double Lattice::SiImpT(const int link[5])
+{
+  /*Calculate contribution to improved action from given link*/
+
+  //First contrbution is from standard Wilson action, so add that in
+  double out = 5./3 * this->SiW(link);
+  double Tsum = 0;
+
+  int planes[3];
+
+  //Work out which dimension the link is in, since it'll be irrelevant here
+  int j = 0;
+  for(int i = 0; i < 4; i++) {
+    if(link[4] != i) {
+      planes[j] = i;
+      j++;
+    }
+  }
+  
+  for(int i = 0; i < 3; i++) {
+    int site[4] = {link[0],link[1],link[2],link[3]};
+    Tsum += this->T(site,link[4],planes[i]);
+    site[link[4]] -= 1;
+    Tsum += this->T(site,link[4],planes[i]);
+
+    lattice::copyarray(site,link,4);
+    site[planes[i]] -= 1;
+    Tsum += this->T(site,link[4],planes[i]);
+    site[link[4]] -= 1;
+    Tsum += this->T(site,link[4],planes[i]);
+    
+    lattice::copyarray(site,link,4);
+    Tsum += this->T(site,planes[i],link[4]);
+    site[planes[i]] -= 1;
+    Tsum += this->T(site, planes[i],link[4]);
+    site[planes[i]] -= 1;
+    Tsum += this->T(site, planes[i],link[4]);
+  }
+  out += this->beta / (12 * pow(this->u0,6)) * Tsum;
+  return out;
+}
+
+double Lattice::SiImpR(const int link[5])
 {
   /*Calculate contribution to improved action from given link*/
 
