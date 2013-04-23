@@ -582,7 +582,7 @@ double Lattice::SiImpT(const int link[5])
   /*Calculate contribution to improved action from given link*/
 
   //First contrbution is from standard Wilson action, so add that in
-  double out = 5./3 * this->SiW(link);
+  double out = this->SiW(link);
   double Tsum = 0;
 
   int planes[3];
