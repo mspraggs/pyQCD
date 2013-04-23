@@ -6,6 +6,7 @@ betas = [5.5,1.719,1.719]
 u0s = [1,0.797,0.797]
 
 for i in xrange(3):
+    print("")    
     print("For action = %d, beta = %f and u0 = %f" % (actions[i],betas[i],u0s[i]))    
     L = lattice.Lattice(8,betas[i],50,1000,0.24,0.25,1./12,u0s[i],actions[i])
     print("Timing update function")
