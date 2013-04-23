@@ -49,6 +49,10 @@ else:
     Ls = None
 
 Ls = comm.scatter(Ls,root=0)
+rmax = Ls.n-1
+tmax = Ls.n-1
+Ws = np.zeros((Ls.Ncf,rmax-1,tmax-1))
+Ws = comm.bcast(Ws,root=0)
 
 #Thermalize the lattice
 print("Thermalizing...")
@@ -57,28 +61,31 @@ sys.stdout.flush()
 Ls.thermalize()
 print("Done!")
 sys.stdout.flush()
-
 rmax = Ls.n-1
 tmax = Ls.n-1
-Ws = np.zeros((Ls.Ncf,rmax-1,tmax-1))
+
 chunk = (Ls.Ncf)/size
 my_start = rank * chunk
 my_end = my_start + chunk
+Ws = [np.zeros((chunk,rmax-1,tmax-1))] * size
+Ws = comm.scatter(Ws,root=0)
 
 for i in xrange(my_start,my_end):
     print("Configuration: %d" % i)
     sys.stdout.flush()
     Ls.nextConfig()
-    Ws[i] = interfaces.calcWs(Ls,rmax,tmax,n_smears=options.n_smears)
+    Ws[i - my_start] = interfaces.calcWs(Ls,rmax,tmax,n_smears=options.n_smears)
 
 Ws = comm.gather(Ws,root=0)
 
 if rank == 0:
+    Ws2 = Ws[0]
+    for W in Ws[1:]:
+        Ws2 = np.append(Ws2,W,axis=0)
+        
     time = datetime.datetime.now()
     filename = "results_n=%d,beta=%f,Ncor=%d,Ncf=%d,u0=%d,action=%d,n_smears=%d_%s" % (options.n,options.beta,options.Ncor,options.Ncf,options.u0,options.action,options.n_smears,time.strftime("%H:%M:%S_%d-%m-%Y"))
     filepath = join("results",filename)
-    np.save(filepath,Ws)
-    os.system("git add %s" % filepath)
-    os.system("git commit %s -m 'Adding results'" % filepath)
+    np.save(filepath,Ws2)
 
 
