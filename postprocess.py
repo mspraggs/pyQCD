@@ -20,7 +20,7 @@ def bin(Ws,binsize=1):
         for i in xrange(pl.size(W_binned,axis=0)):
             W_binned[i] = pl.mean(Ws[i*binsize:(i+1)*binsize],axis=0)
 
-        return W_binned
+        return W_binned          
 
 def V(b,r):
     """Calculates the potential as b[0]*r - b[1]/r + b[2]"""
@@ -52,28 +52,8 @@ def bootstrap(Ws):
     Ws_bstrp = Ws[pl.randint(0,pl.size(Ws,axis=0),pl.size(Ws,axis=0))]
     return Ws_bstrp
 
-if __name__ == "__main__":
-
-    files = [f for f in listdir("results") if isfile(join("results",f)) and f[-4:] == ".npy"]
-
-    files.sort()
-    
-    if len(files) == 0:
-        print("No data available.")
-        sys.exit()
-    
-    print("Available data:")
-    for i in xrange(len(files)):
-        print("(%d) %s" % (i,files[i]))
-        
-    file_num = input("File: ")
-    filename = "results/%s" % files[file_num]
-    Ws = load(filename)
-
-    N_bstrp = 100
-    binsize = 1
-    aVs = pl.zeros((N_bstrp,) + pl.shape(Ws)[1:])
-    Ws = bin(Ws)
+def Vplot(Ws,N_bstrp):
+    """Calculat the potential function and plot it"""
         
     for i in xrange(N_bstrp):
         W = pl.mean(bootstrap(Ws),axis=0)
@@ -100,3 +80,28 @@ if __name__ == "__main__":
     pl.xlabel("$r / a$")
     pl.ylabel("$aV(r)$")    
     pl.show()
+
+if __name__ == "__main__":
+
+    files = [f for f in listdir("results") if isfile(join("results",f)) and f[-4:] == ".npy"]
+
+    files.sort()
+    
+    if len(files) == 0:
+        print("No data available.")
+        sys.exit()
+    
+    print("Available data:")
+    for i in xrange(len(files)):
+        print("(%d) %s" % (i,files[i]))
+        
+    file_num = input("File: ")
+    filename = "results/%s" % files[file_num]
+    Ws = load(filename)
+
+    N_bstrp = 100
+    binsize = 1
+    aVs = pl.zeros((N_bstrp,) + pl.shape(Ws)[1:])
+    Ws = bin(Ws)
+
+    Vplot(Ws,N_bstrp=N_bstrp)
