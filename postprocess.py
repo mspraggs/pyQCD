@@ -1,5 +1,5 @@
 from os import listdir,system
-from os.path import isfile, join
+from os.path import isdir, join
 import sys
 import IPython
 import pylab as pl
@@ -52,8 +52,14 @@ def bootstrap(Ws):
     Ws_bstrp = Ws[pl.randint(0,pl.size(Ws,axis=0),pl.size(Ws,axis=0))]
     return Ws_bstrp
 
-def Vplot(Ws,N_bstrp):
-    """Calculat the potential function and plot it"""
+def Vplot(Ws):
+    """Calculate the potential function and plot it"""
+
+    N_bstrp = input("Please enter the number of bootstraps: ")
+    N_bin = input("Please enter the bin size: ")
+
+    Ws = bin(Ws,N_bin)
+    aVs = pl.zeros((N_bstrp,) + pl.shape(Ws)[1:])
         
     for i in xrange(N_bstrp):
         W = pl.mean(bootstrap(Ws),axis=0)
@@ -81,27 +87,47 @@ def Vplot(Ws,N_bstrp):
     pl.ylabel("$aV(r)$")    
     pl.show()
 
+    return aV
+
 if __name__ == "__main__":
 
-    files = [f for f in listdir("results") if isfile(join("results",f)) and f[-4:] == ".npy"]
+    pl.ion()
 
-    files.sort()
+    folders = [f for f in listdir("results") if isdir(join("results",f))]
+
+    folders.sort()
     
-    if len(files) == 0:
+    if len(folders) == 0:
         print("No data available.")
         sys.exit()
+
+    while True:
     
-    print("Available data:")
-    for i in xrange(len(files)):
-        print("(%d) %s" % (i,files[i]))
+        print("Available data:")
+        for i in xrange(len(folders)):
+                print("(%d) %s" % (i,folders[i]))
         
-    file_num = input("File: ")
-    filename = "results/%s" % files[file_num]
-    Ws = load(filename)
-
-    N_bstrp = 100
-    binsize = 1
-    aVs = pl.zeros((N_bstrp,) + pl.shape(Ws)[1:])
-    Ws = bin(Ws)
-
-    Vplot(Ws,N_bstrp=N_bstrp)
+        folder_num = input("Folder: ")
+        folder = "results/%s" % folders[folder_num]
+        Ws = load(join(folder,"Ws.npy"))
+        Ps = load(join(folder,"Ps.npy"))
+        
+        print("Data loaded!")
+        selection = 1
+        while selection > 0:
+                print("Please select an option:")
+                print("(1) Plot the quark pair potential as a function of separation")
+                print("(2) Enter an IPython prompt")
+                print("(3) Select different data")
+                print("(0) Exit")
+                selection = input("Option: ")
+        
+                if selection == 1:
+                    aV = Vplot(Ws)
+                elif selection == 2:
+                    IPython.embed()
+                elif selection == 3:
+                    selection = -1
+                else:
+                    sys.exit()
+            
