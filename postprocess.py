@@ -57,6 +57,7 @@ def Vplot(Ws):
 
     N_bstrp = input("Please enter the number of bootstraps: ")
     N_bin = input("Please enter the bin size: ")
+    colour = raw_input("Please enter a colour: ")
 
     Ws = bin(Ws,N_bin)
     aVs = pl.zeros((N_bstrp,) + pl.shape(Ws)[1:])
@@ -78,16 +79,17 @@ def Vplot(Ws):
 
     r_fit = pl.arange(0.25,r[-1]+1,0.1)
     aV_fit = V(b,r_fit)
-       
-    pl.errorbar(r,aV[:,0],yerr=e[:,0],fmt='ok')
-    pl.plot(r_fit,aV_fit,'r--')
+
+    handles = []
+    handles.append(pl.errorbar(r,aV[:,0],yerr=e[:,0],fmt='o'+colour))
+    handles.append(pl.plot(r_fit,aV_fit,'--'+colour))
     pl.ylim([0,pl.nanmax(aV)+0.25])
     pl.xlim([0,pl.nanmax(r_fit)+0.25])
     pl.xlabel("$r / a$")
     pl.ylabel("$aV(r)$")    
     pl.show()
 
-    return aV
+    return aV,handles
 
 if __name__ == "__main__":
 
@@ -123,7 +125,7 @@ if __name__ == "__main__":
                 selection = input("Option: ")
         
                 if selection == 1:
-                    aV = Vplot(Ws)
+                    aV,handles = Vplot(Ws)
                 elif selection == 2:
                     IPython.embed()
                 elif selection == 3:
