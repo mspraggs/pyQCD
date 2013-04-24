@@ -110,7 +110,7 @@ struct my_pickle_suite : py::pickle_suite
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(LatticeWOverload,W_p,4,5)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(LatticeWavOverload,Wav,2,3)
 
-BOOST_PYTHON_MODULE(lattice)
+BOOST_PYTHON_MODULE(pyQCD)
 {
   py::class_<Lattice>("Lattice", py::init<py::optional<int,double,int,int,double,double,double,double,int> >())
     .def(py::init<Lattice&>())
