@@ -1,4 +1,4 @@
-import lib.lattice as lattice
+import lib.pyQCD as pyQCD
 import interfaces
 import numpy as np
 import fileio
@@ -25,7 +25,7 @@ parser.add_option("--test","-t",action="store_true",dest="test")
 
 (options,args) = parser.parse_args()
 
-L = lattice.Lattice(options.n, #n
+L = pyQCD.Lattice(options.n, #n
                     options.beta, #beta
                     options.Ncor, #Ncor
                     options.Ncf, #Ncf

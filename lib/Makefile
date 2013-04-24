@@ -7,23 +7,23 @@ ifeq "$(IRIDIS)" "true"
 
 	LBOOST = -dynamic-linker $(BOOST_DIR)/lib/libboost_python.so
 	LPYTHON = -L/local/software/rh53/python/2.6.5/gcc/lib/
-	
+
 	LIBS = $(LBOOST) $(LPYTHON)
 else
 	EIGEN = -I/usr/include/eigen3/
 	PYTHON = -I/usr/include/python2.7/
 	INC = $(EIGEN) $(PYTHON)
-	
+
 	LBOOST = -lboost_python
 	LPYTHON = -lpython2.7
 	LIBS = $(LBOOST) $(LPYTHON)
 endif
 
-lattice.so : lattice.o
-	g++ -g -shared -Wall -o lattice.so lattice.o $(LIBS)
+pyQCD.so : pyQCD.o
+	g++ -g -shared -Wall -o pyQCD.so pyQCD.o $(LIBS)
 
-lattice.o : lattice.cpp
-	g++ -O3 -c -fPIC -o lattice.o lattice.cpp $(INC)
+pyQCD.o : pyQCD.cpp
+	g++ -O3 -c -fPIC -o pyQCD.o pyQCD.cpp $(INC)
 
 clean:
-	rm lattice.o lattice.so	
+	rm pyQCD.o pyQCD.so	
