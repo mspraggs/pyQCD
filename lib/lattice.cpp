@@ -3,14 +3,18 @@
 #include <complex>
 #include <boost/python.hpp>
 #include <boost/python/list.hpp>
+#include <boost/thread.hpp>
+#include <boost/shared_ptr.hpp>
 #include <vector>
 #include <cstdlib>
 #include <iostream>
 #include <ctime>
 #include <unsupported/Eigen/MatrixFunctions>
+#include "gil.cpp"
 
 using namespace Eigen;
 namespace py = boost::python;
+namespace bst = boost;
 using namespace std;
 
 namespace lattice
@@ -68,7 +72,10 @@ public:
   Matrix3cd randomSU3();
   void thermalize();
   void nextConfig();
+  void runThreads(const int size, const int n_updates, const int remainder);
+  void updateSchwarz(const int size, const int n_times);
   void update();
+  void updateSegment(const int i, const int j, const int k, const int l, const int size, const int n_updates);
   void printL();
   Matrix3cd link(const int link[5]);
   void smear(const int time, const int n_smears);
@@ -720,6 +727,72 @@ void Lattice::nextConfig()
   /*Run Ncor updates*/
   for(int i = 0; i < this->Ncor; i++) {
     this->update();
+  }
+}
+
+void Lattice::runThreads(const int size, const int n_updates, const int remainder)
+{
+  vector<bst::shared_ptr<bst::thread> > threads;
+  int index = 0;
+  ScopedGILRelease scope = ScopedGILRelease();
+
+  for(int i = 0; i < this->n; i+=size) {
+    for(int j = 0; j < this->n; j+=size) {
+      for(int k = 0; k < this->n; k+=size) {
+	for(int l = 0; l < this->n; l+=size) {
+	  int site[4] = {i,j,k,l};
+	  if(index%2 == remainder) {
+	    bst::shared_ptr<bst::thread> m_thread = bst::shared_ptr<bst::thread>(new bst::thread(bst::bind(&Lattice::updateSegment,this,i,j,k,l,size,n_updates)));
+	    threads.push_back(m_thread);
+	  }
+	  index++;
+	}
+      }
+    }
+  }
+  
+  for(int i = 0; i < threads.size(); i++) {
+    threads[i]->join();
+  }
+}
+
+void Lattice::updateSchwarz(const int size, const int n_updates)
+{
+  //Update even and odd blocks using Schwarz
+  this->runThreads(size,n_updates,0);
+  this->runThreads(size,n_updates,1);
+}
+
+void Lattice::updateSegment(const int i, const int j, const int k, const int l, const int size, const int n_updates)
+{
+  //Updates a segment of the lattice - used for SAP
+  for(int n = 0; n < n_updates; n++) {
+    for(int m = i; m < i + size; m++) {
+      for(int o = j; o < j + size; o++) {
+	for(int p = k; p < k + size; p++) {
+	  for(int q = l; q < l + size; q++) {
+	    for(int r = 0; r < 4; r++) {
+	      //We'll need an array with the link indices
+	      int link[5] = {m,o,p,q,r};
+	      //Record the old action contribution
+	      double Si_old = (this->*Si)(link);
+	      //Record the old link in case we need it
+	      Matrix3cd linki_old = this->links[m][o][p][q][r];
+	      //Get ourselves a random SU3 matrix for the update
+	      Matrix3cd randSU3 = this->randSU3s[rand() % this->randSU3s.size()];
+	      //Multiply the site
+	      this->links[m][o][p][q][r] = randSU3 * this->links[m][o][p][q][r];
+	      //What's the change in the action?
+	      double dS = (this->*Si)(link) - Si_old;
+	      //Was the change favourable? If not, revert the change
+	      if((dS > 0) && (exp(-dS) < double(rand()) / double(RAND_MAX))) {
+		this->links[m][o][p][q][r] = linki_old;
+	      }
+	    }
+	  }
+	}
+      }
+    }
   }
 }
 

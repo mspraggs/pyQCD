@@ -14,7 +14,7 @@ else
 	PYTHON = -I/usr/include/python2.7/
 	INC = $(EIGEN) $(PYTHON)
 
-	LBOOST = -lboost_python
+	LBOOST = -lboost_python -lboost_thread
 	LPYTHON = -lpython2.7
 	LIBS = $(LBOOST) $(LPYTHON)
 endif
@@ -22,7 +22,7 @@ endif
 pyQCD.so : pyQCD.o
 	g++ -g -shared -Wall -o pyQCD.so pyQCD.o $(LIBS)
 
-pyQCD.o : pyQCD.cpp
+pyQCD.o : pyQCD.cpp lattice.cpp
 	g++ -O3 -c -fPIC -o pyQCD.o pyQCD.cpp $(INC)
 
 clean:

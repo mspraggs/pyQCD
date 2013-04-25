@@ -103,6 +103,8 @@ if __name__ == "__main__":
         print("No data available.")
         sys.exit()
 
+    handles = []
+
     while True:
     
         print("Available data:")
@@ -125,7 +127,8 @@ if __name__ == "__main__":
                 selection = input("Option: ")
         
                 if selection == 1:
-                    aV,handles = Vplot(Ws)
+                    aV,hs = Vplot(Ws)
+                    handles += hs
                 elif selection == 2:
                     IPython.embed()
                 elif selection == 3:
