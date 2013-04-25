@@ -52,6 +52,28 @@ def bootstrap(Ws):
     Ws_bstrp = Ws[pl.randint(0,pl.size(Ws,axis=0),pl.size(Ws,axis=0))]
     return Ws_bstrp
 
+def autoCor(Ps,t):
+    """Calculates autocorrelation function"""
+    meanP = pl.mean(Ps)
+    return pl.mean((Ps - meanP) * (pl.roll(Ps,-t) - meanP))
+
+def plotAutoCor(Ps):
+    """Calculates and plots the autocorrelation function"""
+    
+    Cs = pl.zeros(pl.size(Ps)/2)
+    t = pl.arange(pl.size(Ps)/2)
+
+    style = raw_input("Please enter a line style: ")
+
+    for i in xrange(pl.size(Ps)/2):
+        Cs[i] = autoCor(Ps,t[i])
+
+    pl.plot(t,Cs,style)
+    pl.xlabel("$t$")
+    pl.ylabel("$C(t)$")
+
+    return Cs
+
 def Vplot(Ws):
     """Calculate the potential function and plot it"""
 
@@ -86,8 +108,7 @@ def Vplot(Ws):
     pl.ylim([0,pl.nanmax(aV)+0.25])
     pl.xlim([0,pl.nanmax(r_fit)+0.25])
     pl.xlabel("$r / a$")
-    pl.ylabel("$aV(r)$")    
-    pl.show()
+    pl.ylabel("$aV(r)$")
 
     return aV,handles
 
@@ -113,16 +134,23 @@ if __name__ == "__main__":
         
         folder_num = input("Folder: ")
         folder = "results/%s" % folders[folder_num]
-        Ws = load(join(folder,"Ws.npy"))
-        Ps = load(join(folder,"Ps.npy"))
+        try:
+                Ws = load(join(folder,"Ws.npy"))
+        except IOError:
+                print("Warning! File Ws.npy does not exist.")
+        try:
+                Ps = load(join(folder,"Ps.npy"))
+        except IOError:
+                print("Warning! File Ps.npy does not exist.")
         
         print("Data loaded!")
         selection = 1
         while selection > 0:
                 print("Please select an option:")
                 print("(1) Plot the quark pair potential as a function of separation")
-                print("(2) Enter an IPython prompt")
-                print("(3) Select different data")
+                print("(2) Plot the autocorrelation function")           
+                print("(3) Enter an IPython prompt")
+                print("(4) Select different data")
                 print("(0) Exit")
                 selection = input("Option: ")
         
@@ -130,8 +158,10 @@ if __name__ == "__main__":
                     aV,hs = Vplot(Ws)
                     handles += hs
                 elif selection == 2:
-                    IPython.embed()
+                    Cs = plotAutoCor(Ps)
                 elif selection == 3:
+                    IPython.embed()
+                elif selection == 4:
                     selection = -1
                 else:
                     sys.exit()
