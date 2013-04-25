@@ -761,6 +761,7 @@ void Lattice::updateSchwarz(const int size, const int n_updates)
   //Update even and odd blocks using Schwarz
   this->runThreads(size,n_updates,0);
   this->runThreads(size,n_updates,1);
+  this->nupdates++;
 }
 
 void Lattice::updateSegment(const int i, const int j, const int k, const int l, const int size, const int n_updates)
