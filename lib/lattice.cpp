@@ -716,7 +716,6 @@ Matrix3cd Lattice::randomSU3()
 void Lattice::thermalize()
 {
   /*Update all links until we're at thermal equilibrium*/
-
   while(this->nupdates < 5 * this->Ncor) {
     this->updateSchwarz(4,10);
   }
