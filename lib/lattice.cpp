@@ -725,7 +725,7 @@ void Lattice::nextConfig()
 {
   /*Run Ncor updates*/
   for(int i = 0; i < this->Ncor; i++) {
-    this->update();
+    this->updateSchwarz(4,1);
   }
 }
 
