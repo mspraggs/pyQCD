@@ -17,7 +17,7 @@ for i in xrange(3):
     
     print("Timing Schwarz update function")
     t1 = time.time()
-    L.updateSchwarz(2)
+    L.updateSchwarz(4,1)
     t2 = time.time()
     print("Run time = %f" % (t2-t1))
     
