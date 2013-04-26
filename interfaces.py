@@ -1,4 +1,5 @@
 import numpy as np
+import lib.pyQCD as pyQCD
 try:
     from multiprocessing import Process, Array
 except ImportError:
@@ -40,13 +41,16 @@ def calcWs(lattice,rmax,tmax,n_smears=0):
     ps = []
 
     for r,t in rts:
-        ps.append(Process(target=calcW,args=(lattice,outshare,r,t,n_smears,rmax)))
-
-    for p in ps:
+        p = Process(target=calcW,args=(lattice,outshare,r,t,n_smears,rmax))
         p.start()
+        ps.append(p)
 
     for p in ps:
         p.join()
-
+    
     result = np.reshape(np.array(outshare[:]),(rmax-1,tmax-1))
     return result
+
+if __name__ == "__main__":
+	L = pyQCD.Lattice()
+	Ws = calcWs(L,7,7,1)
