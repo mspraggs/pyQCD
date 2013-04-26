@@ -1,10 +1,4 @@
 import numpy as np
-try:
-    import multiprocessing
-except ImportError:
-    import sys
-    sys.path.append("/home/ms10g12/lib64/python")
-    import multiprocessing
 
 def getLinks(lattice):
     """Extracts links from lattice as a compound list of numpy arrays"""
