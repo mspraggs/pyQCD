@@ -20,7 +20,7 @@ parser.add_option("--Ncor",action="store", type="int", dest="Ncor",default=50)
 parser.add_option("--Ncf",action="store", type="int", dest="Ncf",default=1000)
 parser.add_option("-e","--eps",action="store", type="float", dest="eps",default=0.24)
 parser.add_option("-s","--spacing",action="store", type="float", dest="a",default=0.25)
-parser.add_option("--smeareps",action="store", type="float", dest="smear_eps",default=1./12)
+parser.add_option("--smeareps",action="store", type="float", dest="smear_eps",default=0.3)
 parser.add_option("--test","-t",action="store_true",dest="test")
 
 (options,args) = parser.parse_args()
