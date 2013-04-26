@@ -19,6 +19,7 @@ def printConfig(options):
     print("eps = %f" % options.eps)
     print("a = %f" % options.a)
     print("smear_eps = %f" % options.smear_eps)
+    print("n_smears = %d" % options.n_smears)
     print("u0 = %f" % options.u0)
     print("action = %d" % options.action)
 
