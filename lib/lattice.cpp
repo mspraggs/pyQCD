@@ -17,6 +17,12 @@ namespace py = boost::python;
 namespace bst = boost;
 using namespace std;
 
+typedef vector<Matrix3cd, aligned_allocator<Matrix3cd> > Sub4Field;
+typedef vector<Sub4Field> Sub3Field;
+typedef vector<Sub3Field> Sub2Field;
+typedef vector<Sub2Field> SubField;
+typedef vector<SubField> GaugeField;
+
 namespace lattice
 {
   const complex<double> i (0,1);
@@ -94,8 +100,8 @@ private:
   double SiW(const int link[5]);
   double SiImpR(const int link[5]);
   double SiImpT(const int link[5]);
-  vector< vector< vector< vector< vector<Matrix3cd, aligned_allocator<Matrix3cd> > > > > > links;
-  vector<Matrix3cd, aligned_allocator<Matrix3cd> > randSU3s;
+  GaugeField links;
+  Sub4Field randSU3s;
 
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -302,11 +308,13 @@ void Lattice::smear(const int time, const int n_smears)
   /*Smear the specified time slice by iterating calling this function*/
   for(int i = 0; i < n_smears; i++) {
     //Iterate through all the links and calculate the new ones from the existing ones.    
-    vector< vector< vector< vector<Matrix3cd, aligned_allocator<Matrix3cd> > > > > newlinks(this->n, vector< vector< vector<Matrix3cd, aligned_allocator<Matrix3cd> > > >(this->n,vector< vector<Matrix3cd, aligned_allocator<Matrix3cd> > >(this->n, vector< Matrix3cd, aligned_allocator<Matrix3cd> >(4))));
+    SubField newlinks(this->n, Sub2Field(this->n,Sub3Field(this->n, Sub4Field(4))));
     for(int i = 0; i < this->n; i++) {
       for(int j = 0; j < this->n; j++) {
 	for(int k = 0; k < this->n; k++) {
-	  for(int l = 0; l < 4; l++) {
+	  //NB, spatial links only, so l > 0!
+	  newlinks[i][j][k][0] = this->links[time][i][j][k][0];
+	  for(int l = 1; l < 4; l++) {
 	    //Create a temporary matrix to store the new link
 	    int link[5] = {time,i,j,k,l};
 	    Matrix3cd temp_mat = (lattice::i * this->Q(link)).exp() * this->link(link);
@@ -409,8 +417,8 @@ double Lattice::W(const int c1[4], const int c2[4], const int n_smears)
   /*Calculates the loop specified by corners c1 and c2 (which must
     lie in the same plane)*/
   Matrix3cd out = Matrix3cd::Identity();
-  vector<vector<vector<vector<Matrix3cd, aligned_allocator<Matrix3cd> > > > > linkstore1;
-  vector<vector<vector<vector<Matrix3cd, aligned_allocator<Matrix3cd> > > > > linkstore2;
+  SubField linkstore1;
+  SubField linkstore2;
   //Smear the links if specified, whilst storing the non-smeared ones.
   if(n_smears > 0) {
     linkstore1 = this->links[lattice::mod(c1[0],this->n)];
@@ -467,6 +475,11 @@ double Lattice::Wav(const int r, const int t, const int n_smears)
 {
   /*Calculates the average of all possible Wilson loops of a given
     dimension*/
+  //First off, save the current links and smear all time slices
+  GaugeField templinks = this->links;
+  for(int time = 0; time < this->n; time++) {
+    this->smear(time,n_smears);
+  }
   double Wtot = 0;
   for(int i = 0; i < this->n; i++) {
     for(int j = 0; j < this->n; j++) {
@@ -474,12 +487,13 @@ double Lattice::Wav(const int r, const int t, const int n_smears)
 	for(int l = 0; l < this->n; l++) {
 	  for(int m = 1; m < 4; m++) {
 	    int site[4] = {i,j,k,l};
-	    Wtot += this->W(site,r,t,m,n_smears);
+	    Wtot += this->W(site,r,t,m,0);
 	  }
 	}
       }
     }
   }
+  this->links = templinks;
   return Wtot / (pow(this->n,4)*3);
 }
 
