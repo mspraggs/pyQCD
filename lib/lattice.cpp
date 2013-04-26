@@ -47,7 +47,7 @@ public:
 	  const int Ncf = 1000,
 	  const double eps = 0.24,
 	  const double a = 0.25,
-	  const double smear_eps = 1./12,
+	  const double smear_eps = 0.3,
 	  const double u0 = 1,
 	  const int action = 0);
   Lattice(const Lattice& L);
