@@ -9,6 +9,18 @@ from os.path import join
 import os
 from optparse import OptionParser
 
+def printConfig(options):
+    """Outputs the simulation configuration to the screen"""
+    print("Configuration:")
+    print("n = %d" % options.n)
+    print("beta = %f" % options.beta)
+    print("Ncor = %d" % options.Ncor)
+    print("Ncf = %d" % options.Ncf)
+    print("eps = %f" % options.eps)
+    print("a = %f" % options.a)
+    print("smear_eps = %f" % options.smear_eps)
+    print("u0 = %f" % options.u0)
+    print("action = %d" % options.action)
 
 parser = OptionParser()
 parser.add_option("-b","--beta",action="store", type="float", dest="beta",default=5.5)
@@ -36,6 +48,8 @@ L = pyQCD.Lattice(options.n, #n
                     options.action) #action
 
 t0 = time.time()
+
+printConfig(options)
 
 #Thermalize the lattice
 print("Thermalizing...")
@@ -75,6 +89,8 @@ else:
     Ps_filepath = join(filepath,"Ps")
     np.save(Ws_filepath,Ws)
     np.save(Ps_filepath,Pavs)
+
+    printConfig(options)
 
     tf = time.time()
     hrs = int((tf - t0) / 3600)
