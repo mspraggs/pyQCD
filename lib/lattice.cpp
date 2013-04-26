@@ -80,6 +80,7 @@ public:
   Matrix3cd link(const int link[5]);
   void smear(const int time, const int n_smears);
   Matrix3cd fdiff(const int link[5]);
+  Matrix3cd Q(const int link[5]);
   py::list getLink(const int i, const int j, const int k, const int l, const int m) const;
   py::list getRandSU3(const int i) const;
 
@@ -199,6 +200,53 @@ Matrix3cd Lattice::link(const int link[5])
   return this->links[link2[0]][link2[1]][link2[2]][link2[3]][link2[4]];
 }
 
+Matrix3cd Lattice::Q(const int link[5])
+{
+  //Calculates Q matrix for analytic smearing
+  Matrix3cd C = Matrix3cd::Zero();
+
+  double rho = 0.4;
+
+  for(int nu = 1; nu < 4; nu++) {
+    if(nu != link[4]) {
+      int templink[5] = {0,0,0,0,0};
+      lattice::copyarray(templink,link,4);
+      templink[4] = nu;
+      Matrix3cd tempmat = this->link(templink);
+      templink[4] = link[4];
+      templink[nu] += 1;
+      tempmat *= this->link(templink);
+      templink[4] = nu;
+      templink[nu] -= 1;
+      templink[link[4]] += 1;
+      tempmat *= this->link(templink).adjoint();
+
+      C += tempmat;
+
+      lattice::copyarray(templink,link,4);
+      templink[nu] -= 1;
+      templink[4] = nu;
+      tempmat = this->link(templink).adjoint();
+      templink[4] = link[4];
+      tempmat *= this->link(templink);
+      templink[4] = nu;
+      templink[link[4]] += 1;
+      tempmat *= this->link(templink);
+
+      C += tempmat;
+    }
+  }
+  
+  C *= this->smear_eps;
+
+  Matrix3cd Omega = C * this->link(link).adjoint();
+  Matrix3cd OmegaAdjoint = Omega.adjoint() - Omega;
+  Matrix3cd Q = 0.5 * lattice::i * OmegaAdjoint;
+  Q -= lattice::i / 6. * OmegaAdjoint.trace() * Matrix3cd::Identity();
+
+  return Q;
+}
+
 Matrix3cd Lattice::fdiff(const int link[5])
 {
   /*Calculate the finite difference at the given link*/
@@ -261,8 +309,7 @@ void Lattice::smear(const int time, const int n_smears)
 	  for(int l = 0; l < 4; l++) {
 	    //Create a temporary matrix to store the new link
 	    int link[5] = {time,i,j,k,l};
-	    Matrix3cd temp_mat = this->link(link);;
-	    temp_mat += this->smear_eps * pow(this->a,2) * this->fdiff(link);
+	    Matrix3cd temp_mat = (lattice::i * this->Q(link)).exp() * this->link(link);
 	    newlinks[i][j][k][l] = temp_mat;
 	  }
 	}
