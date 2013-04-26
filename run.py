@@ -35,9 +35,10 @@ L = pyQCD.Lattice(options.n, #n
                     options.u0, #u0
                     options.action) #action
 
+t0 = time.time()
+
 #Thermalize the lattice
 print("Thermalizing...")
-t0 = time.time()
 sys.stdout.flush()
 L.thermalize()
 print("Done!")
@@ -74,4 +75,12 @@ else:
     Ps_filepath = join(filepath,"Ps")
     np.save(Ws_filepath,Ws)
     np.save(Ps_filepath,Pavs)
+
+    tf = time.time()
+    hrs = int((tf - t0) / 3600)
+    mins = int((tf - t0 - 3600 * hours) / 60)
+    secs = (tf - t0) - 3600 * hours - 60 * minutes
+    print("Simulation completed in %d hours, %d minutes and %f seconds" % (hrs,mins,secs))
+
+    
     
