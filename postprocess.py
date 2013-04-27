@@ -74,12 +74,17 @@ def plotAutoCor(Ps):
 
     return Cs
 
+def plotPs(Ps):
+	"""Plots Ps values"""
+	col = raw_input("Please enter a linestyle: ")
+	pl.plot(pl.arange(pl.size(Ps)),Ps,col)
+
 def Vplot(Ws):
     """Calculate the potential function and plot it"""
 
     N_bstrp = input("Please enter the number of bootstraps: ")
     N_bin = input("Please enter the bin size: ")
-    colour = raw_input("Please enter a colour: ")
+    style = raw_input("Please enter a linestyle: ")
 
     Ws = bin(Ws,N_bin)
     aVs = pl.zeros((N_bstrp,) + pl.shape(Ws)[1:])
@@ -103,8 +108,8 @@ def Vplot(Ws):
     aV_fit = V(b,r_fit)
 
     handles = []
-    handles.append(pl.errorbar(r,aV[:,0],yerr=e[:,0],fmt='o'+colour))
-    handles.append(pl.plot(r_fit,aV_fit,'--'+colour))
+    handles.append(pl.errorbar(r,aV[:,0],yerr=e[:,0],fmt='o'+style[0]))
+    handles.append(pl.plot(r_fit,aV_fit,style))
     pl.ylim([0,pl.nanmax(aV)+0.25])
     pl.xlim([0,pl.nanmax(r_fit)+0.25])
     pl.xlabel("$r / a$")
@@ -146,23 +151,26 @@ if __name__ == "__main__":
         print("Data loaded!")
         selection = 1
         while selection > 0:
-                print("Please select an option:")
-                print("(1) Plot the quark pair potential as a function of separation")
-                print("(2) Plot the autocorrelation function")           
-                print("(3) Enter an IPython prompt")
-                print("(4) Select different data")
-                print("(0) Exit")
-                selection = input("Option: ")
+				print("Please select an option:")
+				print("(1) Plot the quark pair potential as a function of separation")
+				print("(2) Plot the autocorrelation function")
+				print("(3) Plot the evolution of the mean plaquette value")
+				print("(4) Enter an IPython prompt")
+				print("(5) Select different data")
+				print("(0) Exit")
+				selection = input("Option: ")
         
-                if selection == 1:
-                    aV,hs = Vplot(Ws)
-                    handles += hs
-                elif selection == 2:
-                    Cs = plotAutoCor(Ps)
-                elif selection == 3:
-                    IPython.embed()
-                elif selection == 4:
-                    selection = -1
-                else:
-                    sys.exit()
+				if selection == 1:
+					aV,hs = Vplot(Ws)
+					handles += hs
+				elif selection == 2:
+					Cs = plotAutoCor(Ps)
+				elif selection == 3:
+					plotPs(Ps)
+				elif selection == 4:
+					IPython.embed()
+				elif selection == 5:
+					selection = -1
+				else:
+					sys.exit()
             
