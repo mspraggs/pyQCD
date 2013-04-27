@@ -85,7 +85,6 @@ public:
   void printL();
   Matrix3cd link(const int link[5]);
   void smear(const int time, const int n_smears);
-  Matrix3cd fdiff(const int link[5]);
   Matrix3cd Q(const int link[5]);
   py::list getLink(const int i, const int j, const int k, const int l, const int m) const;
   py::list getRandSU3(const int i) const;
@@ -251,56 +250,6 @@ Matrix3cd Lattice::Q(const int link[5])
   Q -= lattice::i / 6. * OmegaAdjoint.trace() * Matrix3cd::Identity();
 
   return Q;
-}
-
-Matrix3cd Lattice::fdiff(const int link[5])
-{
-  /*Calculate the finite difference at the given link*/
-  Matrix3cd out = Matrix3cd::Zero();
-  //Array to keep track of current link
-  int clink[5] = {0,0,0,0,0};
-  //Loop over *spatial* dimensions
-  for(int rho = 1; rho < 4; rho++) {
-    //Temporary matrix to apply operations to
-    Matrix3cd temp = Matrix3cd::Identity();
-    //Update the link index
-    lattice::copyarray(clink,link,5);
-    clink[4] = rho;
-    temp *= this->link(clink);
-    //Update the link
-    clink[4] = link[4];
-    clink[rho] = link[rho] + 1;
-    temp *= this->link(clink);
-    //Update the link
-    lattice::copyarray(clink,link,5);
-    clink[4] = rho;
-    clink[link[4]] += 1;
-    temp *= this->link(clink).adjoint();
-
-    //Add the first term then reset
-    out += temp;
-
-    //Next term is just the given link
-    out -= 2*pow(this->u0,2) * this->link(link);
-
-    //Reset temp
-    temp = Matrix3cd::Identity();
-    //Set the current link
-    lattice::copyarray(clink,link,5);
-    clink[4] = rho;
-    clink[rho] -= 1;
-    temp *= this->link(clink).adjoint();
-    //Set the link again
-    clink[4] = link[4];
-    temp *= this->link(clink);
-    //And again
-    clink[4] = rho;
-    clink[link[4]] += 1;
-    temp *= this->link(clink);
-    
-    out += temp;
-  }
-  return out / pow(this->a * this->u0, 2);
 }
 
 void Lattice::smear(const int time, const int n_smears)
