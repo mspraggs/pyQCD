@@ -42,6 +42,47 @@ namespace lattice
       a1[i] = a2[i];
     }
   }
+  
+  Matrix4cd gamma(const int index)
+  {
+    if(index < 0) {
+      return -gamma(-index);
+    }
+    else {
+      Matrix4cd out = Matrix4cd::Zeros();
+      if(index == 1) {
+	out(0,3) = -lattice::i;
+	out(1,2) = -lattice::i;
+	out(2,1) = lattice::i;
+	out(3,0) = lattice::i;
+      }
+      else if(index == 2) {
+	out(0,3) = -1;
+	out(1,2) = 1;
+	out(2,1) = 1;
+	out(3,0) = -1;	
+      }
+      else if(index == 3) {
+	out(0,2) = -lattice::i;
+	out(1,3) = lattice::i;
+	out(2,0) = lattice::i;
+	out(3,1) = -lattice::i;
+      }
+      else if(index == 4) {
+	out(0,2) = 1;
+	out(1,3) = 1;
+	out(2,0) = 1;
+	out(3,1) = 1;	
+      }
+      else if(index == 5) {
+	out(0,0) = 1;
+	out(1,1) = 1;
+	out(2,2) = -1;
+	out(3,3) = -1;
+      }
+      return out;
+    }
+  }
 }
 
 class Lattice
