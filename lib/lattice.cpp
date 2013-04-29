@@ -22,6 +22,7 @@ typedef vector<Sub4Field> Sub3Field;
 typedef vector<Sub3Field> Sub2Field;
 typedef vector<Sub2Field> SubField;
 typedef vector<SubField> GaugeField;
+typedef Triplet<complex<double> > T;
 
 namespace lattice
 {
@@ -129,6 +130,8 @@ public:
   Matrix3cd Q(const int link[5]);
   py::list getLink(const int i, const int j, const int k, const int l, const int m) const;
   py::list getRandSU3(const int i) const;
+
+  SparseMatrix<complex<double> > DiracMatrix(const double mass);
 
   int Ncor, Ncf, n;
 
@@ -973,4 +976,18 @@ py::list Lattice::getRandSU3(const int i) const
     out.append(temp);
   }
   return out;
+}
+
+SparseMatrix<complex<double> > Lattice::DiracMatrix(const double mass)
+{
+  int n_indices = int(144 * pow(this->n,4));
+  SparseMatrix<complex<double> > out(n_indices,n_indices);
+
+  vector<T> tripletList;
+  for(int i = 0; i < n_indices; i++) {
+    tripletList.push_back(T(i,i,mass + 4/this->a));
+  }
+  out.setFromTriplets(tripletList.begin(), tripletList.end());
+
+  
 }
