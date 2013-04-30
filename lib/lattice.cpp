@@ -1,4 +1,5 @@
 #include <Eigen/Dense>
+#include <Eigen/Sparse>
 #include <Eigen/QR>
 #include <complex>
 #include <boost/python.hpp>
@@ -22,7 +23,7 @@ typedef vector<Sub4Field> Sub3Field;
 typedef vector<Sub3Field> Sub2Field;
 typedef vector<Sub2Field> SubField;
 typedef vector<SubField> GaugeField;
-typedef Triplet<complex<double> > T;
+typedef Triplet<complex<double> > Tlet;
 
 namespace lattice
 {
@@ -43,6 +44,17 @@ namespace lattice
       a1[i] = a2[i];
     }
   }
+
+  int sgn(const int x)
+  {
+    //A wee sign function
+    if(x < 0) {
+      return -1;
+    }
+    else {
+      return 1;
+    }
+  }
   
   Matrix4cd gamma(const int index)
   {
@@ -50,7 +62,7 @@ namespace lattice
       return -gamma(-index);
     }
     else {
-      Matrix4cd out = Matrix4cd::Zeros();
+      Matrix4cd out = Matrix4cd::Zero();
       if(index == 1) {
 	out(0,3) = -lattice::i;
 	out(1,2) = -lattice::i;
@@ -980,14 +992,169 @@ py::list Lattice::getRandSU3(const int i) const
 
 SparseMatrix<complex<double> > Lattice::DiracMatrix(const double mass)
 {
-  int n_indices = int(144 * pow(this->n,4));
+  //Calculates the Dirac matrix for the current field configuration
+  //using Wilson fermions
+  
+  //Calculate some useful quantities
+  int n_indices = int(12 * pow(this->n,4));
+  int n_sites = int(pow(this->n,4));
+  //Create the sparse matrix we're going to return
+  cout << "About to try to allocate the sparse matrix" << endl;
   SparseMatrix<complex<double> > out(n_indices,n_indices);
+  cout << "Allocated sparse matrix" << endl;
 
-  vector<T> tripletList;
+  vector<Tlet> tripletList;
   for(int i = 0; i < n_indices; i++) {
-    tripletList.push_back(T(i,i,mass + 4/this->a));
+    tripletList.push_back(Tlet(i,i,mass + 4/this->a));
   }
   out.setFromTriplets(tripletList.begin(), tripletList.end());
+  tripletList.clear();
+  cout << "Initialised diagonal" << endl;
 
+  //Create and initialise a vector of the space, lorentz and colour indices
+  vector<vector<int> > indices(pow(this->n,4) * 12,vector<int>(6));
+  int index = 0;
+  for(int i = 0; i < this->n; i++) {
+    for(int j = 0; j < this->n; j++) {
+      for(int k = 0; k < this->n; k++) {
+	for(int l = 0; l < this->n; l++) {
+	  for(int alpha = 0; alpha < 4; alpha++) {
+	    for(int a = 0; a < 3; a++){
+	      indices[index][0] = i;
+	      indices[index][1] = j;
+	      indices[index][2] = k;
+	      indices[index][3] = l;
+	      indices[index][4] = alpha;
+	      indices[index][5] = a;
+	      index++;
+	    }
+	  }
+	}
+      }
+    }
+  }
+  cout << "Initialized indices vector" << endl;
+
+  int mus[8] = {-4,-3,-2,-1,1,2,3,4};
   
+  //Now iterate through the matrix and add the various elements to the vector
+  //of triplets
+  for(int i = 0; i < n_indices; i++) {
+    for(int j = 0; j < n_indices; j++) {
+      cout << "Beginning of loop" << endl;
+      cout << "i,j = " << i << "," << j << endl;
+      cout << "Indices for i = "
+	   << indices[i][0] << ","
+	   << indices[i][1] << ","
+	   << indices[i][2] << ","
+	   << indices[i][3] << ","
+	   << indices[i][4] << ","
+	   << indices[i][5] << endl;
+      cout << "Indices for j = "
+	   << indices[j][0] << ","
+	   << indices[j][1] << ","
+	   << indices[j][2] << ","
+	   << indices[j][3] << ","
+	   << indices[j][4] << ","
+	   << indices[j][5] << endl;
+      //First we'll need something to put the sum into
+      complex<double> sum = complex<double>(0,0);
+      for(int k = 0; k < 8; k++) {
+	cout << "Beginning of sum loop" << endl;
+	cout << "mu = " << mus[k] << endl;
+	//First need to implement the kronecker delta in the sum of mus,
+	//which'll be horrendous, but hey...
+	
+	//First create an array for the site specified by the index i
+	int site_i[4] = {indices[i][0],
+			 indices[i][1],
+			 indices[i][2],
+			 indices[i][3]};	
+	int site_j[4] = {indices[j][0],
+			 indices[j][1],
+			 indices[j][2],
+			 indices[j][3]};
+
+	cout << "Created sites i and j" << endl;
+	
+	//Add a minkowski lorentz index because that what the class deals in
+	int mu_mink = mus[k] % 4;
+	cout << "Initialised Minkowski index (" << mu_mink << ")" << endl;
+	//Add (or subtract) the corresponding mu vector from the second
+	//lattice site
+	site_j[mu_mink] = lattice::mod(site_j[mu_mink] + 
+				       lattice::sgn(mus[k]),
+				       this->n);
+
+	cout << "Recalculated site j:" << endl;
+	cout << site_j[0] << ","
+	     << site_j[1] << ","
+	     << site_j[2] << ","
+	     << site_j[3] << endl;
+	
+	//Check to see if the two sites are identical
+	bool delta = true;
+	for(int l = 0; l < 4; l++) {	    
+	  if(site_i[l] != site_j[l]) {
+	    delta = false;
+	  }
+	}
+
+	cout << "Compared sites, delta = " << delta << endl;
+	
+	//If they are, then we have ourselves a matrix element
+	//First test for when mu is positive, as then we'll need to deal
+	//with the +ve or -ve cases slightly differently
+	cout << "Testing delta and sign of mu..." << endl;
+	if(delta && mus[k] > 0) {
+	  cout << "mu is positive" << endl;
+	  int link[5] = {indices[i][0],
+			 indices[i][1],
+			 indices[i][2],
+			 indices[i][3],
+			 mu_mink};
+	  cout << "Created link variable" << endl;
+	  
+	  cout << "Fetching link and lorentz matrices..." << endl;
+	  Matrix3cd U = this->link(link);
+	  cout << "Done..." << endl;
+	  Matrix4cd lorentz = Matrix4cd::Identity() - lattice::gamma(mus[k]);
+	  cout << "And done!" << endl;
+	  
+	  cout << "Adding to sum..." << endl;
+	  sum += lorentz(indices[i][4],indices[j][4]) 
+	    * U(indices[i][5],indices[j][5]);
+	  cout << "Done!" << endl;
+	}
+	else if(delta) {
+	  cout << "mu is negative" << endl;
+	  int link[5] = {indices[i][0],
+			 indices[i][1],
+			 indices[i][2],
+			 indices[i][3],
+			 mu_mink};
+	  cout << "Created link" << endl;
+	  
+	  link[mu_mink] -= 1;
+	  cout << "Subtracted one from the link" << endl;
+	  //Grab the gamma and gauge matrices
+	  cout << "Fetching link and lorentz matrices" << endl;
+	  Matrix3cd U = this->link(link).adjoint();
+	  cout << "Done..." << endl;
+	  Matrix4cd lorentz = Matrix4cd::Identity() - lattice::gamma(mus[k]);
+	  cout << "And done!" << endl;
+	  
+	  cout << "Adding to sum" << endl;
+	  sum += lorentz(indices[i][4], indices[j][4]) 
+	    * U(indices[i][5],indices[i][5]);
+	  cout << "Done!" << endl;
+	}
+      }
+      cout << "Dividing sum through by 2a" << endl;
+      sum /= -(2 * this->a);
+      cout << "Testing for nonzero sum and adding to triplets if non-zero" << endl;
+      if(sum.imag() != 0 && sum.real() != 0) tripletList.push_back(Tlet(i,j,sum));
+      cout << "Done!" << endl;
+    }
+  }
 }
