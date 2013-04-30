@@ -38,14 +38,14 @@ namespace lattice
     return n%d;
   }
   
-  void copyarray(int a1[], const int a2[], const int &length)
+  void copyarray(int a1[], const int a2[], const int& length)
   {
     for(int i = 0; i < length; i++) {
       a1[i] = a2[i];
     }
   }
 
-  int sgn(const int x)
+  int sgn(const int& x)
   {
     //A wee sign function
     if(x < 0) {
@@ -55,46 +55,48 @@ namespace lattice
       return 1;
     }
   }
-  
-  Matrix4cd gamma(const int index)
+
+  bool arrequal(const int v1[], const int v2[], const int& l)
   {
-    if(index < 0) {
-      return -gamma(-index);
+    for(int i = 0; i < l; i++) {
+      if(v1[i] != v2[i]) return false;
     }
-    else {
-      Matrix4cd out = Matrix4cd::Zero();
-      if(index == 1) {
-	out(0,3) = -lattice::i;
-	out(1,2) = -lattice::i;
-	out(2,1) = lattice::i;
-	out(3,0) = lattice::i;
-      }
-      else if(index == 2) {
-	out(0,3) = -1;
-	out(1,2) = 1;
-	out(2,1) = 1;
-	out(3,0) = -1;	
-      }
-      else if(index == 3) {
-	out(0,2) = -lattice::i;
-	out(1,3) = lattice::i;
-	out(2,0) = lattice::i;
-	out(3,1) = -lattice::i;
-      }
-      else if(index == 4) {
-	out(0,2) = 1;
-	out(1,3) = 1;
-	out(2,0) = 1;
-	out(3,1) = 1;	
-      }
-      else if(index == 5) {
-	out(0,0) = 1;
-	out(1,1) = 1;
-	out(2,2) = -1;
-	out(3,3) = -1;
-      }
-      return out;
-    }
+    return true;
+  }
+
+  Matrix4cd gamma1 = (MatrixXcd(4,4) << 0,0,0,-i,
+		      0,0,-i,0,
+		      0,i,0,0,
+		      i,0,0,0).finished();
+  
+  Matrix4cd gamma2 = (MatrixXcd(4,4) << 0,0,0,-1,
+		      0,0,1,0,
+		      0,1,0,0,
+		      -1,0,0,0).finished();
+
+  Matrix4cd gamma3 = (MatrixXcd(4,4) << 0,0,-i,0,
+		      0,0,0,i,
+		      i,0,0,0,
+		      0,-i,0,0).finished();
+
+  Matrix4cd gamma4 = (MatrixXcd(4,4) << 0,0,1,0,
+		      0,0,0,1,
+		      1,0,0,0,
+		      0,1,0,0).finished();
+
+  Matrix4cd gamma5 = (MatrixXcd(4,4) << 1,0,0,0,
+		      0,1,0,0,
+		      0,0,-1,0,
+		      0,0,0,-1).finished();
+  
+  Matrix4cd gammas[5] = {gamma1,gamma2,
+			 gamma3,gamma4,
+			 gamma5};
+  
+  Matrix4cd gamma(const int& index)
+  {
+    int prefactor = (index < 0) ? -1 : 1;
+    return prefactor * gammas[abs(index) - 1];
   }
 }
 
@@ -1010,13 +1012,15 @@ SparseMatrix<complex<double> > Lattice::DiracMatrix(const double mass)
 
   //Create and initialise a vector of the space, lorentz and colour indices
   vector<vector<int> > indices(pow(this->n,4) * 12,vector<int>(6));
+  //int** indices = new int* [int(pow(this->n,4) * 12)];
   int index = 0;
   for(int i = 0; i < this->n; i++) {
     for(int j = 0; j < this->n; j++) {
       for(int k = 0; k < this->n; k++) {
 	for(int l = 0; l < this->n; l++) {
 	  for(int alpha = 0; alpha < 4; alpha++) {
-	    for(int a = 0; a < 3; a++){
+	    for(int a = 0; a < 3; a++) {
+	      //indices[index] = new int[6];
 	      indices[index][0] = i;
 	      indices[index][1] = j;
 	      indices[index][2] = k;
@@ -1036,74 +1040,54 @@ SparseMatrix<complex<double> > Lattice::DiracMatrix(const double mass)
   //Now iterate through the matrix and add the various elements to the vector
   //of triplets
   for(int i = 0; i < n_indices; i++) {
+    int site_i[4] = {indices[i][0],
+		     indices[i][1],
+		     indices[i][2],
+		     indices[i][3]};
+    
     for(int j = 0; j < n_indices; j++) {
       //First we'll need something to put the sum into
-      complex<double> sum = complex<double>(0,0);
+      complex<double> sum = complex<double>(0,0);	
+      //First create an array for the site specified by the index i	
+      int site_j[4] = {indices[j][0],
+		       indices[j][1],
+		       indices[j][2],
+		       indices[j][3]};
       for(int k = 0; k < 8; k++) {
 	//First need to implement the kronecker delta in the sum of mus,
 	//which'll be horrendous, but hey...
 	
-	//First create an array for the site specified by the index i
-	int site_i[4] = {indices[i][0],
-			 indices[i][1],
-			 indices[i][2],
-			 indices[i][3]};	
-	int site_j[4] = {indices[j][0],
-			 indices[j][1],
-			 indices[j][2],
-			 indices[j][3]};
-	
 	//Add a minkowski lorentz index because that what the class deals in
-	int mu_mink = mus[k] % 4;
+	int mu_mink = abs(mus[k]) % 4;
 	//Add (or subtract) the corresponding mu vector from the second
 	//lattice site
 	site_j[mu_mink] = lattice::mod(site_j[mu_mink] + 
 				       lattice::sgn(mus[k]),
 				       this->n);
 	
-	//Check to see if the two sites are identical
-	bool delta = true;
-	for(int l = 0; l < 4; l++) {	    
-	  if(site_i[l] != site_j[l]) {
-	    delta = false;
-	  }
-	}
-	
 	//If they are, then we have ourselves a matrix element
 	//First test for when mu is positive, as then we'll need to deal
 	//with the +ve or -ve cases slightly differently
-	if(delta && mus[k] > 0) {
-	  int link[5] = {indices[i][0],
-			 indices[i][1],
-			 indices[i][2],
-			 indices[i][3],
-			 mu_mink};
-
-	  Matrix3cd U = this->link(link);
+	if(lattice::arrequal(site_i,site_j,4)) {
+	  int link[5];
+	  lattice::copyarray(link,site_i,4);
+	  link[4] = mu_mink;
+	  Matrix3cd U;
 	  Matrix4cd lorentz = Matrix4cd::Identity() - lattice::gamma(mus[k]);
+	  if(mus[k] > 0) U = this->link(link);
+	  else {
+	    link[mu_mink] -= 1;
+	    U = this->link(link).adjoint();
+	  }
 	  sum += lorentz(indices[i][4],indices[j][4]) 
 	    * U(indices[i][5],indices[j][5]);
-	}
-	else if(delta) {
-	  int link[5] = {indices[i][0],
-			 indices[i][1],
-			 indices[i][2],
-			 indices[i][3],
-			 mu_mink};
-	  
-	  link[mu_mink] -= 1;
-	  //Grab the gamma and gauge matrices
-	  Matrix3cd U = this->link(link).adjoint();
-	  Matrix4cd lorentz = Matrix4cd::Identity() - lattice::gamma(mus[k]);
-
-	  sum += lorentz(indices[i][4], indices[j][4]) 
-	    * U(indices[i][5],indices[i][5]);
 	}
       }
       sum /= -(2 * this->a);
       if(sum.imag() != 0 && sum.real() != 0) tripletList.push_back(Tlet(i,j,sum));
     }
   }
+  
   out.setFromTriplets(tripletList.begin(), tripletList.end());
   
   return out;
