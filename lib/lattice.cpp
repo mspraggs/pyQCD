@@ -12,6 +12,7 @@
 #include <ctime>
 #include <unsupported/Eigen/MatrixFunctions>
 #include "gil.cpp"
+#include <omp.h>
 
 using namespace Eigen;
 namespace py = boost::python;
@@ -799,27 +800,23 @@ void Lattice::nextConfig()
 
 void Lattice::runThreads(const int size, const int n_updates, const int remainder)
 {
-  vector<bst::shared_ptr<bst::thread> > threads;
   int index = 0;
+  int N = pow(this->n,4);
   ScopedGILRelease scope = ScopedGILRelease();
 
+#pragma omp parallel for
   for(int i = 0; i < this->n; i+=size) {
     for(int j = 0; j < this->n; j+=size) {
       for(int k = 0; k < this->n; k+=size) {
 	for(int l = 0; l < this->n; l+=size) {
 	  int site[4] = {i,j,k,l};
 	  if(index%2 == remainder) {
-	    bst::shared_ptr<bst::thread> m_thread = bst::shared_ptr<bst::thread>(new bst::thread(bst::bind(&Lattice::updateSegment,this,i,j,k,l,size,n_updates)));
-	    threads.push_back(m_thread);
+	    this->updateSegment(i,j,k,l,size,n_updates);
 	  }
 	  index++;
 	}
       }
     }
-  }
-  
-  for(int i = 0; i < threads.size(); i++) {
-    threads[i]->join();
   }
 }
 
