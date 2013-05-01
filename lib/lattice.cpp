@@ -4,8 +4,6 @@
 #include <complex>
 #include <boost/python.hpp>
 #include <boost/python/list.hpp>
-#include <boost/thread.hpp>
-#include <boost/shared_ptr.hpp>
 #include <vector>
 #include <cstdlib>
 #include <iostream>
