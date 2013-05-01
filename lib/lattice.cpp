@@ -801,10 +801,9 @@ void Lattice::nextConfig()
 void Lattice::runThreads(const int size, const int n_updates, const int remainder)
 {
   int index = 0;
-  int N = pow(this->n,4);
   ScopedGILRelease scope = ScopedGILRelease();
 
-#pragma omp parallel for
+#pragma omp parallel for schedule(dynamic,1) collapse(4)
   for(int i = 0; i < this->n; i+=size) {
     for(int j = 0; j < this->n; j+=size) {
       for(int k = 0; k < this->n; k+=size) {
@@ -1036,6 +1035,7 @@ SparseMatrix<complex<double> > Lattice::DiracMatrix(const double mass)
   
   //Now iterate through the matrix and add the various elements to the vector
   //of triplets
+  #pragma omp parallel for
   for(int i = 0; i < n_indices; i++) {
     int site_i[4] = {indices[i][0],
 		     indices[i][1],
@@ -1043,6 +1043,7 @@ SparseMatrix<complex<double> > Lattice::DiracMatrix(const double mass)
 		     indices[i][3]};
     
     for(int j = 0; j < n_indices; j++) {
+      //cout << "Started loop " << j << " on " << i << endl;
       //First we'll need something to put the sum into
       complex<double> sum = complex<double>(0,0);	
       //First create an array for the site specified by the index i	
@@ -1050,6 +1051,7 @@ SparseMatrix<complex<double> > Lattice::DiracMatrix(const double mass)
 		       indices[j][1],
 		       indices[j][2],
 		       indices[j][3]};
+
       for(int k = 0; k < 8; k++) {
 	//First need to implement the kronecker delta in the sum of mus,
 	//which'll be horrendous, but hey...
@@ -1081,7 +1083,8 @@ SparseMatrix<complex<double> > Lattice::DiracMatrix(const double mass)
 	}
       }
       sum /= -(2 * this->a);
-      if(sum.imag() != 0 && sum.real() != 0) tripletList.push_back(Tlet(i,j,sum));
+      if(sum.imag() != 0 && sum.real() != 0)
+	tripletList.push_back(Tlet(i,j,sum));
     }
   }
   
