@@ -1056,7 +1056,6 @@ SparseMatrix<complex<double> > Lattice::DiracMatrix(const double mass)
 	}
       }
       if(delta) {
-	//cout << "Started loop " << j << " on " << i << endl;
 	//First we'll need something to put the sum into
 	complex<double> sum = complex<double>(0,0);	
 	//First create an array for the site specified by the index i	
@@ -1095,7 +1094,7 @@ SparseMatrix<complex<double> > Lattice::DiracMatrix(const double mass)
 	  }
 	}
 	sum /= -(2 * this->a);
-#pragma omp critical
+	#pragma omp critical
 	if(sum.imag() != 0 && sum.real() != 0)
 	  tripletList.push_back(Tlet(i,j,sum));
       }
