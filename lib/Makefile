@@ -20,10 +20,10 @@ else
 endif
 
 pyQCD.so : pyQCD.o
-	g++ -g -shared -Wall -o pyQCD.so pyQCD.o $(LIBS)
+	g++ -g -fopenmp -shared -Wall -o pyQCD.so pyQCD.o $(LIBS)
 
 pyQCD.o : pyQCD.cpp lattice.cpp
-	g++ -O3 -c -fPIC -o pyQCD.o pyQCD.cpp $(INC)
+	g++ -O3 -fopenmp -c -fPIC -o pyQCD.o pyQCD.cpp $(INC)
 
 clean:
 	rm pyQCD.o pyQCD.so	
