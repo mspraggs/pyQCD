@@ -1041,48 +1041,67 @@ SparseMatrix<complex<double> > Lattice::DiracMatrix(const double mass)
 		     indices[i][3]};
     
     for(int j = 0; j < n_indices; j++) {
-      //cout << "Started loop " << j << " on " << i << endl;
-      //First we'll need something to put the sum into
-      complex<double> sum = complex<double>(0,0);	
-      //First create an array for the site specified by the index i	
-      int site_j[4] = {indices[j][0],
-		       indices[j][1],
-		       indices[j][2],
-		       indices[j][3]};
+      int m = i / 12;
+      int n = j / 12;
 
-      for(int k = 0; k < 8; k++) {
-	//First need to implement the kronecker delta in the sum of mus,
-	//which'll be horrendous, but hey...
-	
-	//Add a minkowski lorentz index because that what the class deals in
-	int mu_mink = abs(mus[k]) % 4;
-	//Add (or subtract) the corresponding mu vector from the second
-	//lattice site
-	site_j[mu_mink] = lattice::mod(site_j[mu_mink] + 
-				       lattice::sgn(mus[k]),
-				       this->n);
-	
-	//If they are, then we have ourselves a matrix element
-	//First test for when mu is positive, as then we'll need to deal
-	//with the +ve or -ve cases slightly differently
-	if(lattice::arrequal(site_i,site_j,4)) {
-	  int link[5];
-	  lattice::copyarray(link,site_i,4);
-	  link[4] = mu_mink;
-	  Matrix3cd U;
-	  Matrix4cd lorentz = Matrix4cd::Identity() - lattice::gamma(mus[k]);
-	  if(mus[k] > 0) U = this->link(link);
-	  else {
-	    link[mu_mink] -= 1;
-	    U = this->link(link).adjoint();
-	  }
-	  sum += lorentz(indices[i][4],indices[j][4]) 
-	    * U(indices[i][5],indices[j][5]);
+      //We can determine whether the spatial indices are going
+      //to trigger the delta function in advance, and hence
+      //if that's not going to happen we can save ourself a lot
+      //of hassle
+      bool delta = false;
+      for(int k = 0; k < 4; k++) {
+	if(m == n + pow(this->n,k) || m == n - pow(this->n,k)) {
+	  delta = true;
+	  break;
 	}
       }
-      sum /= -(2 * this->a);
-      if(sum.imag() != 0 && sum.real() != 0)
-	tripletList.push_back(Tlet(i,j,sum));
+      if(delta) {
+	//cout << "Started loop " << j << " on " << i << endl;
+	//First we'll need something to put the sum into
+	complex<double> sum = complex<double>(0,0);	
+	//First create an array for the site specified by the index i	
+	int site_j[4] = {indices[j][0],
+			 indices[j][1],
+			 indices[j][2],
+			 indices[j][3]};
+	for(int k = 0; k < 8; k++) {
+	  //First need to implement the kronecker delta in the sum of mus,
+	  //which'll be horrendous, but hey...
+	
+	  //Add a minkowski lorentz index because that what the class deals in
+	  int mu_mink = abs(mus[k]) % 4;
+	  //Add (or subtract) the corresponding mu vector from the second
+	  //lattice site
+	  site_j[mu_mink] = lattice::mod(site_j[mu_mink] + 
+					 lattice::sgn(mus[k]),
+					 this->n);
+	
+	  //If they are, then we have ourselves a matrix element
+	  //First test for when mu is positive, as then we'll need to deal
+	  //with the +ve or -ve cases slightly differently
+	  if(lattice::arrequal(site_i,site_j,4)) {
+	    int link[5];
+	    lattice::copyarray(link,site_i,4);
+	    link[4] = mu_mink;
+	    Matrix3cd U;
+	    Matrix4cd lorentz = Matrix4cd::Identity() - lattice::gamma(mus[k]);
+	    if(mus[k] > 0) U = this->link(link);
+	    else {
+	      link[mu_mink] -= 1;
+	      U = this->link(link).adjoint();
+	    }
+	    sum += lorentz(indices[i][4],indices[j][4]) 
+	      * U(indices[i][5],indices[j][5]);
+	  }
+	}
+	sum /= -(2 * this->a);
+#pragma omp critical
+	if(sum.imag() != 0 && sum.real() != 0)
+	  tripletList.push_back(Tlet(i,j,sum));
+      }
+      else {
+	j = (n + 1) * 12 - 1;
+      }
     }
   }
   
