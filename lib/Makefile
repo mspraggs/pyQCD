@@ -5,7 +5,7 @@ ifeq "$(IRIDIS)" "true"
 	EIGEN = -I/home/ms10g12/libs/Eigen/
 	INC = $(EIGEN) $(PYTHON) $(BOOST)
 
-	LBOOST = -dynamic-linker $(BOOST_DIR)/lib/libboost_python.so $(BOOST_DIR)/lib/libboost_thread.so
+	LBOOST = -dynamic-linker $(BOOST_DIR)/lib/libboost_python.so
 	LPYTHON = -L/local/software/rh53/python/2.6.5/gcc/lib/
 
 	LIBS = $(LBOOST) $(LPYTHON)
@@ -14,7 +14,7 @@ else
 	PYTHON = -I/usr/include/python2.7/
 	INC = $(EIGEN) $(PYTHON)
 
-	LBOOST = -lboost_python -lboost_thread
+	LBOOST = -lboost_python
 	LPYTHON = -lpython2.7
 	LIBS = $(LBOOST) $(LPYTHON)
 endif
