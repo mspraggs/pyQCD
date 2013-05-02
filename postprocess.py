@@ -47,7 +47,6 @@ def calcaV(W,method = "ratio"):
     """Calculate aV"""
     if method == "ratio":
         return pl.log(pl.absolute(W/pl.roll(W,-1,axis=1)))
-
     else:
         aVs = pl.zeros(pl.shape(W))
         n = pl.arange(1,pl.size(W,axis=1)+1)
@@ -117,10 +116,10 @@ def Vplot(Ws):
     A = b[2] / a
 
     print("Fit parameters:")
-    print("sigma = %f" % sigma)
+    print("sigma = %f fm^-2 = %f MeV^2" % (sigma, sigma * 197**2))
     print("B = %f" % B)
-    print("A = %f" % A)
-    print("Lattice spacing, a = %f fm" % a)
+    print("A = %f fm^-1 = %f MeV" % (A,A*197))
+    print("Lattice spacing, a = %f fm = %f MeV^-1" % (a,a/197))
 
     r_fit = pl.arange(0.25,r[-1]+1,0.1)
     aV_fit = V(b,r_fit)
