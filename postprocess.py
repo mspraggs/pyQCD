@@ -24,7 +24,7 @@ def bin(Ws,binsize=1):
 
 def V(b,r):
     """Calculates the potential as b[0]*r - b[1]/r + b[2]"""
-    return b[0]*r - b[1]/r + b[2]
+    return b[0]*r + b[1]/r + b[2]
 
 def efunc(b,r,y):
     """Calculates the error between data and curve"""
@@ -43,9 +43,21 @@ def potfit(data):
 
     return b
 
-def calcaV(W):
+def calcaV(W,method = "ratio"):
     """Calculate aV"""
-    return pl.log(pl.absolute(W/pl.roll(W,-1,axis=1)))
+    if method == "ratio":
+        return pl.log(pl.absolute(W/pl.roll(W,-1,axis=1)))
+
+    else:
+        aVs = pl.zeros(pl.shape(W))
+        n = pl.arange(1,pl.size(W,axis=1)+1)
+        f = lambda b,t,W: W - b[0] * pl.exp(-b[1] * t)
+        
+        for i in xrange(pl.size(W,axis=0)):
+            params,result = optimize.leastsq(f,[1.,1.],args=(n,W[i]))
+            aVs[i] = params[1] * pl.ones(pl.shape(W[i]))
+            
+        return aVs
 
 def bootstrap(Ws):
     """Bootstraps Ws N times and returns the average"""
@@ -91,7 +103,7 @@ def Vplot(Ws):
         
     for i in xrange(N_bstrp):
         W = pl.mean(bootstrap(Ws),axis=0)
-        aVs[i] = calcaV(W)
+        aVs[i] = calcaV(W,method="fit")
 
     r = pl.arange(1,7)
     aV = pl.mean(aVs,axis=0)
@@ -99,10 +111,16 @@ def Vplot(Ws):
 
     b = potfit(aV[:,0])
 
+    a = 0.5 / pl.sqrt((1.65 + b[1]) / b[0])
+    sigma = b[0] / a**2
+    B = b[1]
+    A = b[2] / a
+
     print("Fit parameters:")
-    print("sigma = %f" % b[0])
-    print("b = %f" % b[1])
-    print("c = %f" % b[2])
+    print("sigma = %f" % sigma)
+    print("B = %f" % B)
+    print("A = %f" % A)
+    print("Lattice spacing, a = %f fm" % a)
 
     r_fit = pl.arange(0.25,r[-1]+1,0.1)
     aV_fit = V(b,r_fit)
