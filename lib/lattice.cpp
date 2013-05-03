@@ -1049,7 +1049,10 @@ SparseMatrix<complex<double> > Lattice::DiracMatrix(const double mass)
       //of hassle
       bool delta = false;
       for(int k = 0; k < 4; k++) {
-	if(m == n + pow(this->n,k) || m == n - pow(this->n,k)) {
+	//Store this to save calculating it twice
+	int n_off = pow(this->n,k);	
+	if(m == lattice::mod(n + n_off,n_sites)
+	   || m == lattice::mod(n - n_off,n_sites)) {
 	  delta = true;
 	  break;
 	}
