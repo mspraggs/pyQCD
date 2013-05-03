@@ -1,8 +1,16 @@
 #include "lattice.cpp"
 #include "pylattice.hpp"
 
-pyLattice::pyLattice(const int n, const double beta, const int Ncor, const int Ncf, const double eps, const double a, const double smear_eps, const double u0, const int action) :
-  Lattice::Lattice(n, beta, Ncor, Ncf, eps, a, smear_eps, u0, action)
+pyLattice::pyLattice(const int n,
+		     const double beta,
+		     const int Ncor,
+		     const int Ncf,
+		     const double eps,
+		     const double a,
+		     const double rho,
+		     const double u0,
+		     const int action) :
+  Lattice::Lattice(n, beta, Ncor, Ncf, eps, a, rho, u0, action)
 {
   
 }
@@ -12,39 +20,54 @@ pyLattice::~pyLattice()
   
 }
 
-double pyLattice::Wav_p(const int r, const int t, const int n_smears)
+double pyLattice::calcAverageWilson_p(const int r, const int t,
+				      const int n_smears)
 {
-  return Lattice::Wav(r,t,n_smears);
+  return Lattice::calcAverageWilson(r,t,n_smears);
 }
 
-double pyLattice::W_p(const py::list cnr, const int r, const int t, const int dim, const int n_smears)
+double pyLattice::calcWilsonLoop_p(const py::list cnr, const int r,
+				   const int t, const int dim,
+				   const int n_smears)
 {
   /*Calculates the loop specified by corners c1 and c2 (which must
     lie in the same plane)*/
   int c[4] = {py::extract<int>(cnr[0]),py::extract<int>(cnr[1]),py::extract<int>(cnr[2]),py::extract<int>(cnr[3])};
-  return this->W(c,r,t,dim,n_smears);
+  return this->calcWilsonLoop(c,r,t,dim,n_smears);
 }
 
-double pyLattice::T_p(const py::list site2,const int mu, const int nu)
+double pyLattice::calcTwistRect_p(const py::list site2,const int mu, 
+				  const int nu)
 {
   //Python wrapper for rectangle function
-  int site[4] = {py::extract<int>(site2[0]),py::extract<int>(site2[1]),py::extract<int>(site2[2]),py::extract<int>(site2[3])};
-  return this->T(site,mu,nu);
+  int site[4] = {py::extract<int>(site2[0]),
+		 py::extract<int>(site2[1]),
+		 py::extract<int>(site2[2]),
+		 py::extract<int>(site2[3])};
+  return this->calcTwistRect(site,mu,nu);
   
 }
 
-double pyLattice::R_p(const py::list site2,const int mu, const int nu)
+double pyLattice::calcRectangle_p(const py::list site2, const int mu,
+				  const int nu)
 {
   //Python wrapper for rectangle function
-  int site[4] = {py::extract<int>(site2[0]),py::extract<int>(site2[1]),py::extract<int>(site2[2]),py::extract<int>(site2[3])};
-  return this->R(site,mu,nu);
+  int site[4] = {py::extract<int>(site2[0]),
+		 py::extract<int>(site2[1]),
+		 py::extract<int>(site2[2]),
+		 py::extract<int>(site2[3])};
+  return this->calcRectangle(site,mu,nu);
 }
 
-double pyLattice::P_p(const py::list site2,const int mu, const int nu)
+double pyLattice::calcPlaquette_p(const py::list site2, const int mu,
+				  const int nu)
 {
   /*Python wrapper for the plaquette function.*/
-  int site[4] = {py::extract<int>(site2[0]),py::extract<int>(site2[1]),py::extract<int>(site2[2]),py::extract<int>(site2[3])};
-  return this->P(site,mu,nu);
+  int site[4] = {py::extract<int>(site2[0]),
+		 py::extract<int>(site2[1]),
+		 py::extract<int>(site2[2]),
+		 py::extract<int>(site2[3])};
+  return this->calcPlaquette(site,mu,nu);
 }
 
 void pyLattice::runThreads(const int size, const int n_updates, const int remainder)
@@ -53,7 +76,8 @@ void pyLattice::runThreads(const int size, const int n_updates, const int remain
   Lattice::runThreads(size,n_updates,remainder);
 }
 
-py::list pyLattice::getLink(const int i, const int j, const int k, const int l, const int m) const
+py::list pyLattice::getLink_p(const int i, const int j, const int k,
+			      const int l, const int m) const
 {
   /*Returns the given link as a python nested list. Used in conjunction
    with python interfaces library to extract the links as a nested list
