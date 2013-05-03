@@ -12,6 +12,11 @@ pyLattice::~pyLattice()
   
 }
 
+double pyLattice::Wav_p(const int r, const int t, const int n_smears)
+{
+  Lattice::Wav(r,t,n_smears);
+}
+
 double pyLattice::W_p(const py::list cnr, const int r, const int t, const int dim, const int n_smears)
 {
   /*Calculates the loop specified by corners c1 and c2 (which must

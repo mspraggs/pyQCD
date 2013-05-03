@@ -112,7 +112,7 @@ struct lattice_pickle_suite : py::pickle_suite
   
 //Boost python wrapping of the class
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(pyLatticeWOverload,W_p,4,5)
-BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(pyLatticeWavOverload,Wav,2,3)
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(pyLatticeWavOverload,Wav_p,2,3)
 
 BOOST_PYTHON_MODULE(pyQCD)
 {
@@ -130,7 +130,7 @@ BOOST_PYTHON_MODULE(pyQCD)
     .def("Rav",&pyLattice::Rav)
     .def("T",&pyLattice::T_p)
     .def("W",&pyLattice::W_p,pyLatticeWOverload(py::args("cnr","r","t","dim","n_smears"), "Calculate Wilson loop"))
-    .def("Wav",&pyLattice::Wav,pyLatticeWavOverload(py::args("r","t","n_smears"), "Calculate average Wilson loop"))
+    .def("Wav",&pyLattice::Wav_p,pyLatticeWavOverload(py::args("r","t","n_smears"), "Calculate average Wilson loop"))
     .def("printL",&pyLattice::printL)
     .def("getLink",&pyLattice::getLink)
     .def("getRandSU3",&pyLattice::getRandSU3)
