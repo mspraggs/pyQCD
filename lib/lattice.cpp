@@ -676,13 +676,14 @@ double Lattice::SiImpT(const int link[5])
     site[link[4]] -= 1;
     Tsum += this->T(site,link[4],planes[i]);
 
-    lattice::copyarray(site,link,4);
+    site[link[4]] += 1;
     site[planes[i]] -= 1;
     Tsum += this->T(site,link[4],planes[i]);
     site[link[4]] -= 1;
     Tsum += this->T(site,link[4],planes[i]);
     
-    lattice::copyarray(site,link,4);
+    site[link[4]] += 1;
+    site[planes[i]] += 1;
     Tsum += this->T(site,planes[i],link[4]);
     site[planes[i]] -= 1;
     Tsum += this->T(site, planes[i],link[4]);
@@ -718,13 +719,14 @@ double Lattice::SiImpR(const int link[5])
     site[link[4]] -= 1;
     Rsum += this->R(site,link[4],planes[i]);
 
-    lattice::copyarray(site,link,4);
+    site[link[4]] += 1;
     site[planes[i]] -= 1;
     Rsum += this->R(site,link[4],planes[i]);
     site[link[4]] -= 1;
     Rsum += this->R(site,link[4],planes[i]);
     
-    lattice::copyarray(site,link,4);
+    site[link[4]] += 1;
+    site[planes[i]] += 1;
     Rsum += this->R(site,planes[i],link[4]);
     site[planes[i]] -= 2;
     Rsum += this->R(site, planes[i],link[4]);
