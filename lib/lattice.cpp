@@ -75,7 +75,9 @@ namespace lattice
   }
 }
 
-Lattice::Lattice(const int n, const double beta, const int Ncor, const int Ncf, const double eps, const double a, const double smear_eps, const double u0, const int action)
+Lattice::Lattice(const int n, const double beta, const int Ncor,
+		 const int Ncf, const double eps, const double a,
+		 const double rho, const double u0, const int action)
 {
   /*Default constructor. Assigns function arguments to member variables
    and initializes links.*/
@@ -85,7 +87,7 @@ Lattice::Lattice(const int n, const double beta, const int Ncor, const int Ncf, 
   this->Ncf = Ncf;
   this->eps = eps;
   this->a = a;
-  this->smear_eps = smear_eps;
+  this->smear_eps = rho;
   this->nUpdates = 0;
   this->u0 = u0;
   this->action = action;
