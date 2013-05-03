@@ -145,6 +145,7 @@ public:
   py::list getRandSU3(const int i) const;
 
   SparseMatrix<complex<double> > DiracMatrix(const double mass);
+  SparseVector<complex<double> > Propagator(const double mass, int site[4], const int alpha, const int a);
 
   int Ncor, Ncf, n;
 
@@ -1107,4 +1108,21 @@ SparseMatrix<complex<double> > Lattice::DiracMatrix(const double mass)
   out.setFromTriplets(tripletList.begin(), tripletList.end());
   
   return out;
+}
+
+VectorXcd Lattice::Propagator(const double mass, int site[4], const int alpha, const int a)
+{
+  SparseMatrix<complex<double> > D = this->DiracMatrix(mass);
+int n_indices = int(12 * pow(this->n,4));
+BiCGSTAB<SparseMatrix<complex<double> > > solver(D);
+
+SparseVector<complex<double> > S(n_indices);
+
+int m = site[3] + this->n * (site[2] + this->n * (site[1] + this->n * site[0]));
+int index = a + 3 * (alpha + 4 * m);
+S.coeffRef(index) = 1.;
+
+SparseVector<complex<double> > prop(n_indices )= solver.solve(S);
+
+return prop;
 }
