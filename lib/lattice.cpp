@@ -145,6 +145,7 @@ public:
   py::list getRandSU3(const int i) const;
 
   SparseMatrix<complex<double> > DiracMatrix(const double mass);
+  VectorXcd Propagator(const double mass, int site[4], const int alpha, const int a);
 
   int Ncor, Ncf, n;
 
@@ -1003,8 +1004,6 @@ SparseMatrix<complex<double> > Lattice::DiracMatrix(const double mass)
   for(int i = 0; i < n_indices; i++) {
     tripletList.push_back(Tlet(i,i,mass + 4/this->a));
   }
-  out.setFromTriplets(tripletList.begin(), tripletList.end());
-  tripletList.clear();
 
   //Create and initialise a vector of the space, lorentz and colour indices
   vector<vector<int> > indices(pow(this->n,4) * 12,vector<int>(6));
@@ -1035,6 +1034,7 @@ SparseMatrix<complex<double> > Lattice::DiracMatrix(const double mass)
   
   //Now iterate through the matrix and add the various elements to the vector
   //of triplets
+  ScopedGILRelease scope = ScopedGILRelease();
   #pragma omp parallel for
   for(int i = 0; i < n_indices; i++) {
     int site_i[4] = {indices[i][0],
@@ -1052,7 +1052,10 @@ SparseMatrix<complex<double> > Lattice::DiracMatrix(const double mass)
       //of hassle
       bool delta = false;
       for(int k = 0; k < 4; k++) {
-	if(m == n + pow(this->n,k) || m == n - pow(this->n,k)) {
+	//Store this to save calculating it twice
+	int n_off = pow(this->n,k);	
+	if(m == lattice::mod(n + n_off,n_sites)
+	   || m == lattice::mod(n - n_off,n_sites)) {
 	  delta = true;
 	  break;
 	}
@@ -1109,4 +1112,21 @@ SparseMatrix<complex<double> > Lattice::DiracMatrix(const double mass)
   out.setFromTriplets(tripletList.begin(), tripletList.end());
   
   return out;
+}
+
+VectorXcd Lattice::Propagator(const double mass, int site[4], const int alpha, const int a)
+{
+  SparseMatrix<complex<double> > D = this->DiracMatrix(mass);
+  int n_indices = int(12 * pow(this->n,4));
+  BiCGSTAB<SparseMatrix<complex<double> > > solver(D);
+  
+  VectorXcd S(n_indices);
+  
+  int m = site[3] + this->n * (site[2] + this->n * (site[1] + this->n * site[0]));
+  int index = a + 3 * (alpha + 4 * m);
+  S(index) = 1.;
+  
+  VectorXcd prop = solver.solve(S);
+  
+  return prop;
 }
