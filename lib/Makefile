@@ -22,7 +22,7 @@ endif
 pyQCD.so : pyQCD.o
 	g++ -g -fopenmp -shared -Wall -o pyQCD.so pyQCD.o $(LIBS)
 
-pyQCD.o : pyQCD.cpp lattice.cpp
+pyQCD.o : pyQCD.cpp pylattice.cpp lattice.cpp
 	g++ -O3 -fopenmp -c -fPIC -o pyQCD.o pyQCD.cpp $(INC)
 
 clean:
