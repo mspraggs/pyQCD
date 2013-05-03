@@ -1,15 +1,19 @@
-#include "lattice.cpp"
+#include "pylattice.cpp"
+#include <boost/python.hpp>
+#include <boost/python/list.hpp>
 
-/*The python wrapper for the C++ class*/
+namespace py = boost::python;
 
-struct my_pickle_suite : py::pickle_suite
+//Class that inherits Lattice and provides python wrapper functions
+
+struct lattice_pickle_suite : py::pickle_suite
 {
-  static py::tuple getinitargs(const Lattice& L)
+  static py::tuple getinitargs(const pyLattice& L)
   {
     return py::make_tuple(L.n,L.beta,L.Ncor,L.Ncf,L.eps,L.a,L.smear_eps,L.u0,L.action);
   }
   
-  static py::tuple getstate(const Lattice& L)
+  static py::tuple getstate(const pyLattice& L)
   {
     //Convert the links vector to a list for python compatability
     py::list links;
@@ -47,7 +51,7 @@ struct my_pickle_suite : py::pickle_suite
     return py::make_tuple(links,randSU3s);
   }
   
-  static void setstate(Lattice& L, py::tuple state)
+  static void setstate(pyLattice& L, py::tuple state)
   {
     if(len(state) != 2) {
       PyErr_SetObject(PyExc_ValueError,
@@ -107,30 +111,30 @@ struct my_pickle_suite : py::pickle_suite
 };
   
 //Boost python wrapping of the class
-BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(LatticeWOverload,W_p,4,5)
-BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(LatticeWavOverload,Wav,2,3)
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(pyLatticeWOverload,W_p,4,5)
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(pyLatticeWavOverload,Wav,2,3)
 
 BOOST_PYTHON_MODULE(pyQCD)
 {
-  py::class_<Lattice>("Lattice", py::init<py::optional<int,double,int,int,double,double,double,double,int> >())
-    .def(py::init<Lattice&>())
-    .def_pickle(my_pickle_suite())
-    .def("updateSchwarz",&Lattice::updateSchwarz)
-    .def("update",&Lattice::update)
-    .def("nextConfig",&Lattice::nextConfig)
-    .def("thermalize",&Lattice::thermalize)
-    .def("init_u0",&Lattice::init_u0)
-    .def("P",&Lattice::P_p)
-    .def("Pav",&Lattice::Pav)
-    .def("R",&Lattice::R_p)
-    .def("Rav",&Lattice::Rav)
-    .def("T",&Lattice::T_p)
-    .def("W",&Lattice::W_p,LatticeWOverload(py::args("cnr","r","t","dim","n_smears"), "Calculate Wilson loop"))
-    .def("Wav",&Lattice::Wav,LatticeWavOverload(py::args("r","t","n_smears"), "Calculate average Wilson loop"))
-    .def("printL",&Lattice::printL)
-    .def("getLink",&Lattice::getLink)
-    .def("getRandSU3",&Lattice::getRandSU3)
-    .def_readonly("Ncor",&Lattice::Ncor)
-    .def_readonly("Ncf",&Lattice::Ncf)
-    .def_readonly("n",&Lattice::n);
+  py::class_<pyLattice>("Lattice", py::init<py::optional<int,double,int,int,double,double,double,double,int> >())
+    .def(py::init<pyLattice&>())
+    .def_pickle(lattice_pickle_suite())
+    .def("updateSchwarz",&pyLattice::updateSchwarz)
+    .def("update",&pyLattice::update)
+    .def("nextConfig",&pyLattice::nextConfig)
+    .def("thermalize",&pyLattice::thermalize)
+    .def("init_u0",&pyLattice::init_u0)
+    .def("P",&pyLattice::P_p)
+    .def("Pav",&pyLattice::Pav)
+    .def("R",&pyLattice::R_p)
+    .def("Rav",&pyLattice::Rav)
+    .def("T",&pyLattice::T_p)
+    .def("W",&pyLattice::W_p,pyLatticeWOverload(py::args("cnr","r","t","dim","n_smears"), "Calculate Wilson loop"))
+    .def("Wav",&pyLattice::Wav,pyLatticeWavOverload(py::args("r","t","n_smears"), "Calculate average Wilson loop"))
+    .def("printL",&pyLattice::printL)
+    .def("getLink",&pyLattice::getLink)
+    .def("getRandSU3",&pyLattice::getRandSU3)
+    .def_readonly("Ncor",&pyLattice::Ncor)
+    .def_readonly("Ncf",&pyLattice::Ncf)
+    .def_readonly("n",&pyLattice::n);
 }
