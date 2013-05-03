@@ -1032,6 +1032,7 @@ SparseMatrix<complex<double> > Lattice::DiracMatrix(const double mass)
   
   //Now iterate through the matrix and add the various elements to the vector
   //of triplets
+  ScopedGILRelease scope = ScopedGILRelease();
   #pragma omp parallel for
   for(int i = 0; i < n_indices; i++) {
     int site_i[4] = {indices[i][0],
