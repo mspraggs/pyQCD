@@ -1,3 +1,9 @@
+#ifndef SCOPEDGILRELEASE_CPP
+#define SCOPEDGILRELEASE_CPP
+#include <boost/python.hpp>
+
+using namespace boost::python;
+
 class ScopedGILRelease
 {
 // C & D -------------------------------------------------------------------------------------------
@@ -16,3 +22,5 @@ public:
 private:
     PyThreadState * m_thread_state;
 };
+
+#endif
