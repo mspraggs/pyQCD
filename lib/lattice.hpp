@@ -1,3 +1,6 @@
+#ifndef LATTICE_HPP
+#define LATTICE_HPP
+
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 #include <Eigen/QR>
@@ -23,6 +26,7 @@ typedef Triplet<complex<double> > Tlet;
 
 class Lattice
 {
+
 public:
   Lattice(const int n = 8,
 	  const double beta = 5.5,
@@ -59,8 +63,6 @@ public:
   Matrix3cd link(const int link[5]);
   void smear(const int time, const int n_smears);
   Matrix3cd Q(const int link[5]);
-  py::list getLink(const int i, const int j, const int k, const int l, const int m) const;
-  py::list getRandSU3(const int i) const;
 
   SparseMatrix<complex<double> > DiracMatrix(const double mass);
   VectorXcd Propagator(const double mass, int site[4], const int alpha, const int a);
@@ -80,3 +82,5 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   
 };
+
+#endif

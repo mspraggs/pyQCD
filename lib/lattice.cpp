@@ -681,7 +681,6 @@ void Lattice::nextConfig()
 void Lattice::runThreads(const int size, const int n_updates, const int remainder)
 {
   int index = 0;
-  ScopedGILRelease scope = ScopedGILRelease();
 
 #pragma omp parallel for schedule(dynamic,1) collapse(4)
   for(int i = 0; i < this->n; i+=size) {
@@ -838,36 +837,6 @@ void Lattice::printL()
   }
 }
 
-py::list Lattice::getLink(const int i, const int j, const int k, const int l, const int m) const
-{
-  /*Returns the given link as a python nested list. Used in conjunction
-   with python interfaces library to extract the links as a nested list
-   of numpy matrices.*/
-  py::list out;
-  for(int n = 0; n < 3; n++) {
-    py::list temp;
-    for(int o = 0; o < 3; o++) {
-      temp.append(this->links[i][j][k][l][m](n,o));
-    }
-    out.append(temp);
-  }
-  return out;
-}
-
-py::list Lattice::getRandSU3(const int i) const
-{
-  /*Returns the given random SU3 matrix as a python list*/
-  py::list out;
-  for(int n = 0; n < 3; n++) {
-    py::list temp;
-    for(int o = 0; o < 3; o++) {
-      temp.append(this->randSU3s[i](n,o));
-    }
-    out.append(temp);
-  }
-  return out;
-}
-
 SparseMatrix<complex<double> > Lattice::DiracMatrix(const double mass)
 {
   //Calculates the Dirac matrix for the current field configuration
@@ -913,7 +882,6 @@ SparseMatrix<complex<double> > Lattice::DiracMatrix(const double mass)
   
   //Now iterate through the matrix and add the various elements to the vector
   //of triplets
-  ScopedGILRelease scope = ScopedGILRelease();
   #pragma omp parallel for
   for(int i = 0; i < n_indices; i++) {
     int site_i[4] = {indices[i][0],
