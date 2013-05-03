@@ -10,6 +10,10 @@
 #include "gil.cpp"
 #include <omp.h>
 
+using namespace Eigen;
+namespace bst = boost;
+using namespace std;
+
 typedef vector<Matrix3cd, aligned_allocator<Matrix3cd> > Sub4Field;
 typedef vector<Sub4Field> Sub3Field;
 typedef vector<Sub3Field> Sub2Field;

@@ -1,9 +1,5 @@
 #include "lattice.hpp"
 
-using namespace Eigen;
-namespace bst = boost;
-using namespace std;
-
 namespace lattice
 {
   const complex<double> i (0,1);
