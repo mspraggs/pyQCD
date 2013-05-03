@@ -1002,8 +1002,6 @@ SparseMatrix<complex<double> > Lattice::DiracMatrix(const double mass)
   for(int i = 0; i < n_indices; i++) {
     tripletList.push_back(Tlet(i,i,mass + 4/this->a));
   }
-  out.setFromTriplets(tripletList.begin(), tripletList.end());
-  tripletList.clear();
 
   //Create and initialise a vector of the space, lorentz and colour indices
   vector<vector<int> > indices(pow(this->n,4) * 12,vector<int>(6));
