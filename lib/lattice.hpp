@@ -35,7 +35,7 @@ public:
 	  const double beta = 5.5,
 	  const int nCorrelations = 50,
 	  const int nConfigurations = 1000,
-	  const double eps = 0.24,
+	  const double epsilon = 0.24,
 	  const double a = 0.25,
 	  const double rho = 0.3,
 	  const double u0 = 1,
@@ -88,7 +88,7 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 protected:
-  double beta_, eps_, a_, u0_, rho_;
+  double beta_, epsilon_, a_, u0_, rho_;
   int nUpdates_, action_;
   double computeLocalWilson(const int link[5]);
   double computeLocalRectangle(const int link[5]);
