@@ -17,6 +17,7 @@ pyLattice::pyLattice(const int nEdgePoints,
 }
 
 
+
 pyLattice::pyLattice(const pyLattice& pylattice) : 
   Lattice::Lattice(pylattice)
 {
