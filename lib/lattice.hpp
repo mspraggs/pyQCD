@@ -13,7 +13,6 @@
 #include <Eigen/QR>
 #include <unsupported/Eigen/MatrixFunctions>
 
-#include "gil.cpp"
 #include <omp.h>
 
 using namespace Eigen;
