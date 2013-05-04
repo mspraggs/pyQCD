@@ -2,7 +2,7 @@
 
 namespace lattice
 {
-  const complex<double> i (0,1);
+  const complex<double> i (0.0, 1.0);
   const double pi = 3.1415926535897932384626433;
   
   int mod(int number, const int &divisor)
@@ -42,27 +42,27 @@ namespace lattice
 
 
 
-  Matrix4cd gamma1 = (MatrixXcd(4,4) << 0, 0, 0, -i,
+  Matrix4cd gamma1 = (MatrixXcd(4, 4) << 0, 0, 0, -i,
 		      0, 0, -i, 0,
 		      0, i, 0, 0,
 		      i, 0, 0, 0).finished();
   
-  Matrix4cd gamma2 = (MatrixXcd(4,4) <<  0, 0, 0, -1,
+  Matrix4cd gamma2 = (MatrixXcd(4, 4) <<  0, 0, 0, -1,
 		      0, 0, 1, 0,
 		      0, 1, 0, 0,
 		      -1, 0, 0, 0).finished();
 
-  Matrix4cd gamma3 = (MatrixXcd(4,4) << 0, 0, -i, 0,
+  Matrix4cd gamma3 = (MatrixXcd(4, 4) << 0, 0, -i, 0,
 		      0, 0, 0, i,
 		      i, 0, 0, 0,
 		      0, -i, 0, 0).finished();
 
-  Matrix4cd gamma4 = (MatrixXcd(4,4) << 0, 0, 1, 0,
+  Matrix4cd gamma4 = (MatrixXcd(4, 4) << 0, 0, 1, 0,
 		      0, 0, 0, 1,
 		      1, 0, 0, 0,
 		      0, 1, 0, 0).finished();
 
-  Matrix4cd gamma5 = (MatrixXcd(4,4) << 1, 0, 0, 0,
+  Matrix4cd gamma5 = (MatrixXcd(4, 4) << 1, 0, 0, 0,
 		      0, 1, 0, 0,
 		      0, 0, -1, 0,
 		      0, 0, 0, -1).finished();
@@ -168,7 +168,7 @@ Lattice::~Lattice()
 
 
 
-void Lattice::printLattice()
+void Lattice::print()
 {
   // Print the links out. A bit redundant due to the interfaces library,
   // but here in case it's needed.
@@ -205,7 +205,7 @@ void Lattice::runThreads(const int chunkSize, const int nUpdates,
   // Updates every other segment (even or odd, specified by remainder).
   int index = 0;
 
-#pragma omp parallel for schedule(dynamic,1) collapse(4)
+#pragma omp parallel for schedule(dynamic, 1) collapse(4)
 
   for (int i = 0; i < this->nEdgePoints; i += chunkSize) {
     for (int j = 0; j < this->nEdgePoints; j += chunkSize) {
@@ -247,7 +247,7 @@ void Lattice::update()
 	for (int l = 0; l < this->nEdgePoints; l++) {
 	  for (int m = 0; m < 4; m++) {
 	    // We'll need an array with the link indices
-	    int link[5] = {i,j,k,l,m};
+	    int link[5] = {i, j, k, l, m};
 	    // Record the old action contribution
 	    double oldAction = (this->*computeLocalAction)(link);
 	    // Record the old link in case we need it
@@ -292,7 +292,7 @@ void Lattice::updateSegment(const int n0, const int n1, const int n2,
 	    for (int n = 0; n < 4; n++) {
 
 	      // We'll need an array with the link indices
-	      int link[5] = {j,k,l,m,n};
+	      int link[5] = {j, k, l, m, n};
 	      // Record the old action contribution
 	      double oldAction = (this->*computeLocalAction)(link);
 	      // Record the old link in case we need it
@@ -413,7 +413,7 @@ Matrix3cd Lattice::computeLine(const int start[4], const int finish[4])
       for (int i = start[dimension]; i >= finish[dimension]; i--) {
 	// Create the link vector to append, and initialize it's elements
 	vector<int> link;
-	link.assign(start,start+4);
+	link.assign(start, start + 4);
 	// Update the index that's parallel to the line with the current
 	// location
 	link[dimension] = i;
@@ -428,7 +428,7 @@ Matrix3cd Lattice::computeLine(const int start[4], const int finish[4])
       // Same again, but this time we deal with the case of going backwards
       for (int i = start[dimension]; i <= finish[dimension]; i++) {
 	vector<int> link;
-	link.assign(start, start+4);
+	link.assign(start, start + 4);
 	link[dimension] = i;
 	link.push_back(dimension);
 	line.push_back(link);
@@ -922,7 +922,7 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass)
 	  // with the +ve or -ve cases slightly differently
 	  if (lattice::isArrayEqual(siteI, siteJ, 4)) {
 	    int link[5];
-	    lattice::copyArray(link,siteI,4);
+	    lattice::copyArray(link, siteI, 4);
 	    link[4] = mu_mink;
 	    Matrix3cd U;
 	    Matrix4cd lorentz = 
@@ -932,8 +932,8 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass)
 	      link[mu_mink] -= 1;
 	      U = this->getLink(link).adjoint();
 	    }
-	    sum += lorentz(indices[i][4],indices[j][4]) 
-	      * U(indices[i][5],indices[j][5]);
+	    sum += lorentz(indices[i][4], indices[j][4]) 
+	      * U(indices[i][5], indices[j][5]);
 	  }
 	}
 	sum /= -(2.0 * this->a_);
@@ -992,10 +992,10 @@ double Lattice::computeLocalWilsonAction(const int link[5])
 
   // For each plane, calculate the two plaquettes that share the given link
   for (int i = 0; i < 3; i++) {
-    int site[4] = {link[0],link[1],link[2],link[3]};
-    Psum += this->computePlaquette(site,link[4],planes[i]);
+    int site[4] = {link[0], link[1], link[2], link[3]};
+    Psum += this->computePlaquette(site, link[4], planes[i]);
     site[planes[i]] -= 1;
-    Psum += this->computePlaquette(site,link[4],planes[i]);
+    Psum += this->computePlaquette(site, link[4], planes[i]);
   }
 
   return -this->beta_ * Psum / pow(this->u0_, 4);
