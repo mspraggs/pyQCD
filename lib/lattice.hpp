@@ -1,15 +1,18 @@
 #ifndef LATTICE_HPP
 #define LATTICE_HPP
 
-#include <Eigen/Dense>
-#include <Eigen/Sparse>
-#include <Eigen/QR>
-#include <complex>
-#include <vector>
 #include <cstdlib>
 #include <iostream>
 #include <ctime>
+
+#include <complex>
+#include <vector>
+
+#include <Eigen/Dense>
+#include <Eigen/Sparse>
+#include <Eigen/QR>
 #include <unsupported/Eigen/MatrixFunctions>
+
 #include "gil.cpp"
 #include <omp.h>
 
@@ -28,63 +31,69 @@ class Lattice
 {
 
 public:
-  Lattice(const int n = 8,
+  Lattice(const int nEdgePoints = 8,
 	  const double beta = 5.5,
-	  const int Ncor = 50,
-	  const int Ncf = 1000,
+	  const int nCorrelations = 50,
+	  const int nConfigurations = 1000,
 	  const double eps = 0.24,
 	  const double a = 0.25,
 	  const double rho = 0.3,
 	  const double u0 = 1,
 	  const int action = 0);
-  Lattice(const Lattice& L);
-  double init_u0();
 
+  Lattice(const Lattice& lattice);
   ~Lattice();
-  Matrix3cd calcPath(const vector<vector<int> > path);
-  Matrix3cd calcLine(const int start[4], const int finish[4]);
-  double calcWilsonLoop(const int c1[4], const int c2[4],
-			const int n_smears = 0);
-  double calcWilsonLoop(const int c[4], const int r, const int t,
-			const int dim, const int n_smears = 0);
-  double calcAverageWilson(const int r, const int t, const int n_smears = 0);
-  double calcPlaquette(const int site[4], const int mu, const int nu);
-  double calcRectangle(const int site[4], const int mu, const int nu);
-  double calcTwistRect(const int site[4],const int mu, const int nu);
-  double calcAveragePlaq();
-  double calcAverageRect();
-  double (Lattice::*calcLocalAction)(const int link[5]);
-  Matrix3cd makeRandomSU3();
-  void thermalize();
-  void getNextConfig();
-  void runThreads(const int size, const int n_updates, const int remainder);
-  void schwarzUpdate(const int size, const int n_times);
-  void updateLattice();
-  void updateSegment(const int i, const int j, const int k,
-		     const int l, const int size, const int n_updates);
+
   void printLattice();
   Matrix3cd getLink(const int link[5]);
-  void smearLinks(const int time, const int n_smears);
-  Matrix3cd calcQ(const int link[5]);
 
-  SparseMatrix<complex<double> > calcDiracMatrix(const double mass);
-  VectorXcd calcPropagator(const double mass, int site[4],
-			   const int alpha, const int a);
+  void runThreads(const int chunkSize, const int nUpdates, const int remainder);
+  void schwarzUpdate(const int chunkSize, const int nUpdates);
+  void update();
+  void updateSegment(const int n0, const int n1, const int n2,
+		     const int n3, const int chunkSize, const int nUpdates);
 
-  int Ncor, Ncf, n;
+  void thermalize();
+  void getNextConfig();
+  
+  Matrix3cd computePath(const vector<vector<int> > path);
+  Matrix3cd computeLine(const int start[4], const int finish[4]);
+  double computeWilsonLoop(const int corner1[4], const int corner2[4],
+			const int nSmears = 0);
+  double computeWilsonLoop(const int corner[4], const int r, const int t,
+			   const int dimension, const int nSmears = 0);
+
+  double computePlaquette(const int site[4], const int dimension1,
+			  const int dimension2);
+  double computeRectangle(const int site[4], const int dimension1,
+			  const int dimension2);
+  double computeTwistedRectangle(const int site[4], const int dimension1,
+				 const int dimension2);
+  double computeAveragePlaq();
+  double computeAverageRect();
+  double computeAverageWilson(const int r, const int t,
+			      const int nSmears = 0);
+  double (Lattice::*computeLocalAction)(const int link[5]);
+  Matrix3cd makeRandomSu3();
+
+  Matrix3cd computeQ(const int link[5]);
+  void smearLinks(const int time, const int nSmears);
+
+  SparseMatrix<complex<double> > computeDiracMatrix(const double mass);
+  VectorXcd computePropagator(const double mass, int site[4],
+			      const int lorentzIndex, const int colourIndex);
+
+  int nCorrelations, nConfigurations, nEdgePoints;
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 protected:
-  double beta, eps, a, u0, smear_eps;
-  int nUpdates, action;
-  double calcLocalWilson(const int link[5]);
-  double calcLocalRectangle(const int link[5]);
-  double calcLocalTRectangle(const int link[5]);
-  GaugeField links;
-  Sub4Field randSU3s;
-
-public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-  
+  double beta_, eps_, a_, u0_, rho_;
+  int nUpdates_, action_;
+  double computeLocalWilson(const int link[5]);
+  double computeLocalRectangle(const int link[5]);
+  double computeLocalTRectangle(const int link[5]);
+  GaugeField links_;
+  Sub4Field randSu3s_;
 };
 
 #endif
