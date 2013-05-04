@@ -5,18 +5,16 @@ namespace lattice
   const complex<double> i (0,1);
   const double pi = 3.1415926535897932384626433;
   
-  int mod(int n, const int &d)
+  int mod(int number, const int &divisor)
   {
-    while(n < 0) {
-      n += d;
-    }
-    return n%d;
+    number += (abs(n / d) + 1) * d;
+    return n % d;
   }
   
-  void copyArray(int a1[], const int a2[], const int& length)
+  void copyArray(int array1[], const int array2[], const int& length)
   {
     for(int i = 0; i < length; i++) {
-      a1[i] = a2[i];
+      array1[i] = array2[i];
     }
   }
 
@@ -31,10 +29,11 @@ namespace lattice
     }
   }
 
-  bool arrayEqual(const int v1[], const int v2[], const int& l)
+  bool isArrayEqual(const int array1[], const int array2[],
+		    const int& length)
   {
-    for(int i = 0; i < l; i++) {
-      if(v1[i] != v2[i]) return false;
+    for(int i = 0; i < length; i++) {
+      if(array1[i] != array2[i]) return false;
     }
     return true;
   }
