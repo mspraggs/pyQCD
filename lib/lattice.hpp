@@ -16,7 +16,6 @@
 #include <omp.h>
 
 using namespace Eigen;
-namespace bst = boost;
 using namespace std;
 
 typedef vector<Matrix3cd, aligned_allocator<Matrix3cd> > Sub4Field;
@@ -69,10 +68,12 @@ public:
 			  const int dimension2);
   double computeTwistedRectangle(const int site[4], const int dimension1,
 				 const int dimension2);
+
   double computeAveragePlaquette();
   double computeAverageRectangle();
-  double computeAverageWilson(const int r, const int t,
+  double computeAverageWilsonLoop(const int r, const int t,
 			      const int nSmears = 0);
+
   double (Lattice::*computeLocalAction)(const int link[5]);
   Matrix3cd makeRandomSu3();
 
@@ -89,9 +90,9 @@ public:
 protected:
   double beta_, epsilon_, a_, u0_, rho_;
   int nUpdates_, action_;
-  double computeLocalWilson(const int link[5]);
-  double computeLocalRectangle(const int link[5]);
-  double computeLocalTRectangle(const int link[5]);
+  double computeLocalWilsonAction(const int link[5]);
+  double computeLocalRectangleAction(const int link[5]);
+  double computeLocalTwistedRectangleAction(const int link[5]);
   GaugeField links_;
   Sub4Field randSu3s_;
 };
