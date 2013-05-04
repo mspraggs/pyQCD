@@ -7,32 +7,39 @@ namespace lattice
   
   int mod(int number, const int &divisor)
   {
-    number += (abs(n / d) + 1) * d;
-    return n % d;
+    number += (abs(number / divisor) + 1) * divisor;
+    return number % divisor;
   }
   
+
+
   void copyArray(int array1[], const int array2[], const int& length)
   {
-    for(int i = 0; i < length; i++) {
+    for (int i = 0; i < length; i++) {
       array1[i] = array2[i];
     }
   }
 
+
+
   int sgn(const int& x)
   {
-    //A wee sign function
     return (x < 0) ? -1 : 1;
   }
+
+
 
   bool isArrayEqual(const int array1[], const int array2[],
 		    const int& length)
   {
-    for(int i = 0; i < length; i++) {
-      if(array1[i] != array2[i])
+    for (int i = 0; i < length; i++) {
+      if (array1[i] != array2[i])
 	return false;
     }
     return true;
   }
+
+
 
   Matrix4cd gamma1 = (MatrixXcd(4,4) << 0, 0, 0, -i,
 		      0, 0, -i, 0,
@@ -60,10 +67,12 @@ namespace lattice
 		      0, 0, 0, -1).finished();
   
   Matrix4cd gammas[5] = {gamma1, gamma2, gamma3, gamma4, gamma5};
+
+
   
   Matrix4cd gamma(const int& index)
   {
-    int prefactor = mod(index);
+    int prefactor = sgn(index);
     return prefactor * gammas[abs(index) - 1];
   }
 }
@@ -73,8 +82,8 @@ Lattice::Lattice(const int nEdgePoints, const double beta,
 		 const double epsilson, const double a, const double rho,
 		 const double u0, const int action)
 {
-  /*Default constructor. Assigns function arguments to member variables
-   and initializes links.*/
+  // Default constructor. Assigns function arguments to member variables
+  // and initializes links.
   this->nEdgePoints = nEdgePoints;
   this->beta = beta;
   this->nCorrelations = nCorrelations;
@@ -87,39 +96,40 @@ Lattice::Lattice(const int nEdgePoints, const double beta,
   this->action = action;
 
   srand(time(0));
-  //Resize the link vector and assign each link a random SU3 matrix
+  // Resize the link vector and assign each link a random SU3 matrix
   this->links_.resize(this->nEdgePoints);
-  for(int i = 0; i < this->nEdgePoints; i++) {
+  for (int i = 0; i < this->nEdgePoints; i++) {
     this->links_[i].resize(this->nEdgePoints);
-    for(int j = 0; j < this->nEdgePoints; j++) {
+    for (int j = 0; j < this->nEdgePoints; j++) {
       this->links_[i][j].resize(this->nEdgePoints);
-      for(int k = 0; k < this->nEdgePoints; k++) {
+      for (int k = 0; k < this->nEdgePoints; k++) {
 	this->links_[i][j][k].resize(this->nEdgePoints);
-	for(int l = 0; l < this->nEdgePoints; l++) {
+	for (int l = 0; l < this->nEdgePoints; l++) {
 	  this->links_[i][j][k][l].resize(4);
-	  for(int m = 0; m < 4; m++) {
+	  for (int m = 0; m < 4; m++) {
 	    this->links_[i][j][k][l][m] = this->makeRandomSU3();
 	  }
 	}
       }
     }
   }
-  //Generate a set of random SU3 matrices for use in the updates
-  for(int i = 0; i < 200; i++) {
+
+  // Generate a set of random SU3 matrices for use in the updates
+  for (int i = 0; i < 200; i++) {
     Matrix3cd randSU3 = this->makeRandomSU3();
     this->randSU3s.push_back(randSU3);
     this->randSU3s.push_back(randSU3.adjoint());
   }
 
-  //Set the action to point to the correct function
-  if(action == 0) {
+  // Set the action to point to the correct function
+  if (action == 0) {
     this->computeLocalAction = &Lattice::computeLocalWilson;
   }
-  else if(action == 1) {
+  else if (action == 1) {
     this->computeLocalAction = &Lattice::computeLocalRectangle;
   }
-  else if(action == 2) {
-    this->computeLocalAction = &Lattice::computeLocalTRectangle;
+  else if (action == 2) {
+    this->computeLocalAction = &Lattice::computeLocalTwistedRectangle;
   }
   else {
     cout << "Warning! Specified action does not exist." << endl;
@@ -127,200 +137,278 @@ Lattice::Lattice(const int nEdgePoints, const double beta,
   }
 }
 
-Lattice::Lattice(const Lattice& L)
+
+
+Lattice::Lattice(const Lattice& lattice)
 {
-  /*Default constructor. Assigns function arguments to member variables
-   and initializes links.*/
-  this->nEdgePoints = L.n;
-  this->beta = L.beta;
-  this->Ncor = L.Ncor;
-  this->Ncf = L.Ncf;
-  this->eps = L.eps;
-  this->a = L.a;
-  this->smear_eps = L.smear_eps;
-  this->nUpdates = L.nUpdates;
-  this->u0 = L.u0;
-  this->links_ = L.links_;
-  this->randSU3s = L.randSU3s;
-  this->computeLocalAction = L.computeLocalAction;
+  // Default constructor. Assigns function arguments to member variables
+  // and initializes links.
+  this->nEdgePoints = lattice.nEdgePoints;
+  this->beta = lattice.beta;
+  this->nCorrelations = lattice.nCorrelations;
+  this->nConfigurations = lattice.nConfigurations;
+  this->eps = lattice.eps;
+  this->a = lattice.a;
+  this->rho = lattice.rho;
+  this->nUpdates = lattice.nUpdates;
+  this->u0 = lattice.u0;
+  this->links_ = lattice.links_;
+  this->randSU3s = lattice.randSU3s;
+  this->computeLocalAction = lattice.computeLocalAction;
   this->action = action;
 }
 
-double Lattice::init_u0()
-{
-  /*Calculate u0*/
-  this->thermalize();
-  this->u0 = pow(this->computeAveragePlaq(),0.25);
-  return pow(this->computeAveragePlaq(),0.25);
-}
+
 
 Lattice::~Lattice()
 {
-  /*Destructor*/
+  // Destructor
 }
 
-Matrix3cd Lattice::getLink(const int link[5])
+
+
+void Lattice::printLattice()
 {
-  /*Return link specified by index (sanitizes link indices)*/
-  int link2[5];
-  for(int i = 0; i < 5; i++) {
-    link2[i] = lattice::mod(link[i],this->nEdgePoints);
-  }
-  return this->links_[link2[0]][link2[1]][link2[2]][link2[3]][link2[4]];
-}
-
-Matrix3cd Lattice::computeQ(const int link[5])
-{
-  //Calculates Q matrix for analytic smearing
-  Matrix3cd C = Matrix3cd::Zero();
-
-  double rho = 0.4;
-
-  for(int nu = 1; nu < 4; nu++) {
-    if(nu != link[4]) {
-      int templink[5] = {0,0,0,0,0};
-      lattice::copyArray(templink,link,4);
-      templink[4] = nu;
-      Matrix3cd tempmat = this->getLink(templink);
-      templink[4] = link[4];
-      templink[nu] += 1;
-      tempmat *= this->getLink(templink);
-      templink[4] = nu;
-      templink[nu] -= 1;
-      templink[link[4]] += 1;
-      tempmat *= this->getLink(templink).adjoint();
-
-      C += tempmat;
-
-      lattice::copyArray(templink,link,4);
-      templink[nu] -= 1;
-      templink[4] = nu;
-      tempmat = this->getLink(templink).adjoint();
-      templink[4] = link[4];
-      tempmat *= this->getLink(templink);
-      templink[4] = nu;
-      templink[link[4]] += 1;
-      tempmat *= this->getLink(templink);
-
-      C += tempmat;
-    }
-  }
-  
-  C *= this->smear_eps;
-
-  Matrix3cd Omega = C * this->getLink(link).adjoint();
-  Matrix3cd OmegaAdjoint = Omega.adjoint() - Omega;
-  Matrix3cd Q = 0.5 * lattice::i * OmegaAdjoint;
-  Q -= lattice::i / 6. * OmegaAdjoint.trace() * Matrix3cd::Identity();
-
-  return Q;
-}
-
-void Lattice::smearLinks(const int time, const int n_smears)
-{
-  /*Smear the specified time slice by iterating calling this function*/
-  for(int i = 0; i < n_smears; i++) {
-    //Iterate through all the links and calculate the new ones from the existing ones.    
-    SubField newlinks(this->nEdgePoints, 
-		      Sub2Field(this->nEdgePoints,
-				Sub3Field(this->nEdgePoints, 
-					  Sub4Field(4))));
-    for(int i = 0; i < this->nEdgePoints; i++) {
-      for(int j = 0; j < this->nEdgePoints; j++) {
-	for(int k = 0; k < this->nEdgePoints; k++) {
-	  //NB, spatial links only, so l > 0!
-	  newlinks[i][j][k][0] = this->links_[time][i][j][k][0];
-	  for(int l = 1; l < 4; l++) {
-	    //Create a temporary matrix to store the new link
-	    int link[5] = {time,i,j,k,l};
-	    Matrix3cd temp_mat 
-	      = (lattice::i * this->computeQ(link)).exp() * this->getLink(link);
-	    newlinks[i][j][k][l] = temp_mat;
+  /*Print the links out. A bit redundant due to the interfaces library,
+   but here in case it's needed.*/
+  for (int i = 0; i < this->nEdgePoints; i++) {
+    for (int j = 0; j < this->nEdgePoints; j++) {
+      for (int k = 0; k < this->nEdgePoints; k++) {
+	for (int l = 0; l < this->nEdgePoints; l++) {
+	  for (int m = 0; m < 4; m++) {
+	    cout << this->links_[i][j][k][l][m] << endl;
 	  }
 	}
       }
     }
-    //Apply the changes to the existing lattice.
-    this->links_[lattice::mod(time,this->nEdgePoints)] = newlinks;
   }
 }
+
+
+
+Matrix3cd Lattice::getLink(const int link[5])
+{
+  // Return link specified by index (sanitizes link indices)
+  int link2[5];
+  for (int i = 0; i < 5; i++) {
+    link2[i] = lattice::mod(link[i], this->nEdgePoints);
+  }
+  return this->links_[link2[0]][link2[1]][link2[2]][link2[3]][link2[4]];
+}
+
+
+
+void Lattice::runThreads(const int size, const int n_updates, const int remainder)
+{
+  int index = 0;
+
+#pragma omp parallel for schedule(dynamic,1) collapse(4)
+  for (int i = 0; i < this->nEdgePoints; i+=size) {
+    for (int j = 0; j < this->nEdgePoints; j+=size) {
+      for (int k = 0; k < this->nEdgePoints; k+=size) {
+	for (int l = 0; l < this->nEdgePoints; l+=size) {
+	  int site[4] = {i,j,k,l};
+	  if (index%2 == remainder) {
+	    this->updateSegment(i,j,k,l,size,n_updates);
+	  }
+	  index++;
+	}
+      }
+    }
+  }
+}
+
+
+
+void Lattice::schwarzUpdate(const int size, const int n_updates)
+{
+  //Update even and odd blocks using Schwarz
+  this->runThreads(size,n_updates,0);
+  this->runThreads(size,n_updates,1);
+  this->nUpdates++;
+}
+
+
+
+void Lattice::update()
+{
+  /*Iterate through the lattice and update the links using Metropolis
+    algorithm*/
+  for (int i = 0; i < this->nEdgePoints; i++) {
+    for (int j = 0; j < this->nEdgePoints; j++) {
+      for (int k = 0; k < this->nEdgePoints; k++) {
+	for (int l = 0; l < this->nEdgePoints; l++) {
+	  for (int m = 0; m < 4; m++) {
+	    //We'll need an array with the link indices
+	    int link[5] = {i,j,k,l,m};
+	    //Record the old action contribution
+	    double Si_old = (this->*computeLocalAction)(link);
+	    //Record the old link in case we need it
+	    Matrix3cd linki_old = this->links_[i][j][k][l][m];
+	    //Get ourselves a random SU3 matrix for the update
+	    Matrix3cd randSU3 = this->randSU3s[rand() % this->randSU3s.size()];
+	    //Multiply the site
+	    this->links_[i][j][k][l][m] = randSU3 * this->links_[i][j][k][l][m];
+	    //What's the change in the action?
+	    double dS = (this->*computeLocalAction)(link) - Si_old;
+	    //Was the change favourable? If not, revert the change
+	    if ((dS > 0) && (exp(-dS) < double(rand()) / double(RAND_MAX))) {
+	      this->links_[i][j][k][l][m] = linki_old;
+	    }
+	  }
+	}
+      }
+    }
+  }
+  this->nUpdates++;
+}
+
+
+
+void Lattice::updateSegment(const int i, const int j, const int k, const int l, const int size, const int n_updates)
+{
+  //Updates a segment of the lattice - used for SAP
+  for (int n = 0; n < n_updates; n++) {
+    for (int m = i; m < i + size; m++) {
+      for (int o = j; o < j + size; o++) {
+	for (int p = k; p < k + size; p++) {
+	  for (int q = l; q < l + size; q++) {
+	    for (int r = 0; r < 4; r++) {
+	      //We'll need an array with the link indices
+	      int link[5] = {m,o,p,q,r};
+	      //Record the old action contribution
+	      double Si_old = (this->*computeLocalAction)(link);
+	      //Record the old link in case we need it
+	      Matrix3cd linki_old = this->links_[m][o][p][q][r];
+	      //Get ourselves a random SU3 matrix for the update
+	      Matrix3cd randSU3 = this->randSU3s[rand() % this->randSU3s.size()];
+	      //Multiply the site
+	      this->links_[m][o][p][q][r] = randSU3 * this->links_[m][o][p][q][r];
+	      //What's the change in the action?
+	      double dS = (this->*computeLocalAction)(link) - Si_old;
+	      //Was the change favourable? If not, revert the change
+	      if ((dS > 0) && (exp(-dS) < double(rand()) / double(RAND_MAX))) {
+		this->links_[m][o][p][q][r] = linki_old;
+	      }
+	    }
+	  }
+	}
+      }
+    }
+  }
+}
+
+
+
+void Lattice::thermalize()
+{
+  /*Update all links until we're at thermal equilibrium*/
+  while(this->nUpdates < 5 * this->nCorrelations) {
+    this->schwarzUpdate(4,10);
+  }
+}
+
+
+
+void Lattice::getNextConfig()
+{
+  /*Run nCorrelations updates*/
+  for (int i = 0; i < this->nCorrelations; i++) {
+    this->schwarzUpdate(4,1);
+  }
+}
+
+
 
 Matrix3cd Lattice::computePath(const vector<vector<int> > path)
 {
-  /*Multiplies the matrices together specified by the indices in path*/
+  // Multiplies the matrices together specified by the indices in path
   Matrix3cd out = Matrix3cd::Identity();
   
-  for(int i = 0; i < path.size() - 1; i++) {
-    //Which dimension are we moving in?
-    int dim = path[i][4];
-    int dim_diff = path[i+1][dim] - path[i][dim];
-    if(abs(dim_diff) != 1) {
+  for (int i = 0; i < path.size() - 1; i++) {
+    // Which dimension are we moving in?
+    int dimension = path[i][4];
+    int dimensionDifference = path[i + 1][dimension] - path[i][dimension];
+
+    if (abs(dimensionDifference) != 1) {
       // Consecutive points don't match link direction, so throw an error
       cout << "Error! Path contains non-consecutive link variables." << endl;
     }
-    else if(dim_diff == -1) {
-      /*We're going backwards, so the link must be the adjoint of the link 
-	matrix, which we get by using the next site on the lattice.*/
-      int link[5] = {path[i+1][0],path[i+1][1],path[i+1][2],path[i+1][3],path[i][4]};
+    else if (dimensionDifference == -1) {
+      // We're going backwards, so the link must be the adjoint of the link 
+      // matrix, which we get by using the next site on the lattice.
+      int link[5] = {path[i + 1][0],
+		     path[i + 1][1],
+		     path[i + 1][2],
+		     path[i + 1][3],
+		     path[i][4]};
+
       out *= this->getLink(link).adjoint();
     }
     else {
-      //We're going forwards, so it's just the normal matrix
-      int link[5] = {path[i][0],path[i][1],path[i][2],path[i][3],path[i][4]};
+      // We're going forwards, so it's just the normal matrix
+      int link[5] = {path[i][0],
+		     path[i][1],
+		     path[i][2],
+		     path[i][3],
+		     path[i][4]};
+
       out *= this->getLink(link);
     }
   }
-
   return out;
 }
 
+
+
 Matrix3cd Lattice::computeLine(const int start[4], const int finish[4])
 {
-  /*Multiplies all gauge links along line from start to finish*/
-  //First check that's actually a straight path
+  // Multiplies all gauge links along line from start to finish
+  // First check that's actually a straight path
   Matrix3cd out = Matrix3cd::Identity();
-  int count_dims = 0;
-  int dim = 0;
-  for(int i = 0; i < 4; i++) {
-    if(abs(start[i] - finish[i]) != 0) {
-      /*Keep track of the most recent dimension that differs between start
-	and finish, as if we're good to go then we'll need this when
-	defining the path.*/
-      dim = i;
-      count_dims++;
+  int countDimensions = 0;
+  int dimension = 0;
+  for (int i = 0; i < 4; i++) {
+    if (abs(start[i] - finish[i]) != 0) {
+      // Keep track of the most recent dimension that differs between start
+      // and finish, as if we're good to go then we'll need this when
+      // defining the path.
+      dimension = i;
+      countDimensions++;
     }
   }
 
-  if(count_dims != 1) {
-    cout << "Error! Start and end points do not form a straight line." << endl;
+  if (countDimensions != 1) {
+    cout << "Error! Start and end points do not form a straight line."
+	 << endl;
   }
   else {
-    //If the two points are on the same line, we're good to go
+    // If the two points are on the same line, we're good to go
     vector<vector<int> >  line; //Stores the path
 
-    //Now need to know if we're going backwards or forwards
-    if(start[dim] > finish[dim]) {
-      for(int i = start[dim]; i >= finish[dim]; i--) {
-	//Create the link vector to append, and initialize it's elements
+    // Now need to know if we're going backwards or forwards
+    if (start[dimension] > finish[dimension]) {
+      for (int i = start[dimension]; i >= finish[dimension]; i--) {
+	// Create the link vector to append, and initialize it's elements
 	vector<int> link;
 	link.assign(start,start+4);
-	//Update the index that's parallel to the line with the current
-	//location
-	link[dim] = i;
-	//The direction is going to be equal to the direction of the line
-	link.push_back(dim);
-	//Push it onto the line
+	// Update the index that's parallel to the line with the current
+	// location
+	link[dimension] = i;
+	// The direction is going to be equal to the direction of the line
+	link.push_back(dimension);
+	// Push it onto the line
 	line.push_back(link);
       }
       out = this->computePath(line);
     }
     else {
-      //Same again, but this time we deal with the case of going backwards
-      for(int i = start[dim]; i <= finish[dim]; i++) {
+      // Same again, but this time we deal with the case of going backwards
+      for (int i = start[dimension]; i <= finish[dimension]; i++) {
 	vector<int> link;
-	link.assign(start,start+4);
-	link[dim] = i;
-	link.push_back(dim);
+	link.assign(start, start+4);
+	link[dimension] = i;
+	link.push_back(dimension);
 	line.push_back(link);
       }
       out = this->computePath(line);
@@ -329,92 +417,155 @@ Matrix3cd Lattice::computeLine(const int start[4], const int finish[4])
   return out;
 }
 
-double Lattice::computeWilsonLoop(const int c1[4], const int c2[4], const int n_smears)
+
+
+double Lattice::computeWilsonLoop(const int corner1[4], const int corner2[4],
+				  const int nSmears)
 {
-  /*Calculates the loop specified by corners c1 and c2 (which must
-    lie in the same plane)*/
+  // Calculates the loop specified by corners corner1 and corner2 (which must
+  // lie in the same plane)
   Matrix3cd out = Matrix3cd::Identity();
-  SubField linkstore1;
-  SubField linkstore2;
+  SubField linkStore1;
+  SubField linkStore2;
   //Smear the links if specified, whilst storing the non-smeared ones.
-  if(n_smears > 0) {
-    linkstore1 = this->links_[lattice::mod(c1[0],this->nEdgePoints)];
-    linkstore2 = this->links_[lattice::mod(c2[0],this->nEdgePoints)];
-    this->smearLinks(c1[0],n_smears);
-    this->smearLinks(c2[0],n_smears);
+  if (nSmears > 0) {
+    linkStore1 = this->links_[lattice::mod(corner1[0],this->nEdgePoints)];
+    linkStore2 = this->links_[lattice::mod(corner2[0],this->nEdgePoints)];
+    this->smearLinks(corner1[0],nSmears);
+    this->smearLinks(corner2[0],nSmears);
   }
 
-  //Check that c1 and c2 are on the same plane
-  int dim_count = 0;
-  for(int i = 0; i < 4; i++) {
-    if(c1[i] != c2[i]) {
-      dim_count++;
+  //Check that corner1 and corner2 are on the same plane
+  int dimensionCount = 0;
+  for (int i = 0; i < 4; i++) {
+    if (corner1[i] != corner2[i]) {
+      dimensionCount++;
     }
   }
   
-  if(dim_count != 2 || c1[0] == c2[0]) {
-    cout << "Error! The two corner points do not form a rectangle with two spatial and two temporal sides." << endl;
+  if (dimensionCount != 2 || corner1[0] == corner2[0]) {
+    cout << "Error! The two corner points do not form a rectangle with"
+	 << " two spatial and two temporal sides." << endl;
   }
   else {
     //Get the second corner (going round the loop)
-    int c3[4] = {c1[0],c1[1],c1[2],c1[3]};
-    c3[0] = c2[0];
+    int corner3[4] = {corner1[0], corner1[1], corner1[2], corner1[3]};
+    corner3[0] = corner2[0];
     //Calculate the line segments between the first three corners
-    out *= this->computeLine(c1,c3);
-    out *= this->computeLine(c3,c2);
+    out *= this->computeLine(corner1, corner3);
+    out *= this->computeLine(corner3, corner2);
     //And repeat for the second set of sides
-    int c4[4] = {c2[0],c2[1],c2[2],c2[3]};
-    c4[0] = c1[0];
-    out *= this->computeLine(c2,c4);
-    out *= this->computeLine(c4,c1);
+    int corner4[4] = {corner2[0], corner2[1], corner2[2], corner2[3]};
+    corner4[0] = corner1[0];
+    out *= this->computeLine(corner2, corner4);
+    out *= this->computeLine(corner4, corner1);
   }
   //Restore the old links
-  if(n_smears > 0) {
-    this->links_[lattice::mod(c1[0],this->nEdgePoints)] = linkstore1;
-    this->links_[lattice::mod(c2[0],this->nEdgePoints)] = linkstore2;
+  if (nSmears > 0) {
+    this->links_[lattice::mod(corner1[0],this->nEdgePoints)] = linkStore1;
+    this->links_[lattice::mod(corner2[0],this->nEdgePoints)] = linkStore2;
   }
   
   return 1./3 * out.trace().real();
 }
 
-double Lattice::computeWilsonLoop(const int c[4], const int r, const int t, const int dim, const int n_smears)
+
+
+double Lattice::computeWilsonLoop(const int corner[4], const int r,
+				  const int t, const int dimension,
+				  const int nSmears)
 {
   /*Calculates the loop specified by initial corner, width, height and 
    dimension*/
-  int c2[4];
-  lattice::copyArray(c2,c,4);
-  c2[dim] += r;
-  c2[0] += t;
-  return this->computeWilsonLoop(c,c2,n_smears);
+  int corner2[4];
+  lattice::copyArray(corner2,c,4);
+  corner2[dimension] += r;
+  corner2[0] += t;
+  return this->computeWilsonLoop(corner,corner2,nSmears);
 }
 
-double Lattice::computeAverageWilson(const int r, const int t, const int n_smears)
+
+
+double Lattice::computePlaquette(const int site[4],const int mu,
+				 const int nu)
 {
-  /*Calculates the average of all possible Wilson loops of a given
-    dimension*/
-  //First off, save the current links and smear all time slices
-  GaugeField templinks = this->links_;
-  for(int time = 0; time < this->nEdgePoints; time++) {
-    this->smearLinks(time,n_smears);
+  /*Calculate the plaquette operator at the given site, on plaquette
+    specified by directions mu and nu.*/
+
+  //We define some variables to contain the offsets of the various
+  //links around the lattice
+  int mu_vec[4] = {0,0,0,0};
+  mu_vec[mu] = 1;
+  int nu_vec[4] = {0,0,0,0};
+  nu_vec[nu] = 1;
+  //The links also contain direction information, so we must create a new
+  //set of variables
+  int link1[5] = {0,0,0,0,mu};
+  int link2[5] = {0,0,0,0,nu};
+  int link3[5] = {0,0,0,0,mu};
+  int link4[5] = {0,0,0,0,nu};
+
+  //Do some assignment
+  for (int i = 0; i < 4; i++) {
+    link1[i] = site[i];
+    link2[i] = site[i] + mu_vec[i];
+    link3[i] = site[i] + nu_vec[i];
+    link4[i] = site[i];
   }
-  double Wtot = 0;
-  for(int i = 0; i < this->nEdgePoints; i++) {
-    for(int j = 0; j < this->nEdgePoints; j++) {
-      for(int k = 0; k < this->nEdgePoints; k++) {
-	for(int l = 0; l < this->nEdgePoints; l++) {
-	  for(int m = 1; m < 4; m++) {
-	    int site[4] = {i,j,k,l};
-	    Wtot += this->computeWilsonLoop(site,r,t,m,0);
-	  }
-	}
-      }
-    }
-  }
-  this->links_ = templinks;
-  return Wtot / (pow(this->nEdgePoints,4)*3);
+
+  //Run through the links and multiply them together.
+  Matrix3cd product = this->getLink(link1);
+  product *= this->getLink(link2);
+  product *= this->getLink(link3).adjoint();
+  product *= this->getLink(link4).adjoint();
+  return 1./3 * product.trace().real();
 }
 
-double Lattice::computeTwistRect(const int site[4],const int mu, const int nu)
+
+
+double Lattice::computeRectangle(const int site[4],const int mu,
+				 const int nu)
+{
+  /*Calculate the rectangle operator at the given site, on the rectangle
+    specified by directions mu and nu.*/
+  
+  //Define some variables to offset the given site
+  int mu_vec[4] = {0,0,0,0};
+  mu_vec[mu] = 1;
+  int nu_vec[4] = {0,0,0,0};
+  nu_vec[nu] = 1;
+  //Links also contain direction information, so must create a new set of
+  //variables
+  int link1[5] = {0,0,0,0,mu};
+  int link2[5] = {0,0,0,0,mu};
+  int link3[5] = {0,0,0,0,nu};
+  int link4[5] = {0,0,0,0,mu};
+  int link5[5] = {0,0,0,0,mu};
+  int link6[5] = {0,0,0,0,nu};
+
+  for (int i = 0; i < 4; i++) {
+    link1[i] = site[i];
+    link2[i] = site[i] + mu_vec[i];
+    link3[i] = site[i] + 2 * mu_vec[i];
+    link4[i] = site[i] + mu_vec[i] + nu_vec[i];
+    link5[i] = site[i] + nu_vec[i];
+    link6[i] = site[i];
+  }
+
+  //Multiply all the links together to get the product.
+  Matrix3cd product = this->getLink(link1);
+  product *= this->getLink(link2);
+  product *= this->getLink(link3);
+  product *= this->getLink(link4).adjoint();
+  product *= this->getLink(link5).adjoint();
+  product *= this->getLink(link6).adjoint();
+
+  return 1./3 * product.trace().real();  
+}
+
+
+
+double Lattice::computeTwistedRectangle(const int site[4],const int mu, const int nu)
 {
   /*Calculate the twisted rectangle operator*/
   
@@ -434,7 +585,7 @@ double Lattice::computeTwistRect(const int site[4],const int mu, const int nu)
   int link7[5] = {0,0,0,0,mu};
   int link8[5] = {0,0,0,0,nu};
 
-  for(int i = 0; i < 4; i++) {
+  for (int i = 0; i < 4; i++) {
     link1[i] = site[i];
     link2[i] = site[i] + mu_vec[i];
     link3[i] = site[i] + mu_vec[i] + nu_vec[i];
@@ -458,196 +609,96 @@ double Lattice::computeTwistRect(const int site[4],const int mu, const int nu)
   return 1./3 * product.trace().real();
 }
 
-double Lattice::computeRectangle(const int site[4],const int mu, const int nu)
+
+
+double Lattice::computeAveragePlaquette()
 {
-  /*Calculate the rectangle operator at the given site, on the rectangle
-    specified by directions mu and nu.*/
-  
-  //Define some variables to offset the given site
-  int mu_vec[4] = {0,0,0,0};
-  mu_vec[mu] = 1;
-  int nu_vec[4] = {0,0,0,0};
-  nu_vec[nu] = 1;
-  //Links also contain direction information, so must create a new set of
-  //variables
-  int link1[5] = {0,0,0,0,mu};
-  int link2[5] = {0,0,0,0,mu};
-  int link3[5] = {0,0,0,0,nu};
-  int link4[5] = {0,0,0,0,mu};
-  int link5[5] = {0,0,0,0,mu};
-  int link6[5] = {0,0,0,0,nu};
-
-  for(int i = 0; i < 4; i++) {
-    link1[i] = site[i];
-    link2[i] = site[i] + mu_vec[i];
-    link3[i] = site[i] + 2 * mu_vec[i];
-    link4[i] = site[i] + mu_vec[i] + nu_vec[i];
-    link5[i] = site[i] + nu_vec[i];
-    link6[i] = site[i];
-  }
-
-  //Multiply all the links together to get the product.
-  Matrix3cd product = this->getLink(link1);
-  product *= this->getLink(link2);
-  product *= this->getLink(link3);
-  product *= this->getLink(link4).adjoint();
-  product *= this->getLink(link5).adjoint();
-  product *= this->getLink(link6).adjoint();
-
-  return 1./3 * product.trace().real();  
-}
-
-double Lattice::computePlaquette(const int site[4],const int mu, const int nu)
-{
-  /*Calculate the plaquette operator at the given site, on plaquette
-    specified by directions mu and nu.*/
-
-  //We define some variables to contain the offsets of the various
-  //links around the lattice
-  int mu_vec[4] = {0,0,0,0};
-  mu_vec[mu] = 1;
-  int nu_vec[4] = {0,0,0,0};
-  nu_vec[nu] = 1;
-  //The links also contain direction information, so we must create a new
-  //set of variables
-  int link1[5] = {0,0,0,0,mu};
-  int link2[5] = {0,0,0,0,nu};
-  int link3[5] = {0,0,0,0,mu};
-  int link4[5] = {0,0,0,0,nu};
-
-  //Do some assignment
-  for(int i = 0; i < 4; i++) {
-    link1[i] = site[i];
-    link2[i] = site[i] + mu_vec[i];
-    link3[i] = site[i] + nu_vec[i];
-    link4[i] = site[i];
-  }
-
-  //Run through the links and multiply them together.
-  Matrix3cd product = this->getLink(link1);
-  product *= this->getLink(link2);
-  product *= this->getLink(link3).adjoint();
-  product *= this->getLink(link4).adjoint();
-  return 1./3 * product.trace().real();
-}
-
-double Lattice::computeLocalTRectangle(const int link[5])
-{
-  /*Calculate contribution to improved action from given link*/
-
-  //First contrbution is from standard Wilson action, so add that in
-  double out = this->computeLocalWilson(link);
-  double Tsum = 0;
-
-  int planes[3];
-
-  //Work out which dimension the link is in, since it'll be irrelevant here
-  int j = 0;
-  for(int i = 0; i < 4; i++) {
-    if(link[4] != i) {
-      planes[j] = i;
-      j++;
+  /*Calculate average plaquette operator value*/
+  //mu > nu, so there are six plaquettes at each site.
+  int nus[6] = {0,0,0,1,1,2};
+  int mus[6] = {1,2,3,2,3,3};
+  double Ptot = 0;
+  //Pretty simple: step through the matrix and add all plaquettes up
+  for (int i = 0; i < this->nEdgePoints; i++) {
+    for (int j = 0; j < this->nEdgePoints; j++) {
+      for (int k = 0; k < this->nEdgePoints; k++) {
+	for (int l = 0; l < this->nEdgePoints; l++) {
+	  for (int m = 0; m < 6; m++) {
+	    int site[4] = {i,j,k,l};
+	    Ptot += this->computePlaquette(site,mus[m],nus[m]);
+	  }
+	}
+      }
     }
   }
-  
-  for(int i = 0; i < 3; i++) {
-    int site[4] = {link[0],link[1],link[2],link[3]};
-    Tsum += this->computeTwistRect(site,link[4],planes[i]);
-    site[link[4]] -= 1;
-    Tsum += this->computeTwistRect(site,link[4],planes[i]);
-
-    site[link[4]] += 1;
-    site[planes[i]] -= 1;
-    Tsum += this->computeTwistRect(site,link[4],planes[i]);
-    site[link[4]] -= 1;
-    Tsum += this->computeTwistRect(site,link[4],planes[i]);
-    
-    site[link[4]] += 1;
-    site[planes[i]] += 1;
-    Tsum += this->computeTwistRect(site,planes[i],link[4]);
-    site[planes[i]] -= 1;
-    Tsum += this->computeTwistRect(site, planes[i],link[4]);
-    site[planes[i]] -= 1;
-    Tsum += this->computeTwistRect(site, planes[i],link[4]);
-  }
-  out -= this->beta / (12 * pow(this->u0,8)) * Tsum;
-  return out;
+  //Divide through by number of plaquettes to get mean (simples!)
+  return Ptot / (pow(this->nEdgePoints,4) * 6);
 }
 
-double Lattice::computeLocalRectangle(const int link[5])
+
+
+double Lattice::computeAverageRectangle()
 {
-  /*Calculate contribution to improved action from given link*/
-
-  //First contrbution is from standard Wilson action, so add that in
-  double out = 5./3 * this->computeLocalWilson(link);
-  double Rsum = 0;
-
-  int planes[3];
-
-  //Work out which dimension the link is in, since it'll be irrelevant here
-  int j = 0;
-  for(int i = 0; i < 4; i++) {
-    if(link[4] != i) {
-      planes[j] = i;
-      j++;
+  /*Calculate average plaquette operator value*/
+  //mu > nu, so there are six plaquettes at each site.
+  int nus[6] = {0,0,0,1,1,2};
+  int mus[6] = {1,2,3,2,3,3};
+  double Rtot = 0;
+  //Pretty simple: step through the matrix and add all plaquettes up
+  for (int i = 0; i < this->nEdgePoints; i++) {
+    for (int j = 0; j < this->nEdgePoints; j++) {
+      for (int k = 0; k < this->nEdgePoints; k++) {
+	for (int l = 0; l < this->nEdgePoints; l++) {
+	  for (int m = 0; m < 6; m++) {
+	    int site[4] = {i,j,k,l};
+	    Rtot += this->R(site,mus[m],nus[m]);
+	  }
+	}
+      }
     }
   }
-  
-  for(int i = 0; i < 3; i++) {
-    int site[4] = {link[0],link[1],link[2],link[3]};
-    Rsum += this->computeRectangle(site,link[4],planes[i]);
-    site[link[4]] -= 1;
-    Rsum += this->computeRectangle(site,link[4],planes[i]);
-
-    site[link[4]] += 1;
-    site[planes[i]] -= 1;
-    Rsum += this->computeRectangle(site,link[4],planes[i]);
-    site[link[4]] -= 1;
-    Rsum += this->computeRectangle(site,link[4],planes[i]);
-    
-    site[link[4]] += 1;
-    site[planes[i]] += 1;
-    Rsum += this->computeRectangle(site,planes[i],link[4]);
-    site[planes[i]] -= 2;
-    Rsum += this->computeRectangle(site, planes[i],link[4]);
-  }
-  out += this->beta / (12 * pow(this->u0,6)) * Rsum;
-  return out;
+  //Divide through by number of plaquettes to get mean (simples!)
+  return Rtot / (pow(this->nEdgePoints,4) * 6);
 }
 
-double Lattice::computeLocalWilson(const int link[5])
+
+
+double Lattice::computeAverageWilsonLoop(const int r, const int t,
+					 const int nSmears)
 {
-  /*Calculate the contribution to the Wilson action from the given link*/
-  int planes[3];
-  double Psum = 0;
-
-  //Work out which dimension the link is in, since it'll be irrelevant here
-  int j = 0;
-  for(int i = 0; i < 4; i++) {
-    if(link[4] != i) {
-      planes[j] = i;
-      j++;
-    }    
+  /*Calculates the average of all possible Wilson loops of a given
+    dimension*/
+  //First off, save the current links and smear all time slices
+  GaugeField templinks = this->links_;
+  for (int time = 0; time < this->nEdgePoints; time++) {
+    this->smearLinks(time,nSmears);
   }
-
-  /*For each plane, calculate the two plaquettes that share the given link*/
-  for(int i = 0; i < 3; i++) {
-    int site[4] = {link[0],link[1],link[2],link[3]};
-    Psum += this->computePlaquette(site,link[4],planes[i]);
-    site[planes[i]] -= 1;
-    Psum += this->computePlaquette(site,link[4],planes[i]);
+  double Wtot = 0;
+  for (int i = 0; i < this->nEdgePoints; i++) {
+    for (int j = 0; j < this->nEdgePoints; j++) {
+      for (int k = 0; k < this->nEdgePoints; k++) {
+	for (int l = 0; l < this->nEdgePoints; l++) {
+	  for (int m = 1; m < 4; m++) {
+	    int site[4] = {i,j,k,l};
+	    Wtot += this->computeWilsonLoop(site,r,t,m,0);
+	  }
+	}
+      }
+    }
   }
-
-  return -this->beta * Psum / pow(this->u0,4);
+  this->links_ = templinks;
+  return Wtot / (pow(this->nEdgePoints,4)*3);
 }
+
+
 
 Matrix3cd Lattice::makeRandomSU3()
 {
   /*Generate a random SU3 matrix, weighted by eps*/
   Matrix3cd A;
   //First generate a random matrix whos elements all lie in/on unit circle  
-  for(int i = 0; i < 3; i++) {
-    for(int j = 0; j < 3; j++) {
+  for (int i = 0; i < 3; i++) {
+    for (int j = 0; j < 3; j++) {
       A(i,j) = double(rand()) / double(RAND_MAX);
       A(i,j) *= exp(2 * lattice::pi * lattice::i * double(rand()) / double(RAND_MAX));
     }
@@ -662,180 +713,92 @@ Matrix3cd Lattice::makeRandomSU3()
   return U;
 }
 
-void Lattice::thermalize()
-{
-  /*Update all links until we're at thermal equilibrium*/
-  while(this->nUpdates < 5 * this->Ncor) {
-    this->schwarzUpdate(4,10);
-  }
-}
 
-void Lattice::getNextConfig()
-{
-  /*Run Ncor updates*/
-  for(int i = 0; i < this->Ncor; i++) {
-    this->schwarzUpdate(4,1);
-  }
-}
 
-void Lattice::runThreads(const int size, const int n_updates, const int remainder)
+Matrix3cd Lattice::computeQ(const int link[5])
 {
-  int index = 0;
+  // Calculates Q matrix for analytic smearing according to paper on analytic
+  // smearing
+  Matrix3cd C = Matrix3cd::Zero();
 
-#pragma omp parallel for schedule(dynamic,1) collapse(4)
-  for(int i = 0; i < this->nEdgePoints; i+=size) {
-    for(int j = 0; j < this->nEdgePoints; j+=size) {
-      for(int k = 0; k < this->nEdgePoints; k+=size) {
-	for(int l = 0; l < this->nEdgePoints; l+=size) {
-	  int site[4] = {i,j,k,l};
-	  if(index%2 == remainder) {
-	    this->updateSegment(i,j,k,l,size,n_updates);
-	  }
-	  index++;
-	}
-      }
+  for (int nu = 1; nu < 4; nu++) {
+    if (nu != link[4]) {
+      int tempLink[5] = {0,0,0,0,0};
+      lattice::copyArray(tempLink, link, 4);
+      tempLink[4] = nu;
+      Matrix3cd tempMatrix = this->getLink(tempLink);
+
+      tempLink[4] = link[4];
+      tempLink[nu] += 1;
+      tempMatrix *= this->getLink(tempLink);
+
+      tempLink[4] = nu;
+      tempLink[nu] -= 1;
+      tempLink[link[4]] += 1;
+      tempMatrix *= this->getLink(tempLink).adjoint();
+
+      C += tempMatrix;
+
+      lattice::copyArray(tempLink, link, 4);
+      tempLink[nu] -= 1;
+      tempLink[4] = nu;
+      tempMatrix = this->getLink(tempLink).adjoint();
+
+      tempLink[4] = link[4];
+      tempMatrix *= this->getLink(tempLink);
+
+      tempLink[4] = nu;
+      tempLink[link[4]] += 1;
+      tempMatrix *= this->getLink(tempLink);
+
+      C += tempMatrix;
     }
   }
+  
+  C *= this->rho;
+
+  Matrix3cd Omega = C * this->getLink(link).adjoint();
+  Matrix3cd OmegaAdjoint = Omega.adjoint() - Omega;
+  Matrix3cd Q = 0.5 * lattice::i * OmegaAdjoint;
+  Q -= lattice::i / 6.0 * OmegaAdjoint.trace() * Matrix3cd::Identity();
+
+  return Q;
 }
 
-void Lattice::schwarzUpdate(const int size, const int n_updates)
-{
-  //Update even and odd blocks using Schwarz
-  this->runThreads(size,n_updates,0);
-  this->runThreads(size,n_updates,1);
-  this->nUpdates++;
-}
 
-void Lattice::updateSegment(const int i, const int j, const int k, const int l, const int size, const int n_updates)
-{
-  //Updates a segment of the lattice - used for SAP
-  for(int n = 0; n < n_updates; n++) {
-    for(int m = i; m < i + size; m++) {
-      for(int o = j; o < j + size; o++) {
-	for(int p = k; p < k + size; p++) {
-	  for(int q = l; q < l + size; q++) {
-	    for(int r = 0; r < 4; r++) {
-	      //We'll need an array with the link indices
-	      int link[5] = {m,o,p,q,r};
-	      //Record the old action contribution
-	      double Si_old = (this->*computeLocalAction)(link);
-	      //Record the old link in case we need it
-	      Matrix3cd linki_old = this->links_[m][o][p][q][r];
-	      //Get ourselves a random SU3 matrix for the update
-	      Matrix3cd randSU3 = this->randSU3s[rand() % this->randSU3s.size()];
-	      //Multiply the site
-	      this->links_[m][o][p][q][r] = randSU3 * this->links_[m][o][p][q][r];
-	      //What's the change in the action?
-	      double dS = (this->*computeLocalAction)(link) - Si_old;
-	      //Was the change favourable? If not, revert the change
-	      if((dS > 0) && (exp(-dS) < double(rand()) / double(RAND_MAX))) {
-		this->links_[m][o][p][q][r] = linki_old;
-	      }
-	    }
-	  }
-	}
-      }
-    }
-  }
-}
 
-void Lattice::updateLattice()
+void Lattice::smearLinks(const int time, const int nSmears)
 {
-  /*Iterate through the lattice and update the links using Metropolis
-    algorithm*/
-  for(int i = 0; i < this->nEdgePoints; i++) {
-    for(int j = 0; j < this->nEdgePoints; j++) {
-      for(int k = 0; k < this->nEdgePoints; k++) {
-	for(int l = 0; l < this->nEdgePoints; l++) {
-	  for(int m = 0; m < 4; m++) {
-	    //We'll need an array with the link indices
-	    int link[5] = {i,j,k,l,m};
-	    //Record the old action contribution
-	    double Si_old = (this->*computeLocalAction)(link);
-	    //Record the old link in case we need it
-	    Matrix3cd linki_old = this->links_[i][j][k][l][m];
-	    //Get ourselves a random SU3 matrix for the update
-	    Matrix3cd randSU3 = this->randSU3s[rand() % this->randSU3s.size()];
-	    //Multiply the site
-	    this->links_[i][j][k][l][m] = randSU3 * this->links_[i][j][k][l][m];
-	    //What's the change in the action?
-	    double dS = (this->*computeLocalAction)(link) - Si_old;
-	    //Was the change favourable? If not, revert the change
-	    if((dS > 0) && (exp(-dS) < double(rand()) / double(RAND_MAX))) {
-	      this->links_[i][j][k][l][m] = linki_old;
-	    }
+  // Smear the specified time slice by iterating calling this function
+  for (int i = 0; i < nSmears; i++) {
+    // Iterate through all the links and calculate the new ones from
+    // the existing ones.    
+    SubField newLinks(this->nEdgePoints, 
+		      Sub2Field(this->nEdgePoints,
+				Sub3Field(this->nEdgePoints, 
+					  Sub4Field(4))));
+
+    for (int i = 0; i < this->nEdgePoints; i++) {
+      for (int j = 0; j < this->nEdgePoints; j++) {
+	for (int k = 0; k < this->nEdgePoints; k++) {
+	  // NB, spatial links only, so l > 0!
+	  newLinks[i][j][k][0] = this->links_[time][i][j][k][0];
+	  for (int l = 1; l < 4; l++) {
+	    // Create a temporary matrix to store the new link
+	    int link[5] = {time,i,j,k,l};
+	    Matrix3cd tempMatrix = (lattice::i * this->computeQ(link)).exp()
+	      * this->getLink(link);
+	    newLinks[i][j][k][l] = tempMatrix;
 	  }
 	}
       }
     }
+    // Apply the changes to the existing lattice.
+    this->links_[lattice::mod(time, this->nEdgePoints)] = newLinks;
   }
-  this->nUpdates++;
 }
 
-double Lattice::computeAveragePlaquette()
-{
-  /*Calculate average plaquette operator value*/
-  //mu > nu, so there are six plaquettes at each site.
-  int nus[6] = {0,0,0,1,1,2};
-  int mus[6] = {1,2,3,2,3,3};
-  double Ptot = 0;
-  //Pretty simple: step through the matrix and add all plaquettes up
-  for(int i = 0; i < this->nEdgePoints; i++) {
-    for(int j = 0; j < this->nEdgePoints; j++) {
-      for(int k = 0; k < this->nEdgePoints; k++) {
-	for(int l = 0; l < this->nEdgePoints; l++) {
-	  for(int m = 0; m < 6; m++) {
-	    int site[4] = {i,j,k,l};
-	    Ptot += this->computePlaquette(site,mus[m],nus[m]);
-	  }
-	}
-      }
-    }
-  }
-  //Divide through by number of plaquettes to get mean (simples!)
-  return Ptot / (pow(this->nEdgePoints,4) * 6);
-}
 
-double Lattice::computeAverageRectangle()
-{
-  /*Calculate average plaquette operator value*/
-  //mu > nu, so there are six plaquettes at each site.
-  int nus[6] = {0,0,0,1,1,2};
-  int mus[6] = {1,2,3,2,3,3};
-  double Rtot = 0;
-  //Pretty simple: step through the matrix and add all plaquettes up
-  for(int i = 0; i < this->nEdgePoints; i++) {
-    for(int j = 0; j < this->nEdgePoints; j++) {
-      for(int k = 0; k < this->nEdgePoints; k++) {
-	for(int l = 0; l < this->nEdgePoints; l++) {
-	  for(int m = 0; m < 6; m++) {
-	    int site[4] = {i,j,k,l};
-	    Rtot += this->R(site,mus[m],nus[m]);
-	  }
-	}
-      }
-    }
-  }
-  //Divide through by number of plaquettes to get mean (simples!)
-  return Rtot / (pow(this->nEdgePoints,4) * 6);
-}
-
-void Lattice::printLattice()
-{
-  /*Print the links out. A bit redundant due to the interfaces library,
-   but here in case it's needed.*/
-  for(int i = 0; i < this->nEdgePoints; i++) {
-    for(int j = 0; j < this->nEdgePoints; j++) {
-      for(int k = 0; k < this->nEdgePoints; k++) {
-	for(int l = 0; l < this->nEdgePoints; l++) {
-	  for(int m = 0; m < 4; m++) {
-	    cout << this->links_[i][j][k][l][m] << endl;
-	  }
-	}
-      }
-    }
-  }
-}
 
 SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass)
 {
@@ -849,7 +812,7 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass)
   SparseMatrix<complex<double> > out(n_indices,n_indices);
 
   vector<Tlet> tripletList;
-  for(int i = 0; i < n_indices; i++) {
+  for (int i = 0; i < n_indices; i++) {
     tripletList.push_back(Tlet(i,i,mass + 4/this->a));
   }
 
@@ -857,12 +820,12 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass)
   vector<vector<int> > indices(pow(this->nEdgePoints,4) * 12,vector<int>(6));
   //int** indices = new int* [int(pow(this->nEdgePoints,4) * 12)];
   int index = 0;
-  for(int i = 0; i < this->nEdgePoints; i++) {
-    for(int j = 0; j < this->nEdgePoints; j++) {
-      for(int k = 0; k < this->nEdgePoints; k++) {
-	for(int l = 0; l < this->nEdgePoints; l++) {
-	  for(int alpha = 0; alpha < 4; alpha++) {
-	    for(int a = 0; a < 3; a++) {
+  for (int i = 0; i < this->nEdgePoints; i++) {
+    for (int j = 0; j < this->nEdgePoints; j++) {
+      for (int k = 0; k < this->nEdgePoints; k++) {
+	for (int l = 0; l < this->nEdgePoints; l++) {
+	  for (int alpha = 0; alpha < 4; alpha++) {
+	    for (int a = 0; a < 3; a++) {
 	      //indices[index] = new int[6];
 	      indices[index][0] = i;
 	      indices[index][1] = j;
@@ -883,13 +846,13 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass)
   //Now iterate through the matrix and add the various elements to the vector
   //of triplets
   #pragma omp parallel for
-  for(int i = 0; i < n_indices; i++) {
+  for (int i = 0; i < n_indices; i++) {
     int site_i[4] = {indices[i][0],
 		     indices[i][1],
 		     indices[i][2],
 		     indices[i][3]};
     
-    for(int j = 0; j < n_indices; j++) {
+    for (int j = 0; j < n_indices; j++) {
       int m = i / 12;
       int n = j / 12;
 
@@ -898,16 +861,16 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass)
       //if that's not going to happen we can save ourself a lot
       //of hassle
       bool delta = false;
-      for(int k = 0; k < 4; k++) {
+      for (int k = 0; k < 4; k++) {
 	//Store this to save calculating it twice
 	int n_off = pow(this->nEdgePoints,k);	
-	if(m == lattice::mod(n + n_off,n_sites)
+	if (m == lattice::mod(n + n_off,n_sites)
 	   || m == lattice::mod(n - n_off,n_sites)) {
 	  delta = true;
 	  break;
 	}
       }
-      if(delta) {
+      if (delta) {
 	//First we'll need something to put the sum into
 	complex<double> sum = complex<double>(0,0);	
 	//First create an array for the site specified by the index i	
@@ -915,7 +878,7 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass)
 			 indices[j][1],
 			 indices[j][2],
 			 indices[j][3]};
-	for(int k = 0; k < 8; k++) {
+	for (int k = 0; k < 8; k++) {
 	  //First need to implement the kronecker delta in the sum of mus,
 	  //which'll be horrendous, but hey...
 	
@@ -930,13 +893,13 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass)
 	  //If they are, then we have ourselves a matrix element
 	  //First test for when mu is positive, as then we'll need to deal
 	  //with the +ve or -ve cases slightly differently
-	  if(lattice::arrayEqual(site_i,site_j,4)) {
+	  if (lattice::arrayEqual(site_i,site_j,4)) {
 	    int link[5];
 	    lattice::copyArray(link,site_i,4);
 	    link[4] = mu_mink;
 	    Matrix3cd U;
 	    Matrix4cd lorentz = Matrix4cd::Identity() - lattice::gamma(mus[k]);
-	    if(mus[k] > 0) U = this->getLink(link);
+	    if (mus[k] > 0) U = this->getLink(link);
 	    else {
 	      link[mu_mink] -= 1;
 	      U = this->getLink(link).adjoint();
@@ -947,7 +910,7 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass)
 	}
 	sum /= -(2 * this->a);
 	#pragma omp critical
-	if(sum.imag() != 0 && sum.real() != 0)
+	if (sum.imag() != 0 && sum.real() != 0)
 	  tripletList.push_back(Tlet(i,j,sum));
       }
       else {
@@ -973,7 +936,123 @@ VectorXcd Lattice::computePropagator(const double mass, int site[4], const int a
   int index = a + 3 * (alpha + 4 * m);
   S(index) = 1.;
   
-  VectorXcd prop = solver.solve(S);
+  VectorXcd propagator = solver.solve(S);
   
-  return prop;
+  return propagator;
+}
+
+
+
+double Lattice::computeLocalWilsonAction(const int link[5])
+{
+  /*Calculate the contribution to the Wilson action from the given link*/
+  int planes[3];
+  double Psum = 0;
+
+  //Work out which dimension the link is in, since it'll be irrelevant here
+  int j = 0;
+  for (int i = 0; i < 4; i++) {
+    if (link[4] != i) {
+      planes[j] = i;
+      j++;
+    }    
+  }
+
+  /*For each plane, calculate the two plaquettes that share the given link*/
+  for (int i = 0; i < 3; i++) {
+    int site[4] = {link[0],link[1],link[2],link[3]};
+    Psum += this->computePlaquette(site,link[4],planes[i]);
+    site[planes[i]] -= 1;
+    Psum += this->computePlaquette(site,link[4],planes[i]);
+  }
+
+  return -this->beta * Psum / pow(this->u0,4);
+}
+
+
+
+double Lattice::computeLocalRectangleAction(const int link[5])
+{
+  /*Calculate contribution to improved action from given link*/
+
+  //First contrbution is from standard Wilson action, so add that in
+  double out = 5./3 * this->computeLocalWilson(link);
+  double Rsum = 0;
+
+  int planes[3];
+
+  //Work out which dimension the link is in, since it'll be irrelevant here
+  int j = 0;
+  for (int i = 0; i < 4; i++) {
+    if (link[4] != i) {
+      planes[j] = i;
+      j++;
+    }
+  }
+  
+  for (int i = 0; i < 3; i++) {
+    int site[4] = {link[0],link[1],link[2],link[3]};
+    Rsum += this->computeRectangle(site,link[4],planes[i]);
+    site[link[4]] -= 1;
+    Rsum += this->computeRectangle(site,link[4],planes[i]);
+
+    site[link[4]] += 1;
+    site[planes[i]] -= 1;
+    Rsum += this->computeRectangle(site,link[4],planes[i]);
+    site[link[4]] -= 1;
+    Rsum += this->computeRectangle(site,link[4],planes[i]);
+    
+    site[link[4]] += 1;
+    site[planes[i]] += 1;
+    Rsum += this->computeRectangle(site,planes[i],link[4]);
+    site[planes[i]] -= 2;
+    Rsum += this->computeRectangle(site, planes[i],link[4]);
+  }
+  out += this->beta / (12 * pow(this->u0,6)) * Rsum;
+  return out;
+}
+
+
+
+double Lattice::computeLocalTwistedRectangleAction(const int link[5])
+{
+  /*Calculate contribution to improved action from given link*/
+
+  //First contrbution is from standard Wilson action, so add that in
+  double out = this->computeLocalWilson(link);
+  double Tsum = 0;
+
+  int planes[3];
+
+  //Work out which dimension the link is in, since it'll be irrelevant here
+  int j = 0;
+  for (int i = 0; i < 4; i++) {
+    if (link[4] != i) {
+      planes[j] = i;
+      j++;
+    }
+  }
+  
+  for (int i = 0; i < 3; i++) {
+    int site[4] = {link[0],link[1],link[2],link[3]};
+    Tsum += this->computeTwistRect(site,link[4],planes[i]);
+    site[link[4]] -= 1;
+    Tsum += this->computeTwistRect(site,link[4],planes[i]);
+
+    site[link[4]] += 1;
+    site[planes[i]] -= 1;
+    Tsum += this->computeTwistRect(site,link[4],planes[i]);
+    site[link[4]] -= 1;
+    Tsum += this->computeTwistRect(site,link[4],planes[i]);
+    
+    site[link[4]] += 1;
+    site[planes[i]] += 1;
+    Tsum += this->computeTwistRect(site,planes[i],link[4]);
+    site[planes[i]] -= 1;
+    Tsum += this->computeTwistRect(site, planes[i],link[4]);
+    site[planes[i]] -= 1;
+    Tsum += this->computeTwistRect(site, planes[i],link[4]);
+  }
+  out -= this->beta / (12 * pow(this->u0,8)) * Tsum;
+  return out;
 }
