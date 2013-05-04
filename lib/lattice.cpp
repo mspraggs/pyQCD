@@ -4,7 +4,7 @@ namespace lattice
 {
   const complex<double> i (0.0, 1.0);
   const double pi = 3.1415926535897932384626433;
-  
+
   int mod(int number, const int &divisor)
   {
     while (number < 0)
