@@ -42,7 +42,7 @@ public:
   Lattice(const Lattice& lattice);
   ~Lattice();
 
-  void printLattice();
+  void print();
   Matrix3cd getLink(const int link[5]);
 
   void runThreads(const int chunkSize, const int nUpdates,
