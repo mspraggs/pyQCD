@@ -1,5 +1,6 @@
 #include "lattice.cpp"
 #include "pylattice.hpp"
+#include "gil.cpp"
 
 pyLattice::pyLattice(const int nEdgePoints,
 		     const double beta,
@@ -49,12 +50,12 @@ double pyLattice::computePlaquetteP(const py::list site2, const int mu,
 double pyLattice::computeRectangleP(const py::list site, const int mu,
 				    const int nu)
 {
-  //Python wrapper for rectangle function.
-  int site[4] = {py::extract<int>(site2[0]),
-		 py::extract<int>(site2[1]),
-		 py::extract<int>(site2[2]),
-		 py::extract<int>(site2[3])};
-  return this->computeRectangle(site, mu, nu);
+  // Python wrapper for rectangle function.
+  int tempSite[4] = {py::extract<int>(site[0]),
+		 py::extract<int>(site[1]),
+		 py::extract<int>(site[2]),
+		 py::extract<int>(site[3])};
+  return this->computeRectangle(tempSite, mu, nu);
 }
 
 
@@ -67,7 +68,7 @@ double pyLattice::computeTwistedRectangleP(const py::list site,
 		     py::extract<int>(site[1]),
 		     py::extract<int>(site[2]),
 		     py::extract<int>(site[3])};
-  return this->computeTwistRect(tempSite, mu, nu);
+  return this->computeTwistedRectangle(tempSite, mu, nu);
 }
 
 
@@ -92,7 +93,7 @@ double pyLattice::computeAverageWilsonLoopP(const int r, const int t,
 				     const int nSmears)
 {
   // Wrapper for the expectation value for the Wilson loop
-  return Lattice::computeAverageWilson(r, t, nSmears);
+  return Lattice::computeAverageWilsonLoop(r, t, nSmears);
 }
 
 
@@ -106,8 +107,8 @@ void pyLattice::runThreads(const int size, const int nUpdates,
 
 
 
-py::list pyLattice::getLinkP(const int n1, const int n2, const int n3,
-			     const int n4, const int dimension) const
+py::list pyLattice::getLinkP(const int n0, const int n1, const int n2,
+			     const int n3, const int dimension) const
 {
   // Returns the given link as a python nested list. Used in conjunction
   // with python interfaces library to extract the links as a nested list
@@ -116,7 +117,7 @@ py::list pyLattice::getLinkP(const int n1, const int n2, const int n3,
   for (int i = 0; i < 3; i++) {
     py::list temp;
     for (int j = 0; j < 3; j++) {
-      temp.append(this->links[n0][n1][n2][n3][dimension](i, j));
+      temp.append(this->links_[n0][n1][n2][n3][dimension](i, j));
     }
     out.append(temp);
   }
@@ -132,7 +133,7 @@ py::list pyLattice::getRandSu3(const int index) const
   for (int i = 0; i < 3; i++) {
     py::list temp;
     for (int j = 0; j < 3; j++) {
-      temp.append(this->randSU3s[index](i, j));
+      temp.append(this->randSu3s_[index](i, j));
     }
     out.append(temp);
   }
