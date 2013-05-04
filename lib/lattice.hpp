@@ -47,7 +47,8 @@ public:
   void printLattice();
   Matrix3cd getLink(const int link[5]);
 
-  void runThreads(const int chunkSize, const int nUpdates, const int remainder);
+  void runThreads(const int chunkSize, const int nUpdates,
+		  const int remainder);
   void schwarzUpdate(const int chunkSize, const int nUpdates);
   void update();
   void updateSegment(const int n0, const int n1, const int n2,
@@ -59,7 +60,7 @@ public:
   Matrix3cd computePath(const vector<vector<int> > path);
   Matrix3cd computeLine(const int start[4], const int finish[4]);
   double computeWilsonLoop(const int corner1[4], const int corner2[4],
-			const int nSmears = 0);
+			   const int nSmears = 0);
   double computeWilsonLoop(const int corner[4], const int r, const int t,
 			   const int dimension, const int nSmears = 0);
 
