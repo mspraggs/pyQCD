@@ -74,7 +74,7 @@ double pyLattice::computeTwistedRectangleP(const py::list site,
 
 double pyLattice::computeWilsonLoopP(const py::list corner, const int r,
 				     const int t, const int dimension,
-				  const int nSmears)
+				     const int nSmears)
 {
   // Calculates the loop specified by corners c1 and c2 (which must
   // lie in the same plane)
@@ -113,9 +113,9 @@ py::list pyLattice::getLinkP(const int n1, const int n2, const int n3,
   // with python interfaces library to extract the links as a nested list
   // of numpy matrices.
   py::list out;
-  for(int i = 0; i < 3; i++) {
+  for (int i = 0; i < 3; i++) {
     py::list temp;
-    for(int j = 0; j < 3; j++) {
+    for (int j = 0; j < 3; j++) {
       temp.append(this->links[n0][n1][n2][n3][dimension](i, j));
     }
     out.append(temp);
@@ -129,9 +129,9 @@ py::list pyLattice::getRandSu3(const int index) const
 {
   // Returns the given random SU3 matrix as a python list
   py::list out;
-  for(int i = 0; i < 3; i++) {
+  for (int i = 0; i < 3; i++) {
     py::list temp;
-    for(int j = 0; j < 3; j++) {
+    for (int j = 0; j < 3; j++) {
       temp.append(this->randSU3s[index](i, j));
     }
     out.append(temp);
