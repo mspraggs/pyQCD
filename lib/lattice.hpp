@@ -70,8 +70,8 @@ public:
 			  const int dimension2);
   double computeTwistedRectangle(const int site[4], const int dimension1,
 				 const int dimension2);
-  double computeAveragePlaq();
-  double computeAverageRect();
+  double computeAveragePlaquette();
+  double computeAverageRectangle();
   double computeAverageWilson(const int r, const int t,
 			      const int nSmears = 0);
   double (Lattice::*computeLocalAction)(const int link[5]);
