@@ -4,30 +4,37 @@ pyQCD provides a Python library for running coarse lattice QCD simulations on de
 
 Installation
 ------------
-Please note I haven't yet invested the time in proper deployment scripts for this project, so at this stage compiling
-this library for use on your platform may prove a challenge.
+pyQCD can be built using the cmake build system. The CMakeLists.txt file has only been tested on Ubuntu Linux,
+so I can't guarantee that it'll work seamlessly on other platforms (obviously this is something I'd like to change
+in the future).
 
 pyQCD requires the following for compilation to work:
 
 * Boost::Python (tested with versions 1.44 and 1.49, so anything greater than 1.44 should work)
 * Eigen C++ matrix library (version 3 or greater)
 * OpenMP (version 3 or greater)
-* Numpy and scipy Python libraries
+* Numpy and scipy Python libraries (not required for compilation, but for the python scripts supplied)
 
-Once these are installed, enter the lib directory. A Makefile is provided for use with make. Depending on your system,
-you may find you need to change the locations of the include files and libraries for boost::python, Python and Eigen
-(please use the variables specified within "else" segment of the Makefile).
+Once you have all these, enter the lib directory and run:
 
-If you are building the library on the IRIDIS cluster machine, you will need to download the Eigen library from the web
-(no compilation should be necessary) and adjust the include path for this library. You will also need to load the boost
-module and use gcc version 4.6.1 to get OpenMP support. To get the Makefile to recognise that you're on IRIDIS, do
-> export IRIDIS=true
+> cmake .
+> make
 
-Once the include paths have been set up, just run make and with any luck you should end up with a pyQCD shared library
-in the lib directory.
+If cmake fails then you'll need to check the generated CMakeCache.txt file to ensure that the Python, Boost and Eigen
+library and include paths are set correctly (search for each of these terms within the file).
+
+This should build the shared library in the lib directory.
+
+If you're using this library on the Iridis, you'll need to download a copy of Eigen (no compilatio required) and point
+cmake in the direction of the Eigen and Python include files. You'll also need to load gcc 4.6.1 for OpenMP to work
+correctly and boost 1.44.0. A command like this should generate a Makefile that works:
+
+> cmake . -DEIGEN3_INCLUDE_DIR=/path/to/eigen3 -DPYTHON_INCLUDE_PATH=/local/software/rh53/python/2.6.5/gcc/include/python2.6 -DPYTHON_LIBRARY=/local/software/rh53/python/2.6.5/gcc/lib/libpython2.6.a
 
 Getting Started
 ---------------
+***Note, if you're using Iridis you'll need to load numpy and gcc 4.6.1 for the run.py script to work***
+
 To run a basic simulation, all you need to do is return to the home directory of the project and execute run.py. You
 should make a results folder in the project root directory to store the results files. This will run the following set
 up:
