@@ -37,3 +37,7 @@ set (SOURCES
 set (CMAKE_SHARED_LIBRARY_PREFIX "")
 add_library (pyQCD SHARED ${SRC_DIR}/pyQCD.cpp)
 target_link_libraries (pyQCD ${Boost_LIBRARIES})
+
+IF(CMAKE_COMPILER_IS_GNUCXX)
+  ADD_DEFINITIONS("-O3")
+ENDIF()
