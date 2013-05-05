@@ -10,7 +10,6 @@
 
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
-#include <Eigen/QR>
 #include <unsupported/Eigen/MatrixFunctions>
 
 #include <omp.h>
