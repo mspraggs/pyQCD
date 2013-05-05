@@ -12,6 +12,7 @@ pyQCD requires the following for compilation to work:
 * Boost::Python (tested with versions 1.44 and 1.49, so anything greater than 1.44 should work)
 * Eigen C++ matrix library (version 3 or greater)
 * OpenMP (version 3 or greater)
+* Numpy and scipy Python libraries
 
 Once these are installed, enter the lib directory. A Makefile is provided for use with make. Depending on your system,
 you may find you need to change the locations of the include files and libraries for boost::python, Python and Eigen
@@ -19,7 +20,7 @@ you may find you need to change the locations of the include files and libraries
 
 If you are building the library on the IRIDIS cluster machine, you will need to download the Eigen library from the web
 (no compilation should be necessary) and adjust the include path for this library. You will also need to load the boost
-module and use gcc version 4.6.1 to get OpenMP support. To get the Makefile to recognised that you're on IRIDIS, do
+module and use gcc version 4.6.1 to get OpenMP support. To get the Makefile to recognise that you're on IRIDIS, do
 > export IRIDIS=true
 
 Once the include paths have been set up, just run make and with any luck you should end up with a pyQCD shared library
