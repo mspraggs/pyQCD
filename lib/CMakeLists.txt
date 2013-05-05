@@ -4,7 +4,7 @@ project (pyQCD)
 set (SRC_DIR ${PROJECT_BINARY_DIR}/src)
 set (INC_DIR ${PROJECT_BINARY_DIR}/include)
 
-set (CMAKE_MODULE_PATH ${PROJECT_SOUapRCE_DIR}/cmake)
+set (CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 set (EIGEN_INCLUDE_DIR ${CMAKE_MODULE_PATH}/FindEigen3.cmake)
 
 find_package (PythonLibs REQUIRED)
