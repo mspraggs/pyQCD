@@ -51,8 +51,7 @@ command line parameters for the run script:
 * --n=X, where X is the given number of sites per side of the lattice (so you'll end up with a X^4 size lattice)
 * --beta=X, where X is the QCD beta value
 * --u0=X, where X is the tadpole improvement factor
-* --action=N, N is an integer specifying the lattice gauge action (0 gives Wilson, 1 is rectangle improved, 2 is twisted
- rectangle improved)
+* --action=N, N is an integer specifying the lattice gauge action (0 gives Wilson, 1 is rectangle improved, 2 is twisted rectangle improved)
 * --nsmears=N, where N is the number of spatial link smears made during measurements
 * --Ncor=N, where N is the number of updates between measurements
 * --Ncf=N, where N is the number of configurations generated
