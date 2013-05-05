@@ -1,6 +1,6 @@
 pyQCD
 =====
-pyQCD is a provides a Python library for running coarse lattice simulations on desktop and workstation computers.
+pyQCD provides a Python library for running coarse lattice QCD simulations on desktop and workstation computers.
 
 Installation
 ------------
