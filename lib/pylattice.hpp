@@ -1,3 +1,6 @@
+#ifndef PYLATTICE_HPP
+#define PYLATTICE_HPP
+
 #include <boost/python.hpp>
 #include <boost/python/list.hpp>
 #include "lattice.hpp"
@@ -34,3 +37,4 @@ public:
 		     const int dimension) const;
   py::list getRandSu3(const int index) const;
 };
+#endif
