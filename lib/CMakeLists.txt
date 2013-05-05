@@ -9,13 +9,25 @@ set (EIGEN_INCLUDE_DIR ${CMAKE_MODULE_PATH}/FindEigen3.cmake)
 
 find_package (PythonLibs REQUIRED)
 find_package (Eigen3 REQUIRED)
-find_package (Boost 1.44.0 REQUIRED)
+find_package (Boost REQUIRED)
+find_package (OpenMP REQUIRED)
 
-include_directories (
+if (OPENMP_FOUND)
+  message ("OpenMP found")
+  set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+  set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+endif()
+
+include_directories (${Boost_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIR}
   ${PYTHON_INCLUDE_PATH}
-  ${Boost_INCLUDE_DIRS}
   ${INC_DIR})
+
+set (Boost_USE_STATIC_LIBS OFF)
+set (Boost_USE_MULTITHREADED ON)
+set (Boost_USE_STATIC_RUNTIME OFF)
+find_package (Boost COMPONENTS python)
 
 set (SOURCES
   ${SRC_DIR}/pyQCD.cpp
@@ -24,3 +36,4 @@ set (SOURCES
 
 set (CMAKE_SHARED_LIBRARY_PREFIX "")
 add_library (pyQCD SHARED ${SRC_DIR}/pyQCD.cpp)
+target_link_libraries (pyQCD ${Boost_LIBRARIES})
