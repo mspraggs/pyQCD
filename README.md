@@ -17,8 +17,8 @@ Once these are installed, enter the lib directory. A Makefile is provided for us
 you may find you need to change the locations of the include files and libraries for boost::python, Python and Eigen
 (please use the variables specified within "else" segment of the Makefile).
 
-If you are building the library on the IRIDIS cluster machine, you will to download the Eigen library from the web (no
-compilation should be necessary) and adjust the include path for this library. You will also need to load the boost
+If you are building the library on the IRIDIS cluster machine, you will need to download the Eigen library from the web
+(no compilation should be necessary) and adjust the include path for this library. You will also need to load the boost
 module and use gcc version 4.6.1 to get OpenMP support. To get the Makefile to recognised that you're on IRIDIS, do
 > export IRIDIS=true
 
