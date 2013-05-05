@@ -18,6 +18,7 @@ pyQCD requires the following for compilation to work:
 Once you have all these, enter the lib directory and run:
 
 > cmake .
+
 > make
 
 If cmake fails then you'll need to check the generated CMakeCache.txt file to ensure that the Python, Boost and Eigen
