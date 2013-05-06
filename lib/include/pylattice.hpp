@@ -4,6 +4,7 @@
 #include <boost/python.hpp>
 #include <boost/python/list.hpp>
 #include "lattice.hpp"
+#include "gil.hpp"
 
 namespace py = boost::python;
 
