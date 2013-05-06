@@ -101,7 +101,7 @@ double pyLattice::computeAverageWilsonLoopP(const int r, const int t,
 void pyLattice::runThreads(const int size, const int nUpdates,
 			   const int remainder)
 {
-  ScopedGILRelease scope = ScopedGILRelease();
+  ScopedGILRelease scope;
   Lattice::runThreads(size, nUpdates, remainder);
 }
 
