@@ -1,6 +1,6 @@
 import numpy as np
 
-def getLinks(lattice):
+def get_links(lattice):
     """Extracts links from lattice as a compound list of numpy arrays"""
     out = []
     for i in xrange(lattice.n_points):
@@ -12,8 +12,7 @@ def getLinks(lattice):
                 for l in xrange(lattice.n_points):
                     llist = []
                     for m in xrange(4):
-                        llist.append(np.matrix(lattice.getLink(i, j, k,
-															   l, m)))
+                        llist.append(np.matrix(lattice.link(i, j, k, l, m)))
                     klist.append(llist)
                 jlist.append(klist)
             ilist.append(jlist)
@@ -21,7 +20,7 @@ def getLinks(lattice):
 
     return out
 
-def calcWs(lattice, rmax, tmax, n_smears = 0):
+def get_wilson_loops(lattice, rmax, tmax, n_smears = 0):
     """Calculates a series of Wilson loops up to the maximum r and t values"""
     out = np.zeros((rmax - 1, tmax - 1))
     
