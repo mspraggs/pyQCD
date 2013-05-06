@@ -1,4 +1,4 @@
-#include "pylattice.cpp"
+#include <pylattice.hpp>
 #include <boost/python.hpp>
 #include <boost/python/list.hpp>
 
