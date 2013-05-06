@@ -11,7 +11,7 @@ in the future).
 pyQCD requires the following for compilation to work:
 
 * Boost::Python (tested with versions 1.44 and 1.49, so anything greater than 1.44 should work)
-* Eigen C++ matrix library (version 3 or greater)
+* Eigen C++ matrix library (version 3.1.3 or greater)
 * OpenMP (version 3 or greater)
 * Numpy and scipy Python libraries (not required for compilation, but for the python scripts supplied)
 
