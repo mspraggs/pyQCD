@@ -11,33 +11,12 @@ namespace lattice
       number += divisor;
     return number % divisor;
   }
-  
-
-
-  void copyArray(int array1[], const int array2[], const int& length)
-  {
-    for (int i = 0; i < length; i++) {
-      array1[i] = array2[i];
-    }
-  }
 
 
 
   int sgn(const int& x)
   {
     return (x < 0) ? -1 : 1;
-  }
-
-
-
-  bool isArrayEqual(const int array1[], const int array2[],
-		    const int& length)
-  {
-    for (int i = 0; i < length; i++) {
-      if (array1[i] != array2[i])
-	return false;
-    }
-    return true;
   }
 
 
@@ -500,7 +479,7 @@ double Lattice::computeWilsonLoop(const int corner[4], const int r,
   // Calculates the loop specified by initial corner, width, height and 
   // dimension
   int corner2[4];
-  lattice::copyArray(corner2, corner, 4);
+  copy(corner, corner + 4, corner2);
   corner2[dimension] += r;
   corner2[0] += t;
   return this->computeWilsonLoop(corner, corner2, nSmears);
@@ -748,7 +727,7 @@ Matrix3cd Lattice::computeQ(const int link[5])
   for (int nu = 1; nu < 4; nu++) {
     if (nu != link[4]) {
       int tempLink[5] = {0, 0, 0, 0, 0};
-      lattice::copyArray(tempLink, link, 4);
+      copy(link, link + 4, tempLink);
       tempLink[4] = nu;
       Matrix3cd tempMatrix = this->getLink(tempLink);
 
@@ -763,7 +742,7 @@ Matrix3cd Lattice::computeQ(const int link[5])
 
       C += tempMatrix;
 
-      lattice::copyArray(tempLink, link, 4);
+      copy(link, link + 4, tempLink);
       tempLink[nu] -= 1;
       tempLink[4] = nu;
       tempMatrix = this->getLink(tempLink).adjoint();
@@ -920,9 +899,9 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass)
 	  // If they are, then we have ourselves a matrix element
 	  // First test for when mu is positive, as then we'll need to deal
 	  // with the +ve or -ve cases slightly differently
-	  if (lattice::isArrayEqual(siteI, siteJ, 4)) {
+	  if (equal(siteI, siteI + 4, siteJ)) {
 	    int link[5];
-	    lattice::copyArray(link, siteI, 4);
+	    copy(siteI, siteI + 4, link);
 	    link[4] = mu_mink;
 	    Matrix3cd U;
 	    Matrix4cd lorentz = 
