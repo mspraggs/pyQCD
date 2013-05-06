@@ -4,6 +4,10 @@ project (pyQCD)
 set (SRC_DIR ${PROJECT_BINARY_DIR}/src)
 set (INC_DIR ${PROJECT_BINARY_DIR}/include)
 
+file (GLOB
+  pyQCD_SRC
+  ${SRC_DIR}/*.cpp)
+
 set (CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 set (EIGEN_INCLUDE_DIR ${CMAKE_MODULE_PATH}/FindEigen3.cmake)
 
@@ -35,7 +39,7 @@ set (SOURCES
   ${SRC_DIR}/lattice.cpp)
 
 set (CMAKE_SHARED_LIBRARY_PREFIX "")
-add_library (pyQCD SHARED ${SRC_DIR}/pyQCD.cpp)
+add_library (pyQCD SHARED ${pyQCD_SRC})
 target_link_libraries (pyQCD ${Boost_LIBRARIES})
 
 IF(CMAKE_COMPILER_IS_GNUCXX)
