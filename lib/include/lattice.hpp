@@ -42,7 +42,7 @@ public:
   ~Lattice();
 
   void print();
-  Matrix3cd getLink(const int link[5]);
+  Matrix3cd& getLink(const int link[5]);
 
   void runThreads(const int chunkSize, const int nUpdates,
 		  const int remainder);
@@ -54,8 +54,9 @@ public:
   void thermalize();
   void getNextConfig();
   
-  Matrix3cd computePath(const vector<vector<int> > path);
-  Matrix3cd computeLine(const int start[4], const int finish[4]);
+  void computePath(const vector<vector<int> >& path, Matrix3cd& out);
+  void computeLine(const int start[4], const int finish[4],
+		   Matrix3cd& out);
   double computeWilsonLoop(const int corner1[4], const int corner2[4],
 			   const int nSmears = 0);
   double computeWilsonLoop(const int corner[4], const int r, const int t,
@@ -74,9 +75,9 @@ public:
 			      const int nSmears = 0);
 
   double (Lattice::*computeLocalAction)(const int link[5]);
-  Matrix3cd makeRandomSu3();
+  void makeRandomSu3(Matrix3cd& out);
 
-  Matrix3cd computeQ(const int link[5]);
+  void computeQ(const int link[5], Matrix3cd& out);
   void smearLinks(const int time, const int nSmears);
 
   SparseMatrix<complex<double> > computeDiracMatrix(const double mass);
