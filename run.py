@@ -121,6 +121,4 @@ else:
     secs = (tf - t0) - 3600 * hours - 60 * minutes
     print("Simulation completed in %d hours, %d minutes and %f seconds" \
 		  % (hrs,mins,secs))
-
-    
-    
+		  
