@@ -88,7 +88,9 @@ Lattice::Lattice(const int nEdgePoints, const double beta,
 	for (int l = 0; l < this->nEdgePoints; l++) {
 	  this->links_[i][j][k][l].resize(4);
 	  for (int m = 0; m < 4; m++) {
-	    this->links_[i][j][k][l][m] = this->makeRandomSu3();
+	    Matrix3cd tempMatrix;
+	    this->makeRandomSu3(tempMatrix);
+	    this->links_[i][j][k][l][m] = tempMatrix;
 	  }
 	}
       }
@@ -97,7 +99,8 @@ Lattice::Lattice(const int nEdgePoints, const double beta,
 
   // Generate a set of random SU3 matrices for use in the updates
   for (int i = 0; i < 200; i++) {
-    Matrix3cd randSu3 = this->makeRandomSu3();
+    Matrix3cd randSu3;
+    this->makeRandomSu3(randSu3);
     this->randSu3s_.push_back(randSu3);
     this->randSu3s_.push_back(randSu3.adjoint());
   }
@@ -167,7 +170,7 @@ void Lattice::print()
 
 
 
-Matrix3cd Lattice::getLink(const int link[5])
+Matrix3cd& Lattice::getLink(const int link[5])
 {
   // Return link specified by index (sanitizes link indices)
   int link2[5];
@@ -322,10 +325,11 @@ void Lattice::getNextConfig()
 
 
 
-Matrix3cd Lattice::computePath(const vector<vector<int> > path)
+void Lattice::computePath(const vector<vector<int> >& path,
+			  Matrix3cd& out)
 {
   // Multiplies the matrices together specified by the indices in path
-  Matrix3cd out = Matrix3cd::Identity();
+  out = Matrix3cd::Identity();
   
   for (int i = 0; i < path.size() - 1; i++) {
     // Which dimension are we moving in?
@@ -358,16 +362,16 @@ Matrix3cd Lattice::computePath(const vector<vector<int> > path)
       out *= this->getLink(link);
     }
   }
-  return out;
 }
 
 
 
-Matrix3cd Lattice::computeLine(const int start[4], const int finish[4])
+void Lattice::computeLine(const int start[4], const int finish[4],
+			  Matrix3cd& out)
 {
   // Multiplies all gauge links along line from start to finish
   // First check that's actually a straight path
-  Matrix3cd out = Matrix3cd::Identity();
+  out = Matrix3cd::Identity();
   int countDimensions = 0;
   int dimension = 0;
   for (int i = 0; i < 4; i++) {
@@ -402,7 +406,7 @@ Matrix3cd Lattice::computeLine(const int start[4], const int finish[4])
 	// Push it onto the line
 	line.push_back(link);
       }
-      out = this->computePath(line);
+      this->computePath(line, out);
     }
     else {
       // Same again, but this time we deal with the case of going backwards
@@ -413,10 +417,9 @@ Matrix3cd Lattice::computeLine(const int start[4], const int finish[4])
 	link.push_back(dimension);
 	line.push_back(link);
       }
-      out = this->computePath(line);
+      this->computePath(line, out);
     }
   }
-  return out;
 }
 
 
@@ -453,14 +456,20 @@ double Lattice::computeWilsonLoop(const int corner1[4], const int corner2[4],
     // Get the second corner (going round the loop)
     int corner3[4] = {corner1[0], corner1[1], corner1[2], corner1[3]};
     corner3[0] = corner2[0];
+    // Declare a temporary matrix to pass between our functions
+    Matrix3cd tempMatrix;
     // Calculate the line segments between the first three corners
-    out *= this->computeLine(corner1, corner3);
-    out *= this->computeLine(corner3, corner2);
+    this->computeLine(corner1, corner3, tempMatrix);
+    out *= tempMatrix;
+    this->computeLine(corner3, corner2, tempMatrix);
+    out *= tempMatrix;
     // And repeat for the second set of sides
     int corner4[4] = {corner2[0], corner2[1], corner2[2], corner2[3]};
     corner4[0] = corner1[0];
-    out *= this->computeLine(corner2, corner4);
-    out *= this->computeLine(corner4, corner1);
+    this->computeLine(corner2, corner4, tempMatrix);
+    out *= tempMatrix;
+    this->computeLine(corner4, corner1, tempMatrix);
+    out *= tempMatrix;
   }
   // Restore the old links
   if (nSmears > 0) {
@@ -695,7 +704,7 @@ double Lattice::computeAverageWilsonLoop(const int r, const int t,
 
 
 
-Matrix3cd Lattice::makeRandomSu3()
+void Lattice::makeRandomSu3(Matrix3cd& out)
 {
   // Generate a random SU3 matrix, weighted by epsilon
   Matrix3cd A;
@@ -712,14 +721,12 @@ Matrix3cd Lattice::makeRandomSu3()
   // Make the matrix traceless and Hermitian
   A(2, 2) = -(A(1, 1) + A(0, 0));
   Matrix3cd B = 0.5 * (A - A.adjoint());
-  Matrix3cd U = B.exp();
-  // Compute the matrix exponential to get a special unitary matrix
-  return U;
+  out = B.exp();
 }
 
 
 
-Matrix3cd Lattice::computeQ(const int link[5])
+void Lattice::computeQ(const int link[5], Matrix3cd& out)
 {
   // Calculates Q matrix for analytic smearing according to paper on analytic
   // smearing
@@ -763,10 +770,8 @@ Matrix3cd Lattice::computeQ(const int link[5])
 
   Matrix3cd Omega = C * this->getLink(link).adjoint();
   Matrix3cd OmegaAdjoint = Omega.adjoint() - Omega;
-  Matrix3cd Q = 0.5 * lattice::i * OmegaAdjoint;
-  Q -= lattice::i / 6.0 * OmegaAdjoint.trace() * Matrix3cd::Identity();
-
-  return Q;
+  out = 0.5 * lattice::i * OmegaAdjoint;
+  out -= lattice::i / 6.0 * OmegaAdjoint.trace() * Matrix3cd::Identity();
 }
 
 
@@ -790,7 +795,9 @@ void Lattice::smearLinks(const int time, const int nSmears)
 	  for (int l = 1; l < 4; l++) {
 	    // Create a temporary matrix to store the new link
 	    int link[5] = {time, i, j, k, l};
-	    Matrix3cd tempMatrix = (lattice::i * this->computeQ(link)).exp()
+	    Matrix3cd tempMatrix;
+	    this->computeQ(link, tempMatrix);
+	    tempMatrix = (lattice::i * tempMatrix).exp()
 	      * this->getLink(link);
 	    newLinks[i][j][k][l] = tempMatrix;
 	  }
@@ -907,7 +914,10 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass)
 	    Matrix3cd U;
 	    Matrix4cd lorentz = 
 	      Matrix4cd::Identity() - lattice::gamma(mus[k]);
-	    if (mus[k] > 0) U = this->getLink(link);
+	    if (mus[k] > 0) {
+	      Matrix3cd tempMatrix = this->getLink(link);
+	      U = tempMatrix;
+	    }
 	    else {
 	      link[mu_mink] -= 1;
 	      U = this->getLink(link).adjoint();
