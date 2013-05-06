@@ -80,7 +80,7 @@ if options.test:
     sys.stdout.flush()
     L.next_config()
     L.av_plaquette()
-    interfaces.calcWs(L, rmax, tmax, n_smears = options.n_smears)
+    interfaces.get_wilson_loops(L, rmax, tmax, n_smears = options.n_smears)
     t2 = time.time()
     print("Estimated run time: %f hours" \
 		  % (((t2 - t1) * L.n_conf + t2 - t1) / 3600))
@@ -90,7 +90,8 @@ else:
         print("Configuration: %d" % i)
         sys.stdout.flush()
         L.next_config()
-        Ws[i] = interfaces.calcWs(L, rmax, tmax, n_smears = options.n_smears)
+        Ws[i] = interfaces.get_wilson_loops(L, rmax, tmax,
+											n_smears = options.n_smears)
         Pavs[i] = L.av_plaquette()
 
     time_now = datetime.datetime.now()
