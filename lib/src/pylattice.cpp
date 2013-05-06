@@ -1,6 +1,4 @@
-#include "lattice.cpp"
 #include <pylattice.hpp>
-#include "gil.cpp"
 
 pyLattice::pyLattice(const int nEdgePoints,
 		     const double beta,
