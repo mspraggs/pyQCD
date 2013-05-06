@@ -26,9 +26,9 @@ library and include paths are set correctly (search for each of these terms with
 
 This should build the shared library in the lib directory.
 
-If you're using this library on the Iridis, you'll need to download a copy of Eigen (no compilatio required) and point
-cmake in the direction of the Eigen and Python include files. You'll also need to load gcc 4.6.1 for OpenMP to work
-correctly and boost 1.44.0. A command like this should generate a Makefile that works:
+If you're using this library on the Iridis cluster, you'll need to download a copy of Eigen (no compilation required)
+and point cmake in the direction of the Eigen and Python include files. You'll also need to load gcc 4.6.1 for OpenMP
+to work correctly and boost 1.44.0. A command like this should generate a Makefile that works:
 
 > cmake . -DEIGEN3_INCLUDE_DIR=/path/to/eigen3 -DPYTHON_INCLUDE_PATH=/local/software/rh53/python/2.6.5/gcc/include/python2.6 -DPYTHON_LIBRARY=/local/software/rh53/python/2.6.5/gcc/lib/libpython2.6.a
 
