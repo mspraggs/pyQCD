@@ -7,13 +7,15 @@ namespace lattice
 
   int mod(int number, const int divisor)
   {
-    return (number < 0 ? ((number % divisor) + divisor) : number)
-      % divisor;
+    int ret = number % divisor;
+    if (ret < 0)
+      ret += divisor;
+    return ret;
   }
 
 
 
-  int sgn(const int& x)
+  int sgn(const int x)
   {
     return (x < 0) ? -1 : 1;
   }
@@ -49,7 +51,7 @@ namespace lattice
 
 
   
-  Matrix4cd gamma(const int& index)
+  Matrix4cd gamma(const int index)
   {
     int prefactor = sgn(index);
     return prefactor * gammas[abs(index) - 1];
