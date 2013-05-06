@@ -5,11 +5,10 @@ namespace lattice
   const complex<double> i (0.0, 1.0);
   const double pi = 3.1415926535897932384626433;
 
-  int mod(int number, const int &divisor)
+  int mod(int number, const int divisor)
   {
-    while (number < 0)
-      number += divisor;
-    return number % divisor;
+    return (number < 0 ? ((number % divisor) + divisor) : number)
+      % divisor;
   }
 
 
