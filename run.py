@@ -1,3 +1,4 @@
+
 import lib.pyQCD as pyQCD
 import interfaces
 import numpy as np
@@ -79,11 +80,12 @@ if options.test:
     print("Calculating run time...")
     sys.stdout.flush()
     L.next_config()
-    L.av_plaquette()
+    Pav = L.av_plaquette()
     interfaces.get_wilson_loops(L, rmax, tmax, n_smears = options.n_smears)
     t2 = time.time()
     print("Estimated run time: %f hours" \
 		  % (((t2 - t1) * L.n_conf + t2 - t1) / 3600))
+	print("Average plaquette value: %f" % Pav)
 
 else:    
     for i in xrange(L.n_conf):
@@ -93,6 +95,7 @@ else:
         Ws[i] = interfaces.get_wilson_loops(L, rmax, tmax,
 											n_smears = options.n_smears)
         Pavs[i] = L.av_plaquette()
+		print("Average plaquette: %f" % Pavs[i])
 
     time_now = datetime.datetime.now()
     folder = \
