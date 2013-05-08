@@ -988,7 +988,7 @@ double Lattice::computeLocalWilsonAction(const int link[5])
     Psum += this->computePlaquette(site, link[4], planes[i]);
   }
 
-  return -this->beta_ * Psum / pow(this->u0_, 4);
+  return -this->beta_ * Psum // pow(this->u0_, 4);
 }
 
 
@@ -1030,7 +1030,7 @@ double Lattice::computeLocalRectangleAction(const int link[5])
     site[planes[i]] -= 2;
     Rsum += this->computeRectangle(site, planes[i], link[4]);
   }
-  out += this->beta_ / (12 * pow(this->u0_, 6)) * Rsum;
+  out += this->beta_ / (12 * pow(this->u0_, 2)) * Rsum;
   return out;
 }
 
@@ -1075,6 +1075,6 @@ double Lattice::computeLocalTwistedRectangleAction(const int link[5])
     site[planes[i]] -= 1;
     Tsum += this->computeTwistedRectangle(site, planes[i], link[4]);
   }
-  out -= this->beta_ / (12 * pow(this->u0_, 8)) * Tsum;
+  out -= this->beta_ / (12 * pow(this->u0_, 4)) * Tsum;
   return out;
 }
