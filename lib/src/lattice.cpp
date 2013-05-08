@@ -988,7 +988,7 @@ double Lattice::computeLocalWilsonAction(const int link[5])
     Psum += this->computePlaquette(site, link[4], planes[i]);
   }
 
-  return -this->beta_ * Psum // pow(this->u0_, 4);
+  return -this->beta_ * Psum;
 }
 
 
