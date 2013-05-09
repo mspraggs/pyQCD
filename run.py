@@ -76,29 +76,29 @@ Ws = np.zeros((L.n_conf, rmax - 1, tmax - 1))
 Pavs = np.zeros(L.n_conf)
 
 if options.test:
-    t1 = time.time()
-    print("Calculating run time...")
-    sys.stdout.flush()
-    L.next_config()
-    Pav = L.av_plaquette()
-    interfaces.get_wilson_loops(L, rmax, tmax, n_smears = options.n_smears)
-    t2 = time.time()
-    print("Estimated run time: %f hours" \
-		  % (((t2 - t1) * L.n_conf + t2 - t1) / 3600))
+	t1 = time.time()
+	print("Calculating run time...")
+	sys.stdout.flush()
+	L.next_config()
+	Pav = L.av_plaquette()
+	interfaces.get_wilson_loops(L, rmax, tmax, n_smears = options.n_smears)
+	t2 = time.time()
 	print("Average plaquette value: %f" % Pav)
+	print("Estimated run time: %f hours"
+		% (((t2 - t1) * L.n_conf + t2 - t1) / 3600))
 
-else:    
-    for i in xrange(L.n_conf):
-        print("Configuration: %d" % i)
-        sys.stdout.flush()
-        L.next_config()
-        Ws[i] = interfaces.get_wilson_loops(L, rmax, tmax,
+else:
+	for i in xrange(L.n_conf):
+		print("Configuration: %d" % i)
+		sys.stdout.flush()
+		L.next_config()
+		Ws[i] = interfaces.get_wilson_loops(L, rmax, tmax,
 											n_smears = options.n_smears)
-        Pavs[i] = L.av_plaquette()
+		Pavs[i] = L.av_plaquette()
 		print("Average plaquette: %f" % Pavs[i])
 
-    time_now = datetime.datetime.now()
-    folder = \
+	time_now = datetime.datetime.now()
+	folder = \
 	  "results_n=%d,beta=%f,Ncor=%d,Ncf=%d,u0=%f,action=%d,n_smears=%d_%s" \
 	% (options.n,
 	   options.beta,
@@ -109,19 +109,18 @@ else:
 	   options.n_smears,
 	   time_now.strftime("%H:%M:%S_%d-%m-%Y"))
 	
-    filepath = join("results", folder)
-    os.makedirs(filepath)
-    Ws_filepath = join(filepath, "Ws")
-    Ps_filepath = join(filepath, "Ps")
-    np.save(Ws_filepath,Ws)
-    np.save(Ps_filepath,Pavs)
+	filepath = join("results", folder)
+	os.makedirs(filepath)
+	Ws_filepath = join(filepath, "Ws")
+	Ps_filepath = join(filepath, "Ps")
+	np.save(Ws_filepath,Ws)
+	np.save(Ps_filepath,Pavs)
 
-    printConfig(options)
+	printConfig(options)
 
-    tf = time.time()
-    hrs = int((tf - t0) / 3600)
-    mins = int((tf - t0 - 3600 * hours) / 60)
-    secs = (tf - t0) - 3600 * hours - 60 * minutes
-    print("Simulation completed in %d hours, %d minutes and %f seconds" \
-		  % (hrs,mins,secs))
-		  
+	tf = time.time()
+	hrs = int((tf - t0) / 3600)
+	mins = int((tf - t0 - 3600 * hours) / 60)
+	secs = (tf - t0) - 3600 * hours - 60 * minutes
+	print("Simulation completed in %d hours, %d minutes and %f seconds" \
+		% (hrs,mins,secs))
