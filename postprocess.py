@@ -69,21 +69,29 @@ def autoCor(Ps,t):
     return pl.mean((Ps - meanP) * (pl.roll(Ps,-t) - meanP))
 
 def plotAutoCor(Ps):
-    """Calculates and plots the autocorrelation function"""
+	"""Calculates and plots the autocorrelation function"""
+
+	Ncor = input("Please enter the number of configurations between measurements: ")
     
-    Cs = pl.zeros(pl.size(Ps)/2)
-    t = pl.arange(pl.size(Ps)/2)
+	Cs = pl.zeros(pl.size(Ps)/2)
+	t = Ncor * pl.arange(pl.size(Ps)/2)
 
-    style = raw_input("Please enter a line style: ")
+	style = raw_input("Please enter a line style: ")
 
-    for i in xrange(pl.size(Ps)/2):
-        Cs[i] = autoCor(Ps,t[i])
+	for i in xrange(pl.size(Ps)/2):
+		Cs[i] = autoCor(Ps,i)
+		
+	f = lambda b,t,Cs: Cs - pl.exp(- t / b[0])
+	params,result = optimize.leastsq(f,[10.],args=(t,Cs/Cs[0]))
 
-    pl.plot(t,Cs,style)
-    pl.xlabel("$t$")
-    pl.ylabel("$C(t)$")
+	print("Exponential autocorrelation time: %f" % params[0])
 
-    return Cs
+	pl.plot(t,Cs,style[0] + 'x')
+	pl.plot(t,Cs[0] * pl.exp(-t / params[0]),style)	
+	pl.xlabel("$t$")
+	pl.ylabel("$C(t)$")
+
+	return Cs
 
 def plotPs(Ps):
 	"""Plots Ps values"""
