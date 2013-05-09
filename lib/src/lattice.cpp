@@ -720,7 +720,7 @@ double Lattice::computeMeanLink()
       }
     }
   }
-  return totalLink / (4 * pow(this->nEdgePoints, 4))
+  return totalLink / (4 * pow(this->nEdgePoints, 4));
 }
 
 
