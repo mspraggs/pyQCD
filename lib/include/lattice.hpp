@@ -73,6 +73,7 @@ public:
   double computeAverageRectangle();
   double computeAverageWilsonLoop(const int r, const int t,
 			      const int nSmears = 0);
+  double computeMeanLink();
 
   double (Lattice::*computeLocalAction)(const int link[5]);
   void makeRandomSu3(Matrix3cd& out);

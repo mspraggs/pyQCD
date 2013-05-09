@@ -704,6 +704,27 @@ double Lattice::computeAverageWilsonLoop(const int r, const int t,
 
 
 
+double Lattice::computeMeanLink()
+{
+  // Pretty simple: step through the matrix and add all link traces up
+  double totalLink = 0;
+  for (int i = 0; i < this->nEdgePoints; i++) {
+    for (int j = 0; j < this->nEdgePoints; j++) {
+      for (int k = 0; k < this->nEdgePoints; k++) {
+	for (int l = 0; l < this->nEdgePoints; l++) {
+	  for (int m = 0; m < 4; m++) {
+	    totalLink += 1.0 / 3.0
+	      * this->links_[i][j][k][l][m].trace().real();
+	  }
+	}
+      }
+    }
+  }
+  return totalLink / (4 * pow(this->nEdgePoints, 4))
+}
+
+
+
 void Lattice::makeRandomSu3(Matrix3cd& out)
 {
   // Generate a random SU3 matrix, weighted by epsilon
