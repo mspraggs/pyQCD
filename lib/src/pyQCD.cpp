@@ -151,6 +151,7 @@ BOOST_PYTHON_MODULE(pyQCD)
     .def("av_wilson_loop", &pyLattice::computeAverageWilsonLoopP,
 	 pyLatticeWavOverload(py::args("r", "t", "nSmears"),
 			      "Calculate average Wilson loop"))
+    .def("av_link", &pyLattice::computeMeanLink)
     .def("print", &pyLattice::print)
     .def("get_rand_su3", &pyLattice::getRandSu3)
     .def_pickle(lattice_pickle_suite())
