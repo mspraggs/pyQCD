@@ -99,48 +99,62 @@ def plotPs(Ps):
 	pl.plot(pl.arange(pl.size(Ps)),Ps,col)
 
 def Vplot(Ws):
-    """Calculate the potential function and plot it"""
+	"""Calculate the potential function and plot it"""
 
-    N_bstrp = input("Please enter the number of bootstraps: ")
-    N_bin = input("Please enter the bin size: ")
-    style = raw_input("Please enter a linestyle: ")
+	N_bstrp = input("Please enter the number of bootstraps: ")
+	N_bin = input("Please enter the bin size: ")
+	style = raw_input("Please enter a linestyle: ")
 
-    Ws = bin(Ws,N_bin)
-    aVs = pl.zeros((N_bstrp,) + pl.shape(Ws)[1:])
+	Ws = bin(Ws,N_bin)
+	aVs = pl.zeros((N_bstrp,) + pl.shape(Ws)[1:])
+	bs = pl.zeros((N_bstrp,3))
         
-    for i in xrange(N_bstrp):
-        W = pl.mean(bootstrap(Ws),axis=0)
-        aVs[i] = calcaV(W,method="fit")
+	for i in xrange(N_bstrp):
+		W = pl.mean(bootstrap(Ws),axis=0)
+		aVs[i] = calcaV(W,method="fit")
+		bs[i] = potfit(aVs[i,:,0])
 
-    r = pl.arange(1,7)
-    aV = pl.mean(aVs,axis=0)
-    e = pl.std(aVs,axis=0)
+			
+	r = pl.arange(1,7)
+	aV = pl.mean(aVs,axis=0)
+	aVerr = pl.std(aVs,axis=0)
+	b = pl.mean(bs,axis=0)
 
-    b = potfit(aV[:,0])
+	a_s = 0.5 / pl.sqrt((1.65 + bs[:,1]) / bs[:,0])
+	sigmas = bs[:,0] / a_s**2
+	Bs = bs[:,1]
+	As = bs[:,2] / a_s
 
-    a = 0.5 / pl.sqrt((1.65 + b[1]) / b[0])
-    sigma = b[0] / a**2
-    B = b[1]
-    A = b[2] / a
+	a = pl.mean(a_s)
+	aerr = pl.std(a_s)
+	sigma = pl.mean(sigmas)
+	sigmaerr = pl.std(sigmas)
+	B = pl.mean(Bs)
+	Berr = pl.std(Bs)
+	A = pl.mean(As)
+	Aerr = pl.std(As)
 
-    print("Fit parameters:")
-    print("sigma = %f fm^-2 = %f MeV^2" % (sigma, sigma * 197**2))
-    print("B = %f" % B)
-    print("A = %f fm^-1 = %f MeV" % (A,A*197))
-    print("Lattice spacing, a = %f fm = %f MeV^-1" % (a,a/197))
+	print("Fit parameters:")
+	print("sigma = %f +/- %f fm^-2 = %f +/- %f MeV^2"
+		% (sigma, sigmaerr, sigma * 197**2, sigmaerr * 197**2))
+	print("B = %f +/- %f" % (B, Berr))
+	print("A = %f +/- %f fm^-1 = %f +/- %f MeV"
+		% (A, Aerr, A*197, Aerr*197))
+	print("Lattice spacing, a = %f +/- %f fm = %f +/- %f MeV^-1"
+		% (a, aerr, a/197, aerr/197))
+	
+	r_fit = pl.arange(0.25,r[-1]+1,0.1)
+	aV_fit = V(b,r_fit)
+	
+	handles = []
+	handles.append(pl.errorbar(r,aV[:,0],yerr=aVerr[:,0],fmt='o'+style[0]))
+	handles.append(pl.plot(r_fit,aV_fit,style))
+	pl.ylim([0,pl.nanmax(aV)+0.25])
+	pl.xlim([0,pl.nanmax(r_fit)+0.25])
+	pl.xlabel("$r / a$")
+	pl.ylabel("$aV(r)$")
 
-    r_fit = pl.arange(0.25,r[-1]+1,0.1)
-    aV_fit = V(b,r_fit)
-
-    handles = []
-    handles.append(pl.errorbar(r,aV[:,0],yerr=e[:,0],fmt='o'+style[0]))
-    handles.append(pl.plot(r_fit,aV_fit,style))
-    pl.ylim([0,pl.nanmax(aV)+0.25])
-    pl.xlim([0,pl.nanmax(r_fit)+0.25])
-    pl.xlabel("$r / a$")
-    pl.ylabel("$aV(r)$")
-
-    return aV,handles
+	return aV,handles
 
 if __name__ == "__main__":
 
