@@ -1,8 +1,6 @@
 
 import lib.pyQCD as pyQCD
 import sys
-import time
-import datetime
 from os.path import join
 import os
 from optparse import OptionParser
@@ -42,7 +40,6 @@ parser.add_option("-s", "--spacing", action = "store", type = "float",
 				  dest = "a", default = 0.25)
 parser.add_option("--rho", action = "store", type = "float",
 				  dest = "rho", default = 0.3)
-parser.add_option("--test", "-t", action = "store_true", dest = "test")
 
 (options,args) = parser.parse_args()
 
@@ -53,18 +50,20 @@ u0 = options.u0
 #Thermalize the lattice
 for i in xrange(10):
 
-	L = pyQCD.Lattice(options.n, #n
-						options.beta, #beta
-						options.Ncor, #Ncor
-						options.Ncf, #Ncf
-						options.eps, #epsilson
-						options.a, #a
-						options.rho, #rho
-						u0, #u0
-						options.action) #action
+    L = pyQCD.Lattice(options.n, #n
+                      options.beta, #beta
+                      options.Ncor, #Ncor
+                      options.Ncf, #Ncf
+                      options.eps, #epsilson
+                      options.a, #a
+                      options.rho, #rho
+                      u0, #u0
+                      options.action) #action
 	print("Iteration: %d" % i)
-	print("Thermalizing...")	
+	print("Thermalizing...")
+        sys.stdout.flush()
 	L.thermalize()
 	print("Done!")
 	u0 = (L.av_plaquette()) ** 0.25	
 	print("New u0 = %f" % u0)
+        sys.stdout.flush()
