@@ -1,8 +1,7 @@
 
 import lib.pyQCD as pyQCD
 import sys
-from os.path import join
-import os
+import pylab as pl
 from optparse import OptionParser
 
 def printConfig(options):
@@ -50,19 +49,19 @@ u0s = []
 
 #Thermalize the lattice
 for i in xrange(10):
-
-    L = pyQCD.Lattice(options.n, #n
-                      options.beta, #beta
-                      options.Ncor, #Ncor
-                      options.Ncf, #Ncf
-                      options.eps, #epsilson
-                      options.a, #a
-                      options.rho, #rho
-                      u0, #u0
-                      options.action) #action
+	L = pyQCD.Lattice(options.n, #n
+		options.beta, #beta
+		options.Ncor, #Ncor
+		options.Ncf, #Ncf
+		options.eps, #epsilson
+		options.a, #a
+		options.rho, #rho
+		u0, #u0
+		options.action) #action
+		
 	print("Iteration: %d" % i)
 	print("Thermalizing...")
-        sys.stdout.flush()
+	sys.stdout.flush()
 	L.thermalize()
 	print("Done!")
 	u0 = (L.av_plaquette()) ** 0.25
@@ -72,3 +71,4 @@ for i in xrange(10):
         sys.stdout.flush()
 
 print("Average new u0 (for iterations > 1) = %f" % (sum(u0s)/len(u0s)))
+print("Standard deviation in new u0 (for iterations > 1) = %f" % pl.std(u0s))
