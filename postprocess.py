@@ -81,12 +81,11 @@ def plotAutoCor(Ps):
 	for i in xrange(pl.size(Ps)/2):
 		Cs[i] = autoCor(Ps,i)
 		
-	f = lambda b,t,Cs: Cs - pl.exp(- t / b[0])
-	params,result = optimize.leastsq(f,[10.],args=(t,Cs/Cs[0]))
+	tau = 0.5 + pl.sum(Cs / Cs[0])
 
-	print("Exponential autocorrelation time: %f" % params[0])
+	print("Integral autocorrelation time: %f" % tau)
 
-	pl.plot(t,Cs,style[0] + 'x')
+	pl.plot(t,Cs,style)
 	pl.plot(t,Cs[0] * pl.exp(-t / params[0]),style)	
 	pl.xlabel("$t$")
 	pl.ylabel("$C(t)$")
