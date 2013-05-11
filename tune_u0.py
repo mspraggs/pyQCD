@@ -46,6 +46,7 @@ parser.add_option("--rho", action = "store", type = "float",
 printConfig(options)
 
 u0 = options.u0
+u0s = []
 
 #Thermalize the lattice
 for i in xrange(10):
@@ -64,6 +65,10 @@ for i in xrange(10):
         sys.stdout.flush()
 	L.thermalize()
 	print("Done!")
-	u0 = (L.av_plaquette()) ** 0.25	
+	u0 = (L.av_plaquette()) ** 0.25
+	if i > 1:
+		u0s.append(u0)
 	print("New u0 = %f" % u0)
         sys.stdout.flush()
+
+print("Average new u0 (for iterations > 1) = %f" % (sum(u0s)/len(u0s)))
