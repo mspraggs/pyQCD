@@ -86,7 +86,6 @@ def plotAutoCor(Ps):
 	print("Integral autocorrelation time: %f" % tau)
 
 	pl.plot(t,Cs,style)
-	pl.plot(t,Cs[0] * pl.exp(-t / params[0]),style)	
 	pl.xlabel("$t$")
 	pl.ylabel("$C(t)$")
 
