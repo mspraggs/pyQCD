@@ -153,6 +153,5 @@ BOOST_PYTHON_MODULE(pyQCD)
     .def("get_rand_su3", &pyLattice::getRandSu3)
     .def_pickle(lattice_pickle_suite())
     .def_readonly("n_cor", &pyLattice::nCorrelations)
-    .def_readonly("n_conf", &pyLattice::nConfigurations)
     .def_readonly("n_points", &pyLattice::nEdgePoints);
 }
