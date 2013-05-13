@@ -963,7 +963,7 @@ VectorXcd Lattice::computePropagator(const double mass, int site[4],
 				     const int alpha, const int a,
 				     const double spacing)
 {
-  SparseMatrix<complex<double> > D = this->computeDiracMatrix(mass);
+  SparseMatrix<complex<double> > D = this->computeDiracMatrix(mass, spacing);
   int nIndices = int(12 * pow(this->nEdgePoints, 4));
   BiCGSTAB<SparseMatrix<complex<double> > > solver(D);
   
