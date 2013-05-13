@@ -71,7 +71,7 @@ sys.stdout.flush()
 rmax = L.n_points - 1
 tmax = L.n_points - 1
 Ws = np.zeros((options.Ncf, rmax - 1, tmax - 1))
-Pavs = np.zeros(options.Ncf, options.Ncf)
+Pavs = np.zeros(options.Ncf)
 
 if options.test:
 	t1 = time.time()
