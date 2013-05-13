@@ -12,13 +12,11 @@ struct lattice_pickle_suite : py::pickle_suite
   {
     return py::make_tuple(pylattice.nEdgePoints,
 			  pylattice.beta_,
-			  pylattice.nCorrelations,
-			  pylattice.nConfigurations,
-			  pylattice.epsilon_,
-			  pylattice.a_,
-			  pylattice.rho_,
 			  pylattice.u0_,
-			  pylattice.action_);
+			  pylattice.action_,
+			  pylattice.nCorrelations,
+			  pylattice.rho_,
+			  pylattice.epsilon_);
   }
   
   static py::tuple getstate(const pyLattice& pylattice)
@@ -130,9 +128,8 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(pyLatticeWavOverload,
 BOOST_PYTHON_MODULE(pyQCD)
 {
   py::class_<pyLattice>("Lattice",
-			py::init<py::optional<int, double, int, int, double,
-					      double, double, double,
-					      int> >())
+			py::init<py::optional<int, double, double, int, int,
+					      double, double> >())
     .def(py::init<pyLattice&>())
     .def("link", &pyLattice::getLinkP)
     .def("update", &pyLattice::update)

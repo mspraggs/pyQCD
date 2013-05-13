@@ -14,13 +14,11 @@ class pyLattice: public Lattice
 public:
   pyLattice(const int nEdgePoints = 8,
 	    const double beta = 5.5,
+	    const double u0 = 1.0,
+	    const int action = 0,
 	    const int nCorrelations = 50,
-	    const int nConfigurations = 1000,
-	    const double epsilon = 0.24,
-	    const double a = 0.25,
 	    const double rho = 0.3,
-	    const double u0 = 1,
-	    const int action = 0);
+	    const double epsilon = 0.24);
   pyLattice(const pyLattice& pylattice);
   ~pyLattice();
 

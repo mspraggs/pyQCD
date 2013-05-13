@@ -58,19 +58,16 @@ namespace lattice
   }
 }
 
-Lattice::Lattice(const int nEdgePoints, const double beta,
-		 const int nCorrelations, const int nConfigurations,
-		 const double epsilon, const double a, const double rho,
-		 const double u0, const int action)
+Lattice::Lattice(const int nEdgePoints, const double beta, const double u0,
+		 const int action, const int nCorrelations, const double rho,
+		 const double epsilon)
 {
   // Default constructor. Assigns function arguments to member variables
   // and initializes links.
   this->nEdgePoints = nEdgePoints;
   this->beta_ = beta;
   this->nCorrelations = nCorrelations;
-  this->nConfigurations = nConfigurations;
   this->epsilon_ = epsilon;
-  this->a_ = a;
   this->rho_ = rho;
   this->nUpdates_ = 0;
   this->u0_ = u0;
@@ -130,9 +127,7 @@ Lattice::Lattice(const Lattice& lattice)
   this->nEdgePoints = lattice.nEdgePoints;
   this->beta_ = lattice.beta_;
   this->nCorrelations = lattice.nCorrelations;
-  this->nConfigurations = lattice.nConfigurations;
   this->epsilon_ = lattice.epsilon_;
-  this->a_ = lattice.a_;
   this->rho_ = lattice.rho_;
   this->nUpdates_ = lattice.nUpdates_;
   this->u0_ = lattice.u0_;
@@ -832,7 +827,8 @@ void Lattice::smearLinks(const int time, const int nSmears)
 
 
 
-SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass)
+SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
+							   const double spacing)
 {
   // Calculates the Dirac matrix for the current field configuration
   // using Wilson fermions
@@ -845,7 +841,7 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass)
 
   vector<Tlet> tripletList;
   for (int i = 0; i < nIndices; i++) {
-    tripletList.push_back(Tlet(i, i, mass + 4 / this->a_));
+    tripletList.push_back(Tlet(i, i, mass + 4 / spacing));
   }
 
   // Create and initialise a vector of the space, lorentz and colour indices
@@ -947,7 +943,7 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass)
 	      * U(indices[i][5], indices[j][5]);
 	  }
 	}
-	sum /= -(2.0 * this->a_);
+	sum /= -(2.0 * spacing);
 #pragma omp critical
 	if (sum.imag() != 0.0 && sum.real() != 0.0)
 	  tripletList.push_back(Tlet(i, j, sum));
@@ -964,7 +960,8 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass)
 }
 
 VectorXcd Lattice::computePropagator(const double mass, int site[4],
-				     const int alpha, const int a)
+				     const int alpha, const int a,
+				     const double spacing)
 {
   SparseMatrix<complex<double> > D = this->computeDiracMatrix(mass);
   int nIndices = int(12 * pow(this->nEdgePoints, 4));

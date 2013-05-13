@@ -2,15 +2,13 @@
 
 pyLattice::pyLattice(const int nEdgePoints,
 		     const double beta,
-		     const int nCorrelations,
-		     const int nConfigurations,
-		     const double epsilon,
-		     const double a,
-		     const double rho,
 		     const double u0,
-		     const int action) :
-  Lattice::Lattice(nEdgePoints, beta, nCorrelations, nConfigurations,
-		   epsilon, a, rho, u0, action)
+		     const int action,
+		     const int nCorrelations,
+		     const double rho,
+		     const double epsilon) :
+  Lattice::Lattice(nEdgePoints, beta, u0, action, nCorrelations, rho,
+		   epsilon)
 {
   
 }
