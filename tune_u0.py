@@ -51,13 +51,11 @@ u0s = []
 for i in xrange(10):
 	L = pyQCD.Lattice(options.n, #n
 		options.beta, #beta
+		options.u0, #u0
+		options.action, #action			
 		options.Ncor, #Ncor
-		options.Ncf, #Ncf
-		options.eps, #epsilson
-		options.a, #a
 		options.rho, #rho
-		u0, #u0
-		options.action) #action
+		options.eps) #epsilon
 		
 	print("Iteration: %d" % i)
 	print("Thermalizing...")
