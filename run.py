@@ -50,14 +50,12 @@ parser.add_option("--test", "-t", action = "store_true", dest = "test")
 (options,args) = parser.parse_args()
 
 L = pyQCD.Lattice(options.n, #n
-                    options.beta, #beta
-                    options.Ncor, #Ncor
-                    options.Ncf, #Ncf
-                    options.eps, #epsilson
-                    options.a, #a
-                    options.rho, #rho
+					options.beta, #beta
                     options.u0, #u0
-                    options.action) #action
+					options.action, #action			
+                    options.Ncor, #Ncor
+                    options.rho, #rho
+                    options.eps) #epsilon
 
 t0 = time.time()
 
@@ -72,8 +70,8 @@ sys.stdout.flush()
 
 rmax = L.n_points - 1
 tmax = L.n_points - 1
-Ws = np.zeros((L.n_conf, rmax - 1, tmax - 1))
-Pavs = np.zeros(L.n_conf)
+Ws = np.zeros((options.Ncf, rmax - 1, tmax - 1))
+Pavs = np.zeros(options.Ncf, options.Ncf)
 
 if options.test:
 	t1 = time.time()
@@ -85,10 +83,10 @@ if options.test:
 	t2 = time.time()
 	print("Average plaquette value: %f" % Pav)
 	print("Estimated run time: %f hours"
-		% (((t2 - t1) * L.n_conf + t2 - t1) / 3600))
+		% (((t2 - t1) * options.Ncf + t2 - t1) / 3600))
 
 else:
-	for i in xrange(L.n_conf):
+	for i in xrange(option.Ncf):
 		print("Configuration: %d" % i)
 		sys.stdout.flush()
 		L.next_config()
@@ -121,6 +119,6 @@ else:
 	tf = time.time()
 	hrs = int((tf - t0) / 3600)
 	mins = int((tf - t0 - 3600 * hours) / 60)
-	secs = (tf - t0) - 3600 * hrs - 60 * minutes
+	secs = (tf - t0) - 3600 * hrs - 60 * mins
 	print("Simulation completed in %d hours, %d minutes and %f seconds" \
 		% (hrs,mins,secs))
