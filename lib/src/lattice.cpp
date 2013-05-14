@@ -1225,9 +1225,11 @@ void Lattice::computeRectangleStaples(const int link[5], Matrix3cd& out)
     // Next is previous two rectangles but translated by -1 in link axis
     // First link is U_nu (x + mu)
     tempLink[link[4]] += 1;
+    tempLink[planes[i]] += 1;
     tempLink[4] = planes[i];
     tempMatrix = this->getLink(tempLink);
     // Next link is U+_mu (x + nu)
+    tempLink[planes[i]] += 1;
     tempLink[link[4]] -= 1;
     tempLink[4] = link[4];
     tempMatrix *= this->getLink(tempLink).adjoint();
