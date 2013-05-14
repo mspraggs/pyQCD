@@ -49,6 +49,8 @@ public:
   void updateSegment(const int n0, const int n1, const int n2,
 		     const int n3, const int chunkSize, const int nUpdates);
 
+  void heatbath();
+
   void thermalize();
   void getNextConfig();
   
