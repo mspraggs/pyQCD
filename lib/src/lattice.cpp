@@ -761,6 +761,37 @@ void Lattice::makeRandomSu3(Matrix3cd& out)
 }
 
 
+void Latticd::makeHeatbathSu2(Matrix2cd& out, const double weighting)
+{
+  // Generate a random SU2 matrix distributed according to heatbath
+  // (See Gattringer and Lang)
+  double lambdaSquared = 2;
+  double x[4] = {0, 0, 0, 0};
+  while (pow(double(rand()) / double(RAND_MAX + 1), 2) > 1 - lambdaSquared) {
+    double r1 = 1 - double(rand()) / double(RAND_MAX + 1);
+    double r2 = 1 - double(rand()) / double(RAND_MAX + 1);
+    double r3 = 1 - double(rand()) / double(RAND_MAX + 1);
+    
+    lambdaSquared = - 1.0 / (2 * weighting * this->beta) *
+      (log(r1) + pow(cos(2 * lattice::pi * r2), 2) * log(r3));
+  }
+
+  double x[0] = 1 - 2 * lambdaSquared;
+
+  double theta = lattice::pi * double(rand()) / double(RAND_MAX);
+  double phi = 2 * lattice::pi * double(rand()) / double(RAND_MAX);
+
+  double xMag = sqrt(1 - pow(x0, 2));
+  double x[1] = xMag * sin(theta) * cos(phi);
+  double x[2] = xMag * sin(theta) * sin(phi);
+  double x[3] = xMag * cos(theta);
+
+  for (int i = 0; i < 4; ++i) {
+    out += x[i] * lattice::sigmas[i];
+  }
+}
+
+
 
 void Lattice::computeQ(const int link[5], Matrix3cd& out)
 {
