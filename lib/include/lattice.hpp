@@ -94,6 +94,8 @@ protected:
   double computeLocalWilsonAction(const int link[5]);
   double computeLocalRectangleAction(const int link[5]);
   double computeLocalTwistedRectangleAction(const int link[5]);
+  void computeWilsonStaples(const int link[5], Matrix3cd& out);
+  void computeRectangleStaples(const int link[5], Matrix3cd& out);
   GaugeField links_;
   Sub4Field randSu3s_;
 };

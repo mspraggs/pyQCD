@@ -1096,3 +1096,17 @@ double Lattice::computeLocalTwistedRectangleAction(const int link[5])
   out -= this->beta_ / (12 * pow(this->u0_, 4)) * Tsum;
   return out;
 }
+
+
+
+void Lattice::computeWilsonStaples(const int link[5], Matrix3cd& out)
+{
+  
+}
+
+
+
+void Lattice::computeWilsonStaples(const int link[5], Matrix3cd& out)
+{
+  
+}
