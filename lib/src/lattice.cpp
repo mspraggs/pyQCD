@@ -105,16 +105,22 @@ Lattice::Lattice(const int nEdgePoints, const double beta, const double u0,
   // Set the action to point to the correct function
   if (action == 0) {
     this->computeLocalAction = &Lattice::computeLocalWilsonAction;
+    this->computeStaples = &Lattice::computeWilsonStaples;
   }
   else if (action == 1) {
     this->computeLocalAction = &Lattice::computeLocalRectangleAction;
+    this->computeStaples = &Lattice::computeRectangleStaples;
   }
   else if (action == 2) {
     this->computeLocalAction = &Lattice::computeLocalTwistedRectangleAction;
+    this->computeStaples = &Lattice::computeTwistedRectangleStaples;
+    cout << "Warning! Heatbath updates are not implemented for twisted"
+	 << " rectangle operator" << endl;
   }
   else {
     cout << "Warning! Specified action does not exist." << endl;
     this->computeLocalAction = &Lattice::computeLocalWilsonAction;
+    this->computeStaples = &Lattice::computeWilsonStaples;
   }
 }
 
