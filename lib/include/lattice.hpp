@@ -74,7 +74,7 @@ public:
   double computeMeanLink();
 
   double (Lattice::*computeLocalAction)(const int link[5]);
-  void (Lattice::*computeStaples)(const int link[5]);
+  void (Lattice::*computeStaples)(const int link[5], Matrix3cd& out);
   void makeRandomSu3(Matrix3cd& out);
 
   void computeQ(const int link[5], Matrix3cd& out);
