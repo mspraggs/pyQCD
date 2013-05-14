@@ -1321,3 +1321,12 @@ void Lattice::computeRectangleStaples(const int link[5], Matrix3cd& out)
     out += tempMatrix;
   }
 }
+
+
+
+void Lattice::computeTwistedRectangleStaples(const int link[5],
+					     Matrix3cd& out)
+{
+  cout << "Error! Cannot compute sum of staples for twisted rectangle "
+       << "operator." << endl;
+}
