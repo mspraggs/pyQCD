@@ -761,6 +761,7 @@ void Lattice::makeRandomSu3(Matrix3cd& out)
 }
 
 
+
 void Latticd::makeHeatbathSu2(Matrix2cd& out, const double weighting)
 {
   // Generate a random SU2 matrix distributed according to heatbath
