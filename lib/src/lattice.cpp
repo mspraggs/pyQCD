@@ -762,7 +762,7 @@ void Lattice::makeRandomSu3(Matrix3cd& out)
 
 
 
-void Latticd::makeHeatbathSu2(Matrix2cd& out, const double weighting)
+void Lattice::makeHeatbathSu2(Matrix2cd& out, const double weighting)
 {
   // Generate a random SU2 matrix distributed according to heatbath
   // (See Gattringer and Lang)
@@ -789,6 +789,50 @@ void Latticd::makeHeatbathSu2(Matrix2cd& out, const double weighting)
 
   for (int i = 0; i < 4; ++i) {
     out += x[i] * lattice::sigmas[i];
+  }
+}
+
+
+
+void Lattice::embedHeatbathSu2(Matrix3cd& out, const double weighting,
+			       const int type)
+{
+  // Embed an SU2 matrix in an SU3 matrix
+  Matrix2cd randSu2;
+  this->makeHeatbathSu2(randSu2, weighting);
+
+  if (type = 0) {
+    out(0, 0) = 1.0;
+    out(0, 1) = 0.0;
+    out(0, 2) = 0.0;
+    out(1, 0) = 0.0;
+    out(1, 1) = randSu2(0, 0);
+    out(1, 2) = randSu2(0, 1);
+    out(2, 0) = 0.0;
+    out(2, 1) = randSu2(1, 0);
+    out(2, 2) = randSu2(1, 1);
+  }
+  else if (type = 1) {
+    out(0, 0) = randSu2(0, 0);
+    out(0, 1) = 0.0;
+    out(0, 2) = randSu2(0, 1);
+    out(1, 0) = 0.0;
+    out(1, 1) = 1.0;
+    out(1, 2) = 0.0;
+    out(2, 0) = randSu2(1, 0);
+    out(2, 1) = 0.0;
+    out(2, 2) = randSu2(1, 1);
+  }
+  else {    
+    out(0, 0) = randSu2(0, 0);
+    out(0, 1) = randSu2(0, 1);
+    out(0, 2) = 0.0;
+    out(1, 0) = randSu2(1, 0);
+    out(1, 1) = randSu2(1, 1);
+    out(1, 2) = 0.0;
+    out(2, 0) = 0.0;
+    out(2, 1) = 0.0;
+    out(2, 2) = 1.0;
   }
 }
 
