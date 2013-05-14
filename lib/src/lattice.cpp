@@ -21,6 +21,20 @@ namespace lattice
   }
 
 
+  Matrix2cd sigma0 = Matrix2cd::Identity();
+
+  Matrix2cd sigma1 = (MatrixXcd(2, 2) << 0, 1,
+		      1, 0).finished();
+
+  Matrix2cd sigma2 = (MatrixXcd(2, 2) << 0, -i,
+		      i, 0).finished();
+
+  Matrix2cd sigma3 = (MatrixXcd(2, 2) << 1, 0,
+		      0, -1).finished();
+
+  Matrix2cd sigmas[4] = {sigma0, sigma1, sigma2, sigma3};
+
+
 
   Matrix4cd gamma1 = (MatrixXcd(4, 4) << 0, 0, 0, -i,
 		      0, 0, -i, 0,
