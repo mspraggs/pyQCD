@@ -74,6 +74,7 @@ public:
   double computeMeanLink();
 
   double (Lattice::*computeLocalAction)(const int link[5]);
+  void (Lattice::*computeStaples)(const int link[5]);
   void makeRandomSu3(Matrix3cd& out);
 
   void computeQ(const int link[5], Matrix3cd& out);
@@ -96,6 +97,7 @@ protected:
   double computeLocalTwistedRectangleAction(const int link[5]);
   void computeWilsonStaples(const int link[5], Matrix3cd& out);
   void computeRectangleStaples(const int link[5], Matrix3cd& out);
+  void computeTwistedRectangleStaples(const int link[5], Matrix3cd& out);
   GaugeField links_;
   Sub4Field randSu3s_;
 };
