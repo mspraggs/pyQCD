@@ -457,7 +457,6 @@ void Lattice::heatbath()
 	      
 	      double a = sqrt(subMatrix.determinant().real());
 	      Matrix2cd X;
-	      cout << a << endl;
 	      this->makeHeatbathSu2(X, rs, a);
 
 	      double bs[4];
@@ -1388,6 +1387,11 @@ void Lattice::computeRectangleStaples(const int link[5], Matrix3cd& out)
     }    
   }
 
+  this->computeWilsonStaples(link, out);
+  out *= 5.0 / 3.0;
+
+  Matrix3cd tempOutMatrix;
+
   // For each plane, return the sum of the two link products for the
   // plaquette it resides in
   for (int i = 0; i < 3; ++i) {
@@ -1415,7 +1419,7 @@ void Lattice::computeRectangleStaples(const int link[5], Matrix3cd& out)
     tempLink[4] = planes[i];
     tempMatrix *= this->getLink(tempLink).adjoint();
     // Add it to the output
-    out += tempMatrix;
+    tempOutMatrix += tempMatrix;
     
     // Next is previous rectangle but translated by -1 in current plane
     // First link is U_mu (x + mu)
@@ -1438,7 +1442,7 @@ void Lattice::computeRectangleStaples(const int link[5], Matrix3cd& out)
     tempLink[4] = planes[i];
     tempMatrix *= this->getLink(tempLink);
     // Add it to the output
-    out += tempMatrix;
+    tempOutMatrix += tempMatrix;
 
     // Next is previous two rectangles but translated by -1 in link axis
     // First link is U_nu (x + mu)
@@ -1462,7 +1466,7 @@ void Lattice::computeRectangleStaples(const int link[5], Matrix3cd& out)
     tempLink[4] = link[i];
     tempMatrix *= this->getLink(tempLink);
     // Add it to the output
-    out += tempMatrix;
+    tempOutMatrix += tempMatrix;
     
     // Next is same rectangle but reflected in link axis
     // First link is U+_nu (x + mu - nu)
@@ -1485,7 +1489,7 @@ void Lattice::computeRectangleStaples(const int link[5], Matrix3cd& out)
     tempLink[planes[i]] += 1;
     tempMatrix *= this->getLink(tempLink);
     // Add it to the output
-    out += tempMatrix;
+    tempOutMatrix += tempMatrix;
 
     // Next we do the rectangles rotated by 90 degrees
     // Link is U_nu (x + mu)
@@ -1508,7 +1512,7 @@ void Lattice::computeRectangleStaples(const int link[5], Matrix3cd& out)
     tempLink[planes[i]] -= 1;
     tempMatrix *= this->getLink(tempLink).adjoint();
     // Add to the sum
-    out += tempMatrix;
+    tempOutMatrix += tempMatrix;
 
     // Next flip the previous rectangle across the link axis
     // Link is U+_nu (x + mu - nu)
@@ -1530,8 +1534,10 @@ void Lattice::computeRectangleStaples(const int link[5], Matrix3cd& out)
     tempLink[planes[i]] += 1;
     tempMatrix *= this->getLink(tempLink);
     // Add to the sum
-    out += tempMatrix;
+    tempOutMatrix += tempMatrix;
   }
+
+  out -= tempOutMatrix / (12 * pow(this->u0_, 2))
 }
 
 
