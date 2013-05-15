@@ -23,6 +23,71 @@ namespace lattice
 
 
 
+  void embedSu2(const Matrix2cd& Su2Matrix, Matrix3cd& Su3Matrix,
+		const int index)
+  {
+    if (index == 0) {
+      Su3Matrix(0, 0) = 1.0;
+      Su3Matrix(0, 1) = 0.0;
+      Su3Matrix(0, 2) = 0.0;
+      Su3Matrix(1, 0) = 0.0;
+      Su3Matrix(1, 1) = Su2Matrix(0, 0);
+      Su3Matrix(1, 2) = Su2Matrix(0, 1);
+      Su3Matrix(2, 0) = 0.0;
+      Su3Matrix(2, 1) = Su2Matrix(1, 0);
+      Su3Matrix(2, 2) = Su2Matrix(1, 1);
+    }
+    else if (index == 1) {
+      Su3Matrix(0, 0) = Su2Matrix(0, 0);
+      Su3Matrix(0, 1) = 0.0;
+      Su3Matrix(0, 2) = Su2Matrix(0, 1);
+      Su3Matrix(1, 0) = 0.0;
+      Su3Matrix(1, 1) = 1.0;
+      Su3Matrix(1, 2) = 0.0;
+      Su3Matrix(2, 0) = Su2Matrix(1, 0);
+      Su3Matrix(2, 1) = 0.0;
+      Su3Matrix(2, 2) = Su2Matrix(1, 1);
+    }
+    else {    
+      Su3Matrix(0, 0) = Su2Matrix(0, 0);
+      Su3Matrix(0, 1) = Su2Matrix(0, 1);
+      Su3Matrix(0, 2) = 0.0;
+      Su3Matrix(1, 0) = Su2Matrix(1, 0);
+      Su3Matrix(1, 1) = Su2Matrix(1, 1);
+      Su3Matrix(1, 2) = 0.0;
+      Su3Matrix(2, 0) = 0.0;
+      Su3Matrix(2, 1) = 0.0;
+      Su3Matrix(2, 2) = 1.0;
+    }
+  }
+
+
+
+  extractSu2(const Matrix2cd& Su3Matrix, Matrix3cd& Su2Matrix,
+		const int index)
+  {
+    if (index == 0) {
+      Su2Matrix(0, 0) = Su3Matrix(1, 1);
+      Su2Matrix(0, 1) = Su3Matrix(1, 2);
+      Su2Matrix(1, 0) = Su3Matrix(2, 1);
+      Su2Matrix(1, 1) = Su3Matrix(2, 2);
+    }
+    else if (index == 1) {
+      Su2Matrix(0, 0) = Su3Matrix(0, 0);
+      Su2Matrix(0, 1) = Su3Matrix(0, 2);
+      Su2Matrix(1, 0) = Su3Matrix(2, 0);
+      Su2Matrix(1, 1) = Su3Matrix(2, 2);
+    }
+    else {
+      Su2Matrix(0, 0) = Su3Matrix(0, 0);
+      Su2Matrix(0, 1) = Su3Matrix(0, 1);
+      Su2Matrix(1, 0) = Su3Matrix(1, 0);
+      Su2Matrix(1, 1) = Su3Matrix(1, 1);
+    }
+  }
+
+
+
   int sgn(const int x)
   {
     return (x < 0) ? -1 : 1;
@@ -347,21 +412,22 @@ void Lattice::heatbath()
 	    Matrix3cd staples;
 	    (this->*computeStaples)(link, staples);
 	    Matrix3cd W = this->getLink(link) * staples;
+	    cout << W << endl;
 	    Matrix3cd Rs[3];
 	    
 	    for (int n = 0; n < 3; ++n) {	      
-	      double determinant = (W(determinantIndices[n][0],
-				      determinantIndices[n][0])
-				    * W(determinantIndices[n][1],
-					determinantIndices[n][1])
-				    - W(determinantIndices[n][1],
-					determinantIndices[n][0])
-				    * W(determinantIndices[n][0],
-					determinantIndices[n][1])).real();
+	      complex<double> determinant = W(determinantIndices[n][0],
+					      determinantIndices[n][0])
+		* W(determinantIndices[n][1],
+		    determinantIndices[n][1])
+		- W(determinantIndices[n][1],
+		    determinantIndices[n][0])
+		* W(determinantIndices[n][0],
+		determinantIndices[n][1]);
 
 	      cout << determinant << endl;
 	      
-	      double a = sqrt(determinant);
+	      double a = sqrt(abs(determinant));
 	      Matrix3cd X;
 	      this->embedHeatbathSu2(X, a, n);
 	      Rs[n] = X * (W / a).adjoint();
@@ -861,40 +927,7 @@ void Lattice::embedHeatbathSu2(Matrix3cd& out, const double weighting,
   // Embed an SU2 matrix in an SU3 matrix
   Matrix2cd randSu2;
   this->makeHeatbathSu2(randSu2, weighting);
-
-  if (type == 0) {
-    out(0, 0) = 1.0;
-    out(0, 1) = 0.0;
-    out(0, 2) = 0.0;
-    out(1, 0) = 0.0;
-    out(1, 1) = randSu2(0, 0);
-    out(1, 2) = randSu2(0, 1);
-    out(2, 0) = 0.0;
-    out(2, 1) = randSu2(1, 0);
-    out(2, 2) = randSu2(1, 1);
-  }
-  else if (type == 1) {
-    out(0, 0) = randSu2(0, 0);
-    out(0, 1) = 0.0;
-    out(0, 2) = randSu2(0, 1);
-    out(1, 0) = 0.0;
-    out(1, 1) = 1.0;
-    out(1, 2) = 0.0;
-    out(2, 0) = randSu2(1, 0);
-    out(2, 1) = 0.0;
-    out(2, 2) = randSu2(1, 1);
-  }
-  else {    
-    out(0, 0) = randSu2(0, 0);
-    out(0, 1) = randSu2(0, 1);
-    out(0, 2) = 0.0;
-    out(1, 0) = randSu2(1, 0);
-    out(1, 1) = randSu2(1, 1);
-    out(1, 2) = 0.0;
-    out(2, 0) = 0.0;
-    out(2, 1) = 0.0;
-    out(2, 2) = 1.0;
-  }
+  lattice::embedSu2(randSu2, out, type);
 }
 
 
