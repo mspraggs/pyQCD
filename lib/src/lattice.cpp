@@ -447,7 +447,7 @@ void Lattice::heatbath()
 	    Matrix3cd staples;
 	    (this->*computeStaples)(link, staples);
 	    Matrix3cd W = this->getLink(link) * staples;
-	    Matrix3cd Rs[3];
+	    Matrix3cd R;
 	    
 	    for (int n = 0; n < 3; ++n) {
 	      Matrix2cd subMatrix;
@@ -455,17 +455,16 @@ void Lattice::heatbath()
 	      double rs[4];
 	      lattice::extractSu2(W, subMatrix, as, n);
 	      
-	      double a = sqrt(subMatrix.determinant().real());
+	      // double a = sqrt(subMatrix.determinant().real());
 	      Matrix2cd X;
-	      this->makeHeatbathSu2(X, rs, a);
+	      this->makeHeatbathSu2(X, rs, 1.0);
 
 	      double bs[4];
 	      X *= subMatrix;
-	      lattice::embedSu2(X, Rs[n], n);
-	      W = Rs[n] * W;
+	      lattice::embedSu2(X, R, n);
+	      this->links_[i][j][k][l][m] = R
+		* this->links_[i][j][k][l][m];
 	    }
-	    this->links_[i][j][k][l][m] = Rs[2] * Rs[1] * Rs[0]
-	      * this->links_[i][j][k][l][m];
 	  }
 	}
       }
@@ -1537,7 +1536,7 @@ void Lattice::computeRectangleStaples(const int link[5], Matrix3cd& out)
     tempOutMatrix += tempMatrix;
   }
 
-  out -= tempOutMatrix / (12 * pow(this->u0_, 2))
+  out -= tempOutMatrix / (12 * pow(this->u0_, 2));
 }
 
 
