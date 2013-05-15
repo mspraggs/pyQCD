@@ -7,6 +7,21 @@ namespace lattice
 
 
 
+  Matrix2cd sigma0 = Matrix2cd::Identity();
+
+  Matrix2cd sigma1 = (MatrixXcd(2, 2) << 0, 1,
+		      1, 0).finished();
+
+  Matrix2cd sigma2 = (MatrixXcd(2, 2) << 0, -i,
+		      i, 0).finished();
+
+  Matrix2cd sigma3 = (MatrixXcd(2, 2) << 1, 0,
+		      0, -1).finished();
+
+  Matrix2cd sigmas[4] = {sigma0, sigma1, sigma2, sigma3};
+
+
+
   mt19937 generator(42u);
   uniform_real<> uni_dist(0, 1);
   variate_generator<mt19937&, uniform_real<> > uni(generator, uni_dist);
@@ -19,6 +34,16 @@ namespace lattice
     if (ret < 0)
       ret += divisor;
     return ret;
+  }
+
+
+
+  void createSu2(Matrix2cd& out, const double coefficients[4])
+  {
+    out = coefficients[0] * sigmas[0];
+    for (int i = 1; i < 4; ++i) {
+      out += lattice::i * coefficients[i] * sigmas[i];
+    }
   }
 
 
@@ -63,27 +88,52 @@ namespace lattice
 
 
 
-  extractSu2(const Matrix2cd& Su3Matrix, Matrix3cd& Su2Matrix,
-		const int index)
+  void extractSubMatrix(const Matrix3cd& su3Matrix, Matrix2cd& subMatrix,
+			const int index)
   {
     if (index == 0) {
-      Su2Matrix(0, 0) = Su3Matrix(1, 1);
-      Su2Matrix(0, 1) = Su3Matrix(1, 2);
-      Su2Matrix(1, 0) = Su3Matrix(2, 1);
-      Su2Matrix(1, 1) = Su3Matrix(2, 2);
+      subMatrix(0, 0) = su3Matrix(1, 1);
+      subMatrix(0, 1) = su3Matrix(1, 2);
+      subMatrix(1, 0) = su3Matrix(2, 1);
+      subMatrix(1, 1) = su3Matrix(2, 2);
     }
     else if (index == 1) {
-      Su2Matrix(0, 0) = Su3Matrix(0, 0);
-      Su2Matrix(0, 1) = Su3Matrix(0, 2);
-      Su2Matrix(1, 0) = Su3Matrix(2, 0);
-      Su2Matrix(1, 1) = Su3Matrix(2, 2);
+      subMatrix(0, 0) = su3Matrix(0, 0);
+      subMatrix(0, 1) = su3Matrix(0, 2);
+      subMatrix(1, 0) = su3Matrix(2, 0);
+      subMatrix(1, 1) = su3Matrix(2, 2);
     }
     else {
-      Su2Matrix(0, 0) = Su3Matrix(0, 0);
-      Su2Matrix(0, 1) = Su3Matrix(0, 1);
-      Su2Matrix(1, 0) = Su3Matrix(1, 0);
-      Su2Matrix(1, 1) = Su3Matrix(1, 1);
+      subMatrix(0, 0) = su3Matrix(0, 0);
+      subMatrix(0, 1) = su3Matrix(0, 1);
+      subMatrix(1, 0) = su3Matrix(1, 0);
+      subMatrix(1, 1) = su3Matrix(1, 1);
     }
+  }
+
+
+
+  void extractSu2(const Matrix3cd& su3Matrix, Matrix2cd& su2Matrix,
+		  double coefficients[4], const int index)
+  {
+    Matrix2cd subMatrix;
+    extractSubMatrix(su3Matrix, subMatrix, index);
+    
+    coefficients[0] = subMatrix(0, 0).real() + subMatrix(1, 1).real();
+    coefficients[1] = subMatrix(0, 1).imag() + subMatrix(1, 0).imag();
+    coefficients[2] = subMatrix(0, 1).real() - subMatrix(1, 0).real();
+    coefficients[3] = subMatrix(0, 0).imag() - subMatrix(1, 1).imag();
+    
+    double magnitude = sqrt(pow(coefficients[0], 2) +
+			    pow(coefficients[1], 2) +
+			    pow(coefficients[2], 2) +
+			    pow(coefficients[3], 2));
+
+    for (int i = 0; i < 4; ++i) {
+      coefficients[i] /= magnitude;
+    }
+
+    createSu2(su2Matrix, coefficients);
   }
 
 
@@ -92,21 +142,6 @@ namespace lattice
   {
     return (x < 0) ? -1 : 1;
   }
-
-
-
-  Matrix2cd sigma0 = Matrix2cd::Identity();
-
-  Matrix2cd sigma1 = (MatrixXcd(2, 2) << 0, 1,
-		      1, 0).finished();
-
-  Matrix2cd sigma2 = (MatrixXcd(2, 2) << 0, -i,
-		      i, 0).finished();
-
-  Matrix2cd sigma3 = (MatrixXcd(2, 2) << 1, 0,
-		      0, -1).finished();
-
-  Matrix2cd sigmas[4] = {sigma0, sigma1, sigma2, sigma3};
 
 
 
@@ -145,6 +180,8 @@ namespace lattice
     return prefactor * gammas[abs(index) - 1];
   }
 }
+
+
 
 Lattice::Lattice(const int nEdgePoints, const double beta, const double u0,
 		 const int action, const int nCorrelations, const double rho,
@@ -400,9 +437,7 @@ void Lattice::updateSegment(const int n0, const int n1, const int n2,
 
 void Lattice::heatbath()
 {
-  // Perform a single sweep heatbath over the lattice
-  int determinantIndices[3][2] = {{0, 1}, {0, 2}, {1, 2}};
-  
+  // Perform a single sweep heatbath over the lattice  
   for (int i = 0; i < this->nEdgePoints; ++i) {
     for (int j = 0; j < this->nEdgePoints; ++j) {
       for (int k = 0; k < this->nEdgePoints; ++k) {
@@ -412,25 +447,22 @@ void Lattice::heatbath()
 	    Matrix3cd staples;
 	    (this->*computeStaples)(link, staples);
 	    Matrix3cd W = this->getLink(link) * staples;
-	    cout << W << endl;
 	    Matrix3cd Rs[3];
 	    
-	    for (int n = 0; n < 3; ++n) {	      
-	      complex<double> determinant = W(determinantIndices[n][0],
-					      determinantIndices[n][0])
-		* W(determinantIndices[n][1],
-		    determinantIndices[n][1])
-		- W(determinantIndices[n][1],
-		    determinantIndices[n][0])
-		* W(determinantIndices[n][0],
-		determinantIndices[n][1]);
-
-	      cout << determinant << endl;
+	    for (int n = 0; n < 3; ++n) {
+	      Matrix2cd subMatrix;
+	      double as[4];
+	      double rs[4];
+	      lattice::extractSu2(W, subMatrix, as, n);
 	      
-	      double a = sqrt(abs(determinant));
-	      Matrix3cd X;
-	      this->embedHeatbathSu2(X, a, n);
-	      Rs[n] = X * (W / a).adjoint();
+	      double a = sqrt(subMatrix.determinant().real());
+	      Matrix2cd X;
+	      cout << a << endl;
+	      this->makeHeatbathSu2(X, rs, a);
+
+	      double bs[4];
+	      X *= subMatrix;
+	      lattice::embedSu2(X, Rs[n], n);
 	      W = Rs[n] * W;
 	    }
 	    this->links_[i][j][k][l][m] = Rs[2] * Rs[1] * Rs[0]
@@ -883,14 +915,13 @@ void Lattice::makeRandomSu3(Matrix3cd& out)
 
 
 
-void Lattice::makeHeatbathSu2(Matrix2cd& out, const double weighting)
+void Lattice::makeHeatbathSu2(Matrix2cd& out, double coefficients[4],
+			      const double weighting)
 {
   // Generate a random SU2 matrix distributed according to heatbath
   // (See Gattringer and Lang)
   double lambdaSquared = 2;
-  double x[4] = {0, 0, 0, 0};
-  double randomDouble = lattice::uni();
-  double randomSquare = pow(randomDouble, 2);
+  double randomSquare = pow(lattice::uni(), 2);
   while (randomSquare > 1 - lambdaSquared) {
     double r1 = 1 - lattice::uni();
     double r2 = 1 - lattice::uni();
@@ -898,25 +929,21 @@ void Lattice::makeHeatbathSu2(Matrix2cd& out, const double weighting)
     
     lambdaSquared = - 1.0 / (2 * weighting * this->beta_) *
       (log(r1) + pow(cos(2 * lattice::pi * r2), 2) * log(r3));
-    //cout << weighting << endl;
-    //cout << lambdaSquared << "," <<  randomSquare << endl;
+    
+    lambdaSquared = pow(lattice::uni(), 2);
   }
 
-  x[0] = 1 - 2 * lambdaSquared;
+  coefficients[0] = 1 - 2 * lambdaSquared;
 
-  double theta = lattice::pi * lattice::uni();
+  double costheta = 1 - 2 * lattice::uni();
   double phi = 2 * lattice::pi * lattice::uni();
 
-  double xMag = sqrt(1 - pow(x[0], 2));
-  x[1] = xMag * sin(theta) * cos(phi);
-  x[2] = xMag * sin(theta) * sin(phi);
-  x[3] = xMag * cos(theta);
+  double xMag = sqrt(1 - pow(coefficients[0], 2));
+  coefficients[1] = xMag * sqrt(1 - pow(costheta, 2)) * cos(phi);
+  coefficients[2] = xMag * sqrt(1 - pow(costheta, 2)) * sin(phi);
+  coefficients[3] = xMag * costheta;
 
-  out = x[0] * lattice::sigmas[0];
-
-  for (int i = 1; i < 4; ++i) {
-    out += lattice::i * x[i] * lattice::sigmas[i];
-  }
+  lattice::createSu2(out, coefficients);
 }
 
 
@@ -926,7 +953,8 @@ void Lattice::embedHeatbathSu2(Matrix3cd& out, const double weighting,
 {
   // Embed an SU2 matrix in an SU3 matrix
   Matrix2cd randSu2;
-  this->makeHeatbathSu2(randSu2, weighting);
+  double coefficients[4];
+  this->makeHeatbathSu2(randSu2, coefficients, weighting);
   lattice::embedSu2(randSu2, out, type);
 }
 
