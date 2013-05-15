@@ -81,7 +81,8 @@ public:
   double (Lattice::*computeLocalAction)(const int link[5]);
   void (Lattice::*computeStaples)(const int link[5], Matrix3cd& out);
   void makeRandomSu3(Matrix3cd& out);
-  void makeHeatbathSu2(Matrix2cd& out, const double weighting);
+  void makeHeatbathSu2(Matrix2cd& out, double coefficients[4],
+		       const double weighting);
   void embedHeatbathSu2(Matrix3cd& out, const double weighting,
 			const int type);
 
