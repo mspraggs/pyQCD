@@ -8,6 +8,8 @@
 #include <complex>
 #include <vector>
 
+#include <boost/random.hpp>
+
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 #include <unsupported/Eigen/MatrixFunctions>
@@ -16,6 +18,7 @@
 
 using namespace Eigen;
 using namespace std;
+using namespace boost;
 
 typedef vector<Matrix3cd, aligned_allocator<Matrix3cd> > Sub4Field;
 typedef vector<Sub4Field> Sub3Field;

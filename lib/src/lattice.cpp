@@ -5,6 +5,14 @@ namespace lattice
   const complex<double> i (0.0, 1.0);
   const double pi = 3.1415926535897932384626433;
 
+
+
+  mt19937 generator(42u);
+  uniform_real<> uni_dist(0, 1);
+  variate_generator<mt19937&, uniform_real<> > uni(generator, uni_dist);
+
+
+
   int mod(int number, const int divisor)
   {
     int ret = number % divisor;
@@ -19,6 +27,7 @@ namespace lattice
   {
     return (x < 0) ? -1 : 1;
   }
+
 
 
   Matrix2cd sigma0 = Matrix2cd::Identity();
@@ -86,6 +95,8 @@ Lattice::Lattice(const int nEdgePoints, const double beta, const double u0,
   this->nUpdates_ = 0;
   this->u0_ = u0;
   this->action_ = action;
+
+  lattice::generator.seed(static_cast<unsigned int>(time(0)));
 
   srand(time(0));
   // Resize the link vector and assign each link a random SU3 matrix
@@ -332,28 +343,32 @@ void Lattice::heatbath()
       for (int k = 0; k < this->nEdgePoints; ++k) {
 	for (int l = 0; l < this->nEdgePoints; ++l) {
 	  for (int m = 0; m < 4; ++m) {
-  
+	    int link[5] = {i, j, k, l, m};
 	    Matrix3cd staples;
 	    (this->*computeStaples)(link, staples);
 	    Matrix3cd W = this->getLink(link) * staples;
 	    Matrix3cd Rs[3];
 	    
-	    for (int n = 0; n < 3; ++n) {
+	    for (int n = 0; n < 3; ++n) {	      
+	      double determinant = (W(determinantIndices[n][0],
+				      determinantIndices[n][0])
+				    * W(determinantIndices[n][1],
+					determinantIndices[n][1])
+				    - W(determinantIndices[n][1],
+					determinantIndices[n][0])
+				    * W(determinantIndices[n][0],
+					determinantIndices[n][1])).real();
+
+	      cout << determinant << endl;
 	      
-	      double determinant = W(determinantIndices[n][0],
-				     determinantIndices[n][0])
-		* W(determinantIndices[n][1], determinantIndices[n][1])
-		- W(determinantIndices[n][1], determinantIndices[n][0])
-		* W(determinantIndices[n][0], determinantIndices[n][1]);
-	      
-	      complex<double> a = sqrt(determinant);
+	      double a = sqrt(determinant);
 	      Matrix3cd X;
-	      this->embedHeatBathSu2(X, a, n);
+	      this->embedHeatbathSu2(X, a, n);
 	      Rs[n] = X * (W / a).adjoint();
 	      W = Rs[n] * W;
 	    }
-	    this->link[i][j][k][l][m] = Rs[2] * Rs[1] * Rs[0]
-	      * this->link[i][j][k][l][m];
+	    this->links_[i][j][k][l][m] = Rs[2] * Rs[1] * Rs[0]
+	      * this->links_[i][j][k][l][m];
 	  }
 	}
       }
@@ -788,9 +803,8 @@ void Lattice::makeRandomSu3(Matrix3cd& out)
   // First generate a random matrix whos elements all lie in/on unit circle  
   for (int i = 0; i < 3; ++i) {
     for (int j = 0; j < 3; ++j) {
-      A(i, j) = double(rand()) / double(RAND_MAX);
-      A(i, j) *= exp(2  * lattice::pi * lattice::i 
-		     * double(rand()) / double(RAND_MAX));
+      A(i, j) = lattice::uni();
+      A(i, j) *= exp(2  * lattice::pi * lattice::i * lattice::uni());
     }
   }
   // Weight the matrix with weighting eps
@@ -809,27 +823,33 @@ void Lattice::makeHeatbathSu2(Matrix2cd& out, const double weighting)
   // (See Gattringer and Lang)
   double lambdaSquared = 2;
   double x[4] = {0, 0, 0, 0};
-  while (pow(double(rand()) / double(RAND_MAX + 1), 2) > 1 - lambdaSquared) {
-    double r1 = 1 - double(rand()) / double(RAND_MAX + 1);
-    double r2 = 1 - double(rand()) / double(RAND_MAX + 1);
-    double r3 = 1 - double(rand()) / double(RAND_MAX + 1);
+  double randomDouble = lattice::uni();
+  double randomSquare = pow(randomDouble, 2);
+  while (randomSquare > 1 - lambdaSquared) {
+    double r1 = 1 - lattice::uni();
+    double r2 = 1 - lattice::uni();
+    double r3 = 1 - lattice::uni();
     
-    lambdaSquared = - 1.0 / (2 * weighting * this->beta) *
+    lambdaSquared = - 1.0 / (2 * weighting * this->beta_) *
       (log(r1) + pow(cos(2 * lattice::pi * r2), 2) * log(r3));
+    //cout << weighting << endl;
+    //cout << lambdaSquared << "," <<  randomSquare << endl;
   }
 
-  double x[0] = 1 - 2 * lambdaSquared;
+  x[0] = 1 - 2 * lambdaSquared;
 
-  double theta = lattice::pi * double(rand()) / double(RAND_MAX);
-  double phi = 2 * lattice::pi * double(rand()) / double(RAND_MAX);
+  double theta = lattice::pi * lattice::uni();
+  double phi = 2 * lattice::pi * lattice::uni();
 
-  double xMag = sqrt(1 - pow(x0, 2));
-  double x[1] = xMag * sin(theta) * cos(phi);
-  double x[2] = xMag * sin(theta) * sin(phi);
-  double x[3] = xMag * cos(theta);
+  double xMag = sqrt(1 - pow(x[0], 2));
+  x[1] = xMag * sin(theta) * cos(phi);
+  x[2] = xMag * sin(theta) * sin(phi);
+  x[3] = xMag * cos(theta);
 
-  for (int i = 0; i < 4; ++i) {
-    out += x[i] * lattice::sigmas[i];
+  out = x[0] * lattice::sigmas[0];
+
+  for (int i = 1; i < 4; ++i) {
+    out += lattice::i * x[i] * lattice::sigmas[i];
   }
 }
 
@@ -842,7 +862,7 @@ void Lattice::embedHeatbathSu2(Matrix3cd& out, const double weighting,
   Matrix2cd randSu2;
   this->makeHeatbathSu2(randSu2, weighting);
 
-  if (type = 0) {
+  if (type == 0) {
     out(0, 0) = 1.0;
     out(0, 1) = 0.0;
     out(0, 2) = 0.0;
@@ -853,7 +873,7 @@ void Lattice::embedHeatbathSu2(Matrix3cd& out, const double weighting,
     out(2, 1) = randSu2(1, 0);
     out(2, 2) = randSu2(1, 1);
   }
-  else if (type = 1) {
+  else if (type == 1) {
     out(0, 0) = randSu2(0, 0);
     out(0, 1) = 0.0;
     out(0, 2) = randSu2(0, 1);
