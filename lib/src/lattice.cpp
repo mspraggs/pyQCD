@@ -322,6 +322,47 @@ void Lattice::updateSegment(const int n0, const int n1, const int n2,
 
 
 
+void Lattice::heatbath()
+{
+  // Perform a single sweep heatbath over the lattice
+  int determinantIndices[3][2] = {{0, 1}, {0, 2}, {1, 2}};
+  
+  for (int i = 0; i < this->nEdgePoints; ++i) {
+    for (int j = 0; j < this->nEdgePoints; ++j) {
+      for (int k = 0; k < this->nEdgePoints; ++k) {
+	for (int l = 0; l < this->nEdgePoints; ++l) {
+	  for (int m = 0; m < 4; ++m) {
+  
+	    Matrix3cd staples;
+	    (this->*computeStaples)(link, staples);
+	    Matrix3cd W = this->getLink(link) * staples;
+	    Matrix3cd Rs[3];
+	    
+	    for (int n = 0; n < 3; ++n) {
+	      
+	      double determinant = W(determinantIndices[n][0],
+				     determinantIndices[n][0])
+		* W(determinantIndices[n][1], determinantIndices[n][1])
+		- W(determinantIndices[n][1], determinantIndices[n][0])
+		* W(determinantIndices[n][0], determinantIndices[n][1]);
+	      
+	      complex<double> a = sqrt(determinant);
+	      Matrix3cd X;
+	      this->embedHeatBathSu2(X, a, n);
+	      Rs[n] = X * (W / a).adjoint();
+	      W = Rs[n] * W;
+	    }
+	    this->link[i][j][k][l][m] = Rs[2] * Rs[1] * Rs[0]
+	      * this->link[i][j][k][l][m];
+	  }
+	}
+      }
+    }
+  }
+}
+
+
+
 void Lattice::thermalize()
 {
   // Update all links until we're at thermal equilibrium
