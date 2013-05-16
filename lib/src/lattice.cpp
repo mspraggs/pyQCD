@@ -445,7 +445,7 @@ void Lattice::heatbath()
 	    
 	    for (int n = 0; n < 3; ++n) {
 	      W = this->getLink(link) * staples;
-	      Matrix2cd A;
+	      Matrix2cd V;
 	      double a[4];
 	      double r[4];
 	      lattice::extractSu2(W, V, a, n);
@@ -456,7 +456,7 @@ void Lattice::heatbath()
 				a[3] * a[3]);
 
 	      Matrix2cd X;
-	      this->makeHeatbathSu2(X, r, a_l);	      
+	      this->makeHeatbathSu2(X, r, a_l);
 	      Matrix3cd R;
 	      lattice::embedSu2(X * V.adjoint(), R, n);
 	      this->links_[i][j][k][l][m] = R * this->links_[i][j][k][l][m];
