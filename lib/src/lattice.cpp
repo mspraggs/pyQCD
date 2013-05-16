@@ -123,20 +123,15 @@ namespace lattice
     coefficients[1] = subMatrix(0, 1).imag() + subMatrix(1, 0).imag();
     coefficients[2] = subMatrix(0, 1).real() - subMatrix(1, 0).real();
     coefficients[3] = subMatrix(0, 0).imag() - subMatrix(1, 1).imag();
-    
+
     double magnitude = sqrt(pow(coefficients[0], 2) +
 			    pow(coefficients[1], 2) +
 			    pow(coefficients[2], 2) +
 			    pow(coefficients[3], 2));
 
-    for (int i = 0; i < 4; ++i) {
-      coefficients[i] /= magnitude;
-    }
-
     createSu2(su2Matrix, coefficients);
+    su2Matrix /= magnitude;
   }
-
-
 
   int sgn(const int x)
   {
@@ -446,24 +441,25 @@ void Lattice::heatbath()
 	    int link[5] = {i, j, k, l, m};
 	    Matrix3cd staples;
 	    (this->*computeStaples)(link, staples);
-	    Matrix3cd W = this->getLink(link) * staples;
-	    Matrix3cd R;
+	    Matrix3cd W;
 	    
 	    for (int n = 0; n < 3; ++n) {
-	      Matrix2cd subMatrix;
-	      double as[4];
-	      double rs[4];
-	      lattice::extractSu2(W, subMatrix, as, n);
-	      
-	      // double a = sqrt(subMatrix.determinant().real());
-	      Matrix2cd X;
-	      this->makeHeatbathSu2(X, rs, 1.0);
+	      W = this->getLink(link) * staples;
+	      Matrix2cd A;
+	      double a[4];
+	      double r[4];
+	      lattice::extractSu2(W, V, a, n);
 
-	      double bs[4];
-	      X *= subMatrix;
-	      lattice::embedSu2(X, R, n);
-	      this->links_[i][j][k][l][m] = R
-		* this->links_[i][j][k][l][m];
+	      double a_l = sqrt(a[0] * a[0] +
+				a[1] * a[1] +
+				a[2] * a[2] +
+				a[3] * a[3]);
+
+	      Matrix2cd X;
+	      this->makeHeatbathSu2(X, r, a_l);	      
+	      Matrix3cd R;
+	      lattice::embedSu2(X * V.adjoint(), R, n);
+	      this->links_[i][j][k][l][m] = R * this->links_[i][j][k][l][m];
 	    }
 	  }
 	}
@@ -737,7 +733,7 @@ double Lattice::computeRectangle(const int site[4], const int mu,
   product *= this->getLink(link4).adjoint();
   product *= this->getLink(link5).adjoint();
   product *= this->getLink(link6).adjoint();
-
+  
   return product.trace().real() / 3.0;  
 }
 
@@ -918,27 +914,27 @@ void Lattice::makeHeatbathSu2(Matrix2cd& out, double coefficients[4],
 {
   // Generate a random SU2 matrix distributed according to heatbath
   // (See Gattringer and Lang)
-  double lambdaSquared = 2;
+  double lambdaSquared = 2.0;
   double randomSquare = pow(lattice::uni(), 2);
-  while (randomSquare > 1 - lambdaSquared) {
+  while (randomSquare > 1.0 - lambdaSquared) {
     double r1 = 1 - lattice::uni();
     double r2 = 1 - lattice::uni();
     double r3 = 1 - lattice::uni();
     
-    lambdaSquared = - 1.0 / (2 * weighting * this->beta_) *
+    lambdaSquared = - 1.0 / (2.0 * weighting * this->beta_) *
       (log(r1) + pow(cos(2 * lattice::pi * r2), 2) * log(r3));
     
-    lambdaSquared = pow(lattice::uni(), 2);
+    randomSquare = pow(lattice::uni(), 2);
   }
 
   coefficients[0] = 1 - 2 * lambdaSquared;
+  double xMag = sqrt(1 - coefficients[0] * coefficients[0]);
 
-  double costheta = 1 - 2 * lattice::uni();
+  double costheta = -1.0 + 2.0 * lattice::uni();
   double phi = 2 * lattice::pi * lattice::uni();
 
-  double xMag = sqrt(1 - pow(coefficients[0], 2));
-  coefficients[1] = xMag * sqrt(1 - pow(costheta, 2)) * cos(phi);
-  coefficients[2] = xMag * sqrt(1 - pow(costheta, 2)) * sin(phi);
+  coefficients[1] = xMag * sqrt(1 - costheta * costheta) * cos(phi);
+  coefficients[2] = xMag * sqrt(1 - costheta * costheta) * sin(phi);
   coefficients[3] = xMag * costheta;
 
   lattice::createSu2(out, coefficients);
