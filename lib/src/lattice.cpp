@@ -942,18 +942,6 @@ void Lattice::makeHeatbathSu2(Matrix2cd& out, double coefficients[4],
 
 
 
-void Lattice::embedHeatbathSu2(Matrix3cd& out, const double weighting,
-			       const int type)
-{
-  // Embed an SU2 matrix in an SU3 matrix
-  Matrix2cd randSu2;
-  double coefficients[4];
-  this->makeHeatbathSu2(randSu2, coefficients, weighting);
-  lattice::embedSu2(randSu2, out, type);
-}
-
-
-
 void Lattice::computeQ(const int link[5], Matrix3cd& out)
 {
   // Calculates Q matrix for analytic smearing according to paper on analytic
