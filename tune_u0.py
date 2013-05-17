@@ -39,6 +39,10 @@ parser.add_option("-s", "--spacing", action = "store", type = "float",
 				  dest = "a", default = 0.25)
 parser.add_option("--rho", action = "store", type = "float",
 				  dest = "rho", default = 0.3)
+parser.add_option("--update-method", action = "store", type = "int",
+				  dest = "update_method", default = 0)
+parser.add_option("--parallel-flag", action = "store", type = "int",
+				  dest = "parallel_flag", default = 1)
 
 (options,args) = parser.parse_args()
 
@@ -55,7 +59,9 @@ for i in xrange(10):
 		options.action, #action			
 		options.Ncor, #Ncor
 		options.rho, #rho
-		options.eps) #epsilon
+		options.eps, #epsilon
+		options.update_method, #updateMethod
+		options.parallel_flag) #parallelFlag
 		
 	print("Iteration: %d" % i)
 	print("Thermalizing...")
