@@ -37,22 +37,25 @@ public:
 	  const int action = 0,
 	  const int nCorrelations = 50,
 	  const double rho = 0.3,
-	  const double epsilon = 0.24);
-
+	  const double epsilon = 0.24, 
+	  const int updateMethod = 0,
+	  const int parallelFlag = 1);
   Lattice(const Lattice& lattice);
   ~Lattice();
 
   void print();
   Matrix3cd& getLink(const int link[5]);
 
+  void monteCarlo(const int link[5]);
+  void monteCarloNoStaples(const int link[5]);
+  void heatbath(const int link[5]);
+
+  void update();
   void runThreads(const int chunkSize, const int nUpdates,
 		  const int remainder);
   void schwarzUpdate(const int chunkSize, const int nUpdates);
-  void update();
   void updateSegment(const int n0, const int n1, const int n2,
 		     const int n3, const int chunkSize, const int nUpdates);
-
-  void heatbath();
 
   void thermalize();
   void getNextConfig();
@@ -98,13 +101,14 @@ public:
 
 protected:
   double beta_, epsilon_, u0_, rho_;
-  int nUpdates_, action_;
+  int nUpdates_, action_, updateMethod_, parallelFlag_;
   double computeLocalWilsonAction(const int link[5]);
   double computeLocalRectangleAction(const int link[5]);
   double computeLocalTwistedRectangleAction(const int link[5]);
   void computeWilsonStaples(const int link[5], Matrix3cd& out);
   void computeRectangleStaples(const int link[5], Matrix3cd& out);
   void computeTwistedRectangleStaples(const int link[5], Matrix3cd& out);
+  void (Lattice::*updateFunction_)(const int link[5]);
   GaugeField links_;
   Sub4Field randSu3s_;
 };

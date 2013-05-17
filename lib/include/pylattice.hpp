@@ -18,7 +18,9 @@ public:
 	    const int action = 0,
 	    const int nCorrelations = 50,
 	    const double rho = 0.3,
-	    const double epsilon = 0.24);
+	    const double epsilon = 0.24, 
+	    const int updateMethod = 0,
+	    const int parallelFlag = 1);
   pyLattice(const pyLattice& pylattice);
   ~pyLattice();
 

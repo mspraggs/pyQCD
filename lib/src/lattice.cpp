@@ -41,9 +41,8 @@ namespace lattice
   void createSu2(Matrix2cd& out, const double coefficients[4])
   {
     out = coefficients[0] * sigmas[0];
-    for (int i = 1; i < 4; ++i) {
+    for (int i = 1; i < 4; ++i)
       out += lattice::i * coefficients[i] * sigmas[i];
-    }
   }
 
 
@@ -182,7 +181,8 @@ namespace lattice
 
 Lattice::Lattice(const int nEdgePoints, const double beta, const double u0,
 		 const int action, const int nCorrelations, const double rho,
-		 const double epsilon)
+		 const double epsilon, const int updateMethod,
+		 const int parallelFlag)
 {
   // Default constructor. Assigns function arguments to member variables
   // and initializes links.
@@ -194,6 +194,8 @@ Lattice::Lattice(const int nEdgePoints, const double beta, const double u0,
   this->nUpdates_ = 0;
   this->u0_ = u0;
   this->action_ = action;
+  this->updateMethod_ = updateMethod;
+  this->parallelFlag_ = parallelFlag;
 
   srand(time(0));
   // Resize the link vector and assign each link a random SU3 matrix
@@ -244,6 +246,43 @@ Lattice::Lattice(const int nEdgePoints, const double beta, const double u0,
     this->computeLocalAction = &Lattice::computeLocalWilsonAction;
     this->computeStaples = &Lattice::computeWilsonStaples;
   }
+
+  // Set the update method to point to the correct function
+  if (updateMethod == 0) {
+    if (action != 2) {
+      this->updateFunction_ = &Lattice::heatbath;
+    }
+    else {
+      cout << "Warning! Heatbath updates are not compatible with twisted "
+	   << "rectangle action. Using Monte Carlo instead" << endl;
+      this->updateFunction_ = &Lattice::monteCarloNoStaples;
+    }
+  }
+  else if (updateMethod == 1) {
+    if (action != 2) {
+      this->updateFunction_ = &Lattice::monteCarlo;
+    }
+    else {
+      cout << "Warning! Heatbath updates are not compatible with twisted "
+	   << "rectangle action. Using Monte Carlo instead" << endl;
+      this->updateFunction_ = &Lattice::monteCarloNoStaples;
+    }
+  }
+  else if (updateMethod == 2) {
+    this->updateFunction_ = &Lattice::monteCarloNoStaples;
+  }
+  else {
+    cout << "Warning! Specified update method does not exist!" << endl;
+    if (action != 2) {
+      this->updateFunction_ = &Lattice::heatbath;
+    }
+    else {
+      cout << "Warning! Heatbath updates are not compatible with twisted "
+	   << "rectangle action. Using Monte Carlo instead" << endl;
+      this->updateFunction_ = &Lattice::monteCarloNoStaples;
+    }
+  }
+    
 }
 
 
@@ -262,7 +301,10 @@ Lattice::Lattice(const Lattice& lattice)
   this->links_ = lattice.links_;
   this->randSu3s_ = lattice.randSu3s_;
   this->computeLocalAction = lattice.computeLocalAction;
-  this->action_ = action_;
+  this->action_ = lattice.action_;
+  this->updateMethod_ = lattice.updateMethod_;
+  this->updateFunction_ = lattice.updateFunction_;
+  this->parallelFlag_ = lattice.parallelFlag_;
 }
 
 
@@ -305,138 +347,106 @@ Matrix3cd& Lattice::getLink(const int link[5])
 
 
 
-void Lattice::runThreads(const int chunkSize, const int nUpdates,
-			 const int remainder)
+void Lattice::monteCarlo(const int link[5])
 {
-  // Updates every other segment (even or odd, specified by remainder).
-  int index = 0;
-
-#pragma omp parallel for schedule(dynamic, 1) collapse(4)
-
-  for (int i = 0; i < this->nEdgePoints; i += chunkSize) {
-    for (int j = 0; j < this->nEdgePoints; j += chunkSize) {
-      for (int k = 0; k < this->nEdgePoints; k += chunkSize) {
-	for (int l = 0; l < this->nEdgePoints; l += chunkSize) {
-	  
-	  int site[4] = {i, j, k, l};
-	  if (index % 2 == remainder) {
-	    this->updateSegment(i, j, k, l, chunkSize, nUpdates);
-	  }
-	  index++;
-	  
-	}
-      }
-    }
+  // Iterate through the lattice and update the links using Metropolis
+  // algorithm
+  // Get the staples
+  Matrix3cd staples;
+  (this->*computeStaples)(link, staples);
+  for (int n = 0; n < 10; ++n) {
+    // Get a random SU3
+    Matrix3cd randSu3 = 
+      this->randSu3s_[rand() % this->randSu3s_.size()];
+    // Calculate the change in the action
+    double actionChange = 
+      -this->beta_ / 3.0 *
+      ((randSu3 - Matrix3cd::Identity())
+       * this->links_[link[0]][link[1]][link[2]][link[3]][link[4]] 
+       * staples).trace().real();
+    
+    // Was the change favourable? If not, revert the change
+    bool isExpMore = exp(-actionChange) 
+      >= double(rand()) / double(RAND_MAX);
+    
+    if ((actionChange <= 0) || isExpMore)
+      this->links_[link[0]][link[1]][link[2]][link[3]][link[4]] = 
+	randSu3 * 
+	this->links_[link[0]][link[1]][link[2]][link[3]][link[4]];
   }
 }
 
 
 
-void Lattice::schwarzUpdate(const int chunkSize, const int nUpdates)
+void Lattice::monteCarloNoStaples(const int link[5])
 {
-  // Update even and odd blocks using method similar to Schwarz Alternating
-  // Procedure.
-  this->runThreads(chunkSize, nUpdates, 0);
-  this->runThreads(chunkSize, nUpdates, 1);
-  this->nUpdates_++;
+  // Iterate through the lattice and update the links using Metropolis
+  // algorithm
+  // Record the old action contribution
+  double oldAction = (this->*computeLocalAction)(link);
+  // Record the old link in case we need it
+  Matrix3cd oldLink =
+    this->links_[link[0]][link[1]][link[2]][link[3]][link[4]];
+  
+  // Get ourselves a random SU3 matrix for the update
+  Matrix3cd randSu3 = 
+    this->randSu3s_[rand() % this->randSu3s_.size()];
+  // Multiply the site
+  this->links_[link[0]][link[1]][link[2]][link[3]][link[4]] = 
+    randSu3 * this->links_[link[0]][link[1]][link[2]][link[3]][link[4]];
+  // What's the change in the action?
+  double actionChange = 
+    (this->*computeLocalAction)(link) - oldAction;
+  
+  // Was the change favourable? If not, revert the change
+  bool isExpLess = exp(-actionChange) < lattice::uni();
+  
+  if ((actionChange > 0) && isExpLess)
+    this->links_[link[0]][link[1]][link[2]][link[3]][link[4]] = oldLink;
+}
+
+
+
+void Lattice::heatbath(const int link[5])
+{
+  // Update a single link using heatbath in Gattringer and Lang
+  Matrix3cd staples;
+  (this->*computeStaples)(link, staples);
+  Matrix3cd W;
+  
+  for (int n = 0; n < 3; ++n) {
+    W = this->links_[link[0]][link[1]][link[2]][link[3]][link[4]]
+      * staples;
+    Matrix2cd V;
+    double a[4];
+    double r[4];
+    lattice::extractSu2(W, V, a, n);
+    
+    double a_l = sqrt(abs(a[0] * a[0] +
+			  a[1] * a[1] +
+			  a[2] * a[2] +
+			  a[3] * a[3]));
+    
+    Matrix2cd X;
+    this->makeHeatbathSu2(X, r, a_l);
+    Matrix3cd R;
+    lattice::embedSu2(X * V.adjoint(), R, n);
+    this->links_[link[0]][link[1]][link[2]][link[3]][link[4]]
+      = R * this->links_[link[0]][link[1]][link[2]][link[3]][link[4]];
+  }
 }
 
 
 
 void Lattice::update()
 {
-  // Iterate through the lattice and update the links using Metropolis
-  // algorithm
   for (int i = 0; i < this->nEdgePoints; ++i) {
     for (int j = 0; j < this->nEdgePoints; ++j) {
       for (int k = 0; k < this->nEdgePoints; ++k) {
 	for (int l = 0; l < this->nEdgePoints; ++l) {
 	  for (int m = 0; m < 4; ++m) {
-	    // We'll need an array with the link indices
 	    int link[5] = {i, j, k, l, m};
-	    // Get the staples
-	    Matrix3cd staples;
-	    (this->*computeStaples)(link, staples);
-	    for (int n = 0; n < 10; ++n) {
-	      // Get a random SU3
-	      Matrix3cd randSu3 = 
-		this->randSu3s_[rand() % this->randSu3s_.size()];
-	      // Calculate the change in the action
-	      double actionChange = 
-		-this->beta_ / 3.0 *
-		((randSu3 - Matrix3cd::Identity())
-		 * this->links_[i][j][k][l][m] * staples).trace().real();
-	    
-	      /*
-	      // Record the old action contribution
-	      double oldAction = (this->*computeLocalAction)(link);
-	      // Record the old link in case we need it
-	      Matrix3cd oldLink = this->links_[i][j][k][l][m];
-
-	      // Get ourselves a random SU3 matrix for the update
-	      Matrix3cd randSu3 = 
-	      this->randSu3s_[rand() % this->randSu3s_.size()];
-	      // Multiply the site
-	      this->links_[i][j][k][l][m] = 
-	      randSu3 * this->links_[i][j][k][l][m];
-	      // What's the change in the action?
-	      double actionChange = 
-	      (this->*computeLocalAction)(link) - oldAction;*/
-	    
-	      // Was the change favourable? If not, revert the change
-	      bool isExpMore = exp(-actionChange) 
-		>= double(rand()) / double(RAND_MAX);
-
-	      if ((actionChange <= 0) || isExpMore)
-		this->links_[i][j][k][l][m] = 
-		  randSu3 * this->links_[i][j][k][l][m];
-	    }
-	  }
-	}
-      }
-    }
-  }
-  this->nUpdates_++;
-}
-
-
-
-void Lattice::updateWithoutStaples()
-{
-  // Iterate through the lattice and update the links using Metropolis
-  // algorithm
-  for (int i = 0; i < this->nEdgePoints; ++i) {
-    for (int j = 0; j < this->nEdgePoints; ++j) {
-      for (int k = 0; k < this->nEdgePoints; ++k) {
-	for (int l = 0; l < this->nEdgePoints; ++l) {
-	  for (int m = 0; m < 4; ++m) {
-	    // We'll need an array with the link indices
-	    int link[5] = {i, j, k, l, m};
-	    // Get the staples
-	    Matrix3cd staples;
-	    (this->*computeStaples)(link, staples);
-	    // Record the old action contribution
-	    double oldAction = (this->*computeLocalAction)(link);
-	    // Record the old link in case we need it
-	    Matrix3cd oldLink = this->links_[i][j][k][l][m];
-
-	    // Get ourselves a random SU3 matrix for the update
-	    Matrix3cd randSu3 = 
-	      this->randSu3s_[rand() % this->randSu3s_.size()];
-	    // Multiply the site
-	    this->links_[i][j][k][l][m] = 
-	      randSu3 * this->links_[i][j][k][l][m];
-	    // What's the change in the action?
-	    double actionChange = 
-	      (this->*computeLocalAction)(link) - oldAction;
-	    
-	    // Was the change favourable? If not, revert the change
-	    bool isExpMore = exp(-actionChange) 
-	      >= double(rand()) / double(RAND_MAX);
-
-	    if ((actionChange <= 0) || isExpMore)
-	      this->links_[i][j][k][l][m] = 
-		randSu3 * this->links_[i][j][k][l][m];
+	    (this->*updateFunction_)(link);
 	  }
 	}
       }
@@ -458,30 +468,9 @@ void Lattice::updateSegment(const int n0, const int n1, const int n2,
 	for (int l = n2; l < n2 + chunkSize; ++l) {
 	  for (int m = n3; m < n3 + chunkSize; ++m) {
 	    for (int n = 0; n < 4; ++n) {
-
 	      // We'll need an array with the link indices
 	      int link[5] = {j, k, l, m, n};
-	      // Record the old action contribution
-	      double oldAction = (this->*computeLocalAction)(link);
-	      // Record the old link in case we need it
-	      Matrix3cd oldLink = this->links_[j][k][l][m][n];
-
-	      // Get ourselves a random SU3 matrix for the update
-	      Matrix3cd randSu3 = 
-		this->randSu3s_[rand() % this->randSu3s_.size()];
-	      // Multiply the site
-	      this->links_[j][k][l][m][n] = 
-		randSu3 * this->links_[j][k][l][m][n];
-	      // What's the change in the action?
-	      double actionChange = 
-		(this->*computeLocalAction)(link) - oldAction;
-	      // Was the change favourable? If not, revert the change
-	      bool isExpLess = exp(-actionChange) 
-		< double(rand()) / double(RAND_MAX);
-	      
-	      if ((actionChange > 0) && isExpLess) {
-		this->links_[j][k][l][m][n] = oldLink;
-	      }
+	      (this->*updateFunction_)(link);
 	    }
 	  }
 	}
@@ -492,52 +481,51 @@ void Lattice::updateSegment(const int n0, const int n1, const int n2,
 
 
 
-void Lattice::heatbath()
+void Lattice::runThreads(const int chunkSize, const int nUpdates,
+			 const int remainder)
 {
-  // Perform a single sweep heatbath over the lattice  
-  for (int i = 0; i < this->nEdgePoints; ++i) {
-    for (int j = 0; j < this->nEdgePoints; ++j) {
-      for (int k = 0; k < this->nEdgePoints; ++k) {
-	for (int l = 0; l < this->nEdgePoints; ++l) {
-	  for (int m = 0; m < 4; ++m) {
-	    int link[5] = {i, j, k, l, m};
-	    Matrix3cd staples;
-	    (this->*computeStaples)(link, staples);
-	    Matrix3cd W;
-	    
-	    for (int n = 0; n < 3; ++n) {
-	      W = this->links_[i][j][k][l][m] * staples;
-	      Matrix2cd V;
-	      double a[4];
-	      double r[4];
-	      lattice::extractSu2(W, V, a, n);
+  // Updates every other segment (even or odd, specified by remainder).
+  int index = 0;
 
-	      double a_l = sqrt(abs(a[0] * a[0] +
-				    a[1] * a[1] +
-				    a[2] * a[2] +
-				    a[3] * a[3]));
+#pragma omp parallel for schedule(dynamic, 1) collapse(4)
 
-	      Matrix2cd X;
-	      this->makeHeatbathSu2(X, r, a_l);
-	      Matrix3cd R;
-	      lattice::embedSu2(X * V.adjoint(), R, n);
-	      this->links_[i][j][k][l][m] = R * this->links_[i][j][k][l][m];
-	    }
+  for (int i = 0; i < this->nEdgePoints; i += chunkSize) {
+    for (int j = 0; j < this->nEdgePoints; j += chunkSize) {
+      for (int k = 0; k < this->nEdgePoints; k += chunkSize) {
+	for (int l = 0; l < this->nEdgePoints; l += chunkSize) {
+	  
+	  int site[4] = {i, j, k, l};
+	  if (index % 2 == remainder) {
+	    this->updateSegment(i, j, k, l, chunkSize, nUpdates);
 	  }
+	  index++;	  
 	}
       }
     }
   }
+}
+
+
+
+void Lattice::schwarzUpdate(const int chunkSize, const int nUpdates)
+{
+  // Update even and odd blocks using method similar to Schwarz Alternating
+  // Procedure.
+  this->runThreads(chunkSize, nUpdates, 0);
+  this->runThreads(chunkSize, nUpdates, 1);
   this->nUpdates_++;
 }
-
-
 
 void Lattice::thermalize()
 {
   // Update all links until we're at thermal equilibrium
-  while(this->nUpdates_ < 5 * this->nCorrelations){
-    this->heatbath();//schwarzUpdate(4, 10);
+  if (this->parallelFlag_ == 1) {
+    while(this->nUpdates_ < 5 * this->nCorrelations)
+      this->schwarzUpdate(4,1);
+  }
+  else {
+    while(this->nUpdates_ < 5 * this->nCorrelations)
+      this->update();
   }
 }
 
@@ -545,9 +533,15 @@ void Lattice::thermalize()
 
 void Lattice::getNextConfig()
 {
-  // Run nCorrelations updates
-  for (int i = 0; i < this->nCorrelations; ++i)
-    this->heatbath();//schwarzUpdate(4, 1);
+  // Run nCorrelations updates using parallel or linear method
+  if (this->parallelFlag_ == 1) {
+    for (int i = 0; i < this->nCorrelations; ++i)
+      this->schwarzUpdate(4,1);
+  }
+  else {
+    for (int i = 0; i < this->nCorrelations; ++i)
+      this->update();
+  }
 }
 
 
@@ -984,7 +978,7 @@ void Lattice::makeHeatbathSu2(Matrix2cd& out, double coefficients[4],
     double r1 = 1 - lattice::uni();
     double r2 = 1 - lattice::uni();
     double r3 = 1 - lattice::uni();
-    
+    // Need a factor of 1.5 here rather that 1/3, not sure why...
     lambdaSquared = - 1.5 / (1. * weighting * this->beta_) *
       (log(r1) + pow(cos(2 * lattice::pi * r2), 2) * log(r3));
     

@@ -16,7 +16,9 @@ struct lattice_pickle_suite : py::pickle_suite
 			  pylattice.action_,
 			  pylattice.nCorrelations,
 			  pylattice.rho_,
-			  pylattice.epsilon_);
+			  pylattice.epsilon_,
+			  pylattice.updateMethod_,
+			  pylattice.parallelFlag_);
   }
   
   static py::tuple getstate(const pyLattice& pylattice)
@@ -129,12 +131,11 @@ BOOST_PYTHON_MODULE(pyQCD)
 {
   py::class_<pyLattice>("Lattice",
 			py::init<py::optional<int, double, double, int, int,
-					      double, double> >())
+					      double, double, int, int> >())
     .def(py::init<pyLattice&>())
     .def("link", &pyLattice::getLinkP)
     .def("update", &pyLattice::update)
     .def("schwarz_update", &pyLattice::schwarzUpdate)
-    .def("heatbath", &pyLattice::heatbath)
     .def("next_config", &pyLattice::getNextConfig)
     .def("thermalize", &pyLattice::thermalize)
     .def("plaquette", &pyLattice::computePlaquetteP)
