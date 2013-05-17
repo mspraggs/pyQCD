@@ -36,7 +36,7 @@ parser.add_option("--nsmears", action = "store", type = "int",
 parser.add_option("-n", "--n", action = "store", type = "int", dest = "n",
 				  default = 8)
 parser.add_option("--Ncor", action = "store", type = "int", dest = "Ncor",
-				  default = 50)
+				  default = 10)
 parser.add_option("--Ncf", action = "store", type = "int", dest = "Ncf",
 				  default = 1000)
 parser.add_option("-e", "--eps", action = "store", type = "float",
