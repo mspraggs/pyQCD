@@ -1450,7 +1450,6 @@ void Lattice::computeRectangleStaples(const int link[5], Matrix3cd& out)
     // First link is U_nu (x + mu)
     tempLink[link[4]] += 1;
     tempLink[planes[i]] += 1;
-    tempLink[4] = planes[i];
     tempMatrix = this->getLink(tempLink);
     // Next link is U+_mu (x + nu)
     tempLink[planes[i]] += 1;
@@ -1465,7 +1464,7 @@ void Lattice::computeRectangleStaples(const int link[5], Matrix3cd& out)
     tempLink[planes[i]] -= 1;
     tempMatrix *= this->getLink(tempLink).adjoint();
     // Next link is U_mu (x - mu)
-    tempLink[4] = link[i];
+    tempLink[4] = link[4];
     tempMatrix *= this->getLink(tempLink);
     // Add it to the output
     rectangleStaples += tempMatrix;
@@ -1487,7 +1486,7 @@ void Lattice::computeRectangleStaples(const int link[5], Matrix3cd& out)
     tempLink[4] = planes[i];
     tempMatrix *= this->getLink(tempLink);
     // Next link is U_mu (x - mu)
-    tempLink[4] = link[i];
+    tempLink[4] = link[4];
     tempLink[planes[i]] += 1;
     tempMatrix *= this->getLink(tempLink);
     // Add it to the output
