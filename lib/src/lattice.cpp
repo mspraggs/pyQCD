@@ -354,27 +354,43 @@ void Lattice::update()
 	  for (int m = 0; m < 4; ++m) {
 	    // We'll need an array with the link indices
 	    int link[5] = {i, j, k, l, m};
-	    // Record the old action contribution
-	    double oldAction = (this->*computeLocalAction)(link);
-	    // Record the old link in case we need it
-	    Matrix3cd oldLink = this->links_[i][j][k][l][m];
-
-	    // Get ourselves a random SU3 matrix for the update
-	    Matrix3cd randSu3 = 
-	      this->randSu3s_[rand() % this->randSu3s_.size()];
-	    // Multiply the site
-	    this->links_[i][j][k][l][m] = 
-	      randSu3 * this->links_[i][j][k][l][m];
-	    // What's the change in the action?
-	    double actionChange = 
-	      (this->*computeLocalAction)(link) - oldAction;
+	    // Get the staples
+	    Matrix3cd staples;
+	    (this->*computeStaples)(link, staples);
+	    for (int n = 0; n < 10; ++n) {
+	      // Get a random SU3
+	      Matrix3cd randSu3 = 
+		this->randSu3s_[rand() % this->randSu3s_.size()];
+	      // Calculate the change in the action
+	      double actionChange = 
+		-this->beta_ / 3.0 *
+		((randSu3 - Matrix3cd::Identity())
+		 * this->links_[i][j][k][l][m] * staples).trace().real();
 	    
-	    // Was the change favourable? If not, revert the change
-	    bool isExpLess = exp(-actionChange) 
-	      < double(rand()) / double(RAND_MAX);
+	      /*
+	      // Record the old action contribution
+	      double oldAction = (this->*computeLocalAction)(link);
+	      // Record the old link in case we need it
+	      Matrix3cd oldLink = this->links_[i][j][k][l][m];
 
-	    if ((actionChange > 0) && isExpLess)
-	      this->links_[i][j][k][l][m] = oldLink;
+	      // Get ourselves a random SU3 matrix for the update
+	      Matrix3cd randSu3 = 
+	      this->randSu3s_[rand() % this->randSu3s_.size()];
+	      // Multiply the site
+	      this->links_[i][j][k][l][m] = 
+	      randSu3 * this->links_[i][j][k][l][m];
+	      // What's the change in the action?
+	      double actionChange = 
+	      (this->*computeLocalAction)(link) - oldAction;*/
+	    
+	      // Was the change favourable? If not, revert the change
+	      bool isExpMore = exp(-actionChange) 
+		>= double(rand()) / double(RAND_MAX);
+
+	      if ((actionChange <= 0) || isExpMore)
+		this->links_[i][j][k][l][m] = 
+		  randSu3 * this->links_[i][j][k][l][m];
+	    }
 	  }
 	}
       }
@@ -921,7 +937,7 @@ void Lattice::makeHeatbathSu2(Matrix2cd& out, double coefficients[4],
     double r2 = 1 - lattice::uni();
     double r3 = 1 - lattice::uni();
     
-    lambdaSquared = - 1.0 / (2.0 * weighting * this->beta_) *
+    lambdaSquared = - 1.5 / (1. * weighting * this->beta_) *
       (log(r1) + pow(cos(2 * lattice::pi * r2), 2) * log(r3));
     
     randomSquare = pow(lattice::uni(), 2);
@@ -1304,6 +1320,8 @@ void Lattice::computeWilsonStaples(const int link[5], Matrix3cd& out)
   // Calculates the sum of staples for the two plaquettes surrounding
   // the link
   int planes[3];
+
+  out = Matrix3cd::Zero();
   
   // Work out which dimension the link is in, since it'll be irrelevant here
   int j = 0;
@@ -1373,7 +1391,7 @@ void Lattice::computeRectangleStaples(const int link[5], Matrix3cd& out)
   this->computeWilsonStaples(link, out);
   out *= 5.0 / 3.0;
 
-  Matrix3cd tempOutMatrix;
+  Matrix3cd tempOutMatrix = Matrix3cd::Zero();
 
   // For each plane, return the sum of the two link products for the
   // plaquette it resides in
