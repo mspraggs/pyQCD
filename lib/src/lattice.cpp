@@ -401,6 +401,52 @@ void Lattice::update()
 
 
 
+void Lattice::updateWithoutStaples()
+{
+  // Iterate through the lattice and update the links using Metropolis
+  // algorithm
+  for (int i = 0; i < this->nEdgePoints; ++i) {
+    for (int j = 0; j < this->nEdgePoints; ++j) {
+      for (int k = 0; k < this->nEdgePoints; ++k) {
+	for (int l = 0; l < this->nEdgePoints; ++l) {
+	  for (int m = 0; m < 4; ++m) {
+	    // We'll need an array with the link indices
+	    int link[5] = {i, j, k, l, m};
+	    // Get the staples
+	    Matrix3cd staples;
+	    (this->*computeStaples)(link, staples);
+	    // Record the old action contribution
+	    double oldAction = (this->*computeLocalAction)(link);
+	    // Record the old link in case we need it
+	    Matrix3cd oldLink = this->links_[i][j][k][l][m];
+
+	    // Get ourselves a random SU3 matrix for the update
+	    Matrix3cd randSu3 = 
+	      this->randSu3s_[rand() % this->randSu3s_.size()];
+	    // Multiply the site
+	    this->links_[i][j][k][l][m] = 
+	      randSu3 * this->links_[i][j][k][l][m];
+	    // What's the change in the action?
+	    double actionChange = 
+	      (this->*computeLocalAction)(link) - oldAction;
+	    
+	    // Was the change favourable? If not, revert the change
+	    bool isExpMore = exp(-actionChange) 
+	      >= double(rand()) / double(RAND_MAX);
+
+	    if ((actionChange <= 0) || isExpMore)
+	      this->links_[i][j][k][l][m] = 
+		randSu3 * this->links_[i][j][k][l][m];
+	  }
+	}
+      }
+    }
+  }
+  this->nUpdates_++;
+}
+
+
+
 void Lattice::updateSegment(const int n0, const int n1, const int n2,
 			    const int n3, const int chunkSize,
 			    const int nUpdates)
@@ -482,6 +528,7 @@ void Lattice::heatbath()
       }
     }
   }
+  this->nUpdates_++;
 }
 
 
@@ -489,8 +536,9 @@ void Lattice::heatbath()
 void Lattice::thermalize()
 {
   // Update all links until we're at thermal equilibrium
-  while(this->nUpdates_ < 5 * this->nCorrelations)
-    this->schwarzUpdate(4, 10);
+  while(this->nUpdates_ < 5 * this->nCorrelations){
+    this->heatbath();//schwarzUpdate(4, 10);
+  }
 }
 
 
@@ -499,7 +547,7 @@ void Lattice::getNextConfig()
 {
   // Run nCorrelations updates
   for (int i = 0; i < this->nCorrelations; ++i)
-    this->schwarzUpdate(4, 1);
+    this->heatbath();//schwarzUpdate(4, 1);
 }
 
 
