@@ -444,7 +444,7 @@ void Lattice::heatbath()
 	    Matrix3cd W;
 	    
 	    for (int n = 0; n < 3; ++n) {
-	      W = this->getLink(link) * staples;
+	      W = this->links_[i][j][k][l][m] * staples;
 	      Matrix2cd V;
 	      double a[4];
 	      double r[4];
