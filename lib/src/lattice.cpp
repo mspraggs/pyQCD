@@ -450,10 +450,10 @@ void Lattice::heatbath()
 	      double r[4];
 	      lattice::extractSu2(W, V, a, n);
 
-	      double a_l = sqrt(a[0] * a[0] +
-				a[1] * a[1] +
-				a[2] * a[2] +
-				a[3] * a[3]);
+	      double a_l = sqrt(abs(a[0] * a[0] +
+				    a[1] * a[1] +
+				    a[2] * a[2] +
+				    a[3] * a[3]));
 
 	      Matrix2cd X;
 	      this->makeHeatbathSu2(X, r, a_l);
@@ -928,7 +928,7 @@ void Lattice::makeHeatbathSu2(Matrix2cd& out, double coefficients[4],
   }
 
   coefficients[0] = 1 - 2 * lambdaSquared;
-  double xMag = sqrt(1 - coefficients[0] * coefficients[0]);
+  double xMag = sqrt(abs(1 - coefficients[0] * coefficients[0]));
 
   double costheta = -1.0 + 2.0 * lattice::uni();
   double phi = 2 * lattice::pi * lattice::uni();
