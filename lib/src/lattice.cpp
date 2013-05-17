@@ -22,9 +22,9 @@ namespace lattice
 
 
 
-  mt19937 generator(42u);
-  uniform_real<> uni_dist(0, 1);
-  variate_generator<mt19937&, uniform_real<> > uni(generator, uni_dist);
+  mt19937 generator(time(0));
+  uniform_real<> uni_float(0, 1);
+  variate_generator<mt19937&, uniform_real<> > uni(generator, uni_float);
 
 
 
@@ -133,6 +133,8 @@ namespace lattice
     su2Matrix /= magnitude;
   }
 
+
+
   int sgn(const int x)
   {
     return (x < 0) ? -1 : 1;
@@ -192,8 +194,6 @@ Lattice::Lattice(const int nEdgePoints, const double beta, const double u0,
   this->nUpdates_ = 0;
   this->u0_ = u0;
   this->action_ = action;
-
-  lattice::generator.seed(static_cast<unsigned int>(time(0)));
 
   srand(time(0));
   // Resize the link vector and assign each link a random SU3 matrix
