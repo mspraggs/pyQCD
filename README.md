@@ -67,4 +67,6 @@ command line parameters for the run script:
 * --eps=X, where X is the update tuning factor (leave this at 0.24 to get a 50% update acceptance rate
 * --spacing=X, where X is the lattice spacing (at this stage this won't alter how the simulation works)
 * --rho=X, where X is the smearing weighting factor (0.3 by default)
+* --update-method=N, where N defines the method used to update the gauge configurations. Use 0 for heatbath updates, 1 for efficient Monte Carlo updates and 2 for inefficient Monte Carlo updates. Note that the inefficient Monte Carlo method is the only one that'll work with the twisted rectangle operator, since the link staples cannot be computed for the twisted rectangle operator.
+* --parallel-flag=N, where N=1 enables parallel updating, while N=0 disables it.
 * -t or --test calculates how long the simulation will take to run (approximately).
