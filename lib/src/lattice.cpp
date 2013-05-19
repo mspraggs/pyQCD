@@ -366,8 +366,7 @@ void Lattice::monteCarlo(const int link[5])
        * staples).trace().real();
     
     // Was the change favourable? If not, revert the change
-    bool isExpMore = exp(-actionChange) 
-      >= lattice::uni();
+    bool isExpMore = exp(-actionChange) >= lattice::uni();
     
     if ((actionChange <= 0) || isExpMore)
       this->links_[link[0]][link[1]][link[2]][link[3]][link[4]] = 
