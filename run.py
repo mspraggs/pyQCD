@@ -92,7 +92,7 @@ if options.test:
 		% (((t2 - t1) * options.Ncf + t2 - t1) / 3600))
 
 else:
-	for i in xrange(option.Ncf):
+	for i in xrange(options.Ncf):
 		print("Configuration: %d" % i)
 		sys.stdout.flush()
 		L.next_config()
