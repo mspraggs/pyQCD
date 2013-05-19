@@ -935,19 +935,20 @@ void Lattice::smearLinks(const int time, const int nSmears)
 				Sub3Field(this->nEdgePoints, 
 					  Sub4Field(4))));
 #pragma omp parallel for collapse(4)
-    for (int i = 0; i < this->nEdgePoints; ++i) {
-      for (int j = 0; j < this->nEdgePoints; ++j) {
-	for (int k = 0; k < this->nEdgePoints; ++k) {
+    for (int j = 0; j < this->nEdgePoints; ++j) {
+      for (int k = 0; k < this->nEdgePoints; ++k) {
+	for (int l = 0; l < this->nEdgePoints; ++l) {
 	  // NB, spatial links only, so l > 0!
-	  newLinks[i][j][k][0] = this->links_[time][i][j][k][0];
-	  for (int l = 1; l < 4; ++l) {
+	  newLinks[j][k][l][0] =
+	    this->links_[pyQCD::mod(time, this->nEdgePoints)][j][k][l][0];
+	  for (int m = 1; m < 4; ++m) {
 	    // Create a temporary matrix to store the new link
-	    int link[5] = {time, i, j, k, l};
+	    int link[5] = {time, j, k, l, m};
 	    Matrix3cd tempMatrix;
 	    this->computeQ(link, tempMatrix);
 	    tempMatrix = (pyQCD::i * tempMatrix).exp()
 	      * this->getLink(link);
-	    newLinks[i][j][k][l] = tempMatrix;
+	    newLinks[j][k][l][m] = tempMatrix;
 	  }
 	}
       }
