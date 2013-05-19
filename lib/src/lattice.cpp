@@ -1289,7 +1289,8 @@ VectorXcd Lattice::computePropagator(const double mass, int site[4],
   BiCGSTAB<SparseMatrix<complex<double> > > solver(D);
   
   // This is our source vector
-  VectorXcd S(nIndices) = VectorXcd::Zero(nIndices);
+  VectorXcd S(nIndices);
+  S.setZero(nIndices);
   
   // Calculate the row of the vector specified by the site,
   // spin and colour
