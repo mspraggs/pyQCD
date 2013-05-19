@@ -124,7 +124,7 @@ else:
 
 	tf = time.time()
 	hrs = int((tf - t0) / 3600)
-	mins = int((tf - t0 - 3600 * hours) / 60)
+	mins = int((tf - t0 - 3600 * hrs) / 60)
 	secs = (tf - t0) - 3600 * hrs - 60 * mins
 	print("Simulation completed in %d hours, %d minutes and %f seconds" \
 		% (hrs,mins,secs))
