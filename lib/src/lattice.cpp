@@ -747,14 +747,32 @@ double Lattice::computeAverageWilsonLoop(const int r, const int t,
   for (int time = 0; time < this->nEdgePoints; time++) {
     this->smearLinks(time, nSmears);
   }
+  //#pragma omp parallel for 
   double Wtot = 0.0;
-  for (int i = 0; i < this->nEdgePoints; ++i) {
-    for (int j = 0; j < this->nEdgePoints; ++j) {
-      for (int k = 0; k < this->nEdgePoints; ++k) {
-	for (int l = 0; l < this->nEdgePoints; ++l) {
-	  for (int m = 1; m < 4; ++m) {
-	    int site[4] = {i, j, k, l};
-	    Wtot += this->computeWilsonLoop(site, r, t, m, 0);
+  if (this->parallelFlag_ == 1) {
+#pragma omp parallel for collapse(5)
+    for (int i = 0; i < this->nEdgePoints; ++i) {
+      for (int j = 0; j < this->nEdgePoints; ++j) {
+	for (int k = 0; k < this->nEdgePoints; ++k) {
+	  for (int l = 0; l < this->nEdgePoints; ++l) {
+	    for (int m = 1; m < 4; ++m) {
+	      int site[4] = {i, j, k, l};
+	      Wtot += this->computeWilsonLoop(site, r, t, m, 0);
+	    }
+	  }
+	}
+      }
+    }
+  }
+  else {
+    for (int i = 0; i < this->nEdgePoints; ++i) {
+      for (int j = 0; j < this->nEdgePoints; ++j) {
+	for (int k = 0; k < this->nEdgePoints; ++k) {
+	  for (int l = 0; l < this->nEdgePoints; ++l) {
+	    for (int m = 1; m < 4; ++m) {
+	      int site[4] = {i, j, k, l};
+	      Wtot += this->computeWilsonLoop(site, r, t, m, 0);
+	    }
 	  }
 	}
       }
