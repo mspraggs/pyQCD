@@ -409,27 +409,44 @@ void Lattice::monteCarloNoStaples(const int link[5])
 void Lattice::heatbath(const int link[5])
 {
   // Update a single link using heatbath in Gattringer and Lang
+  // Calculate the staples matrix A
   Matrix3cd staples;
   (this->*computeStaples)(link, staples);
+  // Declare the matrix W = U * A
   Matrix3cd W;
   
+  // Iterate over the three SU(2) subgroups of W
   for (int n = 0; n < 3; ++n) {
+    // W = U * A
     W = this->links_[link[0]][link[1]][link[2]][link[3]][link[4]]
       * staples;
     Matrix2cd V;
     double a[4];
     double r[4];
+    // Get SU(2) sub-group of W corresponding to index n
+    // i.e. n is row/column removed from W to get 2x2 matrix,
+    // which is then unitarised. This is matrix V.
     lattice::extractSu2(W, V, a, n);
     
+    // Find the determinant needed to unitarise the sub-group
+    // of W. a are the coefficients of the Pauli matrices
+    // used to generate the SU(2) sub-group matrix
     double a_l = sqrt(abs(a[0] * a[0] +
 			  a[1] * a[1] +
 			  a[2] * a[2] +
 			  a[3] * a[3]));
     
+    // X will be the random matrix we generate according to equation
+    // 4.45 in Gattringer in Lang (though note that we use a different
+    // coefficient here, as otherwise the results come out wrong for
+    // some reason.
     Matrix2cd X;
     this->makeHeatbathSu2(X, r, a_l);
+    // Then calculate the matrix R to update the sub-group and embed it
+    // as an SU(3) matrix.
     Matrix3cd R;
     lattice::embedSu2(X * V.adjoint(), R, n);
+    // Do the update
     this->links_[link[0]][link[1]][link[2]][link[3]][link[4]]
       = R * this->links_[link[0]][link[1]][link[2]][link[3]][link[4]];
   }
@@ -439,6 +456,8 @@ void Lattice::heatbath(const int link[5])
 
 void Lattice::update()
 {
+  // Iterate through the lattice and apply the appropriate update
+  // function
   for (int i = 0; i < this->nEdgePoints; ++i) {
     for (int j = 0; j < this->nEdgePoints; ++j) {
       for (int k = 0; k < this->nEdgePoints; ++k) {
@@ -518,8 +537,10 @@ void Lattice::schwarzUpdate(const int chunkSize, const int nUpdates)
 void Lattice::thermalize()
 {
   // Update all links until we're at thermal equilibrium
+  // Do we do this using OpenMP, or not?
   if (this->parallelFlag_ == 1) {
     while(this->nUpdates_ < 5 * this->nCorrelations)
+      // If so, do a Schwarz update thingy (even/odd blocks)
       this->schwarzUpdate(4,1);
   }
   else {
@@ -971,29 +992,44 @@ void Lattice::makeHeatbathSu2(Matrix2cd& out, double coefficients[4],
 {
   // Generate a random SU2 matrix distributed according to heatbath
   // (See Gattringer and Lang)
+  // Initialise lambdaSquared so that we'll go into the for loop
   double lambdaSquared = 2.0;
+  // A random squared float to use in the while loop
   double randomSquare = pow(lattice::uni(), 2);
+  // Loop until lambdaSquared meets the distribution condition
   while (randomSquare > 1.0 - lambdaSquared) {
+    // Generate three random floats in (0,1] as per Gattringer and Lang
     double r1 = 1 - lattice::uni();
     double r2 = 1 - lattice::uni();
     double r3 = 1 - lattice::uni();
     // Need a factor of 1.5 here rather that 1/3, not sure why...
-    lambdaSquared = - 1.5 / (1. * weighting * this->beta_) *
+    // Possibly due to Nc = 3 in this case
+    lambdaSquared = - 1.5 / (weighting * this->beta_) *
       (log(r1) + pow(cos(2 * lattice::pi * r2), 2) * log(r3));
-    
+
+    // Get a new random number
     randomSquare = pow(lattice::uni(), 2);
   }
 
+  // Get the first of the four elements needed to specify the SU(2)
+  // matrix using Pauli matrices
   coefficients[0] = 1 - 2 * lambdaSquared;
+  // Magnitude of remaing three-vector is given as follows
   double xMag = sqrt(abs(1 - coefficients[0] * coefficients[0]));
 
+  // Randomize the direction of the remaining three-vector
+  // Get a random cos(theta) in [0,1)
   double costheta = -1.0 + 2.0 * lattice::uni();
+  // And a random phi in [0,2*pi)
   double phi = 2 * lattice::pi * lattice::uni();
 
+  // We now have everything we need to calculate the remaining three
+  // components, so do it
   coefficients[1] = xMag * sqrt(1 - costheta * costheta) * cos(phi);
   coefficients[2] = xMag * sqrt(1 - costheta * costheta) * sin(phi);
   coefficients[3] = xMag * costheta;
 
+  // Now get the SU(2) matrix
   lattice::createSu2(out, coefficients);
 }
 
@@ -1002,7 +1038,7 @@ void Lattice::makeHeatbathSu2(Matrix2cd& out, double coefficients[4],
 void Lattice::computeQ(const int link[5], Matrix3cd& out)
 {
   // Calculates Q matrix for analytic smearing according to paper on analytic
-  // smearing
+  // smearing (Morningstart and Peardon, 2003)
   Matrix3cd C = Matrix3cd::Zero();
 
   for (int nu = 1; nu < 4; nu++) {
@@ -1089,6 +1125,8 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
 {
   // Calculates the Dirac matrix for the current field configuration
   // using Wilson fermions
+
+  // TODO - pass the SparseMatrix in by reference to save computing time
   
   // Calculate some useful quantities
   int nIndices = int(12 * pow(this->nEdgePoints, 4));
@@ -1151,12 +1189,14 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
 
 	bool isJustBelow = m == lattice::mod(n + nOff, nSites);
 	bool isJustAbove = m == lattice::mod(n - nOff, nSites);
-
+	// Are the two sites adjacent to one another?
 	if (isJustBelow || isJustAbove) {
 	  isAdjacent = true;
 	  break;
 	}
       }
+      // If the two sites are adjacent, then there is some
+      // point in doing the sum
       if (isAdjacent) {
 	// First we'll need something to put the sum into
 	complex<double> sum = complex<double>(0.0, 0.0);	
@@ -1182,35 +1222,52 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
 	  // First test for when mu is positive, as then we'll need to deal
 	  // with the +ve or -ve cases slightly differently
 	  if (equal(siteI, siteI + 4, siteJ)) {
+	    // Create and intialise the link we'll be using
 	    int link[5];
 	    copy(siteI, siteI + 4, link);
 	    link[4] = mu_mink;
+	    // Then we'll need a colour matrix given by the link
 	    Matrix3cd U;
+	    // And get the gamma matrix (1 - gamma) in the sum
 	    Matrix4cd lorentz = 
 	      Matrix4cd::Identity() - lattice::gamma(mus[k]);
+	    // So, if the current mu is positive, just get
+	    // the plain old link given by link as normal
 	    if (mus[k] > 0) {
 	      Matrix3cd tempMatrix = this->getLink(link);
 	      U = tempMatrix;
 	    }
 	    else {
+	      // If mu is negative, we'll need the adjoint
+	      // matrix on the neighbouring site (cos we're
+	      // going backwards).
 	      link[mu_mink] -= 1;
 	      U = this->getLink(link).adjoint();
 	    }
+	    // Mutliply the matrix elements together and add
+	    // them to the sum.
 	    sum += lorentz(indices[i][4], indices[j][4]) 
 	      * U(indices[i][5], indices[j][5]);
 	  }
 	}
+	// Divide the sum through by -2 * spacing
 	sum /= -(2.0 * spacing);
+	// Make sure OpemMP doesn't conflict with itself
 #pragma omp critical
 	if (sum.imag() != 0.0 && sum.real() != 0.0)
+	  // Add the sum to the list of triplets
 	  tripletList.push_back(Tlet(i, j, sum));
       }
       else {
+	// If the sites aren't neighbours, skip ahead to the next
+	// site, as there's no point doing it for the other colours
+	// and spin indices.
 	j = (n + 1) * 12 - 1;
       }
     }
   }
   
+  // Add all the triplets to the sparse matrix
   out.setFromTriplets(tripletList.begin(), tripletList.end());
   
   return out;
@@ -1220,12 +1277,22 @@ VectorXcd Lattice::computePropagator(const double mass, int site[4],
 				     const int alpha, const int a,
 				     const double spacing)
 {
+  // Computes the propagator vectors for the 12 spin-colour indices at
+  // the given lattice site, using the Dirac operator
+
+  // TODO - pass the Vector by reference to save time
+  // Declare a sparse matrix to hold the dirac operator
   SparseMatrix<complex<double> > D = this->computeDiracMatrix(mass, spacing);
+  // How many indices are we dealing with?
   int nIndices = int(12 * pow(this->nEdgePoints, 4));
+  // Declare our solver
   BiCGSTAB<SparseMatrix<complex<double> > > solver(D);
   
-  VectorXcd S(nIndices);
+  // This is our source vector
+  VectorXcd S(nIndices) = VectorXcd::Zero(nIndices);
   
+  // Calculate the row of the vector specified by the site,
+  // spin and colour
   int m = site[3] + this->nEdgePoints 
     * (site[2] + this->nEdgePoints 
        * (site[1] + this->nEdgePoints * site[0]));
@@ -1233,6 +1300,7 @@ VectorXcd Lattice::computePropagator(const double mass, int site[4],
   int index = a + 3 * (alpha + 4 * m);
   S(index) = 1.0;
   
+  // Solve for the propagator with the given source
   VectorXcd propagator = solver.solve(S);
   
   return propagator;
@@ -1289,6 +1357,7 @@ double Lattice::computeLocalRectangleAction(const int link[5])
   
   for (int i = 0; i < 3; ++i) {
     int site[4] = {link[0], link[1], link[2], link[3]};
+    // Add the six rectangles that contain the link
     Rsum += this->computeRectangle(site, link[4], planes[i]);
     site[link[4]] -= 1;
     Rsum += this->computeRectangle(site, link[4], planes[i]);
@@ -1332,6 +1401,7 @@ double Lattice::computeLocalTwistedRectangleAction(const int link[5])
   
   for (int i = 0; i < 3; ++i) {
     int site[4] = {link[0], link[1], link[2], link[3]};
+    // Add the seven twisted rectangles that contain the link
     Tsum += this->computeTwistedRectangle(site, link[4], planes[i]);
     site[link[4]] -= 1;
     Tsum += this->computeTwistedRectangle(site, link[4], planes[i]);
