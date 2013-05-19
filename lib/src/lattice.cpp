@@ -23,8 +23,11 @@ namespace lattice
 
 
   mt19937 generator(time(0));
-  uniform_real<> uni_float(0, 1);
-  variate_generator<mt19937&, uniform_real<> > uni(generator, uni_float);
+  uniform_real<> uniformFloat(0, 1);
+  uniform_int<> uniformInt(0, 199);
+  variate_generator<mt19937&, uniform_real<> > uni(generator, uniformFloat);
+  variate_generator<mt19937&, uniform_int<> > randomIndex(generator,
+							  uniformInt);
 
 
 
@@ -197,7 +200,6 @@ Lattice::Lattice(const int nEdgePoints, const double beta, const double u0,
   this->updateMethod_ = updateMethod;
   this->parallelFlag_ = parallelFlag;
 
-  srand(time(0));
   // Resize the link vector and assign each link a random SU3 matrix
   this->links_.resize(this->nEdgePoints);
   for (int i = 0; i < this->nEdgePoints; ++i) {
@@ -357,7 +359,7 @@ void Lattice::monteCarlo(const int link[5])
   for (int n = 0; n < 10; ++n) {
     // Get a random SU3
     Matrix3cd randSu3 = 
-      this->randSu3s_[rand() % this->randSu3s_.size()];
+      this->randSu3s_[lattice::randomIndex()];
     // Calculate the change in the action
     double actionChange = 
       -this->beta_ / 3.0 *
@@ -389,7 +391,7 @@ void Lattice::monteCarloNoStaples(const int link[5])
   
   // Get ourselves a random SU3 matrix for the update
   Matrix3cd randSu3 = 
-    this->randSu3s_[rand() % this->randSu3s_.size()];
+    this->randSu3s_[lattice::randomIndex()];
   // Multiply the site
   this->links_[link[0]][link[1]][link[2]][link[3]][link[4]] = 
     randSu3 * this->links_[link[0]][link[1]][link[2]][link[3]][link[4]];
