@@ -927,34 +927,69 @@ void Lattice::computeQ(const int link[5], Matrix3cd& out)
 void Lattice::smearLinks(const int time, const int nSmears)
 {
   // Smear the specified time slice by iterating calling this function
-  for (int i = 0; i < nSmears; ++i) {
-    // Iterate through all the links and calculate the new ones from
-    // the existing ones.    
-    SubField newLinks(this->nEdgePoints, 
-		      Sub2Field(this->nEdgePoints,
-				Sub3Field(this->nEdgePoints, 
-					  Sub4Field(4))));
+  if (this->parallelFlag_ == 1) {
+
+    for (int i = 0; i < nSmears; ++i) {
+      // Iterate through all the links and calculate the new ones from
+      // the existing ones.    
+      SubField newLinks(this->nEdgePoints, 
+			Sub2Field(this->nEdgePoints,
+				  Sub3Field(this->nEdgePoints, 
+					    Sub4Field(4))));
 #pragma omp parallel for collapse(3)
-    for (int j = 0; j < this->nEdgePoints; ++j) {
-      for (int k = 0; k < this->nEdgePoints; ++k) {
-	for (int l = 0; l < this->nEdgePoints; ++l) {
-	  // NB, spatial links only, so l > 0!
-	  newLinks[j][k][l][0] =
-	    this->links_[pyQCD::mod(time, this->nEdgePoints)][j][k][l][0];
-	  for (int m = 1; m < 4; ++m) {
-	    // Create a temporary matrix to store the new link
-	    int link[5] = {time, j, k, l, m};
-	    Matrix3cd tempMatrix;
-	    this->computeQ(link, tempMatrix);
-	    tempMatrix = (pyQCD::i * tempMatrix).exp()
-	      * this->getLink(link);
-	    newLinks[j][k][l][m] = tempMatrix;
+      for (int j = 0; j < this->nEdgePoints; ++j) {
+	for (int k = 0; k < this->nEdgePoints; ++k) {
+	  for (int l = 0; l < this->nEdgePoints; ++l) {
+	    // NB, spatial links only, so l > 0!
+	    newLinks[j][k][l][0] =
+	      this->links_[pyQCD::mod(time, this->nEdgePoints)][j][k][l][0];
+	    for (int m = 1; m < 4; ++m) {
+	      // Create a temporary matrix to store the new link
+	      int link[5] = {time, j, k, l, m};
+	      Matrix3cd tempMatrix;
+	      this->computeQ(link, tempMatrix);
+	      tempMatrix = (pyQCD::i * tempMatrix).exp()
+		* this->getLink(link);
+	      newLinks[j][k][l][m] = tempMatrix;
+	    }
 	  }
 	}
       }
+      // Apply the changes to the existing lattice.
+      this->links_[pyQCD::mod(time, this->nEdgePoints)] = newLinks;
     }
-    // Apply the changes to the existing lattice.
-    this->links_[pyQCD::mod(time, this->nEdgePoints)] = newLinks;
+  }
+  else {
+
+    for (int i = 0; i < nSmears; ++i) {
+      // Iterate through all the links and calculate the new ones from
+      // the existing ones.    
+      SubField newLinks(this->nEdgePoints, 
+			Sub2Field(this->nEdgePoints,
+				  Sub3Field(this->nEdgePoints, 
+					    Sub4Field(4))));
+
+      for (int j = 0; j < this->nEdgePoints; ++j) {
+	for (int k = 0; k < this->nEdgePoints; ++k) {
+	  for (int l = 0; l < this->nEdgePoints; ++l) {
+	    // NB, spatial links only, so l > 0!
+	    newLinks[j][k][l][0] =
+	      this->links_[pyQCD::mod(time, this->nEdgePoints)][j][k][l][0];
+	    for (int m = 1; m < 4; ++m) {
+	      // Create a temporary matrix to store the new link
+	      int link[5] = {time, j, k, l, m};
+	      Matrix3cd tempMatrix;
+	      this->computeQ(link, tempMatrix);
+	      tempMatrix = (pyQCD::i * tempMatrix).exp()
+		* this->getLink(link);
+	      newLinks[j][k][l][m] = tempMatrix;
+	    }
+	  }
+	}
+      }
+      // Apply the changes to the existing lattice.
+      this->links_[pyQCD::mod(time, this->nEdgePoints)] = newLinks;
+    }
   }
 }
 
