@@ -934,7 +934,7 @@ void Lattice::smearLinks(const int time, const int nSmears)
 		      Sub2Field(this->nEdgePoints,
 				Sub3Field(this->nEdgePoints, 
 					  Sub4Field(4))));
-
+#pragma omp parallel for collapse(4)
     for (int i = 0; i < this->nEdgePoints; ++i) {
       for (int j = 0; j < this->nEdgePoints; ++j) {
 	for (int k = 0; k < this->nEdgePoints; ++k) {
