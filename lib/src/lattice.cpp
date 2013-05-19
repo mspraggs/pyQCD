@@ -1,186 +1,5 @@
 #include <lattice.hpp>
-
-namespace lattice
-{
-  const complex<double> i (0.0, 1.0);
-  const double pi = 3.1415926535897932384626433;
-
-
-
-  Matrix2cd sigma0 = Matrix2cd::Identity();
-
-  Matrix2cd sigma1 = (MatrixXcd(2, 2) << 0, 1,
-		      1, 0).finished();
-
-  Matrix2cd sigma2 = (MatrixXcd(2, 2) << 0, -i,
-		      i, 0).finished();
-
-  Matrix2cd sigma3 = (MatrixXcd(2, 2) << 1, 0,
-		      0, -1).finished();
-
-  Matrix2cd sigmas[4] = {sigma0, sigma1, sigma2, sigma3};
-
-
-
-  mt19937 generator(time(0));
-  uniform_real<> uniformFloat(0, 1);
-  uniform_int<> uniformInt(0, 199);
-  variate_generator<mt19937&, uniform_real<> > uni(generator, uniformFloat);
-  variate_generator<mt19937&, uniform_int<> > randomIndex(generator,
-							  uniformInt);
-
-
-
-  int mod(int number, const int divisor)
-  {
-    int ret = number % divisor;
-    if (ret < 0)
-      ret += divisor;
-    return ret;
-  }
-
-
-
-  void createSu2(Matrix2cd& out, const double coefficients[4])
-  {
-    out = coefficients[0] * sigmas[0];
-    for (int i = 1; i < 4; ++i)
-      out += lattice::i * coefficients[i] * sigmas[i];
-  }
-
-
-
-  void embedSu2(const Matrix2cd& Su2Matrix, Matrix3cd& Su3Matrix,
-		const int index)
-  {
-    if (index == 0) {
-      Su3Matrix(0, 0) = 1.0;
-      Su3Matrix(0, 1) = 0.0;
-      Su3Matrix(0, 2) = 0.0;
-      Su3Matrix(1, 0) = 0.0;
-      Su3Matrix(1, 1) = Su2Matrix(0, 0);
-      Su3Matrix(1, 2) = Su2Matrix(0, 1);
-      Su3Matrix(2, 0) = 0.0;
-      Su3Matrix(2, 1) = Su2Matrix(1, 0);
-      Su3Matrix(2, 2) = Su2Matrix(1, 1);
-    }
-    else if (index == 1) {
-      Su3Matrix(0, 0) = Su2Matrix(0, 0);
-      Su3Matrix(0, 1) = 0.0;
-      Su3Matrix(0, 2) = Su2Matrix(0, 1);
-      Su3Matrix(1, 0) = 0.0;
-      Su3Matrix(1, 1) = 1.0;
-      Su3Matrix(1, 2) = 0.0;
-      Su3Matrix(2, 0) = Su2Matrix(1, 0);
-      Su3Matrix(2, 1) = 0.0;
-      Su3Matrix(2, 2) = Su2Matrix(1, 1);
-    }
-    else {    
-      Su3Matrix(0, 0) = Su2Matrix(0, 0);
-      Su3Matrix(0, 1) = Su2Matrix(0, 1);
-      Su3Matrix(0, 2) = 0.0;
-      Su3Matrix(1, 0) = Su2Matrix(1, 0);
-      Su3Matrix(1, 1) = Su2Matrix(1, 1);
-      Su3Matrix(1, 2) = 0.0;
-      Su3Matrix(2, 0) = 0.0;
-      Su3Matrix(2, 1) = 0.0;
-      Su3Matrix(2, 2) = 1.0;
-    }
-  }
-
-
-
-  void extractSubMatrix(const Matrix3cd& su3Matrix, Matrix2cd& subMatrix,
-			const int index)
-  {
-    if (index == 0) {
-      subMatrix(0, 0) = su3Matrix(1, 1);
-      subMatrix(0, 1) = su3Matrix(1, 2);
-      subMatrix(1, 0) = su3Matrix(2, 1);
-      subMatrix(1, 1) = su3Matrix(2, 2);
-    }
-    else if (index == 1) {
-      subMatrix(0, 0) = su3Matrix(0, 0);
-      subMatrix(0, 1) = su3Matrix(0, 2);
-      subMatrix(1, 0) = su3Matrix(2, 0);
-      subMatrix(1, 1) = su3Matrix(2, 2);
-    }
-    else {
-      subMatrix(0, 0) = su3Matrix(0, 0);
-      subMatrix(0, 1) = su3Matrix(0, 1);
-      subMatrix(1, 0) = su3Matrix(1, 0);
-      subMatrix(1, 1) = su3Matrix(1, 1);
-    }
-  }
-
-
-
-  void extractSu2(const Matrix3cd& su3Matrix, Matrix2cd& su2Matrix,
-		  double coefficients[4], const int index)
-  {
-    Matrix2cd subMatrix;
-    extractSubMatrix(su3Matrix, subMatrix, index);
-    
-    coefficients[0] = subMatrix(0, 0).real() + subMatrix(1, 1).real();
-    coefficients[1] = subMatrix(0, 1).imag() + subMatrix(1, 0).imag();
-    coefficients[2] = subMatrix(0, 1).real() - subMatrix(1, 0).real();
-    coefficients[3] = subMatrix(0, 0).imag() - subMatrix(1, 1).imag();
-
-    double magnitude = sqrt(pow(coefficients[0], 2) +
-			    pow(coefficients[1], 2) +
-			    pow(coefficients[2], 2) +
-			    pow(coefficients[3], 2));
-
-    createSu2(su2Matrix, coefficients);
-    su2Matrix /= magnitude;
-  }
-
-
-
-  int sgn(const int x)
-  {
-    return (x < 0) ? -1 : 1;
-  }
-
-
-
-  Matrix4cd gamma1 = (MatrixXcd(4, 4) << 0, 0, 0, -i,
-		      0, 0, -i, 0,
-		      0, i, 0, 0,
-		      i, 0, 0, 0).finished();
-  
-  Matrix4cd gamma2 = (MatrixXcd(4, 4) <<  0, 0, 0, -1,
-		      0, 0, 1, 0,
-		      0, 1, 0, 0,
-		      -1, 0, 0, 0).finished();
-
-  Matrix4cd gamma3 = (MatrixXcd(4, 4) << 0, 0, -i, 0,
-		      0, 0, 0, i,
-		      i, 0, 0, 0,
-		      0, -i, 0, 0).finished();
-
-  Matrix4cd gamma4 = (MatrixXcd(4, 4) << 0, 0, 1, 0,
-		      0, 0, 0, 1,
-		      1, 0, 0, 0,
-		      0, 1, 0, 0).finished();
-
-  Matrix4cd gamma5 = (MatrixXcd(4, 4) << 1, 0, 0, 0,
-		      0, 1, 0, 0,
-		      0, 0, -1, 0,
-		      0, 0, 0, -1).finished();
-  
-  Matrix4cd gammas[5] = {gamma1, gamma2, gamma3, gamma4, gamma5};
-
-
-  
-  Matrix4cd gamma(const int index)
-  {
-    int prefactor = sgn(index);
-    return prefactor * gammas[abs(index) - 1];
-  }
-}
-
-
+#include <pyQCD_utils.hpp>
 
 Lattice::Lattice(const int nEdgePoints, const double beta, const double u0,
 		 const int action, const int nCorrelations, const double rho,
@@ -342,7 +161,7 @@ Matrix3cd& Lattice::getLink(const int link[5])
   // Return link specified by index (sanitizes link indices)
   int link2[5];
   for (int i = 0; i < 5; ++i) {
-    link2[i] = lattice::mod(link[i], this->nEdgePoints);
+    link2[i] = pyQCD::mod(link[i], this->nEdgePoints);
   }
   return this->links_[link2[0]][link2[1]][link2[2]][link2[3]][link2[4]];
 }
@@ -359,7 +178,7 @@ void Lattice::monteCarlo(const int link[5])
   for (int n = 0; n < 10; ++n) {
     // Get a random SU3
     Matrix3cd randSu3 = 
-      this->randSu3s_[lattice::randomIndex()];
+      this->randSu3s_[pyQCD::randomIndex()];
     // Calculate the change in the action
     double actionChange = 
       -this->beta_ / 3.0 *
@@ -368,7 +187,7 @@ void Lattice::monteCarlo(const int link[5])
        * staples).trace().real();
     
     // Was the change favourable? If not, revert the change
-    bool isExpMore = exp(-actionChange) >= lattice::uni();
+    bool isExpMore = exp(-actionChange) >= pyQCD::uni();
     
     if ((actionChange <= 0) || isExpMore)
       this->links_[link[0]][link[1]][link[2]][link[3]][link[4]] = 
@@ -391,7 +210,7 @@ void Lattice::monteCarloNoStaples(const int link[5])
   
   // Get ourselves a random SU3 matrix for the update
   Matrix3cd randSu3 = 
-    this->randSu3s_[lattice::randomIndex()];
+    this->randSu3s_[pyQCD::randomIndex()];
   // Multiply the site
   this->links_[link[0]][link[1]][link[2]][link[3]][link[4]] = 
     randSu3 * this->links_[link[0]][link[1]][link[2]][link[3]][link[4]];
@@ -400,7 +219,7 @@ void Lattice::monteCarloNoStaples(const int link[5])
     (this->*computeLocalAction)(link) - oldAction;
   
   // Was the change favourable? If not, revert the change
-  bool isExpLess = exp(-actionChange) < lattice::uni();
+  bool isExpLess = exp(-actionChange) < pyQCD::uni();
   
   if ((actionChange > 0) && isExpLess)
     this->links_[link[0]][link[1]][link[2]][link[3]][link[4]] = oldLink;
@@ -428,7 +247,7 @@ void Lattice::heatbath(const int link[5])
     // Get SU(2) sub-group of W corresponding to index n
     // i.e. n is row/column removed from W to get 2x2 matrix,
     // which is then unitarised. This is matrix V.
-    lattice::extractSu2(W, V, a, n);
+    pyQCD::extractSu2(W, V, a, n);
     
     // Find the determinant needed to unitarise the sub-group
     // of W. a are the coefficients of the Pauli matrices
@@ -447,7 +266,7 @@ void Lattice::heatbath(const int link[5])
     // Then calculate the matrix R to update the sub-group and embed it
     // as an SU(3) matrix.
     Matrix3cd R;
-    lattice::embedSu2(X * V.adjoint(), R, n);
+    pyQCD::embedSu2(X * V.adjoint(), R, n);
     // Do the update
     this->links_[link[0]][link[1]][link[2]][link[3]][link[4]]
       = R * this->links_[link[0]][link[1]][link[2]][link[3]][link[4]];
@@ -677,8 +496,8 @@ double Lattice::computeWilsonLoop(const int corner1[4], const int corner2[4],
   SubField linkStore2;
   // Smear the links if specified, whilst storing the non-smeared ones.
   if (nSmears > 0) {
-    linkStore1 = this->links_[lattice::mod(corner1[0], this->nEdgePoints)];
-    linkStore2 = this->links_[lattice::mod(corner2[0], this->nEdgePoints)];
+    linkStore1 = this->links_[pyQCD::mod(corner1[0], this->nEdgePoints)];
+    linkStore2 = this->links_[pyQCD::mod(corner2[0], this->nEdgePoints)];
     this->smearLinks(corner1[0], nSmears);
     this->smearLinks(corner2[0], nSmears);
   }
@@ -716,8 +535,8 @@ double Lattice::computeWilsonLoop(const int corner1[4], const int corner2[4],
   }
   // Restore the old links
   if (nSmears > 0) {
-    this->links_[lattice::mod(corner1[0], this->nEdgePoints)] = linkStore1;
-    this->links_[lattice::mod(corner2[0], this->nEdgePoints)] = linkStore2;
+    this->links_[pyQCD::mod(corner1[0], this->nEdgePoints)] = linkStore1;
+    this->links_[pyQCD::mod(corner2[0], this->nEdgePoints)] = linkStore2;
   }
   
   return 1./3 * out.trace().real();
@@ -975,8 +794,8 @@ void Lattice::makeRandomSu3(Matrix3cd& out)
   // First generate a random matrix whos elements all lie in/on unit circle  
   for (int i = 0; i < 3; ++i) {
     for (int j = 0; j < 3; ++j) {
-      A(i, j) = lattice::uni();
-      A(i, j) *= exp(2  * lattice::pi * lattice::i * lattice::uni());
+      A(i, j) = pyQCD::uni();
+      A(i, j) *= exp(2  * pyQCD::pi * pyQCD::i * pyQCD::uni());
     }
   }
   // Weight the matrix with weighting eps
@@ -997,20 +816,20 @@ void Lattice::makeHeatbathSu2(Matrix2cd& out, double coefficients[4],
   // Initialise lambdaSquared so that we'll go into the for loop
   double lambdaSquared = 2.0;
   // A random squared float to use in the while loop
-  double randomSquare = pow(lattice::uni(), 2);
+  double randomSquare = pow(pyQCD::uni(), 2);
   // Loop until lambdaSquared meets the distribution condition
   while (randomSquare > 1.0 - lambdaSquared) {
     // Generate three random floats in (0,1] as per Gattringer and Lang
-    double r1 = 1 - lattice::uni();
-    double r2 = 1 - lattice::uni();
-    double r3 = 1 - lattice::uni();
+    double r1 = 1 - pyQCD::uni();
+    double r2 = 1 - pyQCD::uni();
+    double r3 = 1 - pyQCD::uni();
     // Need a factor of 1.5 here rather that 1/3, not sure why...
     // Possibly due to Nc = 3 in this case
     lambdaSquared = - 1.5 / (weighting * this->beta_) *
-      (log(r1) + pow(cos(2 * lattice::pi * r2), 2) * log(r3));
+      (log(r1) + pow(cos(2 * pyQCD::pi * r2), 2) * log(r3));
 
     // Get a new random number
-    randomSquare = pow(lattice::uni(), 2);
+    randomSquare = pow(pyQCD::uni(), 2);
   }
 
   // Get the first of the four elements needed to specify the SU(2)
@@ -1021,9 +840,9 @@ void Lattice::makeHeatbathSu2(Matrix2cd& out, double coefficients[4],
 
   // Randomize the direction of the remaining three-vector
   // Get a random cos(theta) in [0,1)
-  double costheta = -1.0 + 2.0 * lattice::uni();
+  double costheta = -1.0 + 2.0 * pyQCD::uni();
   // And a random phi in [0,2*pi)
-  double phi = 2 * lattice::pi * lattice::uni();
+  double phi = 2 * pyQCD::pi * pyQCD::uni();
 
   // We now have everything we need to calculate the remaining three
   // components, so do it
@@ -1032,7 +851,7 @@ void Lattice::makeHeatbathSu2(Matrix2cd& out, double coefficients[4],
   coefficients[3] = xMag * costheta;
 
   // Now get the SU(2) matrix
-  lattice::createSu2(out, coefficients);
+  pyQCD::createSu2(out, coefficients);
 }
 
 
@@ -1081,8 +900,8 @@ void Lattice::computeQ(const int link[5], Matrix3cd& out)
 
   Matrix3cd Omega = C * this->getLink(link).adjoint();
   Matrix3cd OmegaAdjoint = Omega.adjoint() - Omega;
-  out = 0.5 * lattice::i * OmegaAdjoint;
-  out -= lattice::i / 6.0 * OmegaAdjoint.trace() * Matrix3cd::Identity();
+  out = 0.5 * pyQCD::i * OmegaAdjoint;
+  out -= pyQCD::i / 6.0 * OmegaAdjoint.trace() * Matrix3cd::Identity();
 }
 
 
@@ -1108,7 +927,7 @@ void Lattice::smearLinks(const int time, const int nSmears)
 	    int link[5] = {time, i, j, k, l};
 	    Matrix3cd tempMatrix;
 	    this->computeQ(link, tempMatrix);
-	    tempMatrix = (lattice::i * tempMatrix).exp()
+	    tempMatrix = (pyQCD::i * tempMatrix).exp()
 	      * this->getLink(link);
 	    newLinks[i][j][k][l] = tempMatrix;
 	  }
@@ -1116,7 +935,7 @@ void Lattice::smearLinks(const int time, const int nSmears)
       }
     }
     // Apply the changes to the existing lattice.
-    this->links_[lattice::mod(time, this->nEdgePoints)] = newLinks;
+    this->links_[pyQCD::mod(time, this->nEdgePoints)] = newLinks;
   }
 }
 
@@ -1169,7 +988,7 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
   
   // Now iterate through the matrix and add the various elements to the
   // vector of triplets
-  #pragma omp parallel for
+#pragma omp parallel for
   for (int i = 0; i < nIndices; ++i) {
     int siteI[4] = {indices[i][0],
 		    indices[i][1],
@@ -1189,8 +1008,8 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
 	// Store this to save calculating it twice
 	int nOff = pow(this->nEdgePoints, k);
 
-	bool isJustBelow = m == lattice::mod(n + nOff, nSites);
-	bool isJustAbove = m == lattice::mod(n - nOff, nSites);
+	bool isJustBelow = m == pyQCD::mod(n + nOff, nSites);
+	bool isJustAbove = m == pyQCD::mod(n - nOff, nSites);
 	// Are the two sites adjacent to one another?
 	if (isJustBelow || isJustAbove) {
 	  isAdjacent = true;
@@ -1216,9 +1035,9 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
 	  int mu_mink = abs(mus[k]) % 4;
 	  // Add (or subtract) the corresponding mu vector from the second
 	  // lattice site
-	  siteJ[mu_mink] = lattice::mod(siteJ[mu_mink] + 
-					lattice::sgn(mus[k]),
-					this->nEdgePoints);
+	  siteJ[mu_mink] = pyQCD::mod(siteJ[mu_mink] + 
+				      pyQCD::sgn(mus[k]),
+				      this->nEdgePoints);
 	
 	  // If they are, then we have ourselves a matrix element
 	  // First test for when mu is positive, as then we'll need to deal
@@ -1232,7 +1051,7 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
 	    Matrix3cd U;
 	    // And get the gamma matrix (1 - gamma) in the sum
 	    Matrix4cd lorentz = 
-	      Matrix4cd::Identity() - lattice::gamma(mus[k]);
+	      Matrix4cd::Identity() - pyQCD::gamma(mus[k]);
 	    // So, if the current mu is positive, just get
 	    // the plain old link given by link as normal
 	    if (mus[k] > 0) {
