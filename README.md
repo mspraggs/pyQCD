@@ -93,7 +93,7 @@ The arguments are defined in a similar way to above:
 * update_method - the method used for updating the gauge configurations, as defined above (by default, update_method=0, except for the twisted rectangle action, where it can only be 2)
 * parallel_flag - designates whether OpenMP should be used (by default, it is, with parallel_flag=1)
 
-Note that these arguments have to be used in the order above, and keyword arguments must be used. For example, if you
+Note that these arguments have to be used in the order above, and keyword arguments can't be used. For example, if you
 want to specify a custom value for the update_method, you'll need to include all the other constructor arguments that
 come before the update_method argument. This is a product of the way boost::python works, and I haven't put the time
 into finding a way to make it more pythonic yet.
