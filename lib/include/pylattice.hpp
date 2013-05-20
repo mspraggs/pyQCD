@@ -3,8 +3,12 @@
 
 #include <boost/python.hpp>
 #include <boost/python/list.hpp>
+#include <boost/python/tuple.hpp>
+#include <boost/python/dict.hpp>
+#include <boost/python/raw_function.hpp>
 #include "lattice.hpp"
 #include "gil.hpp"
+#include <string>
 
 namespace py = boost::python;
 
@@ -31,11 +35,12 @@ public:
   double computeWilsonLoopP(const py::list cnr, const int r, const int t,
 			     const int dim, const int nSmears = 0);
   double computeAverageWilsonLoopP(const int r, const int t,
-				    const int nSmears = 0);
+				   const int nSmears = 0);
   void runThreads(const int chunkSize, const int nUpdates,
 		  const int remainder);
   py::list getLinkP(const int n0, const int n1, const int n2, const int n3,
 		     const int dimension) const;
   py::list getRandSu3(const int index) const;
 };
+
 #endif

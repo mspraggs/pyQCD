@@ -787,6 +787,7 @@ double Lattice::computeAverageRectangle()
 double Lattice::computeAverageWilsonLoop(const int r, const int t,
 					 const int nSmears)
 {
+  cout << "Entered Lattice function ok" << endl;
   // Calculates the average of all possible Wilson loops of a given
   // dimension.
   // First off, save the current links and smear all time slices

@@ -1,6 +1,7 @@
 #include <pylattice.hpp>
 #include <boost/python.hpp>
 #include <boost/python/list.hpp>
+#include <iostream>
 
 namespace py = boost::python;
 
@@ -120,6 +121,24 @@ struct lattice_pickle_suite : py::pickle_suite
     pylattice.randSu3s_ = randSu3s;
   }
 };
+
+
+
+double computeAverageWilsonLoopP(py::tuple args, py::dict kwargs)
+{
+  ScopedGILRelease scope;
+  pyLattice& self = py::extract<pyLattice&>(args[0]);
+
+  py::list keys = kwargs.keys();
+
+  int r = py::extract<int>(kwargs["r"]);
+  int t = py::extract<int>(kwargs["t"]);
+  int nSmears = py::extract<int>(kwargs["n_smears"]);
+  cout << "Extracted all arguments successfully" << endl;
+  return self.computeAverageWilsonLoopP(r, t, nSmears);
+}
+
+
   
 // Boost python wrapping of the class
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(pyLatticeWOverload,
@@ -147,9 +166,7 @@ BOOST_PYTHON_MODULE(pyQCD)
 			    "Calculate Wilson loop"))
     .def("av_plaquette", &pyLattice::computeAveragePlaquette)
     .def("av_rectangle", &pyLattice::computeAverageRectangle)
-    .def("av_wilson_loop", &pyLattice::computeAverageWilsonLoopP,
-	 pyLatticeWavOverload(py::args("r", "t", "nSmears"),
-			      "Calculate average Wilson loop"))
+    .def("av_wilson_loop", py::raw_function(computeAverageWilsonLoopP, 3))
     .def("av_link", &pyLattice::computeMeanLink)
     .def("print", &pyLattice::print)
     .def("get_rand_su3", &pyLattice::getRandSu3)
