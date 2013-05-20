@@ -70,3 +70,101 @@ command line parameters for the run script:
 * --update-method=N, where N defines the method used to update the gauge configurations. Use 0 for heatbath updates, 1 for efficient Monte Carlo updates and 2 for inefficient Monte Carlo updates. Note that the inefficient Monte Carlo method is the only one that'll work with the twisted rectangle operator, since the link staples cannot be computed for the twisted rectangle operator.
 * --parallel-flag=N, where N=1 enables parallel updating, while N=0 disables it.
 * -t or --test calculates how long the simulation will take to run (approximately).
+
+Using the Module
+----------------
+Writing your own lattice simulations with pyQCD is designed to be straightforward, facilitated by the Lattice object. To
+get started, import the module. If you're in the main pyQCD directory, run
+
+> import lib.pyQCD as pyQCD
+
+The lattice has the following constructor:
+
+> pyQCD.Lattice(n, beta, u0, action, Ncor, rho, eps, update_method, parallel_flag)
+
+The arguments are defined in a similar way to above:
+* n - the number of points along each edge of the lattice (by default, n=8)
+* beta - the beta function value for the simulation (by default, beta=5.5)
+* u0 - the tadpole improvement value (by default, u0=1)
+* action - the action used in the simulation; 0 gives Wilson action, 1 gives rectangle improved action, 2 gives twisted rectangle improved action (by default, action=0)
+* Ncor - the number of configs between measurements (by default, Ncor=10)
+* rho - the stout smearing factor (by default, rho=0.3)
+* eps - the weighting for the random SU(3) matrix generation algorithm (by default, eps=0.24 to give an approximate 50% rejection rate for the update)
+* update_method - the method used for updating the gauge configurations, as defined above (by default, update_method=0, except for the twisted rectangle action, where it can only be 2)
+* parallel_flag - designates whether OpenMP should be used (by default, it is, with parallel_flag=1)
+
+Note that these arguments have to be used in the order above, and keyword arguments must be used. For example, if you
+want to specify a custom value for the update_method, you'll need to include all the other constructor arguments that
+come before the update_method argument. This is a product of the way boost::python works, and I haven't put the time
+into finding a way to make it more pythonic yet.
+
+The lattice object has the following methods:
+
+> lattice.av_link()
+
+This calculate the average value of 1/3 * Tr[U] (i.e. the trace of a lattice link divided by 3) for the current
+configuration.
+
+> lattice.av_plaquette()
+
+This calculates the average value of the plaquette operator.
+
+> lattice.av_rectangle()
+
+This calculates the average value of the rectangle operator.
+
+> lattice.av_wilson_loop(r, t, n_smears)
+
+This calculates the average value of a planar Wilson loop of size r x t (in units of lattice spacing) using n_smears.
+n_smears is an optional argument, and is by default 0.
+
+> lattice.get_rand_su3(index)
+
+Gets one of the 200 random SU(3) matrices generated on initialisation and returns it as a compound list
+
+> lattice.link(n_t, n_x, n_y, n_z, axis)
+
+Gets the link at site (n_t, n_x, n_y, n_z) along the axis specified by axis (0 is time, and 1, 2 and 3 are x, y and
+z axes).
+
+> lattice.next_config()
+
+This updates the lattice Ncor times to generate the next configuration for measurement
+
+> lattice.plaquette(site, axis_1, axis_2)
+
+This calculates the plaquette at the site specified by the list site (e.g. [n_t, n_x, n_y, n_z]), lying the in the plane
+specified by the axes axis_1 and axis_2 (again, 0 is time and 1, 2 and 3 are spatial indices).
+
+> lattice.print()
+
+This was designed to print the lattice, but it doesn't work at the moment
+
+> lattice.rectangle(site, axis_1, axis_2)
+
+This calculates the rectangle operator in the same way as lattice.plaquette calculates the plaquette value.
+
+> lattice.schwarz_update(block_size, n_sweeps)
+
+This runs a single parallel update, dividing the lattice into blocks, each with width block_size. The blocks are split
+into two sets so that they form a sort of 4d checkerboard. The blocks in one set are then updated in parallell, before
+the blocks in the second set are updated. n_sweeps determines how many sweeps are performed on each block in one update
+step. If the parallel_flag in the constructor is 1, then this function is used in the next_config and thermalize
+functions.
+
+> lattice.thermalize()
+
+This updates the lattice 5*Ncor times to bring it into thermal equilibrium.
+
+> lattice.twist_rect(site, axis_1, axis_2)
+
+Similar the plaquette and rectangle functions, but calculates the twisted rectangle operator
+
+> lattice.update()
+
+Performs a single serial update on the entire lattice.
+
+> lattice.wilson_loop(site, r, t, axis, n_smears)
+
+Calculates the Wilson loop with corner at site (e.g. [n_t, n_x, n_y, n_z]) of size r x t in the spatial dimension
+specified by axis. n_smears specifies the number of stout smears, equal to 0 by default.
