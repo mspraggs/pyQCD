@@ -92,8 +92,6 @@ double pyLattice::computeAverageWilsonLoopP(const int r, const int t,
 {
   // Wrapper for the expectation value for the Wilson loop
   ScopedGILRelease scope;
-  cout << "Set up GIL scoped release" << endl;
-  cout << "r = " << r << ", t = " << t << ", nSmears = " << nSmears<< endl;
   return this->computeAverageWilsonLoop(r, t, nSmears);
 }
 

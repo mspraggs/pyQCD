@@ -124,9 +124,8 @@ struct lattice_pickle_suite : py::pickle_suite
 
 
 
-py::object computeAverageWilsonLoopP(py::tuple args, py::dict kwargs)
+double computeAverageWilsonLoopP(py::tuple args, py::dict kwargs)
 {
-  ScopedGILRelease scope;
   pyLattice& self = py::extract<pyLattice&>(args[0]);
 
   py::list keys = kwargs.keys();
@@ -134,8 +133,8 @@ py::object computeAverageWilsonLoopP(py::tuple args, py::dict kwargs)
   int r = py::extract<int>(kwargs["r"]);
   int t = py::extract<int>(kwargs["t"]);
   int nSmears = py::extract<int>(kwargs["n_smears"]);
-  cout << "Extracted all arguments successfully" << endl;
-  return py::object(self.computeAverageWilsonLoopP(r, t, nSmears));
+
+  return self.computeAverageWilsonLoopP(r, t, nSmears);
 }
 
 
