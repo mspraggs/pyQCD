@@ -92,7 +92,7 @@ if options.test:
 		% (((t2 - t1) * options.Ncf + t2 - t1) / 3600))
 
 else:
-	for i in xrange(option.Ncf):
+	for i in xrange(options.Ncf):
 		print("Configuration: %d" % i)
 		sys.stdout.flush()
 		L.next_config()
@@ -124,7 +124,7 @@ else:
 
 	tf = time.time()
 	hrs = int((tf - t0) / 3600)
-	mins = int((tf - t0 - 3600 * hours) / 60)
+	mins = int((tf - t0 - 3600 * hrs) / 60)
 	secs = (tf - t0) - 3600 * hrs - 60 * mins
 	print("Simulation completed in %d hours, %d minutes and %f seconds" \
 		% (hrs,mins,secs))

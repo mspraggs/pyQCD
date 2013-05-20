@@ -1,183 +1,5 @@
 #include <lattice.hpp>
-
-namespace lattice
-{
-  const complex<double> i (0.0, 1.0);
-  const double pi = 3.1415926535897932384626433;
-
-
-
-  Matrix2cd sigma0 = Matrix2cd::Identity();
-
-  Matrix2cd sigma1 = (MatrixXcd(2, 2) << 0, 1,
-		      1, 0).finished();
-
-  Matrix2cd sigma2 = (MatrixXcd(2, 2) << 0, -i,
-		      i, 0).finished();
-
-  Matrix2cd sigma3 = (MatrixXcd(2, 2) << 1, 0,
-		      0, -1).finished();
-
-  Matrix2cd sigmas[4] = {sigma0, sigma1, sigma2, sigma3};
-
-
-
-  mt19937 generator(time(0));
-  uniform_real<> uni_float(0, 1);
-  variate_generator<mt19937&, uniform_real<> > uni(generator, uni_float);
-
-
-
-  int mod(int number, const int divisor)
-  {
-    int ret = number % divisor;
-    if (ret < 0)
-      ret += divisor;
-    return ret;
-  }
-
-
-
-  void createSu2(Matrix2cd& out, const double coefficients[4])
-  {
-    out = coefficients[0] * sigmas[0];
-    for (int i = 1; i < 4; ++i)
-      out += lattice::i * coefficients[i] * sigmas[i];
-  }
-
-
-
-  void embedSu2(const Matrix2cd& Su2Matrix, Matrix3cd& Su3Matrix,
-		const int index)
-  {
-    if (index == 0) {
-      Su3Matrix(0, 0) = 1.0;
-      Su3Matrix(0, 1) = 0.0;
-      Su3Matrix(0, 2) = 0.0;
-      Su3Matrix(1, 0) = 0.0;
-      Su3Matrix(1, 1) = Su2Matrix(0, 0);
-      Su3Matrix(1, 2) = Su2Matrix(0, 1);
-      Su3Matrix(2, 0) = 0.0;
-      Su3Matrix(2, 1) = Su2Matrix(1, 0);
-      Su3Matrix(2, 2) = Su2Matrix(1, 1);
-    }
-    else if (index == 1) {
-      Su3Matrix(0, 0) = Su2Matrix(0, 0);
-      Su3Matrix(0, 1) = 0.0;
-      Su3Matrix(0, 2) = Su2Matrix(0, 1);
-      Su3Matrix(1, 0) = 0.0;
-      Su3Matrix(1, 1) = 1.0;
-      Su3Matrix(1, 2) = 0.0;
-      Su3Matrix(2, 0) = Su2Matrix(1, 0);
-      Su3Matrix(2, 1) = 0.0;
-      Su3Matrix(2, 2) = Su2Matrix(1, 1);
-    }
-    else {    
-      Su3Matrix(0, 0) = Su2Matrix(0, 0);
-      Su3Matrix(0, 1) = Su2Matrix(0, 1);
-      Su3Matrix(0, 2) = 0.0;
-      Su3Matrix(1, 0) = Su2Matrix(1, 0);
-      Su3Matrix(1, 1) = Su2Matrix(1, 1);
-      Su3Matrix(1, 2) = 0.0;
-      Su3Matrix(2, 0) = 0.0;
-      Su3Matrix(2, 1) = 0.0;
-      Su3Matrix(2, 2) = 1.0;
-    }
-  }
-
-
-
-  void extractSubMatrix(const Matrix3cd& su3Matrix, Matrix2cd& subMatrix,
-			const int index)
-  {
-    if (index == 0) {
-      subMatrix(0, 0) = su3Matrix(1, 1);
-      subMatrix(0, 1) = su3Matrix(1, 2);
-      subMatrix(1, 0) = su3Matrix(2, 1);
-      subMatrix(1, 1) = su3Matrix(2, 2);
-    }
-    else if (index == 1) {
-      subMatrix(0, 0) = su3Matrix(0, 0);
-      subMatrix(0, 1) = su3Matrix(0, 2);
-      subMatrix(1, 0) = su3Matrix(2, 0);
-      subMatrix(1, 1) = su3Matrix(2, 2);
-    }
-    else {
-      subMatrix(0, 0) = su3Matrix(0, 0);
-      subMatrix(0, 1) = su3Matrix(0, 1);
-      subMatrix(1, 0) = su3Matrix(1, 0);
-      subMatrix(1, 1) = su3Matrix(1, 1);
-    }
-  }
-
-
-
-  void extractSu2(const Matrix3cd& su3Matrix, Matrix2cd& su2Matrix,
-		  double coefficients[4], const int index)
-  {
-    Matrix2cd subMatrix;
-    extractSubMatrix(su3Matrix, subMatrix, index);
-    
-    coefficients[0] = subMatrix(0, 0).real() + subMatrix(1, 1).real();
-    coefficients[1] = subMatrix(0, 1).imag() + subMatrix(1, 0).imag();
-    coefficients[2] = subMatrix(0, 1).real() - subMatrix(1, 0).real();
-    coefficients[3] = subMatrix(0, 0).imag() - subMatrix(1, 1).imag();
-
-    double magnitude = sqrt(pow(coefficients[0], 2) +
-			    pow(coefficients[1], 2) +
-			    pow(coefficients[2], 2) +
-			    pow(coefficients[3], 2));
-
-    createSu2(su2Matrix, coefficients);
-    su2Matrix /= magnitude;
-  }
-
-
-
-  int sgn(const int x)
-  {
-    return (x < 0) ? -1 : 1;
-  }
-
-
-
-  Matrix4cd gamma1 = (MatrixXcd(4, 4) << 0, 0, 0, -i,
-		      0, 0, -i, 0,
-		      0, i, 0, 0,
-		      i, 0, 0, 0).finished();
-  
-  Matrix4cd gamma2 = (MatrixXcd(4, 4) <<  0, 0, 0, -1,
-		      0, 0, 1, 0,
-		      0, 1, 0, 0,
-		      -1, 0, 0, 0).finished();
-
-  Matrix4cd gamma3 = (MatrixXcd(4, 4) << 0, 0, -i, 0,
-		      0, 0, 0, i,
-		      i, 0, 0, 0,
-		      0, -i, 0, 0).finished();
-
-  Matrix4cd gamma4 = (MatrixXcd(4, 4) << 0, 0, 1, 0,
-		      0, 0, 0, 1,
-		      1, 0, 0, 0,
-		      0, 1, 0, 0).finished();
-
-  Matrix4cd gamma5 = (MatrixXcd(4, 4) << 1, 0, 0, 0,
-		      0, 1, 0, 0,
-		      0, 0, -1, 0,
-		      0, 0, 0, -1).finished();
-  
-  Matrix4cd gammas[5] = {gamma1, gamma2, gamma3, gamma4, gamma5};
-
-
-  
-  Matrix4cd gamma(const int index)
-  {
-    int prefactor = sgn(index);
-    return prefactor * gammas[abs(index) - 1];
-  }
-}
-
-
+#include <pyQCD_utils.hpp>
 
 Lattice::Lattice(const int nEdgePoints, const double beta, const double u0,
 		 const int action, const int nCorrelations, const double rho,
@@ -197,7 +19,6 @@ Lattice::Lattice(const int nEdgePoints, const double beta, const double u0,
   this->updateMethod_ = updateMethod;
   this->parallelFlag_ = parallelFlag;
 
-  srand(time(0));
   // Resize the link vector and assign each link a random SU3 matrix
   this->links_.resize(this->nEdgePoints);
   for (int i = 0; i < this->nEdgePoints; ++i) {
@@ -340,7 +161,7 @@ Matrix3cd& Lattice::getLink(const int link[5])
   // Return link specified by index (sanitizes link indices)
   int link2[5];
   for (int i = 0; i < 5; ++i) {
-    link2[i] = lattice::mod(link[i], this->nEdgePoints);
+    link2[i] = pyQCD::mod(link[i], this->nEdgePoints);
   }
   return this->links_[link2[0]][link2[1]][link2[2]][link2[3]][link2[4]];
 }
@@ -357,7 +178,7 @@ void Lattice::monteCarlo(const int link[5])
   for (int n = 0; n < 10; ++n) {
     // Get a random SU3
     Matrix3cd randSu3 = 
-      this->randSu3s_[rand() % this->randSu3s_.size()];
+      this->randSu3s_[pyQCD::randomIndex()];
     // Calculate the change in the action
     double actionChange = 
       -this->beta_ / 3.0 *
@@ -366,8 +187,7 @@ void Lattice::monteCarlo(const int link[5])
        * staples).trace().real();
     
     // Was the change favourable? If not, revert the change
-    bool isExpMore = exp(-actionChange) 
-      >= double(rand()) / double(RAND_MAX);
+    bool isExpMore = exp(-actionChange) >= pyQCD::uni();
     
     if ((actionChange <= 0) || isExpMore)
       this->links_[link[0]][link[1]][link[2]][link[3]][link[4]] = 
@@ -390,7 +210,7 @@ void Lattice::monteCarloNoStaples(const int link[5])
   
   // Get ourselves a random SU3 matrix for the update
   Matrix3cd randSu3 = 
-    this->randSu3s_[rand() % this->randSu3s_.size()];
+    this->randSu3s_[pyQCD::randomIndex()];
   // Multiply the site
   this->links_[link[0]][link[1]][link[2]][link[3]][link[4]] = 
     randSu3 * this->links_[link[0]][link[1]][link[2]][link[3]][link[4]];
@@ -399,7 +219,7 @@ void Lattice::monteCarloNoStaples(const int link[5])
     (this->*computeLocalAction)(link) - oldAction;
   
   // Was the change favourable? If not, revert the change
-  bool isExpLess = exp(-actionChange) < lattice::uni();
+  bool isExpLess = exp(-actionChange) < pyQCD::uni();
   
   if ((actionChange > 0) && isExpLess)
     this->links_[link[0]][link[1]][link[2]][link[3]][link[4]] = oldLink;
@@ -410,27 +230,44 @@ void Lattice::monteCarloNoStaples(const int link[5])
 void Lattice::heatbath(const int link[5])
 {
   // Update a single link using heatbath in Gattringer and Lang
+  // Calculate the staples matrix A
   Matrix3cd staples;
   (this->*computeStaples)(link, staples);
+  // Declare the matrix W = U * A
   Matrix3cd W;
   
+  // Iterate over the three SU(2) subgroups of W
   for (int n = 0; n < 3; ++n) {
+    // W = U * A
     W = this->links_[link[0]][link[1]][link[2]][link[3]][link[4]]
       * staples;
     Matrix2cd V;
     double a[4];
     double r[4];
-    lattice::extractSu2(W, V, a, n);
+    // Get SU(2) sub-group of W corresponding to index n
+    // i.e. n is row/column removed from W to get 2x2 matrix,
+    // which is then unitarised. This is matrix V.
+    pyQCD::extractSu2(W, V, a, n);
     
+    // Find the determinant needed to unitarise the sub-group
+    // of W. a are the coefficients of the Pauli matrices
+    // used to generate the SU(2) sub-group matrix
     double a_l = sqrt(abs(a[0] * a[0] +
 			  a[1] * a[1] +
 			  a[2] * a[2] +
 			  a[3] * a[3]));
     
+    // X will be the random matrix we generate according to equation
+    // 4.45 in Gattringer in Lang (though note that we use a different
+    // coefficient here, as otherwise the results come out wrong for
+    // some reason.
     Matrix2cd X;
     this->makeHeatbathSu2(X, r, a_l);
+    // Then calculate the matrix R to update the sub-group and embed it
+    // as an SU(3) matrix.
     Matrix3cd R;
-    lattice::embedSu2(X * V.adjoint(), R, n);
+    pyQCD::embedSu2(X * V.adjoint(), R, n);
+    // Do the update
     this->links_[link[0]][link[1]][link[2]][link[3]][link[4]]
       = R * this->links_[link[0]][link[1]][link[2]][link[3]][link[4]];
   }
@@ -440,6 +277,8 @@ void Lattice::heatbath(const int link[5])
 
 void Lattice::update()
 {
+  // Iterate through the lattice and apply the appropriate update
+  // function
   for (int i = 0; i < this->nEdgePoints; ++i) {
     for (int j = 0; j < this->nEdgePoints; ++j) {
       for (int k = 0; k < this->nEdgePoints; ++k) {
@@ -519,8 +358,10 @@ void Lattice::schwarzUpdate(const int chunkSize, const int nUpdates)
 void Lattice::thermalize()
 {
   // Update all links until we're at thermal equilibrium
+  // Do we do this using OpenMP, or not?
   if (this->parallelFlag_ == 1) {
     while(this->nUpdates_ < 5 * this->nCorrelations)
+      // If so, do a Schwarz update thingy (even/odd blocks)
       this->schwarzUpdate(4,1);
   }
   else {
@@ -655,8 +496,8 @@ double Lattice::computeWilsonLoop(const int corner1[4], const int corner2[4],
   SubField linkStore2;
   // Smear the links if specified, whilst storing the non-smeared ones.
   if (nSmears > 0) {
-    linkStore1 = this->links_[lattice::mod(corner1[0], this->nEdgePoints)];
-    linkStore2 = this->links_[lattice::mod(corner2[0], this->nEdgePoints)];
+    linkStore1 = this->links_[pyQCD::mod(corner1[0], this->nEdgePoints)];
+    linkStore2 = this->links_[pyQCD::mod(corner2[0], this->nEdgePoints)];
     this->smearLinks(corner1[0], nSmears);
     this->smearLinks(corner2[0], nSmears);
   }
@@ -694,8 +535,8 @@ double Lattice::computeWilsonLoop(const int corner1[4], const int corner2[4],
   }
   // Restore the old links
   if (nSmears > 0) {
-    this->links_[lattice::mod(corner1[0], this->nEdgePoints)] = linkStore1;
-    this->links_[lattice::mod(corner2[0], this->nEdgePoints)] = linkStore2;
+    this->links_[pyQCD::mod(corner1[0], this->nEdgePoints)] = linkStore1;
+    this->links_[pyQCD::mod(corner2[0], this->nEdgePoints)] = linkStore2;
   }
   
   return 1./3 * out.trace().real();
@@ -906,14 +747,32 @@ double Lattice::computeAverageWilsonLoop(const int r, const int t,
   for (int time = 0; time < this->nEdgePoints; time++) {
     this->smearLinks(time, nSmears);
   }
+  //#pragma omp parallel for 
   double Wtot = 0.0;
-  for (int i = 0; i < this->nEdgePoints; ++i) {
-    for (int j = 0; j < this->nEdgePoints; ++j) {
-      for (int k = 0; k < this->nEdgePoints; ++k) {
-	for (int l = 0; l < this->nEdgePoints; ++l) {
-	  for (int m = 1; m < 4; ++m) {
-	    int site[4] = {i, j, k, l};
-	    Wtot += this->computeWilsonLoop(site, r, t, m, 0);
+  if (this->parallelFlag_ == 1) {
+#pragma omp parallel for collapse(5)
+    for (int i = 0; i < this->nEdgePoints; ++i) {
+      for (int j = 0; j < this->nEdgePoints; ++j) {
+	for (int k = 0; k < this->nEdgePoints; ++k) {
+	  for (int l = 0; l < this->nEdgePoints; ++l) {
+	    for (int m = 1; m < 4; ++m) {
+	      int site[4] = {i, j, k, l};
+	      Wtot += this->computeWilsonLoop(site, r, t, m, 0);
+	    }
+	  }
+	}
+      }
+    }
+  }
+  else {
+    for (int i = 0; i < this->nEdgePoints; ++i) {
+      for (int j = 0; j < this->nEdgePoints; ++j) {
+	for (int k = 0; k < this->nEdgePoints; ++k) {
+	  for (int l = 0; l < this->nEdgePoints; ++l) {
+	    for (int m = 1; m < 4; ++m) {
+	      int site[4] = {i, j, k, l};
+	      Wtot += this->computeWilsonLoop(site, r, t, m, 0);
+	    }
 	  }
 	}
       }
@@ -953,8 +812,8 @@ void Lattice::makeRandomSu3(Matrix3cd& out)
   // First generate a random matrix whos elements all lie in/on unit circle  
   for (int i = 0; i < 3; ++i) {
     for (int j = 0; j < 3; ++j) {
-      A(i, j) = lattice::uni();
-      A(i, j) *= exp(2  * lattice::pi * lattice::i * lattice::uni());
+      A(i, j) = pyQCD::uni();
+      A(i, j) *= exp(2  * pyQCD::pi * pyQCD::i * pyQCD::uni());
     }
   }
   // Weight the matrix with weighting eps
@@ -972,30 +831,45 @@ void Lattice::makeHeatbathSu2(Matrix2cd& out, double coefficients[4],
 {
   // Generate a random SU2 matrix distributed according to heatbath
   // (See Gattringer and Lang)
+  // Initialise lambdaSquared so that we'll go into the for loop
   double lambdaSquared = 2.0;
-  double randomSquare = pow(lattice::uni(), 2);
+  // A random squared float to use in the while loop
+  double randomSquare = pow(pyQCD::uni(), 2);
+  // Loop until lambdaSquared meets the distribution condition
   while (randomSquare > 1.0 - lambdaSquared) {
-    double r1 = 1 - lattice::uni();
-    double r2 = 1 - lattice::uni();
-    double r3 = 1 - lattice::uni();
+    // Generate three random floats in (0,1] as per Gattringer and Lang
+    double r1 = 1 - pyQCD::uni();
+    double r2 = 1 - pyQCD::uni();
+    double r3 = 1 - pyQCD::uni();
     // Need a factor of 1.5 here rather that 1/3, not sure why...
-    lambdaSquared = - 1.5 / (1. * weighting * this->beta_) *
-      (log(r1) + pow(cos(2 * lattice::pi * r2), 2) * log(r3));
-    
-    randomSquare = pow(lattice::uni(), 2);
+    // Possibly due to Nc = 3 in this case
+    lambdaSquared = - 1.5 / (weighting * this->beta_) *
+      (log(r1) + pow(cos(2 * pyQCD::pi * r2), 2) * log(r3));
+
+    // Get a new random number
+    randomSquare = pow(pyQCD::uni(), 2);
   }
 
+  // Get the first of the four elements needed to specify the SU(2)
+  // matrix using Pauli matrices
   coefficients[0] = 1 - 2 * lambdaSquared;
+  // Magnitude of remaing three-vector is given as follows
   double xMag = sqrt(abs(1 - coefficients[0] * coefficients[0]));
 
-  double costheta = -1.0 + 2.0 * lattice::uni();
-  double phi = 2 * lattice::pi * lattice::uni();
+  // Randomize the direction of the remaining three-vector
+  // Get a random cos(theta) in [0,1)
+  double costheta = -1.0 + 2.0 * pyQCD::uni();
+  // And a random phi in [0,2*pi)
+  double phi = 2 * pyQCD::pi * pyQCD::uni();
 
+  // We now have everything we need to calculate the remaining three
+  // components, so do it
   coefficients[1] = xMag * sqrt(1 - costheta * costheta) * cos(phi);
   coefficients[2] = xMag * sqrt(1 - costheta * costheta) * sin(phi);
   coefficients[3] = xMag * costheta;
 
-  lattice::createSu2(out, coefficients);
+  // Now get the SU(2) matrix
+  pyQCD::createSu2(out, coefficients);
 }
 
 
@@ -1003,7 +877,7 @@ void Lattice::makeHeatbathSu2(Matrix2cd& out, double coefficients[4],
 void Lattice::computeQ(const int link[5], Matrix3cd& out)
 {
   // Calculates Q matrix for analytic smearing according to paper on analytic
-  // smearing
+  // smearing (Morningstart and Peardon, 2003)
   Matrix3cd C = Matrix3cd::Zero();
 
   for (int nu = 1; nu < 4; nu++) {
@@ -1044,8 +918,8 @@ void Lattice::computeQ(const int link[5], Matrix3cd& out)
 
   Matrix3cd Omega = C * this->getLink(link).adjoint();
   Matrix3cd OmegaAdjoint = Omega.adjoint() - Omega;
-  out = 0.5 * lattice::i * OmegaAdjoint;
-  out -= lattice::i / 6.0 * OmegaAdjoint.trace() * Matrix3cd::Identity();
+  out = 0.5 * pyQCD::i * OmegaAdjoint;
+  out -= pyQCD::i / 6.0 * OmegaAdjoint.trace() * Matrix3cd::Identity();
 }
 
 
@@ -1053,33 +927,69 @@ void Lattice::computeQ(const int link[5], Matrix3cd& out)
 void Lattice::smearLinks(const int time, const int nSmears)
 {
   // Smear the specified time slice by iterating calling this function
-  for (int i = 0; i < nSmears; ++i) {
-    // Iterate through all the links and calculate the new ones from
-    // the existing ones.    
-    SubField newLinks(this->nEdgePoints, 
-		      Sub2Field(this->nEdgePoints,
-				Sub3Field(this->nEdgePoints, 
-					  Sub4Field(4))));
+  if (this->parallelFlag_ == 1) {
 
-    for (int i = 0; i < this->nEdgePoints; ++i) {
+    for (int i = 0; i < nSmears; ++i) {
+      // Iterate through all the links and calculate the new ones from
+      // the existing ones.    
+      SubField newLinks(this->nEdgePoints, 
+			Sub2Field(this->nEdgePoints,
+				  Sub3Field(this->nEdgePoints, 
+					    Sub4Field(4))));
+#pragma omp parallel for collapse(3)
       for (int j = 0; j < this->nEdgePoints; ++j) {
 	for (int k = 0; k < this->nEdgePoints; ++k) {
-	  // NB, spatial links only, so l > 0!
-	  newLinks[i][j][k][0] = this->links_[time][i][j][k][0];
-	  for (int l = 1; l < 4; ++l) {
-	    // Create a temporary matrix to store the new link
-	    int link[5] = {time, i, j, k, l};
-	    Matrix3cd tempMatrix;
-	    this->computeQ(link, tempMatrix);
-	    tempMatrix = (lattice::i * tempMatrix).exp()
-	      * this->getLink(link);
-	    newLinks[i][j][k][l] = tempMatrix;
+	  for (int l = 0; l < this->nEdgePoints; ++l) {
+	    // NB, spatial links only, so l > 0!
+	    newLinks[j][k][l][0] =
+	      this->links_[pyQCD::mod(time, this->nEdgePoints)][j][k][l][0];
+	    for (int m = 1; m < 4; ++m) {
+	      // Create a temporary matrix to store the new link
+	      int link[5] = {time, j, k, l, m};
+	      Matrix3cd tempMatrix;
+	      this->computeQ(link, tempMatrix);
+	      tempMatrix = (pyQCD::i * tempMatrix).exp()
+		* this->getLink(link);
+	      newLinks[j][k][l][m] = tempMatrix;
+	    }
 	  }
 	}
       }
+      // Apply the changes to the existing lattice.
+      this->links_[pyQCD::mod(time, this->nEdgePoints)] = newLinks;
     }
-    // Apply the changes to the existing lattice.
-    this->links_[lattice::mod(time, this->nEdgePoints)] = newLinks;
+  }
+  else {
+
+    for (int i = 0; i < nSmears; ++i) {
+      // Iterate through all the links and calculate the new ones from
+      // the existing ones.    
+      SubField newLinks(this->nEdgePoints, 
+			Sub2Field(this->nEdgePoints,
+				  Sub3Field(this->nEdgePoints, 
+					    Sub4Field(4))));
+
+      for (int j = 0; j < this->nEdgePoints; ++j) {
+	for (int k = 0; k < this->nEdgePoints; ++k) {
+	  for (int l = 0; l < this->nEdgePoints; ++l) {
+	    // NB, spatial links only, so l > 0!
+	    newLinks[j][k][l][0] =
+	      this->links_[pyQCD::mod(time, this->nEdgePoints)][j][k][l][0];
+	    for (int m = 1; m < 4; ++m) {
+	      // Create a temporary matrix to store the new link
+	      int link[5] = {time, j, k, l, m};
+	      Matrix3cd tempMatrix;
+	      this->computeQ(link, tempMatrix);
+	      tempMatrix = (pyQCD::i * tempMatrix).exp()
+		* this->getLink(link);
+	      newLinks[j][k][l][m] = tempMatrix;
+	    }
+	  }
+	}
+      }
+      // Apply the changes to the existing lattice.
+      this->links_[pyQCD::mod(time, this->nEdgePoints)] = newLinks;
+    }
   }
 }
 
@@ -1090,6 +1000,8 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
 {
   // Calculates the Dirac matrix for the current field configuration
   // using Wilson fermions
+
+  // TODO - pass the SparseMatrix in by reference to save computing time
   
   // Calculate some useful quantities
   int nIndices = int(12 * pow(this->nEdgePoints, 4));
@@ -1130,7 +1042,7 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
   
   // Now iterate through the matrix and add the various elements to the
   // vector of triplets
-  #pragma omp parallel for
+#pragma omp parallel for
   for (int i = 0; i < nIndices; ++i) {
     int siteI[4] = {indices[i][0],
 		    indices[i][1],
@@ -1150,14 +1062,16 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
 	// Store this to save calculating it twice
 	int nOff = pow(this->nEdgePoints, k);
 
-	bool isJustBelow = m == lattice::mod(n + nOff, nSites);
-	bool isJustAbove = m == lattice::mod(n - nOff, nSites);
-
+	bool isJustBelow = m == pyQCD::mod(n + nOff, nSites);
+	bool isJustAbove = m == pyQCD::mod(n - nOff, nSites);
+	// Are the two sites adjacent to one another?
 	if (isJustBelow || isJustAbove) {
 	  isAdjacent = true;
 	  break;
 	}
       }
+      // If the two sites are adjacent, then there is some
+      // point in doing the sum
       if (isAdjacent) {
 	// First we'll need something to put the sum into
 	complex<double> sum = complex<double>(0.0, 0.0);	
@@ -1175,43 +1089,60 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
 	  int mu_mink = abs(mus[k]) % 4;
 	  // Add (or subtract) the corresponding mu vector from the second
 	  // lattice site
-	  siteJ[mu_mink] = lattice::mod(siteJ[mu_mink] + 
-					lattice::sgn(mus[k]),
-					this->nEdgePoints);
+	  siteJ[mu_mink] = pyQCD::mod(siteJ[mu_mink] + 
+				      pyQCD::sgn(mus[k]),
+				      this->nEdgePoints);
 	
 	  // If they are, then we have ourselves a matrix element
 	  // First test for when mu is positive, as then we'll need to deal
 	  // with the +ve or -ve cases slightly differently
 	  if (equal(siteI, siteI + 4, siteJ)) {
+	    // Create and intialise the link we'll be using
 	    int link[5];
 	    copy(siteI, siteI + 4, link);
 	    link[4] = mu_mink;
+	    // Then we'll need a colour matrix given by the link
 	    Matrix3cd U;
+	    // And get the gamma matrix (1 - gamma) in the sum
 	    Matrix4cd lorentz = 
-	      Matrix4cd::Identity() - lattice::gamma(mus[k]);
+	      Matrix4cd::Identity() - pyQCD::gamma(mus[k]);
+	    // So, if the current mu is positive, just get
+	    // the plain old link given by link as normal
 	    if (mus[k] > 0) {
 	      Matrix3cd tempMatrix = this->getLink(link);
 	      U = tempMatrix;
 	    }
 	    else {
+	      // If mu is negative, we'll need the adjoint
+	      // matrix on the neighbouring site (cos we're
+	      // going backwards).
 	      link[mu_mink] -= 1;
 	      U = this->getLink(link).adjoint();
 	    }
+	    // Mutliply the matrix elements together and add
+	    // them to the sum.
 	    sum += lorentz(indices[i][4], indices[j][4]) 
 	      * U(indices[i][5], indices[j][5]);
 	  }
 	}
+	// Divide the sum through by -2 * spacing
 	sum /= -(2.0 * spacing);
+	// Make sure OpemMP doesn't conflict with itself
 #pragma omp critical
 	if (sum.imag() != 0.0 && sum.real() != 0.0)
+	  // Add the sum to the list of triplets
 	  tripletList.push_back(Tlet(i, j, sum));
       }
       else {
+	// If the sites aren't neighbours, skip ahead to the next
+	// site, as there's no point doing it for the other colours
+	// and spin indices.
 	j = (n + 1) * 12 - 1;
       }
     }
   }
   
+  // Add all the triplets to the sparse matrix
   out.setFromTriplets(tripletList.begin(), tripletList.end());
   
   return out;
@@ -1221,12 +1152,23 @@ VectorXcd Lattice::computePropagator(const double mass, int site[4],
 				     const int alpha, const int a,
 				     const double spacing)
 {
+  // Computes the propagator vectors for the 12 spin-colour indices at
+  // the given lattice site, using the Dirac operator
+
+  // TODO - pass the Vector by reference to save time
+  // Declare a sparse matrix to hold the dirac operator
   SparseMatrix<complex<double> > D = this->computeDiracMatrix(mass, spacing);
+  // How many indices are we dealing with?
   int nIndices = int(12 * pow(this->nEdgePoints, 4));
+  // Declare our solver
   BiCGSTAB<SparseMatrix<complex<double> > > solver(D);
   
+  // This is our source vector
   VectorXcd S(nIndices);
+  S.setZero(nIndices);
   
+  // Calculate the row of the vector specified by the site,
+  // spin and colour
   int m = site[3] + this->nEdgePoints 
     * (site[2] + this->nEdgePoints 
        * (site[1] + this->nEdgePoints * site[0]));
@@ -1234,6 +1176,7 @@ VectorXcd Lattice::computePropagator(const double mass, int site[4],
   int index = a + 3 * (alpha + 4 * m);
   S(index) = 1.0;
   
+  // Solve for the propagator with the given source
   VectorXcd propagator = solver.solve(S);
   
   return propagator;
@@ -1290,6 +1233,7 @@ double Lattice::computeLocalRectangleAction(const int link[5])
   
   for (int i = 0; i < 3; ++i) {
     int site[4] = {link[0], link[1], link[2], link[3]};
+    // Add the six rectangles that contain the link
     Rsum += this->computeRectangle(site, link[4], planes[i]);
     site[link[4]] -= 1;
     Rsum += this->computeRectangle(site, link[4], planes[i]);
@@ -1333,6 +1277,7 @@ double Lattice::computeLocalTwistedRectangleAction(const int link[5])
   
   for (int i = 0; i < 3; ++i) {
     int site[4] = {link[0], link[1], link[2], link[3]};
+    // Add the seven twisted rectangles that contain the link
     Tsum += this->computeTwistedRectangle(site, link[4], planes[i]);
     site[link[4]] -= 1;
     Tsum += this->computeTwistedRectangle(site, link[4], planes[i]);
