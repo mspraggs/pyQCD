@@ -539,7 +539,7 @@ double Lattice::computeWilsonLoop(const int corner1[4], const int corner2[4],
     this->links_[pyQCD::mod(corner2[0], this->nEdgePoints)] = linkStore2;
   }
   
-  return 1./3 * out.trace().real();
+  return out.trace().real() / 3.0;
 }
 
 
@@ -548,15 +548,62 @@ double Lattice::computeWilsonLoop(const int corner[4], const int r,
 				  const int t, const int dimension,
 				  const int nSmears)
 {
-  // Calculates the loop specified by initial corner, width, height and 
+  // Calculates the loop specified by initial corner, width, height and
   // dimension
-  int corner2[4];
-  copy(corner, corner + 4, corner2);
-  corner2[dimension] += r;
-  corner2[0] += t;
-  return this->computeWilsonLoop(corner, corner2, nSmears);
-}
 
+  SubField linkStore1;
+  SubField linkStore2;
+  // Smear the links if specified, whilst storing the non-smeared ones.
+  if (nSmears > 0) {
+    linkStore1 = this->links_[pyQCD::mod(corner1[0], this->nEdgePoints)];
+    linkStore2 = this->links_[pyQCD::mod(corner2[0], this->nEdgePoints)];
+    this->smearLinks(corner1[0], nSmears);
+    this->smearLinks(corner2[0], nSmears);
+  }
+  // An output matrix
+  Matrix3cd out = Matrix3cd::Identity();
+  int link[5];
+  copy(corner, corner + 4, link);
+  link[4] = dimension;
+
+  // Calculate the first spatial edge
+  for (int i = 0; i < r; ++i) {
+    out *= this->getLink(link);
+    link[dimension]++;
+  }
+  
+  link[4] = 0;
+  
+  // Calculate the first temporal edge
+  for (int i = 0; i < t; ++i) {
+    out *= this->getLink(link);
+    link[0]++;
+  }
+  
+  link[4] = dimension;
+
+  // Calculate the second spatial edge
+  for (int i = 0; i < r; ++i) {
+    out *= this->getLink(link);
+    link[dimension]--;
+  }
+
+  link[4] = 0;
+
+  // Calculate the second temporal edge
+  for (int i = 0; i < t; ++i) {
+    out *= this->getLink(link);
+    link[0]--;
+  }
+
+  // Restore the old links
+  if (nSmears > 0) {
+    this->links_[pyQCD::mod(corner1[0], this->nEdgePoints)] = linkStore1;
+    this->links_[pyQCD::mod(corner2[0], this->nEdgePoints)] = linkStore2;
+  }  
+
+  return out.trace().real() / 3.0;
+}
 
 
 double Lattice::computePlaquette(const int site[4], const int mu,
