@@ -124,7 +124,7 @@ struct lattice_pickle_suite : py::pickle_suite
 
 
 
-double computeAverageWilsonLoopP(py::tuple args, py::dict kwargs)
+py::object computeAverageWilsonLoopP(py::tuple args, py::dict kwargs)
 {
   ScopedGILRelease scope;
   pyLattice& self = py::extract<pyLattice&>(args[0]);
@@ -135,7 +135,7 @@ double computeAverageWilsonLoopP(py::tuple args, py::dict kwargs)
   int t = py::extract<int>(kwargs["t"]);
   int nSmears = py::extract<int>(kwargs["n_smears"]);
   cout << "Extracted all arguments successfully" << endl;
-  return self.computeAverageWilsonLoopP(r, t, nSmears);
+  return py::object(self.computeAverageWilsonLoopP(r, t, nSmears));
 }
 
 
@@ -166,7 +166,7 @@ BOOST_PYTHON_MODULE(pyQCD)
 			    "Calculate Wilson loop"))
     .def("av_plaquette", &pyLattice::computeAveragePlaquette)
     .def("av_rectangle", &pyLattice::computeAverageRectangle)
-    .def("av_wilson_loop", py::raw_function(computeAverageWilsonLoopP, 3))
+    .def("av_wilson_loop", py::raw_function(&computeAverageWilsonLoopP, 3))
     .def("av_link", &pyLattice::computeMeanLink)
     .def("print", &pyLattice::print)
     .def("get_rand_su3", &pyLattice::getRandSu3)
