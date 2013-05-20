@@ -555,8 +555,8 @@ double Lattice::computeWilsonLoop(const int corner[4], const int r,
   SubField linkStore2;
   // Smear the links if specified, whilst storing the non-smeared ones.
   if (nSmears > 0) {
-    linkStore1 = this->links_[pyQCD::mod(corner1[0], this->nEdgePoints)];
-    linkStore2 = this->links_[pyQCD::mod(corner2[0], this->nEdgePoints)];
+    linkStore1 = this->links_[pyQCD::mod(corner[0], this->nEdgePoints)];
+    linkStore2 = this->links_[pyQCD::mod(corner[0] + t, this->nEdgePoints)];
     this->smearLinks(corner1[0], nSmears);
     this->smearLinks(corner2[0], nSmears);
   }
@@ -598,8 +598,8 @@ double Lattice::computeWilsonLoop(const int corner[4], const int r,
 
   // Restore the old links
   if (nSmears > 0) {
-    this->links_[pyQCD::mod(corner1[0], this->nEdgePoints)] = linkStore1;
-    this->links_[pyQCD::mod(corner2[0], this->nEdgePoints)] = linkStore2;
+    this->links_[pyQCD::mod(corner[0], this->nEdgePoints)] = linkStore1;
+    this->links_[pyQCD::mod(corner[0] + t, this->nEdgePoints)] = linkStore2;
   }  
 
   return out.trace().real() / 3.0;
