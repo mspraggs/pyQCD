@@ -791,10 +791,8 @@ double Lattice::computeAverageWilsonLoop(const int r, const int t,
   // dimension.
   // First off, save the current links and smear all time slices
   GaugeField templinks = this->links_;
-  if (nSmears > 0) {
-    for (int time = 0; time < this->nEdgePoints; time++) {
-      this->smearLinks(time, nSmears);
-    }
+  for (int time = 0; time < this->nEdgePoints; time++) {
+    this->smearLinks(time, nSmears);
   }
 
   double Wtot = 0.0;

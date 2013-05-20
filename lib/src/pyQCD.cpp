@@ -132,7 +132,9 @@ double computeAverageWilsonLoopP(py::tuple args, py::dict kwargs)
 
   int r = py::extract<int>(kwargs["r"]);
   int t = py::extract<int>(kwargs["t"]);
-  int nSmears = py::extract<int>(kwargs["n_smears"]);
+  int nSmears = 0;
+  if (keys.count("n_smears"))
+    nSmears = py::extract<int>(kwargs["n_smears"]);
 
   return self.computeAverageWilsonLoopP(r, t, nSmears);
 }
