@@ -1,6 +1,7 @@
 #include <pylattice.hpp>
 #include <boost/python.hpp>
 #include <boost/python/list.hpp>
+#include <boost/python/args.hpp>
 #include <iostream>
 
 namespace py = boost::python;
@@ -64,8 +65,8 @@ struct lattice_pickle_suite : py::pickle_suite
   {
     if (len(state) != 2) {
       PyErr_SetObject(PyExc_ValueError,
-        ("expected 2-item tuple in call to __setstate__; got %s"
-	 % state).ptr());
+		      ("expected 2-item tuple in call to __setstate__; got %s"
+		       % state).ptr());
       py::throw_error_already_set();
     }
     
@@ -127,14 +128,36 @@ struct lattice_pickle_suite : py::pickle_suite
 double computeAverageWilsonLoopP(py::tuple args, py::dict kwargs)
 {
   pyLattice& self = py::extract<pyLattice&>(args[0]);
+  
+  int r = 1;
+  int t = 1;
+  int nSmears = 0;
 
   py::list keys = kwargs.keys();
+  int nKeys = keys.count("r") + keys.count("t");
+  int smearFlag = keys.count("n_smears");
 
-  int r = py::extract<int>(kwargs["r"]);
-  int t = py::extract<int>(kwargs["t"]);
-  int nSmears = 0;
-  if (keys.count("n_smears"))
+  if (py::len(args) == 3) {
+    r = py::extract<int>(args[1]);
+    t = py::extract<int>(args[2]);
+  }
+  else if (py::len(args) == 4) {
+    r = py::extract<int>(args[1]);
+    t = py::extract<int>(args[2]);
+    nSmears = py::extract<int>(args[3]);
+  }
+  else if (nKeys == 2 && smearFlag == 1) {
+    r = py::extract<int>(kwargs["r"]);
+    t = py::extract<int>(kwargs["t"]);
     nSmears = py::extract<int>(kwargs["n_smears"]);
+  }
+  else if (nKeys == 2) {
+    r = py::extract<int>(kwargs["r"]);
+    t = py::extract<int>(kwargs["t"]);
+  }
+  else {
+    // Some error handling here
+  }
 
   return self.computeAverageWilsonLoopP(r, t, nSmears);
 }
