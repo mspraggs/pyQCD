@@ -557,8 +557,8 @@ double Lattice::computeWilsonLoop(const int corner[4], const int r,
   if (nSmears > 0) {
     linkStore1 = this->links_[pyQCD::mod(corner[0], this->nEdgePoints)];
     linkStore2 = this->links_[pyQCD::mod(corner[0] + t, this->nEdgePoints)];
-    this->smearLinks(corner1[0], nSmears);
-    this->smearLinks(corner2[0], nSmears);
+    this->smearLinks(corner[0], nSmears);
+    this->smearLinks(corner[0] + t, nSmears);
   }
   // An output matrix
   Matrix3cd out = Matrix3cd::Identity();
