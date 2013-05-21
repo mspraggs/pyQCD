@@ -22,7 +22,7 @@ public:
 	    const int action = 0,
 	    const int nCorrelations = 50,
 	    const double rho = 0.3,
-	    const double epsilon = 0.24, 
+	    const double epsilon = 0.24,
 	    const int updateMethod = 0,
 	    const int parallelFlag = 1);
   pyLattice(const pyLattice& pylattice);
@@ -39,7 +39,7 @@ public:
   void runThreads(const int chunkSize, const int nUpdates,
 		  const int remainder);
   py::list getLinkP(const int n0, const int n1, const int n2, const int n3,
-		     const int dimension) const;
+		    const int dimension) const;
   py::list getRandSu3(const int index) const;
 };
 
