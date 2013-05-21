@@ -124,45 +124,6 @@ struct lattice_pickle_suite : py::pickle_suite
 };
 
 
-
-double computeAverageWilsonLoopP(py::tuple args, py::dict kwargs)
-{
-  pyLattice& self = py::extract<pyLattice&>(args[0]);
-  
-  int r = 1;
-  int t = 1;
-  int nSmears = 0;
-
-  py::list keys = kwargs.keys();
-  int nKeys = keys.count("r") + keys.count("t");
-  int smearFlag = keys.count("n_smears");
-
-  if (py::len(args) == 3) {
-    r = py::extract<int>(args[1]);
-    t = py::extract<int>(args[2]);
-  }
-  else if (py::len(args) == 4) {
-    r = py::extract<int>(args[1]);
-    t = py::extract<int>(args[2]);
-    nSmears = py::extract<int>(args[3]);
-  }
-  else if (nKeys == 2 && smearFlag == 1) {
-    r = py::extract<int>(kwargs["r"]);
-    t = py::extract<int>(kwargs["t"]);
-    nSmears = py::extract<int>(kwargs["n_smears"]);
-  }
-  else if (nKeys == 2) {
-    r = py::extract<int>(kwargs["r"]);
-    t = py::extract<int>(kwargs["t"]);
-  }
-  else {
-    // Some error handling here
-  }
-
-  return self.computeAverageWilsonLoopP(r, t, nSmears);
-}
-
-
   
 // Boost python wrapping of the class
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(pyLatticeWOverload,
@@ -185,12 +146,12 @@ BOOST_PYTHON_MODULE(pyQCD)
     .def("rectangle", &pyLattice::computeRectangleP)
     .def("twist_rect", &pyLattice::computeTwistedRectangleP)
     .def("wilson_loop", &pyLattice::computeWilsonLoopP,
-	 pyLatticeWOverload(py::args("corner", "r", "t", "dimension",
-				     "nSmears"),
-			    "Calculate Wilson loop"))
+	 (py::arg("corner"), py::arg("r"), py::arg("t"), py::arg("dim"),
+	  py::arg("n_smears") = 0))
     .def("av_plaquette", &pyLattice::computeAveragePlaquette)
     .def("av_rectangle", &pyLattice::computeAverageRectangle)
-    .def("av_wilson_loop", py::raw_function(&computeAverageWilsonLoopP, 3))
+    .def("av_wilson_loop", &pyLattice::computeAverageWilsonLoopP,
+	 (py::arg("r"), py::arg("t"), py::arg("n_smears") = 0))
     .def("av_link", &pyLattice::computeMeanLink)
     .def("print", &pyLattice::print)
     .def("get_rand_su3", &pyLattice::getRandSu3)
