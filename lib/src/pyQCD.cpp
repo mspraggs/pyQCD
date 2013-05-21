@@ -147,7 +147,7 @@ BOOST_PYTHON_MODULE(pyQCD)
 	  py::arg("dim")))
     .def("update", &pyLattice::update)
     .def("schwarz_update", &pyLattice::schwarzUpdate,
-	 (py::arg("block_size")=4, py::arg("n_updates")=1))
+	 (py::arg("block_size")=4, py::arg("n_sweeps")=1))
     .def("next_config", &pyLattice::getNextConfig)
     .def("thermalize", &pyLattice::thermalize)
     .def("plaquette", &pyLattice::computePlaquetteP,

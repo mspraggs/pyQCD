@@ -93,10 +93,7 @@ The arguments are defined in a similar way to above:
 * update_method - the method used for updating the gauge configurations, as defined above (by default, update_method=0, except for the twisted rectangle action, where it can only be 2)
 * parallel_flag - designates whether OpenMP should be used (by default, it is, with parallel_flag=1)
 
-Note that these arguments have to be used in the order above, and keyword arguments can't be used. For example, if you
-want to specify a custom value for the update_method, you'll need to include all the other constructor arguments that
-come before the update_method argument. This is a product of the way boost::python works, and I haven't put the time
-into finding a way to make it more pythonic yet.
+This constructor and all the constructors that follow now use keyword arguments for convenience.
 
 The lattice object has the following methods:
 
@@ -113,7 +110,7 @@ This calculates the average value of the plaquette operator.
 
 This calculates the average value of the rectangle operator.
 
-> lattice.av_wilson_loop(r, t, n_smears)
+> lattice.av_wilson_loop(r, t, n_smears = 0)
 
 This calculates the average value of a planar Wilson loop of size r x t (in units of lattice spacing) using n_smears.
 n_smears is an optional argument, and is by default 0.
@@ -122,29 +119,29 @@ n_smears is an optional argument, and is by default 0.
 
 Gets one of the 200 random SU(3) matrices generated on initialisation and returns it as a compound list
 
-> lattice.link(n_t, n_x, n_y, n_z, axis)
+> lattice.link(n0, n1, n2, n3, dim)
 
-Gets the link at site (n_t, n_x, n_y, n_z) along the axis specified by axis (0 is time, and 1, 2 and 3 are x, y and
+Gets the link at site (n0, n1, n2, n3) along the axis specified by dim (0 is time, and 1, 2 and 3 are x, y and
 z axes).
 
 > lattice.next_config()
 
 This updates the lattice Ncor times to generate the next configuration for measurement
 
-> lattice.plaquette(site, axis_1, axis_2)
+> lattice.plaquette(site, dim1, dim2)
 
 This calculates the plaquette at the site specified by the list site (e.g. [n_t, n_x, n_y, n_z]), lying the in the plane
-specified by the axes axis_1 and axis_2 (again, 0 is time and 1, 2 and 3 are spatial indices).
+specified by the axes dim1 and dim2 (again, 0 is time and 1, 2 and 3 are spatial indices).
 
 > lattice.print()
 
 This was designed to print the lattice, but it doesn't work at the moment
 
-> lattice.rectangle(site, axis_1, axis_2)
+> lattice.rectangle(site, dim1, dim2)
 
 This calculates the rectangle operator in the same way as lattice.plaquette calculates the plaquette value.
 
-> lattice.schwarz_update(block_size, n_sweeps)
+> lattice.schwarz_update(block_size = 4, n_sweeps = 1)
 
 This runs a single parallel update, dividing the lattice into blocks, each with width block_size. The blocks are split
 into two sets so that they form a sort of 4d checkerboard. The blocks in one set are then updated in parallell, before
@@ -156,7 +153,7 @@ functions.
 
 This updates the lattice 5*Ncor times to bring it into thermal equilibrium.
 
-> lattice.twist_rect(site, axis_1, axis_2)
+> lattice.twist_rect(site, dim1, dim2)
 
 Similar the plaquette and rectangle functions, but calculates the twisted rectangle operator
 
@@ -164,7 +161,7 @@ Similar the plaquette and rectangle functions, but calculates the twisted rectan
 
 Performs a single serial update on the entire lattice.
 
-> lattice.wilson_loop(site, r, t, axis, n_smears)
+> lattice.wilson_loop(site, r, t, dim, n_smears = 0)
 
 Calculates the Wilson loop with corner at site (e.g. [n_t, n_x, n_y, n_z]) of size r x t in the spatial dimension
-specified by axis. n_smears specifies the number of stout smears, equal to 0 by default.
+specified by dim. n_smears specifies the number of stout smears, equal to 0 by default.
