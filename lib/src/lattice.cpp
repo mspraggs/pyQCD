@@ -20,7 +20,11 @@ Lattice::Lattice(const int nEdgePoints, const double beta, const double u0,
   this->parallelFlag_ = parallelFlag;
 
   // Resize the link vector and assign each link a random SU3 matrix
+  // Also set up the linkIndices vector
+  this->linkIndices_.resize(4 * pow(nEdgePoints, 4));
   this->links_.resize(this->nEdgePoints);
+  int index = 0;
+
   for (int i = 0; i < this->nEdgePoints; ++i) {
     this->links_[i].resize(this->nEdgePoints);
     for (int j = 0; j < this->nEdgePoints; ++j) {
@@ -33,7 +37,16 @@ Lattice::Lattice(const int nEdgePoints, const double beta, const double u0,
 	    Matrix3cd tempMatrix;
 	    this->makeRandomSu3(tempMatrix);
 	    this->links_[i][j][k][l][m] = tempMatrix;
+	    
+	    this->linkIndices_[index].resize(5);
+	    this->linkIndices_[index][0] = i;
+	    this->linkIndices_[index][1] = j;
+	    this->linkIndices_[index][2] = k;
+	    this->linkIndices_[index][3] = l;
+	    this->linkIndices_[index][4] = m;
+	    
 	  }
+	  
 	}
       }
     }

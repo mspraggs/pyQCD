@@ -111,6 +111,7 @@ protected:
   void (Lattice::*updateFunction_)(const int link[5]);
   GaugeField links_;
   Sub4Field randSu3s_;
+  vector<vector<int> > linkIndices_;
 };
 
 #endif
