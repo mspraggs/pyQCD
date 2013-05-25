@@ -44,7 +44,7 @@ Lattice::Lattice(const int nEdgePoints, const double beta, const double u0,
 	    this->linkIndices_[index][2] = k;
 	    this->linkIndices_[index][3] = l;
 	    this->linkIndices_[index][4] = m;
-	    
+	    index++;
 	  }
 	  
 	}
@@ -182,7 +182,7 @@ Matrix3cd& Lattice::getLink(const int link[5])
 
 
 
-Matrix3cd& Lattice::getLink(const vector<int> link(5))
+Matrix3cd& Lattice::getLink(const vector<int> link)
 {
   // Return link specified by indices
   int tempLink[5];
@@ -306,17 +306,13 @@ void Lattice::update()
 {
   // Iterate through the lattice and apply the appropriate update
   // function
-  for (int i = 0; i < this->nEdgePoints; ++i) {
-    for (int j = 0; j < this->nEdgePoints; ++j) {
-      for (int k = 0; k < this->nEdgePoints; ++k) {
-	for (int l = 0; l < this->nEdgePoints; ++l) {
-	  for (int m = 0; m < 4; ++m) {
-	    int link[5] = {i, j, k, l, m};
-	    (this->*updateFunction_)(link);
-	  }
-	}
-      }
-    }
+  int nLinks = this->linkIndices_.size();
+  for (int i = 0; i < nLinks; ++i) {
+    int link[5];
+    copy(this->linkIndices_[i].begin(),
+	 this->linkIndices_[i].end(),
+	 link);
+    (this->*updateFunction_)(link);
   }
   this->nUpdates_++;
 }
