@@ -347,20 +347,39 @@ void Lattice::runThreads(const int chunkSize, const int nUpdates,
 			 const int remainder)
 {
   // Updates every other segment (even or odd, specified by remainder).
-  int index = 0;
+  // Algorithm depends on whether the lattice has even or odd dimesnion.
+
+  if (this->nEdgePoints % 2 == 1) {
+    int index = 0;
 
 #pragma omp parallel for schedule(dynamic, 1) collapse(4)
-
-  for (int i = 0; i < this->nEdgePoints; i += chunkSize) {
-    for (int j = 0; j < this->nEdgePoints; j += chunkSize) {
-      for (int k = 0; k < this->nEdgePoints; k += chunkSize) {
-	for (int l = 0; l < this->nEdgePoints; l += chunkSize) {
-	  
-	  int site[4] = {i, j, k, l};
-	  if (index % 2 == remainder) {
-	    this->updateSegment(i, j, k, l, chunkSize, nUpdates);
+    for (int i = 0; i < this->nEdgePoints; i += chunkSize) {
+      for (int j = 0; j < this->nEdgePoints; j += chunkSize) {
+	for (int k = 0; k < this->nEdgePoints; k += chunkSize) {
+	  for (int l = 0; l < this->nEdgePoints; l += chunkSize) {
+	    
+	    int site[4] = {i, j, k, l};
+	    if (index % 2 == remainder) {
+	      this->updateSegment(i, j, k, l, chunkSize, nUpdates);
+	    }
+	    index++;	  
 	  }
-	  index++;	  
+	}
+      }
+    }
+  }
+  else {
+#pragma omp parallel for schedule(dynamic, 1) collapse(4)
+    for (int i = 0; i < this->nEdgePoints; i += chunkSize) {
+      for (int j = 0; j < this->nEdgePoints; j += chunkSize) {
+	for (int k = 0; k < this->nEdgePoints; k += chunkSize) {
+	  for (int l = 0; l < this->nEdgePoints; l += chunkSize) {
+	    
+	    int site[4] = {i, j, k, l};
+	    if (((i + j + k + l) / chunkSize) % 2 == remainder) {
+	      this->updateSegment(i, j, k, l, chunkSize, nUpdates);
+	    }
+	  }
 	}
       }
     }
