@@ -45,7 +45,7 @@ public:
 
   void print();
   Matrix3cd& getLink(const int link[5]);
-  Matrix3cd& getLink(const vector<int> link(5));
+  Matrix3cd& getLink(const vector<int> link);
 
   void monteCarlo(const int link[5]);
   void monteCarloNoStaples(const int link[5]);
