@@ -352,7 +352,7 @@ void Lattice::runThreads(const int chunkSize, const int nUpdates,
   if ((this->nEdgePoints / chunkSize) % 2 == 1) {
     int index = 0;
 
-#pragma omp parallel for schedule(runtime) collapse(4)
+#pragma omp parallel for schedule(static, 1) collapse(4)
     for (int i = 0; i < this->nEdgePoints; i += chunkSize) {
       for (int j = 0; j < this->nEdgePoints; j += chunkSize) {
 	for (int k = 0; k < this->nEdgePoints; k += chunkSize) {
@@ -367,7 +367,7 @@ void Lattice::runThreads(const int chunkSize, const int nUpdates,
     }
   }
   else {
-#pragma omp parallel for schedule(runtime) collapse(4)
+#pragma omp parallel for schedule(static, 1) collapse(4)
     for (int i = 0; i < this->nEdgePoints; i += chunkSize) {
       for (int j = 0; j < this->nEdgePoints; j += chunkSize) {
 	for (int k = 0; k < this->nEdgePoints; k += chunkSize) {
