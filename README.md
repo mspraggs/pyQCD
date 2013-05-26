@@ -4,6 +4,10 @@ pyQCD provides a Python library for running coarse lattice QCD simulations on de
 
 Installation
 ------------
+***If you're building this on Iridis, you'll need to clone the Iridis branch of this repo, as this contains
+some code modifications to prevent segfaults. As a result of these differences, python keyword arguments are not
+supported on Iridis.***
+
 pyQCD can be built using the cmake build system. The CMakeLists.txt file has only been tested on Ubuntu Linux,
 so I can't guarantee that it'll work seamlessly on other platforms (obviously this is something I'd like to change
 in the future).
