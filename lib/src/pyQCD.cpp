@@ -140,7 +140,7 @@ BOOST_PYTHON_MODULE(pyQCD)
 			  py::arg("u0")=1.0, py::arg("action")=0,
 			  py::arg("Ncor")=10, py::arg("rho")=0.3,
 			  py::arg("epsilon")=0.24, py::arg("update_method")=0,
-			  py::arg("parallel_flag")=1)))
+			  py::arg("parallel_flag")=0)))
     .def(py::init<pyLattice&>())
     .def("link", &pyLattice::getLinkP,
 	 (py::arg("n0"), py::arg("n1"), py::arg("n2"), py::arg("n3"),
