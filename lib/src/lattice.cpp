@@ -357,8 +357,6 @@ void Lattice::runThreads(const int chunkSize, const int nUpdates,
       for (int j = 0; j < this->nEdgePoints; j += chunkSize) {
 	for (int k = 0; k < this->nEdgePoints; k += chunkSize) {
 	  for (int l = 0; l < this->nEdgePoints; l += chunkSize) {
-	    
-	    int site[4] = {i, j, k, l};
 	    if (index % 2 == remainder) {
 	      this->updateSegment(i, j, k, l, chunkSize, nUpdates);
 	    }
@@ -374,8 +372,6 @@ void Lattice::runThreads(const int chunkSize, const int nUpdates,
       for (int j = 0; j < this->nEdgePoints; j += chunkSize) {
 	for (int k = 0; k < this->nEdgePoints; k += chunkSize) {
 	  for (int l = 0; l < this->nEdgePoints; l += chunkSize) {
-	    
-	    int site[4] = {i, j, k, l};
 	    if (((i + j + k + l) / chunkSize) % 2 == remainder) {
 	      this->updateSegment(i, j, k, l, chunkSize, nUpdates);
 	    }
