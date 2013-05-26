@@ -50,6 +50,12 @@ parser.add_option("--update-method", action = "store", type = "int",
 parser.add_option("--parallel-flag", action = "store", type = "int",
 				  dest = "parallel_flag", default = 1)
 parser.add_option("--test", "-t", action = "store_true", dest = "test")
+parser.add_option("--store-plaquette", "-P", action = "store_true",
+				  dest = "store_plaquette")
+parser.add_option("--store-wloop", "-W", action = "store_true",
+				  dest = "store_wloop")
+parser.add_option("--store-configs", "-C", action = "store_true",
+				  dest = "store_configs")
 
 (options,args) = parser.parse_args()
 
@@ -84,10 +90,12 @@ if options.test:
 	print("Calculating run time...")
 	sys.stdout.flush()
 	L.next_config()
-	Pav = L.av_plaquette()
-	interfaces.get_wilson_loops(L, rmax, tmax, n_smears = options.n_smears)
+	if options.store_plaquette == True:	Pav = L.av_plaquette()
+	if options.store_wloop == True:
+		interfaces.get_wilson_loops(L, rmax, tmax, n_smears = options.n_smears)
 	t2 = time.time()
-	print("Average plaquette value: %f" % Pav)
+	if options.store_plaquette == True:
+		print("Average plaquette value: %f" % Pav)
 	print("Estimated run time: %f hours"
 		% (((t2 - t1) * options.Ncf + t2 - t1) / 3600))
 
@@ -96,10 +104,13 @@ else:
 		print("Configuration: %d" % i)
 		sys.stdout.flush()
 		L.next_config()
-		Ws[i] = interfaces.get_wilson_loops(L, rmax, tmax,
-											n_smears = options.n_smears)
-		Pavs[i] = L.av_plaquette()
-		print("Average plaquette: %f" % Pavs[i])
+		if options.store_wloop == True:
+			Ws[i] = interfaces.get_wilson_loops(L, rmax, tmax,
+												n_smears = options.n_smears)
+
+		if options.store_plaquette == True:
+			Pavs[i] = L.av_plaquette()
+			print("Average plaquette: %f" % Pavs[i])
 
 	time_now = datetime.datetime.now()
 	folder = \
@@ -115,10 +126,12 @@ else:
 	
 	filepath = join("results", folder)
 	os.makedirs(filepath)
-	Ws_filepath = join(filepath, "Ws")
-	Ps_filepath = join(filepath, "Ps")
-	np.save(Ws_filepath,Ws)
-	np.save(Ps_filepath,Pavs)
+	if options.store_wloop == True:
+		Ws_filepath = join(filepath, "Ws")
+		np.save(Ws_filepath,Ws)
+	if options.store_plaquette == True:
+		Ps_filepath = join(filepath, "Ps")
+		np.save(Ps_filepath,Pavs)
 
 	printConfig(options)
 
