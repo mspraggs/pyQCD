@@ -49,7 +49,8 @@ parser.add_option("--update-method", action = "store", type = "int",
 				  dest = "update_method", default = 0)
 parser.add_option("--parallel-flag", action = "store", type = "int",
 				  dest = "parallel_flag", default = 1)
-parser.add_option("--test", "-t", action = "store_true", dest = "test")
+parser.add_option("--test", "-t", action = "store", type = "int",
+				  dest = "num_trials", default = 0)
 parser.add_option("--store-plaquette", "-P", action = "store_true",
 				  dest = "store_plaquette")
 parser.add_option("--store-wloop", "-W", action = "store_true",
@@ -94,21 +95,29 @@ config_shape = (options.Ncf, L.n_points,
 if options.store_configs == True:
 	configs = np.zeros(config_shape, dtype=complex)
 
-if options.test:
+if options.num_trials > 0:
 	t1 = time.time()
 	print("Calculating run time...")
 	sys.stdout.flush()
-	L.next_config()
-	if options.store_plaquette == True:	Pav = L.av_plaquette()
-	if options.store_wloop == True:
-		interfaces.get_wilson_loops(L, rmax, tmax, n_smears = options.n_smears)
+	for i in xrange(options.num_trials):
+		print("Configuration: %d" % i)
+		sys.stdout.flush()
+		L.next_config()
+		if options.store_wloop == True:
+			Ws[i] = interfaces.get_wilson_loops(L, rmax, tmax,
+												n_smears = options.n_smears)
+
+		if options.store_configs == True:
+			configs[i] = np.array(interfaces.get_links(L))
+
+		if options.store_plaquette == True:
+			Pavs[i] = L.av_plaquette()
+			print("Average plaquette: %f" % Pavs[i])
 	t2 = time.time()
 	if options.store_plaquette == True:
-		print("Average plaquette value: %f" % Pav)
-	if options.store_configs == True:
-		temp = np.array(interfaces.get_links(L), dtype=complex)
+		print("Average plaquette value: %f" % Pavs[0])
 	print("Estimated run time: %f hours"
-		% (((t2 - t1) * options.Ncf + t2 - t1) / 3600))
+		% (((t2 - t1) / options.num_trials * options.Ncf + t2 - t1) / 3600))
 
 else:
 	for i in xrange(options.Ncf):
