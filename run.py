@@ -96,6 +96,8 @@ if options.test:
 	t2 = time.time()
 	if options.store_plaquette == True:
 		print("Average plaquette value: %f" % Pav)
+	if options.store_configs == True:
+		temp = np.array(interfaces.get_links(L), dtype=complex)
 	print("Estimated run time: %f hours"
 		% (((t2 - t1) * options.Ncf + t2 - t1) / 3600))
 
