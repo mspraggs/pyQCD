@@ -349,7 +349,7 @@ void Lattice::runThreads(const int chunkSize, const int nUpdates,
   // Updates every other segment (even or odd, specified by remainder).
   // Algorithm depends on whether the lattice has even or odd dimesnion.
 
-  if (this->nEdgePoints % 2 == 1) {
+  if ((this->nEdgePoints / chunkSize) % 2 == 1) {
     int index = 0;
 
 #pragma omp parallel for schedule(dynamic, 1) collapse(4)
