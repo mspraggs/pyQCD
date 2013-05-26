@@ -835,7 +835,7 @@ double Lattice::computeAverageWilsonLoop(const int r, const int t,
 
   double Wtot = 0.0;
   if (this->parallelFlag_ == 1) {
-#pragma omp parallel for collapse(5)
+#pragma omp parallel for collapse(5) reduction(+ : Wtot)
     for (int i = 0; i < this->nEdgePoints; ++i) {
       for (int j = 0; j < this->nEdgePoints; ++j) {
 	for (int k = 0; k < this->nEdgePoints; ++k) {
@@ -846,7 +846,6 @@ double Lattice::computeAverageWilsonLoop(const int r, const int t,
 	      // small variations in the final value
 	      // of Wtot between consecutive calls
 	      // (of the order of 10^-16)
-#pragma omp critical
 	      Wtot += this->computeWilsonLoop(site, r, t, m, 0);
 	    }
 	  }
