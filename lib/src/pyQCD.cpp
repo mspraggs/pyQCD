@@ -135,38 +135,28 @@ BOOST_PYTHON_MODULE(pyQCD)
 {
   py::class_<pyLattice>("Lattice",
 			py::init<int, double, double, int, int, double,
-				 double, int, int>
-			((py::arg("n")=8, py::arg("beta")=5.5,
-			  py::arg("u0")=1.0, py::arg("action")=0,
-			  py::arg("Ncor")=10, py::arg("rho")=0.3,
-			  py::arg("epsilon")=0.24, py::arg("update_method")=0,
-			  py::arg("parallel_flag")=1)))
+				 double, int, int>())
     .def(py::init<pyLattice&>())
-    .def("link", &pyLattice::getLinkP,
-	 (py::arg("n0"), py::arg("n1"), py::arg("n2"), py::arg("n3"),
-	  py::arg("dim")))
+    .def("link", &pyLattice::getLinkP)
     .def("update", &pyLattice::update)
-    .def("schwarz_update", &pyLattice::schwarzUpdate,
-	 (py::arg("block_size")=4, py::arg("n_sweeps")=1))
+    .def("schwarz_update", &pyLattice::schwarzUpdate)
     .def("next_config", &pyLattice::getNextConfig)
     .def("thermalize", &pyLattice::thermalize)
-    .def("plaquette", &pyLattice::computePlaquetteP,
-	 (py::arg("site"), py::arg("dim1"), py::arg("dim2")))
-    .def("rectangle", &pyLattice::computeRectangleP,
-	 (py::arg("site"), py::arg("dim1"), py::arg("dim2")))
+    .def("plaquette", &pyLattice::computePlaquetteP)
+    .def("rectangle", &pyLattice::computeRectangleP)
     .def("twist_rect", &pyLattice::computeTwistedRectangleP,
 	 (py::arg("site"), py::arg("dim1"), py::arg("dim2")))
     .def("wilson_loop", &pyLattice::computeWilsonLoopP,
-	 (py::arg("corner"), py::arg("r"), py::arg("t"), py::arg("dim"),
-	  py::arg("n_smears") = 0))
+	 pyLatticeWOverload(py::args("corner", "r", "t", "dimension",
+				     "nSmears")))
     .def("av_plaquette", &pyLattice::computeAveragePlaquette)
     .def("av_rectangle", &pyLattice::computeAverageRectangle)
     .def("av_wilson_loop", &pyLattice::computeAverageWilsonLoopP,
-	 (py::arg("r"), py::arg("t"), py::arg("n_smears") = 0))
+	 pyLatticeWavOverload(py::args("r", "t", "nSmears"),
+			      "Calculate average Wilson loop"))
     .def("av_link", &pyLattice::computeMeanLink)
     .def("print", &pyLattice::print)
-    .def("get_rand_su3", &pyLattice::getRandSu3,
-	 (py::arg("index")))
+    .def("get_rand_su3", &pyLattice::getRandSu3)
     .def_pickle(lattice_pickle_suite())
     .def_readonly("n_cor", &pyLattice::nCorrelations)
     .def_readonly("n_points", &pyLattice::nEdgePoints);
