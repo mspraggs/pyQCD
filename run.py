@@ -48,7 +48,7 @@ parser.add_option("--rho", action = "store", type = "float",
 parser.add_option("--update-method", action = "store", type = "int",
 				  dest = "update_method", default = 0)
 parser.add_option("--parallel-flag", action = "store", type = "int",
-				  dest = "parallel_flag", default = 0)
+				  dest = "parallel_flag", default = 1)
 parser.add_option("--test", "-t", action = "store_true", dest = "test")
 
 (options,args) = parser.parse_args()
