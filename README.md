@@ -73,7 +73,7 @@ command line parameters for the run script:
 * --rho=X, where X is the smearing weighting factor (0.3 by default)
 * --update-method=N, where N defines the method used to update the gauge configurations. Use 0 for heatbath updates, 1 for efficient Monte Carlo updates and 2 for inefficient Monte Carlo updates. Note that the inefficient Monte Carlo method is the only one that'll work with the twisted rectangle operator, since the link staples cannot be computed for the twisted rectangle operator.
 * --parallel-flag=N, where N=1 enables parallel updating, while N=0 disables it.
-* -t or --test calculates how long the simulation will take to run (approximately).
+* -t N or --test=N calculates how long the simulation will take to run using N trial configs.
 * -P or --store-plaquette stores the mean plaquette values for each configuration.
 * -W or --store-wloop stores the expectation values of the Wilson loop for each gauge configuration.
 * -C or --store-configs stores the gauge configurations from the simulation.
