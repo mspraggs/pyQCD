@@ -91,7 +91,7 @@ The arguments are defined in a similar way to above:
 * rho - the stout smearing factor (by default, rho=0.3)
 * eps - the weighting for the random SU(3) matrix generation algorithm (by default, eps=0.24 to give an approximate 50% rejection rate for the update)
 * update_method - the method used for updating the gauge configurations, as defined above (by default, update_method=0, except for the twisted rectangle action, where it can only be 2)
-* parallel_flag - designates whether OpenMP should be used (by default, it is, with parallel_flag=1)
+* parallel_flag - designates whether OpenMP should be used (by default, it isn't, with parallel_flag=0)
 
 This constructor and all the constructors that follow now use keyword arguments for convenience.
 
