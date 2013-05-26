@@ -80,10 +80,19 @@ L.thermalize()
 print("Done!")
 sys.stdout.flush()
 
-rmax = L.n_points - 1
-tmax = L.n_points - 1
-Ws = np.zeros((options.Ncf, rmax - 1, tmax - 1))
-Pavs = np.zeros(options.Ncf)
+rmax = L.n_points
+tmax = L.n_points
+if options.store_wloop == True:
+	Ws = np.zeros((options.Ncf, rmax - 1, tmax - 1))
+if options.store_plaquette == True:
+	Pavs = np.zeros(options.Ncf)
+
+config_shape = (options.Ncf, L.n_points,
+				L.n_points, L.n_points,
+				L.n_points, 4, 3, 3)
+
+if options.store_configs == True:
+	configs = np.zeros(config_shape, dtype=complex)
 
 if options.test:
 	t1 = time.time()
@@ -110,6 +119,9 @@ else:
 			Ws[i] = interfaces.get_wilson_loops(L, rmax, tmax,
 												n_smears = options.n_smears)
 
+		if options.store_configs == True:
+			configs[i] = np.array(interfaces.get_links(L))
+
 		if options.store_plaquette == True:
 			Pavs[i] = L.av_plaquette()
 			print("Average plaquette: %f" % Pavs[i])
@@ -134,6 +146,9 @@ else:
 	if options.store_plaquette == True:
 		Ps_filepath = join(filepath, "Ps")
 		np.save(Ps_filepath,Pavs)
+	if options.store_configs == True:
+		configs_filepath = join(filepath, "configs")
+		np.save(configs_filepath, configs)
 
 	printConfig(options)
 
