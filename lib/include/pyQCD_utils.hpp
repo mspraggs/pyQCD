@@ -39,12 +39,12 @@ namespace pyQCD
   int sgn(const int x);
   void getLinkIndices(int n, int link[5]);
 
-  void createSu2(Matrix2cd& out, const double coefficients[4]);
-  void embedSu2(const Matrix2cd& Su2Matrix, Matrix3cd& Su3Matrix,
+  Matrix2cd createSu2(const double coefficients[4]);
+  Matrix3cd embedSu2(const Matrix2cd& Su2Matrix,
 		const int index);
-  void extractSubMatrix(const Matrix3cd& su3Matrix, Matrix2cd& subMatrix,
+  Matrix2cd extractSubMatrix(const Matrix3cd& su3Matrix,
 			const int index);
-  void extractSu2(const Matrix3cd& su3Matrix, Matrix2cd& su2Matrix,
+  Matrix2cd extractSu2(const Matrix3cd& su3Matrix,
 		  double coefficients[4], const int index);  
 }
 
