@@ -98,18 +98,20 @@ namespace pyQCD
 
 
 
-  void createSu2(Matrix2cd& out, const double coefficients[4])
+  Matrix2cd createSu2(const double coefficients[4])
   {
-    out = coefficients[0] * sigmas[0];
+    Matrix2cd out = coefficients[0] * sigmas[0];
     for (int j = 1; j < 4; ++j)
       out += i * coefficients[j] * sigmas[j];
+    return out;
   }
 
 
 
-  void embedSu2(const Matrix2cd& Su2Matrix, Matrix3cd& Su3Matrix,
+  Matrix3cd embedSu2(const Matrix2cd& Su2Matrix,
 		const int index)
   {
+    Matrix3cd Su3Matrix;
     if (index == 0) {
       Su3Matrix(0, 0) = 1.0;
       Su3Matrix(0, 1) = 0.0;
@@ -143,13 +145,15 @@ namespace pyQCD
       Su3Matrix(2, 1) = 0.0;
       Su3Matrix(2, 2) = 1.0;
     }
+    return Su3Matrix;
   }
 
 
 
-  void extractSubMatrix(const Matrix3cd& su3Matrix, Matrix2cd& subMatrix,
+  Matrix2cd extractSubMatrix(const Matrix3cd& su3Matrix,
 			const int index)
   {
+    Matrix2cd subMatrix;
     if (index == 0) {
       subMatrix(0, 0) = su3Matrix(1, 1);
       subMatrix(0, 1) = su3Matrix(1, 2);
@@ -168,15 +172,15 @@ namespace pyQCD
       subMatrix(1, 0) = su3Matrix(1, 0);
       subMatrix(1, 1) = su3Matrix(1, 1);
     }
+    return subMatrix;
   }
 
 
 
-  void extractSu2(const Matrix3cd& su3Matrix, Matrix2cd& su2Matrix,
+  Matrix2cd extractSu2(const Matrix3cd& su3Matrix,
 		  double coefficients[4], const int index)
   {
-    Matrix2cd subMatrix;
-    extractSubMatrix(su3Matrix, subMatrix, index);
+    Matrix2cd subMatrix = extractSubMatrix(su3Matrix, index);
     
     coefficients[0] = subMatrix(0, 0).real() + subMatrix(1, 1).real();
     coefficients[1] = subMatrix(0, 1).imag() + subMatrix(1, 0).imag();
@@ -188,7 +192,6 @@ namespace pyQCD
 			    pow(coefficients[2], 2) +
 			    pow(coefficients[3], 2));
 
-    createSu2(su2Matrix, coefficients);
-    su2Matrix /= magnitude;
+    return createSu2(coefficients) / magnitude;
   }
 }

@@ -34,9 +34,7 @@ Lattice::Lattice(const int nEdgePoints, const double beta, const double u0,
 	for (int l = 0; l < this->nEdgePoints; ++l) {
 	  this->links_[i][j][k][l].resize(4);
 	  for (int m = 0; m < 4; ++m) {
-	    Matrix3cd tempMatrix;
-	    this->makeRandomSu3(tempMatrix);
-	    this->links_[i][j][k][l][m] = tempMatrix;
+	    this->links_[i][j][k][l][m] = this->makeRandomSu3();
 	    
 	    this->linkIndices_[index].resize(5);
 	    this->linkIndices_[index][0] = i;
@@ -54,8 +52,7 @@ Lattice::Lattice(const int nEdgePoints, const double beta, const double u0,
 
   // Generate a set of random SU3 matrices for use in the updates
   for (int i = 0; i < 200; ++i) {
-    Matrix3cd randSu3;
-    this->makeRandomSu3(randSu3);
+    Matrix3cd randSu3 = this->makeRandomSu3();
     this->randSu3s_.push_back(randSu3);
     this->randSu3s_.push_back(randSu3.adjoint());
   }
@@ -200,8 +197,7 @@ void Lattice::monteCarlo(const int link[5])
   // Iterate through the lattice and update the links using Metropolis
   // algorithm
   // Get the staples
-  Matrix3cd staples;
-  (this->*computeStaples)(link, staples);
+  Matrix3cd staples = (this->*computeStaples)(link);
   for (int n = 0; n < 10; ++n) {
     // Get a random SU3
     Matrix3cd randSu3 = 
@@ -258,23 +254,19 @@ void Lattice::heatbath(const int link[5])
 {
   // Update a single link using heatbath in Gattringer and Lang
   // Calculate the staples matrix A
-  Matrix3cd staples;
-  (this->*computeStaples)(link, staples);
+  Matrix3cd staples = (this->*computeStaples)(link);
   // Declare the matrix W = U * A
-  Matrix3cd W;
+  Matrix3cd W = this->links_[link[0]][link[1]][link[2]][link[3]][link[4]]
+      * staples;
   
   // Iterate over the three SU(2) subgroups of W
   for (int n = 0; n < 3; ++n) {
-    // W = U * A
-    W = this->links_[link[0]][link[1]][link[2]][link[3]][link[4]]
-      * staples;
-    Matrix2cd V;
     double a[4];
     double r[4];
     // Get SU(2) sub-group of W corresponding to index n
     // i.e. n is row/column removed from W to get 2x2 matrix,
     // which is then unitarised. This is matrix V.
-    pyQCD::extractSu2(W, V, a, n);
+    Matrix2cd V = pyQCD::extractSu2(W, a, n);
     
     // Find the determinant needed to unitarise the sub-group
     // of W. a are the coefficients of the Pauli matrices
@@ -288,12 +280,10 @@ void Lattice::heatbath(const int link[5])
     // 4.45 in Gattringer in Lang (though note that we use a different
     // coefficient here, as otherwise the results come out wrong for
     // some reason.
-    Matrix2cd X;
-    this->makeHeatbathSu2(X, r, a_l);
+    Matrix2cd X = this->makeHeatbathSu2(r, a_l);
     // Then calculate the matrix R to update the sub-group and embed it
     // as an SU(3) matrix.
-    Matrix3cd R;
-    pyQCD::embedSu2(X * V.adjoint(), R, n);
+    Matrix3cd R = pyQCD::embedSu2(X * V.adjoint(), n);
     // Do the update
     this->links_[link[0]][link[1]][link[2]][link[3]][link[4]]
       = R * this->links_[link[0]][link[1]][link[2]][link[3]][link[4]];
@@ -405,11 +395,10 @@ void Lattice::getNextConfig()
 
 
 
-void Lattice::computePath(const vector<vector<int> >& path,
-			  Matrix3cd& out)
+Matrix3cd Lattice::computePath(const vector<vector<int> >& path)
 {
   // Multiplies the matrices together specified by the indices in path
-  out = Matrix3cd::Identity();
+  Matrix3cd out = Matrix3cd::Identity();
   
   for (int i = 0; i < path.size() - 1; ++i) {
     // Which dimension are we moving in?
@@ -442,16 +431,15 @@ void Lattice::computePath(const vector<vector<int> >& path,
       out *= this->getLink(link);
     }
   }
+  return out;
 }
 
 
 
-void Lattice::computeLine(const int start[4], const int finish[4],
-			  Matrix3cd& out)
+Matrix3cd Lattice::computeLine(const int start[4], const int finish[4])
 {
   // Multiplies all gauge links along line from start to finish
   // First check that's actually a straight path
-  out = Matrix3cd::Identity();
   int countDimensions = 0;
   int dimension = 0;
   for (int i = 0; i < 4; ++i) {
@@ -467,6 +455,7 @@ void Lattice::computeLine(const int start[4], const int finish[4],
   if (countDimensions != 1) {
     cout << "Error! Start and end points do not form a straight line."
 	 << endl;
+    return Matrix3cd::Identity();
   }
   else {
     // If the two points are on the same line, we're good to go
@@ -486,7 +475,7 @@ void Lattice::computeLine(const int start[4], const int finish[4],
 	// Push it onto the line
 	line.push_back(link);
       }
-      this->computePath(line, out);
+      return this->computePath(line);
     }
     else {
       // Same again, but this time we deal with the case of going backwards
@@ -497,7 +486,7 @@ void Lattice::computeLine(const int start[4], const int finish[4],
 	link.push_back(dimension);
 	line.push_back(link);
       }
-      this->computePath(line, out);
+      return this->computePath(line);
     }
   }
 }
@@ -536,20 +525,14 @@ double Lattice::computeWilsonLoop(const int corner1[4], const int corner2[4],
     // Get the second corner (going round the loop)
     int corner3[4] = {corner1[0], corner1[1], corner1[2], corner1[3]};
     corner3[0] = corner2[0];
-    // Declare a temporary matrix to pass between our functions
-    Matrix3cd tempMatrix;
     // Calculate the line segments between the first three corners
-    this->computeLine(corner1, corner3, tempMatrix);
-    out *= tempMatrix;
-    this->computeLine(corner3, corner2, tempMatrix);
-    out *= tempMatrix;
+    out *= this->computeLine(corner1, corner3);
+    out *= this->computeLine(corner3, corner2);
     // And repeat for the second set of sides
     int corner4[4] = {corner2[0], corner2[1], corner2[2], corner2[3]};
     corner4[0] = corner1[0];
-    this->computeLine(corner2, corner4, tempMatrix);
-    out *= tempMatrix;
-    this->computeLine(corner4, corner1, tempMatrix);
-    out *= tempMatrix;
+    out *= this->computeLine(corner2, corner4);
+    out *= this->computeLine(corner4, corner1);
   }
   // Restore the old links
   if (nSmears > 0) {
@@ -874,7 +857,7 @@ double Lattice::computeMeanLink()
 
 
 
-void Lattice::makeRandomSu3(Matrix3cd& out)
+Matrix3cd Lattice::makeRandomSu3()
 {
   // Generate a random SU3 matrix, weighted by epsilon
   Matrix3cd A;
@@ -890,12 +873,12 @@ void Lattice::makeRandomSu3(Matrix3cd& out)
   // Make the matrix traceless and Hermitian
   A(2, 2) = -(A(1, 1) + A(0, 0));
   Matrix3cd B = 0.5 * (A - A.adjoint());
-  out = B.exp();
+  return B.exp();
 }
 
 
 
-void Lattice::makeHeatbathSu2(Matrix2cd& out, double coefficients[4],
+Matrix2cd Lattice::makeHeatbathSu2(double coefficients[4],
 			      const double weighting)
 {
   // Generate a random SU2 matrix distributed according to heatbath
@@ -938,12 +921,12 @@ void Lattice::makeHeatbathSu2(Matrix2cd& out, double coefficients[4],
   coefficients[3] = xMag * costheta;
 
   // Now get the SU(2) matrix
-  pyQCD::createSu2(out, coefficients);
+  return pyQCD::createSu2(coefficients);
 }
 
 
 
-void Lattice::computeQ(const int link[5], Matrix3cd& out)
+Matrix3cd Lattice::computeQ(const int link[5])
 {
   // Calculates Q matrix for analytic smearing according to paper on analytic
   // smearing (Morningstart and Peardon, 2003)
@@ -954,32 +937,32 @@ void Lattice::computeQ(const int link[5], Matrix3cd& out)
       int tempLink[5] = {0, 0, 0, 0, 0};
       copy(link, link + 4, tempLink);
       tempLink[4] = nu;
-      Matrix3cd tempMatrix = this->getLink(tempLink);
+      Matrix3cd tempMatrix1 = this->getLink(tempLink);
 
       tempLink[4] = link[4];
       tempLink[nu] += 1;
-      tempMatrix *= this->getLink(tempLink);
+      tempMatrix1 *= this->getLink(tempLink);
 
       tempLink[4] = nu;
       tempLink[nu] -= 1;
       tempLink[link[4]] += 1;
-      tempMatrix *= this->getLink(tempLink).adjoint();
+      tempMatrix1 *= this->getLink(tempLink).adjoint();
 
-      C += tempMatrix;
+      C += tempMatrix1;
 
       copy(link, link + 4, tempLink);
       tempLink[nu] -= 1;
       tempLink[4] = nu;
-      tempMatrix = this->getLink(tempLink).adjoint();
+      Matrix3cd tempMatrix2 = this->getLink(tempLink).adjoint();
 
       tempLink[4] = link[4];
-      tempMatrix *= this->getLink(tempLink);
+      tempMatrix2 *= this->getLink(tempLink);
 
       tempLink[4] = nu;
       tempLink[link[4]] += 1;
-      tempMatrix *= this->getLink(tempLink);
+      tempMatrix2 *= this->getLink(tempLink);
 
-      C += tempMatrix;
+      C += tempMatrix2;
     }
   }
   
@@ -987,8 +970,8 @@ void Lattice::computeQ(const int link[5], Matrix3cd& out)
 
   Matrix3cd Omega = C * this->getLink(link).adjoint();
   Matrix3cd OmegaAdjoint = Omega.adjoint() - Omega;
-  out = 0.5 * pyQCD::i * OmegaAdjoint;
-  out -= pyQCD::i / 6.0 * OmegaAdjoint.trace() * Matrix3cd::Identity();
+  Matrix3cd out = 0.5 * pyQCD::i * OmegaAdjoint;
+  return out - pyQCD::i / 6.0 * OmegaAdjoint.trace() * Matrix3cd::Identity();
 }
 
 
@@ -1015,11 +998,9 @@ void Lattice::smearLinks(const int time, const int nSmears)
 	    for (int m = 1; m < 4; ++m) {
 	      // Create a temporary matrix to store the new link
 	      int link[5] = {time, j, k, l, m};
-	      Matrix3cd tempMatrix;
-	      this->computeQ(link, tempMatrix);
-	      tempMatrix = (pyQCD::i * tempMatrix).exp()
+	      Matrix3cd tempMatrix = this->computeQ(link);
+	      newLinks[j][k][l][m] = (pyQCD::i * tempMatrix).exp()
 		* this->getLink(link);
-	      newLinks[j][k][l][m] = tempMatrix;
 	    }
 	  }
 	}
@@ -1047,11 +1028,9 @@ void Lattice::smearLinks(const int time, const int nSmears)
 	    for (int m = 1; m < 4; ++m) {
 	      // Create a temporary matrix to store the new link
 	      int link[5] = {time, j, k, l, m};
-	      Matrix3cd tempMatrix;
-	      this->computeQ(link, tempMatrix);
-	      tempMatrix = (pyQCD::i * tempMatrix).exp()
+	      Matrix3cd tempMatrix = this->computeQ(link);
+	      newLinks[j][k][l][m] = (pyQCD::i * tempMatrix).exp()
 		* this->getLink(link);
-	      newLinks[j][k][l][m] = tempMatrix;
 	    }
 	  }
 	}
@@ -1178,8 +1157,7 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
 	    // So, if the current mu is positive, just get
 	    // the plain old link given by link as normal
 	    if (mus[k] > 0) {
-	      Matrix3cd tempMatrix = this->getLink(link);
-	      U = tempMatrix;
+	      U = this->getLink(link);
 	    }
 	    else {
 	      // If mu is negative, we'll need the adjoint
@@ -1371,13 +1349,13 @@ double Lattice::computeLocalTwistedRectangleAction(const int link[5])
 
 
 
-void Lattice::computeWilsonStaples(const int link[5], Matrix3cd& out)
+Matrix3cd Lattice::computeWilsonStaples(const int link[5])
 {
   // Calculates the sum of staples for the two plaquettes surrounding
   // the link
   int planes[3];
 
-  out = Matrix3cd::Zero();
+  Matrix3cd out = Matrix3cd::Zero();
   
   // Work out which dimension the link is in, since it'll be irrelevant here
   int j = 0;
@@ -1399,37 +1377,39 @@ void Lattice::computeWilsonStaples(const int link[5], Matrix3cd& out)
     // First link is U_nu (x + mu)
     tempLink[4] = planes[i];
     tempLink[link[4]] += 1;
-    Matrix3cd tempMatrix = this->getLink(tempLink);
+    Matrix3cd tempMatrix1 = this->getLink(tempLink);
     // Next link is U+_mu (x + nu)
     tempLink[4] = link[4];
     tempLink[link[4]] -= 1;
     tempLink[planes[i]] += 1;
-    tempMatrix *= this->getLink(tempLink).adjoint();
+    tempMatrix1 *= this->getLink(tempLink).adjoint();
     // Next link is U+_nu (x)
     tempLink[planes[i]] -= 1;
     tempLink[4] = planes[i];
-    tempMatrix *= this->getLink(tempLink).adjoint();
+    tempMatrix1 *= this->getLink(tempLink).adjoint();
     // And add it to the output
-    out += tempMatrix;
+    out += tempMatrix1;
+
     // First link is U+_nu (x + mu - nu)
     tempLink[link[4]] += 1;
     tempLink[planes[i]] -= 1;
-    tempMatrix = this->getLink(tempLink).adjoint();
+    Matrix3cd tempMatrix2 = this->getLink(tempLink).adjoint();
     // Next link is U+_mu (x - nu)
     tempLink[4] = link[4];
     tempLink[link[4]] -= 1;
-    tempMatrix *= this->getLink(tempLink).adjoint();
+    tempMatrix2 *= this->getLink(tempLink).adjoint();
     // Next link is U_nu (x - nu)
     tempLink[4] = planes[i];
-    tempMatrix *= this->getLink(tempLink);
+    tempMatrix2 *= this->getLink(tempLink);
     // And add it to the output
-    out += tempMatrix;
+    out += tempMatrix2;
   }
+  return out;
 }
 
 
 
-void Lattice::computeRectangleStaples(const int link[5], Matrix3cd& out)
+Matrix3cd Lattice::computeRectangleStaples(const int link[5])
 {
   // Calculates the sum of staples for the six rectangles including
   // the link
@@ -1444,9 +1424,7 @@ void Lattice::computeRectangleStaples(const int link[5], Matrix3cd& out)
     }    
   }
 
-  Matrix3cd wilsonStaples;
-
-  this->computeWilsonStaples(link, wilsonStaples);
+  Matrix3cd wilsonStaples = this->computeWilsonStaples(link);
 
   Matrix3cd rectangleStaples = Matrix3cd::Zero();
 
@@ -1459,150 +1437,150 @@ void Lattice::computeRectangleStaples(const int link[5], Matrix3cd& out)
     copy(link, link + 5, tempLink);
     // First link is U_mu (x + mu)
     tempLink[link[4]] += 1;
-    Matrix3cd tempMatrix = this->getLink(tempLink);
+    Matrix3cd tempMatrix1 = this->getLink(tempLink);
     // Next link is U_nu (x + 2 * mu)
     tempLink[link[4]] += 1;
     tempLink[4] = planes[i];
-    tempMatrix *= this->getLink(tempLink);
+    tempMatrix1 *= this->getLink(tempLink);
     // Next link U+_mu (x + mu + nu)
     tempLink[link[4]] -= 1;
     tempLink[planes[i]] += 1;
     tempLink[4] = link[4];
-    tempMatrix *= this->getLink(tempLink).adjoint();
+    tempMatrix1 *= this->getLink(tempLink).adjoint();
     // Next link is U+_mu (x + nu)
     tempLink[link[4]] -= 1;
-    tempMatrix *= this->getLink(tempLink).adjoint();
+    tempMatrix1 *= this->getLink(tempLink).adjoint();
     // Next link is U+_nu (x)
     tempLink[planes[i]] -= 1;
     tempLink[4] = planes[i];
-    tempMatrix *= this->getLink(tempLink).adjoint();
+    tempMatrix1 *= this->getLink(tempLink).adjoint();
     // Add it to the output
-    rectangleStaples += tempMatrix;
+    rectangleStaples += tempMatrix1;
     
     // Next is previous rectangle but translated by -1 in current plane
     // First link is U_mu (x + mu)
     tempLink[link[4]] += 1;
     tempLink[4] = link[4];
-    tempMatrix = this->getLink(tempLink);
+    Matrix3cd tempMatrix2 = this->getLink(tempLink);
     // Next link is U+_nu (x + 2 * mu - nu)
     tempLink[link[4]] += 1;
     tempLink[planes[i]] -= 1;
     tempLink[4] = planes[i];
-    tempMatrix *= this->getLink(tempLink).adjoint();
+    tempMatrix2 *= this->getLink(tempLink).adjoint();
     // Next link U+_mu (x + mu - nu)
     tempLink[link[4]] -= 1;
     tempLink[4] = link[4];
-    tempMatrix *= this->getLink(tempLink).adjoint();
+    tempMatrix2 *= this->getLink(tempLink).adjoint();
     // Next link is U+_mu (x - nu)
     tempLink[link[4]] -= 1;
-    tempMatrix *= this->getLink(tempLink).adjoint();
+    tempMatrix2 *= this->getLink(tempLink).adjoint();
     // Next link is U_nu (x - nu)
     tempLink[4] = planes[i];
-    tempMatrix *= this->getLink(tempLink);
+    tempMatrix2 *= this->getLink(tempLink);
     // Add it to the output
-    rectangleStaples += tempMatrix;
+    rectangleStaples += tempMatrix2;
 
     // Next is previous two rectangles but translated by -1 in link axis
     // First link is U_nu (x + mu)
     tempLink[link[4]] += 1;
     tempLink[planes[i]] += 1;
-    tempMatrix = this->getLink(tempLink);
+    Matrix3cd tempMatrix3 = this->getLink(tempLink);
     // Next link is U+_mu (x + nu)
     tempLink[planes[i]] += 1;
     tempLink[link[4]] -= 1;
     tempLink[4] = link[4];
-    tempMatrix *= this->getLink(tempLink).adjoint();
+    tempMatrix3 *= this->getLink(tempLink).adjoint();
     // Next link is U+_mu (x - mu + nu)
     tempLink[link[4]] -= 1;
-    tempMatrix *= this->getLink(tempLink).adjoint();
+    tempMatrix3 *= this->getLink(tempLink).adjoint();
     // Next link is U+_nu (x - mu)
     tempLink[4] = planes[i];
     tempLink[planes[i]] -= 1;
-    tempMatrix *= this->getLink(tempLink).adjoint();
+    tempMatrix3 *= this->getLink(tempLink).adjoint();
     // Next link is U_mu (x - mu)
     tempLink[4] = link[4];
-    tempMatrix *= this->getLink(tempLink);
+    tempMatrix3 *= this->getLink(tempLink);
     // Add it to the output
-    rectangleStaples += tempMatrix;
-    
+    rectangleStaples += tempMatrix3;
+
     // Next is same rectangle but reflected in link axis
     // First link is U+_nu (x + mu - nu)
     tempLink[link[4]] += 2;
     tempLink[planes[i]] -= 1;
     tempLink[4] = planes[i];
-    tempMatrix = this->getLink(tempLink).adjoint();
+    Matrix3cd tempMatrix4 = this->getLink(tempLink).adjoint();
     // Next link is U+_mu (x - nu)
     tempLink[link[4]] -= 1;
     tempLink[4] = link[4];
-    tempMatrix *= this->getLink(tempLink).adjoint();
+    tempMatrix4 *= this->getLink(tempLink).adjoint();
     // Next link is U+_mu (x - mu - nu)
     tempLink[link[4]] -= 1;
-    tempMatrix *= this->getLink(tempLink).adjoint();
+    tempMatrix4 *= this->getLink(tempLink).adjoint();
     // Next link is U_nu (x - mu - nu)
     tempLink[4] = planes[i];
-    tempMatrix *= this->getLink(tempLink);
+    tempMatrix4 *= this->getLink(tempLink);
     // Next link is U_mu (x - mu)
     tempLink[4] = link[4];
     tempLink[planes[i]] += 1;
-    tempMatrix *= this->getLink(tempLink);
+    tempMatrix4 *= this->getLink(tempLink);
     // Add it to the output
-    rectangleStaples += tempMatrix;
+    rectangleStaples += tempMatrix4;
 
     // Next we do the rectangles rotated by 90 degrees
     // Link is U_nu (x + mu)
     tempLink[link[4]] += 2;
     tempLink[4] = planes[i];
-    tempMatrix = this->getLink(tempLink);
+    Matrix3cd tempMatrix5 = this->getLink(tempLink);
     // Link is U_nu (x + mu + nu)
     tempLink[planes[i]] += 1;
-    tempMatrix *= this->getLink(tempLink);
+    tempMatrix5 *= this->getLink(tempLink);
     // Link is U+_mu (x + 2 * nu)
     tempLink[4] = link[4];
     tempLink[link[4]] -= 1;
     tempLink[planes[i]] += 1;
-    tempMatrix *= this->getLink(tempLink).adjoint();
+    tempMatrix5 *= this->getLink(tempLink).adjoint();
     // Link is U+_nu (x + nu)
     tempLink[4] = planes[i];
     tempLink[planes[i]] -= 1;
-    tempMatrix *= this->getLink(tempLink).adjoint();
+    tempMatrix5 *= this->getLink(tempLink).adjoint();
     // Link is U+_nu (x)
     tempLink[planes[i]] -= 1;
-    tempMatrix *= this->getLink(tempLink).adjoint();
+    tempMatrix5 *= this->getLink(tempLink).adjoint();
     // Add to the sum
-    rectangleStaples += tempMatrix;
+    rectangleStaples += tempMatrix5;
 
     // Next flip the previous rectangle across the link axis
     // Link is U+_nu (x + mu - nu)
     tempLink[link[4]] += 1;
     tempLink[planes[i]] -= 1;
     tempLink[4] = planes[i];
-    tempMatrix = this->getLink(tempLink).adjoint();
+    Matrix3cd tempMatrix6 = this->getLink(tempLink).adjoint();
     // Link is U+_nu (x + mu - 2 * nu)
     tempLink[planes[i]] -= 1;
-    tempMatrix *= this->getLink(tempLink).adjoint();
+    tempMatrix6 *= this->getLink(tempLink).adjoint();
     // Link is U+_mu (x - 2 * nu)
     tempLink[4] = link[4];
     tempLink[link[4]] -= 1;
-    tempMatrix *= this->getLink(tempLink).adjoint();
+    tempMatrix6 *= this->getLink(tempLink).adjoint();
     // Link is U_nu (x - 2 * nu)
     tempLink[4] = planes[i];
-    tempMatrix *= this->getLink(tempLink);
+    tempMatrix6 *= this->getLink(tempLink);
     // Link is U_nu (x - nu)
     tempLink[planes[i]] += 1;
-    tempMatrix *= this->getLink(tempLink);
+    tempMatrix6 *= this->getLink(tempLink);
     // Add to the sum
-    rectangleStaples += tempMatrix;
+    rectangleStaples += tempMatrix6;
   }
 
-  out = 5.0 / 3.0 * wilsonStaples 
+  return 5.0 / 3.0 * wilsonStaples 
     - rectangleStaples / (12.0 * pow(this->u0_, 2));
 }
 
 
 
-void Lattice::computeTwistedRectangleStaples(const int link[5],
-					     Matrix3cd& out)
+Matrix3cd Lattice::computeTwistedRectangleStaples(const int link[5])
 {
   cout << "Error! Cannot compute sum of staples for twisted rectangle "
        << "operator." << endl;
+  return Matrix3cd::Identity();
 }

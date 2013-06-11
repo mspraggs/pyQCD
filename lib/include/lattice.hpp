@@ -61,9 +61,8 @@ public:
   void thermalize();
   void getNextConfig();
   
-  void computePath(const vector<vector<int> >& path, Matrix3cd& out);
-  void computeLine(const int start[4], const int finish[4],
-		   Matrix3cd& out);
+  Matrix3cd computePath(const vector<vector<int> >& path);
+  Matrix3cd computeLine(const int start[4], const int finish[4]);
   double computeWilsonLoop(const int corner1[4], const int corner2[4],
 			   const int nSmears = 0);
   double computeWilsonLoop(const int corner[4], const int r, const int t,
@@ -83,12 +82,12 @@ public:
   double computeMeanLink();
 
   double (Lattice::*computeLocalAction)(const int link[5]);
-  void (Lattice::*computeStaples)(const int link[5], Matrix3cd& out);
-  void makeRandomSu3(Matrix3cd& out);
-  void makeHeatbathSu2(Matrix2cd& out, double coefficients[4],
+  Matrix3cd (Lattice::*computeStaples)(const int link[5]);
+  Matrix3cd makeRandomSu3();
+  Matrix2cd makeHeatbathSu2(double coefficients[4],
 		       const double weighting);
 
-  void computeQ(const int link[5], Matrix3cd& out);
+  Matrix3cd computeQ(const int link[5]);
   void smearLinks(const int time, const int nSmears);
 
   SparseMatrix<complex<double> > computeDiracMatrix(const double mass,
@@ -106,9 +105,9 @@ protected:
   double computeLocalWilsonAction(const int link[5]);
   double computeLocalRectangleAction(const int link[5]);
   double computeLocalTwistedRectangleAction(const int link[5]);
-  void computeWilsonStaples(const int link[5], Matrix3cd& out);
-  void computeRectangleStaples(const int link[5], Matrix3cd& out);
-  void computeTwistedRectangleStaples(const int link[5], Matrix3cd& out);
+  Matrix3cd computeWilsonStaples(const int link[5]);
+  Matrix3cd computeRectangleStaples(const int link[5]);
+  Matrix3cd computeTwistedRectangleStaples(const int link[5]);
   void (Lattice::*updateFunction_)(const int link[5]);
   GaugeField links_;
   Sub4Field randSu3s_;
