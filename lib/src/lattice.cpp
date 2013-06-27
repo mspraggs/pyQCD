@@ -256,11 +256,13 @@ void Lattice::heatbath(const int link[5])
   // Calculate the staples matrix A
   Matrix3cd staples = (this->*computeStaples)(link);
   // Declare the matrix W = U * A
-  Matrix3cd W = this->links_[link[0]][link[1]][link[2]][link[3]][link[4]]
-      * staples;
+  Matrix3cd W;
   
   // Iterate over the three SU(2) subgroups of W
   for (int n = 0; n < 3; ++n) {
+    // W = U * A
+    W = this->links_[link[0]][link[1]][link[2]][link[3]][link[4]]
+      * staples;
     double a[4];
     double r[4];
     // Get SU(2) sub-group of W corresponding to index n
@@ -937,32 +939,32 @@ Matrix3cd Lattice::computeQ(const int link[5])
       int tempLink[5] = {0, 0, 0, 0, 0};
       copy(link, link + 4, tempLink);
       tempLink[4] = nu;
-      Matrix3cd tempMatrix1 = this->getLink(tempLink);
+      Matrix3cd tempMatrix = this->getLink(tempLink);
 
       tempLink[4] = link[4];
       tempLink[nu] += 1;
-      tempMatrix1 *= this->getLink(tempLink);
+      tempMatrix *= this->getLink(tempLink);
 
       tempLink[4] = nu;
       tempLink[nu] -= 1;
       tempLink[link[4]] += 1;
-      tempMatrix1 *= this->getLink(tempLink).adjoint();
+      tempMatrix *= this->getLink(tempLink).adjoint();
 
-      C += tempMatrix1;
+      C += tempMatrix;
 
       copy(link, link + 4, tempLink);
       tempLink[nu] -= 1;
       tempLink[4] = nu;
-      Matrix3cd tempMatrix2 = this->getLink(tempLink).adjoint();
+      tempMatrix = this->getLink(tempLink).adjoint();
 
       tempLink[4] = link[4];
-      tempMatrix2 *= this->getLink(tempLink);
+      tempMatrix *= this->getLink(tempLink);
 
       tempLink[4] = nu;
       tempLink[link[4]] += 1;
-      tempMatrix2 *= this->getLink(tempLink);
+      tempMatrix *= this->getLink(tempLink);
 
-      C += tempMatrix2;
+      C += tempMatrix;
     }
   }
   
@@ -1377,32 +1379,32 @@ Matrix3cd Lattice::computeWilsonStaples(const int link[5])
     // First link is U_nu (x + mu)
     tempLink[4] = planes[i];
     tempLink[link[4]] += 1;
-    Matrix3cd tempMatrix1 = this->getLink(tempLink);
+    Matrix3cd tempMatrix = this->getLink(tempLink);
     // Next link is U+_mu (x + nu)
     tempLink[4] = link[4];
     tempLink[link[4]] -= 1;
     tempLink[planes[i]] += 1;
-    tempMatrix1 *= this->getLink(tempLink).adjoint();
+    tempMatrix *= this->getLink(tempLink).adjoint();
     // Next link is U+_nu (x)
     tempLink[planes[i]] -= 1;
     tempLink[4] = planes[i];
-    tempMatrix1 *= this->getLink(tempLink).adjoint();
+    tempMatrix *= this->getLink(tempLink).adjoint();
     // And add it to the output
-    out += tempMatrix1;
+    out += tempMatrix;
 
     // First link is U+_nu (x + mu - nu)
     tempLink[link[4]] += 1;
     tempLink[planes[i]] -= 1;
-    Matrix3cd tempMatrix2 = this->getLink(tempLink).adjoint();
+    Matrix3cd tempMatrix = this->getLink(tempLink).adjoint();
     // Next link is U+_mu (x - nu)
     tempLink[4] = link[4];
     tempLink[link[4]] -= 1;
-    tempMatrix2 *= this->getLink(tempLink).adjoint();
+    tempMatrix *= this->getLink(tempLink).adjoint();
     // Next link is U_nu (x - nu)
     tempLink[4] = planes[i];
-    tempMatrix2 *= this->getLink(tempLink);
+    tempMatrix *= this->getLink(tempLink);
     // And add it to the output
-    out += tempMatrix2;
+    out += tempMatrix;
   }
   return out;
 }
@@ -1437,139 +1439,139 @@ Matrix3cd Lattice::computeRectangleStaples(const int link[5])
     copy(link, link + 5, tempLink);
     // First link is U_mu (x + mu)
     tempLink[link[4]] += 1;
-    Matrix3cd tempMatrix1 = this->getLink(tempLink);
+    Matrix3cd tempMatrix = this->getLink(tempLink);
     // Next link is U_nu (x + 2 * mu)
     tempLink[link[4]] += 1;
     tempLink[4] = planes[i];
-    tempMatrix1 *= this->getLink(tempLink);
+    tempMatrix *= this->getLink(tempLink);
     // Next link U+_mu (x + mu + nu)
     tempLink[link[4]] -= 1;
     tempLink[planes[i]] += 1;
     tempLink[4] = link[4];
-    tempMatrix1 *= this->getLink(tempLink).adjoint();
+    tempMatrix *= this->getLink(tempLink).adjoint();
     // Next link is U+_mu (x + nu)
     tempLink[link[4]] -= 1;
-    tempMatrix1 *= this->getLink(tempLink).adjoint();
+    tempMatrix *= this->getLink(tempLink).adjoint();
     // Next link is U+_nu (x)
     tempLink[planes[i]] -= 1;
     tempLink[4] = planes[i];
-    tempMatrix1 *= this->getLink(tempLink).adjoint();
+    tempMatrix *= this->getLink(tempLink).adjoint();
     // Add it to the output
-    rectangleStaples += tempMatrix1;
+    rectangleStaples += tempMatrix;
     
     // Next is previous rectangle but translated by -1 in current plane
     // First link is U_mu (x + mu)
     tempLink[link[4]] += 1;
     tempLink[4] = link[4];
-    Matrix3cd tempMatrix2 = this->getLink(tempLink);
+    tempMatrix = this->getLink(tempLink);
     // Next link is U+_nu (x + 2 * mu - nu)
     tempLink[link[4]] += 1;
     tempLink[planes[i]] -= 1;
     tempLink[4] = planes[i];
-    tempMatrix2 *= this->getLink(tempLink).adjoint();
+    tempMatrix *= this->getLink(tempLink).adjoint();
     // Next link U+_mu (x + mu - nu)
     tempLink[link[4]] -= 1;
     tempLink[4] = link[4];
-    tempMatrix2 *= this->getLink(tempLink).adjoint();
+    tempMatrix *= this->getLink(tempLink).adjoint();
     // Next link is U+_mu (x - nu)
     tempLink[link[4]] -= 1;
-    tempMatrix2 *= this->getLink(tempLink).adjoint();
+    tempMatrix *= this->getLink(tempLink).adjoint();
     // Next link is U_nu (x - nu)
     tempLink[4] = planes[i];
-    tempMatrix2 *= this->getLink(tempLink);
+    tempMatrix *= this->getLink(tempLink);
     // Add it to the output
-    rectangleStaples += tempMatrix2;
+    rectangleStaples += tempMatrix;
 
     // Next is previous two rectangles but translated by -1 in link axis
     // First link is U_nu (x + mu)
     tempLink[link[4]] += 1;
     tempLink[planes[i]] += 1;
-    Matrix3cd tempMatrix3 = this->getLink(tempLink);
+    tempMatrix = this->getLink(tempLink);
     // Next link is U+_mu (x + nu)
     tempLink[planes[i]] += 1;
     tempLink[link[4]] -= 1;
     tempLink[4] = link[4];
-    tempMatrix3 *= this->getLink(tempLink).adjoint();
+    tempMatrix *= this->getLink(tempLink).adjoint();
     // Next link is U+_mu (x - mu + nu)
     tempLink[link[4]] -= 1;
-    tempMatrix3 *= this->getLink(tempLink).adjoint();
+    tempMatrix *= this->getLink(tempLink).adjoint();
     // Next link is U+_nu (x - mu)
     tempLink[4] = planes[i];
     tempLink[planes[i]] -= 1;
-    tempMatrix3 *= this->getLink(tempLink).adjoint();
+    tempMatrix *= this->getLink(tempLink).adjoint();
     // Next link is U_mu (x - mu)
     tempLink[4] = link[4];
-    tempMatrix3 *= this->getLink(tempLink);
+    tempMatrix *= this->getLink(tempLink);
     // Add it to the output
-    rectangleStaples += tempMatrix3;
+    rectangleStaples += tempMatrix;
 
     // Next is same rectangle but reflected in link axis
     // First link is U+_nu (x + mu - nu)
     tempLink[link[4]] += 2;
     tempLink[planes[i]] -= 1;
     tempLink[4] = planes[i];
-    Matrix3cd tempMatrix4 = this->getLink(tempLink).adjoint();
+    tempMatrix = this->getLink(tempLink).adjoint();
     // Next link is U+_mu (x - nu)
     tempLink[link[4]] -= 1;
     tempLink[4] = link[4];
-    tempMatrix4 *= this->getLink(tempLink).adjoint();
+    tempMatrix *= this->getLink(tempLink).adjoint();
     // Next link is U+_mu (x - mu - nu)
     tempLink[link[4]] -= 1;
-    tempMatrix4 *= this->getLink(tempLink).adjoint();
+    tempMatrix *= this->getLink(tempLink).adjoint();
     // Next link is U_nu (x - mu - nu)
     tempLink[4] = planes[i];
-    tempMatrix4 *= this->getLink(tempLink);
+    tempMatrix *= this->getLink(tempLink);
     // Next link is U_mu (x - mu)
     tempLink[4] = link[4];
     tempLink[planes[i]] += 1;
-    tempMatrix4 *= this->getLink(tempLink);
+    tempMatrix *= this->getLink(tempLink);
     // Add it to the output
-    rectangleStaples += tempMatrix4;
+    rectangleStaples += tempMatrix;
 
     // Next we do the rectangles rotated by 90 degrees
     // Link is U_nu (x + mu)
     tempLink[link[4]] += 2;
     tempLink[4] = planes[i];
-    Matrix3cd tempMatrix5 = this->getLink(tempLink);
+    tempMatrix = this->getLink(tempLink);
     // Link is U_nu (x + mu + nu)
     tempLink[planes[i]] += 1;
-    tempMatrix5 *= this->getLink(tempLink);
+    tempMatrix *= this->getLink(tempLink);
     // Link is U+_mu (x + 2 * nu)
     tempLink[4] = link[4];
     tempLink[link[4]] -= 1;
     tempLink[planes[i]] += 1;
-    tempMatrix5 *= this->getLink(tempLink).adjoint();
+    tempMatrix *= this->getLink(tempLink).adjoint();
     // Link is U+_nu (x + nu)
     tempLink[4] = planes[i];
     tempLink[planes[i]] -= 1;
-    tempMatrix5 *= this->getLink(tempLink).adjoint();
+    tempMatrix *= this->getLink(tempLink).adjoint();
     // Link is U+_nu (x)
     tempLink[planes[i]] -= 1;
-    tempMatrix5 *= this->getLink(tempLink).adjoint();
+    tempMatrix *= this->getLink(tempLink).adjoint();
     // Add to the sum
-    rectangleStaples += tempMatrix5;
+    rectangleStaples += tempMatrix;
 
     // Next flip the previous rectangle across the link axis
     // Link is U+_nu (x + mu - nu)
     tempLink[link[4]] += 1;
     tempLink[planes[i]] -= 1;
     tempLink[4] = planes[i];
-    Matrix3cd tempMatrix6 = this->getLink(tempLink).adjoint();
+    tempMatrix = this->getLink(tempLink).adjoint();
     // Link is U+_nu (x + mu - 2 * nu)
     tempLink[planes[i]] -= 1;
-    tempMatrix6 *= this->getLink(tempLink).adjoint();
+    tempMatrix *= this->getLink(tempLink).adjoint();
     // Link is U+_mu (x - 2 * nu)
     tempLink[4] = link[4];
     tempLink[link[4]] -= 1;
-    tempMatrix6 *= this->getLink(tempLink).adjoint();
+    tempMatrix *= this->getLink(tempLink).adjoint();
     // Link is U_nu (x - 2 * nu)
     tempLink[4] = planes[i];
-    tempMatrix6 *= this->getLink(tempLink);
+    tempMatrix *= this->getLink(tempLink);
     // Link is U_nu (x - nu)
     tempLink[planes[i]] += 1;
-    tempMatrix6 *= this->getLink(tempLink);
+    tempMatrix *= this->getLink(tempLink);
     // Add to the sum
-    rectangleStaples += tempMatrix6;
+    rectangleStaples += tempMatrix;
   }
 
   return 5.0 / 3.0 * wilsonStaples 
