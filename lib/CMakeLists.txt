@@ -11,10 +11,10 @@ file (GLOB
 set (CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 set (EIGEN_INCLUDE_DIR ${CMAKE_MODULE_PATH}/FindEigen3.cmake)
 
-find_package (PythonLibs REQUIRED)
-find_package (Eigen3 REQUIRED)
-find_package (Boost REQUIRED)
-find_package (OpenMP REQUIRED)
+find_package (PythonLibs 2.6 REQUIRED)
+find_package (Eigen3 3.1.3 REQUIRED)
+find_package (Boost 1.44.0 REQUIRED)
+find_package (OpenMP 3.0 REQUIRED)
 
 if (OPENMP_FOUND)
   message ("OpenMP found")
@@ -31,8 +31,7 @@ include_directories (${Boost_INCLUDE_DIRS}
 set (Boost_USE_STATIC_LIBS OFF)
 set (Boost_USE_MULTITHREADED ON)
 set (Boost_USE_STATIC_RUNTIME OFF)
-find_package (Boost COMPONENTS python)
-find_package (Boost COMPONENTS random)
+find_package (Boost COMPONENTS random python)
 
 set (SOURCES
   ${SRC_DIR}/pyQCD.cpp
