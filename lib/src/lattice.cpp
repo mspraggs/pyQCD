@@ -1395,7 +1395,7 @@ Matrix3cd Lattice::computeWilsonStaples(const int link[5])
     // First link is U+_nu (x + mu - nu)
     tempLink[link[4]] += 1;
     tempLink[planes[i]] -= 1;
-    Matrix3cd tempMatrix = this->getLink(tempLink).adjoint();
+    tempMatrix = this->getLink(tempLink).adjoint();
     // Next link is U+_mu (x - nu)
     tempLink[4] = link[4];
     tempLink[link[4]] -= 1;
