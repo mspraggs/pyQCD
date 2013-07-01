@@ -1092,7 +1092,7 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
   
   // Now iterate through the matrix and add the various elements to the
   // vector of triplets
-  //#pragma omp parallel for
+#pragma omp parallel for
   for (int i = 0; i < nIndices; ++i) {
     int siteI[4] = {indices[i][0],
 		    indices[i][1],
@@ -1100,7 +1100,6 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
 		    indices[i][3]};
     
     for (int j = 0; j < nIndices; ++j) {
-      //cout << "Matrix row: " << i << " Matrix column: " << j << endl;
       int m = i / 12;
       int n = j / 12;
 
@@ -1188,7 +1187,7 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
 	// Divide the sum through by -2 * spacing
 	sum /= -(2.0 * spacing);
 	// Make sure OpemMP doesn't conflict with itself
-	//#pragma omp critical
+#pragma omp critical
 	if (sum.imag() != 0.0 && sum.real() != 0.0)
 	  // Add the sum to the list of triplets
 	  tripletList.push_back(Tlet(i, j, sum));
@@ -1218,6 +1217,7 @@ VectorXcd Lattice::computePropagator(const double mass, int site[4],
   // TODO - pass the Vector by reference to save time
   // Declare a sparse matrix to hold the dirac operator
   SparseMatrix<complex<double> > D = this->computeDiracMatrix(mass, spacing);
+
   // How many indices are we dealing with?
   int nIndices = int(12 * pow(this->nEdgePoints, 4));
   // Declare our solver
