@@ -1092,7 +1092,7 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
   
   // Now iterate through the matrix and add the various elements to the
   // vector of triplets
-#pragma omp parallel for
+  //#pragma omp parallel for
   for (int i = 0; i < nIndices; ++i) {
     int siteI[4] = {indices[i][0],
 		    indices[i][1],
@@ -1100,7 +1100,7 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
 		    indices[i][3]};
     
     for (int j = 0; j < nIndices; ++j) {
-      cout << "Matrix row: " << i << " Matrix column: " << j << endl;
+      //cout << "Matrix row: " << i << " Matrix column: " << j << endl;
       int m = i / 12;
       int n = j / 12;
 
@@ -1134,14 +1134,11 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
 	for (int k = 0; k < 4; ++k) {
 	  // First need to implement the kronecker delta in the sum of mus,
 	  // which'll be horrendous, but hey...
-	
-	  // Add a minkowski lorentz index because that what the class
-	  // deals in
-	  int mu_mink = k;
+
 	  // Add (or subtract) the corresponding mu vector from the second
 	  // lattice site
-	  siteJ[mu_mink] = pyQCD::mod(siteJ[k] - 1,
-				      this->nEdgePoints);
+	  siteJ[k] = pyQCD::mod(siteJ[k] + 1,
+				this->nEdgePoints);
 	
 	  // If they are, then we have ourselves a matrix element
 	  // First test for when mu is positive, as then we'll need to deal
@@ -1165,8 +1162,8 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
 	      * U(indices[i][5], indices[j][5]);
 	  }
 	  
-	  siteJ[mu_mink] = pyQCD::mod(siteJ[k] + 2,
-				      this->nEdgePoints);
+	  siteJ[k] = pyQCD::mod(siteJ[k] - 2,
+				this->nEdgePoints);
 
 	  if (equal(siteI, siteI + 4, siteJ)) {
 	    // Create and intialise the link we'll be using
@@ -1177,7 +1174,7 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
 	    Matrix3cd U;
 	    // And get the gamma matrix (1 - gamma) in the sum
 	    Matrix4cd lorentz = 
-	      Matrix4cd::Identity() - pyQCD::gammas[k];
+	      Matrix4cd::Identity() + pyQCD::gammas[k];
 	    // So, if the current mu is positive, just get
 	    // the plain old link given by link as normal
 	    link[k] -= 1;
@@ -1191,7 +1188,7 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
 	// Divide the sum through by -2 * spacing
 	sum /= -(2.0 * spacing);
 	// Make sure OpemMP doesn't conflict with itself
-#pragma omp critical
+	//#pragma omp critical
 	if (sum.imag() != 0.0 && sum.real() != 0.0)
 	  // Add the sum to the list of triplets
 	  tripletList.push_back(Tlet(i, j, sum));
