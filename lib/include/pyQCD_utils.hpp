@@ -25,7 +25,7 @@ namespace pyQCD
   extern const Matrix4cd gamma3;
   extern const Matrix4cd gamma4;
   extern const Matrix4cd gamma5;
-  extern const Matrix4cd gammas[5];
+  extern const Matrix4cd gammas[6];
 
   extern mt19937 generator;
   extern uniform_real<> uniformFloat;

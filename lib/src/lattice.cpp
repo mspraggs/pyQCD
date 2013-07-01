@@ -1088,7 +1088,7 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
     }
   }
 
-  int mus[8] = {-4, -3, -2, -1, 1, 2, 3, 4};
+  int mus[8] = {1, 2, 3, 4};
   
   // Now iterate through the matrix and add the various elements to the
   // vector of triplets
@@ -1130,17 +1130,16 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
 			indices[j][1],
 			indices[j][2],
 			indices[j][3]};
-	for (int k = 0; k < 8; ++k) {
+	for (int k = 0; k < 4; ++k) {
 	  // First need to implement the kronecker delta in the sum of mus,
 	  // which'll be horrendous, but hey...
 	
 	  // Add a minkowski lorentz index because that what the class
 	  // deals in
-	  int mu_mink = abs(mus[k]) % 4;
+	  int mu_mink = k;
 	  // Add (or subtract) the corresponding mu vector from the second
 	  // lattice site
-	  siteJ[mu_mink] = pyQCD::mod(siteJ[mu_mink] + 
-				      pyQCD::sgn(mus[k]),
+	  siteJ[mu_mink] = pyQCD::mod(siteJ[k] - 1,
 				      this->nEdgePoints);
 	
 	  // If they are, then we have ourselves a matrix element
@@ -1150,24 +1149,38 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
 	    // Create and intialise the link we'll be using
 	    int link[5];
 	    copy(siteI, siteI + 4, link);
-	    link[4] = mu_mink;
+	    link[4] = k;
 	    // Then we'll need a colour matrix given by the link
 	    Matrix3cd U;
 	    // And get the gamma matrix (1 - gamma) in the sum
 	    Matrix4cd lorentz = 
-	      Matrix4cd::Identity() - pyQCD::gamma(mus[k]);
+	      Matrix4cd::Identity() - pyQCD::gammas[k];
 	    // So, if the current mu is positive, just get
 	    // the plain old link given by link as normal
-	    if (mus[k] > 0) {
-	      U = this->getLink(link);
-	    }
-	    else {
-	      // If mu is negative, we'll need the adjoint
-	      // matrix on the neighbouring site (cos we're
-	      // going backwards).
-	      link[mu_mink] -= 1;
-	      U = this->getLink(link).adjoint();
-	    }
+	    U = this->getLink(link);
+	    // Mutliply the matrix elements together and add
+	    // them to the sum.
+	    sum += lorentz(indices[i][4], indices[j][4]) 
+	      * U(indices[i][5], indices[j][5]);
+	  }
+	  
+	  siteJ[mu_mink] = pyQCD::mod(siteJ[k] + 2,
+				      this->nEdgePoints);
+
+	  if (equal(siteI, siteI + 4, siteJ)) {
+	    // Create and intialise the link we'll be using
+	    int link[5];
+	    copy(siteI, siteI + 4, link);
+	    link[4] = k;
+	    // Then we'll need a colour matrix given by the link
+	    Matrix3cd U;
+	    // And get the gamma matrix (1 - gamma) in the sum
+	    Matrix4cd lorentz = 
+	      Matrix4cd::Identity() - pyQCD::gammas[k];
+	    // So, if the current mu is positive, just get
+	    // the plain old link given by link as normal
+	    link[k] -= 1;
+	    U = this->getLink(link).adjoint();
 	    // Mutliply the matrix elements together and add
 	    // them to the sum.
 	    sum += lorentz(indices[i][4], indices[j][4]) 

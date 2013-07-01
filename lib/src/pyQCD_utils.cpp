@@ -21,6 +21,11 @@ namespace pyQCD
 
 
 
+  const Matrix4cd gamma0 = (MatrixXcd(4, 4) << 0, 0, 1, 0,
+			    0, 0, 0, 1,
+			    1, 0, 0, 0,
+			    0, 1, 0, 0).finished();
+
   const Matrix4cd gamma1 = (MatrixXcd(4, 4) << 0, 0, 0, -i,
 			    0, 0, -i, 0,
 			    0, i, 0, 0,
@@ -46,7 +51,7 @@ namespace pyQCD
 			    0, 0, -1, 0,
 			    0, 0, 0, -1).finished();
   
-  const Matrix4cd gammas[5] = {gamma1, gamma2, gamma3, gamma4, gamma5};
+  const Matrix4cd gammas[6] = {gamma0, gamma1, gamma2, gamma3, gamma4, gamma5};
 
 
 
