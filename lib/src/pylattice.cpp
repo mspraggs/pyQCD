@@ -97,9 +97,7 @@ double pyLattice::computeAverageWilsonLoopP(const int r, const int t,
 
 
 
-py::list pyLattice::computePropagatorP(const double mass,
-				       const py::list site,
-				       const int alpha, const int a,
+py::list pyLattice::computePropagatorP(const double mass, const py::list site,
 				       const double spacing)
 {
   // Wrapper for the calculation of a propagator
@@ -108,15 +106,16 @@ py::list pyLattice::computePropagatorP(const double mass,
 		     py::extract<int>(site[2]),
 		     py::extract<int>(site[3])};
 
-  VectorXcd prop = VectorXcd(this->computePropagator(mass, tempSite,
-						     alpha, a, spacing));
-
-  int nRows = prop.size();
+  MatrixXcd prop = this->computePropagator(mass, tempSite, spacing);
 
   py::list pythonPropagator;
   
-  for (int i = 0; i < nRows; ++i) {
-    pythonPropagator.append(prop(i));
+  for (int i = 0; i < 12; ++i) {
+    py::list tempList;
+    for (int j = 0; j < 12; ++j) {
+      tempList.append(prop(i, j));
+    }
+    pythonPropagator.append(tempList);
   }
 
   return pythonPropagator;

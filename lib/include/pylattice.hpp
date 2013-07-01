@@ -37,7 +37,6 @@ public:
   double computeAverageWilsonLoopP(const int r, const int t,
 				   const int nSmears = 0);
   py::list computePropagatorP(const double mass, const py::list site,
-			      const int alpha, const int a,
 			      const double spacing);
   void runThreads(const int chunkSize, const int nUpdates,
 		  const int remainder);
