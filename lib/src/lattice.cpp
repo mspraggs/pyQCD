@@ -1267,7 +1267,31 @@ MatrixXcd Lattice::computePropagator(const double mass, int site[4],
 vector<MatrixXcd> Lattice::computePropagators(const double mass,
 					      const double spacing)
 {
-  // 
+  // Computes all propagators at all lattice sites
+
+  // Determine the number spatial sites
+  int nSites = int(pow(this->nEdgePoints, 4));
+
+  // Create the Direc operator
+  SparseMatrix<complex<double> > D = this->computeDiracMatrix(mass, spacing);
+  
+  // Declare the output
+  vector<MatrixXcd> propagators(nSites);
+
+  for (int i = 0; i < this->nEdgePoints; ++i) {
+    for (int j = 0; j < this->nEdgePoints; ++j) {
+      for (int k = 0; k < this->nEdgePoints; ++k) {
+	for (int l = 0; l < this->nEdgePoints; ++l) {
+	  int index = l + this->nEdgePoints 
+	    * (k + this->nEdgePoints * (j + this->nEdgePoints * i));
+	  int site[4] = {i, j, k, l};
+	  propagators[index] = this->computePropagator(mass, site, spacing, D);
+	}
+      }
+    }
+  }
+
+  return propagators;
 }
 
 
