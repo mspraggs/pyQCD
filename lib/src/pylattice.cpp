@@ -50,9 +50,9 @@ double pyLattice::computeRectangleP(const py::list site, const int mu,
 {
   // Python wrapper for rectangle function.
   int tempSite[4] = {py::extract<int>(site[0]),
-		 py::extract<int>(site[1]),
-		 py::extract<int>(site[2]),
-		 py::extract<int>(site[3])};
+		     py::extract<int>(site[1]),
+		     py::extract<int>(site[2]),
+		     py::extract<int>(site[3])};
   return this->computeRectangle(tempSite, mu, nu);
 }
 
@@ -118,6 +118,8 @@ py::list pyLattice::computePropagatorP(const double mass,
   for (int i = 0; i < nRows; ++i) {
     pythonPropagator.append(prop(i));
   }
+
+  return pythonPropagator;
 }
 
 
