@@ -1100,6 +1100,7 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
 		    indices[i][3]};
     
     for (int j = 0; j < nIndices; ++j) {
+      cout << "Matrix row: " << i << " Matrix column: " << j << endl;
       int m = i / 12;
       int n = j / 12;
 

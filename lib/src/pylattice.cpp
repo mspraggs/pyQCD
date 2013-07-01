@@ -97,6 +97,31 @@ double pyLattice::computeAverageWilsonLoopP(const int r, const int t,
 
 
 
+py::list pyLattice::computePropagatorP(const double mass,
+				       const py::list site,
+				       const int alpha, const int a,
+				       const double spacing)
+{
+  // Wrapper for the calculation of a propagator
+  int tempSite[4] = {py::extract<int>(site[0]),
+		     py::extract<int>(site[1]),
+		     py::extract<int>(site[2]),
+		     py::extract<int>(site[3])};
+
+  VectorXcd prop = VectorXcd(this->computePropagator(mass, tempSite,
+						     alpha, a, spacing));
+
+  int nRows = prop.size();
+
+  py::list pythonPropagator;
+  
+  for (int i = 0; i < nRows; ++i) {
+    pythonPropagator.append(prop(i));
+  }
+}
+
+
+
 void pyLattice::runThreads(const int size, const int nUpdates,
 			   const int remainder)
 {
