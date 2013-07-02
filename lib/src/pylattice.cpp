@@ -123,6 +123,27 @@ py::list pyLattice::computePropagatorP(const double mass, const py::list site,
 
 
 
+py::list pyLattice::computeZeroMomPropagatorP(const double mass, const int time,
+					      const double spacing)
+{
+  // Wrapper for the calculation of a propagator
+  MatrixXcd prop = this->computeZeroMomPropagator(mass, time, spacing);
+
+  py::list pythonPropagator;
+  
+  for (int i = 0; i < 12; ++i) {
+    py::list tempList;
+    for (int j = 0; j < 12; ++j) {
+      tempList.append(prop(i, j));
+    }
+    pythonPropagator.append(tempList);
+  }
+
+  return pythonPropagator;
+}
+
+
+
 py::list pyLattice::computePropagatorsP(const double mass, const double spacing)
 {
   // Wrapper for the calculation of propagators

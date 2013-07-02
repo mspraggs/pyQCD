@@ -19,6 +19,9 @@ Lattice::Lattice(const int nEdgePoints, const double beta, const double u0,
   this->updateMethod_ = updateMethod;
   this->parallelFlag_ = parallelFlag;
 
+  // Initialize parallel Eigen
+  initParallel();
+
   // Resize the link vector and assign each link a random SU3 matrix
   // Also set up the linkIndices vector
   this->linkIndices_.resize(4 * pow(nEdgePoints, 4));
@@ -1260,6 +1263,29 @@ MatrixXcd Lattice::computePropagator(const double mass, int site[4],
   SparseMatrix<complex<double> > D = this->computeDiracMatrix(mass, spacing);
   
   return this->computePropagator(mass, site, spacing, D);
+}
+
+
+
+MatrixXcd Lattice::computeZeroMomPropagator(const double mass, const int time,
+					    const double spacing)
+{
+  // Computes the projected zero momentum propagator
+  
+  MatrixXcd sum = Matrix<complex<double>, 12, 12>::Zero();
+
+  SparseMatrix<complex<double> > D = this->computeDiracMatrix(mass, spacing);
+
+  for (int i = 0; i < this->nEdgePoints; ++i) {
+    for (int j = 0; j < this->nEdgePoints; ++j) {
+      for (int k = 0; k < this->nEdgePoints; ++k) {
+	int site[4] = {time, i, j, k};
+	sum += this->computePropagator(mass, site, spacing, D);
+      }
+    }
+  }
+
+  return sum / pow(this->nEdgePoints, 3);
 }
 
 

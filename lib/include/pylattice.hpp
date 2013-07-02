@@ -38,6 +38,8 @@ public:
 				   const int nSmears = 0);
   py::list computePropagatorP(const double mass, const py::list site,
 			      const double spacing);
+  py::list computeZeroMomPropagatorP(const double mass, const int time,
+				     const double spacing);
   py::list computePropagatorsP(const double mass, const double spacing);
   void runThreads(const int chunkSize, const int nUpdates,
 		  const int remainder);

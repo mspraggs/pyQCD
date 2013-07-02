@@ -97,6 +97,8 @@ public:
   MatrixXcd computePropagator(const double mass, int site[4],
 			      const double spacing,
 			      const SparseMatrix<complex<double> >& D);
+  MatrixXcd computeZeroMomPropagator(const double mass, const int time,
+				     const double spacing);
   vector<MatrixXcd> computePropagators(const double mass, const double spacing);
 
   int nCorrelations, nEdgePoints;
