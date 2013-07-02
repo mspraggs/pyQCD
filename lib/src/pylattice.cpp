@@ -98,6 +98,7 @@ double pyLattice::computeAverageWilsonLoopP(const int r, const int t,
 
 
 py::list pyLattice::computePropagatorP(const double mass, const py::list site,
+				       const int spin, const int colour,
 				       const double spacing)
 {
   // Wrapper for the calculation of a propagator
@@ -106,7 +107,8 @@ py::list pyLattice::computePropagatorP(const double mass, const py::list site,
 		     py::extract<int>(site[2]),
 		     py::extract<int>(site[3])};
 
-  MatrixXcd prop = this->computePropagator(mass, tempSite, spacing);
+  MatrixXcd prop = this->computePropagator(mass, tempSite, spin, colour,
+					   spacing);
 
   py::list pythonPropagator;
   
@@ -123,25 +125,26 @@ py::list pyLattice::computePropagatorP(const double mass, const py::list site,
 
 
 
-py::list pyLattice::computePropagatorsP(const double mass, const double spacing)
+py::list pyLattice::computePropagatorsP(const double mass, const py::list site, const double spacing)
 {
   // Wrapper for the calculation of propagators
+  
+  int tempSite[4] = {py::extract<int>(site[0]),
+		     py::extract<int>(site[1]),
+		     py::extract<int>(site[2]),
+		     py::extract<int>(site[3])};
 
-  vector<MatrixXcd> props = this->computePropagators(mass, spacing);
+  vector<VectorXcd> props = this->computePropagators(mass, tempSite, spacing);
 
   py::list pythonPropagators;
-  int nSites = int(pow(this->nEdgePoints, 4));
+  int nIndices = 12 * int(pow(this->nEdgePoints, 4));
   
-  for (int i = 0; i < nSites; ++i) {
-    py::list tempList1;
-    for (int j = 0; j < 12; ++j) {
-      py::list tempList2;
-      for (int k = 0; k < 12; ++k) {
-	tempList2.append(props[j, k]);
-      }
-      tempList1.append(tempList2);
+  for (int i = 0; i < 12; ++i) {
+    py::list tempList;
+    for (int j = 0; j < nIndices; ++j) {
+      tempList.append(props[i](j));
     }
-    pythonPropagators.append(tempList1);
+    pythonPropagators.append(tempList);
   }
 
   return pythonPropagators;

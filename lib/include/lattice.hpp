@@ -92,12 +92,13 @@ public:
 
   SparseMatrix<complex<double> > computeDiracMatrix(const double mass,
 						    const double spacing);
-  MatrixXcd computePropagator(const double mass, int site[4],
-			      const double spacing);
-  MatrixXcd computePropagator(const double mass, int site[4],
-			      const double spacing,
+  VectorXcd computePropagator(const double mass, int site[4], const int spin,
+			      const int colour, const double spacing);
+  VectorXcd computePropagator(const double mass, int site[4], const int spin,
+			      const int colour, const double spacing,
 			      const SparseMatrix<complex<double> >& D);
-  vector<MatrixXcd> computePropagators(const double mass, const double spacing);
+  vector<VectorXcd> computePropagators(const double mass, int site[4],
+				       const double spacing);
 
   int nCorrelations, nEdgePoints;
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
