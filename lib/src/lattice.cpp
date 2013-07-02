@@ -1207,8 +1207,7 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
 
 
 
-VectorXcd Lattice::computePropagator(const double mass, int site[4],
-				     const int spin, const int colour,
+MatrixXcd Lattice::computePropagator(const double mass, int site[4],
 				     const double spacing,
 				     const SparseMatrix<complex<double> >& D)
 {
@@ -1221,38 +1220,51 @@ VectorXcd Lattice::computePropagator(const double mass, int site[4],
   // Declare our solver
   BiCGSTAB<SparseMatrix<complex<double> > > solver(D);
 
-  VectorXcd source(nIndices);
-  source.setZero(nIndices);
-  
-  // Set the point source
-  int spatial_index = site[3] + this->nEdgePoints 
-    * (site[2] + this->nEdgePoints 
-       * (site[1] + this->nEdgePoints * site[0]));
-  int index = colour + 3 * (spin + 4 * spatial_index);
-  source(index) = 1.0;
-
   // Declare a variable to hold our propagator
-  VectorXcd propagator = solver.solve(source);
+  MatrixXcd propagator(12, 12);
+
+  // Loop through colour and spin indices and invert propagator
+  for (int i = 0; i < 4; ++i) {
+    for(int j = 0; j < 3; ++j) {
+      // Create the source vector
+      VectorXcd source(nIndices);
+      source.setZero(nIndices);
+  
+      // Set the point source
+      int spatial_index = site[3] + this->nEdgePoints 
+	* (site[2] + this->nEdgePoints 
+	   * (site[1] + this->nEdgePoints * site[0]));
+      int index = j + 3 * (i + 4 * spatial_index);
+      source(index) = 1.0;
+      
+      // Do the inversion
+      VectorXcd solution = solver.solve(source);
+
+      // Add the result to the propagator matrix
+      for (int k = 0; k < 12; ++k) {
+	propagator(k, j + 3 * i) = solution(12 * spatial_index + k);
+      }
+    }
+  }
   
   return propagator;
 }
 
 
 
-VectorXcd Lattice::computePropagator(const double mass, int site[4],
-				     const int spin, const int colour,
+MatrixXcd Lattice::computePropagator(const double mass, int site[4],
 				     const double spacing)
 {
   // Computes the propagator vectors for the 12 spin-colour indices at
   // the given lattice site, using the Dirac operator
   SparseMatrix<complex<double> > D = this->computeDiracMatrix(mass, spacing);
   
-  return this->computePropagator(mass, site, spin, colour, spacing, D);
+  return this->computePropagator(mass, site, spacing, D);
 }
 
 
 
-vector<VectorXcd> Lattice::computePropagators(const double mass, int site[4],
+vector<MatrixXcd> Lattice::computePropagators(const double mass,
 					      const double spacing)
 {
   // Computes all propagators at all lattice sites
@@ -1264,12 +1276,18 @@ vector<VectorXcd> Lattice::computePropagators(const double mass, int site[4],
   SparseMatrix<complex<double> > D = this->computeDiracMatrix(mass, spacing);
   
   // Declare the output
-  vector<VectorXcd> propagators(12);
+  vector<MatrixXcd> propagators(nSites);
 
-  for (int i = 0; i < 4; ++i) {
-    for (int j = 0; j < 3; ++j) {
-      int index = j + 3 * i;
-      propagators[index] = this->computePropagator(mass, site, i, j, spacing, D);
+  for (int i = 0; i < this->nEdgePoints; ++i) {
+    for (int j = 0; j < this->nEdgePoints; ++j) {
+      for (int k = 0; k < this->nEdgePoints; ++k) {
+	for (int l = 0; l < this->nEdgePoints; ++l) {
+	  int index = l + this->nEdgePoints 
+	    * (k + this->nEdgePoints * (j + this->nEdgePoints * i));
+	  int site[4] = {i, j, k, l};
+	  propagators[index] = this->computePropagator(mass, site, spacing, D);
+	}
+      }
     }
   }
 

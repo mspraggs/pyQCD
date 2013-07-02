@@ -166,7 +166,7 @@ BOOST_PYTHON_MODULE(pyQCD)
     .def("propagator", &pyLattice::computePropagatorP,
 	 (py::arg("mass"), py::arg("site"), py::arg("spacing")))
     .def("propagators", &pyLattice::computePropagatorsP,
-	 (py::arg("mass"), py::arg("site"), py::arg("spacing")))
+	 (py::arg("mass"), py::arg("spacing")))
     .def("av_link", &pyLattice::computeMeanLink)
     .def("print", &pyLattice::print)
     .def("get_rand_su3", &pyLattice::getRandSu3,
