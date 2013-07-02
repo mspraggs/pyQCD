@@ -123,6 +123,32 @@ py::list pyLattice::computePropagatorP(const double mass, const py::list site,
 
 
 
+py::list pyLattice::computePropagatorsP(const double mass, const double spacing)
+{
+  // Wrapper for the calculation of propagators
+
+  vector<MatrixXcd> props = this->computePropagators(mass, spacing);
+
+  py::list pythonPropagators;
+  int nSites = int(pow(this->nEdgePoints, 4));
+  
+  for (int i = 0; i < nSites; ++i) {
+    py::list tempList1;
+    for (int j = 0; j < 12; ++j) {
+      py::list tempList2;
+      for (int k = 0; k < 12; ++k) {
+	tempList2.append(props[j, k]);
+      }
+      tempList1.append(tempList2);
+    }
+    pythonPropagators.append(tempList1);
+  }
+
+  return pythonPropagators;
+}
+
+
+
 void pyLattice::runThreads(const int size, const int nUpdates,
 			   const int remainder)
 {
