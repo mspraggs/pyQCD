@@ -109,7 +109,7 @@ protected:
   Matrix3cd computeWilsonStaples(const int link[5]);
   Matrix3cd computeRectangleStaples(const int link[5]);
   Matrix3cd computeTwistedRectangleStaples(const int link[5]);
-  void (Lattice::*updateFunction_)(const int link[5]);
+  void (Lattice::*updateFunction_)(const int link);
   GaugeField links_;
   GaugeField randSu3s_;
   vector<int> chunkSequence_;
