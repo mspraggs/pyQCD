@@ -115,6 +115,21 @@ Lattice::Lattice(const int nEdgePoints, const double beta, const double u0,
       }
     }
   }
+
+  int numChunks = int(pow(this->nEdgePoints / chunkSize, 4));
+
+  for (int i = 0; i < numChunks; ++i) {
+    int link[5];
+    this->convertIndex(4 * chunkSize * i, link);
+    int sum = 0;
+    for (int j = 0; j < 4; ++j)
+      sum += link[j];
+    
+    if (sum % 2 == 0)
+      this->evenBlocks_.push_back(i);
+    else
+      this->oddBlocks_.push_back(i);
+  }
 }
 
 
