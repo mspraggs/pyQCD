@@ -20,11 +20,7 @@ using namespace Eigen;
 using namespace std;
 using namespace boost;
 
-typedef vector<Matrix3cd, aligned_allocator<Matrix3cd> > Sub4Field;
-typedef vector<Sub4Field> Sub3Field;
-typedef vector<Sub3Field> Sub2Field;
-typedef vector<Sub2Field> SubField;
-typedef vector<SubField> GaugeField;
+typedef vector<Matrix3cd, aligned_allocator<Matrix3cd> > GaugeField;
 typedef Triplet<complex<double> > Tlet;
 
 class Lattice
@@ -106,7 +102,7 @@ public:
 
 protected:
   double beta_, epsilon_, u0_, rho_;
-  int nUpdates_, action_, updateMethod_, parallelFlag_;
+  int nUpdates_, action_, updateMethod_, parallelFlag_, nLinks_;
   double computeLocalWilsonAction(const int link[5]);
   double computeLocalRectangleAction(const int link[5]);
   double computeLocalTwistedRectangleAction(const int link[5]);
@@ -115,8 +111,7 @@ protected:
   Matrix3cd computeTwistedRectangleStaples(const int link[5]);
   void (Lattice::*updateFunction_)(const int link[5]);
   GaugeField links_;
-  Sub4Field randSu3s_;
-  vector<vector<int> > linkIndices_;
+  GaugeField randSu3s_;
 };
 
 #endif
