@@ -336,13 +336,8 @@ void Lattice::update()
 {
   // Iterate through the lattice and apply the appropriate update
   // function
-  int nLinks = this->linkIndices_.size();
-  for (int i = 0; i < nLinks; ++i) {
-    int link[5];
-    copy(this->linkIndices_[i].begin(),
-	 this->linkIndices_[i].end(),
-	 link);
-    (this->*updateFunction_)(link);
+  for (int i = 0; i < this->nLinks; ++i) {
+    (this->*updateFunction_)(i);
   }
   this->nUpdates_++;
 }
