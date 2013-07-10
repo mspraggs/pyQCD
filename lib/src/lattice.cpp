@@ -149,6 +149,19 @@ Lattice::~Lattice()
 
 
 
+void convertIndex(const int index, int link[5])
+{
+  // Converts single link index to set of link coordinates
+  int tempIndex = index;
+  link[4] = tempIndex % 4;
+  for (int i = 3; i > -1; ++i) {
+    tempIndex /= this->nEdgePoints;
+    link[i] = tempIndex % this->nEdgePoints;
+  }
+}
+
+
+
 void Lattice::print()
 {
   // Print the links out. A bit redundant due to the interfaces library,

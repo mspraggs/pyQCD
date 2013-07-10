@@ -39,6 +39,8 @@ public:
   Lattice(const Lattice& lattice);
   ~Lattice();
 
+  void convertIndex(const int index, int link[5]);
+
   void print();
   Matrix3cd& getLink(const int link[5]);
   Matrix3cd& getLink(const vector<int> link);
