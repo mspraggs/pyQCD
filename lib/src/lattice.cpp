@@ -850,35 +850,50 @@ double Lattice::computeAverageWilsonLoop(const int r, const int t,
   // Calculates the average of all possible Wilson loops of a given
   // dimension.
   // First off, save the current links and smear all time slices
-  GaugeField templinks = this->links_;
-  for (int time = 0; time < this->nEdgePoints; time++) {
-    this->smearLinks(time, nSmears);
+  GaugeField templinks;
+  if (nSmears > 0) {
+    templinks = this->links_;
+    for (int time = 0; time < this->nEdgePoints; time++) {
+      this->smearLinks(time, nSmears);
+    }
   }
 
   double Wtot = 0.0;
-  int timeSliceIncrement = int(4 * pow(this->nEdgePoints, 3));
   if (this->parallelFlag_ == 1) {
-#pragma omp parallel for reduction(+ : Wtot)
-    for (int i = 0; i < this->nLinks_; ++i) {
-      int link[5];
-      this->convertIndex(i, link);
-      // Note, running in parallel causes very
-      // small variations in the final value
-      // of Wtot between consecutive calls
-      // (of the order of 10^-16)
-      if (link[4] != 0)
-	Wtot += this->computeWilsonLoop(link, r, t, link[4], 0);
+#pragma omp parallel for collapse(5) reduction(+ : Wtot)
+    for (int i = 0; i < this->nEdgePoints; ++i) {
+      for (int j = 0; j < this->nEdgePoints; ++j) {
+	for (int k = 0; k < this->nEdgePoints; ++k) {
+	  for (int l = 0; l < this->nEdgePoints; ++l) {
+	    for (int m = 1; m < 4; ++m) {
+	      int site[4] = {i, j, k, l};
+	      // Note, running in parallel causes very
+	      // small variations in the final value
+	      // of Wtot between consecutive calls
+	      // (of the order of 10^-16)
+	      Wtot += this->computeWilsonLoop(site, r, t, m, 0);
+	    }
+	  }
+	}
+      }
     }
   }
   else {
-    for (int i = 0; i < this->nLinks_; ++i) {
-      int link[5];
-      this->convertIndex(i, link);
-      if (link[4] != 0)
-	Wtot += this->computeWilsonLoop(link, r, t, link[4], 0);
+    for (int i = 0; i < this->nEdgePoints; ++i) {
+      for (int j = 0; j < this->nEdgePoints; ++j) {
+	for (int k = 0; k < this->nEdgePoints; ++k) {
+	  for (int l = 0; l < this->nEdgePoints; ++l) {
+	    for (int m = 1; m < 4; ++m) {
+	      int site[4] = {i, j, k, l};
+	      Wtot += this->computeWilsonLoop(site, r, t, m, 0);
+	    }
+	  }
+	}
+      }
     }
   }
-  this->links_ = templinks;
+  if (nSmears > 0)
+    this->links_ = templinks;
   return Wtot / (pow(this->nEdgePoints, 4) * 3);
 }
 
@@ -1036,8 +1051,7 @@ void Lattice::smearLinks(const int time, const int nSmears)
 	  int link[5];
 	  this->convertIndex(time * nSpatialLinks + j + k, link);
 	  Matrix3cd tempMatrix = this->computeQ(link);
-	  newLinks[time * nSpatialLinks + j + k] = (pyQCD::i * tempMatrix).exp()
-	    * this->getLink(link);
+	  newLinks[j + k] = (pyQCD::i * tempMatrix).exp() * this->getLink(link);
 	}
       }
       // Apply the changes to the existing lattice.
