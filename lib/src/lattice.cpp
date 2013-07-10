@@ -388,10 +388,12 @@ void Lattice::schwarzUpdate(const int chunkSize, const int nUpdates)
 {
   // Update even and odd blocks using method similar to Schwarz Alternating
   // Procedure.
-  this->runThreads(chunkSize, nUpdates, 0);
-  this->runThreads(chunkSize, nUpdates, 1);
+  this->runThreads(nUpdates, 0);
+  this->runThreads(nUpdates, 1);
   this->nUpdates_++;
 }
+
+
 
 void Lattice::thermalize()
 {
