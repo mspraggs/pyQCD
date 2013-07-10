@@ -1,3 +1,9 @@
 QHO/*
 *~
 *.pyc
+results/*
+lib/CMakeCache.txt
+lib/CMakeFiles/*
+lib/Makefile
+lib/cmake_install.cmake
+lib/pyQCD.so
