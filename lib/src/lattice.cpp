@@ -95,7 +95,26 @@ Lattice::Lattice(const int nEdgePoints, const double beta, const double u0,
       this->updateFunction_ = &Lattice::monteCarloNoStaples;
     }
   }
-    
+
+  // Initialize series of offsets used when doing block updates
+
+  int chunkSize = 4;
+  for (int i = 0; i < chunkSize; ++i) {
+    for (int j = 0; j < chunkSize; ++j) {
+      for (int k = 0; k < chunkSize; ++k) {
+	for (int l = 0; l < chunkSize; ++l) {
+	  for (int m = 0; m < 4; ++m) {
+	    // We'll need an array with the link indices
+	    int index = m + this->nEdgePoints
+	      * (l + this->nEdgePoints
+		 * (k + this->nEdgePoints
+		    * (j + this->nEdgePoints * i)));
+	    this->chunkSequence_.push_back(index);
+	  }
+	}
+      }
+    }
+  }
 }
 
 
