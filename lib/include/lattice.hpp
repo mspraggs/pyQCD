@@ -112,6 +112,7 @@ protected:
   void (Lattice::*updateFunction_)(const int link[5]);
   GaugeField links_;
   GaugeField randSu3s_;
+  vector<int> chunkSequence_;
 };
 
 #endif
