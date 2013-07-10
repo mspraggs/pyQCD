@@ -52,7 +52,7 @@ public:
   void update();
   void runThreads(const int nUpdates, const int remainder);
   void schwarzUpdate(const int nUpdates);
-  void updateSegment(const int chunkNumber);
+  void updateSegment(const int chunkNumber, const int nUpdates);
 
   void thermalize();
   void getNextConfig();
