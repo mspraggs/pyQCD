@@ -115,6 +115,8 @@ protected:
   GaugeField links_;
   GaugeField randSu3s_;
   vector<int> chunkSequence_;
+  vector<int> evenBlocks_;
+  vector<int> oddBlocks_;
 };
 
 #endif
