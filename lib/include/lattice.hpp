@@ -45,7 +45,7 @@ public:
   Matrix3cd& getLink(const int link[5]);
   Matrix3cd& getLink(const vector<int> link);
 
-  void monteCarlo(const int link[5]);
+  void monteCarlo(const int link);
   void monteCarloNoStaples(const int link[5]);
   void heatbath(const int link[5]);
 

@@ -211,12 +211,15 @@ Matrix3cd& Lattice::getLink(const vector<int> link)
 
 
 
-void Lattice::monteCarlo(const int link[5])
+void Lattice::monteCarlo(const int link)
 {
   // Iterate through the lattice and update the links using Metropolis
   // algorithm
+  // Convert the link index to the lattice coordinates
+  int linkCoords[5];
+  this->convertIndex(link, linkCoords);
   // Get the staples
-  Matrix3cd staples = (this->*computeStaples)(link);
+  Matrix3cd staples = (this->*computeStaples)(linkCoords);
   for (int n = 0; n < 10; ++n) {
     // Get a random SU3
     Matrix3cd randSu3 = 
@@ -225,16 +228,16 @@ void Lattice::monteCarlo(const int link[5])
     double actionChange = 
       -this->beta_ / 3.0 *
       ((randSu3 - Matrix3cd::Identity())
-       * this->links_[link[0]][link[1]][link[2]][link[3]][link[4]] 
+       * this->links_[link] 
        * staples).trace().real();
     
     // Was the change favourable? If not, revert the change
     bool isExpMore = exp(-actionChange) >= pyQCD::uni();
     
     if ((actionChange <= 0) || isExpMore)
-      this->links_[link[0]][link[1]][link[2]][link[3]][link[4]] = 
+      this->links_[link] = 
 	randSu3 * 
-	this->links_[link[0]][link[1]][link[2]][link[3]][link[4]];
+	this->links_[link];
   }
 }
 
