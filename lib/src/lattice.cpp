@@ -235,9 +235,7 @@ void Lattice::monteCarlo(const int link)
     bool isExpMore = exp(-actionChange) >= pyQCD::uni();
     
     if ((actionChange <= 0) || isExpMore)
-      this->links_[link] = 
-	randSu3 * 
-	this->links_[link];
+      this->links_[link] = randSu3 * this->links_[link];
   }
 }
 
