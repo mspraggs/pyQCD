@@ -417,7 +417,7 @@ void Lattice::getNextConfig()
   // Run nCorrelations updates using parallel or linear method
   if (this->parallelFlag_ == 1) {
     for (int i = 0; i < this->nCorrelations; ++i)
-      this->schwarzUpdate(4,1);
+      this->schwarzUpdate(1);
   }
   else {
     for (int i = 0; i < this->nCorrelations; ++i)
