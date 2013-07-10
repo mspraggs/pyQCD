@@ -134,16 +134,8 @@ void Lattice::print()
 {
   // Print the links out. A bit redundant due to the interfaces library,
   // but here in case it's needed.
-  for (int i = 0; i < this->nEdgePoints; ++i) {
-    for (int j = 0; j < this->nEdgePoints; ++j) {
-      for (int k = 0; k < this->nEdgePoints; ++k) {
-	for (int l = 0; l < this->nEdgePoints; ++l) {
-	  for (int m = 0; m < 4; ++m) {
-	    cout << this->links_[i][j][k][l][m] << endl;
-	  }
-	}
-      }
-    }
+  for (int i = 0; i < this->nLinks_; ++i) {
+    cout << this->links_[i] << endl;
   }
 }
 
