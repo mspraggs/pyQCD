@@ -115,9 +115,9 @@ Lattice::Lattice(const int nEdgePoints, const double beta, const double u0,
     }
   }
 
-  int numChunks = int(pow(this->nEdgePoints / chunkSize, 4));
+  int nChunks = int(pow(this->nEdgePoints / chunkSize, 4));
 
-  for (int i = 0; i < numChunks; ++i) {
+  for (int i = 0; i < nChunks; ++i) {
     int link[5];
     this->convertIndex(4 * chunkSize * i, link);
     int sum = 0;
