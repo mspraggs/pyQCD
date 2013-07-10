@@ -47,7 +47,7 @@ public:
 
   void monteCarlo(const int link);
   void monteCarloNoStaples(const int link);
-  void heatbath(const int link[5]);
+  void heatbath(const int link);
 
   void update();
   void runThreads(const int chunkSize, const int nUpdates,

@@ -285,9 +285,12 @@ void Lattice::monteCarloNoStaples(const int link)
 
 
 
-void Lattice::heatbath(const int link[5])
+void Lattice::heatbath(const int link)
 {
   // Update a single link using heatbath in Gattringer and Lang
+  // Convert the link index to the lattice coordinates
+  int linkCoords[5];
+  this->convertIndex(link, linkCoords);
   // Calculate the staples matrix A
   Matrix3cd staples = (this->*computeStaples)(link);
   // Declare the matrix W = U * A
@@ -296,7 +299,7 @@ void Lattice::heatbath(const int link[5])
   // Iterate over the three SU(2) subgroups of W
   for (int n = 0; n < 3; ++n) {
     // W = U * A
-    W = this->links_[link[0]][link[1]][link[2]][link[3]][link[4]]
+    W = this->links_[link]
       * staples;
     double a[4];
     double r[4];
@@ -322,8 +325,8 @@ void Lattice::heatbath(const int link[5])
     // as an SU(3) matrix.
     Matrix3cd R = pyQCD::embedSu2(X * V.adjoint(), n);
     // Do the update
-    this->links_[link[0]][link[1]][link[2]][link[3]][link[4]]
-      = R * this->links_[link[0]][link[1]][link[2]][link[3]][link[4]];
+    this->links_[link]
+      = R * this->links_[link];
   }
 }
 
