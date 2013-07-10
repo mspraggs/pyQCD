@@ -25,7 +25,6 @@ Lattice::Lattice(const int nEdgePoints, const double beta, const double u0,
 
   // Resize the link vector and assign each link a random SU3 matrix
   // Also set up the linkIndices vector
-  this->linkIndices_.resize(this->nLinks_);
   this->links_.resize(this->nLinks_);
 
   for (int i = 0; i < this->nLinks_; ++i) {
