@@ -344,24 +344,17 @@ void Lattice::update()
 
 
 
-void Lattice::updateSegment(const int n0, const int n1, const int n2,
-			    const int n3, const int chunkSize,
-			    const int nUpdates)
+void Lattice::updateSegment(const int chunkNumber, const int nUpdates)
 {
   // Updates a segment of the lattice - used for SAP
+  // First determine a couple of variables:
+  // - How many links do we update? (saves calling of size)
+  // - Which link do we start on?
+  int nChunkLinks = this->chunkSequence_.size();
+  int startLink = this->nLinks_ / nChunkLinks * chunkNumber;
   for (int i = 0; i < nUpdates; ++i) {
-    for (int j = n0; j < n0 + chunkSize; ++j) {
-      for (int k = n1; k < n1 + chunkSize; ++k) {
-	for (int l = n2; l < n2 + chunkSize; ++l) {
-	  for (int m = n3; m < n3 + chunkSize; ++m) {
-	    for (int n = 0; n < 4; ++n) {
-	      // We'll need an array with the link indices
-	      int link[5] = {j, k, l, m, n};
-	      (this->*updateFunction_)(link);
-	    }
-	  }
-	}
-      }
+    for (int j = 0; j < nChunkLinks; ++j) {
+      (this->*updateFunction_)(startLink + this->chunkSequence[j]);
     }
   }
 }

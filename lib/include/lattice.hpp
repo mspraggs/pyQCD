@@ -53,8 +53,7 @@ public:
   void runThreads(const int chunkSize, const int nUpdates,
 		  const int remainder);
   void schwarzUpdate(const int chunkSize, const int nUpdates);
-  void updateSegment(const int n0, const int n1, const int n2,
-		     const int n3, const int chunkSize, const int nUpdates);
+  void updateSegment(const int chunkNumber, const int nUpdates);
 
   void thermalize();
   void getNextConfig();
