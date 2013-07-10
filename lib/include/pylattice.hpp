@@ -41,8 +41,7 @@ public:
   py::list computeZeroMomPropagatorP(const double mass, const int time,
 				     const double spacing);
   py::list computePropagatorsP(const double mass, const double spacing);
-  void runThreads(const int chunkSize, const int nUpdates,
-		  const int remainder);
+  void runThreads(const int nUpdates, const int remainder);
   py::list getLinkP(const int n0, const int n1, const int n2, const int n3,
 		    const int dimension) const;
   py::list getRandSu3(const int index) const;
