@@ -148,8 +148,14 @@ Matrix3cd& Lattice::getLink(const int link[5])
   for (int i = 0; i < 4; ++i)
     tempLink[i] = pyQCD::mod(link[i], this->nEdgePoints);
   tempLink[4] = pyQCD::mod(link[4], this->nEdgePoints);
-  return this->links_[tempLink[0]][tempLink[1]][tempLink[2]][tempLink[3]]
-    [tempLink[4]];
+
+  int index = tempLink[4] + 
+    this->nEdgePoints * (tempLink[3] + this->nEdgePoints
+			 * (tempLink[2] + this->nEdgePoints
+			    * (tempLink[1] + this->nEdgePoints
+			       * tempLink[0])));
+
+  return this->links_[index];
 }
 
 
@@ -161,8 +167,14 @@ Matrix3cd& Lattice::getLink(const vector<int> link)
   for (int i = 0; i < 5; ++i)
     tempLink[i] = pyQCD::mod(link[i], this->nEdgePoints);
   tempLink[4] = pyQCD::mod(link[4], this->nEdgePoints);
-  return this->links_[tempLink[0]][tempLink[1]][tempLink[2]][tempLink[3]]
-    [tempLink[4]];
+  
+  int index = tempLink[4] + 
+    this->nEdgePoints * (tempLink[3] + this->nEdgePoints
+			 * (tempLink[2] + this->nEdgePoints
+			    * (tempLink[1] + this->nEdgePoints
+			       * tempLink[0])));
+
+  return this->links_[index];
 }
 
 
