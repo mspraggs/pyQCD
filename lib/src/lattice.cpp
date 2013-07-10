@@ -9,6 +9,7 @@ Lattice::Lattice(const int nEdgePoints, const double beta, const double u0,
   // Default constructor. Assigns function arguments to member variables
   // and initializes links.
   this->nEdgePoints = nEdgePoints;
+  this->nLinks_ = int(pow(this->nEdgePoints, 4) * 4);
   this->beta_ = beta;
   this->nCorrelations = nCorrelations;
   this->epsilon_ = epsilon;
@@ -24,33 +25,11 @@ Lattice::Lattice(const int nEdgePoints, const double beta, const double u0,
 
   // Resize the link vector and assign each link a random SU3 matrix
   // Also set up the linkIndices vector
-  this->linkIndices_.resize(4 * pow(nEdgePoints, 4));
-  this->links_.resize(this->nEdgePoints);
-  int index = 0;
+  this->linkIndices_.resize(this->nLinks_);
+  this->links_.resize(this->nLinks_);
 
-  for (int i = 0; i < this->nEdgePoints; ++i) {
-    this->links_[i].resize(this->nEdgePoints);
-    for (int j = 0; j < this->nEdgePoints; ++j) {
-      this->links_[i][j].resize(this->nEdgePoints);
-      for (int k = 0; k < this->nEdgePoints; ++k) {
-	this->links_[i][j][k].resize(this->nEdgePoints);
-	for (int l = 0; l < this->nEdgePoints; ++l) {
-	  this->links_[i][j][k][l].resize(4);
-	  for (int m = 0; m < 4; ++m) {
-	    this->links_[i][j][k][l][m] = this->makeRandomSu3();
-	    
-	    this->linkIndices_[index].resize(5);
-	    this->linkIndices_[index][0] = i;
-	    this->linkIndices_[index][1] = j;
-	    this->linkIndices_[index][2] = k;
-	    this->linkIndices_[index][3] = l;
-	    this->linkIndices_[index][4] = m;
-	    index++;
-	  }
-	  
-	}
-      }
-    }
+  for (int i = 0; i < this->nLinks_; ++i) {
+    this->links_[i] = this->makeRandomSu3();
   }
 
   // Generate a set of random SU3 matrices for use in the updates
@@ -126,6 +105,7 @@ Lattice::Lattice(const Lattice& lattice)
   // Default constructor. Assigns function arguments to member variables
   // and initializes links.
   this->nEdgePoints = lattice.nEdgePoints;
+  this->nLinks_ = lattice.nLinks_;
   this->beta_ = lattice.beta_;
   this->nCorrelations = lattice.nCorrelations;
   this->epsilon_ = lattice.epsilon_;
@@ -1271,16 +1251,30 @@ MatrixXcd Lattice::computeZeroMomPropagator(const double mass, const int time,
 					    const double spacing)
 {
   // Computes the projected zero momentum propagator
-  
-  MatrixXcd sum = Matrix<complex<double>, 12, 12>::Zero();
 
   SparseMatrix<complex<double> > D = this->computeDiracMatrix(mass, spacing);
 
-  for (int i = 0; i < this->nEdgePoints; ++i) {
-    for (int j = 0; j < this->nEdgePoints; ++j) {
-      for (int k = 0; k < this->nEdgePoints; ++k) {
-	int site[4] = {time, i, j, k};
-	sum += this->computePropagator(mass, site, spacing, D);
+  int nSpatialIndices = int(pow(this->nEdgePoints, 3));
+  int nIndices = int(12 * nSpatialIndices);
+  SparseMatrix<complex<double> > source(int(this->nEdgePoints * nIndices),
+					nIndices);
+
+  vector<Tlet> tripletList;
+  for (int i = 0; i < nIndices; ++i) {
+    tripletList.push_back(Tlet(time * nIndices + i, i, 1.0));
+  }
+  source.setFromTriplets(tripletList.begin(), tripletList.end());
+
+  BiCGSTAB<SparseMatrix<complex<double> > > solver(D);
+  SparseMatrix<complex<double> > propagators = solver.solve(source);
+
+  MatrixXcd sum = Matrix<complex<double>, 12, 12>::Zero();
+
+  for (int i = 0; i < nSpatialIndices; ++i) {
+    for (int j = 0; j < 12; ++j) {
+      for (int k = 0; k < 12; ++k) {
+	sum(j, k) = propagators.coeffRef(12 * (nSpatialIndices * time + i) + j,
+					 12 * i + k);
       }
     }
   }
