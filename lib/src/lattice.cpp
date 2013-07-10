@@ -133,13 +133,6 @@ Lattice::Lattice(const int nEdgePoints, const double beta, const double u0,
       }
     }
   }
-  
-  for (int i = 0; i < this->evenBlocks_.size(); ++i) {
-    cout << this->evenBlocks_[i] << endl;
-  }
-  for (int i = 0; i < this->oddBlocks_.size(); ++i) {
-    cout << this->oddBlocks_[i] << endl;
-  }
 }
 
 
