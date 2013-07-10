@@ -71,19 +71,15 @@ struct lattice_pickle_suite : py::pickle_suite
     }
     
     GaugeField links;
-    Sub4Field randSu3s;
+    GaugeField randSu3s;
     py::list linkStates = py::extract<py::list>(state[0]);
     py::list randSu3States = py::extract<py::list>(state[1]);
 
     // Convert the compound list of links back to a vector...
     for (int i = 0; i < pylattice.nEdgePoints; i++) {
-      SubField temp1;
       for (int j = 0; j < pylattice.nEdgePoints; j++) {
-	Sub2Field temp2;
 	for (int k = 0; k < pylattice.nEdgePoints; k++) {
-	  Sub3Field temp3;
 	  for (int l = 0; l < pylattice.nEdgePoints; l++) {
-	    Sub4Field temp4;
 	    for (int m = 0; m < 4; m++) {
 	      Matrix3cd tempMatrix;
 	      for (int n = 0; n < 3; n++) {
@@ -93,15 +89,11 @@ struct lattice_pickle_suite : py::pickle_suite
 		    (linkStates[i][j][k][l][m][n][o]);
 		}
 	      }
-	      temp4.push_back(tempMatrix);
+	      links.push_back(tempMatrix);
 	    }
-	    temp3.push_back(temp4);
 	  }
-	  temp2.push_back(temp3);
 	}
-	temp1.push_back(temp2);
       }
-      links.push_back(temp1);
     }
     // And the same for the random SU3 matrices.
     int index = 0;
@@ -146,8 +138,7 @@ BOOST_PYTHON_MODULE(pyQCD)
 	 (py::arg("n0"), py::arg("n1"), py::arg("n2"), py::arg("n3"),
 	  py::arg("dim")))
     .def("update", &pyLattice::update)
-    .def("schwarz_update", &pyLattice::schwarzUpdate,
-	 (py::arg("block_size")=4, py::arg("n_sweeps")=1))
+    .def("schwarz_update", &pyLattice::schwarzUpdate, (py::arg("n_sweeps")=1))
     .def("next_config", &pyLattice::getNextConfig)
     .def("thermalize", &pyLattice::thermalize)
     .def("plaquette", &pyLattice::computePlaquetteP,

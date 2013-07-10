@@ -170,11 +170,10 @@ py::list pyLattice::computePropagatorsP(const double mass, const double spacing)
 
 
 
-void pyLattice::runThreads(const int size, const int nUpdates,
-			   const int remainder)
+void pyLattice::runThreads(const int nUpdates, const int remainder)
 {
   ScopedGILRelease scope;
-  Lattice::runThreads(size, nUpdates, remainder);
+  Lattice::runThreads(nUpdates, remainder);
 }
 
 
@@ -186,10 +185,14 @@ py::list pyLattice::getLinkP(const int n0, const int n1, const int n2,
   // with python interfaces library to extract the links as a nested list
   // of numpy matrices.
   py::list out;
+  int index = dimension + this->nEdgePoints
+    * (n3 + this->nEdgePoints
+       * (n2 + this->nEdgePoints
+	  * (n1 + this->nEdgePoints * n0)));
   for (int i = 0; i < 3; i++) {
     py::list temp;
     for (int j = 0; j < 3; j++) {
-      temp.append(this->links_[n0][n1][n2][n3][dimension](i, j));
+      temp.append(this->links_[index](i, j));
     }
     out.append(temp);
   }

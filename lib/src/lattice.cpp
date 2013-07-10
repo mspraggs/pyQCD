@@ -401,7 +401,7 @@ void Lattice::thermalize()
   if (this->parallelFlag_ == 1) {
     while(this->nUpdates_ < 5 * this->nCorrelations)
       // If so, do a Schwarz update thingy (even/odd blocks)
-      this->schwarzUpdate(4,1);
+      this->schwarzUpdate(1);
   }
   else {
     while(this->nUpdates_ < 5 * this->nCorrelations)
@@ -530,12 +530,20 @@ double Lattice::computeWilsonLoop(const int corner1[4], const int corner2[4],
   // Calculates the loop specified by corners corner1 and corner2 (which must
   // lie in the same plane)
   Matrix3cd out = Matrix3cd::Identity();
-  SubField linkStore1;
-  SubField linkStore2;
+  GaugeField linkStore1;
+  GaugeField linkStore2;
   // Smear the links if specified, whilst storing the non-smeared ones.
+  int timeSliceIncrement = this->nLinks_ / this->nEdgePoints;
   if (nSmears > 0) {
-    linkStore1 = this->links_[pyQCD::mod(corner1[0], this->nEdgePoints)];
-    linkStore2 = this->links_[pyQCD::mod(corner2[0], this->nEdgePoints)];
+    linkStore1.resize(timeSliceIncrement);
+    linkStore2.resize(timeSliceIncrement);
+    int corner1Timeslice = pyQCD::mod(corner1[0], this->nEdgePoints);
+    int corner2Timeslice = pyQCD::mod(corner2[0], this->nEdgePoints);
+    
+    for (int i = 0; i < timeSliceIncrement; ++i) {
+      linkStore1[i] = this->links_[corner1Timeslice + i];
+      linkStore2[i] = this->links_[corner2Timeslice + i];
+    }
     this->smearLinks(corner1[0], nSmears);
     this->smearLinks(corner2[0], nSmears);
   }
@@ -567,8 +575,12 @@ double Lattice::computeWilsonLoop(const int corner1[4], const int corner2[4],
   }
   // Restore the old links
   if (nSmears > 0) {
-    this->links_[pyQCD::mod(corner1[0], this->nEdgePoints)] = linkStore1;
-    this->links_[pyQCD::mod(corner2[0], this->nEdgePoints)] = linkStore2;
+    int corner1Timeslice = pyQCD::mod(corner1[0], this->nEdgePoints);
+    int corner2Timeslice = pyQCD::mod(corner2[0], this->nEdgePoints);
+    for (int i = 0; i < timeSliceIncrement; ++i) {
+      this->links_[corner1Timeslice + i] = linkStore1[i];
+      this->links_[corner2Timeslice + i] = linkStore2[i];
+    }
   }
   
   return out.trace().real() / 3.0;
@@ -583,12 +595,20 @@ double Lattice::computeWilsonLoop(const int corner[4], const int r,
   // Calculates the loop specified by initial corner, width, height and
   // dimension
 
-  SubField linkStore1;
-  SubField linkStore2;
+  GaugeField linkStore1;
+  GaugeField linkStore2;
   // Smear the links if specified, whilst storing the non-smeared ones.
+  int timeSliceIncrement = this->nLinks_ / this->nEdgePoints;
   if (nSmears > 0) {
-    linkStore1 = this->links_[pyQCD::mod(corner[0], this->nEdgePoints)];
-    linkStore2 = this->links_[pyQCD::mod(corner[0] + t, this->nEdgePoints)];
+    linkStore1.resize(timeSliceIncrement);
+    linkStore2.resize(timeSliceIncrement);
+    int corner1Timeslice = pyQCD::mod(corner[0], this->nEdgePoints);
+    int corner2Timeslice = pyQCD::mod(corner[0] + t, this->nEdgePoints);
+    
+    for (int i = 0; i < timeSliceIncrement; ++i) {
+      linkStore1[i] = this->links_[corner1Timeslice + i];
+      linkStore2[i] = this->links_[corner2Timeslice + i];
+    }
     this->smearLinks(corner[0], nSmears);
     this->smearLinks(corner[0] + t, nSmears);
   }
@@ -630,9 +650,13 @@ double Lattice::computeWilsonLoop(const int corner[4], const int r,
 
   // Restore the old links
   if (nSmears > 0) {
-    this->links_[pyQCD::mod(corner[0], this->nEdgePoints)] = linkStore1;
-    this->links_[pyQCD::mod(corner[0] + t, this->nEdgePoints)] = linkStore2;
-  }  
+    int corner1Timeslice = pyQCD::mod(corner[0], this->nEdgePoints);
+    int corner2Timeslice = pyQCD::mod(corner[0] + t, this->nEdgePoints);
+    for (int i = 0; i < timeSliceIncrement; ++i) {
+      this->links_[corner1Timeslice + i] = linkStore1[i];
+      this->links_[corner2Timeslice + i] = linkStore2[i];
+    }
+  }
 
   return out.trace().real() / 3.0;
 }
@@ -828,37 +852,26 @@ double Lattice::computeAverageWilsonLoop(const int r, const int t,
   }
 
   double Wtot = 0.0;
+  int timeSliceIncrement = int(4 * pow(this->nEdgePoints, 3));
   if (this->parallelFlag_ == 1) {
-#pragma omp parallel for collapse(5) reduction(+ : Wtot)
-    for (int i = 0; i < this->nEdgePoints; ++i) {
-      for (int j = 0; j < this->nEdgePoints; ++j) {
-	for (int k = 0; k < this->nEdgePoints; ++k) {
-	  for (int l = 0; l < this->nEdgePoints; ++l) {
-	    for (int m = 1; m < 4; ++m) {
-	      int site[4] = {i, j, k, l};
-	      // Note, running in parallel causes very
-	      // small variations in the final value
-	      // of Wtot between consecutive calls
-	      // (of the order of 10^-16)
-	      Wtot += this->computeWilsonLoop(site, r, t, m, 0);
-	    }
-	  }
-	}
-      }
+#pragma omp parallel for reduction(+ : Wtot)
+    for (int i = 0; i < this->nLinks_; ++i) {
+      int link[5];
+      this->convertIndex(i, link);
+      // Note, running in parallel causes very
+      // small variations in the final value
+      // of Wtot between consecutive calls
+      // (of the order of 10^-16)
+      if (link[4] != 0)
+	Wtot += this->computeWilsonLoop(link, r, t, link[4], 0);
     }
   }
   else {
-    for (int i = 0; i < this->nEdgePoints; ++i) {
-      for (int j = 0; j < this->nEdgePoints; ++j) {
-	for (int k = 0; k < this->nEdgePoints; ++k) {
-	  for (int l = 0; l < this->nEdgePoints; ++l) {
-	    for (int m = 1; m < 4; ++m) {
-	      int site[4] = {i, j, k, l};
-	      Wtot += this->computeWilsonLoop(site, r, t, m, 0);
-	    }
-	  }
-	}
-      }
+    for (int i = 0; i < this->nLinks_; ++i) {
+      int link[5];
+      this->convertIndex(i, link);
+      if (link[4] != 0)
+	Wtot += this->computeWilsonLoop(link, r, t, link[4], 0);
     }
   }
   this->links_ = templinks;
@@ -871,17 +884,9 @@ double Lattice::computeMeanLink()
 {
   // Pretty simple: step through the matrix and add all link traces up
   double totalLink = 0;
-  for (int i = 0; i < this->nEdgePoints; ++i) {
-    for (int j = 0; j < this->nEdgePoints; ++j) {
-      for (int k = 0; k < this->nEdgePoints; ++k) {
-	for (int l = 0; l < this->nEdgePoints; ++l) {
-	  for (int m = 0; m < 4; ++m) {
-	    totalLink += 1.0 / 3.0
-	      * this->links_[i][j][k][l][m].trace().real();
-	  }
-	}
-      }
-    }
+  for (int i = 0; i < this->nLinks_; ++i) {
+    totalLink += 1.0 / 3.0
+      * this->links_[i].trace().real();
   }
   return totalLink / (4 * pow(this->nEdgePoints, 4));
 }
@@ -1010,34 +1015,31 @@ Matrix3cd Lattice::computeQ(const int link[5])
 void Lattice::smearLinks(const int time, const int nSmears)
 {
   // Smear the specified time slice by iterating calling this function
+  int nSpatialLinks = this->nLinks_ / this->nEdgePoints;
+
   if (this->parallelFlag_ == 1) {
 
     for (int i = 0; i < nSmears; ++i) {
       // Iterate through all the links and calculate the new ones from
       // the existing ones.    
-      SubField newLinks(this->nEdgePoints, 
-			Sub2Field(this->nEdgePoints,
-				  Sub3Field(this->nEdgePoints, 
-					    Sub4Field(4))));
-#pragma omp parallel for collapse(3)
-      for (int j = 0; j < this->nEdgePoints; ++j) {
-	for (int k = 0; k < this->nEdgePoints; ++k) {
-	  for (int l = 0; l < this->nEdgePoints; ++l) {
-	    // NB, spatial links only, so l > 0!
-	    newLinks[j][k][l][0] =
-	      this->links_[pyQCD::mod(time, this->nEdgePoints)][j][k][l][0];
-	    for (int m = 1; m < 4; ++m) {
-	      // Create a temporary matrix to store the new link
-	      int link[5] = {time, j, k, l, m};
-	      Matrix3cd tempMatrix = this->computeQ(link);
-	      newLinks[j][k][l][m] = (pyQCD::i * tempMatrix).exp()
-		* this->getLink(link);
-	    }
-	  }
+      GaugeField newLinks(nSpatialLinks);
+#pragma omp parallel for
+      for (int j = 0; j < nSpatialLinks; j+=4) {
+	// NB, spatial links only, so l > 0!
+	newLinks[j] = this->links_[time * nSpatialLinks + j];
+	for (int k = 1; k < 4; ++k) {
+	  // Create a temporary matrix to store the new link
+	  int link[5];
+	  this->convertIndex(time * nSpatialLinks + j + k, link);
+	  Matrix3cd tempMatrix = this->computeQ(link);
+	  newLinks[time * nSpatialLinks + j + k] = (pyQCD::i * tempMatrix).exp()
+	    * this->getLink(link);
 	}
       }
       // Apply the changes to the existing lattice.
-      this->links_[pyQCD::mod(time, this->nEdgePoints)] = newLinks;
+      for (int i = 0; i < nSpatialLinks; ++i) {
+	this->links_[time * nSpatialLinks + i] = newLinks[i];
+      }
     }
   }
   else {
@@ -1045,29 +1047,24 @@ void Lattice::smearLinks(const int time, const int nSmears)
     for (int i = 0; i < nSmears; ++i) {
       // Iterate through all the links and calculate the new ones from
       // the existing ones.    
-      SubField newLinks(this->nEdgePoints, 
-			Sub2Field(this->nEdgePoints,
-				  Sub3Field(this->nEdgePoints, 
-					    Sub4Field(4))));
+      GaugeField newLinks(nSpatialLinks);
 
-      for (int j = 0; j < this->nEdgePoints; ++j) {
-	for (int k = 0; k < this->nEdgePoints; ++k) {
-	  for (int l = 0; l < this->nEdgePoints; ++l) {
-	    // NB, spatial links only, so l > 0!
-	    newLinks[j][k][l][0] =
-	      this->links_[pyQCD::mod(time, this->nEdgePoints)][j][k][l][0];
-	    for (int m = 1; m < 4; ++m) {
-	      // Create a temporary matrix to store the new link
-	      int link[5] = {time, j, k, l, m};
-	      Matrix3cd tempMatrix = this->computeQ(link);
-	      newLinks[j][k][l][m] = (pyQCD::i * tempMatrix).exp()
-		* this->getLink(link);
-	    }
-	  }
+      for (int j = 0; j < nSpatialLinks; j+=4) {
+	// NB, spatial links only, so l > 0!
+	newLinks[j] = this->links_[time * nSpatialLinks + j];
+	for (int k = 1; k < 4; ++k) {
+	  // Create a temporary matrix to store the new link
+	  int link[5];
+	  this->convertIndex(time * nSpatialLinks + j + k, link);
+	  Matrix3cd tempMatrix = this->computeQ(link);
+	  newLinks[time * nSpatialLinks + j + k] = (pyQCD::i * tempMatrix).exp()
+	    * this->getLink(link);
 	}
       }
       // Apply the changes to the existing lattice.
-      this->links_[pyQCD::mod(time, this->nEdgePoints)] = newLinks;
+      for (int i = 0; i < nSpatialLinks; ++i) {
+	this->links_[time * nSpatialLinks + i] = newLinks[i];
+      }
     }
   }
 }
