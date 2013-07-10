@@ -243,31 +243,31 @@ void Lattice::monteCarlo(const int link)
 
 
 
-void Lattice::monteCarloNoStaples(const int link[5])
+void Lattice::monteCarloNoStaples(const int link)
 {
   // Iterate through the lattice and update the links using Metropolis
   // algorithm
+  // Convert the link index to the lattice coordinates
+  int linkCoords[5];
+  this->convertIndex(link, linkCoords);
   // Record the old action contribution
-  double oldAction = (this->*computeLocalAction)(link);
+  double oldAction = (this->*computeLocalAction)(linkCoords);
   // Record the old link in case we need it
-  Matrix3cd oldLink =
-    this->links_[link[0]][link[1]][link[2]][link[3]][link[4]];
+  Matrix3cd oldLink = this->links_[link];
   
   // Get ourselves a random SU3 matrix for the update
   Matrix3cd randSu3 = 
     this->randSu3s_[pyQCD::randomIndex()];
   // Multiply the site
-  this->links_[link[0]][link[1]][link[2]][link[3]][link[4]] = 
-    randSu3 * this->links_[link[0]][link[1]][link[2]][link[3]][link[4]];
+  this->links_[link] = randSu3 * this->links_[link];
   // What's the change in the action?
-  double actionChange = 
-    (this->*computeLocalAction)(link) - oldAction;
+  double actionChange = (this->*computeLocalAction)(linkCoords) - oldAction;
   
   // Was the change favourable? If not, revert the change
   bool isExpLess = exp(-actionChange) < pyQCD::uni();
   
   if ((actionChange > 0) && isExpLess)
-    this->links_[link[0]][link[1]][link[2]][link[3]][link[4]] = oldLink;
+    this->links_[link] = oldLink;
 }
 
 
