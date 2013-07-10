@@ -163,12 +163,12 @@ Lattice::~Lattice()
 
 
 
-void convertIndex(const int index, int link[5])
+void Lattice::convertIndex(const int index, int link[5])
 {
   // Converts single link index to set of link coordinates
   int tempIndex = index;
   link[4] = tempIndex % 4;
-  for (int i = 3; i > -1; ++i) {
+  for (int i = 3; i >= 0; --i) {
     tempIndex /= this->nEdgePoints;
     link[i] = tempIndex % this->nEdgePoints;
   }
@@ -193,14 +193,14 @@ Matrix3cd& Lattice::getLink(const int link[5])
   int tempLink[5];
   for (int i = 0; i < 4; ++i)
     tempLink[i] = pyQCD::mod(link[i], this->nEdgePoints);
-  tempLink[4] = pyQCD::mod(link[4], this->nEdgePoints);
+  tempLink[4] = pyQCD::mod(link[4], 4);
 
-  int index = tempLink[4] + 
-    this->nEdgePoints * (tempLink[3] + this->nEdgePoints
-			 * (tempLink[2] + this->nEdgePoints
-			    * (tempLink[1] + this->nEdgePoints
-			       * tempLink[0])));
-
+  int index = tempLink[4] + 4
+    * (tempLink[3] + this->nEdgePoints
+       * (tempLink[2] + this->nEdgePoints
+	  * (tempLink[1] + this->nEdgePoints
+	     * tempLink[0])));
+  
   return this->links_[index];
 }
 
@@ -210,15 +210,15 @@ Matrix3cd& Lattice::getLink(const vector<int> link)
 {
   // Return link specified by indices
   int tempLink[5];
-  for (int i = 0; i < 5; ++i)
+  for (int i = 0; i < 4; ++i)
     tempLink[i] = pyQCD::mod(link[i], this->nEdgePoints);
-  tempLink[4] = pyQCD::mod(link[4], this->nEdgePoints);
+  tempLink[4] = pyQCD::mod(link[4], 4);
   
-  int index = tempLink[4] + 
-    this->nEdgePoints * (tempLink[3] + this->nEdgePoints
-			 * (tempLink[2] + this->nEdgePoints
-			    * (tempLink[1] + this->nEdgePoints
-			       * tempLink[0])));
+  int index = tempLink[4] + 4
+    * (tempLink[3] + this->nEdgePoints
+       * (tempLink[2] + this->nEdgePoints
+	  * (tempLink[1] + this->nEdgePoints
+	     * tempLink[0])));
 
   return this->links_[index];
 }
@@ -291,7 +291,7 @@ void Lattice::heatbath(const int link)
   int linkCoords[5];
   this->convertIndex(link, linkCoords);
   // Calculate the staples matrix A
-  Matrix3cd staples = (this->*computeStaples)(link);
+  Matrix3cd staples = (this->*computeStaples)(linkCoords);
   // Declare the matrix W = U * A
   Matrix3cd W;
   
@@ -335,7 +335,7 @@ void Lattice::update()
 {
   // Iterate through the lattice and apply the appropriate update
   // function
-  for (int i = 0; i < this->nLinks; ++i) {
+  for (int i = 0; i < this->nLinks_; ++i) {
     (this->*updateFunction_)(i);
   }
   this->nUpdates_++;
@@ -353,7 +353,7 @@ void Lattice::updateSegment(const int chunkNumber, const int nUpdates)
   int startLink = this->nLinks_ / nChunkLinks * chunkNumber;
   for (int i = 0; i < nUpdates; ++i) {
     for (int j = 0; j < nChunkLinks; ++j) {
-      (this->*updateFunction_)(startLink + this->chunkSequence[j]);
+      (this->*updateFunction_)(startLink + this->chunkSequence_[j]);
     }
   }
 }
@@ -383,7 +383,7 @@ void Lattice::runThreads(const int nUpdates, const int remainder)
 
 
 
-void Lattice::schwarzUpdate(const int chunkSize, const int nUpdates)
+void Lattice::schwarzUpdate(const int nUpdates)
 {
   // Update even and odd blocks using method similar to Schwarz Alternating
   // Procedure.
