@@ -101,6 +101,7 @@ py::list pyLattice::computePropagatorP(const double mass, const py::list site,
 				       const double spacing)
 {
   // Wrapper for the calculation of a propagator
+  ScopedGILRelease scope;
   int tempSite[4] = {py::extract<int>(site[0]),
 		     py::extract<int>(site[1]),
 		     py::extract<int>(site[2]),
@@ -127,6 +128,7 @@ py::list pyLattice::computeZeroMomPropagatorP(const double mass, const int time,
 					      const double spacing)
 {
   // Wrapper for the calculation of a propagator
+  ScopedGILRelease scope;
   MatrixXcd prop = this->computeZeroMomPropagator(mass, time, spacing);
 
   py::list pythonPropagator;
@@ -147,6 +149,7 @@ py::list pyLattice::computeZeroMomPropagatorP(const double mass, const int time,
 py::list pyLattice::computePropagatorsP(const double mass, const double spacing)
 {
   // Wrapper for the calculation of propagators
+  ScopedGILRelease scope;
 
   vector<MatrixXcd> props = this->computePropagators(mass, spacing);
 
