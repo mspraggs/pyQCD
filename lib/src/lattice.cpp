@@ -104,7 +104,7 @@ Lattice::Lattice(const int nEdgePoints, const double beta, const double u0,
 	for (int l = 0; l < chunkSize; ++l) {
 	  for (int m = 0; m < 4; ++m) {
 	    // We'll need an array with the link indices
-	    int index = m + this->nEdgePoints
+	    int index = m + 4
 	      * (l + this->nEdgePoints
 		 * (k + this->nEdgePoints
 		    * (j + this->nEdgePoints * i)));
@@ -117,17 +117,28 @@ Lattice::Lattice(const int nEdgePoints, const double beta, const double u0,
 
   int nChunks = int(pow(this->nEdgePoints / chunkSize, 4));
 
-  for (int i = 0; i < nChunks; ++i) {
-    int link[5];
-    this->convertIndex(4 * chunkSize * i, link);
-    int sum = 0;
-    for (int j = 0; j < 4; ++j)
-      sum += link[j];
-    
-    if (sum % 2 == 0)
-      this->evenBlocks_.push_back(i);
-    else
-      this->oddBlocks_.push_back(i);
+  for (int i = 0; i < this->nEdgePoints; i += chunkSize) {
+    for (int j = 0; j < this->nEdgePoints; j += chunkSize) {
+      for (int k = 0; k < this->nEdgePoints; k += chunkSize) {
+	for (int l = 0; l < this->nEdgePoints; l += chunkSize) {
+	  // We'll need an array with the link indices
+	  int index = 4 * (l + this->nEdgePoints
+			   * (k + this->nEdgePoints
+			      * (j + this->nEdgePoints * i)));
+	  if (((i + j + k + l) / chunkSize) % 2 == 0)
+            this->evenBlocks_.push_back(index);
+	  else
+	    this->oddBlocks_.push_back(index);
+	}
+      }
+    }
+  }
+  
+  for (int i = 0; i < this->evenBlocks_.size(); ++i) {
+    cout << this->evenBlocks_[i] << endl;
+  }
+  for (int i = 0; i < this->oddBlocks_.size(); ++i) {
+    cout << this->oddBlocks_[i] << endl;
   }
 }
 
@@ -168,9 +179,10 @@ void Lattice::convertIndex(const int index, int link[5])
   // Converts single link index to set of link coordinates
   int tempIndex = index;
   link[4] = tempIndex % 4;
+  tempIndex /= 4;
   for (int i = 3; i >= 0; --i) {
-    tempIndex /= this->nEdgePoints;
     link[i] = tempIndex % this->nEdgePoints;
+    tempIndex /= this->nEdgePoints;
   }
 }
 
@@ -343,14 +355,13 @@ void Lattice::update()
 
 
 
-void Lattice::updateSegment(const int chunkNumber, const int nUpdates)
+void Lattice::updateSegment(const int startLink, const int nUpdates)
 {
   // Updates a segment of the lattice - used for SAP
   // First determine a couple of variables:
   // - How many links do we update? (saves calling of size)
   // - Which link do we start on?
   int nChunkLinks = this->chunkSequence_.size();
-  int startLink = this->nLinks_ / nChunkLinks * chunkNumber;
   for (int i = 0; i < nUpdates; ++i) {
     for (int j = 0; j < nChunkLinks; ++j) {
       (this->*updateFunction_)(startLink + this->chunkSequence_[j]);
