@@ -361,8 +361,7 @@ void Lattice::updateSegment(const int chunkNumber, const int nUpdates)
 
 
 
-void Lattice::runThreads(const int chunkSize, const int nUpdates,
-			 const int remainder)
+void Lattice::runThreads(const int nUpdates, const int remainder)
 {
   // Updates every other segment (even or odd, specified by remainder).
   // Algorithm depends on whether the lattice has even or odd dimesnion.

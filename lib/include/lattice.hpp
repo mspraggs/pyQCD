@@ -50,9 +50,8 @@ public:
   void heatbath(const int link);
 
   void update();
-  void runThreads(const int chunkSize, const int nUpdates,
-		  const int remainder);
-  void schwarzUpdate(const int chunkSize, const int nUpdates);
+  void runThreads(const int nUpdates, const int remainder);
+  void schwarzUpdate(const int nUpdates);
   void updateSegment(const int chunkNumber, const int nUpdates);
 
   void thermalize();
