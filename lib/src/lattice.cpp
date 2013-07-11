@@ -104,8 +104,7 @@ Lattice::Lattice(const int nEdgePoints, const double beta, const double u0,
 	for (int l = 0; l < chunkSize; ++l) {
 	  for (int m = 0; m < 4; ++m) {
 	    // We'll need an array with the link indices
-	    int link = {i, j, k, l, m};
-	    int index = pyQCD::getLinkIndex(link, this->nEdgePoints);
+	    int index = pyQCD::getLinkIndex(i, j, k, l, m, this->nEdgePoints);
 	    this->chunkSequence_.push_back(index);
 	  }
 	}
@@ -120,8 +119,7 @@ Lattice::Lattice(const int nEdgePoints, const double beta, const double u0,
       for (int k = 0; k < this->nEdgePoints; k += chunkSize) {
 	for (int l = 0; l < this->nEdgePoints; l += chunkSize) {
 	  // We'll need an array with the link indices
-	  int link = {i, j, k, l, 0};
-	  int index = pyQCD::getLinkIndex(link, this->nEdgePoints);
+	  int index = pyQCD::getLinkIndex(i, j, k, l, 0, this->nEdgePoints);
 	  if (((i + j + k + l) / chunkSize) % 2 == 0)
             this->evenBlocks_.push_back(index);
 	  else
@@ -1354,8 +1352,7 @@ vector<MatrixXcd> Lattice::computePropagators(const double mass,
     for (int j = 0; j < this->nEdgePoints; ++j) {
       for (int k = 0; k < this->nEdgePoints; ++k) {
 	for (int l = 0; l < this->nEdgePoints; ++l) {
-	  int link[5] = {i, j, k, l, 0};
-	  int index = pyQCD::getLinkIndex(link, this->nEdgePoints) / 4;
+	  int index = pyQCD::getLinkIndex(i, j, k, l, 0, this->nEdgePoints) / 4;
 	  propagators[index] = this->computePropagator(mass, site, spacing, D);
 	}
       }
