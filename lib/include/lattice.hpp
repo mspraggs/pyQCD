@@ -45,6 +45,8 @@ public:
   Matrix3cd& getLink(const int link[5]);
   Matrix3cd& getLink(const vector<int> link);
 
+  GaugeField getSubLattice(const int startIndex, const int size);
+
   void monteCarlo(const int link);
   void monteCarloNoStaples(const int link);
   void heatbath(const int link);

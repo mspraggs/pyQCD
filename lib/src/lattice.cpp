@@ -217,6 +217,36 @@ Matrix3cd& Lattice::getLink(const vector<int> link)
 
 
 
+GaugeField Lattice::getSubLattice(const int startIndex, const int size)
+{
+  // Returns a GaugeField object corresponding to the sub-lattice starting at
+  // link index startIndex
+
+  GaugeField out;
+  out.resize(size * size * size * size * 4);
+
+  int incrementOne = 4 * this->nEdgePoints;
+  int incrementTwo = incrementOne * this->nEdgePoints;
+  int incrementThree = incrementTwo * this->nEdgePoints;
+  
+  int index = 0;
+
+  for (int i = 0; i < size * incrementThree; i += incrementThree) {
+    for (int j = 0; j < size * incrementTwo; j += incrementTwo) {
+      for (int k = 0; k < size * incrementOne; k += incrementOne) {
+	for (int l = 0; l < 4 * size; ++l) {
+	  out[index] = this->links_[i + j + k + l];
+	  ++index;
+	}
+      }
+    }
+  }
+
+  return out;
+}
+
+
+
 void Lattice::monteCarlo(const int link)
 {
   // Iterate through the lattice and update the links using Metropolis
