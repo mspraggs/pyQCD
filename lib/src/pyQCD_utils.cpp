@@ -114,6 +114,14 @@ namespace pyQCD
 
 
 
+  int getLinkIndex(const int n0, const int n1, const int n2, const int n3,
+		   const int n4, const int size)
+  {
+    return n4 + 4 * (n3 + size * (n2 + size * (n1 + size * n0)));
+  }
+
+
+
   Matrix2cd createSu2(const double coefficients[4])
   {
     Matrix2cd out = coefficients[0] * sigmas[0];
