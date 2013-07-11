@@ -1067,7 +1067,7 @@ void Lattice::smearLinks(const int time, const int nSmears)
 	  // Create a temporary matrix to store the new link
 	  int link[5];
 	  pyQCD::getLinkIndices(time * nSpatialLinks + j + k, this->nEdgePoints,
-				link)
+				link);
 	  Matrix3cd tempMatrix = this->computeQ(link);
 	  newLinks[j + k] = (pyQCD::i * tempMatrix).exp() * this->getLink(link);
 	}
@@ -1382,6 +1382,7 @@ vector<MatrixXcd> Lattice::computePropagators(const double mass,
     for (int j = 0; j < this->nEdgePoints; ++j) {
       for (int k = 0; k < this->nEdgePoints; ++k) {
 	for (int l = 0; l < this->nEdgePoints; ++l) {
+	  int site[4] = {i, j, k, l};
 	  int index = pyQCD::getLinkIndex(i, j, k, l, 0, this->nEdgePoints) / 4;
 	  propagators[index] = this->computePropagator(mass, site, spacing, D);
 	}
