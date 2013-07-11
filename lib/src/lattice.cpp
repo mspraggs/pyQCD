@@ -590,16 +590,16 @@ double Lattice::computeWilsonLoop(const int corner[4], const int r,
 
   // Calculate the second spatial edge
   for (int i = 0; i < r; ++i) {
-    out *= this->getLink(link);
     link[dimension]--;
+    out *= this->getLink(link).adjoint();
   }
 
   link[4] = 0;
 
   // Calculate the second temporal edge
   for (int i = 0; i < t; ++i) {
-    out *= this->getLink(link);
     link[0]--;
+    out *= this->getLink(link).adjoint();
   }
 
   // Restore the old links
