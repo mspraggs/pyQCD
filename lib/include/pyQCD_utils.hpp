@@ -38,6 +38,7 @@ namespace pyQCD
   int mod(int number, const int divisor);
   int sgn(const int x);
   void getLinkIndices(int n, int link[5]);
+  int getLinkIndex(const int link[5], const int size);
 
   Matrix2cd createSu2(const double coefficients[4]);
   Matrix3cd embedSu2(const Matrix2cd& Su2Matrix,
