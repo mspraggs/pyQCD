@@ -90,14 +90,14 @@ namespace pyQCD
 
 
 
-  void getLinkIndices(int n, const int dimension, int link[5])
+  void getLinkIndices(int n, const int size, int link[5])
   {
     int i = 0;
     link[4] = mod(n, 4);
     n /= 4;
     while (n > 0 && i < 4) {
-      link[3 - i] = mod(n, dimension);
-      n /= dimension;
+      link[3 - i] = mod(n, size);
+      n /= size;
     }
   }
 
