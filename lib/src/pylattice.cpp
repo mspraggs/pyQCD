@@ -188,7 +188,7 @@ py::list pyLattice::getLinkP(const int n0, const int n1, const int n2,
   // with python interfaces library to extract the links as a nested list
   // of numpy matrices.
   py::list out;
-  int index = dimension + this->nEdgePoints
+  int index = dimension + 4
     * (n3 + this->nEdgePoints
        * (n2 + this->nEdgePoints
 	  * (n1 + this->nEdgePoints * n0)));
