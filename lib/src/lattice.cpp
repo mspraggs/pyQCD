@@ -104,10 +104,8 @@ Lattice::Lattice(const int nEdgePoints, const double beta, const double u0,
 	for (int l = 0; l < chunkSize; ++l) {
 	  for (int m = 0; m < 4; ++m) {
 	    // We'll need an array with the link indices
-	    int index = m + 4
-	      * (l + this->nEdgePoints
-		 * (k + this->nEdgePoints
-		    * (j + this->nEdgePoints * i)));
+	    int link = {i, j, k, l, m};
+	    int index = pyQCD::getLinkIndex(link, this->nEdgePoints);
 	    this->chunkSequence_.push_back(index);
 	  }
 	}
@@ -122,9 +120,8 @@ Lattice::Lattice(const int nEdgePoints, const double beta, const double u0,
       for (int k = 0; k < this->nEdgePoints; k += chunkSize) {
 	for (int l = 0; l < this->nEdgePoints; l += chunkSize) {
 	  // We'll need an array with the link indices
-	  int index = 4 * (l + this->nEdgePoints
-			   * (k + this->nEdgePoints
-			      * (j + this->nEdgePoints * i)));
+	  int link = {i, j, k, l, 0};
+	  int index = pyQCD::getLinkIndex(link, this->nEdgePoints);
 	  if (((i + j + k + l) / chunkSize) % 2 == 0)
             this->evenBlocks_.push_back(index);
 	  else
@@ -200,11 +197,7 @@ Matrix3cd& Lattice::getLink(const int link[5])
     tempLink[i] = pyQCD::mod(link[i], this->nEdgePoints);
   tempLink[4] = pyQCD::mod(link[4], 4);
 
-  int index = tempLink[4] + 4
-    * (tempLink[3] + this->nEdgePoints
-       * (tempLink[2] + this->nEdgePoints
-	  * (tempLink[1] + this->nEdgePoints
-	     * tempLink[0])));
+  int index = pyQCD::getLinkIndex(tempLink, this->nEdgePoints);
   
   return this->links_[index];
 }
@@ -219,11 +212,7 @@ Matrix3cd& Lattice::getLink(const vector<int> link)
     tempLink[i] = pyQCD::mod(link[i], this->nEdgePoints);
   tempLink[4] = pyQCD::mod(link[4], 4);
   
-  int index = tempLink[4] + 4
-    * (tempLink[3] + this->nEdgePoints
-       * (tempLink[2] + this->nEdgePoints
-	  * (tempLink[1] + this->nEdgePoints
-	     * tempLink[0])));
+  int index = pyQCD::getLinkIndex(tempLink, this->nEdgePoints);
 
   return this->links_[index];
 }
@@ -236,7 +225,7 @@ void Lattice::monteCarlo(const int link)
   // algorithm
   // Convert the link index to the lattice coordinates
   int linkCoords[5];
-  this->convertIndex(link, linkCoords);
+  pyQCD::getLinkIndices(link, this->nEdgePoints, linkCoords);
   // Get the staples
   Matrix3cd staples = (this->*computeStaples)(linkCoords);
   for (int n = 0; n < 10; ++n) {
@@ -266,7 +255,7 @@ void Lattice::monteCarloNoStaples(const int link)
   // algorithm
   // Convert the link index to the lattice coordinates
   int linkCoords[5];
-  this->convertIndex(link, linkCoords);
+  pyQCD::getLinkIndices(link, this->nEdgePoints, linkCoords);
   // Record the old action contribution
   double oldAction = (this->*computeLocalAction)(linkCoords);
   // Record the old link in case we need it
@@ -294,7 +283,7 @@ void Lattice::heatbath(const int link)
   // Update a single link using heatbath in Gattringer and Lang
   // Convert the link index to the lattice coordinates
   int linkCoords[5];
-  this->convertIndex(link, linkCoords);
+  pyQCD::getLinkIndices(link, this->nEdgePoints, linkCoords);
   // Calculate the staples matrix A
   Matrix3cd staples = (this->*computeStaples)(linkCoords);
   // Declare the matrix W = U * A
@@ -1049,7 +1038,8 @@ void Lattice::smearLinks(const int time, const int nSmears)
 	for (int k = 1; k < 4; ++k) {
 	  // Create a temporary matrix to store the new link
 	  int link[5];
-	  this->convertIndex(time * nSpatialLinks + j + k, link);
+	  pyQCD::getLinkIndices(time * nSpatialLinks + j + k, this->nEdgePoints,
+				link)
 	  Matrix3cd tempMatrix = this->computeQ(link);
 	  newLinks[j + k] = (pyQCD::i * tempMatrix).exp() * this->getLink(link);
 	}
@@ -1073,7 +1063,8 @@ void Lattice::smearLinks(const int time, const int nSmears)
 	for (int k = 1; k < 4; ++k) {
 	  // Create a temporary matrix to store the new link
 	  int link[5];
-	  this->convertIndex(time * nSpatialLinks + j + k, link);
+	  pyQCD::getLinkIndices(time * nSpatialLinks + j + k, this->nEdgePoints,
+				link);
 	  Matrix3cd tempMatrix = this->computeQ(link);
 	  newLinks[time * nSpatialLinks + j + k] = (pyQCD::i * tempMatrix).exp()
 	    * this->getLink(link);
@@ -1363,9 +1354,8 @@ vector<MatrixXcd> Lattice::computePropagators(const double mass,
     for (int j = 0; j < this->nEdgePoints; ++j) {
       for (int k = 0; k < this->nEdgePoints; ++k) {
 	for (int l = 0; l < this->nEdgePoints; ++l) {
-	  int index = l + this->nEdgePoints 
-	    * (k + this->nEdgePoints * (j + this->nEdgePoints * i));
-	  int site[4] = {i, j, k, l};
+	  int link[5] = {i, j, k, l, 0};
+	  int index = pyQCD::getLinkIndex(link, this->nEdgePoints) / 4;
 	  propagators[index] = this->computePropagator(mass, site, spacing, D);
 	}
       }
