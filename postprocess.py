@@ -109,12 +109,12 @@ def Vplot(Ws):
         
 	for i in xrange(N_bstrp):
 		W = pl.mean(bootstrap(Ws),axis=0)
-		aVs[i] = calcaV(W,method="fit")
+		aVs[i] = calcaV(W, method="fit")
 		bs[i] = potfit(aVs[i,:,0])
 
-			
-	r = pl.arange(1,7)
-	aV = pl.mean(aVs,axis=0)
+
+	aV = pl.mean(aVs,axis=0)			
+	r = pl.arange(1,pl.size(aV,axis=0) + 1)
 	aVerr = pl.std(aVs,axis=0)
 	b = pl.mean(bs,axis=0)
 
