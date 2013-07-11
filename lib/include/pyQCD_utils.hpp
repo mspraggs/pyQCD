@@ -44,11 +44,11 @@ namespace pyQCD
 
   Matrix2cd createSu2(const double coefficients[4]);
   Matrix3cd embedSu2(const Matrix2cd& Su2Matrix,
-		const int index);
+		     const int index);
   Matrix2cd extractSubMatrix(const Matrix3cd& su3Matrix,
-			const int index);
+			     const int index);
   Matrix2cd extractSu2(const Matrix3cd& su3Matrix,
-		  double coefficients[4], const int index);  
+		       double coefficients[4], const int index);  
 }
 
 #endif
