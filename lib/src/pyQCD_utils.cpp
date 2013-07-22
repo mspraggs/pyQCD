@@ -95,7 +95,7 @@ namespace pyQCD
     int i = 0;
     link[4] = mod(n, 4);
     n /= 4;
-    while (n > 0 && i < 4) {
+    for (int i = 0; i < 4; ++i) {
       link[3 - i] = mod(n, size);
       n /= size;
     }
