@@ -101,11 +101,12 @@ py::list pyLattice::computePropagatorP(const double mass, const py::list site,
 				       const double spacing)
 {
   // Wrapper for the calculation of a propagator
-  ScopedGILRelease scope;
   int tempSite[4] = {py::extract<int>(site[0]),
 		     py::extract<int>(site[1]),
 		     py::extract<int>(site[2]),
 		     py::extract<int>(site[3])};
+
+  ScopedGILRelease scope;
 
   MatrixXcd prop = this->computePropagator(mass, tempSite, spacing);
 
