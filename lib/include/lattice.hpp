@@ -117,6 +117,7 @@ protected:
   vector<int> chunkSequence_;
   vector<int> evenBlocks_;
   vector<int> oddBlocks_;
+  vector<vector<vector<int> > > propagatorColumns_;
 };
 
 #endif

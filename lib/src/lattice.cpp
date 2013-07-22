@@ -24,11 +24,65 @@ Lattice::Lattice(const int nEdgePoints, const double beta, const double u0,
   initParallel();
 
   // Resize the link vector and assign each link a random SU3 matrix
-  // Also set up the linkIndices vector
+  // Also set up the propagatorColumns vector
   this->links_.resize(this->nLinks_);
+  this->propagatorColumns_ = vector<vector<vector<int> > >(this->nLinks_ / 4,
+    vector<vector<int> >(8,vector<int>(2,0)));
 
-  for (int i = 0; i < this->nLinks_; ++i) {
+  for (int i = 0; i < this->nLinks_; ++i)
     this->links_[i] = this->makeRandomSu3();
+
+  // Loop through the columns of the propagator and add any non-zero entries to
+  // the propagatorColumns vector
+
+  // First define some offsets
+  int offsets[8][4] = {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1},
+		       {-1,0,0,0},{0,-1,0,0},{0,0,-1,0},{0,0,0,-1}};
+
+  for (int i = 0; i < this->nLinks_; i += 4) {
+    
+    // Initialize the relevant site vector for the row index
+    int rowLink[5];
+    pyQCD::getLinkIndices(i, this->nEdgePoints, rowLink);
+   
+    // Something to hold the neighbours for the row temporarily
+    vector<int> rowNeighbours;
+    // Something to keep track of the index in the sub vector
+    int rowNeighboursIndex = 0;
+
+    for (int j = 0; j < this->nLinks_; j += 4) {
+      
+      int columnLink[5];
+      pyQCD::getLinkIndices(j, this->nEdgePoints, columnLink);
+
+      int neighbourCount = 0;
+      int dimension = 0;
+
+      // Look and see if any offsets apply
+
+      for (int k = 0; k < 8; ++k) {
+	bool isNeighbour = true;
+
+	for (int l = 0; l < 4; ++l) {
+	  if (rowLink[l] != pyQCD::mod(columnLink[l] + offsets[k][l],
+				       this->nEdgePoints)) {
+	    isNeighbour = false;
+	    break;
+	  }
+	}
+
+	if (isNeighbour) {
+	  neighbourCount++;
+	  dimension = k - 4 + k / 4;
+	}
+      }
+
+      if (neighbourCount == 1) {
+	this->propagatorColumns_[i / 4][rowNeighboursIndex][0] = j;
+	this->propagatorColumns_[i / 4][rowNeighboursIndex][1] = dimension;
+	rowNeighboursIndex++;
+      }
+    }
   }
 
   // Generate a set of random SU3 matrices for use in the updates
@@ -151,6 +205,7 @@ Lattice::Lattice(const Lattice& lattice)
   this->updateMethod_ = lattice.updateMethod_;
   this->updateFunction_ = lattice.updateFunction_;
   this->parallelFlag_ = lattice.parallelFlag_;
+  this->propagatorColumns_ = lattice.propagatorColumns_;
 }
 
 
@@ -1117,147 +1172,59 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
   // TODO - pass the SparseMatrix in by reference to save computing time
   
   // Calculate some useful quantities
-  int nIndices = int(12 * pow(this->nEdgePoints, 4));
-  int nSites = int(pow(this->nEdgePoints, 4));
+  int nSites = this->nLinks_ / 4;
   // Create the sparse matrix we're going to return
-  SparseMatrix<complex<double> > out(nIndices, nIndices);
+SparseMatrix<complex<double> > out(this->nLinks_, this->nLinks_);
 
   vector<Tlet> tripletList;
-  for (int i = 0; i < nIndices; ++i) {
+  for (int i = 0; i < this->nLinks_; ++i) {
     tripletList.push_back(Tlet(i, i, mass + 4 / spacing));
-  }
-
-  // Create and initialise a vector of the space, lorentz and colour indices
-  vector<vector<int> > indices(pow(this->nEdgePoints, 4) * 12, 
-			       vector<int>(6));
-  int index = 0;
-  for (int i = 0; i < this->nEdgePoints; ++i) {
-    for (int j = 0; j < this->nEdgePoints; ++j) {
-      for (int k = 0; k < this->nEdgePoints; ++k) {
-	for (int l = 0; l < this->nEdgePoints; ++l) {
-	  for (int alpha = 0; alpha < 4; ++alpha) {
-	    for (int a = 0; a < 3; a++) {
-	      indices[index][0] = i;
-	      indices[index][1] = j;
-	      indices[index][2] = k;
-	      indices[index][3] = l;
-	      indices[index][4] = alpha;
-	      indices[index][5] = a;
-	      index++;
-	    }
-	  }
-	}
-      }
-    }
   }
   
   // Now iterate through the matrix and add the various elements to the
   // vector of triplets
 #pragma omp parallel for
-  for (int i = 0; i < nIndices; ++i) {
-    int siteI[4] = {indices[i][0],
-		    indices[i][1],
-		    indices[i][2],
-		    indices[i][3]};
-    
-    for (int j = 0; j < nIndices; ++j) {
-      int m = i / 12;
-      int n = j / 12;
+  for (int i = 0; i < this->nLinks_ / 4; ++i) {
+    int rowLink[5];
+    pyQCD::getLinkIndices(4 * i, this->nEdgePoints, rowLink);
 
-      // We can determine whether the spatial indices are going
-      // to trigger the delta function in advance, and hence
-      // if that's not going to happen we can save ourself a lot
-      // of hassle
-      bool isAdjacent = false;
-      for (int k = 0; k < 4; ++k) {
-	// Store this to save calculating it twice
-	int nOff = pow(this->nEdgePoints, k);
+    for (int j = 0; j < 8; ++j) {
+      int columnLink[5];
+      int columnIndex = this->propagatorColumns_[i][j][0];
+      int dimension = this->propagatorColumns_[i][j][1];
+      pyQCD::getLinkIndices(this->propagatorColumns_[i][j][1],
+			    this->nEdgePoints, columnLink);
 
-	bool isJustBelow = m == pyQCD::mod(n + nOff, nSites);
-	bool isJustAbove = m == pyQCD::mod(n - nOff, nSites);
-	// Are the two sites adjacent to one another?
-	if (isJustBelow || isJustAbove) {
-	  isAdjacent = true;
-	  break;
-	}
-      }
-      // If the two sites are adjacent, then there is some
-      // point in doing the sum
-      if (isAdjacent) {
-	// First we'll need something to put the sum into
-	complex<double> sum = complex<double>(0.0, 0.0);	
-	// First create an array for the site specified by the index i	
-	int siteJ[4] = {indices[j][0],
-			indices[j][1],
-			indices[j][2],
-			indices[j][3]};
-	for (int k = 0; k < 4; ++k) {
-	  // First need to implement the kronecker delta in the sum of mus,
-	  // which'll be horrendous, but hey...
-
-	  // Add (or subtract) the corresponding mu vector from the second
-	  // lattice site
-	  siteJ[k] = pyQCD::mod(siteJ[k] + 1,
-				this->nEdgePoints);
-	
-	  // If they are, then we have ourselves a matrix element
-	  // First test for when mu is positive, as then we'll need to deal
-	  // with the +ve or -ve cases slightly differently
-	  if (equal(siteI, siteI + 4, siteJ)) {
-	    // Create and intialise the link we'll be using
-	    int link[5];
-	    copy(siteI, siteI + 4, link);
-	    link[4] = k;
-	    // Then we'll need a colour matrix given by the link
-	    Matrix3cd U;
-	    // And get the gamma matrix (1 - gamma) in the sum
-	    Matrix4cd lorentz = 
-	      Matrix4cd::Identity() - pyQCD::gammas[k];
-	    // So, if the current mu is positive, just get
-	    // the plain old link given by link as normal
-	    U = this->getLink(link);
-	    // Mutliply the matrix elements together and add
-	    // them to the sum.
-	    sum += lorentz(indices[i][4], indices[j][4]) 
-	      * U(indices[i][5], indices[j][5]);
-	  }
-	  
-	  siteJ[k] = pyQCD::mod(siteJ[k] - 2,
-				this->nEdgePoints);
-
-	  if (equal(siteI, siteI + 4, siteJ)) {
-	    // Create and intialise the link we'll be using
-	    int link[5];
-	    copy(siteI, siteI + 4, link);
-	    link[4] = k;
-	    // Then we'll need a colour matrix given by the link
-	    Matrix3cd U;
-	    // And get the gamma matrix (1 - gamma) in the sum
-	    Matrix4cd lorentz = 
-	      Matrix4cd::Identity() + pyQCD::gammas[k];
-	    // So, if the current mu is positive, just get
-	    // the plain old link given by link as normal
-	    link[k] -= 1;
-	    U = this->getLink(link).adjoint();
-	    // Mutliply the matrix elements together and add
-	    // them to the sum.
-	    sum += lorentz(indices[i][4], indices[j][4]) 
-	      * U(indices[i][5], indices[j][5]);
-	  }
-	}
-	// Divide the sum through by -2 * spacing
-	sum /= -(2.0 * spacing);
-	// Make sure OpemMP doesn't conflict with itself
-#pragma omp critical
-	if (sum.imag() != 0.0 && sum.real() != 0.0)
-	  // Add the sum to the list of triplets
-	  tripletList.push_back(Tlet(i, j, sum));
+      Matrix3cd colourMatrix;
+      Matrix4cd spinMatrix;
+      
+      if (this->propagatorColumns_[i][j][1] > 0) {
+	int dimension = this->propagatorColumns_[i][j][1] - 1;
+	rowLink[4] = dimension;
+	colourMatrix = this->getLink(rowLink);
+	spinMatrix = Matrix4cd::Identity() - pyQCD::gammas[dimension];
       }
       else {
-	// If the sites aren't neighbours, skip ahead to the next
-	// site, as there's no point doing it for the other colours
-	// and spin indices.
-	j = (n + 1) * 12 - 1;
+	int dimension = (-1) * this->propagatorColumns_[i][j][1] - 1;
+	rowLink[dimension]--;
+	rowLink[4] = dimension;
+	colourMatrix = this->getLink(rowLink).adjoint();
+	rowLink[dimension]++;
+	spinMatrix = Matrix4cd::Identity() + pyQCD::gammas[dimension];
+      }
+
+      for (int k = 0; k < 4; ++k) {
+	for (int m = 0; m < 3; ++m) {
+	  for (int l = 0; l < 4; ++l) {
+	    for (int n = 0; n < 3; ++n) {
+	      complex<double> sum = -1 / (2 * spacing) 
+		* spinMatrix(k, l) * colourMatrix(m, n);
+#pragma omp critical
+	      tripletList.push_back(Tlet(12 * i + 3 * k + m,
+					 3 * columnIndex + 3 * l + n, sum));
+	    }
+	  }
+	}
       }
     }
   }
