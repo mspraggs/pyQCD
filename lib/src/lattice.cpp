@@ -1247,6 +1247,10 @@ MatrixXcd Lattice::computePropagator(const double mass, int site[4],
   // How many indices are we dealing with?
   int nSites = int(pow(this->nEdgePoints, 4));
   int nIndices = 12 * nSites;
+
+  // Index for the vector point source
+  int spatial_index = pyQCD::getLinkIndex(site[0], site[1], site[2], site[3], 0,
+					  this->nEdgePoints);
   // Declare our solver
   BiCGSTAB<SparseMatrix<complex<double> > > solver(D);
 
@@ -1261,9 +1265,6 @@ MatrixXcd Lattice::computePropagator(const double mass, int site[4],
       source.setZero(nIndices);
   
       // Set the point source
-      int spatial_index = site[3] + this->nEdgePoints 
-	* (site[2] + this->nEdgePoints 
-	   * (site[1] + this->nEdgePoints * site[0]));
       int index = j + 3 * (i + 4 * spatial_index);
       source(index) = 1.0;
       
