@@ -1174,10 +1174,10 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
   // Calculate some useful quantities
   int nSites = this->nLinks_ / 4;
   // Create the sparse matrix we're going to return
-SparseMatrix<complex<double> > out(this->nLinks_, this->nLinks_);
+  SparseMatrix<complex<double> > out(3 * this->nLinks_, 3 * this->nLinks_);
 
   vector<Tlet> tripletList;
-  for (int i = 0; i < this->nLinks_; ++i) {
+  for (int i = 0; i < 3 * this->nLinks_; ++i) {
     tripletList.push_back(Tlet(i, i, mass + 4 / spacing));
   }
   
