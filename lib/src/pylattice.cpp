@@ -106,70 +106,61 @@ py::list pyLattice::computePropagatorP(const double mass, const py::list site,
 		     py::extract<int>(site[2]),
 		     py::extract<int>(site[3])};
 
-  ScopedGILRelease scope;
+  ScopedGILRelease* scope = new ScopedGILRelease;
 
-  MatrixXcd prop = this->computePropagator(mass, tempSite, spacing);
+  vector<MatrixXcd> prop = this->computePropagator(mass, tempSite, spacing);
 
-  py::list pythonPropagator;
-  
-  for (int i = 0; i < 12; ++i) {
-    py::list tempList;
-    for (int j = 0; j < 12; ++j) {
-      tempList.append(prop(i, j));
-    }
-    pythonPropagator.append(tempList);
-  }
-
-  return pythonPropagator;
-}
-
-
-
-py::list pyLattice::computeZeroMomPropagatorP(const double mass, const int time,
-					      const double spacing)
-{
-  // Wrapper for the calculation of a propagator
-  ScopedGILRelease scope;
-  MatrixXcd prop = this->computeZeroMomPropagator(mass, time, spacing);
+  delete scope;
 
   py::list pythonPropagator;
   
-  for (int i = 0; i < 12; ++i) {
-    py::list tempList;
-    for (int j = 0; j < 12; ++j) {
-      tempList.append(prop(i, j));
-    }
-    pythonPropagator.append(tempList);
-  }
-
-  return pythonPropagator;
-}
-
-
-
-py::list pyLattice::computePropagatorsP(const double mass, const double spacing)
-{
-  // Wrapper for the calculation of propagators
-  ScopedGILRelease scope;
-
-  vector<MatrixXcd> props = this->computePropagators(mass, spacing);
-
-  py::list pythonPropagators;
-  int nSites = int(pow(this->nEdgePoints, 4));
-  
-  for (int i = 0; i < nSites; ++i) {
+  for (int i = 0; i < this->nLinks_ / 4; ++i) {
     py::list tempList1;
     for (int j = 0; j < 12; ++j) {
       py::list tempList2;
       for (int k = 0; k < 12; ++k) {
-	tempList2.append(props[j, k]);
+	tempList2.append(prop[i](j, k));
       }
       tempList1.append(tempList2);
     }
-    pythonPropagators.append(tempList1);
+    pythonPropagator.append(tempList1);
   }
 
-  return pythonPropagators;
+  return pythonPropagator;
+}
+
+
+
+py::list pyLattice::computeZeroMomPropagatorP(const double mass,
+					      const py::list site,
+					      const double spacing)
+{
+  // Wrapper for the calculation of a propagator
+  int tempSite[4] = {py::extract<int>(site[0]),
+		     py::extract<int>(site[1]),
+		     py::extract<int>(site[2]),
+		     py::extract<int>(site[3])};
+
+  ScopedGILRelease* scope = new ScopedGILRelease;
+  vector<MatrixXcd> prop = this->computeZeroMomPropagator(mass, tempSite,
+							  spacing);
+  delete scope;
+
+  py::list pythonPropagator;
+  
+  for (int i = 0; i < this->nEdgePoints; ++i) {
+    py::list tempList1;
+    for (int j = 0; j < 12; ++j) {
+      py::list tempList2;
+      for (int k = 0; k < 12; ++k) {
+	tempList2.append(prop[i](j, k));
+      }
+      tempList1.append(tempList2);
+    }
+    pythonPropagator.append(tempList1);
+  }
+
+  return pythonPropagator;
 }
 
 

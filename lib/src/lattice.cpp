@@ -1237,9 +1237,10 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
 
 
 
-MatrixXcd Lattice::computePropagator(const double mass, int site[4],
-				     const double spacing,
-				     const SparseMatrix<complex<double> >& D)
+vector<MatrixXcd> Lattice::computePropagator(const double mass, int site[4],
+					     const double spacing,
+					     const SparseMatrix<complex<double> >&
+					     D)
 {
   // Computes the propagator vectors for the 12 spin-colour indices at
   // the given lattice site, using the Dirac operator
@@ -1255,7 +1256,7 @@ MatrixXcd Lattice::computePropagator(const double mass, int site[4],
   BiCGSTAB<SparseMatrix<complex<double> > > solver(D);
 
   // Declare a variable to hold our propagator
-  MatrixXcd propagator(12, 12);
+  vector<MatrixXcd> propagator(nSites, MatrixXcd::Zero(12, 12));
 
   // Loop through colour and spin indices and invert propagator
   for (int i = 0; i < 4; ++i) {
@@ -1265,15 +1266,17 @@ MatrixXcd Lattice::computePropagator(const double mass, int site[4],
       source.setZero(nIndices);
   
       // Set the point source
-      int index = j + 3 * (i + 4 * spatial_index);
+      int index = j + 3 * (i + spatial_index);
       source(index) = 1.0;
       
       // Do the inversion
       VectorXcd solution = solver.solve(source);
 
       // Add the result to the propagator matrix
-      for (int k = 0; k < 12; ++k) {
-	propagator(k, j + 3 * i) = solution(12 * spatial_index + k);
+      for (int k = 0; k < nSites; ++k) {
+	for (int l = 0; l < 12; ++l) {
+	  propagator[k](l, j + 3 * i) = solution(12 * k + l);
+	}
       }
     }
   }
@@ -1283,8 +1286,8 @@ MatrixXcd Lattice::computePropagator(const double mass, int site[4],
 
 
 
-MatrixXcd Lattice::computePropagator(const double mass, int site[4],
-				     const double spacing)
+vector<MatrixXcd> Lattice::computePropagator(const double mass, int site[4],
+					     const double spacing)
 {
   // Computes the propagator vectors for the 12 spin-colour indices at
   // the given lattice site, using the Dirac operator
@@ -1295,70 +1298,28 @@ MatrixXcd Lattice::computePropagator(const double mass, int site[4],
 
 
 
-MatrixXcd Lattice::computeZeroMomPropagator(const double mass, const int time,
-					    const double spacing)
+vector<MatrixXcd> Lattice::computeZeroMomPropagator(const double mass,
+						    int site[4],
+						    const double spacing)
 {
   // Computes the projected zero momentum propagator
 
-  SparseMatrix<complex<double> > D = this->computeDiracMatrix(mass, spacing);
+  vector<MatrixXcd> propagator = this->computePropagator(mass, site, spacing);
+  vector<MatrixXcd> out(this->nEdgePoints);
 
-  int nSpatialIndices = int(pow(this->nEdgePoints, 3));
-  int nIndices = int(12 * nSpatialIndices);
-  SparseMatrix<complex<double> > source(int(this->nEdgePoints * nIndices),
-					nIndices);
-
-  vector<Tlet> tripletList;
-  for (int i = 0; i < nIndices; ++i) {
-    tripletList.push_back(Tlet(time * nIndices + i, i, 1.0));
-  }
-  source.setFromTriplets(tripletList.begin(), tripletList.end());
-
-  BiCGSTAB<SparseMatrix<complex<double> > > solver(D);
-  SparseMatrix<complex<double> > propagators = solver.solve(source);
-
-  MatrixXcd sum = Matrix<complex<double>, 12, 12>::Zero();
-
-  for (int i = 0; i < nSpatialIndices; ++i) {
-    for (int j = 0; j < 12; ++j) {
-      for (int k = 0; k < 12; ++k) {
-	sum(j, k) = propagators.coeffRef(12 * (nSpatialIndices * time + i) + j,
-					 12 * i + k);
-      }
-    }
-  }
-
-  return sum / pow(this->nEdgePoints, 3);
-}
-
-
-
-vector<MatrixXcd> Lattice::computePropagators(const double mass,
-					      const double spacing)
-{
-  // Computes all propagators at all lattice sites
-
-  // Determine the number spatial sites
-  int nSites = int(pow(this->nEdgePoints, 4));
-
-  // Create the Direc operator
-  SparseMatrix<complex<double> > D = this->computeDiracMatrix(mass, spacing);
-  
-  // Declare the output
-  vector<MatrixXcd> propagators(nSites);
+  int nSpatialSites = this->nLinks_ / this->nEdgePoints / 4;
 
   for (int i = 0; i < this->nEdgePoints; ++i) {
-    for (int j = 0; j < this->nEdgePoints; ++j) {
-      for (int k = 0; k < this->nEdgePoints; ++k) {
-	for (int l = 0; l < this->nEdgePoints; ++l) {
-	  int site[4] = {i, j, k, l};
-	  int index = pyQCD::getLinkIndex(i, j, k, l, 0, this->nEdgePoints) / 4;
-	  propagators[index] = this->computePropagator(mass, site, spacing, D);
-	}
-      }
+    MatrixXcd sum = MatrixXcd::Zero(12, 12);
+
+    for (int j = 0; j < nSpatialSites; ++j) {
+      sum += propagator[i * nSpatialSites + j];
     }
+
+    out[i] = sum;
   }
 
-  return propagators;
+  return out;
 }
 
 

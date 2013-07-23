@@ -158,8 +158,6 @@ BOOST_PYTHON_MODULE(pyQCD)
 	 (py::arg("mass"), py::arg("site"), py::arg("spacing")))
     .def("propagator_zero_mom", &pyLattice::computeZeroMomPropagatorP,
 	 (py::arg("mass"), py::arg("time"), py::arg("spacing")))
-    .def("propagators", &pyLattice::computePropagatorsP,
-	 (py::arg("mass"), py::arg("spacing")))
     .def("av_link", &pyLattice::computeMeanLink)
     .def("print", &pyLattice::print)
     .def("get_rand_su3", &pyLattice::getRandSu3,
