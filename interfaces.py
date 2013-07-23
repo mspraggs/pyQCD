@@ -29,3 +29,9 @@ def get_wilson_loops(lattice, rmax, tmax, n_smears = 0):
             out[r - 1, t - 1] += lattice.av_wilson_loop(r, t, n_smears)
             
     return out
+
+def get_propagator(lattice, mass, source, spacing):
+	"""Extracts the propagator as a list of matrices"""
+	raw_propagator = lattice.propagator(mass, source, spacing)
+
+	return [np.matrix(matrix) for matrix in raw_propagator]
