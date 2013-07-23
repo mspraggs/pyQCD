@@ -144,6 +144,18 @@ specified by the axes dim1 and dim2 (again, 0 is time and 1, 2 and 3 are spatial
 
 This was designed to print the lattice, but it doesn't work at the moment
 
+> lattice.propagator(mass, site, spacing)
+
+Calculates and returns the propagator at each lattice site using Wilson's fermion action and the specified mass, point
+source location specified by site and lattice spacing. This function has not been thoroughly tested so it's output may not
+be reliable.
+
+> lattice.propagator_zero_mom(mass, site, spacing)
+
+Calculates the zero-momentum projection of the lattice propagator on each timeslice using Wilson's fermion action and
+the specified mass, source site and lattice spacing. This function has not been thoroughly tested and so it's output
+may not be reliable.
+
 > lattice.rectangle(site, dim1, dim2)
 
 This calculates the rectangle operator in the same way as lattice.plaquette calculates the plaquette value.
