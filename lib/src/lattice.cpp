@@ -30,7 +30,7 @@ Lattice::Lattice(const int nEdgePoints, const double beta, const double u0,
     vector<vector<int> >(8,vector<int>(2,0)));
 
   for (int i = 0; i < this->nLinks_; ++i)
-    this->links_[i] = this->makeRandomSu3();
+    this->links_[i] = Matrix3cd::Identity();//this->makeRandomSu3();
 
   // Loop through the columns of the propagator and add any non-zero entries to
   // the propagatorColumns vector
