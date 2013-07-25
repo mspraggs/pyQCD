@@ -73,7 +73,7 @@ Lattice::Lattice(const int nEdgePoints, const double beta, const double u0,
 
 	if (isNeighbour) {
 	  neighbourCount++;
-	  dimension = k - 4 + k / 4;
+	  dimension = k;
 	}
       }
 
@@ -1198,14 +1198,14 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
       Matrix3cd colourMatrix;
       Matrix4cd spinMatrix;
       
-      if (this->propagatorColumns_[i][j][1] > 0) {
-	int dimension = this->propagatorColumns_[i][j][1] - 1;
+      if (this->propagatorColumns_[i][j][1] > 3) {
+	int dimension = this->propagatorColumns_[i][j][1] - 4;
 	rowLink[4] = dimension;
 	colourMatrix = this->getLink(rowLink);
 	spinMatrix = Matrix4cd::Identity() - pyQCD::gammas[dimension];
       }
       else {
-	int dimension = (-1) * this->propagatorColumns_[i][j][1] - 1;
+	int dimension = this->propagatorColumns_[i][j][1];
 	rowLink[dimension]--;
 	rowLink[4] = dimension;
 	colourMatrix = this->getLink(rowLink).adjoint();
