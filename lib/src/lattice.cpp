@@ -1192,7 +1192,7 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
       int columnLink[5];
       int columnIndex = this->propagatorColumns_[i][j][0];
       int dimension = this->propagatorColumns_[i][j][1];
-      pyQCD::getLinkIndices(this->propagatorColumns_[i][j][1],
+      pyQCD::getLinkIndices(this->propagatorColumns_[i][j][0],
 			    this->nEdgePoints, columnLink);
 
       Matrix3cd colourMatrix;
