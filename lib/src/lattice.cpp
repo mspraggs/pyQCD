@@ -36,8 +36,8 @@ Lattice::Lattice(const int nEdgePoints, const double beta, const double u0,
   // the propagatorColumns vector
 
   // First define some offsets
-  int offsets[8][4] = {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1},
-		       {-1,0,0,0},{0,-1,0,0},{0,0,-1,0},{0,0,0,-1}};
+  int offsets[8][4] = {{-1,0,0,0},{0,-1,0,0},{0,0,-1,0},{0,0,0,-1},
+		       {1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
 
   for (int i = 0; i < this->nLinks_; i += 4) {
     
