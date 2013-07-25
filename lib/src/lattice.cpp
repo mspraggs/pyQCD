@@ -77,7 +77,7 @@ Lattice::Lattice(const int nEdgePoints, const double beta, const double u0,
 	}
       }
 
-      if (neighbourCount == 1) {
+      if (neighbourCount > 0) {
 	this->propagatorColumns_[i / 4][rowNeighboursIndex][0] = j;
 	this->propagatorColumns_[i / 4][rowNeighboursIndex][1] = dimension;
 	rowNeighboursIndex++;
