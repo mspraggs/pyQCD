@@ -98,7 +98,8 @@ double pyLattice::computeAverageWilsonLoopP(const int r, const int t,
 
 
 py::list pyLattice::computePropagatorP(const double mass, const py::list site,
-				       const double spacing)
+				       const double spacing,
+				       const int solverMethod)
 {
   // Wrapper for the calculation of a propagator
   int tempSite[4] = {py::extract<int>(site[0]),
@@ -108,47 +109,14 @@ py::list pyLattice::computePropagatorP(const double mass, const py::list site,
 
   ScopedGILRelease* scope = new ScopedGILRelease;
 
-  vector<MatrixXcd> prop = this->computePropagator(mass, tempSite, spacing);
+  vector<MatrixXcd> prop = this->computePropagator(mass, tempSite, spacing,
+						   solverMethod);
 
   delete scope;
 
   py::list pythonPropagator;
   
   for (int i = 0; i < this->nLinks_ / 4; ++i) {
-    py::list tempList1;
-    for (int j = 0; j < 12; ++j) {
-      py::list tempList2;
-      for (int k = 0; k < 12; ++k) {
-	tempList2.append(prop[i](j, k));
-      }
-      tempList1.append(tempList2);
-    }
-    pythonPropagator.append(tempList1);
-  }
-
-  return pythonPropagator;
-}
-
-
-
-py::list pyLattice::computeZeroMomPropagatorP(const double mass,
-					      const py::list site,
-					      const double spacing)
-{
-  // Wrapper for the calculation of a propagator
-  int tempSite[4] = {py::extract<int>(site[0]),
-		     py::extract<int>(site[1]),
-		     py::extract<int>(site[2]),
-		     py::extract<int>(site[3])};
-
-  ScopedGILRelease* scope = new ScopedGILRelease;
-  vector<MatrixXcd> prop = this->computeZeroMomPropagator(mass, tempSite,
-							  spacing);
-  delete scope;
-
-  py::list pythonPropagator;
-  
-  for (int i = 0; i < this->nEdgePoints; ++i) {
     py::list tempList1;
     for (int j = 0; j < 12; ++j) {
       py::list tempList2;

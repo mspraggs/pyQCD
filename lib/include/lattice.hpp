@@ -91,12 +91,12 @@ public:
   SparseMatrix<complex<double> > computeDiracMatrix(const double mass,
 						    const double spacing);
   vector<MatrixXcd> computePropagator(const double mass, int site[4],
-				      const double spacing);
+				      const double spacing,
+				      const int solverMethod);
   vector<MatrixXcd> computePropagator(const double mass, int site[4],
 				      const double spacing,
-				      const SparseMatrix<complex<double> >& D);
-  vector<MatrixXcd> computeZeroMomPropagator(const double mass, int site[4],
-					     const double spacing);
+				      const SparseMatrix<complex<double> >& D,
+				      const int solverMethod);
   
   int nCorrelations, nEdgePoints;
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW

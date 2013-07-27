@@ -155,9 +155,8 @@ BOOST_PYTHON_MODULE(pyQCD)
     .def("av_wilson_loop", &pyLattice::computeAverageWilsonLoopP,
 	 (py::arg("r"), py::arg("t"), py::arg("n_smears") = 0))
     .def("propagator", &pyLattice::computePropagatorP,
-	 (py::arg("mass"), py::arg("site"), py::arg("spacing")))
-    .def("propagator_zero_mom", &pyLattice::computeZeroMomPropagatorP,
-	 (py::arg("mass"), py::arg("time"), py::arg("spacing")))
+	 (py::arg("mass"), py::arg("site"), py::arg("spacing"),
+	  py::arg("solver_method") = 0))
     .def("av_link", &pyLattice::computeMeanLink)
     .def("print", &pyLattice::print)
     .def("get_rand_su3", &pyLattice::getRandSu3,

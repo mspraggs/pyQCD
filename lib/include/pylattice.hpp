@@ -37,9 +37,7 @@ public:
   double computeAverageWilsonLoopP(const int r, const int t,
 				   const int nSmears = 0);
   py::list computePropagatorP(const double mass, const py::list site,
-			      const double spacing);
-  py::list computeZeroMomPropagatorP(const double mass, const py::list site,
-				     const double spacing);
+			      const double spacing, const int solverMethod);
   void runThreads(const int nUpdates, const int remainder);
   py::list getLinkP(const int n0, const int n1, const int n2, const int n3,
 		    const int dimension) const;
