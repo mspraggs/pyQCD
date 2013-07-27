@@ -1241,42 +1241,89 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
 vector<MatrixXcd> Lattice::computePropagator(const double mass, int site[4],
 					     const double spacing,
 					     const SparseMatrix<complex<double> >&
-					     D)
+					     D, const int solverMethod)
 {
   // Computes the propagator vectors for the 12 spin-colour indices at
   // the given lattice site, using the Dirac operator
 
   // How many indices are we dealing with?
-  int nSites = int(pow(this->nEdgePoints, 4));
-  int nIndices = 12 * nSites;
+  int nSites = this->nLinks_ / 4;
+  int nIndices = 3 * this->nLinks_;
 
   // Index for the vector point source
   int spatial_index = pyQCD::getLinkIndex(site[0], site[1], site[2], site[3], 0,
 					  this->nEdgePoints);
-  // Declare our solver
-  BiCGSTAB<SparseMatrix<complex<double> > > solver(D);
 
   // Declare a variable to hold our propagator
   vector<MatrixXcd> propagator(nSites, MatrixXcd::Zero(12, 12));
 
-  // Loop through colour and spin indices and invert propagator
-  for (int i = 0; i < 4; ++i) {
-    for(int j = 0; j < 3; ++j) {
-      // Create the source vector
-      VectorXcd source(nIndices);
-      source.setZero(nIndices);
-  
-      // Set the point source
-      int index = j + 3 * (i + spatial_index);
-      source(index) = 1.0;
-      
-      // Do the inversion
-      VectorXcd solution = solver.solve(source);
+  // If using CG, then we need to multiply D by its adjoint
+  if (solverMethod == 1) {
+    // Get adjoint matrix
+    vector<Tlet> tripletList;
+    SparseMatrix<complex<double> > Dadj(D.rows(),D.cols());
+    for (int i = 0; i < D.outerSize(); ++i)
+      for (SparseMatrix<complex<double> >::InnerIterator j(D, i); j; ++j) {
+	tripletList.push_back(Tlet(j.col(), j.row(), conj(j.value())));
+      }
 
-      // Add the result to the propagator matrix
-      for (int k = 0; k < nSites; ++k) {
-	for (int l = 0; l < 12; ++l) {
+    Dadj.setFromTriplets(tripletList.begin(), tripletList.end());
+
+    // The matrix we'll be inverting
+    SparseMatrix<complex<double> > M = D * Dadj;
+    // And the solver
+    ConjugateGradient<SparseMatrix<complex<double> > > solver(M);
+    solver.setMaxIterations(1000);
+    solver.setTolerance(1e-8);
+
+    // Loop through colour and spin indices and invert propagator
+    for (int i = 0; i < 4; ++i) {
+      for(int j = 0; j < 3; ++j) {
+	// Create the source vector
+	VectorXcd source(nIndices);
+	source.setZero(nIndices);
+	
+	// Set the point source
+	int index = j + 3 * (i + spatial_index);
+	source(index) = 1.0;
+	
+	// Do the inversion
+	VectorXcd solution = Dadj * solver.solve(source);
+	
+	// Add the result to the propagator matrix
+	for (int k = 0; k < nSites; ++k) {
+	  for (int l = 0; l < 12; ++l) {
+	    propagator[k](l, j + 3 * i) = solution(12 * k + l);
+	  }
+	}
+      }
+    }
+  }
+  else {
+    // Otherwise just use BiCGSTAB
+    BiCGSTAB<SparseMatrix<complex<double> > > solver(D);
+    solver.setMaxIterations(1000);
+    solver.setTolerance(1e-8);
+    
+    // Loop through colour and spin indices and invert propagator
+    for (int i = 0; i < 4; ++i) {
+      for(int j = 0; j < 3; ++j) {
+	// Create the source vector
+	VectorXcd source(nIndices);
+	source.setZero(nIndices);
+	
+	// Set the point source
+	int index = j + 3 * (i + spatial_index);
+	source(index) = 1.0;
+	
+	// Do the inversion
+	VectorXcd solution = solver.solve(source);
+	
+	// Add the result to the propagator matrix
+	for (int k = 0; k < nSites; ++k) {
+	  for (int l = 0; l < 12; ++l) {
 	  propagator[k](l, j + 3 * i) = solution(12 * k + l);
+	  }
 	}
       }
     }
@@ -1288,7 +1335,8 @@ vector<MatrixXcd> Lattice::computePropagator(const double mass, int site[4],
 
 
 vector<MatrixXcd> Lattice::computePropagator(const double mass, int site[4],
-					     const double spacing)
+					     const double spacing,
+					     const int solverMethod)
 {
   // Computes the propagator vectors for the 12 spin-colour indices at
   // the given lattice site, using the Dirac operator
