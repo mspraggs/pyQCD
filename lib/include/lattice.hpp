@@ -12,6 +12,7 @@
 
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
+#include <Eigen/Geometry>
 #include <unsupported/Eigen/MatrixFunctions>
 
 #include <omp.h>
@@ -58,6 +59,7 @@ public:
 
   void thermalize();
   void getNextConfig();
+  void reunitarize();
   
   Matrix3cd computePath(const vector<vector<int> >& path);
   Matrix3cd computeLine(const int start[4], const int finish[4]);
