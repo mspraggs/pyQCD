@@ -49,6 +49,8 @@ namespace pyQCD
 			     const int index);
   Matrix2cd extractSu2(const Matrix3cd& su3Matrix,
 		       double coefficients[4], const int index);  
+
+  double oneNorm(const Matrix3cd& matrix);
 }
 
 #endif

@@ -215,4 +215,19 @@ namespace pyQCD
 
     return createSu2(coefficients) / magnitude;
   }
+
+  
+
+  double oneNorm(const Matrix3cd& matrix)
+  {
+    double out = 0.0;
+    
+    for (int i = 0; i < matrix.rows(); ++i) {
+      for (int j = 0; j < matrix.cols(); ++j) {
+	out += norm(matrix(i,j));
+      }
+    }
+
+    return out;
+  }
 }
