@@ -1202,7 +1202,7 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
 	int dimension = this->propagatorColumns_[i][j][1] - 4;
 	rowLink[4] = dimension;
 	colourMatrix = this->getLink(rowLink);
-	spinMatrix = Matrix4cd::Identity() - pyQCD::gammas[dimension];
+	spinMatrix = Matrix4cd::Identity() + pyQCD::gammas[dimension];
       }
       else {
 	int dimension = this->propagatorColumns_[i][j][1];
@@ -1210,7 +1210,7 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
 	rowLink[4] = dimension;
 	colourMatrix = this->getLink(rowLink).adjoint();
 	rowLink[dimension]++;
-	spinMatrix = Matrix4cd::Identity() + pyQCD::gammas[dimension];
+	spinMatrix = Matrix4cd::Identity() - pyQCD::gammas[dimension];
       }
 
       for (int k = 0; k < 4; ++k) {
