@@ -1220,8 +1220,9 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
 	      complex<double> sum = -1 / (2 * spacing) 
 		* spinMatrix(k, l) * colourMatrix(m, n);
 #pragma omp critical
-	      tripletList.push_back(Tlet(12 * i + 3 * k + m,
-					 3 * columnIndex + 3 * l + n, sum));
+	      if (sum != complex<double>(0,0))
+		tripletList.push_back(Tlet(12 * i + 3 * k + m,
+					   3 * columnIndex + 3 * l + n, sum));
 	    }
 	  }
 	}
