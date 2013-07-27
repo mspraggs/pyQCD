@@ -50,11 +50,12 @@ up:
 * 1000 configuration measurements with 50 lattice updates between configurations
 * No link smearing on measurements
 
-At the moment the run script measures the plaquette expectation value of each configuration and the expectation values
-of all sizes of temporal-spatial Wilson loops for each configuration. These results will be dumped into a directory
-names after the run date and time and the simulation parameters. The postprocessing.py script can be used to analyze
-the results from the simulation. Running the script should give you an interactive command prompt, allowing you to
-select the appropriate dataset, then allowing you to manipulate the data in several ways.
+For measurements to be made, at least one of the flags -P, -W, -C and -p must be specified (see below). These will
+measure and store the mean plaquette value, the average Wilson loops, the entire gauge field and the Wilson propagators,
+respectively. These results will be dumped into a directory names after the run date and time and the simulation
+parameters. The postprocessing.py script can be used to analyze the results from the simulation. Running the script
+should give you an interactive command prompt, allowing you to select the appropriate dataset, then allowing you to
+manipulate the data in several ways.
 
 Taking it Further
 -----------------
@@ -69,14 +70,17 @@ command line parameters for the run script:
 * --Ncor=N, where N is the number of updates between measurements
 * --Ncf=N, where N is the number of configurations generated
 * --eps=X, where X is the update tuning factor (leave this at 0.24 to get a 50% update acceptance rate
-* --spacing=X, where X is the lattice spacing (at this stage this won't alter how the simulation works)
+* --spacing=X, where X is the lattice spacing (used in propagator computations, 0.25 by default)
+* --mass=X, where X is the quark mass (used in propagator computations, 1.0 by default)
 * --rho=X, where X is the smearing weighting factor (0.3 by default)
 * --update-method=N, where N defines the method used to update the gauge configurations. Use 0 for heatbath updates, 1 for efficient Monte Carlo updates and 2 for inefficient Monte Carlo updates. Note that the inefficient Monte Carlo method is the only one that'll work with the twisted rectangle operator, since the link staples cannot be computed for the twisted rectangle operator.
 * --parallel-flag=N, where N=1 enables parallel updating, while N=0 disables it.
+* --solver-method=N, where N=1 results in the use of a CG solver for propagator inversions, whilst N=0 results in the use of a BiCGSTAB solver (the default).
 * -t N or --test=N calculates how long the simulation will take to run using N trial configs.
 * -P or --store-plaquette stores the mean plaquette values for each configuration.
 * -W or --store-wloop stores the expectation values of the Wilson loop for each gauge configuration.
 * -C or --store-configs stores the gauge configurations from the simulation.
+* -p or --store-props calculates and stores the propagator for each configuration.
 
 Using the Module
 ----------------
@@ -144,17 +148,11 @@ specified by the axes dim1 and dim2 (again, 0 is time and 1, 2 and 3 are spatial
 
 This was designed to print the lattice, but it doesn't work at the moment
 
-> lattice.propagator(mass, site, spacing)
+> lattice.propagator(mass, site, spacing, solver_method = 0)
 
 Calculates and returns the propagator at each lattice site using Wilson's fermion action and the specified mass, point
-source location specified by site and lattice spacing. This function has not been thoroughly tested so it's output may not
-be reliable.
-
-> lattice.propagator_zero_mom(mass, site, spacing)
-
-Calculates the zero-momentum projection of the lattice propagator on each timeslice using Wilson's fermion action and
-the specified mass, source site and lattice spacing. This function has not been thoroughly tested and so it's output
-may not be reliable.
+source location specified by site and lattice spacing. By default, a BiCGSTAB solver is used, but a CG solver can be
+used by specifying solver_method = 1.
 
 > lattice.rectangle(site, dim1, dim2)
 
