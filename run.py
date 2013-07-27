@@ -11,18 +11,20 @@ import os
 from optparse import OptionParser
 
 def printConfig(options):
-    """Outputs the simulation configuration to the screen"""
-    print("Configuration:")
-    print("n = %d" % options.n)
-    print("beta = %f" % options.beta)
-    print("Ncor = %d" % options.Ncor)
-    print("Ncf = %d" % options.Ncf)
-    print("eps = %f" % options.eps)
-    print("a = %f" % options.a)
-    print("rho = %f" % options.rho)
-    print("n_smears = %d" % options.n_smears)
-    print("u0 = %f" % options.u0)
-    print("action = %d" % options.action)
+	"""Outputs the simulation configuration to the screen"""
+	print("Configuration:")
+	print("n = %d" % options.n)
+	print("beta = %f" % options.beta)
+	print("Ncor = %d" % options.Ncor)
+	print("Ncf = %d" % options.Ncf)
+	print("eps = %f" % options.eps)
+	print("a = %f" % options.a)
+	print("rho = %f" % options.rho)
+	print("n_smears = %d" % options.n_smears)
+	print("u0 = %f" % options.u0)
+	print("action = %d" % options.action)
+	print("mass = %f" % options.mass)
+	print("solver_method = %d" % options.solver_method)
 
 parser = OptionParser()
 parser.add_option("-b", "--beta", action = "store", type = "float",
@@ -57,6 +59,12 @@ parser.add_option("--store-wloop", "-W", action = "store_true",
 				  dest = "store_wloop")
 parser.add_option("--store-configs", "-C", action = "store_true",
 				  dest = "store_configs")
+parser.add_option("--store-props", "-p", action = "store_true",
+				  dest = "store_props")
+parser.add_option("--solver-method", action = "store", type = "int",
+				  dest = "solver_method", default = 0)
+parser.add_option("--mass", action = "store", type = "float",
+				  dest = "mass", default = 1.0)
 
 (options,args) = parser.parse_args()
 
@@ -88,6 +96,11 @@ if options.store_wloop == True:
 if options.store_plaquette == True:
 	Pavs = np.zeros(options.Ncf)
 
+prop_shape = (options.Ncf, L.n_points**4, 12, 12)
+	
+if options.store_props == True:
+	props = np.zeros(prop_shape, dtype=complex)
+
 config_shape = (options.Ncf, L.n_points,
 				L.n_points, L.n_points,
 				L.n_points, 4, 3, 3)
@@ -110,6 +123,13 @@ if options.num_trials > 0:
 		if options.store_configs == True:
 			configs[i] = np.array(interfaces.get_links(L))
 
+		if options.store_props == True:
+			props[i] = np.array(interfaces.get_propagator(L,
+														  options.mass,
+														  [0,0,0,0],
+														  options.a,
+														  options.solver_method))
+			
 		if options.store_plaquette == True:
 			Pavs[i] = L.av_plaquette()
 			print("Average plaquette: %f" % Pavs[i])
@@ -127,6 +147,13 @@ else:
 		if options.store_wloop == True:
 			Ws[i] = interfaces.get_wilson_loops(L, rmax, tmax,
 												n_smears = options.n_smears)
+
+		if options.store_props == True:
+			props[i] = np.array(interfaces.get_prpagator(L,
+														 options.mass,
+														 [0,0,0,0],
+														 options.a,
+														 options.solver_method))
 
 		if options.store_configs == True:
 			configs[i] = np.array(interfaces.get_links(L))
@@ -155,6 +182,9 @@ else:
 	if options.store_plaquette == True:
 		Ps_filepath = join(filepath, "Ps")
 		np.save(Ps_filepath,Pavs)
+	if options.store_props == True:
+		props_filepath = join(filepath, "props")
+		np.save(props_filepath,props)
 	if options.store_configs == True:
 		configs_filepath = join(filepath, "configs")
 		np.save(configs_filepath, configs)
