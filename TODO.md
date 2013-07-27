@@ -12,3 +12,5 @@ pyQCD Feature and Bug Todo List
 - Make sure all code is properly commented and meets language conventions.
 - Optimize average wilson loop calculation to remove repeated calculation of Wilson lines.
 - Add flexibility in spatial and time extents (i.e. L and T instead of N)
+- Add reunitarization of matrices after getting config
+- Add smearing capability to propagator calculation
