@@ -1217,7 +1217,7 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
 	for (int m = 0; m < 3; ++m) {
 	  for (int l = 0; l < 4; ++l) {
 	    for (int n = 0; n < 3; ++n) {
-	      complex<double> sum = -1 / (2 * spacing) 
+	      complex<double> sum = -0.5 / spacing
 		* spinMatrix(k, l) * colourMatrix(m, n);
 #pragma omp critical
 	      if (sum != complex<double>(0,0))
