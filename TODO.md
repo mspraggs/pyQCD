@@ -11,3 +11,4 @@ pyQCD Feature and Bug Todo List
 - Refactor code to use utility functions where possible in pyQCD_utils.
 - Make sure all code is properly commented and meets language conventions.
 - Optimize average wilson loop calculation to remove repeated calculation of Wilson lines.
+- Add flexibility in spatial and time extents (i.e. L and T instead of N)
