@@ -1342,33 +1342,7 @@ vector<MatrixXcd> Lattice::computePropagator(const double mass, int site[4],
   // the given lattice site, using the Dirac operator
   SparseMatrix<complex<double> > D = this->computeDiracMatrix(mass, spacing);
   
-  return this->computePropagator(mass, site, spacing, D);
-}
-
-
-
-vector<MatrixXcd> Lattice::computeZeroMomPropagator(const double mass,
-						    int site[4],
-						    const double spacing)
-{
-  // Computes the projected zero momentum propagator
-
-  vector<MatrixXcd> propagator = this->computePropagator(mass, site, spacing);
-  vector<MatrixXcd> out(this->nEdgePoints);
-
-  int nSpatialSites = this->nLinks_ / this->nEdgePoints / 4;
-
-  for (int i = 0; i < this->nEdgePoints; ++i) {
-    MatrixXcd sum = MatrixXcd::Zero(12, 12);
-
-    for (int j = 0; j < nSpatialSites; ++j) {
-      sum += propagator[i * nSpatialSites + j];
-    }
-
-    out[i] = sum;
-  }
-
-  return out;
+  return this->computePropagator(mass, site, spacing, D, solverMethod);
 }
 
 
