@@ -151,10 +151,7 @@ py::list pyLattice::getLinkP(const int n0, const int n1, const int n2,
   // with python interfaces library to extract the links as a nested list
   // of numpy matrices.
   py::list out;
-  int index = dimension + 4
-    * (n3 + this->nEdgePoints
-       * (n2 + this->nEdgePoints
-	  * (n1 + this->nEdgePoints * n0)));
+  int index = pyQCD::getLinkIndex(n0, n1, n2, n3, n4, this->nEdgePoints);
   // Convert the Matrix3cd to a python list
   for (int i = 0; i < 3; i++) {
     py::list temp;
