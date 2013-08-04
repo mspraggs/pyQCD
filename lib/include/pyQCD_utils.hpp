@@ -4,8 +4,11 @@
 #include <Eigen/Dense>
 #include <complex>
 #include <boost/random.hpp>
+#include <boost/python.hpp>
+#include <boost/python/list.hpp>
 
 using namespace boost;
+namespace py = boost::python;
 using namespace Eigen;
 using namespace std;
 
@@ -48,7 +51,9 @@ namespace pyQCD
   Matrix2cd extractSubMatrix(const Matrix3cd& su3Matrix,
 			     const int index);
   Matrix2cd extractSu2(const Matrix3cd& su3Matrix,
-		       double coefficients[4], const int index);  
+		       double coefficients[4], const int index); 
+
+  py::list convertMatrixToList(const MatrixXcd& matrix);
 
   double oneNorm(const Matrix3cd& matrix);
 }

@@ -216,6 +216,25 @@ namespace pyQCD
     return createSu2(coefficients) / magnitude;
   }
 
+
+
+  py::list convertMatrixToList(const MatrixXcd& matrix)
+  {
+    int nRows = matrix.rows();
+    int nCols = matrix.cols();
+    
+    py::list listOut;
+    
+    for (int i = 0; i < nRows; ++i) {
+      py::list tempList;
+      for (int j = 0; j < nCols; ++j) {
+	tempList.append(matrix(i,j));
+      }
+      listOut.append(tempList);
+    }
+    return listOut;
+  }
+
   
 
   double oneNorm(const Matrix3cd& matrix)
