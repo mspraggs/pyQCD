@@ -119,15 +119,8 @@ py::list pyLattice::computePropagatorP(const double mass, const py::list site,
   for (int i = 0; i < this->nLinks_ / 4; ++i) {
     // Maybe the following could be put in it's own function? Seems to be
     // something that frequently needs to be done
-    py::list tempList1;
-    for (int j = 0; j < 12; ++j) {
-      py::list tempList2;
-      for (int k = 0; k < 12; ++k) {
-	tempList2.append(prop[i](j, k));
-      }
-      tempList1.append(tempList2);
-    }
-    pythonPropagator.append(tempList1);
+    py::list matrixList = pyQCD::convertMatrixToList(prop[i]);
+    pythonPropagator.append(matrixList);
   }
 
   return pythonPropagator;
@@ -150,17 +143,9 @@ py::list pyLattice::getLinkP(const int n0, const int n1, const int n2,
   // Returns the given link as a python nested list. Used in conjunction
   // with python interfaces library to extract the links as a nested list
   // of numpy matrices.
-  py::list out;
-  int index = pyQCD::getLinkIndex(n0, n1, n2, n3, n4, this->nEdgePoints);
+  int index = pyQCD::getLinkIndex(n0, n1, n2, n3, dimension, this->nEdgePoints);
   // Convert the Matrix3cd to a python list
-  for (int i = 0; i < 3; i++) {
-    py::list temp;
-    for (int j = 0; j < 3; j++) {
-      temp.append(this->links_[index](i, j));
-    }
-    out.append(temp);
-  }
-  return out;
+  return pyQCD::convertMatrixToList(this->links_[index]);
 }
 
 
@@ -168,13 +153,5 @@ py::list pyLattice::getLinkP(const int n0, const int n1, const int n2,
 py::list pyLattice::getRandSu3(const int index) const
 {
   // Returns the given random SU3 matrix as a python list
-  py::list out;
-  for (int i = 0; i < 3; i++) {
-    py::list temp;
-    for (int j = 0; j < 3; j++) {
-      temp.append(this->randSu3s_[index](i, j));
-    }
-    out.append(temp);
-  }
-  return out;
+  return pyQCD::convertMatrixToList(this->randSu3s_[index]);
 }

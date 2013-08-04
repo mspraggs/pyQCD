@@ -8,6 +8,7 @@
 #include <boost/python/raw_function.hpp>
 #include "lattice.hpp"
 #include "gil.hpp"
+#include "pyQCD_utils.hpp"
 #include <string>
 
 namespace py = boost::python;
@@ -31,9 +32,9 @@ public:
   double computePlaquetteP(const py::list site2,const int mu, const int nu);
   double computeRectangleP(const py::list site2,const int mu, const int nu);
   double computeTwistedRectangleP(const py::list site2, const int mu,
-				   const int nu);
+				  const int nu);
   double computeWilsonLoopP(const py::list cnr, const int r, const int t,
-			     const int dim, const int nSmears = 0);
+			    const int dim, const int nSmears = 0);
   double computeAverageWilsonLoopP(const int r, const int t,
 				   const int nSmears = 0);
   py::list computePropagatorP(const double mass, const py::list site,
