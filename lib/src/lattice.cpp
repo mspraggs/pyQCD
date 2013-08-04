@@ -33,11 +33,15 @@ Lattice::Lattice(const int nEdgePoints, const double beta, const double u0,
     this->links_[i] = Matrix3cd::Identity();//this->makeRandomSu3();
 
   // Loop through the columns of the propagator and add any non-zero entries to
-  // the propagatorColumns vector
+  // the propagatorColumns vector (maybe move the following to the utils file
+  // as a function, in case next-to nearest neighbours are ever needed).
 
   // First define some offsets
   int offsets[8][4] = {{-1,0,0,0},{0,-1,0,0},{0,0,-1,0},{0,0,0,-1},
 		       {1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
+
+  // Loop through all site indices and add all nearest-neighbour indices to
+  // the list
 
   for (int i = 0; i < this->nLinks_; i += 4) {
     
@@ -50,8 +54,10 @@ Lattice::Lattice(const int nEdgePoints, const double beta, const double u0,
     // Something to keep track of the index in the sub vector
     int rowNeighboursIndex = 0;
 
+    // Inner loop for the sites
+
     for (int j = 0; j < this->nLinks_; j += 4) {
-      
+      // Get the coordinates for the column
       int columnLink[5];
       pyQCD::getLinkIndices(j, this->nEdgePoints, columnLink);
 
@@ -59,10 +65,11 @@ Lattice::Lattice(const int nEdgePoints, const double beta, const double u0,
       int dimension = 0;
 
       // Look and see if any offsets apply
-
       for (int k = 0; k < 8; ++k) {
 	bool isNeighbour = true;
 
+	// Loop through the coordiates for the pair of sites and see if they're
+	// neighbours
 	for (int l = 0; l < 4; ++l) {
 	  if (rowLink[l] != pyQCD::mod(columnLink[l] + offsets[k][l],
 				       this->nEdgePoints)) {
@@ -70,13 +77,14 @@ Lattice::Lattice(const int nEdgePoints, const double beta, const double u0,
 	    break;
 	  }
 	}
-
+	// If the sites are neighbours, the dimension that they lie in will be
+	// needed below.
 	if (isNeighbour) {
 	  neighbourCount++;
 	  dimension = k;
 	}
       }
-
+      // If the neighbour exists, add it to the list.
       if (neighbourCount > 0) {
 	this->propagatorColumns_[i / 4][rowNeighboursIndex][0] = j;
 	this->propagatorColumns_[i / 4][rowNeighboursIndex][1] = dimension;
@@ -1191,8 +1199,6 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
 {
   // Calculates the Dirac matrix for the current field configuration
   // using Wilson fermions
-
-  // TODO - pass the SparseMatrix in by reference to save computing time
   
   // Calculate some useful quantities
   int nSites = this->nLinks_ / 4;
@@ -1204,23 +1210,23 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
     tripletList.push_back(Tlet(i, i, mass + 4 / spacing));
   }
   
-  // Now iterate through the matrix and add the various elements to the
-  // vector of triplets
+  // Now iterate through the matrix and add the neighbouring elements
 #pragma omp parallel for
   for (int i = 0; i < this->nLinks_ / 4; ++i) {
     int rowLink[5];
     pyQCD::getLinkIndices(4 * i, this->nEdgePoints, rowLink);
 
+    // We've already calculated the eight neighbours, so we'll deal with those
+    // alone
     for (int j = 0; j < 8; ++j) {
-      int columnLink[5];
+      // Get the dimension and index of the current neighbour
       int columnIndex = this->propagatorColumns_[i][j][0];
       int dimension = this->propagatorColumns_[i][j][1];
-      pyQCD::getLinkIndices(this->propagatorColumns_[i][j][0],
-			    this->nEdgePoints, columnLink);
 
+      // Now we'll get the relevant colour and spin matrices
       Matrix3cd colourMatrix;
       Matrix4cd spinMatrix;
-      
+      // (See the action for what's going on here.)
       if (this->propagatorColumns_[i][j][1] > 3) {
 	int dimension = this->propagatorColumns_[i][j][1] - 4;
 	rowLink[4] = dimension;
@@ -1235,7 +1241,10 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
 	rowLink[dimension]++;
 	spinMatrix = Matrix4cd::Identity() - pyQCD::gammas[dimension];
       }
-
+      // Now loop through the two matrices and put the non-zero entries in the
+      // triplet list (basically a tensor product, could put this in a utility
+      // function as this might be something that needs to be done again if
+      // other actions are implemented).
       for (int k = 0; k < 4; ++k) {
 	for (int m = 0; m < 3; ++m) {
 	  for (int l = 0; l < 4; ++l) {
@@ -1372,12 +1381,12 @@ vector<MatrixXcd> Lattice::computePropagator(const double mass, int site[4],
       this->smearLinks(time, nSmears);
     }
   }
-
+  // Get the dirac matrix
   SparseMatrix<complex<double> > D = this->computeDiracMatrix(mass, spacing);
-
+  // Restore the non-smeared gauge field
   if (nSmears > 0)
     this->links_ = templinks;
-  
+  // Calculate and return the propagator
   return this->computePropagator(mass, site, spacing, D, solverMethod);
 }
 
