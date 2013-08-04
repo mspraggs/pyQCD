@@ -94,7 +94,8 @@ public:
 						    const double spacing);
   vector<MatrixXcd> computePropagator(const double mass, int site[4],
 				      const double spacing,
-				      const int solverMethod);
+				      const int solverMethod,
+				      const int nSmears);
   vector<MatrixXcd> computePropagator(const double mass, int site[4],
 				      const double spacing,
 				      const SparseMatrix<complex<double> >& D,

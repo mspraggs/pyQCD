@@ -1359,11 +1359,24 @@ vector<MatrixXcd> Lattice::computePropagator(const double mass, int site[4],
 
 vector<MatrixXcd> Lattice::computePropagator(const double mass, int site[4],
 					     const double spacing,
-					     const int solverMethod)
+					     const int solverMethod,
+					     const int nSmears)
 {
   // Computes the propagator vectors for the 12 spin-colour indices at
   // the given lattice site, using the Dirac operator
+  // First off, save the current links and smear all time slices
+  GaugeField templinks;
+  if (nSmears > 0) {
+    templinks = this->links_;
+    for (int time = 0; time < this->nEdgePoints; time++) {
+      this->smearLinks(time, nSmears);
+    }
+  }
+
   SparseMatrix<complex<double> > D = this->computeDiracMatrix(mass, spacing);
+
+  if (nSmears > 0)
+    this->links_ = templinks;
   
   return this->computePropagator(mass, site, spacing, D, solverMethod);
 }
