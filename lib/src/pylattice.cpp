@@ -106,17 +106,19 @@ py::list pyLattice::computePropagatorP(const double mass, const py::list site,
 		     py::extract<int>(site[1]),
 		     py::extract<int>(site[2]),
 		     py::extract<int>(site[3])};
-
+  // Release the GIL for the propagator inversion (not necessary but here anyway)
   ScopedGILRelease* scope = new ScopedGILRelease;
-
+  // Get the propagator
   vector<MatrixXcd> prop = this->computePropagator(mass, tempSite, spacing,
 						   solverMethod, nSmears);
-
+  // Put GIL back in place
   delete scope;
-
+  // This is where we'll store the propagator as a list
   py::list pythonPropagator;
-  
+  // Loop through the raw propagator and add it to the python list
   for (int i = 0; i < this->nLinks_ / 4; ++i) {
+    // Maybe the following could be put in it's own function? Seems to be
+    // something that frequently needs to be done
     py::list tempList1;
     for (int j = 0; j < 12; ++j) {
       py::list tempList2;
@@ -135,6 +137,7 @@ py::list pyLattice::computePropagatorP(const double mass, const py::list site,
 
 void pyLattice::runThreads(const int nUpdates, const int remainder)
 {
+  // Need to overload this and release the GIL
   ScopedGILRelease scope;
   Lattice::runThreads(nUpdates, remainder);
 }
@@ -152,6 +155,7 @@ py::list pyLattice::getLinkP(const int n0, const int n1, const int n2,
     * (n3 + this->nEdgePoints
        * (n2 + this->nEdgePoints
 	  * (n1 + this->nEdgePoints * n0)));
+  // Convert the Matrix3cd to a python list
   for (int i = 0; i < 3; i++) {
     py::list temp;
     for (int j = 0; j < 3; j++) {
