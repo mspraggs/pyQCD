@@ -10,6 +10,5 @@ pyQCD Feature and Bug Todo List
 - Make sure all code is properly commented and meets language conventions.
 - Optimize average wilson loop calculation to remove repeated calculation of Wilson lines.
 - Add flexibility in spatial and time extents (i.e. L and T instead of N)
-- Add gauge field smearing to Dirac matrix construction
 - Add numpy support to pylattice.cpp using the Boost.Numpy module on github.
 - Add anti-periodic in time boundary conditions functionality.
