@@ -41,8 +41,7 @@ public:
 			      const double spacing, const int solverMethod,
 			      const int nSmears);
   void runThreads(const int nUpdates, const int remainder);
-  py::list getLinkP(const int n0, const int n1, const int n2, const int n3,
-		    const int dimension) const;
+  py::list getLinkP(const py::list link);
   py::list getRandSu3(const int index) const;
 };
 

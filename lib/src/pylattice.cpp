@@ -137,15 +137,18 @@ void pyLattice::runThreads(const int nUpdates, const int remainder)
 
 
 
-py::list pyLattice::getLinkP(const int n0, const int n1, const int n2,
-			     const int n3, const int dimension) const
+py::list pyLattice::getLinkP(const py::list link)
 {
   // Returns the given link as a python nested list. Used in conjunction
   // with python interfaces library to extract the links as a nested list
   // of numpy matrices.
-  int index = pyQCD::getLinkIndex(n0, n1, n2, n3, dimension, this->nEdgePoints);
+  int tempLink[5] = {py::extract<int>(link[0]),
+		     py::extract<int>(link[1]),
+		     py::extract<int>(link[2]),
+		     py::extract<int>(link[3]),
+		     py::extract<int>(link[3])};
   // Convert the Matrix3cd to a python list
-  return pyQCD::convertMatrixToList(this->links_[index]);
+  return pyQCD::convertMatrixToList(this->getLink(tempLink));
 }
 
 
