@@ -1,24 +1,31 @@
 import numpy as np
+import itertools
 
 def get_links(lattice):
-    """Extracts links from lattice as a compound list of numpy arrays"""
-    out = []
-    for i in xrange(lattice.n_points):
-        ilist = []
-        for j in xrange(lattice.n_points):
-            jlist = []
-            for k in xrange(lattice.n_points):
-                klist = []
-                for l in xrange(lattice.n_points):
-                    llist = []
-                    for m in xrange(4):
-                        llist.append(np.matrix(lattice.link(i, j, k, l, m)))
-                    klist.append(llist)
-                jlist.append(klist)
-            ilist.append(jlist)
-        out.append(ilist)
+	"""Extracts links from lattice as a compound list of numpy arrays"""
+	out = []
+	r = xrange(lattice.n_points)
+	links = intertools.product(r, r, r, r, range(4))
 
-    return out
+	for link in links:
+		out.append(np.matrix(lattice.get_link(link)))
+
+	return out
+
+def set_links(lattice, links):
+	"""Inserts links into lattice"""
+	out = []
+	r = xrange(lattice.n_points)
+	link_coords = intertools.product(r, r, r, r, range(4))
+
+	index = 0
+	
+	for link_coords in link_coords:
+		temp_link = [[col for col in row] for row in links[i]]
+		lattice.set_link(link)
+		i += 1
+
+	return out
 
 def get_wilson_loops(lattice, rmax, tmax, n_smears = 0):
     """Calculates a series of Wilson loops up to the maximum r and t values"""

@@ -126,14 +126,14 @@ This calculates the average value of the rectangle operator.
 This calculates the average value of a planar Wilson loop of size r x t (in units of lattice spacing) using n_smears.
 n_smears is an optional argument, and is by default 0.
 
+> lattice.get_link(link)
+
+Gets the link specified by the coordinates and axis in the list link. The link argument should be of the form
+(t, x, y, z, mu).
+
 > lattice.get_rand_su3(index)
 
 Gets one of the 200 random SU(3) matrices generated on initialisation and returns it as a compound list
-
-> lattice.link(n0, n1, n2, n3, dim)
-
-Gets the link at site (n0, n1, n2, n3) along the axis specified by dim (0 is time, and 1, 2 and 3 are x, y and
-z axes).
 
 > lattice.next_config()
 
@@ -165,6 +165,11 @@ into two sets so that they form a sort of 4d checkerboard. The blocks in one set
 the blocks in the second set are updated. n_sweeps determines how many sweeps are performed on each block in one update
 step. If the parallel_flag in the constructor is 1, then this function is used in the next_config and thermalize
 functions.
+
+> lattice.set_link(link)
+
+Sets the link specified by the coordinates and axis in the list link. The link argument should be of the form
+(t, x, y, z, mu).
 
 > lattice.thermalize()
 
