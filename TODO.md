@@ -10,3 +10,4 @@ pyQCD Feature and Bug Todo List
 - Add flexibility in spatial and time extents (i.e. L and T instead of N)
 - Add numpy support to pylattice.cpp using the Boost.Numpy module on github.
 - Add anti-periodic in time boundary conditions functionality.
+- Use string arguments for settings like solver method, update method, etc., rather than integers.
