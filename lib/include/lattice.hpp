@@ -90,6 +90,10 @@ public:
 
   SparseMatrix<complex<double> > computeDiracMatrix(const double mass,
 						    const double spacing);
+  SparseMatrix<complex<double> >
+  computeSmearingOperator(const double smearingParameter, const int nSmears);
+  VectorXcd makeSource(const int site[4], const int spin, const int colour,
+		       const SparseMatrix<complex<double> >& smearingOperator);
   vector<MatrixXcd> computePropagator(const double mass, int site[4],
 				      const double spacing,
 				      const int solverMethod,
