@@ -23,7 +23,7 @@ struct lattice_pickle_suite : py::pickle_suite
 			  pylattice.parallelFlag_);
   }
   
-  static py::tuple getstate(const pyLattice& pylattice)
+  static py::tuple getstate(pyLattice& pylattice)
   {
     // Convert the links vector to a list for python compatability
     py::list links;
@@ -36,7 +36,13 @@ struct lattice_pickle_suite : py::pickle_suite
 	  for (int l = 0; l < pylattice.nEdgePoints; l++) {
 	    py::list temp4;
 	    for (int m = 0; m < 4; m++) {
-	      temp4.append(pylattice.getLinkP(i, j, k, l, m));
+	      py::list tempList;
+	      tempList.append(i);
+	      tempList.append(j);
+	      tempList.append(k);
+	      tempList.append(l);
+	      tempList.append(m);
+	      temp4.append(pylattice.getLinkP(tempList));
 	    }
 	    temp3.append(temp4);
 	  }
@@ -134,9 +140,7 @@ BOOST_PYTHON_MODULE(pyQCD)
 			  py::arg("epsilon")=0.24, py::arg("update_method")=0,
 			  py::arg("parallel_flag")=1)))
     .def(py::init<pyLattice&>())
-    .def("link", &pyLattice::getLinkP,
-	 (py::arg("n0"), py::arg("n1"), py::arg("n2"), py::arg("n3"),
-	  py::arg("dim")))
+    .def("link", &pyLattice::getLinkP, (py::arg("link")))
     .def("update", &pyLattice::update)
     .def("schwarz_update", &pyLattice::schwarzUpdate, (py::arg("n_sweeps")=1))
     .def("next_config", &pyLattice::getNextConfig)
