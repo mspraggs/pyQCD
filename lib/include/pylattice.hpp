@@ -42,6 +42,7 @@ public:
 			      const int nSmears);
   void runThreads(const int nUpdates, const int remainder);
   py::list getLinkP(const py::list link);
+  void setLinkP(const py::list link, const py::list matrix);
   py::list getRandSu3(const int index) const;
 };
 

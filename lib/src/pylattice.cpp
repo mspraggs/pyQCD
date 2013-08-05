@@ -153,6 +153,20 @@ py::list pyLattice::getLinkP(const py::list link)
 
 
 
+void pyLattice::setLinkP(const py::list link, const py::list matrix)
+{
+  // Set the given link to the values specified in matrix
+  int tempLink[5] = {py::extract<int>(link[0]),
+		     py::extract<int>(link[1]),
+		     py::extract<int>(link[2]),
+		     py::extract<int>(link[3]),
+		     py::extract<int>(link[3])};
+  Matrix3cd tempMatrix = pyQCD::convertListToMatrix(matrix);
+  this->setLink(tempLink, tempMatrix);
+}
+
+
+
 py::list pyLattice::getRandSu3(const int index) const
 {
   // Returns the given random SU3 matrix as a python list
