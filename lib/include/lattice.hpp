@@ -43,6 +43,7 @@ public:
   void print();
   Matrix3cd& getLink(const int link[5]);
   Matrix3cd& getLink(const vector<int> link);
+  void setLink(const int link[5], const Matrix3cd& matrix);
 
   GaugeField getSubLattice(const int startIndex, const int size);
 

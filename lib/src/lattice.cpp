@@ -266,6 +266,14 @@ Matrix3cd& Lattice::getLink(const vector<int> link)
 
 
 
+void Lattice::setLink(const int link[5], const Matrix3cd& matrix)
+{
+  // Set the value of a link
+  this->getLink(link) = matrix;
+}
+
+
+
 GaugeField Lattice::getSubLattice(const int startIndex, const int size)
 {
   // Returns a GaugeField object corresponding to the sub-lattice starting at
