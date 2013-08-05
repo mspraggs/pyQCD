@@ -3,8 +3,7 @@
 
 Lattice::Lattice(const int nEdgePoints, const double beta, const double u0,
 		 const int action, const int nCorrelations, const double rho,
-		 const double epsilon, const int updateMethod,
-		 const int parallelFlag)
+		 const int updateMethod, const int parallelFlag)
 {
   // Default constructor. Assigns function arguments to member variables
   // and initializes links.
@@ -12,7 +11,6 @@ Lattice::Lattice(const int nEdgePoints, const double beta, const double u0,
   this->nLinks_ = int(pow(this->nEdgePoints, 4) * 4);
   this->beta_ = beta;
   this->nCorrelations = nCorrelations;
-  this->epsilon_ = epsilon;
   this->rho_ = rho;
   this->nUpdates_ = 0;
   this->u0_ = u0;
@@ -202,7 +200,6 @@ Lattice::Lattice(const Lattice& lattice)
   this->nLinks_ = lattice.nLinks_;
   this->beta_ = lattice.beta_;
   this->nCorrelations = lattice.nCorrelations;
-  this->epsilon_ = lattice.epsilon_;
   this->rho_ = lattice.rho_;
   this->nUpdates_ = lattice.nUpdates_;
   this->u0_ = lattice.u0_;
@@ -1021,7 +1018,7 @@ Matrix3cd Lattice::makeRandomSu3()
     }
   }
   // Weight the matrix with weighting eps
-  A *= this->epsilon_;
+  A *= 0.24;
   // Make the matrix traceless and Hermitian
   A(2, 2) = -(A(1, 1) + A(0, 0));
   Matrix3cd B = 0.5 * (A - A.adjoint());

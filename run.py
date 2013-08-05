@@ -17,7 +17,6 @@ def printConfig(options):
 	print("beta = %f" % options.beta)
 	print("Ncor = %d" % options.Ncor)
 	print("Ncf = %d" % options.Ncf)
-	print("eps = %f" % options.eps)
 	print("a = %f" % options.a)
 	print("rho = %f" % options.rho)
 	print("n_smears = %d" % options.n_smears)
@@ -41,8 +40,6 @@ parser.add_option("--Ncor", action = "store", type = "int", dest = "Ncor",
 				  default = 10)
 parser.add_option("--Ncf", action = "store", type = "int", dest = "Ncf",
 				  default = 1000)
-parser.add_option("-e", "--eps", action = "store", type = "float",
-				  dest = "eps", default = 0.24)
 parser.add_option("-s", "--spacing", action = "store", type = "float",
 				  dest = "a", default = 0.25)
 parser.add_option("--rho", action = "store", type = "float",
@@ -74,7 +71,6 @@ L = pyQCD.Lattice(options.n, #n
 					options.action, #action			
                     options.Ncor, #Ncor
                     options.rho, #rho
-                    options.eps, #epsilon
 					options.update_method, #updateMethod
 					options.parallel_flag) #parallelFlag
 

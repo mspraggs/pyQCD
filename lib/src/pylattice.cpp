@@ -6,11 +6,10 @@ pyLattice::pyLattice(const int nEdgePoints,
 		     const int action,
 		     const int nCorrelations,
 		     const double rho,
-		     const double epsilon, 
 		     const int updateMethod,
 		     const int parallelFlag) :
   Lattice::Lattice(nEdgePoints, beta, u0, action, nCorrelations, rho,
-		   epsilon, updateMethod, parallelFlag)
+		   updateMethod, parallelFlag)
 {
   
 }

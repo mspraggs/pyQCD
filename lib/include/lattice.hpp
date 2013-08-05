@@ -34,7 +34,6 @@ public:
 	  const int action = 0,
 	  const int nCorrelations = 50,
 	  const double rho = 0.3,
-	  const double epsilon = 0.24, 
 	  const int updateMethod = 0,
 	  const int parallelFlag = 1);
   Lattice(const Lattice& lattice);
@@ -104,7 +103,7 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 protected:
-  double beta_, epsilon_, u0_, rho_;
+  double beta_, u0_, rho_;
   int nUpdates_, action_, updateMethod_, parallelFlag_, nLinks_;
   double computeLocalWilsonAction(const int link[5]);
   double computeLocalRectangleAction(const int link[5]);
