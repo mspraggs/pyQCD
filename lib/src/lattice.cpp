@@ -1346,7 +1346,7 @@ Lattice::computeSmearingOperator(const double smearingParameter,
   for (int i = 0; i <= nSmears; ++i) {    
     out += pow(smearingParameter, i) * matrixHPower;
     // Need to do the matrix power by hand
-    matrixHPower *= matrixH;
+    matrixHPower = matrixHPower * matrixH;
   }
 
   return out;
