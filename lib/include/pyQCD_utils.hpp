@@ -54,6 +54,7 @@ namespace pyQCD
 		       double coefficients[4], const int index); 
 
   py::list convertMatrixToList(const MatrixXcd& matrix);
+  MatrixXcd convertListToMatrix(const py::list list);
 
   double oneNorm(const Matrix3cd& matrix);
 }
