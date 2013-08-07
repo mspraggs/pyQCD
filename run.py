@@ -87,17 +87,21 @@ sys.stdout.flush()
 
 rmax = L.n_points
 tmax = L.n_points
-if options.store_wloop == True:
-	Ws = np.zeros((options.Ncf, rmax - 1, tmax - 1))
-if options.store_plaquette == True:
-	Pavs = np.zeros(options.Ncf)
 
-prop_shape = (options.Ncf, L.n_points**4, 12, 12)
+array_size = options.num_trials \
+  if options.num_trials > 0 else options.Ncf
+
+if options.store_wloop == True:
+	Ws = np.zeros((array_size, rmax - 1, tmax - 1))
+if options.store_plaquette == True:
+	Pavs = np.zeros(array_size)
+
+prop_shape = (array_size, L.n_points**4, 12, 12)
 	
 if options.store_props == True:
 	props = np.zeros(prop_shape, dtype=complex)
 
-config_shape = (options.Ncf, L.n_points,
+config_shape = (array_size, L.n_points,
 				L.n_points, L.n_points,
 				L.n_points, 4, 3, 3)
 
