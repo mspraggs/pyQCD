@@ -149,11 +149,11 @@ else:
 												n_smears = options.n_smears)
 
 		if options.store_props == True:
-			props[i] = np.array(interfaces.get_prpagator(L,
-														 options.mass,
-														 [0,0,0,0],
-														 options.a,
-														 options.solver_method))
+			props[i] = np.array(interfaces.get_propagator(L,
+														  options.mass,
+														  [0,0,0,0],
+														  options.a,
+														  options.solver_method))
 
 		if options.store_configs == True:
 			configs[i] = np.array(interfaces.get_links(L))
