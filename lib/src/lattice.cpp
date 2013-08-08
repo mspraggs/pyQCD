@@ -1270,85 +1270,91 @@ Lattice::computeSmearingOperator(const double smearingParameter,
   out.setZero();
   // Create the sparse matrix H (eqn 6.40 of Gattringer and Lang)
   SparseMatrix<complex<double> > matrixH(3 * this->nLinks_, 3 * this->nLinks_);
-  // This is where we'll store the matrix entries before intialising the matrix
-  vector<Tlet> tripletList;
 
-  // Now iterate through the matrix and add the neighbouring elements
+  // Only bother setting up matrixH if there's smearing to do
+  if (nSmears > 0) {
+
+    // This is where we'll store the matrix entries before intialising the matrix
+    vector<Tlet> tripletList;
+    
+    // Now iterate through the matrix and add the neighbouring elements
 #pragma omp parallel for
-  for (int i = 0; i < this->nLinks_ / 4; ++i) {
-    int rowLink[5];
-    pyQCD::getLinkIndices(4 * i, this->nEdgePoints, rowLink);
-
-    // We've already calculated the eight neighbours, so we'll deal with those
-    // alone
-    for (int j = 0; j < 8; ++j) {
-      // Get the dimension and index of the current neighbour
-      int columnIndex = this->propagatorColumns_[i][j][0];
-      int dimension = this->propagatorColumns_[i][j][1];
-
-      // We're only interested in the spatial links, so skip if the dimension
-      // is time
-      if (dimension == 0 || dimension == 4)
-	break;
-
-      // Now we'll get the relevant colour and spin matrices
-      Matrix3cd colourMatrix;
-      Matrix4cd spinMatrix = Matrix4cd::Identity();
-      // (See the action for what's going on here.)
-      if (this->propagatorColumns_[i][j][1] > 3) {
-	int dimension = this->propagatorColumns_[i][j][1] - 4;
-	rowLink[4] = dimension;
-	colourMatrix = this->getLink(rowLink);
-      }
-      else {
+    for (int i = 0; i < this->nLinks_ / 4; ++i) {
+      int rowLink[5];
+      pyQCD::getLinkIndices(4 * i, this->nEdgePoints, rowLink);
+      
+      // We've already calculated the eight neighbours, so we'll deal with those
+      // alone
+      for (int j = 0; j < 8; ++j) {
+	// Get the dimension and index of the current neighbour
+	int columnIndex = this->propagatorColumns_[i][j][0];
 	int dimension = this->propagatorColumns_[i][j][1];
-	rowLink[dimension]--;
-	rowLink[4] = dimension;
-	colourMatrix = this->getLink(rowLink).adjoint();
-	rowLink[dimension]++;
-      }
-      // Now loop through the two matrices and put the non-zero entries in the
-      // triplet list (basically a tensor product, could put this in a utility
-      // function as this might be something that needs to be done again if
-      // other actions are implemented).
-      for (int k = 0; k < 4; ++k) {
-	for (int m = 0; m < 3; ++m) {
-	  for (int l = 0; l < 4; ++l) {
-	    for (int n = 0; n < 3; ++n) {
-	      complex<double> sum = spinMatrix(k, l) * colourMatrix(m, n);
+	
+	// We're only interested in the spatial links, so skip if the dimension
+	// is time
+	if (dimension == 0 || dimension == 4)
+	  break;
+	
+	// Now we'll get the relevant colour and spin matrices
+	Matrix3cd colourMatrix;
+	Matrix4cd spinMatrix = Matrix4cd::Identity();
+	// (See the action for what's going on here.)
+	if (this->propagatorColumns_[i][j][1] > 3) {
+	  int dimension = this->propagatorColumns_[i][j][1] - 4;
+	  rowLink[4] = dimension;
+	  colourMatrix = this->getLink(rowLink);
+	}
+	else {
+	  int dimension = this->propagatorColumns_[i][j][1];
+	  rowLink[dimension]--;
+	  rowLink[4] = dimension;
+	  colourMatrix = this->getLink(rowLink).adjoint();
+	  rowLink[dimension]++;
+	}
+	// Now loop through the two matrices and put the non-zero entries in the
+	// triplet list (basically a tensor product, could put this in a utility
+	// function as this might be something that needs to be done again if
+	// other actions are implemented).
+	for (int k = 0; k < 4; ++k) {
+	  for (int m = 0; m < 3; ++m) {
+	    for (int l = 0; l < 4; ++l) {
+	      for (int n = 0; n < 3; ++n) {
+		complex<double> sum = spinMatrix(k, l) * colourMatrix(m, n);
 #pragma omp critical
-	      if (sum != complex<double>(0,0))
-		tripletList.push_back(Tlet(12 * i + 3 * k + m,
-					   3 * columnIndex + 3 * l + n, sum));
+		if (sum != complex<double>(0,0))
+		  tripletList.push_back(Tlet(12 * i + 3 * k + m,
+					     3 * columnIndex + 3 * l + n, sum));
+	      }
 	    }
 	  }
 	}
       }
     }
-  }
 
   // Add all the triplets to the sparse matrix
   matrixH.setFromTriplets(tripletList.begin(), tripletList.end());
-
+  
+  }
+  
   // Need a sparse
   vector<Tlet> identityTripletList;
   for (int i = 0; i < 3 * this->nLinks_; ++i) {
     identityTripletList.push_back(Tlet(i, i, complex<double>(1.0, 0.0)));
   }
-
+  
   // Create an identity matrix that'll hold the matrix powers in the sum below
   SparseMatrix<complex<double> > matrixHPower(3 * this->nLinks_,
 					      3 * this->nLinks_);
   matrixHPower.setFromTriplets(identityTripletList.begin(),
 			       identityTripletList.end());
-
+  
   // Now do the sum as in eqn 6.40 of G+L
   for (int i = 0; i <= nSmears; ++i) {    
     out += pow(smearingParameter, i) * matrixHPower;
     // Need to do the matrix power by hand
     matrixHPower = matrixHPower * matrixH;
   }
-
+  
   return out;
 }
 
