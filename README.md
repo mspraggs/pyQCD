@@ -2,6 +2,9 @@ pyQCD
 =====
 pyQCD provides a Python library for running coarse lattice QCD simulations on desktop and workstation computers.
 
+***Please note that this software is not yet mature, so backwards compatability is not yet guaranteed for newer
+versions. If something's broken, have a look at the function reference below, or check the python source code.***
+
 Installation
 ------------
 ***If you're building this on Iridis, you'll need to clone the Iridis branch of this repo, as this contains
