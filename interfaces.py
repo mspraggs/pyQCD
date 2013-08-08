@@ -37,8 +37,12 @@ def get_wilson_loops(lattice, rmax, tmax, n_smears = 0):
             
     return out
 
-def get_propagator(lattice, mass, source, spacing, solver_method = 0):
+def get_propagator(lattice, mass, spacing = 1.0, source = [0,0,0,0],
+				   n_smears = 0, n_src_smears = 0, src_param = 1.0,
+				   n_sink_smears = 0, sink_param = 1.0, solver_method = 0):
 	"""Extracts the propagator as a list of matrices"""
-	raw_propagator = lattice.propagator(mass, source, spacing, solver_method)
+	raw_propagator = lattice.propagator(mass, spacing, source, n_smears,
+										n_src_smears, src_param,
+										n_sink_smears, sink_param, solver_method)
 
 	return [np.matrix(matrix) for matrix in raw_propagator]
