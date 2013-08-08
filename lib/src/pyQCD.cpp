@@ -159,7 +159,9 @@ BOOST_PYTHON_MODULE(pyQCD)
 	 (py::arg("r"), py::arg("t"), py::arg("n_smears") = 0))
     .def("propagator", &pyLattice::computePropagatorP,
 	 (py::arg("mass"), py::arg("site"), py::arg("spacing"),
-	  py::arg("solver_method") = 0, py::arg("n_smears") = 0))
+	  py::arg("solver_method") = 0, py::arg("n_smears") = 0,
+	  py::arg("n_src_smears") = 0, py::arg("src_param") = 1.0,
+	  py::arg("n_sink_smears") = 0, py::arg("sink_param") = 1.0))
     .def("av_link", &pyLattice::computeMeanLink)
     .def("print", &pyLattice::print)
     .def("get_rand_su3", &pyLattice::getRandSu3,

@@ -1383,7 +1383,10 @@ Lattice::makeSource(const int site[4], const int spin, const int colour,
 vector<MatrixXcd>
 Lattice::computePropagator(const double mass, int site[4], const double spacing,
 			   const SparseMatrix<complex<double> >& D,
-			   const int solverMethod)
+			   const int solverMethod, const int nSourceSmears,
+			   const double sourceSmearingParameter,
+			   const int nSinkSmears,
+			   const double sinkSmearingParameter)
 {
   // Computes the propagator vectors for the 12 spin-colour indices at
   // the given lattice site, using the Dirac operator
@@ -1398,6 +1401,12 @@ Lattice::computePropagator(const double mass, int site[4], const double spacing,
 
   // Declare a variable to hold our propagator
   vector<MatrixXcd> propagator(nSites, MatrixXcd::Zero(12, 12));
+
+  // Compute the source and sink smearing operators
+  SparseMatrix<complex<double> > sourceSmearingOperator
+    = computeSmearingOperator(sourceSmearingParameter, nSourceSmears);
+  SparseMatrix<complex<double> > sinkSmearingOperator
+    = computeSmearingOperator(sinkSmearingParameter, nSinkSmears);
 
   // If using CG, then we need to multiply D by its adjoint
   if (solverMethod == 1) {
@@ -1422,15 +1431,13 @@ Lattice::computePropagator(const double mass, int site[4], const double spacing,
     for (int i = 0; i < 4; ++i) {
       for(int j = 0; j < 3; ++j) {
 	// Create the source vector
-	VectorXcd source(nIndices);
-	source.setZero(nIndices);
-	
-	// Set the point source
-	int index = j + 3 * (i + spatial_index);
-	source(index) = 1.0;
+	VectorXcd source = this->makeSource(site, i, j, sourceSmearingOperator);
 	
 	// Do the inversion
 	VectorXcd solution = Dadj * solver.solve(source);
+
+	// Smear the sink
+	solution = sinkSmearingOperator * solution;
 	
 	// Add the result to the propagator matrix
 	for (int k = 0; k < nSites; ++k) {
@@ -1451,15 +1458,13 @@ Lattice::computePropagator(const double mass, int site[4], const double spacing,
     for (int i = 0; i < 4; ++i) {
       for(int j = 0; j < 3; ++j) {
 	// Create the source vector
-	VectorXcd source(nIndices);
-	source.setZero(nIndices);
-	
-	// Set the point source
-	int index = j + 3 * (i + spatial_index);
-	source(index) = 1.0;
+	VectorXcd source = this->makeSource(site, i, j, sourceSmearingOperator);
 	
 	// Do the inversion
 	VectorXcd solution = solver.solve(source);
+
+	// Smear the sink
+	solution = sinkSmearingOperator * solution;
 	
 	// Add the result to the propagator matrix
 	for (int k = 0; k < nSites; ++k) {
@@ -1476,10 +1481,13 @@ Lattice::computePropagator(const double mass, int site[4], const double spacing,
 
 
 
-vector<MatrixXcd> Lattice::computePropagator(const double mass, int site[4],
-					     const double spacing,
-					     const int solverMethod,
-					     const int nSmears)
+vector<MatrixXcd>
+Lattice::computePropagator(const double mass, int site[4],
+			   const double spacing, const int solverMethod,
+			   const int nSmears, const int nSourceSmears,
+			   const double sourceSmearingParameter,
+			   const int nSinkSmears,
+			   const double sinkSmearingParameter)
 {
   // Computes the propagator vectors for the 12 spin-colour indices at
   // the given lattice site, using the Dirac operator
@@ -1497,7 +1505,9 @@ vector<MatrixXcd> Lattice::computePropagator(const double mass, int site[4],
   if (nSmears > 0)
     this->links_ = templinks;
   // Calculate and return the propagator
-  return this->computePropagator(mass, site, spacing, D, solverMethod);
+  return this->computePropagator(mass, site, spacing, D, solverMethod,
+				 nSourceSmears, sourceSmearingParameter,
+				 nSinkSmears, sinkSmearingParameter);
 }
 
 

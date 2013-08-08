@@ -97,11 +97,19 @@ public:
   vector<MatrixXcd> computePropagator(const double mass, int site[4],
 				      const double spacing,
 				      const int solverMethod,
-				      const int nSmears);
+				      const int nSmears,
+				      const int nSourceSmears,
+				      const double sourceSmearingParameter,
+				      const int nSinkSmears,
+				      const double sinkSmearingParameter);
   vector<MatrixXcd> computePropagator(const double mass, int site[4],
 				      const double spacing,
 				      const SparseMatrix<complex<double> >& D,
-				      const int solverMethod);
+				      const int solverMethod,
+				      const int nSourceSmears,
+				      const double sourceSmearingParameter,
+				      const int nSinkSmears,
+				      const double sinkSmearingParameter);
   
   int nCorrelations, nEdgePoints;
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW

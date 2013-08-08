@@ -38,7 +38,10 @@ public:
 				   const int nSmears = 0);
   py::list computePropagatorP(const double mass, const py::list site,
 			      const double spacing, const int solverMethod,
-			      const int nSmears);
+			      const int nSmears, const int nSourceSmears,
+			      const double sourceSmearingParameter,
+			      const int nSinkSmears,
+			      const double sinkSmearingParameter);
   void runThreads(const int nUpdates, const int remainder);
   py::list getLinkP(const py::list link);
   void setLinkP(const py::list link, const py::list matrix);
