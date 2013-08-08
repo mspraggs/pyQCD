@@ -94,22 +94,22 @@ public:
   computeSmearingOperator(const double smearingParameter, const int nSmears);
   VectorXcd makeSource(const int site[4], const int spin, const int colour,
 		       const SparseMatrix<complex<double> >& smearingOperator);
-  vector<MatrixXcd> computePropagator(const double mass, int site[4],
-				      const double spacing,
-				      const int solverMethod,
+  vector<MatrixXcd> computePropagator(const double mass, const double spacing,
+				      int site[4],
 				      const int nSmears,
 				      const int nSourceSmears,
 				      const double sourceSmearingParameter,
 				      const int nSinkSmears,
-				      const double sinkSmearingParameter);
-  vector<MatrixXcd> computePropagator(const double mass, int site[4],
-				      const double spacing,
+				      const double sinkSmearingParameter,
+				      const int solverMethod);
+  vector<MatrixXcd> computePropagator(const double mass, const double spacing,
+				      int site[4],
 				      const SparseMatrix<complex<double> >& D,
-				      const int solverMethod,
 				      const int nSourceSmears,
 				      const double sourceSmearingParameter,
 				      const int nSinkSmears,
-				      const double sinkSmearingParameter);
+				      const double sinkSmearingParameter,
+				      const int solverMethod);
   
   int nCorrelations, nEdgePoints;
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW

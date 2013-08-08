@@ -96,13 +96,13 @@ double pyLattice::computeAverageWilsonLoopP(const int r, const int t,
 
 
 
-py::list pyLattice::computePropagatorP(const double mass, const py::list site,
-				       const double spacing,
-				       const int solverMethod, const int nSmears,
+py::list pyLattice::computePropagatorP(const double mass, const double spacing,
+				       const py::list site, const int nSmears,
 				       const int nSourceSmears,
 				       const double sourceSmearingParameter,
 				       const int nSinkSmears,
-				       const double sinkSmearingParameter)
+				       const double sinkSmearingParameter,
+				       const int solverMethod)
 {
   // Wrapper for the calculation of a propagator
   int tempSite[4] = {py::extract<int>(site[0]),
@@ -112,12 +112,12 @@ py::list pyLattice::computePropagatorP(const double mass, const py::list site,
   // Release the GIL for the propagator inversion (not necessary but here anyway)
   ScopedGILRelease* scope = new ScopedGILRelease;
   // Get the propagator
-  vector<MatrixXcd> prop = this->computePropagator(mass, tempSite, spacing,
-						   solverMethod, nSmears,
-						   nSourceSmears,
+  vector<MatrixXcd> prop = this->computePropagator(mass, spacing, tempSite,
+						   nSmears, nSourceSmears,
 						   sourceSmearingParameter,
 						   nSinkSmears,
-						   sinkSmearingParameter);
+						   sinkSmearingParameter,
+						   solverMethod);
   // Put GIL back in place
   delete scope;
   // This is where we'll store the propagator as a list

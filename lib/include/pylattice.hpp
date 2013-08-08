@@ -36,12 +36,13 @@ public:
 			    const int dim, const int nSmears = 0);
   double computeAverageWilsonLoopP(const int r, const int t,
 				   const int nSmears = 0);
-  py::list computePropagatorP(const double mass, const py::list site,
-			      const double spacing, const int solverMethod,
-			      const int nSmears, const int nSourceSmears,
+  py::list computePropagatorP(const double mass, const double spacing,
+			      const py::list site, const int nSmears,
+			      const int nSourceSmears,
 			      const double sourceSmearingParameter,
 			      const int nSinkSmears,
-			      const double sinkSmearingParameter);
+			      const double sinkSmearingParameter,
+			      const int solverMethod);
   void runThreads(const int nUpdates, const int remainder);
   py::list getLinkP(const py::list link);
   void setLinkP(const py::list link, const py::list matrix);

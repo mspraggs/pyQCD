@@ -1387,12 +1387,13 @@ Lattice::makeSource(const int site[4], const int spin, const int colour,
 
 
 vector<MatrixXcd>
-Lattice::computePropagator(const double mass, int site[4], const double spacing,
+Lattice::computePropagator(const double mass, const double spacing, int site[4],
 			   const SparseMatrix<complex<double> >& D,
-			   const int solverMethod, const int nSourceSmears,
+			   const int nSourceSmears,
 			   const double sourceSmearingParameter,
 			   const int nSinkSmears,
-			   const double sinkSmearingParameter)
+			   const double sinkSmearingParameter,
+			   const int solverMethod)
 {
   // Computes the propagator vectors for the 12 spin-colour indices at
   // the given lattice site, using the Dirac operator
@@ -1488,12 +1489,12 @@ Lattice::computePropagator(const double mass, int site[4], const double spacing,
 
 
 vector<MatrixXcd>
-Lattice::computePropagator(const double mass, int site[4],
-			   const double spacing, const int solverMethod,
+Lattice::computePropagator(const double mass, const double spacing, int site[4],
 			   const int nSmears, const int nSourceSmears,
 			   const double sourceSmearingParameter,
 			   const int nSinkSmears,
-			   const double sinkSmearingParameter)
+			   const double sinkSmearingParameter,
+			   const int solverMethod)
 {
   // Computes the propagator vectors for the 12 spin-colour indices at
   // the given lattice site, using the Dirac operator
@@ -1511,9 +1512,9 @@ Lattice::computePropagator(const double mass, int site[4],
   if (nSmears > 0)
     this->links_ = templinks;
   // Calculate and return the propagator
-  return this->computePropagator(mass, site, spacing, D, solverMethod,
-				 nSourceSmears, sourceSmearingParameter,
-				 nSinkSmears, sinkSmearingParameter);
+  return this->computePropagator(mass, spacing, site, D, nSourceSmears,
+				 sourceSmearingParameter, nSinkSmears,
+				 sinkSmearingParameter, solverMethod);
 }
 
 
