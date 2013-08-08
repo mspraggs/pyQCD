@@ -126,8 +126,8 @@ if options.num_trials > 0:
 		if options.store_props == True:
 			props[i] = np.array(interfaces.get_propagator(L,
 														  options.mass,
-														  [0,0,0,0],
 														  options.a,
+														  [0,0,0,0],
 														  options.solver_method))
 			
 		if options.store_plaquette == True:
@@ -151,8 +151,8 @@ else:
 		if options.store_props == True:
 			props[i] = np.array(interfaces.get_propagator(L,
 														  options.mass,
-														  [0,0,0,0],
 														  options.a,
+														  [0,0,0,0],
 														  options.solver_method))
 
 		if options.store_configs == True:
