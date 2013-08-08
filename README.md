@@ -148,11 +148,12 @@ specified by the axes dim1 and dim2 (again, 0 is time and 1, 2 and 3 are spatial
 
 This was designed to print the lattice, but it doesn't work at the moment
 
-> lattice.propagator(mass, site, spacing, solver_method = 0)
+> lattice.propagator(mass, spacing = 1.0, site = [0,0,0,0], n_smears = 0, n_src_smears = 0, src_param = 1.0, n_sink_smears = 0, sink_param = 1.0, solver_method = 0)
 
 Calculates and returns the propagator at each lattice site using Wilson's fermion action and the specified mass, point
-source location specified by site and lattice spacing. By default, a BiCGSTAB solver is used, but a CG solver can be
-used by specifying solver_method = 1.
+source location specified by site and lattice spacing. Stout gauge field smearing and Jacobi smearing of the source and
+sink may also be specified. By default, a BiCGSTAB solver is used, but a CG solver can be used by specifying
+solver_method = 1.
 
 > lattice.rectangle(site, dim1, dim2)
 
