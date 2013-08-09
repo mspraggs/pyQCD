@@ -47,7 +47,7 @@ To run a basic simulation, all you need to do is return to the home directory of
 should make a results folder in the project root directory to store the results files. This will run the following set
 up:
 
-* 8^4 lattice
+* 4^3 x 8 lattice
 * Wilson gauge action
 * beta / u0 = 5.5 (u0 here is the tadpole improvement factor for coarse lattices)
 * 1000 configuration measurements with 50 lattice updates between configurations
@@ -65,7 +65,8 @@ Taking it Further
 It's highly unlikely you'll be content to run with the default run script configuration, so here's a summary of the 
 command line parameters for the run script:
 
-* --n=X, where X is the given number of sites per side of the lattice (so you'll end up with a X^4 size lattice)
+* --L=X, where X is the given number of sites along each spatial side of the lattice
+* --T=X, where X is the given number of sites along each temporal side of the lattice
 * --beta=X, where X is the QCD beta value
 * --u0=X, where X is the tadpole improvement factor
 * --action=N, N is an integer specifying the lattice gauge action (0 gives Wilson, 1 is rectangle improved, 2 is twisted rectangle improved)
@@ -94,10 +95,11 @@ get started, import the module. If you're in the main pyQCD directory, run
 
 The lattice has the following constructor:
 
-> pyQCD.Lattice(n, beta, u0, action, Ncor, rho, eps, update_method, parallel_flag)
+> pyQCD.Lattice(L, T, beta, u0, action, Ncor, rho, eps, update_method, parallel_flag)
 
 The arguments are defined in a similar way to above:
-* n - the number of points along each edge of the lattice (by default, n=8)
+* L - the number of points along each spatial edge of the lattice (by default, n=4)
+* T - the number of points along the temporal edge of the lattice (by default, n=8)
 * beta - the beta function value for the simulation (by default, beta=5.5)
 * u0 - the tadpole improvement value (by default, u0=1)
 * action - the action used in the simulation; 0 gives Wilson action, 1 gives rectangle improved action, 2 gives twisted rectangle improved action (by default, action=0)
