@@ -17,7 +17,8 @@ class pyLattice: public Lattice
 {
   friend struct lattice_pickle_suite;
 public:
-  pyLattice(const int nEdgePoints = 8,
+  pyLattice(const int spatialExtent = 4,
+	    const int temporalExtent = 8,
 	    const double beta = 5.5,
 	    const double u0 = 1.0,
 	    const int action = 0,

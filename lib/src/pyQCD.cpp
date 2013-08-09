@@ -22,7 +22,8 @@ struct lattice_pickle_suite : py::pickle_suite
 {
   static py::tuple getinitargs(const pyLattice& pylattice)
   {
-    return py::make_tuple(pylattice.nEdgePoints,
+    return py::make_tuple(pylattice.spatialExtent,
+			  pylattice.temporalExtent,
 			  pylattice.beta_,
 			  pylattice.u0_,
 			  pylattice.action_,
@@ -36,13 +37,13 @@ struct lattice_pickle_suite : py::pickle_suite
   {
     // Convert the links vector to a list for python compatability
     py::list links;
-    for (int i = 0; i < pylattice.nEdgePoints; i++) {
+    for (int i = 0; i < pylattice.temporalExtent; i++) {
       py::list temp1;
-      for (int j = 0; j < pylattice.nEdgePoints; j++) {
+      for (int j = 0; j < pylattice.spatialExtent; j++) {
 	py::list temp2;
-	for (int k = 0; k < pylattice.nEdgePoints; k++) {
+	for (int k = 0; k < pylattice.spatialExtent; k++) {
 	  py::list temp3;
-	  for (int l = 0; l < pylattice.nEdgePoints; l++) {
+	  for (int l = 0; l < pylattice.spatialExtent; l++) {
 	    py::list temp4;
 	    for (int m = 0; m < 4; m++) {
 	      py::list tempList;
@@ -91,10 +92,10 @@ struct lattice_pickle_suite : py::pickle_suite
     py::list randSu3States = py::extract<py::list>(state[1]);
 
     // Convert the compound list of links back to a vector...
-    for (int i = 0; i < pylattice.nEdgePoints; i++) {
-      for (int j = 0; j < pylattice.nEdgePoints; j++) {
-	for (int k = 0; k < pylattice.nEdgePoints; k++) {
-	  for (int l = 0; l < pylattice.nEdgePoints; l++) {
+    for (int i = 0; i < pylattice.temporalExtent; i++) {
+      for (int j = 0; j < pylattice.spatialExtent; j++) {
+	for (int k = 0; k < pylattice.spatialExtent; k++) {
+	  for (int l = 0; l < pylattice.spatialExtent; l++) {
 	    for (int m = 0; m < 4; m++) {
 	      Matrix3cd tempMatrix;
 	      for (int n = 0; n < 3; n++) {
@@ -141,8 +142,9 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(pyLatticeWavOverload,
 BOOST_PYTHON_MODULE(pyQCD)
 {
   py::class_<pyLattice>("Lattice",
-			py::init<int, double, double, int, int, double, int, int>
-			((py::arg("n")=8, py::arg("beta")=5.5,
+			py::init<int, int, double, double, int, int, double, int,
+				 int>
+			((py::arg("L")=4, py::arg("T")=8, py::arg("beta")=5.5,
 			  py::arg("u0")=1.0, py::arg("action")=0,
 			  py::arg("Ncor")=10, py::arg("rho")=0.3,
 			  py::arg("update_method")=0,
@@ -178,5 +180,6 @@ BOOST_PYTHON_MODULE(pyQCD)
 	 (py::arg("index")))
     .def_pickle(lattice_pickle_suite())
     .def_readonly("n_cor", &pyLattice::nCorrelations)
-    .def_readonly("n_points", &pyLattice::nEdgePoints);
+    .def_readonly("L", &pyLattice::spatialExtent)
+    .def_readonly("T", &pyLattice::temporalExtent);
 }

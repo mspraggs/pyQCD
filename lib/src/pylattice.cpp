@@ -1,6 +1,7 @@
 #include <pylattice.hpp>
 
-pyLattice::pyLattice(const int nEdgePoints,
+pyLattice::pyLattice(const int spatialExtent,
+		     const int temporalExtent,
 		     const double beta,
 		     const double u0,
 		     const int action,
@@ -8,8 +9,8 @@ pyLattice::pyLattice(const int nEdgePoints,
 		     const double rho,
 		     const int updateMethod,
 		     const int parallelFlag) :
-  Lattice::Lattice(nEdgePoints, beta, u0, action, nCorrelations, rho,
-		   updateMethod, parallelFlag)
+  Lattice::Lattice(spatialExtent, temporalExtent, beta, u0, action,
+		   nCorrelations, rho, updateMethod, parallelFlag)
 {
   
 }

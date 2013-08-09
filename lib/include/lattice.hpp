@@ -28,7 +28,8 @@ class Lattice
 {
 
 public:
-  Lattice(const int nEdgePoints = 8,
+  Lattice(const int spatialExtent = 4,
+	  const int temporalExtent = 8,
 	  const double beta = 5.5,
 	  const double u0 = 1.0,
 	  const int action = 0,
@@ -111,7 +112,7 @@ public:
 				      const double sinkSmearingParameter,
 				      const int solverMethod);
   
-  int nCorrelations, nEdgePoints;
+  int nCorrelations, spatialExtent, temporalExtent;
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 protected:
