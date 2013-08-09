@@ -25,6 +25,7 @@ def printConfig(options):
 	print("action = %d" % options.action)
 	print("mass = %f" % options.mass)
 	print("solver_method = %d" % options.solver_method)
+	print("block_size = %d" % options.block_size)
 
 parser = OptionParser()
 parser.add_option("-b", "--beta", action = "store", type = "float",
@@ -65,6 +66,8 @@ parser.add_option("--solver-method", action = "store", type = "int",
 				  dest = "solver_method", default = 0)
 parser.add_option("--mass", action = "store", type = "float",
 				  dest = "mass", default = 1.0)
+parser.add_option("--block-size", action = "store", type = "int",
+				  dest = "block_size", default = 4)
 
 (options,args) = parser.parse_args()
 
@@ -76,7 +79,8 @@ L = pyQCD.Lattice(options.L, #L
 				  options.Ncor, #Ncor
 				  options.rho, #rho
 				  options.update_method, #updateMethod
-				  options.parallel_flag) #parallelFlag
+				  options.parallel_flag, #parallelFlag
+				  options.block_size) #chunkSize
 
 t0 = time.time()
 
