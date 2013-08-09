@@ -13,7 +13,8 @@ from optparse import OptionParser
 def printConfig(options):
 	"""Outputs the simulation configuration to the screen"""
 	print("Configuration:")
-	print("n = %d" % options.n)
+	print("L = %d" % options.L)
+	print("T = %d" % options.T)
 	print("beta = %f" % options.beta)
 	print("Ncor = %d" % options.Ncor)
 	print("Ncf = %d" % options.Ncf)
@@ -34,7 +35,9 @@ parser.add_option("-a", "--action", action = "store", type = "int",
 				  dest = "action", default = 0)
 parser.add_option("--nsmears", action = "store", type = "int",
 				  dest = "n_smears", default = 0)
-parser.add_option("-n", "--n", action = "store", type = "int", dest = "n",
+parser.add_option("-L", "--L", action = "store", type = "int", dest = "L",
+				  default = 4)
+parser.add_option("-T", "--T", action = "store", type = "int", dest = "T",
 				  default = 8)
 parser.add_option("--Ncor", action = "store", type = "int", dest = "Ncor",
 				  default = 10)
@@ -65,14 +68,15 @@ parser.add_option("--mass", action = "store", type = "float",
 
 (options,args) = parser.parse_args()
 
-L = pyQCD.Lattice(options.n, #n
-					options.beta, #beta
-                    options.u0, #u0
-					options.action, #action			
-                    options.Ncor, #Ncor
-                    options.rho, #rho
-					options.update_method, #updateMethod
-					options.parallel_flag) #parallelFlag
+L = pyQCD.Lattice(options.L, #L
+				  options.T,
+				  options.beta, #beta
+				  options.u0, #u0
+				  options.action, #action
+				  options.Ncor, #Ncor
+				  options.rho, #rho
+				  options.update_method, #updateMethod
+				  options.parallel_flag) #parallelFlag
 
 t0 = time.time()
 
@@ -85,8 +89,8 @@ L.thermalize()
 print("Done!")
 sys.stdout.flush()
 
-rmax = L.n_points
-tmax = L.n_points
+rmax = L.L
+tmax = L.T
 
 array_size = options.num_trials \
   if options.num_trials > 0 else options.Ncf
@@ -96,14 +100,12 @@ if options.store_wloop == True:
 if options.store_plaquette == True:
 	Pavs = np.zeros(array_size)
 
-prop_shape = (array_size, L.n_points**4, 12, 12)
+prop_shape = (array_size, L.L**3 * L.T, 12, 12)
 	
 if options.store_props == True:
 	props = np.zeros(prop_shape, dtype=complex)
 
-config_shape = (array_size, L.n_points,
-				L.n_points, L.n_points,
-				L.n_points, 4, 3, 3)
+config_shape = (array_size, L.T, L.L, L.L, L.L, 4, 3, 3)
 
 if options.store_configs == True:
 	configs = np.zeros(config_shape, dtype=complex)
