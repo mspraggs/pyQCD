@@ -96,7 +96,7 @@ get started, import the module. If you're in the main pyQCD directory, run
 
 The lattice has the following constructor:
 
-> pyQCD.Lattice(L, T, beta, u0, action, Ncor, rho, eps, update_method, parallel_flag)
+> pyQCD.Lattice(L, T, beta, u0, action, Ncor, rho, eps, update_method, parallel_flag, block_size)
 
 The arguments are defined in a similar way to above:
 * L - the number of points along each spatial edge of the lattice (by default, n=4)
@@ -109,6 +109,7 @@ The arguments are defined in a similar way to above:
 * eps - the weighting for the random SU(3) matrix generation algorithm (by default, eps=0.24 to give an approximate 50% rejection rate for the update)
 * update_method - the method used for updating the gauge configurations, as defined above (by default, update_method=0, except for the twisted rectangle action, where it can only be 2)
 * parallel_flag - designates whether OpenMP should be used (by default, it is, with parallel_flag=1)
+* block_size - defines the size of the blocks the lattice is subdivided into during parallel updates, in terms of the side length of each block (by default, block_size=4)
 
 This constructor and all the constructors that follow now use keyword arguments for convenience.
 
