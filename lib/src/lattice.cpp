@@ -42,7 +42,7 @@ Lattice::Lattice(const int spatialExtent, const int temporalExtent,
 
   // Loop through all site indices and add all nearest-neighbour indices to
   // the list
-
+#pragma omp parallel for
   for (int i = 0; i < this->nLinks_; i += 4) {
     
     // Initialize the relevant site vector for the row index
