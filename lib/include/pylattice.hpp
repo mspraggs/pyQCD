@@ -25,7 +25,8 @@ public:
 	    const int nCorrelations = 50,
 	    const double rho = 0.3,
 	    const int updateMethod = 0,
-	    const int parallelFlag = 1);
+	    const int parallelFlag = 1,
+	    const int chunkSize = 4);
   pyLattice(const pyLattice& pylattice);
   ~pyLattice();
 

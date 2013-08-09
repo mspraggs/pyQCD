@@ -143,12 +143,12 @@ BOOST_PYTHON_MODULE(pyQCD)
 {
   py::class_<pyLattice>("Lattice",
 			py::init<int, int, double, double, int, int, double, int,
-				 int>
+				 int, int>
 			((py::arg("L")=4, py::arg("T")=8, py::arg("beta")=5.5,
 			  py::arg("u0")=1.0, py::arg("action")=0,
 			  py::arg("Ncor")=10, py::arg("rho")=0.3,
 			  py::arg("update_method")=0,
-			  py::arg("parallel_flag")=1)))
+			  py::arg("parallel_flag")=1, py::arg("block_size")=4)))
     .def(py::init<pyLattice&>())
     .def("get_link", &pyLattice::getLinkP, (py::arg("link")))
     .def("set_link", &pyLattice::setLinkP, (py::arg("link")))

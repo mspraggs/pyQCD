@@ -4,7 +4,8 @@
 Lattice::Lattice(const int spatialExtent, const int temporalExtent,
 		 const double beta, const double u0, const int action,
 		 const int nCorrelations, const double rho,
-		 const int updateMethod, const int parallelFlag)
+		 const int updateMethod, const int parallelFlag,
+		 const int chunkSize)
 {
   // Default constructor. Assigns function arguments to member variables
   // and initializes links.
@@ -164,7 +165,6 @@ Lattice::Lattice(const int spatialExtent, const int temporalExtent,
 
   // Initialize series of offsets used when doing block updates
 
-  int chunkSize = 4;
   for (int i = 0; i < chunkSize; ++i) {
     for (int j = 0; j < chunkSize; ++j) {
       for (int k = 0; k < chunkSize; ++k) {
