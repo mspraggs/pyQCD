@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 2.6)
-project (pyQCD)
+project (lattice)
 
 set (SRC_DIR ${PROJECT_BINARY_DIR}/src)
 set (INC_DIR ${PROJECT_BINARY_DIR}/include)
@@ -34,13 +34,14 @@ set (Boost_USE_STATIC_RUNTIME OFF)
 find_package (Boost COMPONENTS random python)
 
 set (SOURCES
-  ${SRC_DIR}/pyQCD.cpp
+  ${SRC_DIR}/wrapper.cpp
   ${SRC_DIR}/pylattice.cpp
-  ${SRC_DIR}/lattice.cpp)
+  ${SRC_DIR}/lattice.cpp
+  ${SRC_DIR}/utils.cpp)
 
 set (CMAKE_SHARED_LIBRARY_PREFIX "")
-add_library (pyQCD SHARED ${pyQCD_SRC})
-target_link_libraries (pyQCD ${Boost_LIBRARIES})
+add_library (lattice SHARED ${pyQCD_SRC})
+target_link_libraries (lattice ${Boost_LIBRARIES})
 
 IF(CMAKE_COMPILER_IS_GNUCXX)
   ADD_DEFINITIONS("-O3")
