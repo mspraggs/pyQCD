@@ -47,9 +47,7 @@ Lattice::Lattice(const int spatialExtent, const int temporalExtent,
     
     // Initialize the relevant site vector for the row index
     int rowLink[5];
-    cout << i << endl;
     pyQCD::getLinkIndices(i, this->spatialExtent, this->temporalExtent, rowLink);
-    cout << rowLink[0] << rowLink[1] << rowLink[2] << rowLink[3] << endl;
    
     // Something to hold the neighbours for the row temporarily
     vector<int> rowNeighbours;
@@ -93,9 +91,6 @@ Lattice::Lattice(const int spatialExtent, const int temporalExtent,
       }
       // If the neighbour exists, add it to the list.
       if (neighbourCount > 0) {
-	cout << rowNeighboursIndex << endl;
-	cout << j << endl;
-	cout << columnLink[0] << columnLink[1] << columnLink[2] << columnLink[3] << endl;
 	this->propagatorColumns_[i / 4][rowNeighboursIndex][0] = j;
 	this->propagatorColumns_[i / 4][rowNeighboursIndex][1] = dimension;
 	rowNeighboursIndex++;
