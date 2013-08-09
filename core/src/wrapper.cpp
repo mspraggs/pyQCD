@@ -139,7 +139,7 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(pyLatticeWOverload,
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(pyLatticeWavOverload, 
 				       computeAverageWilsonLoopP, 2, 3)
 
-BOOST_PYTHON_MODULE(pyQCD)
+BOOST_PYTHON_MODULE(lattice)
 {
   py::class_<pyLattice>("Lattice",
 			py::init<int, int, double, double, int, int, double, int,

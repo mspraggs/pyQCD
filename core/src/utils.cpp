@@ -1,4 +1,4 @@
-#include <pyQCD_utils.hpp>
+#include <utils.hpp>
 
 namespace pyQCD
 {

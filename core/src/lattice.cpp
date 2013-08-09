@@ -1,5 +1,5 @@
 #include <lattice.hpp>
-#include <pyQCD_utils.hpp>
+#include <utils.hpp>
 
 Lattice::Lattice(const int spatialExtent, const int temporalExtent,
 		 const double beta, const double u0, const int action,
