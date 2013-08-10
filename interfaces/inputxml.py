@@ -29,7 +29,7 @@ class Xml:
 			return False
 		else:
 			return True
-
+		
 	def parse_lattice(self):
 		lattice = validate_tags(xmltree, ["lattice"])
 
