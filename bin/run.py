@@ -1,5 +1,5 @@
 
-import lib.pyQCD as pyQCD
+from core import lattice as pyQCD
 import interfaces
 import numpy as np
 import fileio
