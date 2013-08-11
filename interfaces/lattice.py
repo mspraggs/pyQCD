@@ -1,48 +1,62 @@
 import numpy as np
 import itertools
 
-def get_links(lattice):
-	"""Extracts links from lattice as a compound list of numpy arrays"""
-	out = []
-	r = xrange(lattice.n_points)
-	links = intertools.product(r, r, r, r, range(4))
+class LatticeInterface:
 
-	for link in links:
-		out.append(np.matrix(lattice.get_link(link)))
+	def __init__(self, lattice):
+		"""Constructor"""
+		self.lattice = lattice
 
-	return out
+	def get_links(self):
+		"""Extracts links from lattice as a compound list of numpy arrays"""
+		out = []
+		r = xrange(lattice.n_points)
+		links = intertools.product(r, r, r, r, range(4))
+		
+		for link in links:
+			out.append(np.matrix(self.lattice.get_link(link)))
+			
+		return out
 
-def set_links(lattice, links):
-	"""Inserts links into lattice"""
-	out = []
-	r = xrange(lattice.n_points)
-	link_coords = intertools.product(r, r, r, r, range(4))
+	def set_links(links):
+		"""Inserts links into lattice"""
+		out = []
+		r = xrange(lattice.n_points)
+		link_coords = intertools.product(r, r, r, r, range(4))
+		
+		index = 0
+		
+		for link_coords in link_coords:
+			temp_link = [[col for col in row] for row in links[i]]
+			self.lattice.set_link(link)
+			i += 1
+			
+	def get_wilson_loops(self, loop_config):
+		"""Calculates a series of Wilson loops up to the maximum r and t
+		values"""
+		out = np.zeros((loop_config['r_max'] - 1,
+						loop_config['t_max'] - 1))
+		
+		for r in xrange(1, rmax):
+			for t in xrange(1, tmax):
+				out[r - 1, t - 1] \
+				  += self.lattice \
+				  .av_wilson_loop(r, t, loop_config['num_field_smears'],
+								  loop_config['field_smearing_param'],)
+				
+		return out
 
-	index = 0
-	
-	for link_coords in link_coords:
-		temp_link = [[col for col in row] for row in links[i]]
-		lattice.set_link(link)
-		i += 1
+	def get_propagator(self, prop_config):
+		"""Extracts the propagator as a list of matrices"""
+		raw_propagator = lattice.propagator(prop_config['mass'],
+											prop_config['a'],
+											prop_config['source_site'],
+											prop_config['num_field_smears'],
+											prop_config['field_smearing_param'],
+											prop_config['num_source_smears'],
+											prop_config['source_smearing_param'],
+											prop_config['num_sink_smears'],
+											prop_config['sink_smearing_param'],
+											prop_config['solver_method'])
 
-	return out
-
-def get_wilson_loops(lattice, rmax, tmax, n_smears = 0):
-    """Calculates a series of Wilson loops up to the maximum r and t values"""
-    out = np.zeros((rmax - 1, tmax - 1))
-    
-    for r in xrange(1, rmax):
-        for t in xrange(1, tmax):
-            out[r - 1, t - 1] += lattice.av_wilson_loop(r, t, n_smears)
-            
-    return out
-
-def get_propagator(lattice, mass, spacing = 1.0, source = [0,0,0,0],
-				   n_smears = 0, n_src_smears = 0, src_param = 1.0,
-				   n_sink_smears = 0, sink_param = 1.0, solver_method = 0):
-	"""Extracts the propagator as a list of matrices"""
-	raw_propagator = lattice.propagator(mass, spacing, source, n_smears,
-										n_src_smears, src_param,
-										n_sink_smears, sink_param, solver_method)
-
-	return [np.matrix(matrix) for matrix in raw_propagator]
+		return [np.matrix(matrix) for matrix in raw_propagator]
