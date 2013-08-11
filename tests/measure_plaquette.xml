@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<!--
+Runs a simulation, generating 1000 configuration, with 10 update configurations
+in between. The plaquette expectation value is calculated for each configuration
+and stored in the file plaquette_output.npy (a NumPy binary).
+-->
+<pyQCD>
+  <lattice>
+    <L>4</L>
+    <T>8</T>
+  </lattice>
+
+  <simulation>
+    <num_configurations>1000</num_configurations>
+    <measurement_spacing>10</measurement_spacing>
+    <!-- Use heatbath updates -->
+    <update_method>HEATBATH</update_method>
+  </simulation>
+
+  <gauge_action>
+    <!-- Use a rectangle-improved Wilson action -->
+    <type>RECTANGLE_IMPROVED</type>
+    <!-- These values should correspond to a lattice spacing of 0.25 fm -->
+    <beta>4.26</beta>
+    <u0>0.797</u0>
+  </gauge_action>
+
+  <measurements>
+    <plaquette>
+      <filename>plaquette_output</filename>
+    </plaquette>
+  </measurements>
+</pyQCD>
