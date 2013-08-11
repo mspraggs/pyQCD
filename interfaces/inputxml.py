@@ -295,12 +295,10 @@ class Xml:
 	def parse_measurements(self):
 		"""Parses all the relevant measurement code"""
 		measurements = validate_tags(self.xmltree, ["measurements"])
+		
+		measurement_settings = []
 
-		if measurements == None:
-			return None
-		else:
-			measurement_settings = []
-
+		if measurements != None:
 			plaquette_settings = self.parse_plaquette(measurements[0])
 
 			if plaquette_settings != None:
@@ -317,5 +315,4 @@ class Xml:
 			if propagator_settings != None:
 				measurement_settings.append(("propagator", propagator_settings))
 
-
-			return dict(measurement_settings)
+		return dict(measurement_settings)
