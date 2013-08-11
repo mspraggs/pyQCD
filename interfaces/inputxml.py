@@ -96,7 +96,7 @@ class Xml:
 			else:
 				lattice_settings += temp_list
 
-				return dict(lattice_settings)		
+				return dict(lattice_settings)
 		
 	def parse_simulation(self):
 		"""Extracts simulation parameters from the xml"""
@@ -106,8 +106,23 @@ class Xml:
 			return None
 		else:
 			simulation_settings = []
-			tags = ["num_configurations", "measurement_spacing",
-					"update_method", "parallel_update", "timing_run"]
+			required_tags = ["num_configurations", "measurement_spacing"]
+			optional_tags = ["update_method"]
+			required_types = [int, int]
+			optional_types = [update_methods]
+			optional_defaults = [0]
+
+			required_list = extract(simulation[0], required_tags, required_types)
+			optional_list = extract_default(simulation[0], optional_tags,
+											optional_types, optional_defaults)
+
+			if required_list == None:
+				return None
+			else:
+				simulation_settings += required_list
+
+			simulation_settings += optional_list
+			
 			required_elements = validate_tags(simulation[0], tags[0:2])
 
 			if required_elements == None:
