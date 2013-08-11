@@ -108,7 +108,7 @@ class Xml:
 		out = []
 		
 		if parallel_update == None:
-			return dict([("parallel_flag", 0), ("block_size", 1)])
+			return dict([("enabled", 0), ("block_size", 1)])
 		else:
 			optional_tags = ["enabled", "block_size"]
 			optional_types = [truefalse, int]
@@ -126,7 +126,7 @@ class Xml:
 		out = []
 
 		if timing_run == None:
-			return dict([("timing_flag", 0), ("num_timing_configs", 0)])
+			return dict([("enabled", 0), ("num_configurations", 0)])
 		else:
 			optional_tags = ["enabled", "num_configurations"]
 			optional_types = [truefalse, int]
@@ -180,7 +180,7 @@ class Xml:
 			gauge_action_settings = []
 			required_tags = ["type", "beta"]
 			optional_tags = ["u0"]
-			required_types = [gauge_actions, int]
+			required_types = [gauge_actions, float]
 			optional_types = [float]
 			optional_defaults = [1.0]
 
