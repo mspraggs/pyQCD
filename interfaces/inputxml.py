@@ -295,7 +295,6 @@ class Xml:
 	def parse_measurements(self):
 		"""Parses all the relevant measurement code"""
 		measurements = validate_tags(self.xmltree, ["measurements"])
-		
 		measurement_settings = []
 
 		if measurements != None:
