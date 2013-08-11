@@ -23,6 +23,34 @@ def validate_tags(root, tags):
 			out.append(element[0])
 	return out
 
+def extract_content(element, return_type):
+	"""Extracts the data within the element and converts it to the
+	specified type"""
+
+	content = element.text
+
+	if return_type == int:
+		return int(eval(content))
+	elif return_type == float:
+		return float(eval(content))
+	elif return_type == list:
+		return eval(content)
+	elif return_type == str:
+		return content
+	else:
+		return content
+
+def apply_defaults(root, tags, defaults, return_types):
+	"""Looks for the tag in root and returns default if it isn't found"""
+	elements = validate_tags(root, tags):
+	if elements == None:
+		return zip(tags, defaults)
+	else:
+		out = []
+		for i in xrange(len(elements))
+			out.append((tags[i], extract_content(elements[i], return_types[i])))
+		return out
+
 class Xml:
 
 	def __init__(self, fname):
@@ -43,22 +71,22 @@ class Xml:
 		lattice = validate_tags(self.xmltree, ["lattice"])
 
 		if lattice == None:
-			print("Warning! Returning None...")
 			return None
 		else:
 			lattice_settings = []
 			tags = ["T", "L"]
+			types = [int, int]
 			elements = validate_tags(lattice[0], tags)
 
 			if elements == None:
-				print("Warning! Returning None...")
 				return None
 			else:
-				lattice_settings.append((tags[0], int(eval(elements[0].text))))
-				lattice_settings.append((tags[1], int(eval(elements[1].text))))
+				for i in xrange(len(tags)):
+					lattice_settings \
+					  .append((tags[i], extract_content(elements[i], types[i])))
 
-				return dict(lattice_settings)
-
+				return dict(lattice_settings)		
+		
 	def parse_simulation(self):
 		"""Extracts simulation parameters from the xml"""
 		simulation = validate_tags(self.xmltree, ["simulation"])
