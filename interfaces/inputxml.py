@@ -23,7 +23,7 @@ def validate_tags(root, tags):
 			out.append(element[0])
 	return out
 
-def extract_content(element, return_type):
+def convert_content(element, return_type):
 	"""Extracts the data within the element and converts it to the
 	specified type"""
 
@@ -37,18 +37,31 @@ def extract_content(element, return_type):
 		return eval(content)
 	elif return_type == str:
 		return content
+	elif type(return_type) == dict:
+		return return_type[content]
 	else:
 		return content
 
-def apply_defaults(root, tags, defaults, return_types):
+def extract_defaults(root, tags, defaults, return_types):
 	"""Looks for the tag in root and returns default if it isn't found"""
-	elements = validate_tags(root, tags):
+	elements = validate_tags(root, tags)
 	if elements == None:
 		return zip(tags, defaults)
 	else:
 		out = []
-		for i in xrange(len(elements))
-			out.append((tags[i], extract_content(elements[i], return_types[i])))
+		for i in xrange(len(elements)):
+			out.append((tags[i], convert_content(elements[i], return_types[i])))
+		return out
+
+def extract(root, tags, return_types):
+	"""Extract the data from the specified tags"""
+	elements = validate_tags(root, tags)
+	if elements == None:
+		return None
+	else:
+		out = []
+		for i in xrange(len(elements)):
+			out.append((tags[i], convert_content(elements[i], return_types[i])))
 		return out
 
 class Xml:
@@ -76,14 +89,12 @@ class Xml:
 			lattice_settings = []
 			tags = ["T", "L"]
 			types = [int, int]
-			elements = validate_tags(lattice[0], tags)
+			temp_list = extract(lattice[0], tags, types)
 
-			if elements == None:
+			if temp_list == None:
 				return None
 			else:
-				for i in xrange(len(tags)):
-					lattice_settings \
-					  .append((tags[i], extract_content(elements[i], types[i])))
+				lattice_settings += temp_list
 
 				return dict(lattice_settings)		
 		
