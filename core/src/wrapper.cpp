@@ -28,7 +28,6 @@ struct lattice_pickle_suite : py::pickle_suite
 			  pylattice.u0_,
 			  pylattice.action_,
 			  pylattice.nCorrelations,
-			  pylattice.rho_,
 			  pylattice.updateMethod_,
 			  pylattice.parallelFlag_);
   }
@@ -142,12 +141,11 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(pyLatticeWavOverload,
 BOOST_PYTHON_MODULE(lattice)
 {
   py::class_<pyLattice>("Lattice",
-			py::init<int, int, double, double, int, int, double, int,
+			py::init<int, int, double, double, int, int, int,
 				 int, int>
 			((py::arg("L")=4, py::arg("T")=8, py::arg("beta")=5.5,
 			  py::arg("u0")=1.0, py::arg("action")=0,
-			  py::arg("Ncor")=10, py::arg("rho")=0.3,
-			  py::arg("update_method")=0,
+			  py::arg("Ncor")=10, py::arg("update_method")=0,
 			  py::arg("parallel_flag")=1, py::arg("block_size")=4)))
     .def(py::init<pyLattice&>())
     .def("get_link", &pyLattice::getLinkP, (py::arg("link")))

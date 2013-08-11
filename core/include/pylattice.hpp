@@ -23,7 +23,6 @@ public:
 	    const double u0 = 1.0,
 	    const int action = 0,
 	    const int nCorrelations = 50,
-	    const double rho = 0.3,
 	    const int updateMethod = 0,
 	    const int parallelFlag = 1,
 	    const int chunkSize = 4);
@@ -35,11 +34,14 @@ public:
   double computeTwistedRectangleP(const py::list site2, const int mu,
 				  const int nu);
   double computeWilsonLoopP(const py::list cnr, const int r, const int t,
-			    const int dim, const int nSmears = 0);
+			    const int dim, const int nSmears = 0,
+			    const double smearingParameter = 1.0);
   double computeAverageWilsonLoopP(const int r, const int t,
-				   const int nSmears = 0);
+				   const int nSmears = 0,
+				   const double smearingParameter = 1.0);
   py::list computePropagatorP(const double mass, const double spacing,
 			      const py::list site, const int nSmears,
+			      const double smearingParameter,
 			      const int nSourceSmears,
 			      const double sourceSmearingParameter,
 			      const int nSinkSmears,

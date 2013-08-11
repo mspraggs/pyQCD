@@ -6,12 +6,11 @@ pyLattice::pyLattice(const int spatialExtent,
 		     const double u0,
 		     const int action,
 		     const int nCorrelations,
-		     const double rho,
 		     const int updateMethod,
 		     const int parallelFlag,
 		     const int chunkSize) :
   Lattice::Lattice(spatialExtent, temporalExtent, beta, u0, action,
-		   nCorrelations, rho, updateMethod, parallelFlag, chunkSize)
+		   nCorrelations, updateMethod, parallelFlag, chunkSize)
 {
   
 }
@@ -74,7 +73,8 @@ double pyLattice::computeTwistedRectangleP(const py::list site,
 
 double pyLattice::computeWilsonLoopP(const py::list corner, const int r,
 				     const int t, const int dimension,
-				     const int nSmears)
+				     const int nSmears,
+				     const double smearingParameter)
 {
   // Calculates the loop specified by corners c1 and c2 (which must
   // lie in the same plane)
@@ -83,23 +83,26 @@ double pyLattice::computeWilsonLoopP(const py::list corner, const int r,
 		       py::extract<int>(corner[2]),
 		       py::extract<int>(corner[3])};
 
-  return this->computeWilsonLoop(tempCorner, r, t, dimension, nSmears);
+  return this->computeWilsonLoop(tempCorner, r, t, dimension, nSmears,
+				 smearingParameter);
 }
 
 
 
 double pyLattice::computeAverageWilsonLoopP(const int r, const int t,
-					    const int nSmears)
+					    const int nSmears,
+					    const double smearingParameter)
 {
   // Wrapper for the expectation value for the Wilson loop
   ScopedGILRelease scope;
-  return this->computeAverageWilsonLoop(r, t, nSmears);
+  return this->computeAverageWilsonLoop(r, t, nSmears, smearingParameter);
 }
 
 
 
 py::list pyLattice::computePropagatorP(const double mass, const double spacing,
 				       const py::list site, const int nSmears,
+				       const double smearingParameter,
 				       const int nSourceSmears,
 				       const double sourceSmearingParameter,
 				       const int nSinkSmears,
@@ -115,7 +118,9 @@ py::list pyLattice::computePropagatorP(const double mass, const double spacing,
   ScopedGILRelease* scope = new ScopedGILRelease;
   // Get the propagator
   vector<MatrixXcd> prop = this->computePropagator(mass, spacing, tempSite,
-						   nSmears, nSourceSmears,
+						   nSmears,
+						   smearingParameter,
+						   nSourceSmears,
 						   sourceSmearingParameter,
 						   nSinkSmears,
 						   sinkSmearingParameter,

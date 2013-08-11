@@ -3,9 +3,8 @@
 
 Lattice::Lattice(const int spatialExtent, const int temporalExtent,
 		 const double beta, const double u0, const int action,
-		 const int nCorrelations, const double rho,
-		 const int updateMethod, const int parallelFlag,
-		 const int chunkSize)
+		 const int nCorrelations, const int updateMethod,
+		 const int parallelFlag, const int chunkSize)
 {
   // Default constructor. Assigns function arguments to member variables
   // and initializes links.
@@ -14,7 +13,6 @@ Lattice::Lattice(const int spatialExtent, const int temporalExtent,
   this->nLinks_ = int(pow(this->spatialExtent, 3) * this->temporalExtent * 4);
   this->beta_ = beta;
   this->nCorrelations = nCorrelations;
-  this->rho_ = rho;
   this->nUpdates_ = 0;
   this->u0_ = u0;
   this->action_ = action;
@@ -209,7 +207,6 @@ Lattice::Lattice(const Lattice& lattice)
   this->nLinks_ = lattice.nLinks_;
   this->beta_ = lattice.beta_;
   this->nCorrelations = lattice.nCorrelations;
-  this->rho_ = lattice.rho_;
   this->nUpdates_ = lattice.nUpdates_;
   this->u0_ = lattice.u0_;
   this->links_ = lattice.links_;
@@ -637,7 +634,8 @@ Matrix3cd Lattice::computeLine(const int start[4], const int finish[4])
 
 
 double Lattice::computeWilsonLoop(const int corner1[4], const int corner2[4],
-				  const int nSmears)
+				  const int nSmears,
+				  const double smearingParameter)
 {
   // Calculates the loop specified by corners corner1 and corner2 (which must
   // lie in the same plane)
@@ -656,8 +654,8 @@ double Lattice::computeWilsonLoop(const int corner1[4], const int corner2[4],
       linkStore1[i] = this->links_[corner1Timeslice + i];
       linkStore2[i] = this->links_[corner2Timeslice + i];
     }
-    this->smearLinks(corner1[0], nSmears);
-    this->smearLinks(corner2[0], nSmears);
+    this->smearLinks(corner1[0], nSmears, smearingParameter);
+    this->smearLinks(corner2[0], nSmears, smearingParameter);
   }
 
   // Check that corner1 and corner2 are on the same plane
@@ -702,7 +700,8 @@ double Lattice::computeWilsonLoop(const int corner1[4], const int corner2[4],
 
 double Lattice::computeWilsonLoop(const int corner[4], const int r,
 				  const int t, const int dimension,
-				  const int nSmears)
+				  const int nSmears,
+				  const double smearingParameter)
 {
   // Calculates the loop specified by initial corner, width, height and
   // dimension
@@ -721,8 +720,8 @@ double Lattice::computeWilsonLoop(const int corner[4], const int r,
       linkStore1[i] = this->links_[corner1Timeslice + i];
       linkStore2[i] = this->links_[corner2Timeslice + i];
     }
-    this->smearLinks(corner[0], nSmears);
-    this->smearLinks(corner[0] + t, nSmears);
+    this->smearLinks(corner[0], nSmears, smearingParameter);
+    this->smearLinks(corner[0] + t, nSmears, smearingParameter);
   }
   // An output matrix
   Matrix3cd out = Matrix3cd::Identity();
@@ -953,7 +952,8 @@ double Lattice::computeAverageRectangle()
 
 
 double Lattice::computeAverageWilsonLoop(const int r, const int t,
-					 const int nSmears)
+					 const int nSmears,
+					 const double smearingParameter)
 {
   // Calculates the average of all possible Wilson loops of a given
   // dimension.
@@ -962,7 +962,7 @@ double Lattice::computeAverageWilsonLoop(const int r, const int t,
   if (nSmears > 0) {
     templinks = this->links_;
     for (int time = 0; time < this->temporalExtent; time++) {
-      this->smearLinks(time, nSmears);
+      this->smearLinks(time, nSmears, smearingParameter);
     }
   }
 
@@ -1089,7 +1089,7 @@ Matrix2cd Lattice::makeHeatbathSu2(double coefficients[4],
 
 
 
-Matrix3cd Lattice::computeQ(const int link[5])
+Matrix3cd Lattice::computeQ(const int link[5], const double smearingParameter)
 {
   // Calculates Q matrix for analytic smearing according to paper on analytic
   // smearing (Morningstart and Peardon, 2003)
@@ -1129,7 +1129,7 @@ Matrix3cd Lattice::computeQ(const int link[5])
     }
   }
   
-  C *= this->rho_;
+  C *= smearingParameter;
 
   Matrix3cd Omega = C * this->getLink(link).adjoint();
   Matrix3cd OmegaAdjoint = Omega.adjoint() - Omega;
@@ -1139,7 +1139,8 @@ Matrix3cd Lattice::computeQ(const int link[5])
 
 
 
-void Lattice::smearLinks(const int time, const int nSmears)
+void Lattice::smearLinks(const int time, const int nSmears,
+			 const double smearingParameter)
 {
   // Smear the specified time slice by iterating calling this function
   int nSpatialLinks = this->nLinks_ / this->temporalExtent;
@@ -1159,7 +1160,7 @@ void Lattice::smearLinks(const int time, const int nSmears)
 	  int link[5];
 	  pyQCD::getLinkIndices(time * nSpatialLinks + j + k,
 				this->spatialExtent, this->temporalExtent, link);
-	  Matrix3cd tempMatrix = this->computeQ(link);
+	  Matrix3cd tempMatrix = this->computeQ(link, smearingParameter);
 	  newLinks[j + k] = (pyQCD::i * tempMatrix).exp() * this->getLink(link);
 	}
       }
@@ -1184,7 +1185,7 @@ void Lattice::smearLinks(const int time, const int nSmears)
 	  int link[5];
 	  pyQCD::getLinkIndices(time * nSpatialLinks + j + k,
 				this->spatialExtent, this->temporalExtent, link);
-	  Matrix3cd tempMatrix = this->computeQ(link);
+	  Matrix3cd tempMatrix = this->computeQ(link, smearingParameter);
 	  newLinks[time * nSpatialLinks + j + k] = (pyQCD::i * tempMatrix).exp()
 	    * this->getLink(link);
 	}
@@ -1506,7 +1507,8 @@ Lattice::computePropagator(const double mass, const double spacing, int site[4],
 
 vector<MatrixXcd>
 Lattice::computePropagator(const double mass, const double spacing, int site[4],
-			   const int nSmears, const int nSourceSmears,
+			   const int nSmears, const double smearingParameter,
+			   const int nSourceSmears,
 			   const double sourceSmearingParameter,
 			   const int nSinkSmears,
 			   const double sinkSmearingParameter,
@@ -1519,7 +1521,7 @@ Lattice::computePropagator(const double mass, const double spacing, int site[4],
   if (nSmears > 0) {
     templinks = this->links_;
     for (int time = 0; time < this->temporalExtent; time++) {
-      this->smearLinks(time, nSmears);
+      this->smearLinks(time, nSmears, smearingParameter);
     }
   }
   // Get the dirac matrix

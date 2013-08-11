@@ -34,7 +34,6 @@ public:
 	  const double u0 = 1.0,
 	  const int action = 0,
 	  const int nCorrelations = 50,
-	  const double rho = 0.3,
 	  const int updateMethod = 0,
 	  const int parallelFlag = 1,
 	  const int chunkSize = 4);
@@ -64,9 +63,11 @@ public:
   Matrix3cd computePath(const vector<vector<int> >& path);
   Matrix3cd computeLine(const int start[4], const int finish[4]);
   double computeWilsonLoop(const int corner1[4], const int corner2[4],
-			   const int nSmears = 0);
+			   const int nSmears = 0,
+			   const double smearingParameter = 1.0);
   double computeWilsonLoop(const int corner[4], const int r, const int t,
-			   const int dimension, const int nSmears = 0);
+			   const int dimension, const int nSmears = 0,
+			   const double smearingParameter = 1.0);
 
   double computePlaquette(const int site[4], const int dimension1,
 			  const int dimension2);
@@ -78,17 +79,19 @@ public:
   double computeAveragePlaquette();
   double computeAverageRectangle();
   double computeAverageWilsonLoop(const int r, const int t,
-			      const int nSmears = 0);
+				  const int nSmears = 0,
+				  const double smearingParameter = 1.0);
   double computeMeanLink();
 
   double (Lattice::*computeLocalAction)(const int link[5]);
   Matrix3cd (Lattice::*computeStaples)(const int link[5]);
   Matrix3cd makeRandomSu3();
   Matrix2cd makeHeatbathSu2(double coefficients[4],
-		       const double weighting);
+			    const double weighting);
 
-  Matrix3cd computeQ(const int link[5]);
-  void smearLinks(const int time, const int nSmears);
+  Matrix3cd computeQ(const int link[5], const double smearingParameter);
+  void smearLinks(const int time, const int nSmears,
+		  const double smearingParameter);
 
   SparseMatrix<complex<double> > computeDiracMatrix(const double mass,
 						    const double spacing);
@@ -99,6 +102,7 @@ public:
   vector<MatrixXcd> computePropagator(const double mass, const double spacing,
 				      int site[4],
 				      const int nSmears,
+				      const double smearingParameter,
 				      const int nSourceSmears,
 				      const double sourceSmearingParameter,
 				      const int nSinkSmears,
@@ -117,7 +121,7 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 protected:
-  double beta_, u0_, rho_;
+  double beta_, u0_;
   int nUpdates_, action_, updateMethod_, parallelFlag_, nLinks_;
   double computeLocalWilsonAction(const int link[5]);
   double computeLocalRectangleAction(const int link[5]);
