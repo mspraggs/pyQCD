@@ -2,8 +2,8 @@ QHO/*
 *~
 *.pyc
 results/*
-lib/CMakeCache.txt
-lib/CMakeFiles/*
-lib/Makefile
-lib/cmake_install.cmake
-lib/pyQCD.so
+core/CMakeCache.txt
+core/CMakeFiles/*
+core/Makefile
+core/cmake_install.cmake
+core/lattice.so
