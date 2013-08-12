@@ -1,5 +1,5 @@
 import core.lattice
-import interfaces.inputxml
+import interfaces.xmlinput
 import interfaces.lattice
 import interfaces.measurements
 import sys
@@ -15,7 +15,7 @@ def main():
 	
 	(options,args) = parser.parse_args()
 
-	xmlinput = interfaces.inputxml.Xml(options.input_file)
+	xmlinput = interfaces.xmlinput.Xml(options.input_file)
 	if xmlinput.check_root() == False:
 		print("Error! XML input is missing pyQCD tag.")
 		sys.exit()
