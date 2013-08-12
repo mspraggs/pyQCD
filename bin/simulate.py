@@ -35,6 +35,10 @@ def main():
 		print("Error! There was an error parsing the gauge action settings.")
 		sys.exit()
 
+	print("Input XML:")
+	print(xmlinput)
+	print("")
+
 	measurement_settings = xmlinput.parse_measurements()
 
 	print("Creating the lattice...")
