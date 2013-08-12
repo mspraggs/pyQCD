@@ -1,4 +1,4 @@
-import pylab
+import pylab as pl
 
 def pair_potential(b, r):
 	"""Calculates the quark pair potential as b[0] * r - b[1] / r + b[2]"""
@@ -40,3 +40,8 @@ def auto_correlation(plaquettes, t):
 	mean_plaquette = pl.mean(plaquettes)
 	return pl.mean((plaquettes - mean_plaquette) \
 				   * (pl.roll(plaquettes, -t) - mean_plaquette))
+
+def calculate_spacing(wilson_loops):
+	"""Calculates the lattice spacing using the Sommer scale"""
+	fit_params = potential_params(wilson_loops)
+	return 0.5 / pl.sqrt((1.65 + fit_params[1]) / fit_params[2])
