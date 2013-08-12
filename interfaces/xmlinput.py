@@ -74,6 +74,17 @@ class Xml:
 		self.filename = fname
 		self.xmltree = ET.parse(self.filename)
 
+	def __str__(self):
+		"""Returns the contents of the xml file"""
+		string_out = ""
+		f = open(self.filename)
+		lines = f.readlines()
+
+		for line in lines:
+			string_out += line
+
+		return string_out
+
 	def check_root(self):
 		"""Checks to see that the root tag is correct"""
 		root = self.xmltree.getroot()
