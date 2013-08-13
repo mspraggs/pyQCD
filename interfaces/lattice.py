@@ -48,15 +48,16 @@ class LatticeInterface:
 
 	def get_propagator(self, prop_config):
 		"""Extracts the propagator as a list of matrices"""
-		raw_propagator = lattice.propagator(prop_config['mass'],
-											prop_config['a'],
-											prop_config['source_site'],
-											prop_config['num_field_smears'],
-											prop_config['field_smearing_param'],
-											prop_config['num_source_smears'],
-											prop_config['source_smearing_param'],
-											prop_config['num_sink_smears'],
-											prop_config['sink_smearing_param'],
-											prop_config['solver_method'])
+		raw_propagator = self \
+		  .lattice.propagator(prop_config['mass'],
+							  prop_config['a'],
+							  prop_config['source_site'],
+							  prop_config['num_field_smears'],
+							  prop_config['field_smearing_param'],
+							  prop_config['num_source_smears'],
+							  prop_config['source_smearing_param'],
+							  prop_config['num_sink_smears'],
+							  prop_config['sink_smearing_param'],
+							  prop_config['solver_method'])
 
 		return [np.matrix(matrix) for matrix in raw_propagator]
