@@ -15,31 +15,21 @@ def main():
 	
 	(options,args) = parser.parse_args()
 
-	xmlinput = interfaces.xmlinput.Xml(options.input_file)
-	if xmlinput.check_root() == False:
-		print("Error! XML input is missing pyQCD tag.")
+	try:
+		xmlinput = interfaces.xmlinput.XmlInterface(options.input_file)
+	except interfaces.xmlinput.ET.ParseError:
+		print("Error parsing XML file.")
 		sys.exit()
-
-	lattice_settings = xmlinput.parse_lattice()
-	if lattice_settings == None:
-		print("Error! There was an error parsing the lattice settings.")
-		sys.exit()
-	
-	simulation_settings = xmlinput.parse_simulation()
-	if simulation_settings == None:
-		print("Error! There was an error parsing the simulation settings.")
-		sys.exit()
-	
-	gauge_action_settings = xmlinput.parse_gauge_action()
-	if gauge_action_settings == None:
-		print("Error! There was an error parsing the gauge action settings.")
-		sys.exit()
+		
+	lattice_settings = xmlinput.lattice()
+	simulation_settings = xmlinput.simulation()	
+	gauge_action_settings = xmlinput.gauge_action()
 
 	print("Input XML:")
 	print(xmlinput)
 	print("")
 
-	measurement_settings = xmlinput.parse_measurements()
+	measurement_settings = xmlinput.measurements()
 
 	print("Creating the lattice...")
 	lattice \
