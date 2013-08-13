@@ -61,7 +61,6 @@ class XmlInterface:
 					self.fill_defaults(settings[key], defaults[key])
 			else:
 				if do_not_adds.count(key) == 0:
-					print(key)
 					if not defaults.has_key(key):
 						raise ET.ParseError("Missing required configuration ta")
 					else:
