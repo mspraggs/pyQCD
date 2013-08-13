@@ -62,7 +62,8 @@ class XmlInterface:
 			else:
 				if do_not_adds.count(key) == 0:
 					if not defaults.has_key(key):
-						raise ET.ParseError("Missing required configuration ta")
+						raise ET \
+						  .ParseError("Missing required configuration tag.")
 					else:
 						settings.update({key: defaults[key]})
 						if type(defaults[key]) == dict:
