@@ -31,7 +31,14 @@ def main():
 
 	for action in actions:
 		if action == "auto_correlation":
+			
+			postprocessing.xmlroutines \
+			  .auto_correlation(postprocess_settings[action])
+		elif action == "correlator":
+			pass
+		elif action == "pair_potential":
+			pass
 
-		elif action == "correlator"
 
-		elif action == "pair_potential"
+if __name__ == "__main__":
+	main()
