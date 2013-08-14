@@ -20,15 +20,23 @@ def bootstrap(X):
 	"""Performs a bootstrap resampling of X"""
 	return X[pl.randint(0, pl.size(X, axis = 0), pl.size(X, axis = 0))]
 
-def bootstrap_measurement(X, func, num_bootstraps):
+def bootstrap_measurement(X, func, num_bootstraps, binsize):
 	"""Calculates bootstrap statistics for a given measurement function"""
 	out = []
 
-	for i in xrange(num_bootstraps):
-		X_bootstrap = pl.mean(bootstrap(X), axis = 0)
+	if binsize > 0:
+		X = bin(X, binsize)
+
+	if num_bootstraps > 0:
+		for i in xrange(num_bootstraps):
+			X_bootstrap = pl.mean(bootstrap(X), axis = 0)
+			out.append(func(X_bootstrap))
+	else:
 		out.append(func(X))
 
 	out = pl.array(out)
 
 	out_mean = pl.mean(out, axis=0)
-	out_stc = pl.std(out, axis=0)
+	out_std = pl.std(out, axis=0)
+
+	return out_mean, out_std
