@@ -47,7 +47,10 @@ class XmlInterface:
 					   "auto_correlation",
 					   "input",
 					   "store",
-					   "plot"]
+					   "plot",
+					   "lattice",
+					   "simulation",
+					   "gauge_action"]
 
 		for key in keys:
 			if settings.has_key(key):
