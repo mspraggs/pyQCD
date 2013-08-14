@@ -47,7 +47,7 @@ def auto_correlation(plaquettes):
 		auto_corr[t] = pl.mean((plaquettes - mean_plaquette) \
 							   * (pl.roll(plaquettes, -t) - mean_plaquette))
 	
-	return return auto_corr[t]
+	return auto_corr
 
 def calculate_spacing(wilson_loops):
 	"""Calculates the lattice spacing using the Sommer scale"""
