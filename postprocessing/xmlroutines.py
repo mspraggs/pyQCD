@@ -16,10 +16,11 @@ def auto_correlation(settings):
 			print("Error, invalid input data. Skipping.")
 		else:
 			input_data = load(i["filename"])
-			measurement = bootstrap_measurement(input_data,
-												measurements.auto_correlation,
-												settings["num_bootstraps"],
-												settings["bin_size"])
+			measurement = statistics \
+			  .bootstrap_measurement(input_data,
+									 measurements.auto_correlation,
+									 settings["num_bootstraps"],
+									 settings["bin_size"])
 
 			t = pl.arange(pl.size(input_data, axis = 0))
 			if settings.has_key("plot"):
@@ -49,10 +50,11 @@ def pair_potential(settings):
 			print("Error, invalid input data. Skipping.")
 		else:
 			input_data = load(i["filename"])
-			measurement = bootstrap_measurement(input_data,
-												measurements.calculate_potential,
-												settings["num_bootstraps"],
-												settings["bin_size"])
+			measurement = statistics \
+			  .bootstrap_measurement(input_data,
+									 measurements.calculate_potential,
+									 settings["num_bootstraps"],
+									 settings["bin_size"])
 
 			r = pl.arange(1, pl.size(measurement, axis = 0) + 1)
 			if settings.has_key("plot"):
