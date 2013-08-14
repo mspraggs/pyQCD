@@ -22,7 +22,7 @@ def auto_correlation(settings):
 									 settings["num_bootstraps"],
 									 settings["bin_size"])
 
-			t = pl.arange(pl.size(input_data, axis = 0))
+			t = pl.arange(pl.size(measurement[0], axis = 0))
 			if settings.has_key("plot"):
 				linestyle = i["linestyle"]["colour"] + i["linestyle"]["style"]
 				pl.plot(t, measurement[0], linestyle, label = i["label"])
