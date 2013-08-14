@@ -35,11 +35,19 @@ def calculate_potential(wilson_loops):
 
 	return potentials
 
-def auto_correlation(plaquettes, t):
+def auto_correlation(plaquettes):
 	"""Calculates the auto correlation function"""
 	mean_plaquette = pl.mean(plaquettes)
-	return pl.mean((plaquettes - mean_plaquette) \
-				   * (pl.roll(plaquettes, -t) - mean_plaquette))
+
+	num_configs = pl.size(plaquettes, axis = 0) / 2
+
+	auto_corr = pl.zeros(num_configs)
+
+	for t in xrange(num_configs):
+		auto_corr[t] = pl.mean((plaquettes - mean_plaquette) \
+							   * (pl.roll(plaquettes, -t) - mean_plaquette))
+	
+	return return auto_corr[t]
 
 def calculate_spacing(wilson_loops):
 	"""Calculates the lattice spacing using the Sommer scale"""
