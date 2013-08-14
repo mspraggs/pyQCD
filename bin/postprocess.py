@@ -16,15 +16,16 @@ def main():
 	options, args = parser.parse_args()
 
 	try:
-		xmlinput = interfaces.xmlinput.XmlInterface(options.input_file)
+		xml = interfaces.xmlinput.XmlInterface(options.input_file)
 	except:
 		print("Error parsing XML file.")
 		sys.exit()
 
-	postprocess_settings = xmlinput.postprocess()
+	postprocess_settings = xml.postprocess()
+	print(xml.settings)
 
 	print("Input XML:")
-	print(xmlinput)
+	print(xml)
 	print("")
 
 	actions = postprocess_settings.keys()
