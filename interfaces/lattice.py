@@ -10,8 +10,9 @@ class LatticeInterface:
 	def get_links(self):
 		"""Extracts links from lattice as a compound list of numpy arrays"""
 		out = []
-		r = xrange(lattice.n_points)
-		links = intertools.product(r, r, r, r, range(4))
+		r = xrange(lattice.L)
+		t = xrange(lattice.T)
+		links = intertools.product(t, r, r, r, range(4))
 		
 		for link in links:
 			out.append(np.matrix(self.lattice.get_link(link)))
@@ -21,8 +22,9 @@ class LatticeInterface:
 	def set_links(links):
 		"""Inserts links into lattice"""
 		out = []
-		r = xrange(lattice.n_points)
-		link_coords = intertools.product(r, r, r, r, range(4))
+		r = xrange(lattice.L)
+		t = xrange(lattice.T)
+		link_coords = intertools.product(t, r, r, r, range(4))
 		
 		index = 0
 		
