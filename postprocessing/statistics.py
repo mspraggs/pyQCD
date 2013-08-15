@@ -1,4 +1,5 @@
 import pylab as pl
+import IPython
 
 def bin(X, binsize = 1):
 	"""Split X into bins and return the average of each bin"""
@@ -34,7 +35,7 @@ def bootstrap_measurement(X, func, num_bootstraps, binsize):
 	else:
 		out.append(func(X))
 
-	out = pl.array(out)
+	out = pl.array(out) if len(out) > 1 else pl.array(out[0])
 
 	out_mean = pl.mean(out, axis=0)
 	out_std = pl.std(out, axis=0)
