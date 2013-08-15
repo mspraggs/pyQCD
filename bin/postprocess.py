@@ -38,7 +38,8 @@ def main():
 		elif action == "correlator":
 			pass
 		elif action == "pair_potential":
-			pass
+			postprocessing.xmlroutines \
+			  .pair_potential(postprocess_settings[action])
 
 
 if __name__ == "__main__":
