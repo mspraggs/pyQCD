@@ -29,14 +29,14 @@ def auto_correlation(settings):
 
 			if settings.has_key("store"):
 				output.append(t)
-				output.append(measurements[0])
-				output.append(measurements[1])
+				output.append(measurement[0])
+				output.append(measurement[1])
 
 	if settings.has_key("plot"):
 		pl.show()
 
 	if settings.has_key("store"):
-		save(output)
+		save(settings["store"]["filename"], output)
 
 def pair_potential(settings):
 	"""Calculate the pair potential"""
@@ -77,5 +77,5 @@ def pair_potential(settings):
 		pl.show()
 
 	if settings.has_key("store"):
-		save(output)
+		save(settings["store"]["filename"], output)
 	
