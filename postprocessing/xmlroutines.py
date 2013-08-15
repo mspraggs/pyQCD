@@ -56,7 +56,7 @@ def pair_potential(settings):
 									 settings["num_bootstraps"],
 									 settings["bin_size"])
 
-			r = pl.arange(1, pl.size(measurement, axis = 0) + 1)
+			r = pl.arange(1, pl.size(measurement[0]) + 1)
 			if settings.has_key("plot"):
 				fit_params = measurements.potential_params(measurement)
 				fit_line = measurements.pair_potential(fit_params, r)
