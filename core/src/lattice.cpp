@@ -1002,7 +1002,7 @@ double Lattice::computeAverageWilsonLoop(const int r, const int t,
   }
   if (nSmears > 0)
     this->links_ = templinks;
-  return Wtot / (pow(this->spatialExtent, 3) * this->temporalExtent * 6);
+  return Wtot / (pow(this->spatialExtent, 3) * this->temporalExtent * 3);
 }
 
 
