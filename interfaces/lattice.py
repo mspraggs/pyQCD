@@ -39,8 +39,8 @@ class LatticeInterface:
 		out = np.zeros((loop_config['r_max'] - 1,
 						loop_config['t_max'] - 1))
 		
-		for r in xrange(1, rmax):
-			for t in xrange(1, tmax):
+		for r in xrange(1, loop_config['r_max']):
+			for t in xrange(1, loop_config['t_max']):
 				out[r - 1, t - 1] \
 				  += self.lattice \
 				  .av_wilson_loop(r, t, loop_config['num_field_smears'],
