@@ -65,7 +65,7 @@ def pair_potential(settings):
 				  + i["linestyle"]["style"]
 				pl.errorbar(r, measurement[0], yerr = measurement[1],
 							fmt = error_linestyle, label = i["label"])
-				pl.plot(r, fit_line, error_linestyle,
+				pl.plot(r_fit, fit_line, plot_linestyle,
 						label = i["label"] + " fit")
 
 			if settings.has_key("store"):
