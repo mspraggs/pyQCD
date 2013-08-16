@@ -166,7 +166,8 @@ BOOST_PYTHON_MODULE(lattice)
     .def("av_plaquette", &pyLattice::computeAveragePlaquette)
     .def("av_rectangle", &pyLattice::computeAverageRectangle)
     .def("av_wilson_loop", &pyLattice::computeAverageWilsonLoopP,
-	 (py::arg("r"), py::arg("t"), py::arg("n_smears") = 0))
+	 (py::arg("r"), py::arg("t"), py::arg("n_smears") = 0,
+	  py::arg("smearing_param") = 1.0))
     .def("propagator", &pyLattice::computePropagatorP,
 	 (py::arg("mass"), py::arg("spacing") = 1.0, py::arg("site") = listArg(),
 	  py::arg("n_smears") = 0, py::arg("n_src_smears") = 0,
