@@ -979,7 +979,7 @@ double Lattice::computeAverageWilsonLoop(const int r, const int t,
 	      // small variations in the final value
 	      // of Wtot between consecutive calls
 	      // (of the order of 10^-16)
-	      Wtot += this->computeWilsonLoop(site, r, t, m, 0);
+	      Wtot += this->computeWilsonLoop(site, r, t, m, 0, 1.0);
 	    }
 	  }
 	}
@@ -993,7 +993,7 @@ double Lattice::computeAverageWilsonLoop(const int r, const int t,
 	  for (int l = 0; l < this->spatialExtent; ++l) {
 	    for (int m = 1; m < 4; ++m) {
 	      int site[4] = {i, j, k, l};
-	      Wtot += this->computeWilsonLoop(site, r, t, m, 0);
+	      Wtot += this->computeWilsonLoop(site, r, t, m, 0, 1.0);
 	    }
 	  }
 	}
