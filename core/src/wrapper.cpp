@@ -162,7 +162,7 @@ BOOST_PYTHON_MODULE(lattice)
 	 (py::arg("site"), py::arg("dim1"), py::arg("dim2")))
     .def("wilson_loop", &pyLattice::computeWilsonLoopP,
 	 (py::arg("corner"), py::arg("r"), py::arg("t"), py::arg("dim"),
-	  py::arg("n_smears") = 0))
+	  py::arg("n_smears") = 0, py::arg("smearing_param") = 1.0 ))
     .def("av_plaquette", &pyLattice::computeAveragePlaquette)
     .def("av_rectangle", &pyLattice::computeAverageRectangle)
     .def("av_wilson_loop", &pyLattice::computeAverageWilsonLoopP,
