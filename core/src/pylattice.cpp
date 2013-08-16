@@ -160,7 +160,7 @@ py::list pyLattice::getLinkP(const py::list link)
 		     py::extract<int>(link[1]),
 		     py::extract<int>(link[2]),
 		     py::extract<int>(link[3]),
-		     py::extract<int>(link[3])};
+		     py::extract<int>(link[4])};
   // Convert the Matrix3cd to a python list
   return pyQCD::convertMatrixToList(this->getLink(tempLink));
 }
@@ -174,7 +174,7 @@ void pyLattice::setLinkP(const py::list link, const py::list matrix)
 		     py::extract<int>(link[1]),
 		     py::extract<int>(link[2]),
 		     py::extract<int>(link[3]),
-		     py::extract<int>(link[3])};
+		     py::extract<int>(link[4])};
   Matrix3cd tempMatrix = pyQCD::convertListToMatrix(matrix);
   this->setLink(tempLink, tempMatrix);
 }
