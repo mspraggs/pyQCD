@@ -22,7 +22,6 @@ def main():
 		sys.exit()
 
 	postprocess_settings = xml.postprocess()
-	print(xml.settings)
 
 	print("Input XML:")
 	print(xml)
@@ -40,6 +39,9 @@ def main():
 		elif action == "pair_potential":
 			postprocessing.xmlroutines \
 			  .pair_potential(postprocess_settings[action])
+		elif action == "lattice_spacing":
+			postprocessing.xmlroutines \
+			  .lattice_spacing(postprocess_settings[action])
 
 
 if __name__ == "__main__":
