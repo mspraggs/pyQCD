@@ -7,8 +7,8 @@ def pair_potential(b, r):
 	return b[0] * r + b[1] / r + b[2]
 
 def potential_params(data):
-	"""Fits the potential function to data and returns the three fitting
-	parameters"""
+	"""Fits the curve(s) specified by data and returns the three parameters that
+	characterise the potential"""
 	if len(pl.shape(data)) == 1:
 	
 		r = pl.arange(1, pl.size(data) + 1)
@@ -31,7 +31,7 @@ def potential_params(data):
 		return b_store
 
 def calculate_potential(wilson_loops):
-	"""Calculate the pair potential from the average wilson loops provided"""
+	"""Calculates the pair potential from the average wilson loops provided."""
 	if len(pl.shape(wilson_loops)) == 2:
 		potentials = pl.zeros(pl.size(wilson_loops, axis = 0))
 		# The quark separations
@@ -54,7 +54,8 @@ def calculate_potential(wilson_loops):
 	return potentials
 
 def auto_correlation(plaquettes):
-	"""Calculates the auto correlation function"""
+	"""Calculates the auto correlation function from a series of average
+	plaquette values."""
 	mean_plaquette = pl.mean(plaquettes)
 
 	num_configs = pl.size(plaquettes, axis = 0) / 2
@@ -68,7 +69,8 @@ def auto_correlation(plaquettes):
 	return auto_corr
 
 def calculate_spacing(wilson_loops):
-	"""Calculates the lattice spacing using the Sommer scale"""
+	"""Calculates the lattice spacing from a set of average wilson loops and
+	the Sommer scale."""
 	potentials = calculate_potential(wilson_loops)
 	fit_params = potential_params(potentials)
 	if len(pl.shape(fit_params)) > 1:

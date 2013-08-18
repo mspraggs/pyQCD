@@ -1,8 +1,9 @@
 import numpy as np
 
 def create(measurement_settings, lattice_settings,
-						simulation_settings):
-	"""Creates the variables needed to store the measurements"""
+		   simulation_settings):
+	"""Creates and returns a list of numpy arrays corresponding to the
+	various measurements described in measurement settings."""
 
 	num_configs = simulation_settings['timing_run']['num_configurations'] \
 	  if simulation_settings['timing_run']['enabled'] \
@@ -34,7 +35,9 @@ def create(measurement_settings, lattice_settings,
 	return dict(out)
 
 def do(settings, interface, store, config):
-	"""Loops through the settings and performs the measurements"""
+	"""Iterates through the various measurements in the settings dict, takes
+	the measurements using the lattice interface and stores them in the list
+	of measurements (store) according to the configuration number config."""
 	keys = settings.keys()
 
 	for key in keys:
@@ -47,7 +50,8 @@ def do(settings, interface, store, config):
 			store[key][config] = interface.get_propagator(settings[key])	
 
 def save(settings, store):
-	"""Loops through the stored measurements and writes them out to a file"""
+	"""Loops through the stored measurements and writes them out to the file
+	specified in settings."""
 	keys = settings.keys()
 
 	for key in keys:

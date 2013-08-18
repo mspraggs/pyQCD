@@ -8,29 +8,33 @@ from optparse import OptionParser
 import IPython
 
 def main():
-	"""Main execution function"""
+	"""Main function for doing simulations."""
+	# Parse the command line arguments
 	parser = OptionParser()
 	parser.add_option("-i", "--input", action = "store", type = "string",
 					  dest = "input_file")
-	
 	(options,args) = parser.parse_args()
 
+	# Try to parse the supplied xml input file, exit if it fails
 	try:
 		xmlinput = interfaces.xmlinput.XmlInterface(options.input_file)
 	except interfaces.xmlinput.ET.ParseError:
 		print("Error parsing XML file.")
 		sys.exit()
-		
+	# Copy the various settings to a set of convenient variables
 	lattice_settings = xmlinput.lattice()
 	simulation_settings = xmlinput.simulation()	
 	gauge_action_settings = xmlinput.gauge_action()
 
+	# Print out the input xml
 	print("Input XML:")
 	print(xmlinput)
 	print("")
 
+	# Get the measurement settings
 	measurement_settings = xmlinput.measurements()
 
+	# Declare and initialize the lattice
 	print("Creating the lattice...")
 	lattice \
 	  = core.lattice.Lattice(lattice_settings['L'],
@@ -45,6 +49,7 @@ def main():
 							 ['block_size'])
 	print("Done!")
 
+	# We're going to time the run, so get the initial time
 	t0 = time.time()
 
 	# Create somewhere to put the measurements
@@ -61,13 +66,18 @@ def main():
 	print("Done!")
 	sys.stdout.flush()
 
+	# Get the actual number of configs we'll be generating, for timing
+	# purposes
 	num_configs = simulation_settings['timing_run']['num_configurations'] \
 	  if simulation_settings['timing_run']['enabled'] \
 	  else simulation_settings['num_configurations']
-  
+
+	# For estimating the run time, split the thermalization and config
+	# generation processes
 	t1 = time.time()
 	print("Calculating run time...")
 	sys.stdout.flush()
+	# Run through and do the updates
 	for i in xrange(num_configs):
 		print("Configuration: %d" % i)
 		sys.stdout.flush()
@@ -78,7 +88,8 @@ def main():
 
 	# Store the measurments
 	interfaces.measurements.save(measurement_settings, measurements)
-		
+	# Get the final time, then calculate the total time, either
+	# estimated or otherwise.
 	t2 = time.time()
 	if simulation_settings['timing_run']['enabled']:
 		total_time \
@@ -86,11 +97,12 @@ def main():
 		  * simulation_settings['num_configurations'] + t2 - t1
 	else:
 		total_time = t2 - t0
-		
+	# Convert the answer to hrs, mins, secs
 	hrs = int((total_time) / 3600)
 	mins = int((total_time - 3600 * hrs) / 60)
 	secs = total_time - 3600 * hrs - 60 * mins
-	
+
+	# Print the output
 	if simulation_settings['timing_run']['enabled']:
 		print("Estimated run time: %d hours, %d minutes and %f seconds" \
 			  % (hrs,mins,secs))

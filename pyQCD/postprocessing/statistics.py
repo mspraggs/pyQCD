@@ -2,7 +2,8 @@ import pylab as pl
 import IPython
 
 def bin(X, binsize = 1):
-	"""Split X into bins and return the average of each bin"""
+	"""Split X into bins and return the average of each bin as a new set of
+	measurements."""
 	if binsize == 1:
 		return X;
 	else:
@@ -18,11 +19,11 @@ def bin(X, binsize = 1):
 		return X_binned
 
 def bootstrap(X):
-	"""Performs a bootstrap resampling of X"""
+	"""Performs a bootstrap resampling of X."""
 	return X[pl.randint(0, pl.size(X, axis = 0), pl.size(X, axis = 0))]
 
 def bootstrap_measurement(X, func, num_bootstraps, binsize):
-	"""Calculates bootstrap statistics for a given measurement function"""
+	"""Calculates bootstrap statistics for a given measurement function."""
 	out = []
 
 	if binsize > 0:

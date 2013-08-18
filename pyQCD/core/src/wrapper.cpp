@@ -140,40 +140,98 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(pyLatticeWavOverload,
 
 BOOST_PYTHON_MODULE(lattice)
 {
+  docstring_options local_docstring_options(true, true, false);
+
   py::class_<pyLattice>("Lattice",
+			"Constructs a lattice object of spatial extent L and \n"
+			"temporal extent T. The action may take a value of 0,\n"
+			"1 or 2, corresponding to Wilson's gauge action, a \n"
+			"rectangle-improved Wilson gauge action and a twisted\n"
+			"rectangle-improved Wilson gauge action, respectively.\n"
+			"Ncor corresponds to the number of updates performed \n"
+			"by the next_config function. If parallel_flag is\n"
+			"equal to 1, then parallel updates are performed,\n"
+			"splitting the lattice into blocks of length\n"
+			"block_size. The update method flag may be set to 0, 1\n"
+			"or 2, corresponding to heatbath updates, monte carlo\n"
+			"updates or monte carlo updates without the use of\n"
+			"link staples, respectively.",
 			py::init<int, int, double, double, int, int, int,
 				 int, int>
 			((py::arg("L")=4, py::arg("T")=8, py::arg("beta")=5.5,
-			  py::arg("u0")=1.0, py::arg("action")=0,
-			  py::arg("Ncor")=10, py::arg("update_method")=0,
-			  py::arg("parallel_flag")=1, py::arg("block_size")=4)))
+			 py::arg("u0")=1.0, py::arg("action")=0,
+			 py::arg("Ncor")=10, py::arg("update_method")=0,
+			 py::arg("parallel_flag")=1, py::arg("block_size")=4)))
     .def(py::init<pyLattice&>())
-    .def("get_link", &pyLattice::getLinkP, (py::arg("link")))
-    .def("set_link", &pyLattice::setLinkP, (py::arg("link")))
-    .def("update", &pyLattice::update)
-    .def("schwarz_update", &pyLattice::schwarzUpdate, (py::arg("n_sweeps")=1))
-    .def("next_config", &pyLattice::getNextConfig)
-    .def("thermalize", &pyLattice::thermalize)
+    .def("get_link", &pyLattice::getLinkP, (py::arg("link")),
+	 "Returns the link specified by the coordinates in link (of the form\n"
+	 "[t, x, y, z, mu]), returning a compound list.")
+    .def("set_link", &pyLattice::setLinkP, (py::arg("link"), py::arg("matrix")),
+	 "Sets the link specified by a list of the form [t, x, y, z, mu] to\n"
+	 "the values specified in matrix.")
+    .def("update", &pyLattice::update,
+	 "Performs a single linear update on the lattice, using the specified\n"
+	 "algorithm")
+    .def("schwarz_update", &pyLattice::schwarzUpdate, (py::arg("n_sweeps")=1),
+	 "Performs a parallel update on the lattice, splitting it into blocks\n"
+	 "and updating the blocks in parallel in the manner of a checkerboard.")
+    .def("next_config", &pyLattice::getNextConfig,
+	 "Updates the lattice Ncor times to generate the next configuration.")
+    .def("thermalize", &pyLattice::thermalize,
+	 "Updates the lattice until the internal update counter reaches \n"
+	 "5 * Ncor.")
     .def("plaquette", &pyLattice::computePlaquetteP,
-	 (py::arg("site"), py::arg("dim1"), py::arg("dim2")))
+	 (py::arg("site"), py::arg("dim1"), py::arg("dim2")),
+	 "Calculates the plaquette with corner sited at the specified lattice\n"
+	 "site (a list of the form [t, x, y, z]), lying in the plane specified\n"
+	 "by dimensions dim1 and dim2.")
     .def("rectangle", &pyLattice::computeRectangleP,
-	 (py::arg("site"), py::arg("dim1"), py::arg("dim2")))
+	 (py::arg("site"), py::arg("dim1"), py::arg("dim2")),
+	 "Calculates the rectangle with corner sited at the specified lattice\n"
+	 "site (a list of the form [t, x, y, z]), lying in the plane specified\n"
+	 "by dimensions dim1 and dim2. Here dim1 specifies the long edge of \n"
+	 "the rectangle, whilst dim2 specifies the short edge.")
     .def("twist_rect", &pyLattice::computeTwistedRectangleP,
-	 (py::arg("site"), py::arg("dim1"), py::arg("dim2")))
+	 (py::arg("site"), py::arg("dim1"), py::arg("dim2")),
+	 "Calculates the twisted rectangle with corner sited at the specified \n"
+	 "lattice site (a list of the form [t, x, y, z]), lying in the plane \n"
+	 "specified by dimensions dim1 and dim2. Here dim1 specifies the long\n"
+	 "edge of the rectangle, whilst dim2 specifies the short edge.")
     .def("wilson_loop", &pyLattice::computeWilsonLoopP,
 	 (py::arg("corner"), py::arg("r"), py::arg("t"), py::arg("dim"),
-	  py::arg("n_smears") = 0, py::arg("smearing_param") = 1.0 ))
-    .def("av_plaquette", &pyLattice::computeAveragePlaquette)
-    .def("av_rectangle", &pyLattice::computeAverageRectangle)
+	  py::arg("n_smears") = 0, py::arg("smearing_param") = 1.0 ),
+	 "Calculates the Wilson loop starting from the lattice site specified\n"
+	 "by corner (a list of the form [t, x, y, z]) with spatial component\n"
+	 "orientated along dimension dim and size r x t. Stout smearing is\n"
+	 "performed by setting the number of smears (n_smears) and the \n"
+	 "smearing parameter (smearing_param).")
+    .def("av_plaquette", &pyLattice::computeAveragePlaquette,
+	 "Computes the plaquette expectation value.")
+    .def("av_rectangle", &pyLattice::computeAverageRectangle,
+	 "Computes the rectangle expectation value.")
     .def("av_wilson_loop", &pyLattice::computeAverageWilsonLoopP,
 	 (py::arg("r"), py::arg("t"), py::arg("n_smears") = 0,
-	  py::arg("smearing_param") = 1.0))
+	  py::arg("smearing_param") = 1.0),
+	 "Computes the Wilson loop expectation value for all loops of size\n"
+	 "r x t. Stout link smearing is performed by specifying the number\n"
+	 "of link smears (n_smears) and the smearing parameter (smearing_param)")
     .def("propagator", &pyLattice::computePropagatorP,
 	 (py::arg("mass"), py::arg("spacing") = 1.0, py::arg("site") = listArg(),
 	  py::arg("n_smears") = 0, py::arg("n_src_smears") = 0,
 	  py::arg("src_param") = 1.0, py::arg("n_sink_smears") = 0,
-	  py::arg("sink_param") = 1.0, py::arg("solver_method") = 0))
-    .def("av_link", &pyLattice::computeMeanLink)
+	  py::arg("sink_param") = 1.0, py::arg("solver_method") = 0),
+	 "Extracts the Wilson fermion propagator, as calculated for the \n"
+	 "specified mass, lattice spacing and source site, as a flattened list\n"
+	 "of compound lists. The list index corresponds to the lattice\n"
+	 "coordinates t, x, y and z via the following formula:\n\n"
+	 "site_index = z + L * y + L**2 * x + L**3 * t\n\n"
+	 "where L is the spatial extent of the lattice.\n\n"
+	 "It it possible to apply stout smearing to the lattice gauge field\n"
+	 "and Jacobi smearing to the propagator source and sink using the \n"
+	 "given function arguments.")
+    .def("av_link", &pyLattice::computeMeanLink,
+	 "Returns the mean link, that is, the expectation value of the trace\n"
+	 "of the lattice link.")
     .def("print", &pyLattice::print)
     .def("get_rand_su3", &pyLattice::getRandSu3,
 	 (py::arg("index")))

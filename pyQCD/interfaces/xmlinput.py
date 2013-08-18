@@ -6,7 +6,10 @@ import IPython
 class XmlInterface:
 
 	def __init__(self, filename, default = "simulation_default.xml"):
-		"""Constructor"""
+		"""Creates an interface to the input xml file that defines the
+		various settings used in the simulation or postprocessing script.
+		The default settings, where they exist, are specified in the default
+		xml file, default."""
 		self.filename = filename
 		
 		xmltree = ET.parse(filename)
@@ -24,7 +27,7 @@ class XmlInterface:
 		self.fill_dicts(self.settings)
 
 	def __str__(self):
-		"""Returns file as string"""
+		"""Returns the contents of the xml file as a string."""
 
 		string_out = ""
 		lines = open(self.filename).readlines()
@@ -35,7 +38,9 @@ class XmlInterface:
 		return string_out
 
 	def fill_defaults(self, settings, defaults):
-		"""Loops through settings and applied defaults"""
+		"""Loops through the settings dictionary, looks for corresponding keys
+		in the defaults dictionary and applies the values there, if any, in
+		a recursive fashion."""
 
 		keys = defaults.keys()
 
@@ -79,7 +84,9 @@ class XmlInterface:
 							self.fill_defaults(settings[key], defaults[key])
 
 	def fill_dicts(self, settings):
-		"""Loops through the settings and applies the dictionaries"""
+		"""Loops through the settings dictionary and, if possible, uses the
+		dictionaries in dicts to swap the relevant keys for the values in
+		those dicitionaries."""
 
 		keys = settings.keys()
 
@@ -96,7 +103,9 @@ class XmlInterface:
 				self.fill_dicts(settings[key])
 		
 	def parse_tree(self, root):
-		"""Iterate through the tree and add the contents to a list"""
+		"""Loop through the xml elements under the root element and add the
+		tags and contents to a dictionary. For each element that is parent
+		to other elements, the function is called recursively."""
 
 		output = []
 		inputs = []
@@ -121,26 +130,26 @@ class XmlInterface:
 		return dict(output)
 
 	def gauge_action(self):
-		"""Return the gauge action settings"""
+		"""Return the gauge action settings dictionary."""
 		return self.settings["gauge_action"]
 
 	def lattice(self):
-		"""Return the lattice settings"""
+		"""Return the lattice settings dictionary."""
 		return self.settings["lattice"]
 
 	def simulation(self):
-		"""Return the simulation settings"""
+		"""Return the simulation settings dictionary."""
 		return self.settings["simulation"]
 		
 	def measurements(self):
-		"""Return measurement settings, if any"""
+		"""Return measurement settings, if any, as a dictionary."""
 		try:
 			return self.settings["measurements"]
 		except KeyError:
 			return dict()
 
 	def postprocess(self):
-		"""Return postprocess settings, if any"""
+		"""Return postprocess settings, if any, as a dictionary."""
 		try:
 			return self.settings["postprocess"]
 		except KeyError:

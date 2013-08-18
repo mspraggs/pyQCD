@@ -1,12 +1,14 @@
 import pylab as pl
-import fileio
 from numpy import save, load
 import statistics
 import measurements
-import IPython
 
 def auto_correlation(settings):
-	"""Calculate the autocorrelation"""
+	"""Load the input file(s) in the autocorrelation settings, calculate the
+	autocorrelation function and plot and store it if necessary.
+
+	The settings dictionary should be a nested dictionary with the same
+	structure as the xml settings."""
 
 	inputs = settings["input"]
 
@@ -47,7 +49,11 @@ def auto_correlation(settings):
 		save(settings["store"]["filename"], output)
 
 def pair_potential(settings):
-	"""Calculate the pair potential"""
+	"""Load the input file(s) in the pair potential settings, calculate the
+	pair potential function and plot and store it if necessary.
+
+	The settings dictionary should be a nested dictionary with the same
+	structure as the xml settings."""
 
 	inputs = settings["input"]
 
@@ -99,7 +105,11 @@ def pair_potential(settings):
 
 
 def lattice_spacing(settings):
-	"""Calculate the pair potential"""
+	"""Load the input file(s) in the lattice spacing settings, calculate the
+	lattice spacing function and plot and store it if necessary.
+
+	The settings dictionary should be a nested dictionary with the same
+	structure as the xml settings."""
 
 	inputs = settings["input"]
 
