@@ -62,7 +62,6 @@ class XmlInterface:
 						settings[key] = defaults[key]
 
 				elif key == "input":
-					print("Filling input dictionaries")
 					for input_dict in settings[key]:
 						self.fill_defaults(input_dict, defaults[key][0])
 						
