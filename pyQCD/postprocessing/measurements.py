@@ -69,7 +69,8 @@ def auto_correlation(plaquettes):
 
 def calculate_spacing(wilson_loops):
 	"""Calculates the lattice spacing using the Sommer scale"""
-	fit_params = potential_params(wilson_loops)
+	potentials = calculate_potential(wilson_loops)
+	fit_params = potential_params(potentials)
 	if len(pl.shape(fit_params)) > 1:
 		return 0.5 / pl.sqrt((1.65 + fit_params[:,1]) / fit_params[:,0])
 	else:
