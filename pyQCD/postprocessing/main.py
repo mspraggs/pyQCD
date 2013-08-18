@@ -40,6 +40,9 @@ def auto_correlation(settings):
 		pl.legend()
 		pl.show()
 
+		if settings["plot"].has_key("filename"):
+			pl.savefig(settings["plot"]["filename"])
+
 	if settings.has_key("store"):
 		save(settings["store"]["filename"], output)
 
@@ -87,6 +90,9 @@ def pair_potential(settings):
 		pl.title(settings["plot"]["title"])
 		pl.legend()
 		pl.show()
+
+		if settings["plot"].has_key("filename"):
+			pl.savefig(settings["plot"]["filename"])
 
 	if settings.has_key("store"):
 		save(settings["store"]["filename"], output)
