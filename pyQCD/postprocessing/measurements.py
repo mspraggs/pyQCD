@@ -17,7 +17,7 @@ def potential_params(data):
 		err_func = lambda b, r, y: y - pair_potential(b, r)
 		b, result = optimize.leastsq(err_func, b0, args = (r, data))
 
-		if result != 1:
+		if [1, 2, 3, 4].count(result) < 1:
 			print("Warning! Fit failed.")
 
 		return b
