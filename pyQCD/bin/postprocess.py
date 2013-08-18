@@ -2,7 +2,7 @@ import core.lattice
 import interfaces.xmlinput
 import interfaces.lattice
 import interfaces.measurements
-import postprocessing.xmlroutines
+import postprocessing.main
 import sys
 import time
 from optparse import OptionParser
