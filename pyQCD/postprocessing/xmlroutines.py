@@ -34,6 +34,10 @@ def auto_correlation(settings):
 				output.append(measurement[1])
 
 	if settings.has_key("plot"):
+		pl.xlabel(settings["plot"]["xlabel"])
+		pl.ylabel(settings["plot"]["ylabel"])
+		pl.title(settings["plot"]["title"])
+		pl.legend()
 		pl.show()
 
 	if settings.has_key("store"):
@@ -78,8 +82,11 @@ def pair_potential(settings):
 				output.append(measurements[1])
 
 	if settings.has_key("plot"):
+		pl.xlabel(settings["plot"]["xlabel"])
+		pl.ylabel(settings["plot"]["ylabel"])
+		pl.title(settings["plot"]["title"])
+		pl.legend()
 		pl.show()
 
 	if settings.has_key("store"):
 		save(settings["store"]["filename"], output)
-	
