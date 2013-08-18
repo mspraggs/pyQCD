@@ -90,3 +90,31 @@ def pair_potential(settings):
 
 	if settings.has_key("store"):
 		save(settings["store"]["filename"], output)
+
+
+def lattice_spacing(settings):
+	"""Calculate the pair potential"""
+
+	inputs = settings["input"]
+
+	output = []
+
+	for i in inputs:
+		if i["type"] != 1:
+			print("Error, invalid input data. Skipping.")
+		else:
+			input_data = load(i["filename"])
+			measurement = statistics \
+			  .bootstrap_measurement(input_data,
+									 measurements.calculate_spacing,
+									 settings["num_bootstraps"],
+									 settings["bin_size"])
+
+			print("Lattice spacing: %f +/- %f" % measurement)
+
+			if settings.has_key("store"):
+				output.append(measurements[0])
+				output.append(measurements[1])
+
+	if settings.has_key("store"):
+		save(settings["store"]["filename"], output)
