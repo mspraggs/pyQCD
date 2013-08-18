@@ -1,5 +1,5 @@
 import core.lattice
-import interfaces.xmlinput
+import interfaces.input
 import interfaces.lattice
 import interfaces.measurements
 import postprocessing.main
@@ -17,7 +17,7 @@ def main():
 
 	# Try to parse the supplied xml input file, exit if it fails.
 	try:
-		xml = interfaces.xmlinput.XmlInterface(options.input_file)
+		xml = interfaces.input.XmlInterface(options.input_file)
 	except:
 		print("Error parsing XML file.")
 		sys.exit()

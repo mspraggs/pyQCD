@@ -1,5 +1,5 @@
 import core.lattice
-import interfaces.xmlinput
+import interfaces.input
 import interfaces.lattice
 import interfaces.measurements
 import sys
@@ -17,22 +17,22 @@ def main():
 
 	# Try to parse the supplied xml input file, exit if it fails
 	try:
-		xmlinput = interfaces.xmlinput.XmlInterface(options.input_file)
-	except interfaces.xmlinput.ET.ParseError:
+		xml = interfaces.input.XmlInterface(options.input_file)
+	except interfaces.input.ET.ParseError:
 		print("Error parsing XML file.")
 		sys.exit()
 	# Copy the various settings to a set of convenient variables
-	lattice_settings = xmlinput.lattice()
-	simulation_settings = xmlinput.simulation()	
-	gauge_action_settings = xmlinput.gauge_action()
+	lattice_settings = xml.lattice()
+	simulation_settings = xml.simulation()	
+	gauge_action_settings = xml.gauge_action()
 
 	# Print out the input xml
 	print("Input XML:")
-	print(xmlinput)
+	print(xml)
 	print("")
 
 	# Get the measurement settings
-	measurement_settings = xmlinput.measurements()
+	measurement_settings = xml.measurements()
 
 	# Declare and initialize the lattice
 	print("Creating the lattice...")
