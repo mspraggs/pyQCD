@@ -32,15 +32,15 @@ def main():
 	for action in actions:
 		if action == "auto_correlation":
 			
-			postprocessing.xmlroutines \
+			postprocessing.main \
 			  .auto_correlation(postprocess_settings[action])
 		elif action == "correlator":
 			pass
 		elif action == "pair_potential":
-			postprocessing.xmlroutines \
+			postprocessing.main \
 			  .pair_potential(postprocess_settings[action])
 		elif action == "lattice_spacing":
-			postprocessing.xmlroutines \
+			postprocessing.main \
 			  .lattice_spacing(postprocess_settings[action])
 
 
