@@ -65,7 +65,7 @@ def pair_potential(settings):
 			if settings.has_key("plot"):
 				fit_params = measurements.potential_params(measurement[0])
 
-				r_fit = pl.arange(0.5, pl.size(measurement[0]) + 1, 0.1)
+				r_fit = pl.arange(0.1, pl.size(measurement[0]) + 1, 0.1)
 				fit_line = measurements.pair_potential(fit_params, r_fit)
 				
 				error_linestyle = 'o' + i["linestyle"]["colour"]
