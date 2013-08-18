@@ -45,12 +45,14 @@ class XmlInterface:
 					   "wilson_loop",
 					   "postprocess",
 					   "auto_correlation",
+					   "lattice_spacing",
 					   "input",
 					   "store",
 					   "plot",
 					   "lattice",
 					   "simulation",
-					   "gauge_action"]
+					   "gauge_action",
+					   "pair_potential"]
 
 		for key in keys:
 			if settings.has_key(key):
@@ -64,7 +66,6 @@ class XmlInterface:
 				elif key == "input":
 					for input_dict in settings[key]:
 						self.fill_defaults(input_dict, defaults[key][0])
-						
 				elif type(settings[key]) == dict:
 					self.fill_defaults(settings[key], defaults[key])
 			else:
