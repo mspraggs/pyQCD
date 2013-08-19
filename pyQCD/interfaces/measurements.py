@@ -45,9 +45,23 @@ def do(settings, interface, store, config):
 			store[key][config] = interface.lattice.av_plaquette()
 			print("Average plaquette = %f" % store[key][config])
 		elif key == "wilson_loop":
-			store[key][config] = interface.get_wilson_loops(settings[key])
+			store[key][config] \
+			  = interface.get_wilson_loops(settings[key]['r_max'],
+										   settings[key]['t_max'],
+										   settings[key]['num_field_smears'],
+										   settings[key]['field_smearing_param'])
 		elif key == "propagator":
-			store[key][config] = interface.get_propagator(settings[key])	
+			store[key][config] \
+			  = interface.get_propagator(settings[key]['mass'],
+										 settings[key]['a']
+										 settings[key]['source_site'],
+										 settings[key]['num_field_smears'],
+										 settings[key]['field_smearing_param'],
+										 settings[key]['num_source_smears'],
+										 settings[key]['source_smearing_param'],
+										 settings[key]['num_sink_smears'],
+										 settings[key]['sink_smearing_param'],
+										 settings[key]['solver_method'])
 
 def save(settings, store):
 	"""Loops through the stored measurements and writes them out to the file

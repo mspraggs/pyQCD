@@ -48,7 +48,8 @@ class LatticeInterface:
 			self.lattice.set_link(link)
 			i += 1
 			
-	def get_wilson_loops(self, loop_config):
+	def get_wilson_loops(self, r_max, t_max, num_field_smears = 0,
+						 field_smearing_param = 1.0):
 		"""Calculates the expectation values of all Wilson loops of size nxm,
 		with n = 1, 2, ... , t_max and m = 1, 2, ... , r_max. The function
 		will return a numpy array of size (r_max - 1)x(t_max - 1), with each
@@ -56,19 +57,26 @@ class LatticeInterface:
 		different spatial separation. The gauge field is smeared using stout
 		smearing, as defined by the num_field_smears and the
 		field_smearing_param variable."""
-		out = np.zeros((loop_config['r_max'] - 1,
-						loop_config['t_max'] - 1))
+		out = np.zeros((r_max - 1, t_max- 1))
 		
-		for r in xrange(1, loop_config['r_max']):
-			for t in xrange(1, loop_config['t_max']):
+		for r in xrange(1, r_max
+			for t in xrange(1, t_max
 				out[r - 1, t - 1] \
 				  += self.lattice \
-				  .av_wilson_loop(r, t, loop_config['num_field_smears'],
-								  loop_config['field_smearing_param'],)
+				  .av_wilson_loop(r, t, num_field_smears, field_smearing_param)
 				
 		return out
 
-	def get_propagator(self, prop_config):
+	def get_propagator(self, mass,
+					   a = 1.0,
+					   source_site = [0, 0, 0, 0],
+					   num_field_smears = 0,
+					   field_smearing_param = 1.0,
+					   num_source_smears = 0,
+					   source_smearing_param = 1.0,
+					   num_sink_smears = 0,
+					   sink_smearing_param = 1.0,
+					   solver_method = 0)
 		"""Extracts the Wilson fermion propagator, as calculated for the
 		specified mass, lattice spacing and source site, as a flattened list of
 		numpy matrices. The list index corresponds to the lattice coordinates t,
@@ -82,15 +90,15 @@ class LatticeInterface:
 		and Jacobi smearing to the propagator source and sink using the
 		given function arguments."""
 		raw_propagator = self \
-		  .lattice.propagator(prop_config['mass'],
-							  prop_config['a'],
-							  prop_config['source_site'],
-							  prop_config['num_field_smears'],
-							  prop_config['field_smearing_param'],
-							  prop_config['num_source_smears'],
-							  prop_config['source_smearing_param'],
-							  prop_config['num_sink_smears'],
-							  prop_config['sink_smearing_param'],
-							  prop_config['solver_method'])
+		  .lattice.propagator(mass,
+							  a,
+							  source_site,
+							  num_field_smears,
+							  field_smearing_param,
+							  num_source_smears,
+							  source_smearing_param,
+							  num_sink_smears,
+							  sink_smearing_param,
+							  solver_method)
 
 		return [np.matrix(matrix) for matrix in raw_propagator]
