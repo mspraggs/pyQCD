@@ -53,7 +53,7 @@ def do(settings, interface, store, config):
 		elif key == "propagator":
 			store[key][config] \
 			  = interface.get_propagator(settings[key]['mass'],
-										 settings[key]['a']
+										 settings[key]['a'],
 										 settings[key]['source_site'],
 										 settings[key]['num_field_smears'],
 										 settings[key]['field_smearing_param'],
