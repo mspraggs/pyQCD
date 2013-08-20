@@ -59,8 +59,8 @@ class LatticeInterface:
 		field_smearing_param variable."""
 		out = np.zeros((r_max - 1, t_max- 1))
 		
-		for r in xrange(1, r_max
-			for t in xrange(1, t_max
+		for r in xrange(1, r_max):
+			for t in xrange(1, t_max):
 				out[r - 1, t - 1] \
 				  += self.lattice \
 				  .av_wilson_loop(r, t, num_field_smears, field_smearing_param)
@@ -76,7 +76,7 @@ class LatticeInterface:
 					   source_smearing_param = 1.0,
 					   num_sink_smears = 0,
 					   sink_smearing_param = 1.0,
-					   solver_method = 0)
+					   solver_method = 0):
 		"""Extracts the Wilson fermion propagator, as calculated for the
 		specified mass, lattice spacing and source site, as a flattened list of
 		numpy matrices. The list index corresponds to the lattice coordinates t,
