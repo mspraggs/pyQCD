@@ -12,3 +12,5 @@ CMakeCache.txt
 CMakeFiles/*
 setup.py
 Makefile
+cmake_install.cmake
+push
