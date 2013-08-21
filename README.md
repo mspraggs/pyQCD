@@ -55,3 +55,6 @@ Postprocessing can be executed in a similar way:
 
 > form pyQCD.bin import postprocess
 > postprocess.main("examples/plaquette_autocorrelation.xml")
+
+Once installed, the simulate.py and postprocess.py files may be run from the command line, with the input file
+specified using the -i or --input=... flags.
