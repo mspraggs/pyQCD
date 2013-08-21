@@ -12,7 +12,7 @@ def main(input_file):
 	# Try to parse the supplied xml input file, exit if it fails
 	try:
 		xml = XmlInterface(input_file)
-	except interfaces.input.ET.ParseError:
+	except:
 		print("Error parsing XML file.")
 		sys.exit()
 	# Copy the various settings to a set of convenient variables
