@@ -2,6 +2,7 @@
 #include <boost/python.hpp>
 #include <boost/python/list.hpp>
 #include <boost/python/args.hpp>
+#include <boost/python/docstring_options.hpp>
 #include <iostream>
 
 namespace py = boost::python;
@@ -140,10 +141,18 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(pyLatticeWavOverload,
 
 BOOST_PYTHON_MODULE(lattice)
 {
-  docstring_options local_docstring_options(true, true, false);
+  py::docstring_options local_docstring_options(true, true, false);
 
   py::class_<pyLattice>("Lattice",
 			"Constructs a lattice object of spatial extent L and \n"
+			"temporal extent T.",
+			py::init<int, int, double, double, int, int, int,
+				 int, int>
+			((py::arg("L")=4, py::arg("T")=8, py::arg("beta")=5.5,
+			  py::arg("u0")=1.0, py::arg("action")=0,
+			  py::arg("Ncor")=10, py::arg("update_method")=0,
+			  py::arg("parallel_flag")=1, py::arg("block_size")=4),
+			 "Constructs a lattice object of spatial extent L and \n"
 			"temporal extent T. The action may take a value of 0,\n"
 			"1 or 2, corresponding to Wilson's gauge action, a \n"
 			"rectangle-improved Wilson gauge action and a twisted\n"
@@ -155,13 +164,7 @@ BOOST_PYTHON_MODULE(lattice)
 			"block_size. The update method flag may be set to 0, 1\n"
 			"or 2, corresponding to heatbath updates, monte carlo\n"
 			"updates or monte carlo updates without the use of\n"
-			"link staples, respectively.",
-			py::init<int, int, double, double, int, int, int,
-				 int, int>
-			((py::arg("L")=4, py::arg("T")=8, py::arg("beta")=5.5,
-			 py::arg("u0")=1.0, py::arg("action")=0,
-			 py::arg("Ncor")=10, py::arg("update_method")=0,
-			 py::arg("parallel_flag")=1, py::arg("block_size")=4)))
+			"link staples, respectively."))
     .def(py::init<pyLattice&>())
     .def("get_link", &pyLattice::getLinkP, (py::arg("link")),
 	 "Returns the link specified by the coordinates in link (of the form\n"
