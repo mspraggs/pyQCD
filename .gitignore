@@ -1,9 +1,10 @@
-QHO/*
 *~
 *.pyc
-results/*
-core/CMakeCache.txt
+pyQCD/core/CMakeCache.txt
 core/CMakeFiles/*
-core/Makefile
-core/cmake_install.cmake
-core/lattice.so
+pyQCD/core/Makefile
+pyQCD/core/cmake_install.cmake
+pyQCD/core/lattice.so
+CMakeCache.txt
+CMakeFiles/*
+setup.py
