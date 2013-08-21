@@ -2,6 +2,10 @@ pyQCD
 =====
 pyQCD provides a Python package for running coarse lattice QCD simulations on desktop and workstation computers.
 
+pyQCD may not be as powerful or as fully-featured as the like of Chroma or UKHADRON, but through simplicity it
+is more transparent and perfect for basic desktop simulations. By interfacing with Python and numpy, it
+facilitates the analysis of the results of the simulation.
+
 ***Please note that this software is not yet mature, so backwards compatability is not yet guaranteed for newer
 versions. If something's broken, have a look at the function reference below, or check the python source code.***
 
