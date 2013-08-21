@@ -1,7 +1,7 @@
-import core.lattice
-import interfaces.input
-import interfaces.lattice
-import interfaces.measurements
+from pyQCD.core.lattice import Lattice
+from pyQCD.interfaces.input import XmlInterface
+from pyQCD.interfaces.lattice import LatticeInterface
+import pyQCD.interfaces.measurements as measure
 import sys
 import time
 from optparse import OptionParser
@@ -11,7 +11,7 @@ def main(input_file):
 	"""Runs a simulation as specified in the supplied xml input file."""
 	# Try to parse the supplied xml input file, exit if it fails
 	try:
-		xml = interfaces.input.XmlInterface(input_file)
+		xml = XmlInterface(input_file)
 	except interfaces.input.ET.ParseError:
 		print("Error parsing XML file.")
 		sys.exit()
@@ -30,28 +30,26 @@ def main(input_file):
 
 	# Declare and initialize the lattice
 	print("Creating the lattice...")
-	lattice \
-	  = core.lattice.Lattice(lattice_settings['L'],
-							 lattice_settings['T'],
-							 gauge_action_settings['beta'],
-							 gauge_action_settings['u0'],
-							 gauge_action_settings['type'],
-							 simulation_settings['measurement_spacing'],
-							 simulation_settings['update_method'],
-							 simulation_settings['parallel_update']['enabled'],
-							 simulation_settings['parallel_update'] \
-							 ['block_size'])
+	lattice = Lattice(lattice_settings['L'],
+					  lattice_settings['T'],
+					  gauge_action_settings['beta'],
+					  gauge_action_settings['u0'],
+					  gauge_action_settings['type'],
+					  simulation_settings['measurement_spacing'],
+					  simulation_settings['update_method'],
+					  simulation_settings['parallel_update']['enabled'],
+					  simulation_settings['parallel_update']['block_size'])
 	print("Done!")
 
 	# We're going to time the run, so get the initial time
 	t0 = time.time()
 
 	# Create somewhere to put the measurements
-	measurements = interfaces.measurements.create(measurement_settings,
-												  lattice_settings,
-												  simulation_settings)
+	measurements = measure.create(measurement_settings,
+								  lattice_settings,
+								  simulation_settings)
 	# Interface object to handle numpy types etc
-	lattice_interface = interfaces.lattice.LatticeInterface(lattice)
+	lattice_interface = LatticeInterface(lattice)
 	
 	# Thermalize the lattice
 	print("Thermalizing...")
@@ -76,12 +74,12 @@ def main(input_file):
 		print("Configuration: %d" % i)
 		sys.stdout.flush()
 		lattice.next_config()
-		interfaces.measurements.do(measurement_settings,
-								   lattice_interface,
-								   measurements, i)
+		measure.do(measurement_settings,
+				   lattice_interface,
+				   measurements, i)
 
 	# Store the measurments
-	interfaces.measurements.save(measurement_settings, measurements)
+	measure.save(measurement_settings, measurements)
 	# Get the final time, then calculate the total time, either
 	# estimated or otherwise.
 	t2 = time.time()

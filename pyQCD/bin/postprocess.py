@@ -1,8 +1,5 @@
-import core.lattice
-import interfaces.input
-import interfaces.lattice
-import interfaces.measurements
-import postprocessing.main
+from pyQCD.interfaces.input import XmlInterface
+import pyQCD.postprocessing.main
 import sys
 import time
 from optparse import OptionParser
@@ -11,7 +8,7 @@ def main(input_file):
 	"""Performs the postprocessing as specified in the provided xml file"""
 	# Try to parse the supplied xml input file, exit if it fails.
 	try:
-		xml = interfaces.input.XmlInterface(input_file)
+		xml = XmlInterface(input_file)
 	except:
 		print("Error parsing XML file.")
 		sys.exit()
@@ -29,15 +26,15 @@ def main(input_file):
 	# Loop through the actions and call the relevant functions
 	for action in actions:
 		if action == "auto_correlation":
-			postprocessing.main \
+			pyQCD.postprocessing.main \
 			  .auto_correlation(postprocess_settings[action])
 		elif action == "correlator":
 			pass
 		elif action == "pair_potential":
-			postprocessing.main \
+			pyQCD.postprocessing.main \
 			  .pair_potential(postprocess_settings[action])
 		elif action == "lattice_spacing":
-			postprocessing.main \
+			pyQCD.postprocessing.main \
 			  .lattice_spacing(postprocess_settings[action])
 
 if __name__ == "__main__":
