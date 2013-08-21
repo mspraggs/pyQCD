@@ -8,3 +8,4 @@ pyQCD/core/lattice.so
 CMakeCache.txt
 CMakeFiles/*
 setup.py
+Makefile
