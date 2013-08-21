@@ -1,7 +1,7 @@
 *~
 *.pyc
 pyQCD/core/CMakeCache.txt
-core/CMakeFiles/*
+pyQCD/core/CMakeFiles/*
 pyQCD/core/Makefile
 pyQCD/core/cmake_install.cmake
 pyQCD/core/lattice.so
