@@ -36,3 +36,94 @@ dicts = [update_methods,
 		 data_types,
 		 colours,
 		 linestyles]
+
+defaults = {
+	'gauge_action': {
+		'beta': None,
+		'type': None,
+		'u0': 1.0
+		},
+	'lattice': {
+		'L': None,
+		'T': None
+		},
+	'measurements': {
+		'plaquette': {
+			'filename': None
+			},
+		'propagator': {
+			'a': 1.0,
+			'field_smearing_param': 1.0,
+			'filename': None,
+			'mass': None,
+			'num_field_smears': 0,
+			'num_sink_smears': 0,
+			'num_source_smears': 0,
+			'sink_smearing_param': 1.0,
+			'solver_method': 'BiCGSTAB',
+			'source_site': [0, 0, 0, 0],
+			'source_smearing_param': 1.0
+			},
+		'wilson_loop': {
+			'field_smearing_param': 1.0,
+			'filename': None,
+			'num_field_smears': 0,
+			'r_max': None,
+			't_max': None
+			}
+		},
+	'postprocess': {
+		'auto_correlation': {
+			'bin_size': 0,
+			'input': [{
+				'filename': None,
+				'label': '',
+				'linestyle': {
+					'colour': 'RED',
+					'style': 'DASHED'
+					},
+				'type': None
+				}],
+			'num_bootstraps': 0
+			},
+		'lattice_spacing': {
+			'bin_size': 0,
+			'input': [{
+				'filename': None,
+				'label': '',
+				'linestyle': {
+					'colour': 'RED',
+					'style': 'DASHED'
+					},
+				'type': None
+				}],
+			'num_bootstraps': 0
+			},
+		'pair_potential': {
+			'bin_size': 0,
+			'input': [{
+				'filename': None,
+				'label': '',
+				'linestyle': {
+					'colour': 'RED',
+					'style': 'DASHED'
+					},
+				'type': None
+				}],
+				'num_bootstraps': 0
+				}
+			},
+		'simulation': {
+			'measurement_spacing': None,
+			'num_configurations': None,
+			'parallel_update': {
+				'block_size': 1,
+				'enabled': 'FALSE'
+				},
+			'timing_run': {
+				'enabled': 'FALSE',
+				'num_configurations': 0
+				},
+			'update_method': 'HEATBATH'
+			}
+		}

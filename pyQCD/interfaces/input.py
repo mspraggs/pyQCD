@@ -5,7 +5,7 @@ import IPython
 
 class XmlInterface:
 
-	def __init__(self, filename, default = "defaults.xml"):
+	def __init__(self, filename):
 		"""Creates an interface to the input xml file that defines the
 		various settings used in the simulation or postprocessing script.
 		The default settings, where they exist, are specified in the default
@@ -15,15 +15,9 @@ class XmlInterface:
 		xmltree = ET.parse(filename)
 		xmlroot = xmltree.getroot()
 
-		directory, currfile = op.split(op.realpath(__file__))
-		default = op.join(directory, default)
-		defaulttree = ET.parse(default)
-		defaultroot = defaulttree.getroot()
-
 		self.settings = self.parse_tree(xmlroot)
-		self.defaults = self.parse_tree(defaultroot)
 
-		self.fill_defaults(self.settings, self.defaults)
+		self.fill_defaults(self.settings, dicts.defaults)
 		self.fill_dicts(self.settings)
 
 	def __str__(self):
