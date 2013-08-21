@@ -5,6 +5,9 @@ pyQCD/core/CMakeFiles/*
 pyQCD/core/Makefile
 pyQCD/core/cmake_install.cmake
 pyQCD/core/lattice.so
+pyQCD.egg-info/*
+build/*
+dist/*
 CMakeCache.txt
 CMakeFiles/*
 setup.py
