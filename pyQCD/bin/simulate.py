@@ -7,17 +7,11 @@ import time
 from optparse import OptionParser
 import IPython
 
-def main():
-	"""Main function for doing simulations."""
-	# Parse the command line arguments
-	parser = OptionParser()
-	parser.add_option("-i", "--input", action = "store", type = "string",
-					  dest = "input_file")
-	(options,args) = parser.parse_args()
-
+def main(input_file):
+	"""Runs a simulation as specified in the supplied xml input file."""
 	# Try to parse the supplied xml input file, exit if it fails
 	try:
-		xml = interfaces.input.XmlInterface(options.input_file)
+		xml = interfaces.input.XmlInterface(input_file)
 	except interfaces.input.ET.ParseError:
 		print("Error parsing XML file.")
 		sys.exit()
@@ -111,4 +105,9 @@ def main():
 			  % (hrs,mins,secs))
 
 if __name__ == "__main__":
-	main()
+	# Parse the command line arguments
+	parser = OptionParser()
+	parser.add_option("-i", "--input", action = "store", type = "string",
+					  dest = "input_file")
+	(options,args) = parser.parse_args()
+	main(options.input_file)

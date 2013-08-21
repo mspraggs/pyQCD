@@ -7,17 +7,11 @@ import sys
 import time
 from optparse import OptionParser
 
-def main():
-	"""Main execution function for postprocessing"""
-	# Parse the command line arguments
-	parser = OptionParser()
-	parser.add_option("-i", "--input", action = "store", type = "string",
-					  dest = "input_file")
-	options, args = parser.parse_args()
-
+def main(input_file):
+	"""Performs the postprocessing as specified in the provided xml file"""
 	# Try to parse the supplied xml input file, exit if it fails.
 	try:
-		xml = interfaces.input.XmlInterface(options.input_file)
+		xml = interfaces.input.XmlInterface(input_file)
 	except:
 		print("Error parsing XML file.")
 		sys.exit()
@@ -47,4 +41,9 @@ def main():
 			  .lattice_spacing(postprocess_settings[action])
 
 if __name__ == "__main__":
-	main()
+	# Parse the command line arguments
+	parser = OptionParser()
+	parser.add_option("-i", "--input", action = "store", type = "string",
+					  dest = "input_file")
+	options, args = parser.parse_args()
+	main(options.input_file)
