@@ -5,7 +5,7 @@ import IPython
 
 class XmlInterface:
 
-	def __init__(self, filename, default = "simulation_default.xml"):
+	def __init__(self, filename, default = "defaults.xml"):
 		"""Creates an interface to the input xml file that defines the
 		various settings used in the simulation or postprocessing script.
 		The default settings, where they exist, are specified in the default
