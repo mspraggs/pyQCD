@@ -1,4 +1,4 @@
-from setuptools import setup, Extension
+from setuptools import setup, Extension, find_packages
 from setuptools.command import build_ext
 import os
 import io
@@ -29,11 +29,7 @@ class my_build_ext(build_ext.build_ext):
 setup(
     name='pyQCD',
     version='${PACKAGE_VERSION}',
-    packages=['pyQCD',
-			  'pyQCD.core',
-			  'pyQCD.bin',
-			  'pyQCD.interfaces',
-			  'pyQCD.postprocessing'],
+    packages=find_packages(),
 	url='http://github.com/mspraggs/pyqcd/',
     license='Apache Software License',
     author='Matt Spraggs',
