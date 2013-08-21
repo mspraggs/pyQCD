@@ -1,7 +1,8 @@
-from distutils.core import setup, Extension
-from distutils.command import build_ext
+from setuptools import setup, Extension
+from setuptools.command import build_ext
 import os
-"""
+import io
+
 def read(*filenames, **kwargs):
     encoding = kwargs.get('encoding', 'utf-8')
     sep = kwargs.get('sep', '\n')
@@ -12,7 +13,7 @@ def read(*filenames, **kwargs):
     return sep.join(buf)
 
 long_description = read('README.md')
-"""
+
 
 class my_build_ext(build_ext.build_ext):
 	def build_extension(self, ext):
@@ -33,28 +34,18 @@ setup(
 			  'pyQCD.bin',
 			  'pyQCD.interfaces',
 			  'pyQCD.postprocessing'],
-	cmdclass = {'build_ext': my_build_ext},
-	ext_modules = [Extension('pyQCD/core/lattice',
-							 sources = ['pyQCD/core/src/wrapper.cpp'])],
-	package_dir={'': '${CMAKE_CURRENT_SOURCE_DIR}'},
-)
-"""
-setup(
-    name='pyQCD',
-    version='${PACKAGE_VERSION}',
-    url='http://github.com/mspraggs/pyqcd/',
+	url='http://github.com/mspraggs/pyqcd/',
     license='Apache Software License',
     author='Matt Spraggs',
-    install_requires=['numpy', 'scipy',
-                    ],
+    install_requires=['numpy', 'scipy'],
     author_email='matthew.spraggs@gmail.com',
     description='pyQCD provides a Python library for running coarse lattice '
 	'QCD simulations on desktop and workstation computers.',
     long_description=long_description,
-    packages=['pyQCD'],
+	cmdclass = {'build_ext': my_build_ext},
+	ext_modules = [Extension('pyQCD/core/lattice',
+							 sources = ['pyQCD/core/src/wrapper.cpp'])],
 	package_dir={'': '.'},
-    include_package_data=True,
-    platforms='any',
     classifiers = [
         'Programming Language :: Python',
 		'Programming Language :: C++',
@@ -65,4 +56,4 @@ setup(
         'Operating System :: OS Independent',
 		'Topic :: Scientific/Engineering :: Physics',
         ],
-)"""
+)
