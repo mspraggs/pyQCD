@@ -41,6 +41,17 @@ paths:
 > -DBoost_LIBRARY_DIR=...
 > -DPYTHON_LIBRARY=...
 
+To build the documentation on linux, enter the doc directory and run
+
+> make html
+
+On Windows:
+
+> make.bat html
+
+This will build html documentation in the _build/html dubdirectory. At the moment this provides a brief function
+reference. In the future this will hopefully be more detailed.
+
 Quick Start
 -----------
 
