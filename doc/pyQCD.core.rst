@@ -4,12 +4,9 @@ core Package
 :mod:`lattice` Module
 ---------------------
 
-.. module:: pyQCD.core.lattice
+.. automodule:: pyQCD.core.lattice
 
-.. autoclass:: pyQCD.core.lattice.Lattice
-    :members:
-    :undoc-members:
-    :show-inheritance:
+    .. autoclass:: Lattice
+        :members:
 
-    .. automethod:: __init__
-
+        .. automethod:: __init__
