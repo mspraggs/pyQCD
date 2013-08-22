@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # pyQCD documentation build configuration file, created by
-# sphinx-quickstart on Thu Aug 22 00:17:19 2013.
+# sphinx-quickstart on Thu Aug 22 01:03:58 2013.
 #
 # This file is execfile()d with the current directory set to its containing dir.
 #
