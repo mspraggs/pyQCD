@@ -5,8 +5,7 @@ core Package
 ---------------------
 
 .. automodule:: pyQCD.core.lattice
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
-    .. autoclass:: Lattice
-        :members:
-
-        .. automethod:: __init__
