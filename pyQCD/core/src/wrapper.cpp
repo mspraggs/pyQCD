@@ -141,30 +141,42 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(pyLatticeWavOverload,
 
 BOOST_PYTHON_MODULE(lattice)
 {
-  py::docstring_options local_docstring_options(true, true, false);
+  py::docstring_options docopt;
+  docopt.enable_all();
+  docopt.disable_cpp_signatures();
 
   py::class_<pyLattice>("Lattice",
-			"Constructs a lattice object of spatial extent L and \n"
-			"temporal extent T.",
+			 "Constructs a lattice object of spatial extent L and "
+			"temporal extent T.\nThe action may take a value of 0, "
+			"1 or 2, corresponding to Wilson's\ngauge action, a "
+			"rectangle-improved Wilson gauge action and a twisted\n"
+			"rectangle-improved Wilson gauge action, respectively. "
+			"Ncor corresponds\nto the number of updates performed "
+			"by the next_config function. If\nparallel_flag is "
+			"equal to 1, then parallel updates are performed,\n"
+			"splitting the lattice into blocks of length "
+			"block_size. The update\nmethod flag may be set to 0, 1 "
+			"or 2, corresponding to heatbath updates,\nmonte carlo "
+			"updates or monte carlo updates without the use of "
+			"link\nstaples, respectively.\n\n"
+			 "Constructor arguments and default values:\n\n"
+			 "L = 4\n\n"
+			 "T = 8\n\n"
+			 "beta = 5.5\n\n"
+			 "u0 = 1.0\n\n"
+			 "action = 0\n\n"
+			 "Ncor = 10\n\n"
+			 "update_method = 0\n\n"
+			 "parallel_flag = 1\n\n"
+			 "block_size = 4",
 			py::init<int, int, double, double, int, int, int,
 				 int, int>
 			((py::arg("L")=4, py::arg("T")=8, py::arg("beta")=5.5,
 			  py::arg("u0")=1.0, py::arg("action")=0,
 			  py::arg("Ncor")=10, py::arg("update_method")=0,
 			  py::arg("parallel_flag")=1, py::arg("block_size")=4),
-			 "Constructs a lattice object of spatial extent L and \n"
-			"temporal extent T. The action may take a value of 0,\n"
-			"1 or 2, corresponding to Wilson's gauge action, a \n"
-			"rectangle-improved Wilson gauge action and a twisted\n"
-			"rectangle-improved Wilson gauge action, respectively.\n"
-			"Ncor corresponds to the number of updates performed \n"
-			"by the next_config function. If parallel_flag is\n"
-			"equal to 1, then parallel updates are performed,\n"
-			"splitting the lattice into blocks of length\n"
-			"block_size. The update method flag may be set to 0, 1\n"
-			"or 2, corresponding to heatbath updates, monte carlo\n"
-			"updates or monte carlo updates without the use of\n"
-			"link staples, respectively."))
+			"Constructs a lattice object of spatial extent L and \n"
+			"temporal extent T."))
     .def(py::init<pyLattice&>())
     .def("get_link", &pyLattice::getLinkP, (py::arg("link")),
 	 "Returns the link specified by the coordinates in link (of the form\n"
