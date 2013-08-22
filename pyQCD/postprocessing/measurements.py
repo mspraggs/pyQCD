@@ -1,6 +1,5 @@
 import pylab as pl
 from scipy import optimize
-import IPython
 
 def pair_potential(b, r):
 	"""Calculates the quark pair potential as b[0] * r - b[1] / r + b[2]"""

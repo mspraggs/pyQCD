@@ -1,7 +1,6 @@
 import xml.etree.ElementTree as ET
 import dicts
 import os.path as op
-import IPython
 
 class XmlInterface:
 

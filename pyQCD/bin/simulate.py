@@ -5,7 +5,6 @@ import pyQCD.interfaces.measurements as measure
 import sys
 import time
 from optparse import OptionParser
-import IPython
 
 def main(input_file):
 	"""Runs a simulation as specified in the supplied xml input file."""

@@ -1,5 +1,4 @@
 import pylab as pl
-import IPython
 
 def bin(X, binsize = 1):
 	"""Split X into bins and return the average of each bin as a new set of
