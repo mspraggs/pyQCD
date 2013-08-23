@@ -4,11 +4,8 @@
 #include <Eigen/Dense>
 #include <complex>
 #include <boost/random.hpp>
-#include <boost/python.hpp>
-#include <boost/python/list.hpp>
 
 using namespace boost;
-namespace py = boost::python;
 using namespace Eigen;
 using namespace std;
 
