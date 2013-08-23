@@ -1,12 +1,18 @@
 cmake_minimum_required (VERSION 2.6)
 project (lattice)
 
+set (TEST_DIR ${PROJECT_BINARY_DIR}/test)
 set (SRC_DIR ${PROJECT_BINARY_DIR}/src)
 set (INC_DIR ${PROJECT_BINARY_DIR}/include)
 
 file (GLOB
   pyQCD_SRC
   ${SRC_DIR}/*.cpp)
+
+file (GLOB_RECURSE TEST_SRC "${TEST_DIR}" "*.cpp")
+foreach(TESTFILE ${TEST_SRC})
+  add_test(${TESTFILE} testdriver ${TESTFILE})
+endforeach()
 
 set (CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 set (EIGEN_INCLUDE_DIR ${CMAKE_MODULE_PATH}/FindEigen3.cmake)
@@ -32,12 +38,6 @@ set (Boost_USE_STATIC_LIBS OFF)
 set (Boost_USE_MULTITHREADED ON)
 set (Boost_USE_STATIC_RUNTIME OFF)
 find_package (Boost COMPONENTS random python)
-
-set (SOURCES
-  ${SRC_DIR}/wrapper.cpp
-  ${SRC_DIR}/pylattice.cpp
-  ${SRC_DIR}/lattice.cpp
-  ${SRC_DIR}/utils.cpp)
 
 set (CMAKE_SHARED_LIBRARY_PREFIX "")
 add_library (lattice SHARED ${pyQCD_SRC})
