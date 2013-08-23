@@ -66,16 +66,21 @@ def main(input_file):
 	# For estimating the run time, split the thermalization and config
 	# generation processes
 	t1 = time.time()
-	print("Calculating run time...")
 	sys.stdout.flush()
 	# Run through and do the updates
 	for i in xrange(num_configs):
 		print("Configuration: %d" % i)
 		sys.stdout.flush()
+		print("Updating gauge field...")
+		sys.stdout.flush()
 		lattice.next_config()
+		print("Done!")
+		print("Doing measurements...")
+		sys.stdout.flush()
 		measure.do(measurement_settings,
 				   lattice_interface,
 				   measurements, i)
+		print("Done!")
 
 	# Store the measurments
 	measure.save(measurement_settings, measurements)
