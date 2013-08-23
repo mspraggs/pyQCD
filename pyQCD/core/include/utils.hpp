@@ -1,5 +1,5 @@
-#ifndef PYQCD_UTILS_HPP
-#define PYQCD_UTILS_HPP
+#ifndef UTILS_HPP
+#define UTILS_HPP
 
 #include <Eigen/Dense>
 #include <complex>
@@ -52,10 +52,7 @@ namespace pyQCD
   Matrix2cd extractSubMatrix(const Matrix3cd& su3Matrix,
 			     const int index);
   Matrix2cd extractSu2(const Matrix3cd& su3Matrix,
-		       double coefficients[4], const int index); 
-
-  py::list convertMatrixToList(const MatrixXcd& matrix);
-  MatrixXcd convertListToMatrix(const py::list list);
+		       double coefficients[4], const int index);
 
   double oneNorm(const Matrix3cd& matrix);
 }

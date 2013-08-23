@@ -8,7 +8,7 @@
 #include <boost/python/raw_function.hpp>
 #include "lattice.hpp"
 #include "gil.hpp"
-#include "utils.hpp"
+#include "pyutils.hpp"
 #include <string>
 
 namespace py = boost::python;
