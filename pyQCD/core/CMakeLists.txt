@@ -1,25 +1,27 @@
 cmake_minimum_required (VERSION 2.6)
 project (lattice)
+enable_testing()
 
 set (TEST_DIR ${PROJECT_BINARY_DIR}/test)
 set (SRC_DIR ${PROJECT_BINARY_DIR}/src)
 set (INC_DIR ${PROJECT_BINARY_DIR}/include)
 
 file (GLOB
-  pyQCD_SRC
+  lattice_SRC
   ${SRC_DIR}/*.cpp)
 
-file (GLOB_RECURSE TEST_SRC "${TEST_DIR}" "*.cpp")
-foreach(TESTFILE ${TEST_SRC})
-  add_test(${TESTFILE} testdriver ${TESTFILE})
-endforeach()
+file (GLOB
+  test_SRC
+  ${TEST_DIR}/*.cpp
+  ${SRC_DIR}/lattice_*.cpp
+  ${SRC_DIR}/utils.cpp)
 
 set (CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 set (EIGEN_INCLUDE_DIR ${CMAKE_MODULE_PATH}/FindEigen3.cmake)
 
 find_package (PythonLibs 2.6 REQUIRED)
 find_package (Eigen3 3.1.3 REQUIRED)
-find_package (Boost 1.44.0 REQUIRED)
+find_package (Boost 1.49.0 REQUIRED)
 find_package (OpenMP 3.0 REQUIRED)
 
 if (OPENMP_FOUND)
@@ -40,8 +42,11 @@ set (Boost_USE_STATIC_RUNTIME OFF)
 find_package (Boost COMPONENTS random python)
 
 set (CMAKE_SHARED_LIBRARY_PREFIX "")
-add_library (lattice SHARED ${pyQCD_SRC})
+add_library (lattice SHARED ${lattice_SRC})
 target_link_libraries (lattice ${Boost_LIBRARIES})
+
+add_executable (test_lattice ${test_SRC})
+add_test(lattice test_lattice)
 
 IF(CMAKE_COMPILER_IS_GNUCXX)
   ADD_DEFINITIONS("-O3")
