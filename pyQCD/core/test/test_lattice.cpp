@@ -8,6 +8,56 @@
 using namespace Eigen;
 using namespace std;
 
+class exposedLattice: public Lattice
+{
+public:
+  exposedLattice(const int spatialExtent = 4,
+		 const int temporalExtent = 8,
+		 const double beta = 5.5,
+		 const double u0 = 1.0,
+		 const int action = 0,
+		 const int nCorrelations = 50,
+		 const int updateMethod = 0,
+		 const int parallelFlag = 1,
+		 const int chunkSize = 4) :
+    Lattice::Lattice(spatialExtent, temporalExtent, beta, u0, action,
+		   nCorrelations, updateMethod, parallelFlag, chunkSize)
+  {
+    
+  }
+
+  ~exposedLattice()
+  {
+    
+  }
+
+  
+  double computeLocalWilsonAction(const int link[5])
+  {
+    return Lattice::computeLocalWilsonAction(link);
+  }
+
+  double computeLocalRectangleAction(const int link[5])
+  {
+    return Lattice::computeLocalRectangleAction(link);
+  }
+
+  double computeLocalTwistedRectangleAction(const int link[5])
+  {
+    return Lattice::computeLocalTwistedRectangleAction(link);
+  }
+
+  Matrix3cd computeWilsonStaples(const int link[5])
+  {
+    return Lattice::computeWilsonStaples(link);
+  }
+
+  Matrix3cd computeRectangleStaples(const int link[5])
+  {
+    return Lattice::computeRectangleStaples(link);
+  }
+};
+
 bool areEqual(const double x, const double y, const double precision)
 {
   if (fabs(x - y) < precision)
