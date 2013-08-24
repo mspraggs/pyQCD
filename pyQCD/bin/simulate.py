@@ -76,7 +76,7 @@ def main(input_file):
 		sys.stdout.flush()
 		lattice.next_config()
 		print("Done!")
-		print("Doing measurements...")
+		print("Doing measurements:")
 		sys.stdout.flush()
 		measure.do(measurement_settings,
 				   lattice_interface,
@@ -84,7 +84,8 @@ def main(input_file):
 		print("Done!")
 
 	# Store the measurments
-	measure.save(measurement_settings, measurements)
+	if not simulate_settings['timing_run']['enabled']:
+		measure.save(measurement_settings, measurements)
 	# Get the final time, then calculate the total time, either
 	# estimated or otherwise.
 	t2 = time.time()
