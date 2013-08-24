@@ -15,4 +15,4 @@ Makefile
 cmake_install.cmake
 push
 install_manifest.txt
-docs/_builds
+docs/_build
