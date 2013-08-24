@@ -66,6 +66,10 @@ BOOST_AUTO_TEST_CASE( update_test )
       
   BOOST_CHECK(lattice.computeAverageRectangle() < 0.27 &&
 	      lattice.computeAverageRectangle() > 0.25);
+  Matrix3cd testLink = lattice.getLink(linkCoords);
+  BOOST_CHECK(areEqual(testLink * testLink.adjoint(), Matrix3cd::Identity(),
+		       100 * DBL_EPSILON));
+  BOOST_CHECK(areEqual(testLink.determinant(), 1.0, 100 * DBL_EPSILON));
 
   lattice = Lattice(8, 8, 5.5, 1.0, 0, 60, 1, 1, 4);
   lattice.thermalize();
@@ -75,6 +79,10 @@ BOOST_AUTO_TEST_CASE( update_test )
       
   BOOST_CHECK(lattice.computeAverageRectangle() < 0.27 &&
 	      lattice.computeAverageRectangle() > 0.25);
+  testLink = lattice.getLink(linkCoords);
+  BOOST_CHECK(areEqual(testLink * testLink.adjoint(), Matrix3cd::Identity(),
+		       100 * DBL_EPSILON));
+  BOOST_CHECK(areEqual(testLink.determinant(), 1.0, 100 * DBL_EPSILON));
 
   lattice = Lattice(8, 8, 5.5, 1.0, 0, 10, 0, 0, 4);
   lattice.thermalize();
@@ -84,6 +92,10 @@ BOOST_AUTO_TEST_CASE( update_test )
       
   BOOST_CHECK(lattice.computeAverageRectangle() < 0.27 &&
 	      lattice.computeAverageRectangle() > 0.25);
+  testLink = lattice.getLink(linkCoords);
+  BOOST_CHECK(areEqual(testLink * testLink.adjoint(), Matrix3cd::Identity(),
+		       100 * DBL_EPSILON));
+  BOOST_CHECK(areEqual(testLink.determinant(), 1.0, 100 * DBL_EPSILON));
 
   lattice = Lattice(8, 8, 5.5, 1.0, 0, 60, 1, 0, 4);
   lattice.thermalize();
@@ -93,4 +105,8 @@ BOOST_AUTO_TEST_CASE( update_test )
       
   BOOST_CHECK(lattice.computeAverageRectangle() < 0.27 &&
 	      lattice.computeAverageRectangle() > 0.25);
+  testLink = lattice.getLink(linkCoords);
+  BOOST_CHECK(areEqual(testLink * testLink.adjoint(), Matrix3cd::Identity(),
+		       100 * DBL_EPSILON));
+  BOOST_CHECK(areEqual(testLink.determinant(), 1.0, 100 * DBL_EPSILON));
 }
