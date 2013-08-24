@@ -148,6 +148,7 @@ BOOST_AUTO_TEST_CASE( gluonic_measurements_test )
 BOOST_AUTO_TEST_CASE( action_test )
 {
   exposedLattice lattice;
+  // Initialise the lattice with a randome complex matrix
   complex<double> randC = randomComplexNumber();
   Matrix3cd randomDiagonalMatrix = randC * Matrix3cd::Identity();
   
@@ -163,15 +164,18 @@ BOOST_AUTO_TEST_CASE( action_test )
       }
     }
   }
-
+  
+  // Calculate plaquette, rectangle and twisted rectangle values
   double plaquetteVal = pow(abs(randC), 4);
   double rectangleVal = pow(abs(randC), 6);
   double twistedRectangleVal = pow(abs(randC), 8);
-
+  // Use these values to calculate the actions
   double wilsonAction = -6 * plaquetteVal;
   double rectangleAction = 5.0 / 3.0 * wilsonAction + 18 / 12.0 * rectangleVal;
   double twistedRectangleAction = wilsonAction - 21 / 12.0 * twistedRectangleVal;
 
+  // Compare the actions as calculated on the lattice with those calculated
+  // above
   int link[5] = {0, 0, 0, 0, 0};
   BOOST_CHECK(areEqual(lattice.computeLocalWilsonAction(link),
 		       5.5 * wilsonAction, 100 * DBL_EPSILON));
@@ -180,10 +184,11 @@ BOOST_AUTO_TEST_CASE( action_test )
   BOOST_CHECK(areEqual(lattice.computeLocalTwistedRectangleAction(link),
 		       5.5 * twistedRectangleAction, 100 * DBL_EPSILON));
 
+  // Calculate the staples
   Matrix3cd wilsonStaples = lattice.computeWilsonStaples(link);
   Matrix3cd rectangleStaples = lattice.computeRectangleStaples(link);
   Matrix3cd linkMatrix = lattice.getLink(link);
-
+  // Compare the lattice staples with the calculated action
   BOOST_CHECK(areEqual(1.0 / 3.0 * (linkMatrix * wilsonStaples).trace().real(),
 		       -wilsonAction, 100 * DBL_EPSILON));
   BOOST_CHECK(areEqual(1.0 / 3.0 * (linkMatrix * rectangleStaples)
