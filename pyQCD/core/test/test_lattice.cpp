@@ -145,6 +145,52 @@ BOOST_AUTO_TEST_CASE( gluonic_measurements_test )
 		       plaquetteVal, 100 * DBL_EPSILON));
 }
 
+BOOST_AUTO_TEST_CASE( action_test )
+{
+  exposedLattice lattice;
+  complex<double> randC = randomComplexNumber();
+  Matrix3cd randomDiagonalMatrix = randC * Matrix3cd::Identity();
+  
+  for (int i = 0; i < 8; ++i) {
+    for (int j = 0; j < 4; ++j) {
+      for (int k = 0; k < 4; ++k) {
+	for (int l = 0; l < 4; ++l) {
+	  for (int m = 0; m < 4; ++m) {
+	    int tempLink[5] = {i, j, k, l, m};
+	    lattice.setLink(tempLink, randomDiagonalMatrix);
+	  }
+	}
+      }
+    }
+  }
+
+  double plaquetteVal = pow(abs(randC), 4);
+  double rectangleVal = pow(abs(randC), 6);
+  double twistedRectangleVal = pow(abs(randC), 8);
+
+  double wilsonAction = -6 * plaquetteVal;
+  double rectangleAction = 5.0 / 3.0 * wilsonAction + 18 / 12.0 * rectangleVal;
+  double twistedRectangleAction = wilsonAction - 21 / 12.0 * twistedRectangleVal;
+
+  int link[5] = {0, 0, 0, 0, 0};
+  BOOST_CHECK(areEqual(lattice.computeLocalWilsonAction(link),
+		       5.5 * wilsonAction, 100 * DBL_EPSILON));
+  BOOST_CHECK(areEqual(lattice.computeLocalRectangleAction(link),
+		       5.5 * rectangleAction, 100 * DBL_EPSILON));
+  BOOST_CHECK(areEqual(lattice.computeLocalTwistedRectangleAction(link),
+		       5.5 * twistedRectangleAction, 100 * DBL_EPSILON));
+
+  Matrix3cd wilsonStaples = lattice.computeWilsonStaples(link);
+  Matrix3cd rectangleStaples = lattice.computeRectangleStaples(link);
+  Matrix3cd linkMatrix = lattice.getLink(link);
+
+  BOOST_CHECK(areEqual(1.0 / 3.0 * (linkMatrix * wilsonStaples).trace().real(),
+		       -wilsonAction, 100 * DBL_EPSILON));
+  BOOST_CHECK(areEqual(1.0 / 3.0 * (linkMatrix * rectangleStaples)
+		       .trace().real(), -rectangleAction,
+		       100 * DBL_EPSILON));
+}
+
 BOOST_AUTO_TEST_CASE( update_test )
 {
   int linkCoords[5] = {0, 0, 0, 0, 0};
