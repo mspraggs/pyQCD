@@ -2,6 +2,38 @@
 #include <lattice.hpp>
 #include <boost/test/unit_test.hpp>
 #include <Eigen/Dense>
+#include <complex>
+
+using namespace Eigen;
+
+bool areEqual(const double x, const double y, const double precision)
+{
+  if (fabs(x - y) < precision)
+    return true;
+  else
+    return false;
+}
+
+bool areEqual(const complex<double> x, const complex<double> y,
+	      const double precision)
+{
+  if (!areEqual(x.real(), y.real(), precision))
+    return false;
+  else if (!areEqual(x.imag(), y.imag(), precision))
+    return false;
+  else
+    return true;
+}
+
+bool areEqual(const Matrix3cd& A, const Matrix3cd& B, const double precision)
+{
+  for (int i = 0; i < 3; ++i)
+    for (int j = 0; j < 3; ++j)
+      if (!areEqual(A(i, j), B(i, j), precision))
+	return false;
+
+  return true;
+}
 
 BOOST_AUTO_TEST_CASE( gluonic_measurements_test )
 {
