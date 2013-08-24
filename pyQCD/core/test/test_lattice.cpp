@@ -102,6 +102,7 @@ BOOST_AUTO_TEST_CASE( update_test )
   // Checking parallel heatbath updates
   Lattice lattice(8, 8, 5.5, 1.0, 0, 10, 0, 1, 4);
   lattice.thermalize();
+  lattice.reunitarize();
   // Check basic observables
   BOOST_CHECK(lattice.computeAveragePlaquette() < 0.51 &&
 	      lattice.computeAveragePlaquette() > 0.49);   
@@ -114,13 +115,12 @@ BOOST_AUTO_TEST_CASE( update_test )
   BOOST_CHECK(areEqual(testLink.determinant(), 1.0, 100 * DBL_EPSILON));
 
   // Checking parallel Monte Carlo updates
-  lattice = Lattice(8, 8, 5.5, 1.0, 0, 60, 1, 1, 4);
+  lattice = Lattice(8, 8, 5.5, 1.0, 0, 70, 1, 1, 4);
   lattice.thermalize();
+  lattice.reunitarize();
   // Check basic observables
-  BOOST_CHECK(lattice.computeAveragePlaquette() < 0.51 &&
-	      lattice.computeAveragePlaquette() > 0.49);
-  BOOST_CHECK(lattice.computeAverageRectangle() < 0.27 &&
-	      lattice.computeAverageRectangle() > 0.25);
+  BOOST_CHECK(areEqual(lattice.computeAveragePlaquette(), 0.5, 0.1));
+  BOOST_CHECK(areEqual(lattice.computeAverageRectangle(), 0.26, 0.1));
   // Check unitarity
   testLink = lattice.getLink(linkCoords);
   BOOST_CHECK(areEqual(testLink * testLink.adjoint(), Matrix3cd::Identity(),
@@ -130,11 +130,10 @@ BOOST_AUTO_TEST_CASE( update_test )
   // Checking serial heatbath
   lattice = Lattice(8, 8, 5.5, 1.0, 0, 10, 0, 0, 4);
   lattice.thermalize();
+  lattice.reunitarize();
   // Check basic observables
-  BOOST_CHECK(lattice.computeAveragePlaquette() < 0.51 &&
-	      lattice.computeAveragePlaquette() > 0.49);
-  BOOST_CHECK(lattice.computeAverageRectangle() < 0.27 &&
-	      lattice.computeAverageRectangle() > 0.25);
+  BOOST_CHECK(areEqual(lattice.computeAveragePlaquette(), 0.5, 0.1));
+  BOOST_CHECK(areEqual(lattice.computeAverageRectangle(), 0.26, 0.1));
   // Check unitarity
   testLink = lattice.getLink(linkCoords);
   BOOST_CHECK(areEqual(testLink * testLink.adjoint(), Matrix3cd::Identity(),
@@ -142,13 +141,12 @@ BOOST_AUTO_TEST_CASE( update_test )
   BOOST_CHECK(areEqual(testLink.determinant(), 1.0, 100 * DBL_EPSILON));
 
   // Checking serial Monte Carlo
-  lattice = Lattice(8, 8, 5.5, 1.0, 0, 60, 1, 0, 4);
+  lattice = Lattice(8, 8, 5.5, 1.0, 0, 70, 1, 0, 4);
   lattice.thermalize();
+  lattice.reunitarize();
   // Check basic observables
-  BOOST_CHECK(lattice.computeAveragePlaquette() < 0.51 &&
-	      lattice.computeAveragePlaquette() > 0.49);
-  BOOST_CHECK(lattice.computeAverageRectangle() < 0.27 &&
-	      lattice.computeAverageRectangle() > 0.25);
+  BOOST_CHECK(areEqual(lattice.computeAveragePlaquette(), 0.5, 0.1));
+  BOOST_CHECK(areEqual(lattice.computeAverageRectangle(), 0.26, 0.1));
   // Check unitarity
   testLink = lattice.getLink(linkCoords);
   BOOST_CHECK(areEqual(testLink * testLink.adjoint(), Matrix3cd::Identity(),
