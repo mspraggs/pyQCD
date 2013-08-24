@@ -18,7 +18,6 @@ Lattice::Lattice(const int spatialExtent, const int temporalExtent,
   this->action_ = action;
   this->updateMethod_ = updateMethod;
   this->parallelFlag_ = parallelFlag;
-  this->rng = Random();
 
   // Initialize parallel Eigen
   initParallel();

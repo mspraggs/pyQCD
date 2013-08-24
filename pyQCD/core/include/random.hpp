@@ -19,4 +19,7 @@ public:
 private:
   int nThreads;
   vector<mt19937> generators;
+
+  Random(const Random& rng);
+  Random& operator=(const Random& rng);
 };
