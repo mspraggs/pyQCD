@@ -43,16 +43,16 @@ def do(settings, interface, store, config):
 	for key in keys:
 		if key == "plaquette":
 			store[key][config] = interface.lattice.av_plaquette()
-			print("Average plaquette = %f" % store[key][config])
+			print("- Average plaquette = %f" % store[key][config])
 		elif key == "wilson_loop":
-			print("Calculating average Wilson loops...")
+			print("- Calculating average Wilson loops...")
 			store[key][config] \
 			  = interface.get_wilson_loops(settings[key]['r_max'],
 										   settings[key]['t_max'],
 										   settings[key]['num_field_smears'],
 										   settings[key]['field_smearing_param'])
 		elif key == "propagator":
-			print("Calculating propagators...")
+			print("- Calculating propagators...")
 			store[key][config] \
 			  = interface.get_propagator(settings[key]['mass'],
 										 settings[key]['a'],
