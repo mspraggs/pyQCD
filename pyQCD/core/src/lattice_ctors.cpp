@@ -221,6 +221,29 @@ Lattice::Lattice(const Lattice& lattice)
 
 
 
+Lattice& Lattice::operator=(const Lattice& lattice)
+{
+  // Default constructor. Assigns function arguments to member variables
+  // and initializes links.
+  this->spatialExtent = lattice.spatialExtent;
+  this->temporalExtent = lattice.temporalExtent;
+  this->nLinks_ = lattice.nLinks_;
+  this->beta_ = lattice.beta_;
+  this->nCorrelations = lattice.nCorrelations;
+  this->nUpdates_ = lattice.nUpdates_;
+  this->u0_ = lattice.u0_;
+  this->links_ = lattice.links_;
+  this->randSu3s_ = lattice.randSu3s_;
+  this->computeLocalAction = lattice.computeLocalAction;
+  this->action_ = lattice.action_;
+  this->updateMethod_ = lattice.updateMethod_;
+  this->updateFunction_ = lattice.updateFunction_;
+  this->parallelFlag_ = lattice.parallelFlag_;
+  this->propagatorColumns_ = lattice.propagatorColumns_;
+}
+
+
+
 Lattice::~Lattice()
 {
   // Destructor

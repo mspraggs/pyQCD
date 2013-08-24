@@ -38,6 +38,7 @@ public:
 	  const int parallelFlag = 1,
 	  const int chunkSize = 4);
   Lattice(const Lattice& lattice);
+  Lattice& operator=(const Lattice& lattice);
   ~Lattice();
 
   void print();
