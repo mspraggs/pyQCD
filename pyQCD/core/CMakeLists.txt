@@ -41,17 +41,15 @@ include_directories (${Boost_INCLUDE_DIRS}
 set (Boost_USE_STATIC_LIBS OFF)
 set (Boost_USE_MULTITHREADED ON)
 set (Boost_USE_STATIC_RUNTIME OFF)
-find_package (Boost COMPONENTS random python)
+find_package (Boost COMPONENTS random python unit_test_framework)
 
 set (CMAKE_SHARED_LIBRARY_PREFIX "")
 add_library (lattice SHARED ${lattice_SRC})
 target_link_libraries (lattice ${Boost_LIBRARIES})
 
-find_package (Boost COMPONENTS unit_test_framework)
-
 add_definitions(-DBOOST_TEST_DYN_LINK)
 add_executable (test_lattice ${test_SRC})
-target_link_libraries (test_lattice ${Boost_LIBRARIES})
+target_link_libraries (test_lattice ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
 add_test(lattice test_lattice)
 
 IF(CMAKE_COMPILER_IS_GNUCXX)
