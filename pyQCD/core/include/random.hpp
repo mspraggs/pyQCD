@@ -7,6 +7,8 @@ using namespace std;
 
 class Random
 {
+  // Provides thread safety for the boost random number generator by creating a
+  // generator for each thread
 public:
   Random();
   ~Random();
