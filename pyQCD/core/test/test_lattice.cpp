@@ -135,14 +135,14 @@ BOOST_AUTO_TEST_CASE( gluonic_measurements_test )
   }
   // Checking average plaquette and rectangle
   BOOST_CHECK(areEqual(lattice.computeAveragePlaquette(),
-		       plaquetteVal, 100 * DBL_EPSILON));
+		       plaquetteVal, 500 * DBL_EPSILON));
   BOOST_CHECK(areEqual(lattice.computeAverageRectangle(),
-		       rectangleVal, 100 * DBL_EPSILON));
+		       rectangleVal, 500 * DBL_EPSILON));
   // Checking average Wilson loops
   BOOST_CHECK(areEqual(lattice.computeAverageWilsonLoop(1, 1),
-		       plaquetteVal, 100 * DBL_EPSILON));
+		       plaquetteVal, 500 * DBL_EPSILON));
   BOOST_CHECK(areEqual(lattice.computeAverageWilsonLoop(1, 1, 1, 0.5),
-		       plaquetteVal, 100 * DBL_EPSILON));
+		       plaquetteVal, 500 * DBL_EPSILON));
 }
 
 BOOST_AUTO_TEST_CASE( action_test )
