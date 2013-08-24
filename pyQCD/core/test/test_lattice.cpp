@@ -3,8 +3,10 @@
 #include <boost/test/unit_test.hpp>
 #include <Eigen/Dense>
 #include <complex>
+#include <cstdlib>
 
 using namespace Eigen;
+using namespace std;
 
 bool areEqual(const double x, const double y, const double precision)
 {
@@ -35,26 +37,62 @@ bool areEqual(const Matrix3cd& A, const Matrix3cd& B, const double precision)
   return true;
 }
 
+complex<double> randomComplexNumber()
+{
+  srand(time(0));
+
+  double x = double(rand()) / double(RAND_MAX);
+  double y = double(rand()) / double(RAND_MAX);
+
+  return complex<double>(x, y);
+}
+
 BOOST_AUTO_TEST_CASE( gluonic_measurements_test )
 {
   Lattice lattice;
+  complex<double> randC = randomComplexNumber();
+  Matrix3cd randomDiagonalMatrix = randC * Matrix3cd::Identity();
+  
+  for (int i = 0; i < 8; ++i) {
+    for (int j = 0; j < 4; ++j) {
+      for (int k = 0; k < 4; ++k) {
+	for (int l = 0; l < 4; ++l) {
+	  for (int m = 0; m < 4; ++m) {
+	    int tempLink[5] = {i, j, k, l, m};
+	    lattice.setLink(tempLink, randomDiagonalMatrix);
+	  }
+	}
+      }
+    }
+  }
+
+  double plaquetteVal = pow(abs(randC), 4);
+  double rectangleVal = pow(abs(randC), 6);
+  double twistedRectangleVal = pow(abs(randC), 8);
 
   int site[4] = {0, 0, 0, 0};
 
   // Checking all plaquettes, rectangles and twisted rectangles
   for (int i = 1; i < 4; ++i) {
     for (int j = 0; j < i; ++j) {
-      BOOST_CHECK_EQUAL(lattice.computePlaquette(site, i, j), 1.0);
-      BOOST_CHECK_EQUAL(lattice.computeRectangle(site, i, j), 1.0);
-      BOOST_CHECK_EQUAL(lattice.computeTwistedRectangle(site, i, j), 1.0);
+      BOOST_CHECK(areEqual(lattice.computePlaquette(site, i, j),
+			   plaquetteVal, 100 * DBL_EPSILON));
+      BOOST_CHECK(areEqual(lattice.computeRectangle(site, i, j),
+			   rectangleVal, 100 * DBL_EPSILON));
+      BOOST_CHECK(areEqual(lattice.computeTwistedRectangle(site, i, j),
+			   twistedRectangleVal, 100 * DBL_EPSILON));
     }
   }
   // Checking average plaquette and rectangle
-  BOOST_CHECK_EQUAL(lattice.computeAveragePlaquette(), 1.0);
-  BOOST_CHECK_EQUAL(lattice.computeAverageRectangle(), 1.0);
+  BOOST_CHECK(areEqual(lattice.computeAveragePlaquette(),
+		       plaquetteVal, 100 * DBL_EPSILON));
+  BOOST_CHECK(areEqual(lattice.computeAverageRectangle(),
+		       rectangleVal, 100 * DBL_EPSILON));
   // Checking average Wilson loops
-  BOOST_CHECK_EQUAL(lattice.computeAverageWilsonLoop(1, 1), 1.0);
-  BOOST_CHECK_EQUAL(lattice.computeAverageWilsonLoop(1, 1, 1, 0.5), 1.0);
+  BOOST_CHECK(areEqual(lattice.computeAverageWilsonLoop(1, 1),
+		       plaquetteVal, 100 * DBL_EPSILON));
+  BOOST_CHECK(areEqual(lattice.computeAverageWilsonLoop(1, 1, 1, 0.5),
+		       plaquetteVal, 100 * DBL_EPSILON));
 }
 
 BOOST_AUTO_TEST_CASE( update_test )
