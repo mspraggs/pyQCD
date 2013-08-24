@@ -19,6 +19,7 @@ def main(input_file):
 	print("Input XML:")
 	print(xml)
 	print("")
+	sys.stdout.flush()
 
 	# Get the list of measurements to be made
 	actions = postprocess_settings.keys()

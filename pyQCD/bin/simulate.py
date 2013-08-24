@@ -23,6 +23,7 @@ def main(input_file):
 	print("Input XML:")
 	print(xml)
 	print("")
+	sys.stdout.flush()
 
 	# Get the measurement settings
 	measurement_settings = xml.measurements()
