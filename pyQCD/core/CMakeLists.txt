@@ -14,6 +14,7 @@ file (GLOB
   test_SRC
   ${TEST_DIR}/*.cpp
   ${SRC_DIR}/lattice_*.cpp
+  ${SRC_DIR}/random.cpp
   ${SRC_DIR}/utils.cpp)
 
 set (CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
@@ -40,7 +41,7 @@ include_directories (${Boost_INCLUDE_DIRS}
 set (Boost_USE_STATIC_LIBS OFF)
 set (Boost_USE_MULTITHREADED ON)
 set (Boost_USE_STATIC_RUNTIME OFF)
-find_package (Boost COMPONENTS random python unit_test_framework)
+find_package (Boost COMPONENTS random python)
 
 set (CMAKE_SHARED_LIBRARY_PREFIX "")
 add_library (lattice SHARED ${lattice_SRC})
