@@ -14,7 +14,7 @@ void Lattice::monteCarlo(const int link)
   for (int n = 0; n < 10; ++n) {
     // Get a random SU3
     Matrix3cd randSu3 = 
-      this->randSu3s_[pyQCD::randomIndex()];
+      this->randSu3s_[rng.generateInt()];
     // Calculate the change in the action
     double actionChange = 
       -this->beta_ / 3.0 *
@@ -47,7 +47,7 @@ void Lattice::monteCarloNoStaples(const int link)
   
   // Get ourselves a random SU3 matrix for the update
   Matrix3cd randSu3 = 
-    this->randSu3s_[pyQCD::randomIndex()];
+    this->randSu3s_[rng.generateInt()];
   // Multiply the site
   this->links_[link] = randSu3 * this->links_[link];
   // What's the change in the action?

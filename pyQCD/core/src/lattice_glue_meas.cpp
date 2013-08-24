@@ -494,8 +494,8 @@ Matrix3cd Lattice::makeRandomSu3()
   // First generate a random matrix whos elements all lie in/on unit circle  
   for (int i = 0; i < 3; ++i) {
     for (int j = 0; j < 3; ++j) {
-      A(i, j) = pyQCD::uni();
-      A(i, j) *= exp(2  * pyQCD::pi * pyQCD::i * pyQCD::uni());
+      A(i, j) = rng.generateReal();
+      A(i, j) *= exp(2  * pyQCD::pi * pyQCD::i * rng.generateReal());
     }
   }
   // Weight the matrix with weighting eps
@@ -516,20 +516,20 @@ Matrix2cd Lattice::makeHeatbathSu2(double coefficients[4],
   // Initialise lambdaSquared so that we'll go into the for loop
   double lambdaSquared = 2.0;
   // A random squared float to use in the while loop
-  double randomSquare = pow(pyQCD::uni(), 2);
+  double randomSquare = pow(rng.generateReal(), 2);
   // Loop until lambdaSquared meets the distribution condition
   while (randomSquare > 1.0 - lambdaSquared) {
     // Generate three random floats in (0,1] as per Gattringer and Lang
-    double r1 = 1 - pyQCD::uni();
-    double r2 = 1 - pyQCD::uni();
-    double r3 = 1 - pyQCD::uni();
+    double r1 = 1 - rng.generateReal();
+    double r2 = 1 - rng.generateReal();
+    double r3 = 1 - rng.generateReal();
     // Need a factor of 1.5 here rather that 1/3, not sure why...
     // Possibly due to Nc = 3 in this case
     lambdaSquared = - 1.5 / (weighting * this->beta_) *
       (log(r1) + pow(cos(2 * pyQCD::pi * r2), 2) * log(r3));
 
     // Get a new random number
-    randomSquare = pow(pyQCD::uni(), 2);
+    randomSquare = pow(rng.generateReal(), 2);
   }
 
   // Get the first of the four elements needed to specify the SU(2)
@@ -540,9 +540,9 @@ Matrix2cd Lattice::makeHeatbathSu2(double coefficients[4],
 
   // Randomize the direction of the remaining three-vector
   // Get a random cos(theta) in [0,1)
-  double costheta = -1.0 + 2.0 * pyQCD::uni();
+  double costheta = -1.0 + 2.0 * rng.generateReal();
   // And a random phi in [0,2*pi)
-  double phi = 2 * pyQCD::pi * pyQCD::uni();
+  double phi = 2 * pyQCD::pi * rng.generateReal();
 
   // We now have everything we need to calculate the remaining three
   // components, so do it

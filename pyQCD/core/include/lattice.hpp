@@ -8,14 +8,14 @@
 #include <complex>
 #include <vector>
 
-#include <boost/random.hpp>
-
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 #include <Eigen/Geometry>
 #include <unsupported/Eigen/MatrixFunctions>
 
 #include <omp.h>
+
+#include <random.hpp>
 
 using namespace Eigen;
 using namespace std;
@@ -136,6 +136,7 @@ protected:
   vector<int> evenBlocks_;
   vector<int> oddBlocks_;
   vector<vector<vector<int> > > propagatorColumns_;
+  Random rng;
 };
 
 #endif
