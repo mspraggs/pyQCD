@@ -272,4 +272,20 @@ BOOST_AUTO_TEST_CASE( update_test )
 
   // Metropolis should change the action roughly 50% of the time.
   BOOST_CHECK_CLOSE(double(numDecreases), 50.0, 10.0);
+
+  // Now check the Metropolis update with staples
+  lattice = exposedLattice(4, 8, 5.5, 1.0, 0, 10, 1, 0, 4, 0);
+  // Do a single update
+  lattice.metropolisNoStaples(0);
+  // Check unitarity and expected plaquette value
+  BOOST_CHECK(areEqual(lattice.getLink(linkCoords)
+		       * lattice.getLink(linkCoords).adjoint(),
+		       Matrix3cd::Identity(),
+		       1e-11));
+  BOOST_CHECK_CLOSE(lattice.getLink(linkCoords).determinant().real(), 1.0,
+		    1e-11);
+  BOOST_CHECK_SMALL(lattice.getLink(linkCoords).determinant().imag(),
+		    100 * DBL_EPSILON);
+  BOOST_CHECK_CLOSE(lattice.computePlaquette(linkCoords, 0, 1),
+		    0.9829568229615305297, 1e-11);
 }
