@@ -25,7 +25,8 @@ public:
 	    const int nCorrelations = 50,
 	    const int updateMethod = 0,
 	    const int parallelFlag = 1,
-	    const int chunkSize = 4);
+	    const int chunkSize = 4,
+	    const int randSeed = -1);
   pyLattice(const pyLattice& pylattice);
   ~pyLattice();
 

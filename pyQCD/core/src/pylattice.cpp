@@ -8,9 +8,11 @@ pyLattice::pyLattice(const int spatialExtent,
 		     const int nCorrelations,
 		     const int updateMethod,
 		     const int parallelFlag,
-		     const int chunkSize) :
+		     const int chunkSize,
+		     const int randSeed) :
   Lattice::Lattice(spatialExtent, temporalExtent, beta, u0, action,
-		   nCorrelations, updateMethod, parallelFlag, chunkSize)
+		   nCorrelations, updateMethod, parallelFlag, chunkSize,
+		   randSeed)
 {
   
 }

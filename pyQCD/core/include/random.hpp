@@ -15,7 +15,8 @@ public:
 
   double generateReal();
   int generateInt();
-  
+  void setSeed(const int seed);
+
 private:
   int nThreads;
   vector<mt19937> generators;

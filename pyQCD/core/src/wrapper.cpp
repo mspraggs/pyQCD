@@ -146,7 +146,7 @@ BOOST_PYTHON_MODULE(lattice)
   docopt.disable_cpp_signatures();
 
   py::class_<pyLattice>("Lattice",
-			 "Constructs a lattice object of spatial extent L and "
+			"Constructs a lattice object of spatial extent L and "
 			"temporal extent T.\nThe action may take a value of 0, "
 			"1 or 2, corresponding to Wilson's\ngauge action, a "
 			"rectangle-improved Wilson gauge action and a twisted\n"
@@ -156,25 +156,28 @@ BOOST_PYTHON_MODULE(lattice)
 			"equal to 1, then parallel updates are performed,\n"
 			"splitting the lattice into blocks of length "
 			"block_size. The update\nmethod flag may be set to 0, 1 "
-			"or 2, corresponding to heatbath updates,\nmonte carlo "
-			"updates or monte carlo updates without the use of "
-			"link\nstaples, respectively.\n\n"
-			 "Constructor arguments and default values:\n\n"
-			 "L = 4\n\n"
-			 "T = 8\n\n"
-			 "beta = 5.5\n\n"
-			 "u0 = 1.0\n\n"
-			 "action = 0\n\n"
-			 "Ncor = 10\n\n"
-			 "update_method = 0\n\n"
-			 "parallel_flag = 1\n\n"
-			 "block_size = 4",
+			"or 2, corresponding to heatbath updates,\nmetropolis "
+			"updates or metropolis updates without the use of "
+			"link\nstaples, respectively. If rand_seed = -1, then "
+			"the system time is used \nto seed the generator.\n\n"
+			"Constructor arguments and default values:\n\n"
+			"L = 4\n\n"
+			"T = 8\n\n"
+			"beta = 5.5\n\n"
+			"u0 = 1.0\n\n"
+			"action = 0\n\n"
+			"Ncor = 10\n\n"
+			"update_method = 0\n\n"
+			"parallel_flag = 1\n\n"
+			"block_size = 4\n\n"
+			"rand_seed = -1",
 			py::init<int, int, double, double, int, int, int,
-				 int, int>
+				 int, int, int>
 			((py::arg("L")=4, py::arg("T")=8, py::arg("beta")=5.5,
 			  py::arg("u0")=1.0, py::arg("action")=0,
 			  py::arg("Ncor")=10, py::arg("update_method")=0,
-			  py::arg("parallel_flag")=1, py::arg("block_size")=4),
+			  py::arg("parallel_flag")=1, py::arg("block_size")=4,
+			  py::arg("rand_seed")=-1),
 			"Constructs a lattice object of spatial extent L and \n"
 			"temporal extent T."))
     .def(py::init<pyLattice&>())

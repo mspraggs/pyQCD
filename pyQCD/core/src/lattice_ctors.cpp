@@ -4,7 +4,8 @@
 Lattice::Lattice(const int spatialExtent, const int temporalExtent,
 		 const double beta, const double u0, const int action,
 		 const int nCorrelations, const int updateMethod,
-		 const int parallelFlag, const int chunkSize)
+		 const int parallelFlag, const int chunkSize,
+		 const int randSeed)
 {
   // Default constructor. Assigns function arguments to member variables
   // and initializes links.
@@ -18,6 +19,9 @@ Lattice::Lattice(const int spatialExtent, const int temporalExtent,
   this->action_ = action;
   this->updateMethod_ = updateMethod;
   this->parallelFlag_ = parallelFlag;
+  
+  if (randSeed > -1)
+    this->rng.setSeed(randSeed);
 
   // Initialize parallel Eigen
   initParallel();
@@ -217,6 +221,7 @@ Lattice::Lattice(const Lattice& lattice)
   this->updateFunction_ = lattice.updateFunction_;
   this->parallelFlag_ = lattice.parallelFlag_;
   this->propagatorColumns_ = lattice.propagatorColumns_;
+  this->randSeed_ = lattice.randSeed_;
 }
 
 
@@ -240,6 +245,7 @@ Lattice& Lattice::operator=(const Lattice& lattice)
   this->updateFunction_ = lattice.updateFunction_;
   this->parallelFlag_ = lattice.parallelFlag_;
   this->propagatorColumns_ = lattice.propagatorColumns_;
+  this->randSeed_ = lattice.randSeed_;
 }
 
 

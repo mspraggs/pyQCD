@@ -36,7 +36,8 @@ public:
 	  const int nCorrelations = 50,
 	  const int updateMethod = 0,
 	  const int parallelFlag = 1,
-	  const int chunkSize = 4);
+	  const int chunkSize = 4,
+	  const int randSeed = -1);
   Lattice(const Lattice& lattice);
   Lattice& operator=(const Lattice& lattice);
   ~Lattice();
@@ -138,6 +139,7 @@ protected:
   vector<int> oddBlocks_;
   vector<vector<vector<int> > > propagatorColumns_;
   Random rng;
+  int randSeed_;
 };
 
 #endif

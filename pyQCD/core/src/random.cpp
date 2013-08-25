@@ -27,6 +27,17 @@ Random::~Random()
 
 
 
+void Random::setSeed(const int seed)
+{
+  // Specify a custom random number seed  
+  // Reset the generators, one for each thread
+  for (int i = 0; i < this->nThreads; ++i) {
+    this->generators[i] = mt19937(seed + i);
+  }
+}
+
+
+
 double Random::generateReal()
 {
   // Generates a random real number from the corresponding generator
