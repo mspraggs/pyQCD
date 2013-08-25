@@ -148,6 +148,27 @@ BOOST_AUTO_TEST_CASE( gluonic_measurements_test )
 		    plaquetteVal, 1e-11 * nSites);
   BOOST_CHECK_CLOSE(lattice.computeAverageWilsonLoop(2, 2),
 		    twistedRectangleVal, 1e-11 * nSites);
+
+  // Check the link smearing
+  exposedLattice nonRandomLattice(4, 8, 5.5, 1.0, 0, 10, 0, 0, 4, 0);
+  nonRandomLattice.update();
+  nonRandomLattice.smearLinks(0, 1, 0.5);
+
+  double realComponents[3] = {0.89851667094939247082,
+			      0.40553008395662609731,
+			      0.40788086130924816608};
+
+  double imagComponents[3] = {-0.21221110562333689309,
+			      0.732592736591202498,
+			      -0.018348970642218388749};
+
+  for (int i = 1; i < 4; ++i) {
+    int link[5] = {0, 0, 0, 0, i};
+    BOOST_CHECK_CLOSE(nonRandomLattice.getLink(link)(0, 0).real(),
+		      realComponents[i - 1], 1e-11);
+    BOOST_CHECK_CLOSE(nonRandomLattice.getLink(link)(0, 0).imag(),
+		      imagComponents[i - 1], 1e-11);
+  }
 }
 
 BOOST_AUTO_TEST_CASE( action_test )
