@@ -200,57 +200,64 @@ BOOST_AUTO_TEST_CASE( update_test )
 {
   int linkCoords[5] = {0, 0, 0, 0, 0};
 
-  // Checking parallel heatbath updates
-  Lattice lattice(8, 8, 5.5, 1.0, 0, 10, 0, 1, 4);
-  lattice.thermalize();
-  lattice.reunitarize();
-  // Check basic observables
-  BOOST_CHECK(lattice.computeAveragePlaquette() < 0.51 &&
-	      lattice.computeAveragePlaquette() > 0.49);   
-  BOOST_CHECK(lattice.computeAverageRectangle() < 0.27 &&
-	      lattice.computeAverageRectangle() > 0.25);
-  // Check unitarity
-  Matrix3cd testLink = lattice.getLink(linkCoords);
-  BOOST_CHECK(areEqual(testLink * testLink.adjoint(), Matrix3cd::Identity(),
-		       100 * DBL_EPSILON));
-  BOOST_CHECK(areEqual(testLink.determinant(), 1.0, 100 * DBL_EPSILON));
+  // Checking heatbath updates
+  exposedLattice lattice(4, 8, 5.5, 1.0, 0, 10, 0, 0, 4);
 
-  // Checking parallel Monte Carlo updates
-  lattice = Lattice(8, 8, 5.5, 1.0, 0, 70, 1, 1, 4);
-  lattice.thermalize();
-  lattice.reunitarize();
-  // Check basic observables
-  BOOST_CHECK(areEqual(lattice.computeAveragePlaquette(), 0.5, 0.1));
-  BOOST_CHECK(areEqual(lattice.computeAverageRectangle(), 0.26, 0.1));
-  // Check unitarity
-  testLink = lattice.getLink(linkCoords);
-  BOOST_CHECK(areEqual(testLink * testLink.adjoint(), Matrix3cd::Identity(),
+  // First check they preserver unitarity - do a single update
+  lattice.heatbath(linkCoords);
+  BOOST_CHECK(areEqual(lattice.getLink(linkCoords)
+		       * lattice.getLink(linkCoords).adjoint(),
+		       Matrix3cd::Identity(),
 		       100 * DBL_EPSILON));
-  BOOST_CHECK(areEqual(testLink.determinant(), 1.0, 100 * DBL_EPSILON));
+  BOOST_CHECK(areEqual(lattice.getLink(linkCoords).determinant(), 1.0,
+		       100 * DBL_EPSILON));
 
-  // Checking serial heatbath
-  lattice = Lattice(8, 8, 5.5, 1.0, 0, 10, 0, 0, 4);
-  lattice.thermalize();
-  lattice.reunitarize();
-  // Check basic observables
-  BOOST_CHECK(areEqual(lattice.computeAveragePlaquette(), 0.5, 0.1));
-  BOOST_CHECK(areEqual(lattice.computeAverageRectangle(), 0.26, 0.1));
-  // Check unitarity
-  testLink = lattice.getLink(linkCoords);
-  BOOST_CHECK(areEqual(testLink * testLink.adjoint(), Matrix3cd::Identity(),
-		       100 * DBL_EPSILON));
-  BOOST_CHECK(areEqual(testLink.determinant(), 1.0, 100 * DBL_EPSILON));
+  // Now check that heatbath reduces the action at every step.
+  double firstAction = lattice.computeLocalWilsonAction(linkCoords);
+  double lastAction = firstAction;
+  bool actionDecreased = true;
 
-  // Checking serial Monte Carlo
-  lattice = Lattice(8, 8, 5.5, 1.0, 0, 70, 1, 0, 4);
-  lattice.thermalize();
-  lattice.reunitarize();
-  // Check basic observables
-  BOOST_CHECK(areEqual(lattice.computeAveragePlaquette(), 0.5, 0.1));
-  BOOST_CHECK(areEqual(lattice.computeAverageRectangle(), 0.26, 0.1));
-  // Check unitarity
-  testLink = lattice.getLink(linkCoords);
-  BOOST_CHECK(areEqual(testLink * testLink.adjoint(), Matrix3cd::Identity(),
+  // Check that heatbath consistently reduces the action
+  for (int i = 0; i < 10; ++i) {
+    double oldAction = firstAction;
+    lattice.heatbath(linkCoords);
+    if (lattice.computeLocalWilsonAction(linkCoords) < oldAction)
+      oldAction = lattice.computeLocalWilsonAction(linkCoords);
+    else {
+      actionDecreased = false;
+      break;
+    }
+    lastAction = oldAction;
+  }
+  // With heatbath, the action should consistently decrease
+  BOOST_CHECK(actionDecreased);
+  BOOST_CHECK((firstAction - lastAction) / firstAction < 0.5);
+
+  // Now check the Metropolis updates
+  lattice = exposedLattice(4, 8, 5.5, 1.0, 0, 10, 1, 0, 4);
+  // First check they preserver unitarity - do a single update
+  lattice.metropolis(linkCoords);
+  BOOST_CHECK(areEqual(lattice.getLink(linkCoords)
+		       * lattice.getLink(linkCoords).adjoint(),
+		       Matrix3cd::Identity(),
 		       100 * DBL_EPSILON));
-  BOOST_CHECK(areEqual(testLink.determinant(), 1.0, 100 * DBL_EPSILON));
+  BOOST_CHECK(areEqual(lattice.getLink(linkCoords).determinant(), 1.0,
+		       100 * DBL_EPSILON));
+
+  // Now check that about 50% of the updates are accepted.
+  firstAction = lattice.computeLocalWilsonAction(linkCoords);
+  int numDecreases = 0;
+  // Do 100 metropolis updates. Should expect numDecreases ~ 50
+  for (int i = 0; i < 100; ++i) {
+    double oldAction = firstAction;
+    lattice.metropolis(linkCoords);
+    if (lattice.computeLocalWilsonAction(linkCoords) < oldAction)
+      numDecreases++;
+    oldAction = lattice.computeLocalWilsonAction(linkCoords);
+    lastAction = oldAction;
+  }
+  cout << numDecreases << endl;
+
+  // Metropolis should change the action roughly 50% of the time.
+  BOOST_CHECK(areEqual(double(numDecreases), 50.0, 10.0);
 }
