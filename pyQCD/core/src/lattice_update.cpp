@@ -1,7 +1,7 @@
 #include <lattice.hpp>
 #include <utils.hpp>
 
-void Lattice::monteCarlo(const int link)
+void Lattice::metropolis(const int link)
 {
   // Iterate through the lattice and update the links using Metropolis
   // algorithm
@@ -32,7 +32,7 @@ void Lattice::monteCarlo(const int link)
 
 
 
-void Lattice::monteCarloNoStaples(const int link)
+void Lattice::metropolisNoStaples(const int link)
 {
   // Iterate through the lattice and update the links using Metropolis
   // algorithm

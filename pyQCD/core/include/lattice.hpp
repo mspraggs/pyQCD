@@ -48,8 +48,8 @@ public:
 
   GaugeField getSubLattice(const int startIndex, const int size);
 
-  void monteCarlo(const int link);
-  void monteCarloNoStaples(const int link);
+  void metropolis(const int link);
+  void metropolisNoStaples(const int link);
   void heatbath(const int link);
 
   void update();

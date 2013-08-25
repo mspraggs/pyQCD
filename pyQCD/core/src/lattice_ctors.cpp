@@ -133,21 +133,21 @@ Lattice::Lattice(const int spatialExtent, const int temporalExtent,
     else {
       cout << "Warning! Heatbath updates are not compatible with twisted "
 	   << "rectangle action. Using Monte Carlo instead" << endl;
-      this->updateFunction_ = &Lattice::monteCarloNoStaples;
+      this->updateFunction_ = &Lattice::metropolisNoStaples;
     }
   }
   else if (updateMethod == 1) {
     if (action != 2) {
-      this->updateFunction_ = &Lattice::monteCarlo;
+      this->updateFunction_ = &Lattice::metropolis;
     }
     else {
       cout << "Warning! Heatbath updates are not compatible with twisted "
 	   << "rectangle action. Using Monte Carlo instead" << endl;
-      this->updateFunction_ = &Lattice::monteCarloNoStaples;
+      this->updateFunction_ = &Lattice::metropolisNoStaples;
     }
   }
   else if (updateMethod == 2) {
-    this->updateFunction_ = &Lattice::monteCarloNoStaples;
+    this->updateFunction_ = &Lattice::metropolisNoStaples;
   }
   else {
     cout << "Warning! Specified update method does not exist!" << endl;
@@ -157,7 +157,7 @@ Lattice::Lattice(const int spatialExtent, const int temporalExtent,
     else {
       cout << "Warning! Heatbath updates are not compatible with twisted "
 	   << "rectangle action. Using Monte Carlo instead" << endl;
-      this->updateFunction_ = &Lattice::monteCarloNoStaples;
+      this->updateFunction_ = &Lattice::metropolisNoStaples;
     }
   }
 
