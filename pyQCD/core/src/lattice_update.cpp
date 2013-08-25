@@ -23,7 +23,7 @@ void Lattice::metropolis(const int link)
        * staples).trace().real();
     
     // Was the change favourable? If not, revert the change
-    bool isExpMore = exp(-actionChange) >= pyQCD::uni();
+    bool isExpMore = exp(-actionChange) >= rng.generateReal();
     
     if ((actionChange <= 0) || isExpMore)
       this->links_[link] = randSu3 * this->links_[link];
@@ -54,7 +54,7 @@ void Lattice::metropolisNoStaples(const int link)
   double actionChange = (this->*computeLocalAction)(linkCoords) - oldAction;
   
   // Was the change favourable? If not, revert the change
-  bool isExpLess = exp(-actionChange) < pyQCD::uni();
+  bool isExpLess = exp(-actionChange) < rng.generateReal();
   
   if ((actionChange > 0) && isExpLess)
     this->links_[link] = oldLink;
