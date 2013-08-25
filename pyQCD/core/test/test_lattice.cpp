@@ -136,6 +136,8 @@ BOOST_AUTO_TEST_CASE( gluonic_measurements_test )
 			twistedRectangleVal, 1e-11);
     }
   }
+
+  double nSites = 6 * lattice.temporalExtent * pow(lattice.spatialExtent, 3);
   // Checking average plaquette and rectangle
   BOOST_CHECK_CLOSE(lattice.computeAveragePlaquette(),
 		    plaquetteVal, 1e-11 * nSites);
