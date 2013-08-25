@@ -1,6 +1,7 @@
 #define BOOST_TEST_MODULE Lattice test
 #include <lattice.hpp>
 #include <boost/test/unit_test.hpp>
+#include <boost/test/test_tools.hpp>
 #include <Eigen/Dense>
 #include <complex>
 #include <cstdlib>
@@ -127,24 +128,24 @@ BOOST_AUTO_TEST_CASE( gluonic_measurements_test )
   // Checking all plaquettes, rectangles and twisted rectangles
   for (int i = 1; i < 4; ++i) {
     for (int j = 0; j < i; ++j) {
-      BOOST_CHECK(areEqual(lattice.computePlaquette(site, i, j),
-			   plaquetteVal, 100 * DBL_EPSILON));
-      BOOST_CHECK(areEqual(lattice.computeRectangle(site, i, j),
-			   rectangleVal, 100 * DBL_EPSILON));
-      BOOST_CHECK(areEqual(lattice.computeTwistedRectangle(site, i, j),
-			   twistedRectangleVal, 100 * DBL_EPSILON));
+      BOOST_CHECK_CLOSE(lattice.computePlaquette(site, i, j),
+			plaquetteVal, 1e-11);
+      BOOST_CHECK_CLOSE(lattice.computeRectangle(site, i, j),
+			rectangleVal, 1e-11);
+      BOOST_CHECK_CLOSE(lattice.computeTwistedRectangle(site, i, j),
+			twistedRectangleVal, 1e-11);
     }
   }
   // Checking average plaquette and rectangle
-  BOOST_CHECK(areEqual(lattice.computeAveragePlaquette(),
-		       plaquetteVal, 1000 * DBL_EPSILON));
-  BOOST_CHECK(areEqual(lattice.computeAverageRectangle(),
-		       rectangleVal, 1000 * DBL_EPSILON));
+  BOOST_CHECK_CLOSE(lattice.computeAveragePlaquette(),
+		    plaquetteVal, 1e-11 * nSites);
+  BOOST_CHECK_CLOSE(lattice.computeAverageRectangle(),
+		    rectangleVal, 1e-11 * nSites);
   // Checking average Wilson loops
-  BOOST_CHECK(areEqual(lattice.computeAverageWilsonLoop(1, 1),
-		       plaquetteVal, 1000 * DBL_EPSILON));
-  BOOST_CHECK(areEqual(lattice.computeAverageWilsonLoop(1, 1, 1, 0.5),
-		       plaquetteVal, 1000 * DBL_EPSILON));
+  BOOST_CHECK_CLOSE(lattice.computeAverageWilsonLoop(1, 1),
+		    plaquetteVal, 1e-11 * nSites);
+  BOOST_CHECK_CLOSE(lattice.computeAverageWilsonLoop(2, 2),
+		    twistedRectangleVal, 1e-11 * nSites);
 }
 
 BOOST_AUTO_TEST_CASE( action_test )
@@ -179,23 +180,23 @@ BOOST_AUTO_TEST_CASE( action_test )
   // Compare the actions as calculated on the lattice with those calculated
   // above
   int link[5] = {0, 0, 0, 0, 0};
-  BOOST_CHECK(areEqual(lattice.computeLocalWilsonAction(link),
-		       5.5 * wilsonAction, 100 * DBL_EPSILON));
-  BOOST_CHECK(areEqual(lattice.computeLocalRectangleAction(link),
-		       5.5 * rectangleAction, 100 * DBL_EPSILON));
-  BOOST_CHECK(areEqual(lattice.computeLocalTwistedRectangleAction(link),
-		       5.5 * twistedRectangleAction, 100 * DBL_EPSILON));
+  BOOST_CHECK_CLOSE(lattice.computeLocalWilsonAction(link),
+		    5.5 * wilsonAction, 1e-11);
+  BOOST_CHECK_CLOSE(lattice.computeLocalRectangleAction(link),
+		    5.5 * rectangleAction, 1e-11);
+  BOOST_CHECK_CLOSE(lattice.computeLocalTwistedRectangleAction(link),
+		    5.5 * twistedRectangleAction, 1e-11);
 
   // Calculate the staples
   Matrix3cd wilsonStaples = lattice.computeWilsonStaples(link);
   Matrix3cd rectangleStaples = lattice.computeRectangleStaples(link);
   Matrix3cd linkMatrix = lattice.getLink(link);
   // Compare the lattice staples with the calculated action
-  BOOST_CHECK(areEqual(1.0 / 3.0 * (linkMatrix * wilsonStaples).trace().real(),
-		       -wilsonAction, 100 * DBL_EPSILON));
-  BOOST_CHECK(areEqual(1.0 / 3.0 * (linkMatrix * rectangleStaples)
-		       .trace().real(), -rectangleAction,
-		       100 * DBL_EPSILON));
+  BOOST_CHECK_CLOSE(1.0 / 3.0 * (linkMatrix * wilsonStaples).trace().real(),
+		    -wilsonAction, 1e-11);
+  BOOST_CHECK_CLOSE(1.0 / 3.0 * (linkMatrix * rectangleStaples)
+		    .trace().real(), -rectangleAction,
+		    1e-11);
 }
 
 BOOST_AUTO_TEST_CASE( update_test )
