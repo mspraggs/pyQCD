@@ -227,63 +227,49 @@ BOOST_AUTO_TEST_CASE( update_test )
   int linkCoords[5] = {0, 0, 0, 0, 0};
 
   // Checking heatbath updates
-  exposedLattice lattice(4, 8, 5.5, 1.0, 0, 10, 0, 0, 4);
+  exposedLattice lattice(4, 8, 5.5, 1.0, 0, 10, 0, 0, 4, 0);
 
   // First check they preserver unitarity - do a single update
-  lattice.heatbath(linkCoords);
+  lattice.heatbath(0);
   BOOST_CHECK(areEqual(lattice.getLink(linkCoords)
 		       * lattice.getLink(linkCoords).adjoint(),
 		       Matrix3cd::Identity(),
-		       100 * DBL_EPSILON));
-  BOOST_CHECK(areEqual(lattice.getLink(linkCoords).determinant(), 1.0,
-		       100 * DBL_EPSILON));
-
-  // Now check that heatbath reduces the action at every step.
-  double firstAction = lattice.computeLocalWilsonAction(linkCoords);
-  double lastAction = firstAction;
-  bool actionDecreased = true;
-
-  // Check that heatbath consistently reduces the action
-  for (int i = 0; i < 10; ++i) {
-    double oldAction = firstAction;
-    lattice.heatbath(linkCoords);
-    if (lattice.computeLocalWilsonAction(linkCoords) < oldAction)
-      oldAction = lattice.computeLocalWilsonAction(linkCoords);
-    else {
-      actionDecreased = false;
-      break;
-    }
-    lastAction = oldAction;
-  }
-  // With heatbath, the action should consistently decrease
-  BOOST_CHECK(actionDecreased);
-  BOOST_CHECK((firstAction - lastAction) / firstAction < 0.5);
+		       1e-11));
+  BOOST_CHECK_CLOSE(lattice.getLink(linkCoords).determinant().real(), 1.0,
+		    1e-11);
+  BOOST_CHECK_SMALL(lattice.getLink(linkCoords).determinant().imag(),
+		    100 * DBL_EPSILON);
+  BOOST_CHECK_CLOSE(lattice.computePlaquette(linkCoords, 0, 1),
+		    0.93548039868213483938, 1e-11);
 
   // Now check the Metropolis updates
-  lattice = exposedLattice(4, 8, 5.5, 1.0, 0, 10, 1, 0, 4);
-  // First check they preserver unitarity - do a single update
-  lattice.metropolis(linkCoords);
+  lattice = exposedLattice(4, 8, 5.5, 1.0, 0, 10, 1, 0, 4, 0);
+  // Do a single update
+  lattice.metropolis(0);
+  // Check unitarity and expected plaquette value
   BOOST_CHECK(areEqual(lattice.getLink(linkCoords)
 		       * lattice.getLink(linkCoords).adjoint(),
 		       Matrix3cd::Identity(),
-		       100 * DBL_EPSILON));
-  BOOST_CHECK(areEqual(lattice.getLink(linkCoords).determinant(), 1.0,
-		       100 * DBL_EPSILON));
+		       1e-11));
+  BOOST_CHECK_CLOSE(lattice.getLink(linkCoords).determinant().real(), 1.0,
+		    1e-11);
+  BOOST_CHECK_SMALL(lattice.getLink(linkCoords).determinant().imag(),
+		    100 * DBL_EPSILON);
+  BOOST_CHECK_CLOSE(lattice.computePlaquette(linkCoords, 0, 1),
+		    0.98480251715017408376, 1e-11);
 
   // Now check that about 50% of the updates are accepted.
-  firstAction = lattice.computeLocalWilsonAction(linkCoords);
+  double firstAction = lattice.computeLocalWilsonAction(linkCoords);
+  double oldAction = firstAction;
   int numDecreases = 0;
   // Do 100 metropolis updates. Should expect numDecreases ~ 50
   for (int i = 0; i < 100; ++i) {
-    double oldAction = firstAction;
-    lattice.metropolis(linkCoords);
+    lattice.metropolis(0);
     if (lattice.computeLocalWilsonAction(linkCoords) < oldAction)
       numDecreases++;
     oldAction = lattice.computeLocalWilsonAction(linkCoords);
-    lastAction = oldAction;
   }
-  cout << numDecreases << endl;
 
   // Metropolis should change the action roughly 50% of the time.
-  BOOST_CHECK(areEqual(double(numDecreases), 50.0, 10.0);
+  BOOST_CHECK_CLOSE(double(numDecreases), 50.0, 10.0);
 }
