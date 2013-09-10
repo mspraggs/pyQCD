@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.6)
+cmake_minimum_required (VERSION 2.8.8)
 project (lattice)
 enable_testing()
 
@@ -7,15 +7,23 @@ set (SRC_DIR ${PROJECT_BINARY_DIR}/src)
 set (INC_DIR ${PROJECT_BINARY_DIR}/include)
 
 file (GLOB
-  lattice_SRC
-  ${SRC_DIR}/*.cpp)
-
-file (GLOB
-  test_SRC
-  ${TEST_DIR}/*.cpp
+  shared_SRC
   ${SRC_DIR}/lattice_*.cpp
   ${SRC_DIR}/random.cpp
   ${SRC_DIR}/utils.cpp)
+
+file (GLOB
+  lattice_SRC
+  ${SRC_DIR}/pylattice.cpp
+  ${SRC_DIR}/pyutils.cpp
+  ${SRC_DIR}/wrapper.cpp)
+
+file (GLOB
+  test_SRC
+  ${TEST_DIR}/*.cpp)
+#  ${SRC_DIR}/lattice_*.cpp
+#  ${SRC_DIR}/random.cpp
+#  ${SRC_DIR}/utils.cpp)
 
 set (CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 set (EIGEN_INCLUDE_DIR ${CMAKE_MODULE_PATH}/FindEigen3.cmake)
@@ -44,11 +52,14 @@ set (Boost_USE_STATIC_RUNTIME OFF)
 find_package (Boost COMPONENTS random python unit_test_framework)
 
 set (CMAKE_SHARED_LIBRARY_PREFIX "")
-add_library (lattice SHARED ${lattice_SRC})
-target_link_libraries (lattice ${Boost_LIBRARIES})
+
+add_library(shared_objects OBJECT ${shared_SRC})
+
+add_library (lattice SHARED $<TARGET_OBJECTS:shared_objects> ${lattice_SRC})
+target_link_libraries (lattice ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
 
 add_definitions(-DBOOST_TEST_DYN_LINK)
-add_executable (test_lattice ${test_SRC})
+add_executable (test_lattice $<TARGET_OBJECTS:shared_objects> ${test_SRC})
 target_link_libraries (test_lattice ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
 add_test(lattice test_lattice)
 
@@ -58,3 +69,14 @@ ENDIF()
 IF(CMAKE_COMPILER_IS_MSVC)
   ADD_DEFINITIONS("/O2")
 ENDIF()
+IF(UNIX AND NOT WIN32)
+  FIND_PROGRAM(CMAKE_UNAME uname /bin /usr/bin /usr/local/bin )
+  IF(CMAKE_UNAME)
+    EXEC_PROGRAM(uname ARGS -m OUTPUT_VARIABLE CMAKE_SYSTEM_PROCESSOR)
+    SET(CMAKE_SYSTEM_PROCESSOR ${CMAKE_SYSTEM_PROCESSOR} CACHE INTERNAL
+"processor type (i386 and x86_64)")
+    IF(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
+      ADD_DEFINITIONS(-fPIC)
+    ENDIF(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
+  ENDIF(CMAKE_UNAME)
+ENDIF(UNIX AND NOT WIN32)
