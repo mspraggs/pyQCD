@@ -22,13 +22,7 @@ class XmlInterface:
 	def __str__(self):
 		"""Returns the contents of the xml file as a string."""
 
-		string_out = ""
-		lines = open(self.filename).readlines()
-
-		for line in lines:
-			string_out += line
-
-		return string_out
+		return = open(self.filename).read()
 
 	def fill_defaults(self, settings, defaults):
 		"""Loops through the settings dictionary, looks for corresponding keys
