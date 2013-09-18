@@ -29,7 +29,8 @@ def main(input_file):
 	measurement_settings = xml.measurements()
 
 	# Declare and initialize the lattice
-	print("Creating the lattice...")
+	print("Creating the lattice... "),
+	sys.stdout.flush()
 	lattice = Lattice(lattice_settings['L'],
 					  lattice_settings['T'],
 					  gauge_action_settings['beta'],
@@ -52,7 +53,7 @@ def main(input_file):
 	lattice_interface = LatticeInterface(lattice)
 	
 	# Thermalize the lattice
-	print("Thermalizing...")
+	print("Thermalizing... "),
 	sys.stdout.flush()
 	lattice.thermalize()
 	print("Done!")
@@ -72,7 +73,7 @@ def main(input_file):
 	for i in xrange(num_configs):
 		print("Configuration: %d" % i)
 		sys.stdout.flush()
-		print("Updating gauge field...")
+		print("Updating gauge field... "),
 		sys.stdout.flush()
 		lattice.next_config()
 		print("Done!")
