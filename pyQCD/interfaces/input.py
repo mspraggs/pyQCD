@@ -22,7 +22,8 @@ class XmlInterface:
 	def __str__(self):
 		"""Returns the contents of the xml file as a string."""
 
-		return open(self.filename).read()
+		with open(self.filename) as f:
+			return f.read()
 
 	def fill_defaults(self, settings, defaults):
 		"""Loops through the settings dictionary, looks for corresponding keys
