@@ -42,8 +42,11 @@ to find these files automatically. In this case, the following flags can be used
 paths:
 
 > -DEIGEN3_INCLUDE_DIR=...
+
 > -DBoost_INCLUDE_DIR=...
+
 > -DBoost_LIBRARY_DIR=...
+
 > -DPYTHON_LIBRARY=...
 
 To build the documentation on linux, enter the doc directory and run
@@ -69,15 +72,18 @@ are automatically inserted when they are missing in the main xml file.
 To run a very basic simulation, without measurements, from the project root directory, do
 
 > from pyQCD.bin import simulate
+
 > simulate.main("examples/basic.xml")
 
 Postprocessing can be executed in a similar way:
 
 > form pyQCD.bin import postprocess
+
 > postprocess.main("examples/plaquette_autocorrelation.xml")
 
 Once installed, the simulate.py and postprocess.py files may be run from the command line, with the input file
 specified using the -i or --input=... flags.
 
 > python -m pyQCD.bin.simulate -i examples/basic.xml
+
 > python -m pyQCD.bin.postprocess -i examples/plaquette_autocorrelation.xml
