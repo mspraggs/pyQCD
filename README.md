@@ -6,8 +6,9 @@ pyQCD may not be as powerful or as fully-featured as the like of Chroma or UKHAD
 is more transparent and perfect for basic desktop simulations. By interfacing with Python and numpy, it
 facilitates the analysis of the results of the simulation.
 
-***Please note that this software is not yet mature, so backwards compatability is not yet guaranteed for newer
-versions. If something's broken, have a look at the function reference below, or check the python source code.***
+***Please note that this software is very much still in alpha stage and is not yet mature, so backwards
+compatability is not yet guaranteed for newer versions. If something's broken, have a look at the function
+reference below, or check the python source code.***
 
 Installation
 ------------
@@ -28,6 +29,10 @@ Once these are installed, the package can be built using cmake. On Unix-like OSe
 The package can then be installed:
 
 > sudo make install
+
+Or, alternatively...
+
+> python setup.py install
 
 I haven't investigated how to do this on Windows, but if anyone has any success with this I'd be interested to
 know.
@@ -55,11 +60,11 @@ reference. In the future this will hopefully be more detailed.
 Quick Start
 -----------
 
-The library contains two modules: one to run lattice simulations and one to process the results. Both modules
-accept an input xml that specifies the settings for the simulation or processing. Examples of these may be found
-in the examples directory, with each file containing a description of what the file encodes. A list of the
-default values for the xml input files may be found in the simulation_default.xml file. These values are
-automatically inserted when they are missing in the main xml file.
+The library contains two high-level functions: one to run lattice simulations and one to process the results.
+Both functions accept an input xml that specifies the settings for the simulation or processing. Examples of
+these may be found in the examples directory, with each file containing a description of what the file encodes. A
+list of the default values for the xml input files may be found in the simulation_default.xml file. These values
+are automatically inserted when they are missing in the main xml file.
 
 To run a very basic simulation, without measurements, from the project root directory, do
 
@@ -73,3 +78,6 @@ Postprocessing can be executed in a similar way:
 
 Once installed, the simulate.py and postprocess.py files may be run from the command line, with the input file
 specified using the -i or --input=... flags.
+
+> python -m pyQCD.bin.simulate -i examples/basic.xml
+> python -m pyQCD.bin.postprocess -i examples/plaquette_autocorrelation.xml
