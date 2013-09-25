@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!--
+Runs a basic simulation without measurements, updating the lattice
+in parallel using OpenMP.
+-->
+<pyQCD>
+  <lattice>
+    <L>8</L>
+    <T>8</T>
+  </lattice>
+
+  <simulation>
+    <num_configurations>100</num_configurations>
+    <measurement_spacing>10</measurement_spacing>
+    <parallel_update>
+      <!-- Enable parallel updates -->
+      <enabled>TRUE</enabled>
+      <!-- Divide the lattice into hypercubes with side length 4 and update
+      the hypercubes in parallel, alternating in a checkboard fashion -->
+      <block_size>4</block_size>
+    </parallel_update>
+  </simulation>
+
+  <gauge_action>
+    <type>WILSON</type>
+    <beta>5.5</beta>
+  </gauge_action>
+</pyQCD>
