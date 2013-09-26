@@ -27,8 +27,7 @@ def create(measurement_settings, lattice_settings,
 
 		elif key == "propagator":
 			propagator_store \
-			  = np.zeros((num_configs,
-						  lattice_settings['L']**3 * lattice_settings['T'],
+			  = np.zeros((lattice_settings['L']**3 * lattice_settings['T'],
 						  12, 12), dtype=complex)
 			out.append((key, propagator_store))
 
