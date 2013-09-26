@@ -20,13 +20,11 @@ class LatticeInterface:
 		r = xrange(self.lattice.L)
 		t = xrange(self.lattice.T)
 		links = itertools.product(t, r, r, r, range(4))
-		
-		for link in links:
-			out.append(np.matrix(self.lattice.get_link(link)))
 			
-		return out
+		return [np.matrix(self.lattice.get_link(list(link)))
+				for link in links]
 
-	def set_links(links):
+	def set_links(self, links):
 		"""Sets the links of the lattice equal to those in the supplied list.
 		The list should be a flattened array of 3x3 numpy matrices, with the
 		flattening regime such that the list index is obtainable using the
@@ -43,10 +41,8 @@ class LatticeInterface:
 		
 		index = 0
 		
-		for link_coords in link_coords:
-			temp_link = [[col for col in row] for row in links[i]]
-			self.lattice.set_link(link)
-			i += 1
+		for link,link_coord in zip(links,link_coords):
+			self.lattice.set_link(list(link_coord), link.tolist())
 			
 	def get_wilson_loops(self, r_max, t_max, num_field_smears = 0,
 						 field_smearing_param = 1.0):
