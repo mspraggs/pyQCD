@@ -35,6 +35,7 @@ class XmlInterface:
 		do_not_adds = ["measurements",
 					   "propagator",
 					   "plaquette",
+					   "configuration",
 					   "wilson_loop",
 					   "postprocess",
 					   "auto_correlation",

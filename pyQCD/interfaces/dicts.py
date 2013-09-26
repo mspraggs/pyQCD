@@ -70,6 +70,9 @@ defaults = {
 			'num_field_smears': 0,
 			'r_max': None,
 			't_max': None
+			},
+		'configuration': {
+			'filename': None
 			}
 		},
 	'postprocess': {

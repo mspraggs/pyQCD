@@ -86,7 +86,8 @@ def main(input_file):
 
 	# Store the measurments
 	if not simulation_settings['timing_run']['enabled']:
-		measure.save(measurement_settings, measurements)
+		measure.save(measurement_settings, measurements,
+					 simulation_settings['num_configurations'])
 	# Get the final time, then calculate the total time, either
 	# estimated or otherwise.
 	t2 = time.time()
