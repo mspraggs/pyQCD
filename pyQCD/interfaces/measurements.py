@@ -1,4 +1,5 @@
 import numpy as np
+import os, zipfile
 
 def create(measurement_settings, lattice_settings,
 		   simulation_settings):
@@ -52,7 +53,7 @@ def do(settings, interface, store, config):
 										   settings[key]['field_smearing_param'])
 		elif key == "propagator":
 			print("- Calculating propagators...")
-			store[key][config] \
+			current_prop \
 			  = interface.get_propagator(settings[key]['mass'],
 										 settings[key]['a'],
 										 settings[key]['source_site'],
@@ -64,10 +65,38 @@ def do(settings, interface, store, config):
 										 settings[key]['sink_smearing_param'],
 										 settings[key]['solver_method'])
 
-def save(settings, store):
+			np.save("prop%d" % config, current_prop)
+
+		elif key == "configuration":
+			print("- Saving configuration...")
+			current_config = interface.get_links()
+
+			np.save("config%d" % config, current_config)
+
+def save(settings, store, n_configs):
 	"""Loops through the stored measurements and writes them out to the file
 	specified in settings."""
 	keys = settings.keys()
 
+	npy_measurements = ["plaquette", "wilson_loop"]
+	npz_measurements = ["propagator", "configuration"]
+	
 	for key in keys:
-		np.save(settings[key]["filename"], store[key])
+		if key in npy_measurements:
+			np.save(settings[key]["filename"], store[key])
+		elif key in npz_measurements:
+			
+			filename = settings[key]["filename"] \
+			  if settings[key]["filename"][-4:] != ".npz" \
+			  else settings[key]["filename"][:-4]
+
+			zfile = zipfile.ZipFile("%s.npz" % filename, 'w')
+
+			basenames = {"propagator": "prop",
+						 "configuration": "config"}
+			
+			for i in xrange(n_configs):
+				zfile.write("%s%d.npy" % (basenames[key], i))
+				os.remove("%s%d.npy" % (basenames[key], i))
+
+			zfile.close()
