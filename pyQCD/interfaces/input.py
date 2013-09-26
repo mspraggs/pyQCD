@@ -46,7 +46,8 @@ class XmlInterface:
 					   "lattice",
 					   "simulation",
 					   "gauge_action",
-					   "pair_potential"]
+					   "pair_potential",
+					   "ensemble"]
 
 		for key in keys:
 			if settings.has_key(key):

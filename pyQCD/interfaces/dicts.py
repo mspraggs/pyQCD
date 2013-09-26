@@ -113,20 +113,21 @@ defaults = {
 					},
 				'type': None
 				}],
-				'num_bootstraps': 0
-				}
-			},
-		'simulation': {
-			'measurement_spacing': None,
-			'num_configurations': None,
-			'parallel_update': {
-				'block_size': 1,
-				'enabled': 'FALSE'
-				},
-			'timing_run': {
-				'enabled': 'FALSE',
-				'num_configurations': 0
-				},
-			'update_method': 'HEATBATH'
+			'num_bootstraps': 0
 			}
+		},
+	'simulation': {
+		'ensemble': None,
+		'measurement_spacing': None,
+		'num_configurations': None,
+		'parallel_update': {
+			'block_size': 1,
+			'enabled': 'FALSE'
+			},
+		'timing_run': {
+			'enabled': 'FALSE',
+			'num_configurations': 0
+		},
+		'update_method': 'HEATBATH'
 		}
+	}

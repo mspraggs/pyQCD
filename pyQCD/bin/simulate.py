@@ -52,12 +52,13 @@ def main(input_file):
 	# Interface object to handle numpy types etc
 	lattice_interface = LatticeInterface(lattice)
 	
-	# Thermalize the lattice
-	print("Thermalizing... "),
-	sys.stdout.flush()
-	lattice.thermalize()
-	print("Done!")
-	sys.stdout.flush()
+	# Thermalize the lattice if necessary
+	if not simulation_settings.has_key('ensemble'):
+		print("Thermalizing... "),
+		sys.stdout.flush()
+		lattice.thermalize()
+		print("Done!")
+		sys.stdout.flush()
 
 	# Get the actual number of configs we'll be generating, for timing
 	# purposes
@@ -73,9 +74,15 @@ def main(input_file):
 	for i in xrange(num_configs):
 		print("Configuration: %d" % i)
 		sys.stdout.flush()
-		print("Updating gauge field... "),
-		sys.stdout.flush()
-		lattice.next_config()
+		if not simulation_settings.has_key('ensemble'):
+			print("Updating gauge field... "),
+			sys.stdout.flush()
+			lattice.next_config()
+		else:
+			print("Loading gauge field... "),
+			sys.stdout.flush()
+			lattice_interface\
+			  .set_links(measure.load_config(simulation_settings['ensemble'], i))
 		print("Done!")
 		print("Doing measurements:")
 		sys.stdout.flush()
