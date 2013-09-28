@@ -235,6 +235,10 @@ Lattice::computePropagator(const double mass, const double spacing, int site[4],
 
   // If using CG, then we need to multiply D by its adjoint
   if (solverMethod == 1) {
+#ifdef USE_CUDA
+
+#else
+
     // Get adjoint matrix
     vector<Tlet> tripletList;
     SparseMatrix<complex<double> > Dadj(D.rows(),D.cols());
@@ -247,6 +251,7 @@ Lattice::computePropagator(const double mass, const double spacing, int site[4],
 
     // The matrix we'll be inverting
     SparseMatrix<complex<double> > M = D * Dadj;
+
     // And the solver
     ConjugateGradient<SparseMatrix<complex<double> > > solver(M);
     solver.setMaxIterations(1000);
@@ -272,8 +277,12 @@ Lattice::computePropagator(const double mass, const double spacing, int site[4],
 	}
       }
     }
+#endif
   }
   else {
+#ifdef USE_CUDA
+
+#else
     // Otherwise just use BiCGSTAB
     BiCGSTAB<SparseMatrix<complex<double> > > solver(D);
     solver.setMaxIterations(1000);
@@ -299,8 +308,9 @@ Lattice::computePropagator(const double mass, const double spacing, int site[4],
 	}
       }
     }
+#endif
   }
-  
+
   return propagator;
 }
 
