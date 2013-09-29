@@ -18,22 +18,21 @@
 
 typedef cusp::device_memory devMem;
 typedef cusp::host_memory hostMem;
-typedef cusp::coo_matrix<int, cusp::complex<double>, hostMem> complexHybridHost;
-typedef cusp::hyb_matrix<int, cusp::complex<double>, devMem> complexHybridDev;
+typedef cusp::coo_matrix<int, cusp::complex<float>, hostMem> complexHybridHost;
+typedef cusp::coo_matrix<int, cusp::complex<float>, devMem> complexHybridDev;
 
 namespace pyQCD
 {
   namespace cuda {
     void createSource(const int site[4], const int spin, const int colour,
-		      const cusp::hyb_matrix<int, cusp::complex<double>,
-		      devMem>& smearingOperator,
-		      cusp::array1d<cusp::complex<double>, devMem> source);
+		      const complexHybridDev& smearingOperator,
+		      cusp::array1d<cusp::complex<float>, devMem> source);
 
     void bicgstab(const complexHybridHost hostDirac,
 		  const complexHybridHost hostSourceSmear,
 		  const complexHybridHost hostSinkSmear,
 		  const int spatialIndex,
-		  cusp::array2d<cusp::complex<double>, hostMem> propagator);
+		  cusp::array2d<cusp::complex<float>, hostMem> propagator);
 
     void cudaCG();
   }

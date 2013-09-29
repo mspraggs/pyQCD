@@ -10,16 +10,19 @@
 
 #include <cusp/coo_matrix.h>
 #include <cusp/complex.h>
+#include <cusp/print.h>
 
 #include <thrust/sort.h>
 #include <thrust/reduce.h>
 #include <thrust/inner_product.h>
 #include <thrust/iterator/zip_iterator.h>
 
+#include <iostream>
+
 //#include <cuda_utils.h>
 
 typedef cusp::host_memory hostMem;
-typedef cusp::coo_matrix<int, cusp::complex<double>, hostMem> complexHybridHost;
+typedef cusp::coo_matrix<int, cusp::complex<float>, hostMem> complexHybridHost;
 
 namespace th = thrust;
 
@@ -87,7 +90,7 @@ namespace pyQCD
 			 const complexHybridHost hostSourceSmear,
 			 const complexHybridHost hostSinkSmear,
 			 const int spatialIndex,
-			 cusp::array2d<cusp::complex<double>,
+			 cusp::array2d<cusp::complex<float>,
 				       hostMem> propagator);
   }
 #endif

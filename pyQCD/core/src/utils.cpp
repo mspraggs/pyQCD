@@ -237,8 +237,7 @@ namespace pyQCD
 #ifdef USE_CUDA
 
   void eigenToCusp(const SparseMatrix<complex<double> >& eigenMatrix,
-		   cusp::coo_matrix<int, cusp::complex<double>,
-				    hostMem>& cuspMatrix)
+		   complexHybridHost& cuspMatrix)
   {
     // Converts a sparse matrix from Eigen's format to Cusp's COO format
 
@@ -250,17 +249,20 @@ namespace pyQCD
     // Declare somewhere to keep the triplets we're going to make
     cusp::array1d<int, cusp::host_memory> rows(nTriplets);
     cusp::array1d<int, cusp::host_memory> cols(nTriplets);
-    cusp::array1d<cusp::complex<double>, cusp::host_memory> values(nTriplets);
+    cusp::array1d<cusp::complex<float>, cusp::host_memory> values(nTriplets);
 
     // Loop through the non-zero entries and store the positions and values
     // in the triplet
+    int tripletCount = 0;
     for (int i = 0; i < eigenMatrix.outerSize(); ++i) {
       for (SparseMatrix<complex<double> >::InnerIterator it(eigenMatrix, i);
 	     it; ++it) {
-	rows[i] = it.row();
-	cols[i] = it.col();
-	values[i] = cusp::complex<double>(it.value().real(),
-					  it.value().imag());
+	rows[tripletCount] = it.row();
+	cols[tripletCount] = it.col();
+	values[tripletCount] = cusp::complex<float>(float(it.value().real()),
+					 float(it.value().imag()));
+
+	tripletCount++;
       }
     }
 
@@ -280,12 +282,17 @@ namespace pyQCD
     // Resize the matrix we're using
     cuspMatrix.resize(nRows, nCols, nTriplets);
 
+    cout << cuspMatrix.num_rows << "," << cuspMatrix.num_cols << endl;
+
+    cout << nTriplets << endl;
     // Assign the various values
     for (int i = 0; i < nTriplets; ++i) {
       cuspMatrix.row_indices[i] = rows[i];
       cuspMatrix.column_indices[i] = cols[i];
       cuspMatrix.values[i] = values[i];
     }
+
+    cusp::print(cuspMatrix);
   }
 
 
@@ -300,25 +307,29 @@ namespace pyQCD
     int nCols = eigenDirac.cols();
     int nSites = nRows / 12;
 
-    cusp::coo_matrix<int, cusp::complex<double>, hostMem> cuspDirac;
-    cusp::coo_matrix<int, cusp::complex<double>, hostMem> cuspSourceSmear;
-    cusp::coo_matrix<int, cusp::complex<double>, hostMem> cuspSinkSmear;
+    complexHybridHost cuspDirac;
+    complexHybridHost cuspSourceSmear;
+    complexHybridHost cuspSinkSmear;
 
     eigenToCusp(eigenDirac, cuspDirac);
     eigenToCusp(eigenSourceSmear, cuspSourceSmear);
     eigenToCusp(eigenSinkSmear, cuspSinkSmear);
 
-    cusp::array2d<cusp::complex<double>,
+    cusp::array2d<cusp::complex<float>,
 		  hostMem> cuspPropagator(nRows, 12,
-					  cusp::complex<double>(0, 0));
+					  cusp::complex<float>(0, 0));
 
     cuda::bicgstab(cuspDirac, cuspSourceSmear, cuspSinkSmear, spatialIndex,
 		   cuspPropagator);
 
+    MatrixXcd castingMatrix = propagator[0];
+
     for (int i = 0; i < nSites; ++i) {
       for (int j = 0; j < 12; ++j) {
 	for (int k = 0; k < 12; ++k) {
-	  propagator[i](j,k) = cuspPropagator(12 * i + j, k);
+	  double x = cuspPropagator(12 * i + j, k).real();
+	  double y = cuspPropagator(12 * i + j, k).imag();
+	  propagator[i](j, k) = complex<double>(x, y);
 	}
       }
     }
