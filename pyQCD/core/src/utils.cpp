@@ -1,5 +1,6 @@
 #include <utils.hpp>
 
+
 namespace pyQCD
 {
   const complex<double> i (0.0, 1.0);
@@ -233,11 +234,11 @@ namespace pyQCD
     return out;
   }
 
-
+#ifdef USE_CUDA
 
   void eigenToCusp(const SparseMatrix<complex<double> >& eigenMatrix,
 		   cusp::coo_matrix<int, cusp::complex<double>,
-				    cusp::host_memory>& cuspMatrix)
+				    hostMem>& cuspMatrix)
   {
     // Converts a sparse matrix from Eigen's format to Cusp's COO format
 
@@ -258,7 +259,8 @@ namespace pyQCD
 	     it; ++it) {
 	rows[i] = it.row();
 	cols[i] = it.col();
-	values[i] = it.value();
+	values[i] = cusp::complex<double>(it.value().real(),
+					  it.value().imag());
       }
     }
 
@@ -285,4 +287,41 @@ namespace pyQCD
       cuspMatrix.values[i] = values[i];
     }
   }
+
+
+
+  void cudaBiCGstab(const SparseMatrix<complex<double> >& eigenDirac,
+		    const SparseMatrix<complex<double> >& eigenSourceSmear,
+		    const SparseMatrix<complex<double> >& eigenSinkSmear,
+		    const int spatialIndex, vector<MatrixXcd>& propagator)
+  {
+    int nTriplets = eigenDirac.nonZeros();
+    int nRows = eigenDirac.rows();
+    int nCols = eigenDirac.cols();
+    int nSites = nRows / 12;
+
+    cusp::coo_matrix<int, cusp::complex<double>, hostMem> cuspDirac;
+    cusp::coo_matrix<int, cusp::complex<double>, hostMem> cuspSourceSmear;
+    cusp::coo_matrix<int, cusp::complex<double>, hostMem> cuspSinkSmear;
+
+    eigenToCusp(eigenDirac, cuspDirac);
+    eigenToCusp(eigenSourceSmear, cuspSourceSmear);
+    eigenToCusp(eigenSinkSmear, cuspSinkSmear);
+
+    cusp::array2d<cusp::complex<double>,
+		  hostMem> cuspPropagator(nRows, 12,
+					  cusp::complex<double>(0, 0));
+
+    cuda::bicgstab(cuspDirac, cuspSourceSmear, cuspSinkSmear, spatialIndex,
+		   cuspPropagator);
+
+    for (int i = 0; i < nSites; ++i) {
+      for (int j = 0; j < 12; ++j) {
+	for (int k = 0; k < 12; ++k) {
+	  propagator[i](j,k) = cuspPropagator(12 * i + j, k);
+	}
+      }
+    }
+  }
+#endif
 }

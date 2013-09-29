@@ -6,6 +6,8 @@
 #include <complex>
 #include <boost/random.hpp>
 
+#ifdef USE_CUDA
+
 #include <cusp/coo_matrix.h>
 #include <cusp/complex.h>
 
@@ -14,10 +16,18 @@
 #include <thrust/inner_product.h>
 #include <thrust/iterator/zip_iterator.h>
 
+//#include <cuda_utils.h>
+
+typedef cusp::host_memory hostMem;
+typedef cusp::coo_matrix<int, cusp::complex<double>, hostMem> complexHybridHost;
+
+namespace th = thrust;
+
+#endif
+
 using namespace boost;
 using namespace Eigen;
 using namespace std;
-namespace th = thrust;
 
 namespace pyQCD
 {
@@ -62,10 +72,25 @@ namespace pyQCD
 		       double coefficients[4], const int index);
 
   double oneNorm(const Matrix3cd& matrix);
-
+#ifdef USE_CUDA
   void eigenToCusp(SparseMatrix<complex<double> >& eigenMatrix,
 		   const cusp::coo_matrix<int, cusp::complex<double>,
-		   cusp::host_memory>& cuspMatrix);
+		   hostMem>& cuspMatrix);
+  void cudaBiCGstab(const SparseMatrix<complex<double> >& eigenDirac,
+		    const SparseMatrix<complex<double> >& eigenSourceSmear,
+		    const SparseMatrix<complex<double> >& eigenSinkSmear,
+		    const int spatialIndex, vector<MatrixXcd>& propagator);
+
+  namespace cuda
+  {
+    extern void bicgstab(const complexHybridHost hostDirac,
+			 const complexHybridHost hostSourceSmear,
+			 const complexHybridHost hostSinkSmear,
+			 const int spatialIndex,
+			 cusp::array2d<cusp::complex<double>,
+				       hostMem> propagator);
+  }
+#endif
 }
 
 #endif

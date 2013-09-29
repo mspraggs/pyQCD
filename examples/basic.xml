@@ -5,17 +5,39 @@ Runs a very basic simulation: no measurements, 100 configurations,
 -->
 <pyQCD>
   <lattice>
-    <L>4</L>
-    <T>8</T>
+    <L>12</L>
+    <T>24</T>
   </lattice>
 
   <simulation>
+    <!--<ensemble>configs.npz</ensemble>-->
     <num_configurations>100</num_configurations>
     <measurement_spacing>10</measurement_spacing>
+    <parallel_update>
+      <enabled>TRUE</enabled>
+      <block_size>6</block_size>
+    </parallel_update>
+    <timing_run>
+      <enabled>TRUE</enabled>
+      <num_configurations>10</num_configurations>
+    </timing_run>
   </simulation>
 
   <gauge_action>
     <type>WILSON</type>
     <beta>5.5</beta>
   </gauge_action>
+
+  <measurements>
+    <plaquette>
+      <filename>plaquettes</filename>
+    </plaquette>
+    <configuration>
+      <filename>configs</filename>
+    </configuration><!--
+    <propagator>
+      <mass>0.4</mass>
+      <filename>props</filename>
+    </propagator>-->
+  </measurements>
 </pyQCD>

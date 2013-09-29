@@ -32,6 +32,7 @@ find_package (PythonLibs 2.6 REQUIRED)
 find_package (Eigen3 3.1.3 REQUIRED)
 find_package (Boost 1.49.0 REQUIRED)
 find_package (OpenMP 3.0 REQUIRED)
+find_package (CUDA)
 
 if (OPENMP_FOUND)
   message ("OpenMP found")
@@ -44,7 +45,9 @@ endif()
 include_directories (${Boost_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIR}
   ${PYTHON_INCLUDE_PATH}
-  ${INC_DIR})
+  ${TEST_PATH}
+  ${INC_DIR}
+  /home/matthew/cusplibrary)
 
 set (Boost_USE_STATIC_LIBS OFF)
 set (Boost_USE_MULTITHREADED ON)
@@ -53,14 +56,26 @@ find_package (Boost COMPONENTS random python unit_test_framework)
 
 set (CMAKE_SHARED_LIBRARY_PREFIX "")
 
+if (CUDA_FOUND)
+  message ("CUDA found")
+  add_definitions(-DUSE_CUDA)
+  set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};-Xcompiler '-fPIC')
+  cuda_add_library(cudainverters src/cuda_utils.cu)
+endif()
+
 add_library(shared_objects OBJECT ${shared_SRC})
 
+LINK_DIRECTORIES(/usr/lib/x86_64-linux-gnu/)
+
 add_library (lattice SHARED $<TARGET_OBJECTS:shared_objects> ${lattice_SRC})
-target_link_libraries (lattice ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
+target_link_libraries (lattice ${Boost_LIBRARIES} ${PYTHON_LIBRARIES}
+  /home/matthew/Programming/Python/pyQCD/pyQCD/core/libcudainverters.a
+  -lcuda -lcudart)
 
 add_definitions(-DBOOST_TEST_DYN_LINK)
 add_executable (test_lattice $<TARGET_OBJECTS:shared_objects> ${test_SRC})
-target_link_libraries (test_lattice ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
+target_link_libraries (test_lattice ${Boost_LIBRARIES} ${PYTHON_LIBRARIES}
+  ${PROJECT_BINARY_DIR}/libcudainverters.a)
 add_test(lattice test_lattice)
 
 IF(CMAKE_COMPILER_IS_GNUCXX)
