@@ -221,7 +221,7 @@ Lattice::computePropagator(const double mass, const double spacing, int site[4],
   int nIndices = 3 * this->nLinks_;
 
   // Index for the vector point source
-  int spatial_index = pyQCD::getLinkIndex(site[0], site[1], site[2], site[3], 0,
+  int spatialIndex = pyQCD::getLinkIndex(site[0], site[1], site[2], site[3], 0,
 					  this->spatialExtent);
 
   // Declare a variable to hold our propagator
@@ -281,7 +281,8 @@ Lattice::computePropagator(const double mass, const double spacing, int site[4],
   }
   else {
 #ifdef USE_CUDA
-
+    pyQCD::cudaBiCGstab(D, sourceSmearingOperator, sinkSmearingOperator,
+			spatialIndex, propagator);
 #else
     // Otherwise just use BiCGSTAB
     BiCGSTAB<SparseMatrix<complex<double> > > solver(D);
