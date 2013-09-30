@@ -6,18 +6,9 @@
 #include <complex>
 #include <boost/random.hpp>
 
-#include <cusp/coo_matrix.h>
-#include <cusp/complex.h>
-
-#include <thrust/sort.h>
-#include <thrust/reduce.h>
-#include <thrust/inner_product.h>
-#include <thrust/iterator/zip_iterator.h>
-
 using namespace boost;
 using namespace Eigen;
 using namespace std;
-namespace th = thrust;
 
 namespace pyQCD
 {
@@ -62,10 +53,6 @@ namespace pyQCD
 		       double coefficients[4], const int index);
 
   double oneNorm(const Matrix3cd& matrix);
-
-  void eigenToCusp(SparseMatrix<complex<double> >& eigenMatrix,
-		   const cusp::coo_matrix<int, cusp::complex<double>,
-		   cusp::host_memory>& cuspMatrix);
 }
 
 #endif
