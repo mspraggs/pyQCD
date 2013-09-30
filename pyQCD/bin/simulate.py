@@ -101,7 +101,7 @@ def main(input_file):
 	if simulation_settings['timing_run']['enabled']:
 		total_time \
 		  = (t2 - t1) / simulation_settings['timing_run']['num_configurations'] \
-		  * simulation_settings['num_configurations'] + t2 - t1
+		  * simulation_settings['num_configurations'] + t1 - t0
 	else:
 		total_time = t2 - t0
 	# Convert the answer to hrs, mins, secs
