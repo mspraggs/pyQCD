@@ -233,8 +233,6 @@ namespace pyQCD
 
     return out;
   }
-<<<<<<< HEAD
-=======
 
 #ifdef USE_CUDA
 
@@ -337,5 +335,4 @@ namespace pyQCD
     }
   }
 #endif
->>>>>>> 12e6ea4d4eec7bfe84b39e3c125ddcfdee4fd489
 }
