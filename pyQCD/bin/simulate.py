@@ -28,6 +28,9 @@ def main(input_file):
 	# Get the measurement settings
 	measurement_settings = xml.measurements()
 
+	# We're going to time the run, so get the initial time
+	t0 = time.time()
+
 	# Declare and initialize the lattice
 	print("Creating the lattice... "),
 	sys.stdout.flush()
@@ -41,9 +44,6 @@ def main(input_file):
 					  simulation_settings['parallel_update']['enabled'],
 					  simulation_settings['parallel_update']['block_size'])
 	print("Done!")
-
-	# We're going to time the run, so get the initial time
-	t0 = time.time()
 
 	# Create somewhere to put the measurements
 	measurements = measure.create(measurement_settings,
