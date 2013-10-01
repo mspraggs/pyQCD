@@ -80,7 +80,7 @@ namespace pyQCD
   }
 
 
-
+  
   int sgn(const int x)
   {
     return (x < 0) ? -1 : 1;
@@ -282,9 +282,6 @@ namespace pyQCD
     // Resize the matrix we're using
     cuspMatrix.resize(nRows, nCols, nTriplets);
 
-    cout << cuspMatrix.num_rows << "," << cuspMatrix.num_cols << endl;
-
-    cout << nTriplets << endl;
     // Assign the various values
     for (int i = 0; i < nTriplets; ++i) {
       cuspMatrix.row_indices[i] = rows[i];
@@ -292,7 +289,7 @@ namespace pyQCD
       cuspMatrix.values[i] = values[i];
     }
 
-    cusp::print(cuspMatrix);
+    //cusp::print(cuspMatrix);
   }
 
 
@@ -321,8 +318,6 @@ namespace pyQCD
 
     cuda::bicgstab(cuspDirac, cuspSourceSmear, cuspSinkSmear, spatialIndex,
 		   cuspPropagator);
-
-    MatrixXcd castingMatrix = propagator[0];
 
     for (int i = 0; i < nSites; ++i) {
       for (int j = 0; j < 12; ++j) {

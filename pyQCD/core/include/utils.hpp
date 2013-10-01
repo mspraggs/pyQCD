@@ -87,12 +87,12 @@ namespace pyQCD
 
   namespace cuda
   {
-    extern void bicgstab(const complexHybridHost hostDirac,
-			 const complexHybridHost hostSourceSmear,
-			 const complexHybridHost hostSinkSmear,
+    extern void bicgstab(const complexHybridHost& hostDirac,
+			 const complexHybridHost& hostSourceSmear,
+			 const complexHybridHost& hostSinkSmear,
 			 const int spatialIndex,
 			 cusp::array2d<cusp::complex<float>,
-				       hostMem> propagator);
+				       hostMem>& propagator);
   }
 #endif
 

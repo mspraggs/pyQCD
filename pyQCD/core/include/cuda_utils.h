@@ -28,11 +28,11 @@ namespace pyQCD
 		      const complexHybridDev& smearingOperator,
 		      cusp::array1d<cusp::complex<float>, devMem> source);
 
-    void bicgstab(const complexHybridHost hostDirac,
-		  const complexHybridHost hostSourceSmear,
-		  const complexHybridHost hostSinkSmear,
+    void bicgstab(const complexHybridHost& hostDirac,
+		  const complexHybridHost& hostSourceSmear,
+		  const complexHybridHost& hostSinkSmear,
 		  const int spatialIndex,
-		  cusp::array2d<cusp::complex<float>, hostMem> propagator);
+		  cusp::array2d<cusp::complex<float>, hostMem>& propagator);
 
     void cudaCG();
   }
