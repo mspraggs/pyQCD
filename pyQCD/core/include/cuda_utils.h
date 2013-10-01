@@ -8,6 +8,8 @@
 #include <cusp/krylov/bicgstab.h>
 #include <cusp/complex.h>
 #include <cusp/print.h>
+#include <cusp/convert.h>
+#include <cusp/copy.h>
 
 #include <iostream>
 
@@ -19,14 +21,16 @@
 typedef cusp::device_memory devMem;
 typedef cusp::host_memory hostMem;
 typedef cusp::coo_matrix<int, cusp::complex<float>, hostMem> complexHybridHost;
-typedef cusp::coo_matrix<int, cusp::complex<float>, devMem> complexHybridDev;
+typedef cusp::hyb_matrix<int, cusp::complex<float>, devMem> complexHybridDev;
 
 namespace pyQCD
 {
   namespace cuda {
     void createSource(const int site[4], const int spin, const int colour,
 		      const complexHybridDev& smearingOperator,
-		      cusp::array1d<cusp::complex<float>, devMem> source);
+		      cusp::array1d<cusp::complex<float>, devMem>& source,
+		      cusp::array1d<cusp::complex<float>, devMem>&
+		      tempSource);
 
     void bicgstab(const complexHybridHost& hostDirac,
 		  const complexHybridHost& hostSourceSmear,

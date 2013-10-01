@@ -288,8 +288,6 @@ namespace pyQCD
       cuspMatrix.column_indices[i] = cols[i];
       cuspMatrix.values[i] = values[i];
     }
-
-    //cusp::print(cuspMatrix);
   }
 
 
