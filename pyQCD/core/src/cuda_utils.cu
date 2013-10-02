@@ -64,12 +64,14 @@ namespace pyQCD
        
 	  cusp::multiply(devSinkSmear, solution, tempSolution);
 
-	  //tempPropagator.column(j + 3 * i) = tempSolution;
+	  cusp::array2d<cusp::complex<float>, devMem>::column_view
+	    propagatorView = tempPropagator.column(j + 3 * i);
+	  cusp::copy(tempSolution, propagatorView);// = tempSolution;
 	  //cusp::convert(solutionView, tempPropagator.column(j + 3 * i));
 	  //tempPropagator.column(j + 3 * i) = solutionView;
-	  for (int k = 0; k < nCols; ++k) {
-	    tempPropagator(k, j + 3 * i) = tempSolution[k];
-	  }
+	  //for (int k = 0; k < nCols; ++k) {
+	  //  tempPropagator(k, j + 3 * i) = tempSolution[k];
+	  //}
 	}
       }
       propagator = tempPropagator;
