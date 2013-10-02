@@ -38,8 +38,11 @@ namespace pyQCD
 
       cusp::array1d<cusp::complex<float>,
 		    devMem> tempSource(nCols, cusp::complex<float>(0, 0));
-      cusp::array1d<cusp::complex<float>,
-		    devMem> tempSolution(nCols, cusp::complex<float>(0, 0));
+      cusp::array1d<cusp::complex<float>, devMem>
+	tempSolution(nCols, cusp::complex<float>(0, 0));
+
+      cusp::array1d<cusp::complex<float>, devMem>::view
+	solutionView = cusp::make_array1d_view(tempSolution);
 
       cusp::array2d<cusp::complex<float>, devMem>
 	tempPropagator(nCols, 12, cusp::complex<float>(0, 0));
@@ -61,16 +64,15 @@ namespace pyQCD
        
 	  cusp::multiply(devSinkSmear, solution, tempSolution);
 
+	  //tempPropagator.column(j + 3 * i) = tempSolution;
+	  //cusp::convert(solutionView, tempPropagator.column(j + 3 * i));
+	  //tempPropagator.column(j + 3 * i) = solutionView;
 	  for (int k = 0; k < nCols; ++k) {
 	    tempPropagator(k, j + 3 * i) = tempSolution[k];
-	    //cusp::array1d<cusp::complex<float>, hostMem>::view
-	    //  propView = propagator.column_view(j + 3 * i);
-	    //cusp::copy(tempSolution, propView);
-	    //propagator.column_view(j + 3 * i) = tempSolution;
 	  }
-	  propagator = tempPropagator;
 	}
       }
+      propagator = tempPropagator;
     }
   }
 }
