@@ -23,9 +23,6 @@ file (GLOB
 file (GLOB
   test_SRC
   ${TEST_DIR}/*.cpp)
-#  ${SRC_DIR}/lattice_*.cpp
-#  ${SRC_DIR}/random.cpp
-#  ${SRC_DIR}/utils.cpp)
 
 set (CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 set (EIGEN_INCLUDE_DIR ${CMAKE_MODULE_PATH}/FindEigen3.cmake)
@@ -77,7 +74,7 @@ add_library (lattice SHARED $<TARGET_OBJECTS:shared_objects> ${lattice_SRC})
 
 if (CUDA_FOUND AND USE_CUDA AND CUSP_INCLUDE_DIR)
   target_link_libraries (lattice ${Boost_LIBRARIES} ${PYTHON_LIBRARIES}
-    libcudainverters.a ${CUDA_LIBRARIES})
+    cudainverters ${CUDA_LIBRARIES})
 else()
   target_link_libraries (lattice ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
 endif()
@@ -87,7 +84,7 @@ add_executable (test_lattice $<TARGET_OBJECTS:shared_objects> ${test_SRC})
 
 if (CUDA_FOUND AND USE_CUDA AND CUSP_INCLUDE_DIR)
   target_link_libraries (test_lattice ${Boost_LIBRARIES} ${PYTHON_LIBRARIES}
-    libcudainverters.a ${CUDA_LIBRARIES})
+    cudainverters ${CUDA_LIBRARIES})
 else()
   target_link_libraries (test_lattice ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
 endif()
