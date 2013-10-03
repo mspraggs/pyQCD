@@ -10,6 +10,7 @@
 #include <cusp/print.h>
 #include <cusp/convert.h>
 #include <cusp/copy.h>
+#include <cusp/blas.h>
 
 #include <iostream>
 

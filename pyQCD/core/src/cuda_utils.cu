@@ -11,7 +11,7 @@ namespace pyQCD
 		      tempSource)
     {
       int index = colour + 3 * (spin + spatialIndex);
-      
+      cusp::blas::fill(tempSource, cusp::complex<float>(0.0, 0.0));
       tempSource[index] = cusp::complex<float>(1.0, 0.0);
 
       cusp::multiply(smearingOperator, tempSource, source);
@@ -26,10 +26,15 @@ namespace pyQCD
 		  cusp::array2d<cusp::complex<float>, hostMem>& propagator)
     {
       int nCols = hostDirac.num_cols;
+
+      std::cout << "Managed to get number of matrix cols" << std::endl;
       
       complexHybridDev devDirac = hostDirac;
+      std::cout << "Transferred Dirac matrix" << std::endl;
       complexHybridDev devSourceSmear = hostSourceSmear;
       complexHybridDev devSinkSmear = hostSinkSmear;
+
+      std::cout << "Managed to transfer matrices to device" << std::endl;
 
       cusp::array1d<cusp::complex<float>,
 		    devMem> source(nCols, cusp::complex<float>(0, 0));
@@ -51,8 +56,8 @@ namespace pyQCD
 	for (int j = 0; j < 3; ++j) {
 	  createSource(spatialIndex, i, j, devSourceSmear, source,
 		       tempSource);
-	  tempSource[j + 3 * (i + spatialIndex)]
-	    = cusp::complex<float>(0, 0);
+	  //tempSource[j + 3 * (i + spatialIndex)]
+	  //  = cusp::complex<float>(0, 0);
 
 	  cusp::verbose_monitor<cusp::complex<float> > monitor(source, 100,
 							       1e-3);
@@ -76,5 +81,7 @@ namespace pyQCD
       }
       propagator = tempPropagator;
     }
+
+    
   }
 }
