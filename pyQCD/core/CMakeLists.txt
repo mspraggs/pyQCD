@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 2.8.8)
 project (lattice)
 enable_testing()
 
-set (USE_CUDA 1)
+option (USE_CUDA "Compile to use CUDA GPU?" 1)
 
 set (TEST_DIR ${PROJECT_BINARY_DIR}/test)
 set (SRC_DIR ${PROJECT_BINARY_DIR}/src)
@@ -31,7 +31,7 @@ find_package (PythonLibs 2.6 REQUIRED)
 find_package (Eigen3 3.1.3 REQUIRED)
 find_package (Boost 1.49.0 REQUIRED)
 find_package (OpenMP 3.0 REQUIRED)
-find_package (CUDA)
+find_package (CUDA 4.2)
 
 if (OPENMP_FOUND)
   message ("OpenMP found")
