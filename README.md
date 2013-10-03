@@ -25,7 +25,7 @@ propagators. If you have a CUDA enabled GPU, and you want to use its capabilitie
 following packages:
 
 * CUDA, version 4.2 or greater;
-* CUSP Sparse Matrix Library, available [http://cusplibrary.github.io/](here).
+* CUSP Sparse Matrix Library, available [here](http://cusplibrary.github.io/).
 
 Once these are installed, the package can be built using cmake. On Unix-like OSes, this is straightforward:
 
