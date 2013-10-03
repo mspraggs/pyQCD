@@ -1,5 +1,5 @@
 import numpy as np
-import os, zipfile
+import os, sys, zipfile
 
 def create(measurement_settings, lattice_settings,
 		   simulation_settings):
@@ -72,6 +72,8 @@ def do(settings, interface, store, config):
 			current_config = interface.get_links()
 
 			np.save("config%d" % config, current_config)
+
+		sys.stdout.flush()
 
 def save(settings, store, n_configs):
 	"""Loops through the stored measurements and writes them out to the file
