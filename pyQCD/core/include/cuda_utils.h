@@ -9,16 +9,10 @@
 #include <cusp/krylov/cg.h>
 #include <cusp/complex.h>
 #include <cusp/print.h>
-#include <cusp/convert.h>
 #include <cusp/copy.h>
 #include <cusp/blas.h>
 
 #include <iostream>
-
-#include <thrust/sort.h>
-#include <thrust/reduce.h>
-#include <thrust/inner_product.h>
-#include <thrust/iterator/zip_iterator.h>
 
 typedef cusp::device_memory devMem;
 typedef cusp::host_memory hostMem;
