@@ -56,8 +56,8 @@ namespace pyQCD
 	  createSource(spatialIndex, i, j, devSourceSmear, source,
 		       tempSource);
 	  // Set up the monitor for use in the solver
-	  cusp::verbose_monitor<cusp::complex<float> >
-	    monitor(source, 100, 1e-3);
+	  cusp::default_monitor<cusp::complex<float> >
+	    monitor(source, 1000, 1e-8);
 	  // Create the preconditioner
 	  cusp::identity_operator<cusp::complex<float>, devMem>
 	    preconditioner(devDirac.num_rows, devDirac.num_rows);
@@ -118,8 +118,8 @@ namespace pyQCD
 	  createSource(spatialIndex, i, j, devSourceSmear, source,
 		       tempSource);
 	  // Set up the monitor for use in the solver
-	  cusp::verbose_monitor<cusp::complex<float> >
-	    monitor(source, 100, 1e-3);
+	  cusp::default_monitor<cusp::complex<float> >
+	    monitor(source, 1000, 1e-8);
 	  // Create the preconditioner
 	  cusp::identity_operator<cusp::complex<float>, devMem>
 	    preconditioner(devM.num_rows, devM.num_rows);
