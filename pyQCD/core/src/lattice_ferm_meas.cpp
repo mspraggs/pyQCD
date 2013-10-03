@@ -13,9 +13,13 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
   SparseMatrix<complex<double> > out(3 * this->nLinks_, 3 * this->nLinks_);
 
   vector<Tlet> tripletList;
+  tripletList.reserve((1 + 12 * 8) * 3 * this->nLinks_);
   for (int i = 0; i < 3 * this->nLinks_; ++i) {
     tripletList.push_back(Tlet(i, i, mass + 4 / spacing));
   }
+
+  vector<vector<Tlet> > tempTripletList;
+  tempTripletList.resize(this->nLinks_ / 4);
   
   // Now iterate through the matrix and add the neighbouring elements
 #pragma omp parallel for
@@ -23,6 +27,8 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
     int rowLink[5];
     pyQCD::getLinkIndices(4 * i, this->spatialExtent, this->temporalExtent,
 			  rowLink);
+
+    vector<Tlet> subTempTripletList;
 
     // We've already calculated the eight neighbours, so we'll deal with those
     // alone
@@ -53,22 +59,29 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
       // triplet list (basically a tensor product, could put this in a utility
       // function as this might be something that needs to be done again if
       // other actions are implemented).
+
       for (int k = 0; k < 4; ++k) {
 	for (int m = 0; m < 3; ++m) {
 	  for (int l = 0; l < 4; ++l) {
 	    for (int n = 0; n < 3; ++n) {
 	      complex<double> sum = -0.5 / spacing
 		* spinMatrix(k, l) * colourMatrix(m, n);
-#pragma omp critical
+	      //#pragma omp critical
 	      if (sum != complex<double>(0,0))
-		tripletList.push_back(Tlet(12 * i + 3 * k + m,
+		subTempTripletList.push_back(Tlet(12 * i + 3 * k + m,
 					   3 * columnIndex + 3 * l + n, sum));
 	    }
 	  }
 	}
       }
     }
+    tempTripletList[i].resize(subTempTripletList.size());
+    tempTripletList[i] = subTempTripletList;
   }
+
+  for (int i = 0; i < this->nLinks_ / 4; ++i)
+    for (int j = 0; j < tempTripletList[i].size(); ++j)
+      tripletList.push_back(tempTripletList[i][j]);
   
   // Add all the triplets to the sparse matrix
   out.setFromTriplets(tripletList.begin(), tripletList.end());
@@ -93,6 +106,7 @@ Lattice::computeSmearingOperator(const double smearingParameter,
 
     // This is where we'll store the matrix entries before intialising the matrix
     vector<Tlet> tripletList;
+    tripletList.reserve(12 * 8 * 3 * this->nLinks_);
     
     // Now iterate through the matrix and add the neighbouring elements
 #pragma omp parallel for
@@ -239,7 +253,7 @@ Lattice::computePropagator(const double mass, const double spacing, int site[4],
 
 #else
 
-    // Get adjoint matrix
+    // Get adjoint matrix 
     vector<Tlet> tripletList;
     SparseMatrix<complex<double> > Dadj(D.rows(),D.cols());
     for (int i = 0; i < D.outerSize(); ++i)
