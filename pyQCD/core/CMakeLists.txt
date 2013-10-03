@@ -58,18 +58,24 @@ find_package (Boost COMPONENTS random python unit_test_framework)
 set (CMAKE_SHARED_LIBRARY_PREFIX "")
 
 if (CUDA_FOUND AND USE_CUDA)
-  message ("CUDA found")
-  add_definitions(-DUSE_CUDA)
-  set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};-Xcompiler '-fPIC')
-  cuda_add_library(cudainverters src/cuda_utils.cu)
-  link_directories(${PROJECT_BINARY_DIR})
+  message ("Compiling for CUDA GPUs")
+
+  if (NOT CUSP_INCLUDE_DIR)
+    message ("Error! Path to CUSP not defined!")
+    message ("Falling back to Eigen sparse solvers.")
+  else()
+    add_definitions(-DUSE_CUDA)
+    set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};-Xcompiler '-fPIC')
+    cuda_add_library(cudainverters src/cuda_utils.cu)
+    link_directories(${PROJECT_BINARY_DIR})
+  endif()
 endif()
 
 add_library(shared_objects OBJECT ${shared_SRC})
 
 add_library (lattice SHARED $<TARGET_OBJECTS:shared_objects> ${lattice_SRC})
 
-if (CUDA_FOUND AND USE_CUDA)
+if (CUDA_FOUND AND USE_CUDA AND CUSP_INCLUDE_DIR)
   target_link_libraries (lattice ${Boost_LIBRARIES} ${PYTHON_LIBRARIES}
     libcudainverters.a ${CUDA_LIBRARIES})
 else()
@@ -79,7 +85,7 @@ endif()
 add_definitions(-DBOOST_TEST_DYN_LINK)
 add_executable (test_lattice $<TARGET_OBJECTS:shared_objects> ${test_SRC})
 
-if (CUDA_FOUND AND USE_CUDA)
+if (CUDA_FOUND AND USE_CUDA AND CUSP_INCLUDE_DIR)
   target_link_libraries (test_lattice ${Boost_LIBRARIES} ${PYTHON_LIBRARIES}
     libcudainverters.a ${CUDA_LIBRARIES})
 else()
