@@ -253,31 +253,18 @@ namespace pyQCD
 
     // Loop through the non-zero entries and store the positions and values
     // in the triplet
-    int tripletCount = 0;
+    int index = 0;
     for (int i = 0; i < eigenMatrix.outerSize(); ++i) {
       for (SparseMatrix<complex<double> >::InnerIterator it(eigenMatrix, i);
 	     it; ++it) {
-	rows[tripletCount] = it.row();
-	cols[tripletCount] = it.col();
-	values[tripletCount] = cusp::complex<float>(float(it.value().real()),
+	rows[index] = it.row();
+	cols[index] = it.col();
+	values[index] = cusp::complex<float>(float(it.value().real()),
 					 float(it.value().imag()));
 
-	tripletCount++;
+	index++;
       }
     }
-
-    // Sort the triplets by position in the matrix
-    th::
-      stable_sort_by_key(cols.begin(),
-			 cols.end(),
-			 th::make_zip_iterator(th::make_tuple(rows.begin(),
-							      values.begin())));
-
-    th::
-      stable_sort_by_key(rows.begin(),
-			 rows.end(),
-			 th::make_zip_iterator(th::make_tuple(cols.begin(),
-							      values.begin())));
 
     // Resize the matrix we're using
     cuspMatrix.resize(nRows, nCols, nTriplets);
