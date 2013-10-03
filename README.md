@@ -2,9 +2,9 @@ pyQCD
 =====
 pyQCD provides a Python package for running coarse lattice QCD simulations on desktop and workstation computers.
 
-pyQCD may not be as powerful or as fully-featured as the like of Chroma or UKHADRON, but through simplicity it
+pyQCD may not be as powerful or as fully-featured as the likes of Chroma or UKHADRON, but through simplicity it
 is more transparent and perfect for basic desktop simulations. By interfacing with Python and numpy, it
-facilitates the analysis of the results of the simulation.
+facilitates the analysis of results.
 
 ***Please note that this software is very much still in alpha stage and is not yet mature, so backwards
 compatability is not yet guaranteed for newer versions. If something's broken, have a look at the function
@@ -20,8 +20,9 @@ To build and install the module, the following packages are required:
 * scipy version 0.12 or greater;
 * OpenMP (version 3), required for parallel updates, but not essential.
 
-If you have a CUDA enabled GPU, and you want to use its capabilities, then you'll also need the following
-packages:
+pyQCD is capable of using CUDA capable GPUs to accelerate the inversion of Dirac matrices to generate
+propagators. If you have a CUDA enabled GPU, and you want to use its capabilities, then you'll also need the
+following packages:
 
 * CUDA, version 4.2 or greater;
 * CUSP Sparse Matrix Library, available [http://cusplibrary.github.io/](here).
@@ -33,13 +34,16 @@ Once these are installed, the package can be built using cmake. On Unix-like OSe
     make
 
 If you want to use CUDA, then you'll need to specify the path to CUSP when you run cmake. For example,
-if you you clone the CUSP library into /home/user/cusplibrary, then you'll need to run:
+if you clone the CUSP library into /home/user/cusplibrary, then you'll need to run:
 
     cmake . -DCUSP_INCLUDE_DIR=/home/user/cusplibrary
     make lattice
     make
 
-The package can then be installed:
+If you don't want to use CUDA, then you can either omit the CUSP library include path, in which case cmake
+will fall back to Eigen's sparse matrix inverters, or use the flag -DUSE_CUDA=0 when running cmake.
+
+With the package configured, the package can then be installed:
 
     sudo make install
 
