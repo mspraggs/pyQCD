@@ -14,6 +14,7 @@ Installation
 ------------
 To build and install the module, the following packages are required:
 
+* Python setuptools, tested with version 0.6.24, though may work with older versions;
 * boost::python and boost::random, both version 1.49.0 or greater;
 * Eigen C++ matrix library, version 3.1.3 or greater;
 * numpy version 1.7 or greater;
