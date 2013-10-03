@@ -90,7 +90,7 @@ def save(settings, store, n_configs):
 			  if settings[key]["filename"][-4:] != ".npz" \
 			  else settings[key]["filename"][:-4]
 
-			zfile = zipfile.ZipFile("%s.npz" % filename, 'w')
+			zfile = zipfile.ZipFile("%s.npz" % filename, 'w', allowZip64=True)
 
 			basenames = {"propagator": "prop",
 						 "configuration": "config"}
@@ -107,7 +107,7 @@ def load_config(filename, config_num):
 	if filename[-4:] != ".npz":
 		filename = "".join([filename, ".npz"])
 
-	zfile = zipfile.ZipFile(filename)
+	zfile = zipfile.ZipFile(filename, allowZip64=True)
 	zfile.extract("config%d.npy" % config_num)
 	config = np.load("config%d.npy" % config_num)
 	os.remove("config%d.npy" % config_num)
