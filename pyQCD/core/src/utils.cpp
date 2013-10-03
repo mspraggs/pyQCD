@@ -327,5 +327,47 @@ namespace pyQCD
       }
     }
   }
+
+
+
+  void cudaCG(const SparseMatrix<complex<double> >& eigenDiracDiracAdjoint,
+	      const SparseMatrix<complex<double> >& eigenDiracAdjoint,
+	      const SparseMatrix<complex<double> >& eigenSourceSmear,
+	      const SparseMatrix<complex<double> >& eigenSinkSmear,
+	      const int spatialIndex, vector<MatrixXcd>& propagator)
+  {
+    // Wrapper for the cusp/cuda sparse matrix CG inverter
+    int nTriplets = eigenDiracDiracAdjoint.nonZeros();
+    int nRows = eigenDiracDiracAdjoint.rows();
+    int nCols = eigenDiracDiracAdjoint.cols();
+    int nSites = nRows / 12;
+
+    complexHybridHost cuspM;
+    complexHybridHost cuspDiracAdjoint;
+    complexHybridHost cuspSourceSmear;
+    complexHybridHost cuspSinkSmear;
+
+    eigenToCusp(eigenDiracDiracAdjoint, cuspM);
+    eigenToCusp(eigenDiracAdjoint, cuspDiracAdjoint);
+    eigenToCusp(eigenSourceSmear, cuspSourceSmear);
+    eigenToCusp(eigenSinkSmear, cuspSinkSmear);
+
+    cusp::array2d<cusp::complex<float>,
+		  hostMem> cuspPropagator(nRows, 12,
+					  cusp::complex<float>(0, 0));
+
+    cuda::cg(cuspM, cuspDiracAdjoint, cuspSourceSmear, cuspSinkSmear,
+	     spatialIndex, cuspPropagator);
+
+    for (int i = 0; i < nSites; ++i) {
+      for (int j = 0; j < 12; ++j) {
+	for (int k = 0; k < 12; ++k) {
+	  double x = cuspPropagator(12 * i + j, k).real();
+	  double y = cuspPropagator(12 * i + j, k).imag();
+	  propagator[i](j, k) = complex<double>(x, y);
+	}
+      }
+    }
+  }
 #endif
 }

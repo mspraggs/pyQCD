@@ -84,6 +84,11 @@ namespace pyQCD
 		    const SparseMatrix<complex<double> >& eigenSourceSmear,
 		    const SparseMatrix<complex<double> >& eigenSinkSmear,
 		    const int spatialIndex, vector<MatrixXcd>& propagator);
+  void cudaCG(const SparseMatrix<complex<double> >& eigenDiracDiracAdjoint,
+	      const SparseMatrix<complex<double> >& eigenDiracAdjoint,
+	      const SparseMatrix<complex<double> >& eigenSourceSmear,
+	      const SparseMatrix<complex<double> >& eigenSinkSmear,
+	      const int spatialIndex, vector<MatrixXcd>& propagator);
 
   namespace cuda
   {
@@ -93,6 +98,13 @@ namespace pyQCD
 			 const int spatialIndex,
 			 cusp::array2d<cusp::complex<float>,
 				       hostMem>& propagator);
+
+    extern void cg(const complexHybridHost& hostDiracDiracAdjoint,
+		   const complexHybridHost& hostDiracAdjoint,
+		   const complexHybridHost& hostSourceSmear,
+		   const complexHybridHost& hostSinkSmear,
+		   const int spatialIndex,
+		   cusp::array2d<cusp::complex<float>, hostMem>& propagator);
   }
 #endif
 

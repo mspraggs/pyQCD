@@ -249,23 +249,15 @@ Lattice::computePropagator(const double mass, const double spacing, int site[4],
 
   // If using CG, then we need to multiply D by its adjoint
   if (solverMethod == 1) {
-#ifdef USE_CUDA
-
-#else
-
     // Get adjoint matrix 
-    vector<Tlet> tripletList;
-    SparseMatrix<complex<double> > Dadj(D.rows(),D.cols());
-    for (int i = 0; i < D.outerSize(); ++i)
-      for (SparseMatrix<complex<double> >::InnerIterator j(D, i); j; ++j) {
-	tripletList.push_back(Tlet(j.col(), j.row(), conj(j.value())));
-      }
-
-    Dadj.setFromTriplets(tripletList.begin(), tripletList.end());
+    SparseMatrix<complex<double> > Dadj = D.adjoint();
 
     // The matrix we'll be inverting
     SparseMatrix<complex<double> > M = D * Dadj;
-
+#ifdef USE_CUDA
+    pyQCD::cudaCG(M, Dadj, sourceSmearingOperator, sinkSmearingOperator,
+			spatialIndex, propagator);
+#else
     // And the solver
     ConjugateGradient<SparseMatrix<complex<double> > > solver(M);
     solver.setMaxIterations(1000);

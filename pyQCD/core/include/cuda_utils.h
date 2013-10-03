@@ -6,6 +6,7 @@
 #include <cusp/hyb_matrix.h>
 #include <cusp/coo_matrix.h>
 #include <cusp/krylov/bicgstab.h>
+#include <cusp/krylov/cg.h>
 #include <cusp/complex.h>
 #include <cusp/print.h>
 #include <cusp/convert.h>
@@ -39,7 +40,12 @@ namespace pyQCD
 		  const int spatialIndex,
 		  cusp::array2d<cusp::complex<float>, hostMem>& propagator);
 
-    void cudaCG();
+    void cg(const complexHybridHost& hostDiracDiracAdjoint,
+	    const complexHybridHost& hostDiracAdjoint,
+	    const complexHybridHost& hostSourceSmear,
+	    const complexHybridHost& hostSinkSmear,
+	    const int spatialIndex,
+	    cusp::array2d<cusp::complex<float>, hostMem>& propagator);
   }
 }
 #endif
