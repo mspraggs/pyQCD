@@ -46,6 +46,7 @@ def do(settings, interface, store, config):
 			print("- Average plaquette = %f" % store[key][config])
 		elif key == "wilson_loop":
 			print("- Calculating average Wilson loops...")
+			sys.stdout.flush()
 			store[key][config] \
 			  = interface.get_wilson_loops(settings[key]['r_max'],
 										   settings[key]['t_max'],
@@ -53,6 +54,7 @@ def do(settings, interface, store, config):
 										   settings[key]['field_smearing_param'])
 		elif key == "propagator":
 			print("- Calculating propagators...")
+			sys.stdout.flush()
 			current_prop \
 			  = interface.get_propagator(settings[key]['mass'],
 										 settings[key]['a'],
@@ -69,11 +71,10 @@ def do(settings, interface, store, config):
 
 		elif key == "configuration":
 			print("- Saving configuration...")
+			sys.stdout.flush()
 			current_config = interface.get_links()
 
 			np.save("config%d" % config, current_config)
-
-		sys.stdout.flush()
 
 def save(settings, store, n_configs):
 	"""Loops through the stored measurements and writes them out to the file
