@@ -29,7 +29,7 @@ set (EIGEN_INCLUDE_DIR ${CMAKE_MODULE_PATH}/FindEigen3.cmake)
 
 find_package (PythonLibs 2.6 REQUIRED)
 find_package (Eigen3 3.1.3 REQUIRED)
-find_package (Boost 1.49.0 REQUIRED)
+find_package (Boost 1.46.0 REQUIRED)
 find_package (OpenMP 3.0 REQUIRED)
 find_package (CUDA 4.2)
 
