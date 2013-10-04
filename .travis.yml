@@ -14,6 +14,6 @@ before_install:
   - sudo apt-get install -qq libboost-python-dev libboost-test-dev libboost-random-dev
   - sudo apt-get install -qq python-setuptools
 script: 
-  - /home/traivs/build/cmake/bin/cmake . -DEIGEN3_INCLUDE_DIR=/home/travis/build/eigen-eigen-36bf2ceaf8f5
+  - /home/traivs/build/cmake/cmake-2.8.11.2-Linux-i386/bin/cmake . -DEIGEN3_INCLUDE_DIR=/home/travis/build/eigen-eigen-36bf2ceaf8f5
   - make lattice
   - make
