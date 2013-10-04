@@ -7,9 +7,10 @@ before_install:
   - sudo apt-get install -qq libeigen3-dev
   - wget http://bitbucket.org/eigen/eigen/get/3.1.4.tar.gz
   - tar xvfz 3.1.4.tar.gz
+  - mv eigen-eigen-36bf2ceaf8f5 /home/travis/build/eigen-eigen-36bf2ceaf8f5
   - sudo apt-get install -qq libboost-python-dev libboost-test-dev libboost-random
   - sudo apt-get install -qq python-setuptools
 script: 
-  - cmake . -DEIGEN3_INCLUDE_DIR=eigen-eigen-36bf2ceaf8f5
+  - cmake . -DEIGEN3_INCLUDE_DIR=/home/travis/build/eigen-eigen-36bf2ceaf8f5
   - make lattice
   - make
