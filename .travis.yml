@@ -9,14 +9,14 @@ install:
   - wget http://bitbucket.org/eigen/eigen/get/3.1.4.tar.gz
   - tar xvfz 3.1.4.tar.gz
   - chmod +x cmake-2.8.11.2-Linux-i386.sh
-  - ./cmake-2.8.11.2-Linux-i386.sh --prefix=/home/travis/build --include-subdir
+  - ./cmake-2.8.11.2-Linux-i386.sh --prefix=/home/travis/build/mspraggs/pyQCD --include-subdir
   - mv eigen-eigen-36bf2ceaf8f5 /home/travis/build/eigen-eigen-36bf2ceaf8f5
   - sudo apt-get install -qq libboost-python-dev libboost-test-dev libboost-random-dev
   - sudo apt-get install -qq python-setuptools
 script:
   - ls /home/travis/build/cmake-2.8.11.2-Linux-i386 -l
   - ls /home/travis/build/cmake-2.8.11.2-Linux-i386/bin -l
-  - /home/travis/build/cmake-2.8.11.2-Linux-i386/bin/cmake
-  - /home/travis/build/cmake-2.8.11.2-Linux-i386/bin/cmake . -DEIGEN3_INCLUDE_DIR=/home/travis/build/eigen-eigen-36bf2ceaf8f5
+  - /home/travis/build/mspraggs/pyQCD/cmake-2.8.11.2-Linux-i386/bin/cmake
+  - /home/travis/build/mspraggs/pyQCD/cmake-2.8.11.2-Linux-i386/bin/cmake . -DEIGEN3_INCLUDE_DIR=/home/travis/build/eigen-eigen-36bf2ceaf8f5
   - make lattice
   - make
