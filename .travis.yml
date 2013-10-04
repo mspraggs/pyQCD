@@ -13,6 +13,8 @@ install:
   - mv eigen-eigen-36bf2ceaf8f5 /home/travis/build/eigen-eigen-36bf2ceaf8f5
   - sudo apt-get install -qq libboost-python-dev libboost-test-dev libboost-random-dev
   - sudo apt-get install -qq python-setuptools
+  - ls /home/travis/build/cmake-2.8.11.2-Linux-i386 -l
+  - ls /home/travis/build/cmake-2.8.11.2-Linux-i386/bin -l
 script: 
   - /home/travis/build/cmake-2.8.11.2-Linux-i386/bin/cmake . -DEIGEN3_INCLUDE_DIR=/home/travis/build/eigen-eigen-36bf2ceaf8f5
   - make lattice
