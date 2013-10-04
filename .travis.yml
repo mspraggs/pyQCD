@@ -16,6 +16,7 @@ install:
 script:
   - ls /home/travis/build/cmake-2.8.11.2-Linux-i386 -l
   - ls /home/travis/build/cmake-2.8.11.2-Linux-i386/bin -l
+  - /home/travis/build/cmake-2.8.11.2-Linux-i386/bin/cmake
   - /home/travis/build/cmake-2.8.11.2-Linux-i386/bin/cmake . -DEIGEN3_INCLUDE_DIR=/home/travis/build/eigen-eigen-36bf2ceaf8f5
   - make lattice
   - make
