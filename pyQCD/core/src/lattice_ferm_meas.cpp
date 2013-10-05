@@ -35,7 +35,6 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
     for (int j = 0; j < 8; ++j) {
       // Get the dimension and index of the current neighbour
       int columnIndex = this->propagatorColumns_[i][j][0];
-      int dimension = this->propagatorColumns_[i][j][1];
 
       // Now we'll get the relevant colour and spin matrices
       Matrix3cd colourMatrix;
@@ -69,7 +68,7 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
 	      //#pragma omp critical
 	      if (sum != complex<double>(0,0))
 		subTempTripletList.push_back(Tlet(12 * i + 3 * k + m,
-					   3 * columnIndex + 3 * l + n, sum));
+						  3 * columnIndex + 3 * l + n, sum));
 	    }
 	  }
 	}
@@ -117,27 +116,23 @@ Lattice::computeSmearingOperator(const double smearingParameter,
       
       // We've already calculated the eight neighbours, so we'll deal with those
       // alone
-      for (int j = 0; j < 8; ++j) {
+      // And we're not interested in the temporal links
+      int indices[6] = {1, 2, 3, 5, 6, 7};
+      for (int j = 0; j < 6; ++j) {
 	// Get the dimension and index of the current neighbour
-	int columnIndex = this->propagatorColumns_[i][j][0];
-	int dimension = this->propagatorColumns_[i][j][1];
-	
-	// We're only interested in the spatial links, so skip if the dimension
-	// is time
-	if (dimension == 0 || dimension == 4)
-	  break;
+	int columnIndex = this->propagatorColumns_[i][indices[j]][0];
 	
 	// Now we'll get the relevant colour and spin matrices
 	Matrix3cd colourMatrix;
 	Matrix4cd spinMatrix = Matrix4cd::Identity();
 	// (See the action for what's going on here.)
-	if (this->propagatorColumns_[i][j][1] > 3) {
-	  int dimension = this->propagatorColumns_[i][j][1] - 4;
+	if (this->propagatorColumns_[i][indices[j]][1] > 3) {
+	  int dimension = this->propagatorColumns_[i][indices[j]][1] - 4;
 	  rowLink[4] = dimension;
 	  colourMatrix = this->getLink(rowLink);
 	}
 	else {
-	  int dimension = this->propagatorColumns_[i][j][1];
+	  int dimension = this->propagatorColumns_[i][indices[j]][1];
 	  rowLink[dimension]--;
 	  rowLink[4] = dimension;
 	  colourMatrix = this->getLink(rowLink).adjoint();
@@ -162,10 +157,10 @@ Lattice::computeSmearingOperator(const double smearingParameter,
 	}
       }
     }
-
-  // Add all the triplets to the sparse matrix
-  matrixH.setFromTriplets(tripletList.begin(), tripletList.end());
-  
+    
+    // Add all the triplets to the sparse matrix
+    matrixH.setFromTriplets(tripletList.begin(), tripletList.end());
+    
   }
   
   // Need a sparse
@@ -181,7 +176,7 @@ Lattice::computeSmearingOperator(const double smearingParameter,
 			       identityTripletList.end());
   
   // Now do the sum as in eqn 6.40 of G+L
-  for (int i = 0; i <= nSmears; ++i) {    
+  for (int i = 0; i <= nSmears; ++i) {
     out += pow(smearingParameter, i) * matrixHPower;
     // Need to do the matrix power by hand
     matrixHPower = matrixHPower * matrixH;
@@ -236,7 +231,7 @@ Lattice::computePropagator(const double mass, const double spacing, int site[4],
 
   // Index for the vector point source
   int spatialIndex = pyQCD::getLinkIndex(site[0], site[1], site[2], site[3], 0,
-					  this->spatialExtent);
+					 this->spatialExtent);
 
   // Declare a variable to hold our propagator
   vector<MatrixXcd> propagator(nSites, MatrixXcd::Zero(12, 12));
@@ -256,7 +251,7 @@ Lattice::computePropagator(const double mass, const double spacing, int site[4],
     SparseMatrix<complex<double> > M = D * Dadj;
 #ifdef USE_CUDA
     pyQCD::cudaCG(M, Dadj, sourceSmearingOperator, sinkSmearingOperator,
-			spatialIndex, propagator);
+		  spatialIndex, propagator);
 #else
     // And the solver
     ConjugateGradient<SparseMatrix<complex<double> > > solver(M);
@@ -310,7 +305,7 @@ Lattice::computePropagator(const double mass, const double spacing, int site[4],
 	// Add the result to the propagator matrix
 	for (int k = 0; k < nSites; ++k) {
 	  for (int l = 0; l < 12; ++l) {
-	  propagator[k](l, j + 3 * i) = solution(12 * k + l);
+	    propagator[k](l, j + 3 * i) = solution(12 * k + l);
 	  }
 	}
       }
