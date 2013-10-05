@@ -83,7 +83,7 @@ GaugeField Lattice::getSubLattice(const int startIndex, const int size)
 
 
 Matrix2cd Lattice::makeHeatbathSu2(double coefficients[4],
-			      const double weighting)
+				   const double weighting)
 {
   // Generate a random SU2 matrix distributed according to heatbath
   // (See Gattringer and Lang)
