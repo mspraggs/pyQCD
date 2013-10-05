@@ -35,6 +35,12 @@ public:
   }
 
   
+  Matrix3cd link(const int index)
+  {
+    return this->links_[index];
+  }
+
+  
   double computeLocalWilsonAction(const int link[5])
   {
     return Lattice::computeLocalWilsonAction(link);
@@ -98,6 +104,23 @@ complex<double> randomComplexNumber()
   double y = double(rand()) / double(RAND_MAX);
 
   return complex<double>(x, y);
+}
+
+BOOST_AUTO_TEST_CASE( utils_test )
+{
+  exposedLattice lattice;
+  int link1coords[5] = {0, 0, 0, 0, 0};
+  int link2coords[5] = {8, 4, 4, 4, 0};
+  Matrix3cd testGaugeField = (MatrixXcd(3, 3) << 0.5, 0.0, 0.0,
+			      0.0, 0.5, 0.0,
+			      0.0, 0.0, 0.5).finished();
+
+  lattice.setLink(link1coords, testGaugeField);
+  BOOST_CHECK_CLOSE(lattice.link(0).trace().real(), 1.5, 1e-11);
+  BOOST_CHECK_CLOSE(lattice.getLink(link1coords).trace().real(),
+		    lattice.link(0).trace().real(), 1e-11);
+  BOOST_CHECK_EQUAL(lattice.getLink(link1coords).trace().real(),
+		    lattice.getLink(link2coords).trace().real());
 }
 
 BOOST_AUTO_TEST_CASE( gluonic_measurements_test )
