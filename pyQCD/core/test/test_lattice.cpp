@@ -239,8 +239,10 @@ BOOST_AUTO_TEST_CASE( update_test )
 		    1e-11);
   BOOST_CHECK_SMALL(lattice.getLink(linkCoords).determinant().imag(),
 		    100 * DBL_EPSILON);
-  BOOST_CHECK_CLOSE(lattice.computePlaquette(linkCoords, 0, 1),
-		    0.93548039868213483938, 1e-11);
+  BOOST_CHECK_CLOSE(lattice.getLink(linkCoords).trace().real(),
+		    2.806441196046404, 1e-11);
+  BOOST_CHECK_CLOSE(lattice.getLink(linkCoords).trace().imag(),
+		    0.007102584781056853, 1e-11);
 
   // Now check the Metropolis updates
   lattice = exposedLattice(4, 8, 5.5, 1.0, 0, 10, 1, 0, 4, 0);
@@ -255,8 +257,10 @@ BOOST_AUTO_TEST_CASE( update_test )
 		    1e-11);
   BOOST_CHECK_SMALL(lattice.getLink(linkCoords).determinant().imag(),
 		    100 * DBL_EPSILON);
-  BOOST_CHECK_CLOSE(lattice.computePlaquette(linkCoords, 0, 1),
-		    0.98480251715017408376, 1e-11);
+  BOOST_CHECK_CLOSE(lattice.getLink(linkCoords).trace().real(),
+		    2.954407551450522, 1e-11);
+  BOOST_CHECK_CLOSE(lattice.getLink(linkCoords).trace().imag(),
+		    0.0008340621041644583, 1e-11);
 
   // Now check that about 50% of the updates are accepted.
   double firstAction = lattice.computeLocalWilsonAction(linkCoords);
@@ -286,6 +290,10 @@ BOOST_AUTO_TEST_CASE( update_test )
 		    1e-11);
   BOOST_CHECK_SMALL(lattice.getLink(linkCoords).determinant().imag(),
 		    100 * DBL_EPSILON);
-  BOOST_CHECK_CLOSE(lattice.computePlaquette(linkCoords, 0, 1),
-		    0.9829568229615305297, 1e-11);
+  BOOST_CHECK_CLOSE(lattice.getLink(linkCoords).trace().real(),
+		    2.948870468884591, 1e-11);
+  BOOST_CHECK_CLOSE(lattice.getLink(linkCoords).trace().imag(),
+		    0.001826815601864998, 1e-11);
+}
+
 }
