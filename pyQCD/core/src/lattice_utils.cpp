@@ -148,3 +148,41 @@ Matrix3cd Lattice::makeRandomSu3()
   Matrix3cd B = 0.5 * (A - A.adjoint());
   return B.exp();
 }
+
+
+
+void Lattice::reunitarize()
+{
+  // Do fast polar decomp on all gauge field matrices to ensure they're unitary
+  if (this->parallelFlag_ == 1) {
+#pragma omp parallel for
+    for (int i = 0; i < this->nLinks_; ++i) {
+      double check = 1.0;
+      while (check > 1e-15) {
+	Matrix3cd oldMatrix = this->links_[i];
+	Matrix3cd inverseMatrix = this->links_[i].inverse();
+	double gamma = sqrt(pyQCD::oneNorm(inverseMatrix)
+			    / pyQCD::oneNorm(this->links_[i]));
+	this->links_[i] *= 0.5 * gamma;
+	this->links_[i] += 0.5 / gamma * inverseMatrix.adjoint();
+	oldMatrix -= this->links_[i];
+	check = sqrt(pyQCD::oneNorm(oldMatrix));
+      }
+    }
+  }
+  else {
+    for (int i = 0; i < this->nLinks_; ++i) {
+      double check = 1.0;
+      while (check > 1e-15) {
+	Matrix3cd oldMatrix = this->links_[i];
+	Matrix3cd inverseMatrix = this->links_[i].inverse();
+	double gamma = sqrt(pyQCD::oneNorm(inverseMatrix)
+			    / pyQCD::oneNorm(this->links_[i]));
+	this->links_[i] *= 0.5 * gamma;
+	this->links_[i] += 0.5 / gamma * inverseMatrix.adjoint();
+	oldMatrix -= this->links_[i];
+	check = sqrt(pyQCD::oneNorm(oldMatrix));
+      }
+    }
+  }
+}
