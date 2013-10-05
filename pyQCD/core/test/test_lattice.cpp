@@ -258,9 +258,9 @@ BOOST_AUTO_TEST_CASE( update_test )
   BOOST_CHECK_SMALL(lattice.getLink(linkCoords).determinant().imag(),
 		    100 * DBL_EPSILON);
   BOOST_CHECK_CLOSE(lattice.getLink(linkCoords).trace().real(),
-		    2.954407551450522, 1e-11);
+		    2.765755363367543, 1e-11);
   BOOST_CHECK_CLOSE(lattice.getLink(linkCoords).trace().imag(),
-		    0.0008340621041644583, 1e-11);
+		    -0.01036040947736065, 1e-11);
 
   // Now check that about 50% of the updates are accepted.
   double firstAction = lattice.computeLocalWilsonAction(linkCoords);
@@ -291,9 +291,21 @@ BOOST_AUTO_TEST_CASE( update_test )
   BOOST_CHECK_SMALL(lattice.getLink(linkCoords).determinant().imag(),
 		    100 * DBL_EPSILON);
   BOOST_CHECK_CLOSE(lattice.getLink(linkCoords).trace().real(),
-		    2.948870468884591, 1e-11);
+		    2.969009580997734, 1e-11);
   BOOST_CHECK_CLOSE(lattice.getLink(linkCoords).trace().imag(),
-		    0.001826815601864998, 1e-11);
+		    -0.0001512992876672274, 1e-11);
+
+  // Test thermalization using parallel and serial update methods
+  // First try serial
+  lattice = exposedLattice(8, 8, 5.5, 1.0, 0, 10, 0, 0, 4, -1);
+  lattice.thermalize();
+  BOOST_CHECK_CLOSE(lattice.computeAveragePlaquette(), 0.5, 1);
+  // Now parallel
+  // Need a new lattice here as copy contructor doesn't play nice with
+  // parallel random number generator
+  exposedLattice parallelLattice(8, 8, 5.5, 1.0, 0, 10, 0, 1, 4, -1);
+  parallelLattice.thermalize();
+  BOOST_CHECK_CLOSE(lattice.computeAveragePlaquette(), 0.5, 1);
 }
 
 }
