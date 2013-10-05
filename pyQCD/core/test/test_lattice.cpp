@@ -245,67 +245,67 @@ BOOST_AUTO_TEST_CASE( update_test )
 		    0.007102584781056853, 1e-11);
 
   // Now check the Metropolis updates
-  lattice = exposedLattice(4, 8, 5.5, 1.0, 0, 10, 1, 0, 4, 0);
+  exposedLattice latticeMetropolis(4, 8, 5.5, 1.0, 0, 10, 1, 0, 4, 0);
   // Do a single update
-  lattice.metropolis(0);
+  latticeMetropolis.metropolis(0);
   // Check unitarity and expected plaquette value
-  BOOST_CHECK(areEqual(lattice.getLink(linkCoords)
-		       * lattice.getLink(linkCoords).adjoint(),
+  BOOST_CHECK(areEqual(latticeMetropolis.getLink(linkCoords)
+		       * latticeMetropolis.getLink(linkCoords).adjoint(),
 		       Matrix3cd::Identity(),
 		       1e-11));
-  BOOST_CHECK_CLOSE(lattice.getLink(linkCoords).determinant().real(), 1.0,
-		    1e-11);
-  BOOST_CHECK_SMALL(lattice.getLink(linkCoords).determinant().imag(),
+  BOOST_CHECK_CLOSE(latticeMetropolis.getLink(linkCoords).determinant().real(),
+		    1.0, 1e-11);
+  BOOST_CHECK_SMALL(latticeMetropolis.getLink(linkCoords).determinant().imag(),
 		    100 * DBL_EPSILON);
-  BOOST_CHECK_CLOSE(lattice.getLink(linkCoords).trace().real(),
-		    2.765755363367543, 1e-11);
-  BOOST_CHECK_CLOSE(lattice.getLink(linkCoords).trace().imag(),
-		    -0.01036040947736065, 1e-11);
+  BOOST_CHECK_CLOSE(latticeMetropolis.getLink(linkCoords).trace().real(),
+		    2.954800753378521, 1e-11);
+  BOOST_CHECK_CLOSE(latticeMetropolis.getLink(linkCoords).trace().imag(),
+		    -0.0003684966990749328, 1e-11);
 
   // Now check that about 50% of the updates are accepted.
-  double firstAction = lattice.computeLocalWilsonAction(linkCoords);
+  double firstAction = latticeMetropolis.computeLocalWilsonAction(linkCoords);
   double oldAction = firstAction;
   int numDecreases = 0;
   // Do 100 metropolis updates. Should expect numDecreases ~ 50
   for (int i = 0; i < 100; ++i) {
-    lattice.metropolis(0);
-    if (lattice.computeLocalWilsonAction(linkCoords) < oldAction)
+    latticeMetropolis.metropolis(0);
+    if (latticeMetropolis.computeLocalWilsonAction(linkCoords) < oldAction)
       numDecreases++;
-    oldAction = lattice.computeLocalWilsonAction(linkCoords);
+    oldAction = latticeMetropolis.computeLocalWilsonAction(linkCoords);
   }
 
   // Metropolis should change the action roughly 50% of the time.
   BOOST_CHECK_CLOSE(double(numDecreases), 50.0, 10.0);
 
-  // Now check the Metropolis update with staples
-  lattice = exposedLattice(4, 8, 5.5, 1.0, 0, 10, 1, 0, 4, 0);
+  // Now check the Metropolis update without staples
+  exposedLattice latticeNoStaples(4, 8, 5.5, 1.0, 0, 10, 1, 0, 4, 0);
   // Do a single update
-  lattice.metropolisNoStaples(0);
+  latticeNoStaples.metropolisNoStaples(0);
   // Check unitarity and expected plaquette value
-  BOOST_CHECK(areEqual(lattice.getLink(linkCoords)
-		       * lattice.getLink(linkCoords).adjoint(),
+  BOOST_CHECK(areEqual(latticeNoStaples.getLink(linkCoords)
+		       * latticeNoStaples.getLink(linkCoords).adjoint(),
 		       Matrix3cd::Identity(),
 		       1e-11));
-  BOOST_CHECK_CLOSE(lattice.getLink(linkCoords).determinant().real(), 1.0,
+  BOOST_CHECK_CLOSE(latticeNoStaples.getLink(linkCoords).determinant().real(), 1.0,
 		    1e-11);
-  BOOST_CHECK_SMALL(lattice.getLink(linkCoords).determinant().imag(),
+  BOOST_CHECK_SMALL(latticeNoStaples.getLink(linkCoords).determinant().imag(),
 		    100 * DBL_EPSILON);
-  BOOST_CHECK_CLOSE(lattice.getLink(linkCoords).trace().real(),
+  BOOST_CHECK_CLOSE(latticeNoStaples.getLink(linkCoords).trace().real(),
 		    2.969009580997734, 1e-11);
-  BOOST_CHECK_CLOSE(lattice.getLink(linkCoords).trace().imag(),
+  BOOST_CHECK_CLOSE(latticeNoStaples.getLink(linkCoords).trace().imag(),
 		    -0.0001512992876672274, 1e-11);
 
   // Test thermalization using parallel and serial update methods
   // First try serial
-  lattice = exposedLattice(8, 8, 5.5, 1.0, 0, 10, 0, 0, 4, -1);
-  lattice.thermalize();
-  BOOST_CHECK_CLOSE(lattice.computeAveragePlaquette(), 0.5, 1);
+  exposedLattice serialLattice(8, 8, 5.5, 1.0, 0, 10, 0, 0, 4, -1);
+  serialLattice.thermalize();
+  BOOST_CHECK_CLOSE(serialLattice.computeAveragePlaquette(), 0.5, 1);
   // Now parallel
   // Need a new lattice here as copy contructor doesn't play nice with
   // parallel random number generator
   exposedLattice parallelLattice(8, 8, 5.5, 1.0, 0, 10, 0, 1, 4, -1);
   parallelLattice.thermalize();
-  BOOST_CHECK_CLOSE(lattice.computeAveragePlaquette(), 0.5, 1);
+  BOOST_CHECK_CLOSE(parallelLattice.computeAveragePlaquette(), 0.5, 1);
 }
 
 BOOST_AUTO_TEST_CASE( propagator_test )
