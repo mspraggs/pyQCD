@@ -86,10 +86,12 @@ bool areEqual(const complex<double> x, const complex<double> y,
     return true;
 }
 
-bool areEqual(const Matrix3cd& A, const Matrix3cd& B, const double precision)
+bool areEqual(const MatrixXcd& A, const MatrixXcd& B, const double precision)
 {
-  for (int i = 0; i < 3; ++i)
-    for (int j = 0; j < 3; ++j)
+  int nCols = A.cols();
+  int nRows = A.rows();
+  for (int i = 0; i < nRows; ++i)
+    for (int j = 0; j < nCols; ++j)
       if (!areEqual(A(i, j), B(i, j), precision))
 	return false;
 
@@ -121,6 +123,17 @@ BOOST_AUTO_TEST_CASE( utils_test )
 		    lattice.link(0).trace().real(), 1e-11);
   BOOST_CHECK_EQUAL(lattice.getLink(link1coords).trace().real(),
 		    lattice.getLink(link2coords).trace().real());
+
+  Matrix3cd su3 = lattice.makeRandomSu3();
+  BOOST_CHECK_CLOSE(su3.determinant().real(), 1.0, 1e-11);
+  BOOST_CHECK_SMALL(su3.determinant().imag(), 100 * DBL_EPSILON);
+  BOOST_CHECK(areEqual(su3 * su3.adjoint(), Matrix3cd::Identity(), 1e-11));
+
+  double r[4];
+  Matrix2cd su2 = lattice.makeHeatbathSu2(r, 0.5);
+  BOOST_CHECK_CLOSE(su2.determinant().real(), 1.0, 1e-11);
+  BOOST_CHECK_SMALL(su2.determinant().imag(), 100 * DBL_EPSILON);
+  BOOST_CHECK(areEqual(su2 * su2.adjoint(), Matrix2cd::Identity(), 1e-11));
 }
 
 BOOST_AUTO_TEST_CASE( gluonic_measurements_test )
@@ -252,7 +265,7 @@ BOOST_AUTO_TEST_CASE( update_test )
   // Checking heatbath updates
   exposedLattice lattice(4, 8, 5.5, 1.0, 0, 10, 0, 0, 4, 0);
 
-  // First check they preserver unitarity - do a single update
+  // First check they preserve unitarity - do a single update
   lattice.heatbath(0);
   BOOST_CHECK(areEqual(lattice.getLink(linkCoords)
 		       * lattice.getLink(linkCoords).adjoint(),
