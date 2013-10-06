@@ -175,7 +175,7 @@ namespace pyQCD
 
 
   Matrix2cd extractSubMatrix(const Matrix3cd& su3Matrix,
-			const int index)
+			     const int index)
   {
     Matrix2cd subMatrix;
     if (index == 0) {
@@ -202,7 +202,7 @@ namespace pyQCD
 
 
   Matrix2cd extractSu2(const Matrix3cd& su3Matrix,
-		  double coefficients[4], const int index)
+		       double coefficients[4], const int index)
   {
     Matrix2cd subMatrix = extractSubMatrix(su3Matrix, index);
     
