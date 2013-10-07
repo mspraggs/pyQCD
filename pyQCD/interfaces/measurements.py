@@ -34,7 +34,7 @@ def create(measurement_settings, lattice_settings,
 
 	return dict(out)
 
-def do(settings, interface, store, config):
+def do(settings, interface, store, config, save = True):
 	"""Iterates through the various measurements in the settings dict, takes
 	the measurements using the lattice interface and stores them in the list
 	of measurements (store) according to the configuration number config."""
@@ -67,14 +67,16 @@ def do(settings, interface, store, config):
 										 settings[key]['sink_smearing_param'],
 										 settings[key]['solver_method'])
 
-			np.save("prop%d" % config, current_prop)
+			if save:
+				np.save("prop%d" % config, current_prop)
 
 		elif key == "configuration":
 			print("- Saving configuration...")
 			sys.stdout.flush()
 			current_config = interface.get_links()
-
-			np.save("config%d" % config, current_config)
+			
+			if save:
+				np.save("config%d" % config, current_config)
 
 def save(settings, store, n_configs):
 	"""Loops through the stored measurements and writes them out to the file

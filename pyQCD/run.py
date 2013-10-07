@@ -88,7 +88,7 @@ def simulate(input_file):
 		sys.stdout.flush()
 		measure.do(measurement_settings,
 				   lattice_interface,
-				   measurements, i)
+				   measurements, i, False)
 		print("Done!")
 
 	# Store the measurments
