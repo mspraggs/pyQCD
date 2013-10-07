@@ -29,8 +29,9 @@ Lattice::Lattice(const int spatialExtent, const int temporalExtent,
   // Resize the link vector and assign each link a random SU3 matrix
   // Also set up the propagatorColumns vector
   this->links_.resize(this->nLinks_);
-  this->propagatorColumns_ = vector<vector<vector<int> > >(this->nLinks_ / 4,
-							   vector<vector<int> >(8,vector<int>(2,0)));
+  this->propagatorColumns_
+    = vector<vector<vector<int> > >(this->nLinks_ / 4,
+				    vector<vector<int> >(8,vector<int>(3,0)));
 
   for (int i = 0; i < this->nLinks_; ++i)
     this->links_[i] = Matrix3cd::Identity();//this->makeRandomSu3();
@@ -59,6 +60,7 @@ Lattice::Lattice(const int spatialExtent, const int temporalExtent,
     for (int j = 0; j < 8; ++j) {
       // Get the coordinates for the column
       int columnLink[5] = {0, 0, 0, 0, 0};
+      int boundaryCondition = 1;
       
       // Loop through the coordiates for the pair of sites and see if they're
       // neighbours
@@ -66,14 +68,22 @@ Lattice::Lattice(const int spatialExtent, const int temporalExtent,
 			    this->spatialExtent,
 			    this->spatialExtent,
 			    this->spatialExtent};
-      for (int k = 0; k < 4; ++k)
+      for (int k = 0; k < 4; ++k) {
 	columnLink[k] = pyQCD::mod(rowLink[k] + offsets[j][k],
 				   latticeSize[k]);
-      
+      }
+
+      // Check whether antiperiodic boundary conditions need to be applied
+      if (rowLink[0] + offsets[j][0] >= latticeSize[0] ||
+	  rowLink[0] + offsets[j][0] < 0)
+	// Apply antiperiodic boundary conditions
+	boundaryCondition = -1;
+
       int columnIndex = pyQCD::getLinkIndex(columnLink, this->spatialExtent);
       
       this->propagatorColumns_[i / 4][j][0] = columnIndex;
       this->propagatorColumns_[i / 4][j][1] = j;
+      this->propagatorColumns_[i / 4][j][2] = boundaryCondition;
       
     }
   }

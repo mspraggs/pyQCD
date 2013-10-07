@@ -35,22 +35,26 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
     for (int j = 0; j < 8; ++j) {
       // Get the dimension and index of the current neighbour
       int columnIndex = this->propagatorColumns_[i][j][0];
+      int dimension = (this->propagatorColumns_[i][j][1] > 3)
+	? this->propagatorColumns_[i][j][1] - 4
+	: this->propagatorColumns_[i][j][1];
+
+      int boundaryCondition
+	= (dimension == 0) ? this->propagatorColumns_[i][j][2] : 1;
 
       // Now we'll get the relevant colour and spin matrices
       Matrix3cd colourMatrix;
       Matrix4cd spinMatrix;
       // (See the action for what's going on here.)
       if (this->propagatorColumns_[i][j][1] > 3) {
-	int dimension = this->propagatorColumns_[i][j][1] - 4;
 	rowLink[4] = dimension;
-	colourMatrix = this->getLink(rowLink);
+	colourMatrix = boundaryCondition * this->getLink(rowLink);
 	spinMatrix = Matrix4cd::Identity() + pyQCD::gammas[dimension];
       }
       else {
-	int dimension = this->propagatorColumns_[i][j][1];
 	rowLink[dimension]--;
 	rowLink[4] = dimension;
-	colourMatrix = this->getLink(rowLink).adjoint();
+	colourMatrix = boundaryCondition * this->getLink(rowLink).adjoint();
 	rowLink[dimension]++;
 	spinMatrix = Matrix4cd::Identity() - pyQCD::gammas[dimension];
       }
@@ -65,10 +69,10 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
 	    for (int n = 0; n < 3; ++n) {
 	      complex<double> sum = -0.5 / spacing
 		* spinMatrix(k, l) * colourMatrix(m, n);
-	      //#pragma omp critical
 	      if (sum != complex<double>(0,0))
 		subTempTripletList.push_back(Tlet(12 * i + 3 * k + m,
-						  3 * columnIndex + 3 * l + n, sum));
+						  3 * columnIndex + 3 * l + n,
+						  sum));
 	    }
 	  }
 	}
