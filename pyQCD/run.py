@@ -9,11 +9,7 @@ from optparse import OptionParser
 def simulate(input_file):
 	"""Runs a simulation as specified in the supplied xml input file."""
 	# Try to parse the supplied xml input file, exit if it fails
-	try:
-		xml = XmlInterface(input_file)
-	except:
-		print("Error parsing XML file.")
-		sys.exit()
+	xml = XmlInterface(input_file)
 	# Copy the various settings to a set of convenient variables
 	lattice_settings = xml.lattice()
 	simulation_settings = xml.simulation()	
@@ -120,11 +116,7 @@ def simulate(input_file):
 def postprocess(input_file):
 	"""Performs the postprocessing as specified in the provided xml file"""
 	# Try to parse the supplied xml input file, exit if it fails.
-	try:
-		xml = XmlInterface(input_file)
-	except:
-		print("Error parsing XML file.")
-		sys.exit()
+	xml = XmlInterface(input_file)
 	# Copy the postprocess settings to a convenient variable
 	postprocess_settings = xml.postprocess()
 
