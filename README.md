@@ -86,16 +86,17 @@ are automatically inserted when they are missing in the main xml file.
 
 To run a very basic simulation, without measurements, from the project root directory, do
 
-    from pyQCD.bin import simulate
-    simulate.main("examples/basic.xml")
+    from pyQCD.run import simulate
+    simulate("examples/basic.xml")
 
 Postprocessing can be executed in a similar way:
 
-    from pyQCD.bin import postprocess
-    postprocess.main("examples/plaquette_autocorrelation.xml")
+    from pyQCD.run import postprocess
+    postprocess("examples/plaquette_autocorrelation.xml")
 
-Once installed, the simulate.py and postprocess.py files may be run from the command line, with the input file
-specified using the -i or --input=... flags.
+Once installed, the run.py file may be used to run a simulation and postprocess the results from the command line,
+with the input file specified using the -i or --input=... flags. To run a simulation, add an -s flag. To
+postprocess results, add a -p flag, as follows:
 
-    python -m pyQCD.bin.simulate -i examples/basic.xml
-    python -m pyQCD.bin.postprocess -i examples/plaquette_autocorrelation.xml
+    python -m pyQCD.run -s -i examples/basic.xml
+    python -m pyQCD.run -p -i examples/plaquette_autocorrelation.xml
