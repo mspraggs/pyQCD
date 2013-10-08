@@ -39,7 +39,7 @@ def auto_correlation(settings):
 		pl.xlabel(settings["plot"]["xlabel"])
 		pl.ylabel(settings["plot"]["ylabel"])
 		pl.title(settings["plot"]["title"])
-		pl.legend()
+		pl.legend(loc=0)
 		pl.show()
 
 		if settings["plot"].has_key("filename"):
@@ -94,7 +94,7 @@ def pair_potential(settings):
 		pl.xlabel(settings["plot"]["xlabel"])
 		pl.ylabel(settings["plot"]["ylabel"])
 		pl.title(settings["plot"]["title"])
-		pl.legend()
+		pl.legend(loc=0)
 		pl.show()
 
 		if settings["plot"].has_key("filename"):
