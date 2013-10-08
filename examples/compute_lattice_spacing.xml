@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-Analyses a set of Wilson loops to extract the pair potential.
+Analyses a set of Wilson loops to extract the lattice spacing.
 -->
 <pyQCD>
   <postprocess>

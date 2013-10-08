@@ -1,16 +1,16 @@
 <?xml version="1.0"?>
 <!--
-Analyses a set of Wilson loops to extract the pair potential.
+Analyses a set of plaquettess to extract the auto correlation function.
 -->
 <pyQCD>
   <postprocess>
 
-    <pair_potential>
+    <auto_correlation>
       <input>
-	<type>WILSON_LOOP</type>
+	<type>PLAQUETTE</type>
 	<!-- The input file -->
-	<filename>"wilson_loops.npy"</filename>
-	<label>"Pair potential"</label>
+	<filename>"plaquettes.npy"</filename>
+	<label>"Auto correlation function"</label>
 	<linestyle>
 	  <!--
 	      See the pyQCD/interfaces/dicts.py file for a list of
@@ -21,17 +21,14 @@ Analyses a set of Wilson loops to extract the pair potential.
 	</linestyle>
       </input>
       <plot> <!-- Leave this tag out to skip plotting -->
-	<title>"Pair potential"</title>
-	<xlabel>"$r$"</xlabel>
-	<ylabel>"$V(r)$"</ylabel>
+	<title>"Auto correlation"</title>
+	<xlabel>"$t$"</xlabel>
+	<ylabel>"$C(t)$"</ylabel>
 	<filename>plot.png</filename>
       </plot>
       <store> <!-- Leave this tag out to skip storing the result -->
-	<filename>pair_potential</filename>
+	<filename>auto_correlation</filename>
       </store>
-      <!-- Go for some bootstrapping and binning -->
-      <num_bootstraps>10</num_bootstraps>
-      <bin_size>10</bin_size>
-    </pair_potential>
+    </auto_correlation>
   </postprocess>
 </pyQCD>
