@@ -1,6 +1,7 @@
 from pyQCD.core.lattice import Lattice
 from pyQCD.interfaces.input import XmlInterface
 from pyQCD.interfaces.lattice import LatticeInterface
+from pyQCD.postprocessing import main
 import pyQCD.interfaces.measurements as measure
 import sys
 import time
@@ -133,16 +134,13 @@ def postprocess(input_file):
 	# Loop through the actions and call the relevant functions
 	for action in actions:
 		if action == "auto_correlation":
-			pyQCD.postprocessing.main \
-			  .auto_correlation(postprocess_settings[action])
+			main.auto_correlation(postprocess_settings[action])
 		elif action == "correlator":
 			pass
 		elif action == "pair_potential":
-			pyQCD.postprocessing.main \
-			  .pair_potential(postprocess_settings[action])
+			main.pair_potential(postprocess_settings[action])
 		elif action == "lattice_spacing":
-			pyQCD.postprocessing.main \
-			  .lattice_spacing(postprocess_settings[action])
+			main.lattice_spacing(postprocess_settings[action])
 
 if __name__ == "__main__":
 	# Parse the command line arguments
