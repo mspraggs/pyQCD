@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<!--
+Runs a very basic simulation: no measurements, 100 configurations,
+10 updates between each configuration, no parallel updates.
+-->
+<pyQCD>
+  <lattice>
+    <L>4</L>
+    <T>8</T>
+  </lattice>
+
+  <simulation>
+    <num_configurations>100</num_configurations>
+    <measurement_spacing>10</measurement_spacing>
+  </simulation>
+
+  <gauge_action>
+    <type>WILSON</type>
+    <beta>5.5</beta>
+  </gauge_action>
+
+  <measurements>
+    <!-- Measure the specified range of Wilson loops -->
+    <wilson_loop>
+      <filename>wilson_loops</filename>
+      <!-- Set the maximum Wilson loop dimensions to measure -->
+      <r_max>4</r_max>
+      <t_max>8</t_max>
+      <!--
+	  The following arguments are optional, with no smearing
+	  being the default
+      -->
+      <num_field_smears>2</num_field_smears>
+      <field_smearing_param>0.4</field_smearing_param>
+    </wilson_loop>
+  </measurements>
+</pyQCD>
