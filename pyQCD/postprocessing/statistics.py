@@ -30,8 +30,8 @@ def bootstrap_measurement(X, func, num_bootstraps, binsize):
 
 	if num_bootstraps > 0:
 		for i in xrange(num_bootstraps):
-			X_bootstrap = pl.mean(bootstrap(X), axis = 0)
-			out.append(func(X_bootstrap))
+			X_bootstrap = bootstrap(X)
+			out.append(pl.mean(func(X_bootstrap), axis=0))
 	else:
 		out.append(func(X))
 
