@@ -87,8 +87,8 @@ def pair_potential(settings):
 
 			if settings.has_key("store"):
 				output.append(r)
-				output.append(measurements[0])
-				output.append(measurements[1])
+				output.append(measurement[0])
+				output.append(measurement[1])
 
 	if settings.has_key("plot"):
 		pl.xlabel(settings["plot"]["xlabel"])
@@ -129,8 +129,8 @@ def lattice_spacing(settings):
 			print("Lattice spacing: %f +/- %f" % measurement)
 
 			if settings.has_key("store"):
-				output.append(measurements[0])
-				output.append(measurements[1])
+				output.append(measurement[0])
+				output.append(measurement[1])
 
 	if settings.has_key("store"):
 		save(settings["store"]["filename"], output)
