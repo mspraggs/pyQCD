@@ -84,7 +84,8 @@ def simulate(input_file):
 		sys.stdout.flush()
 		measure.do(measurement_settings,
 				   lattice_interface,
-				   measurements, i, False)
+				   measurements, i,
+				   not simulation_settings['timing_run']['enabled'])
 		print("Done!")
 
 	# Store the measurments
