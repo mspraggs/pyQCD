@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!--
+Analyses a set of Wilson loops to extract the pair potential.
+-->
+<pyQCD>
+  <postprocess>
+    <lattice_spacing>
+      <input>
+	<type>WILSON_LOOP</type>
+	<!-- The input file -->
+	<filename>"wilson_loops.npy"</filename>
+      </input>
+      <store> <!-- Leave this tag out to skip storing the result -->
+	<filename>lattice_spacing</filename>
+      </store>
+      <!-- Go for some bootstrapping and binning -->
+      <num_bootstraps>10</num_bootstraps>
+      <bin_size>10</bin_size>
+    </lattice_spacing>
+  </postprocess>
+</pyQCD>

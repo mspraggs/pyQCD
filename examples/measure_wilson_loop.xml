@@ -20,7 +20,11 @@ Runs a very basic simulation: no measurements, 100 configurations,
   </gauge_action>
 
   <measurements>
-    <!-- Measure the specified range of Wilson loops -->
+    <!--
+	Measure the specified range of Wilson loops. The resulting file is
+	a numpy binary containing a numpy array of shape
+	(Nc, r_max-1, t_max-1), where Nc is the number of configurations.
+    -->
     <wilson_loop>
       <filename>wilson_loops</filename>
       <!-- Set the maximum Wilson loop dimensions to measure -->

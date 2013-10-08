@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<!--
+Analyses a set of Wilson loops to extract the pair potential.
+-->
+<pyQCD>
+  <postprocess>
+
+    <pair_potential>
+      <input>
+	<type>WILSON_LOOP</type>
+	<!-- The input file -->
+	<filename>"wilson_loops.npy"</filename>
+	<label>"Pair potential"</label>
+	<linestyle>
+	  <colour>GREEN</colour>
+	  <style>SOLID</style>
+	</linestyle>
+      </input>
+      <plot> <!-- Leave this tag out to skip plotting -->
+	<title>"Pair potential"</title>
+	<xlabel>"$r$"</xlabel>
+	<ylabel>"$V(r)$"</ylabel>
+	<filename>plot.png</filename>
+      </plot>
+      <store> <!-- Leave this tag out to skip storing the result -->
+	<filename>pair_potential</filename>
+      </store>
+      <!-- Go for some bootstrapping and binning -->
+      <num_bootstraps>10</num_bootstraps>
+      <bin_size>10</bin_size>
+    </pair_potential>
+  </postprocess>
+</pyQCD>
