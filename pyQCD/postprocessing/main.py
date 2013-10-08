@@ -19,21 +19,16 @@ def auto_correlation(settings):
 			print("Error, invalid input data. Skipping.")
 		else:
 			input_data = load(i["filename"])
-			measurement = statistics \
-			  .bootstrap_measurement(input_data,
-									 measurements.auto_correlation,
-									 settings["num_bootstraps"],
-									 settings["bin_size"])
+			measurement = measurements.auto_correlation(input_data)
 
-			t = pl.arange(pl.size(measurement[0], axis = 0))
+			t = pl.arange(pl.size(measurement, axis = 0))
 			if settings.has_key("plot"):
 				linestyle = i["linestyle"]["colour"] + i["linestyle"]["style"]
-				pl.plot(t, measurement[0], linestyle, label = i["label"])
+				pl.plot(t, measurement, linestyle, label = i["label"])
 
 			if settings.has_key("store"):
 				output.append(t)
-				output.append(measurement[0])
-				output.append(measurement[1])
+				output.append(measurement)
 
 	if settings.has_key("plot"):
 		pl.xlabel(settings["plot"]["xlabel"])
