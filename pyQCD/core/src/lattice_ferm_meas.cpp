@@ -110,6 +110,9 @@ Lattice::computeSmearingOperator(const double smearingParameter,
     // This is where we'll store the matrix entries before intialising the matrix
     vector<Tlet> tripletList;
     tripletList.reserve(12 * 8 * 3 * this->nLinks_);
+
+    vector<vector<Tlet> > tempTripletList;
+    tempTripletList.resize(this->nLinks_ / 4);
     
     // Now iterate through the matrix and add the neighbouring elements
 #pragma omp parallel for
@@ -117,6 +120,8 @@ Lattice::computeSmearingOperator(const double smearingParameter,
       int rowLink[5];
       pyQCD::getLinkIndices(4 * i, this->spatialExtent, this->temporalExtent,
 			    rowLink);
+
+      vector<Tlet> subTempTripletList;
       
       // We've already calculated the eight neighbours, so we'll deal with those
       // alone
@@ -153,14 +158,21 @@ Lattice::computeSmearingOperator(const double smearingParameter,
 		complex<double> sum = spinMatrix(k, l) * colourMatrix(m, n);
 #pragma omp critical
 		if (sum != complex<double>(0,0))
-		  tripletList.push_back(Tlet(12 * i + 3 * k + m,
-					     3 * columnIndex + 3 * l + n, sum));
+		  subTempTripletList.push_back(Tlet(12 * i + 3 * k + m,
+						    3 * columnIndex + 3 * l + n,
+						    sum));
 	      }
 	    }
 	  }
 	}
       }
+    tempTripletList[i].resize(subTempTripletList.size());
+    tempTripletList[i] = subTempTripletList;
     }
+
+    for (int i = 0; i < this->nLinks_ / 4; ++i)
+      for (int j = 0; j < tempTripletList[i].size(); ++j)
+	tripletList.push_back(tempTripletList[i][j]);
     
     // Add all the triplets to the sparse matrix
     matrixH.setFromTriplets(tripletList.begin(), tripletList.end());
