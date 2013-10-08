@@ -7,7 +7,7 @@ def bin(X, binsize = 1):
 		return X;
 	else:
 		extra = 0 if pl.size(X, axis = 0) % binsize == 0 else 1
-		dims = [i for i in pl.shape(Ws)]
+		dims = [i for i in pl.shape(X)]
 		dims[0] = dims[0] / binsize + extra
 		dims = tuple(dims)
 		X_binned = pl.zeros(dims)
