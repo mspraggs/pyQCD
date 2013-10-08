@@ -82,7 +82,7 @@ defaults = {
 				'filename': None,
 				'label': '',
 				'linestyle': {
-					'colour': 'RED',
+					'colour': 'BLACK',
 					'style': 'DASHED'
 					},
 				'type': None
@@ -95,7 +95,7 @@ defaults = {
 				'filename': None,
 				'label': '',
 				'linestyle': {
-					'colour': 'RED',
+					'colour': 'BLACK',
 					'style': 'DASHED'
 					},
 				'type': None
@@ -108,7 +108,7 @@ defaults = {
 				'filename': None,
 				'label': '',
 				'linestyle': {
-					'colour': 'RED',
+					'colour': 'BLACK',
 					'style': 'DASHED'
 					},
 				'type': None
