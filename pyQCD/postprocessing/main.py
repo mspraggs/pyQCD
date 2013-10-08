@@ -126,7 +126,7 @@ def lattice_spacing(settings):
 									 settings["num_bootstraps"],
 									 settings["bin_size"])
 
-			print("Lattice spacing: %f +/- %f" % measurement)
+			print("Lattice spacing: %f +/- %f fm" % measurement)
 
 			if settings.has_key("store"):
 				output.append(measurement[0])
