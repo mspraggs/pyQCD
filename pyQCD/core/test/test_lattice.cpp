@@ -363,7 +363,6 @@ BOOST_AUTO_TEST_CASE( propagator_test )
 
   BOOST_CHECK_EQUAL(propagators.size(), 512);
 #ifdef USE_CUDA
-  cout << setprecision << propagators[0].trace().real() << endl;
   // Cuda works in single precision, so tolerance will be lower
   BOOST_CHECK_CLOSE(propagators[0].trace().real(),
 		    2.684902012348175, 1e-5);
