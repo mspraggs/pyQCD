@@ -100,12 +100,24 @@ def compute_correlator(prop1, prop2, Gamma):
 
 	Gamma2 = pl.dot(Gamma, const.gamma5)
 	Gamma3 = pl.dot(const.gamma5, Gamma)
+	
+	# We now do the following Einstein sum, but using tensor dots
+	# Note the requirement to swap axes back after the dot
+	#product1 = pl.einsum('ij,xjlab->xilab',Gamma2,pl.conj(prop1))
+	#product2 = pl.einsum('ij,xkjab->xkiab',Gamma3,prop2)
+	
+	product1 \
+	  = pl.swapaxes(pl.tensordot(Gamma2, pl.conj(prop1), (1,1)),
+					0, 1)
+	product2 \
+	  = pl.swapaxes(pl.tensordot(Gamma3, prop2, (1,2)),
+					0,1)
 
-	product1 = pl.einsum('ij,xjlab->xilab',Gamma2,pl.conj(prop1))
-	product2 = pl.einsum('ij,xkjab->xkiab',Gamma3,prop2)
-
+	product2 = pl.swapaxes(product2,1,2)
+	
 	correlator = pl.einsum('xijab,xijab->x',product1,product2)
-	return correlator
+	
+	return correlator.real
 
 def meson_spec(prop_file1, prop_file2, lattice_shape, momentum):
 	"""Calculates the 16 meson correlators"""
