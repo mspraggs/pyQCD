@@ -1,6 +1,14 @@
 interfaces Package
 ==================
 
+:mod:`constants` Module
+-----------------------
+
+.. automodule:: pyQCD.interfaces.constants
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`dicts` Module
 -------------------
 
@@ -9,10 +17,10 @@ interfaces Package
     :undoc-members:
     :show-inheritance:
 
-:mod:`input` Module
--------------------
+:mod:`io` Module
+----------------
 
-.. automodule:: pyQCD.interfaces.input
+.. automodule:: pyQCD.interfaces.io
     :members:
     :undoc-members:
     :show-inheritance:

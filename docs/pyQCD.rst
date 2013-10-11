@@ -1,12 +1,19 @@
 pyQCD Package
 =============
 
+:mod:`run` Module
+-----------------
+
+.. automodule:: pyQCD.run
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Subpackages
 -----------
 
 .. toctree::
 
-    pyQCD.bin
     pyQCD.core
     pyQCD.interfaces
     pyQCD.postprocessing
