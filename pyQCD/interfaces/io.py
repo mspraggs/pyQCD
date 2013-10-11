@@ -1,6 +1,7 @@
 import xml.etree.ElementTree as ET
 import dicts
 import os.path as op
+import numpy as np
 
 class XmlInterface:
 
@@ -144,3 +145,15 @@ class XmlInterface:
 			return self.settings["postprocess"]
 		except KeyError:
 			return dict()
+
+def load_propagator(prop_file, prop_key):
+	"""Loads and reshapes the propagator give by prop_key in the
+	npz archive given by prop_file"""
+
+	prop = prop_file[prop_key]
+
+	num_sites = prop.shape[0]
+
+	prop = np.swapaxes(np.reshape(prop, (num_sites, 4, 3, 4, 3)), 2, 3)
+
+	return prop
