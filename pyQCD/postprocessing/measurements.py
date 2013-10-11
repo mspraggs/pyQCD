@@ -132,6 +132,7 @@ def meson_spec(prop_file1, prop_file2, lattice_shape, momentum):
 								   xrange(lattice_shape[3])))
 
 	momentum_prefactors = [2 * pl.pi / N for N in lattice_shape[1:]]
+	momentum = [x * y for x, y in zip(momentum, momentum_prefactors)]
 	
 	for i, key in enumerate(prop_file1.keys()):
 
@@ -152,13 +153,10 @@ def meson_spec(prop_file1, prop_file2, lattice_shape, momentum):
 			# Get the exponential weighting factors for the momentum
 			# projection
 			exponentials \
-			  = pl.exp(1j * pl.einsum('ij,j,j',
-									  sites,
-									  momentum,
-									  momentum_prefactors))
+			  = pl.exp(1j * pl.dot(sites, momentum))
 			# Project onto the given momentum and store the result
 			correlators[i, :, j + 1] \
-			  = pl.einsum('ij,j', pos_correl, exponentials).real
+			  = pl.dot(pos_correl, exponentials).real
 
 		print("Done!")
 		sys.stdout.flush()
