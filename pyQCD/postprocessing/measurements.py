@@ -1,5 +1,9 @@
 import pylab as pl
 from scipy import optimize
+from pyQCD.interfaces import io
+import pyQCD.interfaces.constants as const
+import itertools
+import sys
 
 def pair_potential(b, r):
 	"""Calculates the quark pair potential as b[0] * r - b[1] / r + b[2]"""
@@ -75,4 +79,76 @@ def calculate_spacing(wilson_loops):
 	if len(pl.shape(fit_params)) > 1:
 		return 0.5 / pl.sqrt((1.65 + fit_params[:,1]) / fit_params[:,0])
 	else:
-		return 0.5 / pl.sqrt((1.65 + fit_params[1]) / fit_params[0])		
+		return 0.5 / pl.sqrt((1.65 + fit_params[1]) / fit_params[0])
+
+def compute_correlator(prop1, prop2, Gamma):
+	"""Calculates correlator defined by interpolator Gamma"""
+
+	# Do sums and traces over spin and colour
+	# i, j, k, l, m and o represent spin indices
+	# a and b are colour indices
+	# Transpose of 1st propagator is done implicitly using
+	# indices
+	"""
+	correlator = pl.einsum('ij,xjlab,lm,ximab->x',
+						   Gamma2, pl.conj(prop1),
+						   Gamma3, prop2).real
+						   """
+
+	# The above isn't very efficient. It's faster to split
+	# it up into sepearate stages.
+
+	Gamma2 = pl.dot(Gamma, const.gamma5)
+	Gamma3 = pl.dot(const.gamma5, Gamma)
+
+	product1 = pl.einsum('ij,xjlab->xilab',Gamma2,pl.conj(prop1))
+	product2 = pl.einsum('ij,xkjab->xkiab',Gamma3,prop2)
+
+	correlator = pl.einsum('xijab,xijab->x',product1,product2)
+	return correlator
+
+def meson_spec(prop_file1, prop_file2, lattice_shape, momentum):
+	"""Calculates the 16 meson correlators"""
+
+	num_props = len(prop_file1.keys())
+	
+	correlators = pl.zeros((num_props, lattice_shape[0], 17))
+	Gammas = [G for Gs in const.Gammas.itervalues() for G in Gs]
+
+	sites = list(itertools.product(xrange(lattice_shape[1]),
+								   xrange(lattice_shape[2]),
+								   xrange(lattice_shape[3])))
+
+	momentum_prefactors = [2 * pl.pi / N for N in lattice_shape[1:]]
+	
+	for i, key in enumerate(prop_file1.keys()):
+
+		print("Calculating correlators for propagator pair %d... " % i),
+		sys.stdout.flush()
+
+		prop1 = io.load_propagator(prop_file1, key)
+		prop2 = io.load_propagator(prop_file2, key)
+
+		correlators[i, :, 0] = pl.arange(lattice_shape[0])
+
+		# Iterate through the 16 Gamma matrices in the consts file
+		for j,Gamma in enumerate(Gammas):
+			# Get the position space correlator
+			pos_correl \
+			  = pl.reshape(compute_correlator(prop1, prop2, Gamma),
+						   (lattice_shape[0], len(sites)))
+			# Get the exponential weighting factors for the momentum
+			# projection
+			exponentials \
+			  = pl.exp(1j * pl.einsum('ij,j,j',
+									  sites,
+									  momentum,
+									  momentum_prefactors))
+			# Project onto the given momentum and store the result
+			correlators[i, :, j + 1] \
+			  = pl.einsum('ij,j', pos_correl, exponentials).real
+
+		print("Done!")
+		sys.stdout.flush()
+
+	return correlators
