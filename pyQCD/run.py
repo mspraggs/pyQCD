@@ -1,5 +1,5 @@
 from pyQCD.core.lattice import Lattice
-from pyQCD.interfaces.input import XmlInterface
+from pyQCD.interfaces.io import XmlInterface
 from pyQCD.interfaces.lattice import LatticeInterface
 from pyQCD.postprocessing import main
 import pyQCD.interfaces.measurements as measure
