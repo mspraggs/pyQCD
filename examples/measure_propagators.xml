@@ -27,6 +27,7 @@ configuration.
 	  All the following parameters are optional, with defaults defined
 	  in pyQCD/interfaces/dicts.py
       -->
+      <verbose_output>TRUE</verbose_output> <!-- Defaults to FALSE -->
       <a>1.0</a> <!-- Lattice spacing (normally assume 1 and rescale later) -->
       <source_site>[0, 0, 0, 0]</source_site> <!-- Propagator start point -->
       <!-- Do some stout gauge field smearing -->

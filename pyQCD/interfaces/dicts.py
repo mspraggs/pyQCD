@@ -62,7 +62,8 @@ defaults = {
 			'sink_smearing_param': 1.0,
 			'solver_method': 'BiCGSTAB',
 			'source_site': [0, 0, 0, 0],
-			'source_smearing_param': 1.0
+			'source_smearing_param': 1.0,
+			'verbose_output': 'FALSE'
 			},
 		'wilson_loop': {
 			'field_smearing_param': 1.0,

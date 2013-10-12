@@ -72,7 +72,8 @@ class LatticeInterface:
 					   source_smearing_param = 1.0,
 					   num_sink_smears = 0,
 					   sink_smearing_param = 1.0,
-					   solver_method = 0):
+					   solver_method = 0,
+					   verbosity = 0):
 		"""Extracts the Wilson fermion propagator, as calculated for the
 		specified mass, lattice spacing and source site, as a flattened list of
 		numpy matrices. The list index corresponds to the lattice coordinates t,
@@ -95,6 +96,7 @@ class LatticeInterface:
 							  source_smearing_param,
 							  num_sink_smears,
 							  sink_smearing_param,
-							  solver_method)
+							  solver_method,
+							  verbosity)
 
 		return [np.matrix(matrix) for matrix in raw_propagator]

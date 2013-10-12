@@ -65,7 +65,8 @@ def do(settings, interface, store, config, save = True):
 										 settings[key]['source_smearing_param'],
 										 settings[key]['num_sink_smears'],
 										 settings[key]['sink_smearing_param'],
-										 settings[key]['solver_method'])
+										 settings[key]['solver_method'],
+										 settings[key]['verbose_output'])
 
 			if save:
 				np.save("prop%d" % config, current_prop)
