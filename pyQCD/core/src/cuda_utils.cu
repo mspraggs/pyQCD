@@ -80,7 +80,7 @@ namespace pyQCD
 	  // Copy the solution to the propagator output
 	  cusp::copy(tempSolution, propagatorView);
 	  if (verbosity > 0)
-	    std::cout << "  -> Inversion reached relative tolerance of " 
+	    std::cout << "  -> Inversion reached tolerance of " 
 		      << monitor.residual_norm() << " in "
 		      << monitor.iteration_count() << " iterations."
 		      << std::endl;
@@ -162,7 +162,7 @@ namespace pyQCD
 	  // Copy the solution to the propagator output
 	  cusp::copy(solution, propagatorView);
 	  if (verbosity > 0)
-	    std::cout << "  -> Inversion reached relative tolerance of " 
+	    std::cout << "  -> Inversion reached tolerance of " 
 		      << monitor.residual_norm() << " in "
 		      << monitor.iteration_count() << " iterations."
 		      << std::endl;
