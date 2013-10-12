@@ -309,6 +309,8 @@ Lattice::computePropagator(const double mass, const double spacing, int site[4],
     // Loop through colour and spin indices and invert propagator
     for (int i = 0; i < 4; ++i) {
       for(int j = 0; j < 3; ++j) {
+	cout << "  Inverting for spin " << i
+	     << " and colour " << j << "..." << flush;
 	// Create the source vector
 	VectorXcd source = this->makeSource(site, i, j, sourceSmearingOperator);
 	
@@ -324,6 +326,7 @@ Lattice::computePropagator(const double mass, const double spacing, int site[4],
 	    propagator[k](l, j + 3 * i) = solution(12 * k + l);
 	  }
 	}
+	cout << " Done!" << endl;
       }
     }
 #endif
@@ -354,7 +357,9 @@ Lattice::computePropagator(const double mass, const double spacing, int site[4],
     }
   }
   // Get the dirac matrix
+  cout << "  Generating Dirac matrix..." << flush;
   SparseMatrix<complex<double> > D = this->computeDiracMatrix(mass, spacing);
+  cout << " Done!" << endl;
   // Restore the non-smeared gauge field
   if (nSmears > 0)
     this->links_ = templinks;

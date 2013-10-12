@@ -28,9 +28,11 @@ namespace pyQCD
       // Get the size of the Dirac matrix
       int nCols = hostDirac.num_cols;
       // Transfer the Dirac and smearing matrices to the device.
+      std::cout << "  Transferring matrices to device..." << std::flush;
       complexHybridDev devDirac = hostDirac;
       complexHybridDev devSourceSmear = hostSourceSmear;
       complexHybridDev devSinkSmear = hostSinkSmear;
+      std::cout << " Done!" << std::endl;
 
       // Create some device arrays to hold the source and solution
       cusp::array1d<cusp::complex<float>, devMem>
@@ -52,6 +54,8 @@ namespace pyQCD
       // Loop through all spins and colours and do the inversions
       for (int i = 0; i < 4; ++i) {
 	for (int j = 0; j < 3; ++j) {
+	  std::cout << "  Inverting for spin " << i
+		    << " and colour " << j << "..." << std::endl;
 	  // Create the source using the smearing operator
 	  createSource(spatialIndex, i, j, devSourceSmear, source,
 		       tempSource);
@@ -71,10 +75,16 @@ namespace pyQCD
 	    propagatorView = tempPropagator.column(j + 3 * i);
 	  // Copy the solution to the propagator output
 	  cusp::copy(tempSolution, propagatorView);
+	  std::cout << "  -> Inversion reached relative tolerance of " 
+		    << monitor.residual_norm() << " in "
+		    << monitor.iteration_count() << " iterations."
+		    << std::endl;
 	}
       }
       // Move the propagator back into main memory
+      std::cout << "  Transferring propagators to main memory..." << std::flush;
       propagator = tempPropagator;
+      std::cout << " Done!" << std::endl;
     }
 
   
