@@ -238,7 +238,7 @@ BOOST_PYTHON_MODULE(lattice)
 	  py::arg("n_link_smears") = 0, py::arg("link_param") = 1.0,
 	  py::arg("n_src_smears") = 0, py::arg("src_param") = 1.0,
 	  py::arg("n_sink_smears") = 0, py::arg("sink_param") = 1.0,
-	  py::arg("solver_method") = 0),
+	  py::arg("solver_method") = 0, py::arg("verbosity") = 0),
 	 "Extracts the Wilson fermion propagator, as calculated for the \n"
 	 "specified mass, lattice spacing and source site, as a flattened list\n"
 	 "of compound lists. The list index corresponds to the lattice\n"

@@ -109,7 +109,8 @@ py::list pyLattice::computePropagatorP(const double mass, const double spacing,
 				       const double sourceSmearingParameter,
 				       const int nSinkSmears,
 				       const double sinkSmearingParameter,
-				       const int solverMethod)
+				       const int solverMethod,
+				       const int verbosity)
 {
   // Wrapper for the calculation of a propagator
   int tempSite[4] = {py::extract<int>(site[0]),
@@ -126,7 +127,8 @@ py::list pyLattice::computePropagatorP(const double mass, const double spacing,
 						   sourceSmearingParameter,
 						   nSinkSmears,
 						   sinkSmearingParameter,
-						   solverMethod);
+						   solverMethod,
+						   verbosity);
   // Put GIL back in place
   delete scope;
   // This is where we'll store the propagator as a list

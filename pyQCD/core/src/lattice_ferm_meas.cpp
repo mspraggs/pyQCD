@@ -236,7 +236,8 @@ Lattice::computePropagator(const double mass, const double spacing, int site[4],
 			   const double sourceSmearingParameter,
 			   const int nSinkSmears,
 			   const double sinkSmearingParameter,
-			   const int solverMethod)
+			   const int solverMethod,
+			   const int verbosity)
 {
   // Computes the propagator vectors for the 12 spin-colour indices at
   // the given lattice site, using the Dirac operator
@@ -267,7 +268,7 @@ Lattice::computePropagator(const double mass, const double spacing, int site[4],
     SparseMatrix<complex<double> > M = D * Dadj;
 #ifdef USE_CUDA
     pyQCD::cudaCG(M, Dadj, sourceSmearingOperator, sinkSmearingOperator,
-		  spatialIndex, propagator);
+		  spatialIndex, propagator, verbosity);
 #else
     // And the solver
     ConjugateGradient<SparseMatrix<complex<double> > > solver(M);
@@ -277,6 +278,9 @@ Lattice::computePropagator(const double mass, const double spacing, int site[4],
     // Loop through colour and spin indices and invert propagator
     for (int i = 0; i < 4; ++i) {
       for(int j = 0; j < 3; ++j) {
+	if (verbosity > 0)
+	  cout << "  Inverting for spin " << i
+	       << " and colour " << j << "..." << endl;
 	// Create the source vector
 	VectorXcd source = this->makeSource(site, i, j, sourceSmearingOperator);
 	
@@ -292,6 +296,10 @@ Lattice::computePropagator(const double mass, const double spacing, int site[4],
 	    propagator[k](l, j + 3 * i) = solution(12 * k + l);
 	  }
 	}
+	if (verbosity > 0)
+	  cout << "  -> Inversion reached tolerance of "
+	       << solver.error() << " in " << solver.iterations() 
+	       << " iterations." << endl;
       }
     }
 #endif
@@ -299,7 +307,7 @@ Lattice::computePropagator(const double mass, const double spacing, int site[4],
   else {
 #ifdef USE_CUDA
     pyQCD::cudaBiCGstab(D, sourceSmearingOperator, sinkSmearingOperator,
-			spatialIndex, propagator);
+			spatialIndex, propagator, verbosity);
 #else
     // Otherwise just use BiCGSTAB
     BiCGSTAB<SparseMatrix<complex<double> > > solver(D);
@@ -309,8 +317,9 @@ Lattice::computePropagator(const double mass, const double spacing, int site[4],
     // Loop through colour and spin indices and invert propagator
     for (int i = 0; i < 4; ++i) {
       for(int j = 0; j < 3; ++j) {
-	cout << "  Inverting for spin " << i
-	     << " and colour " << j << "..." << flush;
+	if (verbosity > 0)
+	  cout << "  Inverting for spin " << i
+	       << " and colour " << j << "..." << endl;
 	// Create the source vector
 	VectorXcd source = this->makeSource(site, i, j, sourceSmearingOperator);
 	
@@ -326,7 +335,10 @@ Lattice::computePropagator(const double mass, const double spacing, int site[4],
 	    propagator[k](l, j + 3 * i) = solution(12 * k + l);
 	  }
 	}
-	cout << " Done!" << endl;
+	if (verbosity > 0)
+	  cout << "  -> Inversion reached tolerance of "
+	       << solver.error() << " in " << solver.iterations() 
+	       << " iterations." << endl;
       }
     }
 #endif
@@ -344,7 +356,8 @@ Lattice::computePropagator(const double mass, const double spacing, int site[4],
 			   const double sourceSmearingParameter,
 			   const int nSinkSmears,
 			   const double sinkSmearingParameter,
-			   const int solverMethod)
+			   const int solverMethod,
+			   const int verbosity)
 {
   // Computes the propagator vectors for the 12 spin-colour indices at
   // the given lattice site, using the Dirac operator
@@ -357,14 +370,17 @@ Lattice::computePropagator(const double mass, const double spacing, int site[4],
     }
   }
   // Get the dirac matrix
-  cout << "  Generating Dirac matrix..." << flush;
+  if (verbosity > 0)
+    cout << "  Generating Dirac matrix..." << flush;
   SparseMatrix<complex<double> > D = this->computeDiracMatrix(mass, spacing);
-  cout << " Done!" << endl;
+  if (verbosity > 0)
+    cout << " Done!" << endl;
   // Restore the non-smeared gauge field
   if (nSmears > 0)
     this->links_ = templinks;
   // Calculate and return the propagator
   return this->computePropagator(mass, spacing, site, D, nSourceSmears,
 				 sourceSmearingParameter, nSinkSmears,
-				 sinkSmearingParameter, solverMethod);
+				 sinkSmearingParameter, solverMethod,
+				 verbosity);
 }

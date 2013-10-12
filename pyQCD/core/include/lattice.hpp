@@ -109,7 +109,8 @@ public:
 				      const double sourceSmearingParameter,
 				      const int nSinkSmears,
 				      const double sinkSmearingParameter,
-				      const int solverMethod);
+				      const int solverMethod,
+				      const int verbosity);
   vector<MatrixXcd> computePropagator(const double mass, const double spacing,
 				      int site[4],
 				      const SparseMatrix<complex<double> >& D,
@@ -117,7 +118,8 @@ public:
 				      const double sourceSmearingParameter,
 				      const int nSinkSmears,
 				      const double sinkSmearingParameter,
-				      const int solverMethod);
+				      const int solverMethod,
+				      const int verbosity);
   
   int nCorrelations, spatialExtent, temporalExtent;
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW

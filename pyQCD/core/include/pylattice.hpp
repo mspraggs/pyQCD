@@ -47,7 +47,8 @@ public:
 			      const double sourceSmearingParameter,
 			      const int nSinkSmears,
 			      const double sinkSmearingParameter,
-			      const int solverMethod);
+			      const int solverMethod,
+			      const int verbosity);
   void runThreads(const int nUpdates, const int remainder);
   py::list getLinkP(const py::list link);
   void setLinkP(const py::list link, const py::list matrix);

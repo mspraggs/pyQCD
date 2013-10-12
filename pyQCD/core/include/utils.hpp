@@ -74,12 +74,14 @@ namespace pyQCD
   void cudaBiCGstab(const SparseMatrix<complex<double> >& eigenDirac,
 		    const SparseMatrix<complex<double> >& eigenSourceSmear,
 		    const SparseMatrix<complex<double> >& eigenSinkSmear,
-		    const int spatialIndex, vector<MatrixXcd>& propagator);
+		    const int spatialIndex, vector<MatrixXcd>& propagator,
+		    const int verbosity);
   void cudaCG(const SparseMatrix<complex<double> >& eigenDiracDiracAdjoint,
 	      const SparseMatrix<complex<double> >& eigenDiracAdjoint,
 	      const SparseMatrix<complex<double> >& eigenSourceSmear,
 	      const SparseMatrix<complex<double> >& eigenSinkSmear,
-	      const int spatialIndex, vector<MatrixXcd>& propagator);
+	      const int spatialIndex, vector<MatrixXcd>& propagator,
+	      const int verbosity);
 
   namespace cuda
   {

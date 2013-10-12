@@ -359,7 +359,7 @@ BOOST_AUTO_TEST_CASE( propagator_test )
   int site[4] = {0, 0, 0, 0};
   vector<MatrixXcd> propagators = lattice.computePropagator(0.4, 1.0, site,
 							    0, 1.0, 0, 1.0,
-							    0, 1.0, 1);
+							    0, 1.0, 1, 0);
 
   BOOST_CHECK_EQUAL(propagators.size(), 512);
 #ifdef USE_CUDA

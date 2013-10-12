@@ -282,7 +282,8 @@ namespace pyQCD
   void cudaBiCGstab(const SparseMatrix<complex<double> >& eigenDirac,
 		    const SparseMatrix<complex<double> >& eigenSourceSmear,
 		    const SparseMatrix<complex<double> >& eigenSinkSmear,
-		    const int spatialIndex, vector<MatrixXcd>& propagator)
+		    const int spatialIndex, vector<MatrixXcd>& propagator,
+		    const int verbosity)
   {
     int nTriplets = eigenDirac.nonZeros();
     int nRows = eigenDirac.rows();
@@ -297,12 +298,11 @@ namespace pyQCD
     eigenToCusp(eigenSourceSmear, cuspSourceSmear);
     eigenToCusp(eigenSinkSmear, cuspSinkSmear);
 
-    cusp::array2d<cusp::complex<float>,
-		  hostMem> cuspPropagator(nRows, 12,
-					  cusp::complex<float>(0, 0));
+    cusp::array2d<cusp::complex<float>, hostMem>
+      cuspPropagator(nRows, 12, cusp::complex<float>(0, 0));
 
     cuda::bicgstab(cuspDirac, cuspSourceSmear, cuspSinkSmear, spatialIndex,
-		   cuspPropagator);
+		   cuspPropagator, verbosity);
 
     for (int i = 0; i < nSites; ++i) {
       for (int j = 0; j < 12; ++j) {
@@ -321,7 +321,8 @@ namespace pyQCD
 	      const SparseMatrix<complex<double> >& eigenDiracAdjoint,
 	      const SparseMatrix<complex<double> >& eigenSourceSmear,
 	      const SparseMatrix<complex<double> >& eigenSinkSmear,
-	      const int spatialIndex, vector<MatrixXcd>& propagator)
+	      const int spatialIndex, vector<MatrixXcd>& propagator,
+	      const int verbosity)
   {
     // Wrapper for the cusp/cuda sparse matrix CG inverter
     int nTriplets = eigenDiracDiracAdjoint.nonZeros();
@@ -339,12 +340,11 @@ namespace pyQCD
     eigenToCusp(eigenSourceSmear, cuspSourceSmear);
     eigenToCusp(eigenSinkSmear, cuspSinkSmear);
 
-    cusp::array2d<cusp::complex<float>,
-		  hostMem> cuspPropagator(nRows, 12,
-					  cusp::complex<float>(0, 0));
+    cusp::array2d<cusp::complex<float>, hostMem>
+      cuspPropagator(nRows, 12, cusp::complex<float>(0, 0));
 
     cuda::cg(cuspM, cuspDiracAdjoint, cuspSourceSmear, cuspSinkSmear,
-	     spatialIndex, cuspPropagator);
+	     spatialIndex, cuspPropagator, verbosity);
 
     for (int i = 0; i < nSites; ++i) {
       for (int j = 0; j < 12; ++j) {
