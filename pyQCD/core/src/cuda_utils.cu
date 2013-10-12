@@ -29,11 +29,7 @@ namespace pyQCD
       int nCols = hostDirac.num_cols;
       // Transfer the Dirac and smearing matrices to the device.
       std::cout << "  Transferring matrices to device..." << std::flush;
-
-      cusp::hyb_matrix<int, cusp::complex<float>, hostMem>
-	hostDirac2 = hostDirac;
-
-      complexHybridDev devDirac = hostDirac2;
+      complexHybridDev devDirac = hostDirac;
       complexHybridDev devSourceSmear = hostSourceSmear;
       complexHybridDev devSinkSmear = hostSinkSmear;
       std::cout << " Done!" << std::endl;
