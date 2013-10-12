@@ -89,15 +89,17 @@ namespace pyQCD
 			 const complexHybridHost& hostSourceSmear,
 			 const complexHybridHost& hostSinkSmear,
 			 const int spatialIndex,
-			 cusp::array2d<cusp::complex<float>,
-				       hostMem>& propagator);
+			 cusp::array2d<cusp::complex<float>, hostMem>&
+			 propagator,
+			 const int verbosity);
 
     extern void cg(const complexHybridHost& hostDiracDiracAdjoint,
 		   const complexHybridHost& hostDiracAdjoint,
 		   const complexHybridHost& hostSourceSmear,
 		   const complexHybridHost& hostSinkSmear,
 		   const int spatialIndex,
-		   cusp::array2d<cusp::complex<float>, hostMem>& propagator);
+		   cusp::array2d<cusp::complex<float>, hostMem>& propagator,
+		   const int verbosity);
   }
 #endif
 
