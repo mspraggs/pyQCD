@@ -266,32 +266,15 @@ namespace pyQCD
       }
     }
 
-    thrust::stable_sort_by_key(cols.begin(),
-			       cols.end(),
-			       thrust::make_zip_iterator(thrust::make_tuple(rows.begin(), values.begin())));
-    thrust::stable_sort_by_key(rows.begin(), rows.end(),
-			       thrust::make_zip_iterator(thrust::make_tuple(cols.begin(), values.begin())));
-
     // Resize the matrix we're using
     cuspMatrix.resize(nRows, nCols, nTriplets);
-    //cout << cuspMatrix.row_offsets.size() << endl;
-    index = 0;
+
     // Assign the various values
     for (int i = 0; i < nTriplets; ++i) {
-      //cuspMatrix.row_indices[i] = rows[i];
-      //cout << rows[i] << "," << cols[i] << "," << values[i] << endl;
-      if (i == 0) {
-	cuspMatrix.row_offsets[index] = i;
-	index++;
-      }
-      else if (rows[i] > rows[i - 1]) {
-	cuspMatrix.row_offsets[index] = i;
-	index++;
-      }
+      cuspMatrix.row_indices[i] = rows[i];
       cuspMatrix.column_indices[i] = cols[i];
       cuspMatrix.values[i] = values[i];
     }
-    cuspMatrix.row_offsets[index] = nTriplets;
   }
 
 
