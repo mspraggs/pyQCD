@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include <cusp/hyb_matrix.h>
+#include <cusp/ell_matrix.h>
 #include <cusp/coo_matrix.h>
 #include <cusp/krylov/bicgstab.h>
 #include <cusp/krylov/cg.h>
@@ -17,7 +17,7 @@
 typedef cusp::device_memory devMem;
 typedef cusp::host_memory hostMem;
 typedef cusp::coo_matrix<int, cusp::complex<float>, hostMem> complexHybridHost;
-typedef cusp::hyb_matrix<int, cusp::complex<float>, devMem> complexHybridDev;
+typedef cusp::ell_matrix<int, cusp::complex<float>, devMem> complexHybridDev;
 
 namespace pyQCD
 {
