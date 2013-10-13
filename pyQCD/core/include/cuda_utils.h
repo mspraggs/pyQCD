@@ -16,7 +16,7 @@
 
 typedef cusp::device_memory devMem;
 typedef cusp::host_memory hostMem;
-typedef cusp::csr_matrix<int, cusp::complex<float>, hostMem> complexHybridHost;
+typedef cusp::ell_matrix<int, cusp::complex<float>, hostMem> complexHybridHost;
 typedef cusp::ell_matrix<int, cusp::complex<float>, devMem> complexHybridDev;
 
 namespace pyQCD
