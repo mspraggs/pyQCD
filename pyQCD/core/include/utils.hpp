@@ -8,14 +8,17 @@
 
 #ifdef USE_CUDA
 
-#include <cusp/coo_matrix.h>
+#include <cusp/csr_matrix.h>
 #include <cusp/complex.h>
 #include <cusp/print.h>
+
+#include <thrust/sort.h>
+#include <thrust/iterator/zip_iterator.h>
 
 #include <iostream>
 
 typedef cusp::host_memory hostMem;
-typedef cusp::coo_matrix<int, cusp::complex<float>, hostMem> complexHybridHost;
+typedef cusp::csr_matrix<int, cusp::complex<float>, hostMem> complexHybridHost;
 
 #endif
 
