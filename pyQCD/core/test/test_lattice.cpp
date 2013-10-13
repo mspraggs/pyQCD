@@ -365,9 +365,8 @@ BOOST_AUTO_TEST_CASE( propagator_test )
 #ifdef USE_CUDA
   // Cuda works in single precision, so tolerance will be lower
   BOOST_CHECK_CLOSE(propagators[0].trace().real(),
-		    2.684902012348175, 1e-5);
-  BOOST_CHECK_CLOSE(propagators[0].trace().imag(),
-		    -5.201616599877527e-12, 1e-6);
+		    2.684902012348175, 1e-4);
+  BOOST_CHECK_SMALL(propagators[0].trace().imag(), 1e-10);
 #else
   BOOST_CHECK_CLOSE(propagators[0].trace().real(),
 		    2.684902007542121, 1e-11);
