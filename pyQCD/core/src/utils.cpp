@@ -272,41 +272,8 @@ namespace pyQCD
     thrust::stable_sort_by_key(rows.begin(), rows.end(),
 			       thrust::make_zip_iterator(thrust::make_tuple(cols.begin(), values.begin())));
 
-    
-    int ellCols = 0;
-
-    cusp::array1d<int, cusp::host_memory> rowWidths(nRows);
-
-    for (int i = 0; i < nRows; ++i) {
-      rowWidths[i] = thrust::count(rows.begin(), rows.end(), i);
-      //if (ellColsThisRow > ellCols)
-      //ellCols = ellColsThisRow;
-    }
-
-    ellCols = *thrust::max_element(rowWidths.begin(), rowWidths.end());
-
     // Resize the matrix we're using
-    cuspMatrix.resize(nRows, nCols, nTriplets, ellCols);
-    const int X = complexHybridHost::invalid_index;
-    index = 0;
-#pragma omp parallel for
-    for (int i = 0; i < nRows; ++i) {
-            //cout << "Converting row " << i << " with " << nColsThisRow
-      //	   << " this row" << endl;
-      //#pragma omp parallel for
-      for (int j = 0; j < rowWidths[i]; ++j) {
-	cuspMatrix.column_indices(i, j) = cols[rowWidths[0] * i + j];
-	cuspMatrix.values(i, j) = values[rowWidths[0] * i + j];
-	//index++;
-      }
-      for (int j = rowWidths[i]; j < ellCols; ++j) {
-	cuspMatrix.column_indices(i, j) = X;
-	cuspMatrix.values(i, j) = cusp::complex<float>(0, 0);
-      }
-      //#pragma omp atomic
-      //index += rowWidths[i];
-    }
-    /*
+    cuspMatrix.resize(nRows, nCols, nTriplets);
     //cout << cuspMatrix.row_offsets.size() << endl;
     index = 0;
     // Assign the various values
@@ -324,7 +291,7 @@ namespace pyQCD
       cuspMatrix.column_indices[i] = cols[i];
       cuspMatrix.values[i] = values[i];
     }
-    cuspMatrix.row_offsets[index] = nTriplets;*/
+    cuspMatrix.row_offsets[index] = nTriplets;
   }
 
 
