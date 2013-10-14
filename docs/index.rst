@@ -13,7 +13,8 @@ that will hopefully make it easy to use. By providing a straightforward
 interface to Python, we also hope that the analysis of any simulation data
 will be that much easier.
 
-Contents:
+Contents
+========
 
 .. toctree::
    :maxdepth: 4
