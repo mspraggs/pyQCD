@@ -18,7 +18,7 @@ import sys, os, re, glob
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 
 #sys.path.insert(0, os.path.abspath('../../src'))
-sys.path.insert(0,os.path.abspath('../pyQCD'))
+sys.path.insert(0,os.path.abspath('..'))
 print sys.path
 
 
