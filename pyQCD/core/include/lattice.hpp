@@ -58,7 +58,7 @@ public:
   void schwarzUpdate(const int nUpdates);
   void updateSegment(const int startLink, const int nUpdates);
 
-  void thermalize();
+  void thermalize(const int nUpdates);
   void getNextConfig();
   void reunitarize();
   

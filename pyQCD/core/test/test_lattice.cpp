@@ -334,13 +334,13 @@ BOOST_AUTO_TEST_CASE( update_test )
   // Test thermalization using parallel and serial update methods
   // First try serial
   exposedLattice serialLattice(8, 8, 5.5, 1.0, 0, 10, 0, 0, 4, -1);
-  serialLattice.thermalize();
+  serialLattice.thermalize(50);
   BOOST_CHECK_CLOSE(serialLattice.computeAveragePlaquette(), 0.5, 2);
   // Now parallel
   // Need a new lattice here as copy contructor doesn't play nice with
   // parallel random number generator
   exposedLattice parallelLattice(8, 8, 5.5, 1.0, 0, 10, 0, 1, 4, -1);
-  parallelLattice.thermalize();
+  parallelLattice.thermalize(50);
   BOOST_CHECK_CLOSE(parallelLattice.computeAveragePlaquette(), 0.5, 2);
 }
 

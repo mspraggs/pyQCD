@@ -172,17 +172,17 @@ void Lattice::schwarzUpdate(const int nUpdates)
 
 
 
-void Lattice::thermalize()
+void Lattice::thermalize(const int nUpdates)
 {
   // Update all links until we're at thermal equilibrium
   // Do we do this using OpenMP, or not?
   if (this->parallelFlag_ == 1) {
-    while(this->nUpdates_ < 5 * this->nCorrelations)
+    while(this->nUpdates_ < nUpdates)
       // If so, do a Schwarz update thingy (even/odd blocks)
       this->schwarzUpdate(1);
   }
   else {
-    while(this->nUpdates_ < 5 * this->nCorrelations)
+    while(this->nUpdates_ < nUpdates)
       this->update();
   }
 }

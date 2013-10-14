@@ -195,9 +195,9 @@ BOOST_PYTHON_MODULE(lattice)
 	 "and updating the blocks in parallel in the manner of a checkerboard.")
     .def("next_config", &pyLattice::getNextConfig,
 	 "Updates the lattice Ncor times to generate the next configuration.")
-    .def("thermalize", &pyLattice::thermalize,
+    .def("thermalize", &pyLattice::thermalize, (py::arg("num_updates")),
 	 "Updates the lattice until the internal update counter reaches \n"
-	 "5 * Ncor.")
+	 "num_updates.")
     .def("plaquette", &pyLattice::computePlaquetteP,
 	 (py::arg("site"), py::arg("dim1"), py::arg("dim2")),
 	 "Calculates the plaquette with corner sited at the specified lattice\n"
