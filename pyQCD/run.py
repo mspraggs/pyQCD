@@ -53,7 +53,7 @@ def simulate(input_file):
 	if not simulation_settings.has_key('ensemble'):
 		print("Thermalizing... "),
 		sys.stdout.flush()
-		lattice.thermalize()
+		lattice.thermalize(simulation_settings['num_warmup_updates'])
 		print("Done!")
 		sys.stdout.flush()
 

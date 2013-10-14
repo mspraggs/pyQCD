@@ -12,6 +12,7 @@ in parallel using OpenMP.
   <simulation>
     <num_configurations>100</num_configurations>
     <measurement_spacing>10</measurement_spacing>
+    <num_warmup_updates>50</num_warmup_updates>
     <parallel_update>
       <!-- Enable parallel updates -->
       <enabled>TRUE</enabled>

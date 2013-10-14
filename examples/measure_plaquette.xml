@@ -15,6 +15,7 @@ and stored in the file plaquette_output.npy (a NumPy binary).
     <measurement_spacing>10</measurement_spacing>
     <!-- Use heatbath updates -->
     <update_method>HEATBATH</update_method>
+    <num_warmup_updates>50</num_warmup_updates>
   </simulation>
 
   <gauge_action>

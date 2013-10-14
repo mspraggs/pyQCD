@@ -121,6 +121,7 @@ defaults = {
 		'ensemble': None,
 		'measurement_spacing': None,
 		'num_configurations': None,
+		'num_warmup_updates': None,
 		'parallel_update': {
 			'block_size': 1,
 			'enabled': 'FALSE'

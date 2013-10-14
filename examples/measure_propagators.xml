@@ -12,6 +12,7 @@ configuration.
   <simulation>
     <num_configurations>100</num_configurations>
     <measurement_spacing>10</measurement_spacing>
+    <num_warmup_updates>50</num_warmup_updates>
   </simulation>
 
   <gauge_action>

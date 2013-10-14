@@ -12,6 +12,7 @@ to run the simulation.
   <simulation>
     <num_configurations>100</num_configurations>
     <measurement_spacing>10</measurement_spacing>
+    <num_warmup_updates>50</num_warmup_updates>
     <timing_run>
       <!-- Enable the timing run -->
       <enabled>TRUE</enabled>

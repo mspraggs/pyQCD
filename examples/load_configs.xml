@@ -14,6 +14,7 @@ Runs a very basic simulation: no measurements, 100 configurations,
     <ensemble>configurations.npz</ensemble>
     <num_configurations>100</num_configurations>
     <measurement_spacing>10</measurement_spacing>
+    <num_warmup_updates>0</num_warmup_updates>
   </simulation>
 
   <gauge_action>
