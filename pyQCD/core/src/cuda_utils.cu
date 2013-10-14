@@ -54,6 +54,10 @@ namespace pyQCD
       cusp::array2d<cusp::complex<float>, devMem>
 	tempPropagator(nCols, 12, cusp::complex<float>(0, 0));
 
+      // Create the preconditioner
+      cusp::precond::diagonal<cusp::complex<float>, devMem>
+	preconditioner(devDirac);
+      
       // Loop through all spins and colours and do the inversions
       for (int i = 0; i < 4; ++i) {
 	for (int j = 0; j < 3; ++j) {
@@ -66,9 +70,7 @@ namespace pyQCD
 	  // Set up the monitor for use in the solver
 	  cusp::default_monitor<cusp::complex<float> >
 	    monitor(source, 1000, 0, 1e-8);
-	  // Create the preconditioner
-	  cusp::identity_operator<cusp::complex<float>, devMem>
-	    preconditioner(devDirac.num_rows, devDirac.num_rows);
+	  
 	  // Do the inversion
 	  cusp::krylov::bicgstab(devDirac, solution, source, monitor,
 				 preconditioner);
@@ -134,6 +136,10 @@ namespace pyQCD
       cusp::array2d<cusp::complex<float>, devMem>
 	tempPropagator(nCols, 12, cusp::complex<float>(0, 0));
 
+      // Create the preconditioner
+      cusp::precond::diagonal<cusp::complex<float>, devMem>
+	preconditioner(devM);
+
       // Loop through all spins and colours and do the inversions
       for (int i = 0; i < 4; ++i) {
 	for (int j = 0; j < 3; ++j) {
@@ -146,9 +152,7 @@ namespace pyQCD
 	  // Set up the monitor for use in the solver
 	  cusp::default_monitor<cusp::complex<float> >
 	    monitor(source, 1000, 0, 1e-8);
-	  // Create the preconditioner
-	  cusp::identity_operator<cusp::complex<float>, devMem>
-	    preconditioner(devM.num_rows, devM.num_rows);
+	  
 	  // Do the inversion
 	  cusp::krylov::cg(devM, solution, source, monitor,
 			   preconditioner);
