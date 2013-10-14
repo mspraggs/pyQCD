@@ -4,7 +4,8 @@
 #include <vector>
 
 #include <cusp/ell_matrix.h>
-#include <cusp/csr_matrix.h>
+#include <cusp/coo_matrix.h>
+#include <cusp/precond/diagonal.h>
 #include <cusp/krylov/bicgstab.h>
 #include <cusp/krylov/cg.h>
 #include <cusp/complex.h>
@@ -16,7 +17,7 @@
 
 typedef cusp::device_memory devMem;
 typedef cusp::host_memory hostMem;
-typedef cusp::csr_matrix<int, cusp::complex<float>, hostMem> complexHybridHost;
+typedef cusp::coo_matrix<int, cusp::complex<float>, hostMem> complexHybridHost;
 typedef cusp::ell_matrix<int, cusp::complex<float>, devMem> complexHybridDev;
 
 namespace pyQCD
