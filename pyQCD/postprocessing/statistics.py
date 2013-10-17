@@ -28,13 +28,17 @@ def bootstrap_measurement(X, func, num_bootstraps, binsize):
 	if binsize > 0:
 		X = bin(X, binsize)
 
-	if num_bootstraps > 0:
+	if num_bootstraps > 1:
 		for i in xrange(num_bootstraps):
 			X_bootstrap = bootstrap(X)
-			out.append(pl.mean(func(X_bootstrap), axis=0))
+			measurement = func(X_bootstrap)
+			measurement = measurement[pl.logical_not(pl.isnan(measurement))]
+			out.append(pl.mean(measurement, axis=0))
 	else:
-		out.append(func(X))
-
+		measurement = func(X)
+		measurement = measurement[pl.logical_not(pl.isnan(measurement))]
+		out.append(measurement)
+		
 	out = pl.array(out) if len(out) > 1 else pl.array(out[0])
 
 	out_mean = pl.mean(out, axis=0)
