@@ -188,11 +188,11 @@ BOOST_PYTHON_MODULE(lattice)
 	 "Sets the link specified by a list of the form [t, x, y, z, mu] to\n"
 	 "the values specified in matrix.")
     .def("update", &pyLattice::update,
-	 "Performs a single linear update on the lattice, using the specified\n"
-	 "algorithm")
-    .def("schwarz_update", &pyLattice::schwarzUpdate, (py::arg("n_sweeps")=1),
-	 "Performs a parallel update on the lattice, splitting it into blocks\n"
-	 "and updating the blocks in parallel in the manner of a checkerboard.")
+	 "Performs a single update on the lattice, using the specified\n"
+	 "algorithm, either in serial or parallel depending on what was\n"
+	 "specified in the lattice constructor. If parallel updates are\n"
+	 "specified, then the lattice is updated in the manner of a"
+	 "checkerboard, i.e. even blocks are updated, then odd blocks.")
     .def("next_config", &pyLattice::getNextConfig,
 	 "Updates the lattice Ncor times to generate the next configuration.")
     .def("thermalize", &pyLattice::thermalize, (py::arg("num_updates")),

@@ -114,8 +114,13 @@ void Lattice::update()
 {
   // Iterate through the lattice and apply the appropriate update
   // function
-  for (int i = 0; i < this->nLinks_; ++i) {
-    (this->*updateFunction_)(i);
+  if (this->parallelFlag_ == 1) {
+    for (int i = 0; i < this->nLinks_; ++i)
+      (this->*updateFunction_)(i);
+  }
+  else { 
+    this->runThreads(nUpdates, 0);
+    this->runThreads(nUpdates, 1);
   }
   this->nUpdates_++;
 }
@@ -176,15 +181,9 @@ void Lattice::thermalize(const int nUpdates)
 {
   // Update all links until we're at thermal equilibrium
   // Do we do this using OpenMP, or not?
-  if (this->parallelFlag_ == 1) {
-    while(this->nUpdates_ < nUpdates)
-      // If so, do a Schwarz update thingy (even/odd blocks)
-      this->schwarzUpdate(1);
-  }
-  else {
-    while(this->nUpdates_ < nUpdates)
-      this->update();
-  }
+  while(this->nUpdates_ < nUpdates)
+    this->update();
+  this->reunitarize();
 }
 
 
@@ -192,13 +191,7 @@ void Lattice::thermalize(const int nUpdates)
 void Lattice::getNextConfig()
 {
   // Run nCorrelations updates using parallel or linear method
-  if (this->parallelFlag_ == 1) {
-    for (int i = 0; i < this->nCorrelations; ++i)
-      this->schwarzUpdate(1);
-  }
-  else {
-    for (int i = 0; i < this->nCorrelations; ++i)
-      this->update();
-  }
+  for (int i = 0; i < this->nCorrelations; ++i)
+    this->update();
   this->reunitarize();
 }
