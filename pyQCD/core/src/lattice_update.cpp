@@ -119,8 +119,8 @@ void Lattice::update()
       (this->*updateFunction_)(i);
   }
   else { 
-    this->runThreads(nUpdates, 0);
-    this->runThreads(nUpdates, 1);
+    this->runThreads(1, 0);
+    this->runThreads(1, 1);
   }
   this->nUpdates_++;
 }
