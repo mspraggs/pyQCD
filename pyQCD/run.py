@@ -1,5 +1,5 @@
 from pyQCD.core.lattice import Lattice
-from pyQCD.interfaces.io import XmlInterface
+from pyQCD.interfaces.io import XmlInterface, load_config
 from pyQCD.interfaces.lattice import LatticeInterface
 from pyQCD.postprocessing import main
 import pyQCD.interfaces.measurements as measure
@@ -79,7 +79,7 @@ def simulate(input_file):
 			print("Loading gauge field... "),
 			sys.stdout.flush()
 			lattice_interface\
-			  .set_links(measure.load_config(simulation_settings['ensemble'], i))
+			  .set_links(load_config(simulation_settings['ensemble'], i))
 		print("Done!")
 		print("Doing measurements:")
 		sys.stdout.flush()
