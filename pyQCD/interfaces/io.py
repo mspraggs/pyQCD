@@ -157,3 +157,16 @@ def load_propagator(prop_file, prop_key):
 	prop = np.swapaxes(np.reshape(prop, (num_sites, 4, 3, 4, 3)), 2, 3)
 
 	return prop
+
+def load_config(filename, config_num):
+	"""Extracts the required config from the given npz file, if it hasn, then
+	loads the specified configuration"""
+	if filename[-4:] != ".npz":
+		filename = "".join([filename, ".npz"])
+
+	zfile = zipfile.ZipFile(filename, allowZip64=True)
+	zfile.extract("config%d.npy" % config_num)
+	config = np.load("config%d.npy" % config_num)
+	os.remove("config%d.npy" % config_num)
+
+	return config
