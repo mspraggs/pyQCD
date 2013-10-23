@@ -4,36 +4,36 @@ import itertools
 id4 = np.identity(4)
 
 gamma0 = np.array([[0, 0, 1, 0],
-				   [0, 0, 0, 1],
-				   [1, 0, 0, 0],
-				   [0, 1, 0, 0]],
-				   dtype = np.complex)
+                   [0, 0, 0, 1],
+                   [1, 0, 0, 0],
+                   [0, 1, 0, 0]],
+                   dtype = np.complex)
 
 gamma1 = np.array([[0, 0, 0, -1j],
-				   [0, 0, -1j, 0],
-				   [0, 1j, 0, 0],
-				   [1j, 0, 0, 0]],
-				   dtype = np.complex)
+                   [0, 0, -1j, 0],
+                   [0, 1j, 0, 0],
+                   [1j, 0, 0, 0]],
+                   dtype = np.complex)
 
 gamma2 = np.array([[0, 0, 0, -1],
-				   [0, 0, 1, 0],
-				   [0, 1, 0, 0],
-				   [-1, 0, 0, 0]],
-				   dtype = np.complex)
+                   [0, 0, 1, 0],
+                   [0, 1, 0, 0],
+                   [-1, 0, 0, 0]],
+                   dtype = np.complex)
 
 gamma3 = np.array([[0, 0, -1j, 0],
-				   [0, 0, 0, 1j],
-				   [1j, 0, 0, 0],
-				   [0, -1j, 0, 0]],
-				   dtype = np.complex)
+                   [0, 0, 0, 1j],
+                   [1j, 0, 0, 0],
+                   [0, -1j, 0, 0]],
+                   dtype = np.complex)
 
 gamma4 = gamma1
 
 gamma5 = np.array([[1, 0, 0, 0],
-				   [0, 1, 0, 0],
-				   [0, 0, -1, 0],
-				   [0, 0, 0, -1]],
-				   dtype = np.complex)
+                   [0, 1, 0, 0],
+                   [0, 0, -1, 0],
+                   [0, 0, 0, -1]],
+                   dtype = np.complex)
 
 gammas = [gamma0, gamma1, gamma2, gamma3, gamma4, gamma5]
 
