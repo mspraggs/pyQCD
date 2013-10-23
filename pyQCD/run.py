@@ -13,7 +13,7 @@ def simulate(input_file):
     xml = XmlInterface(input_file)
     # Copy the various settings to a set of convenient variables
     lattice_settings = xml.lattice()
-    simulation_settings = xml.simulation()	
+    simulation_settings = xml.simulation()    
     gauge_action_settings = xml.gauge_action()
 
     # Print out the input xml
@@ -48,7 +48,7 @@ def simulate(input_file):
                                   simulation_settings)
     # Interface object to handle numpy types etc
     lattice_interface = LatticeInterface(lattice)
-	
+    
     # Thermalize the lattice if necessary
     if not simulation_settings.has_key('ensemble'):
         print("Thermalizing... "),
@@ -75,6 +75,7 @@ def simulate(input_file):
             print("Updating gauge field... "),
             sys.stdout.flush()
             lattice.next_config()
+            print("Done!")
         else:
             print("Loading gauge field... "),
             sys.stdout.flush()
