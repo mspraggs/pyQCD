@@ -1,6 +1,14 @@
 postprocessing Package
 ======================
 
+:mod:`constants` Module
+-----------------------
+
+.. automodule:: pyQCD.interfaces.constants
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 :mod:`main` Module
 ------------------
 
