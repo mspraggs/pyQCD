@@ -1,5 +1,3 @@
-"""Some dictionaries to handle conversion to the integers required by various
-functions."""
 
 update_methods = {'HEATBATH': 0,
 				  'STAPLE_MONTE_CARLO': 1,

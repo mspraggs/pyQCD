@@ -148,7 +148,9 @@ class XmlInterface:
 
 def load_propagator(prop_file, prop_key):
 	"""Loads and reshapes the propagator give by prop_key in the
-	npz archive given by prop_file"""
+	npz archive given by prop_file. The reshaped propagator has
+    two spin and two colour axes to facilitate products with
+    gamma matrices."""
 
 	prop = prop_file[prop_key]
 
