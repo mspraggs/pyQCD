@@ -1,7 +1,7 @@
 import pylab as pl
 from scipy import optimize
 from pyQCD.interfaces import io
-import pyQCD.interfaces.constants as const
+import pyQCD.postprocessing.constants as const
 import itertools
 import sys
 
