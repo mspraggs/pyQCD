@@ -53,6 +53,13 @@ def pair_potential(settings):
             output.append(r)
             output.append(measurement[0])
             output.append(measurement[1])
+            
+    output = pl.array(output).T
+    
+    print("r\tV(r)\tdV(r)")
+    
+    for point in output:
+        print("{}\t{}\t{}".format(point[0],point[1],point[2]))
 
     save(settings["filename"], output)
 
