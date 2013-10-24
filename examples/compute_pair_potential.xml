@@ -12,6 +12,7 @@ Analyses a set of Wilson loops to extract the pair potential.
 	<filename>"wilson_loops.npy"</filename>
 	<label>"Pair potential"</label>
       </input>
+      <!-- The output file -->
       <filename>pair_potential</filename>
       <!-- Go for some bootstrapping and binning -->
       <num_bootstraps>10</num_bootstraps>

@@ -10,6 +10,7 @@ Analyses a set of Wilson loops to extract the lattice spacing.
 	<!-- The input file -->
 	<filename>"wilson_loops.npy"</filename>
       </input>
+      <!-- The output file -->
       <filename>lattice_spacing</filename>
       <!-- Go for some bootstrapping and binning -->
       <num_bootstraps>10</num_bootstraps>

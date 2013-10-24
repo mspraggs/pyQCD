@@ -12,6 +12,7 @@ Analyses a set of plaquettess to extract the auto correlation function.
 	<filename>"plaquettes.npy"</filename>
 	<label>"Auto correlation function"</label>
       </input>
+      <!-- The output file -->
       <filename>auto_correlation</filename>
     </auto_correlation>
   </postprocess>
