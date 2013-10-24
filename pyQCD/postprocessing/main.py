@@ -54,7 +54,7 @@ def pair_potential(settings):
             output.append(measurement[0])
             output.append(measurement[1])
 
-    save(settings["store"]["filename"], output)
+    save(settings["filename"], output)
 
 
 def lattice_spacing(settings):
@@ -83,7 +83,7 @@ def lattice_spacing(settings):
             output.append(measurement[0])
             output.append(measurement[1])
             
-    save(settings["store"]["filename"], output)
+    save(settings["filename"], output)
 
 def correlators(settings):
     """Open the input correlator files in the correlator settings and
