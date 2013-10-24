@@ -85,3 +85,8 @@ def lattice_spacing(settings):
             
     save(settings["store"]["filename"], output)
 
+def correlators(settings):
+    """Open the input correlator files in the correlator settings and
+    compute the correlators"""
+
+    pass
