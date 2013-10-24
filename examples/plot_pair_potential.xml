@@ -11,24 +11,8 @@ Analyses a set of Wilson loops to extract the pair potential.
 	<!-- The input file -->
 	<filename>"wilson_loops.npy"</filename>
 	<label>"Pair potential"</label>
-	<linestyle>
-	  <!--
-	      See the pyQCD/interfaces/dicts.py file for a list of
-	      possibilities here
-	  -->
-	  <colour>GREEN</colour>
-	  <style>SOLID</style>
-	</linestyle>
       </input>
-      <plot> <!-- Leave this tag out to skip plotting -->
-	<title>"Pair potential"</title>
-	<xlabel>"$r$"</xlabel>
-	<ylabel>"$V(r)$"</ylabel>
-	<filename>plot.png</filename>
-      </plot>
-      <store> <!-- Leave this tag out to skip storing the result -->
-	<filename>pair_potential</filename>
-      </store>
+      <filename>pair_potential</filename>
       <!-- Go for some bootstrapping and binning -->
       <num_bootstraps>10</num_bootstraps>
       <bin_size>10</bin_size>

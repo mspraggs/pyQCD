@@ -11,24 +11,8 @@ Analyses a set of plaquettess to extract the auto correlation function.
 	<!-- The input file -->
 	<filename>"plaquettes.npy"</filename>
 	<label>"Auto correlation function"</label>
-	<linestyle>
-	  <!--
-	      See the pyQCD/interfaces/dicts.py file for a list of
-	      possibilities here
-	  -->
-	  <colour>GREEN</colour>
-	  <style>SOLID</style>
-	</linestyle>
       </input>
-      <plot> <!-- Leave this tag out to skip plotting -->
-	<title>"Auto correlation"</title>
-	<xlabel>"$t$"</xlabel>
-	<ylabel>"$C(t)$"</ylabel>
-	<filename>plot.png</filename>
-      </plot>
-      <store> <!-- Leave this tag out to skip storing the result -->
-	<filename>auto_correlation</filename>
-      </store>
+      <filename>auto_correlation</filename>
     </auto_correlation>
   </postprocess>
 </pyQCD>

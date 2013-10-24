@@ -77,39 +77,27 @@ defaults = {
     'postprocess': {
         'auto_correlation': {
             'bin_size': 0,
+            'filename': None,
             'input': [{
                 'filename': None,
-                'label': '',
-                'linestyle': {
-                    'colour': 'BLACK',
-                    'style': 'DASHED'
-                    },
                 'type': None
                 }],
             'num_bootstraps': 0
             },
         'lattice_spacing': {
             'bin_size': 0,
+            'filename': None,
             'input': [{
                 'filename': None,
-                'label': '',
-                'linestyle': {
-                    'colour': 'BLACK',
-                    'style': 'DASHED'
-                    },
                 'type': None
                 }],
             'num_bootstraps': 0
             },
         'pair_potential': {
             'bin_size': 0,
+            'filename': None,
             'input': [{
                 'filename': None,
-                'label': '',
-                'linestyle': {
-                    'colour': 'BLACK',
-                    'style': 'DASHED'
-                    },
                 'type': None
                 }],
             'num_bootstraps': 0

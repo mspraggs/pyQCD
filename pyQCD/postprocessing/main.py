@@ -5,7 +5,7 @@ import measurements
 
 def auto_correlation(settings):
     """Load the input file(s) in the autocorrelation settings, calculate the
-    autocorrelation function and plot and store it if necessary.
+    autocorrelation function and store it.
 
     The settings dictionary should be a nested dictionary with the same
     structure as the xml settings."""
@@ -22,30 +22,14 @@ def auto_correlation(settings):
             measurement = measurements.auto_correlation(input_data)
 
             t = pl.arange(pl.size(measurement, axis = 0))
-            if settings.has_key("plot"):
-                linestyle = i["linestyle"]["colour"] + i["linestyle"]["style"]
-                pl.plot(t, measurement, linestyle, label = i["label"])
+            output.append(t)
+            output.append(measurement)
 
-            if settings.has_key("store"):
-                output.append(t)
-                output.append(measurement)
-
-    if settings.has_key("plot"):
-        pl.xlabel(settings["plot"]["xlabel"])
-        pl.ylabel(settings["plot"]["ylabel"])
-        pl.title(settings["plot"]["title"])
-        pl.legend(loc=0)
-        pl.show()
-
-        if settings["plot"].has_key("filename"):
-            pl.savefig(settings["plot"]["filename"])
-
-    if settings.has_key("store"):
-        save(settings["store"]["filename"], output)
+    save(settings["filename"], output)
 
 def pair_potential(settings):
     """Load the input file(s) in the pair potential settings, calculate the
-    pair potential function and plot and store it if necessary.
+    pair potential function and store it.
 
     The settings dictionary should be a nested dictionary with the same
     structure as the xml settings."""
@@ -66,42 +50,16 @@ def pair_potential(settings):
                                      settings["bin_size"])
 
             r = pl.arange(1, pl.size(measurement[0]) + 1)
-            if settings.has_key("plot"):
-                fit_params = measurements.potential_params(measurement[0])
+            output.append(r)
+            output.append(measurement[0])
+            output.append(measurement[1])
 
-                r_fit = pl.arange(0.1, pl.size(measurement[0]) + 1, 0.1)
-                fit_line = measurements.pair_potential(fit_params, r_fit)
-                
-                error_linestyle = 'o' + i["linestyle"]["colour"]
-                plot_linestyle = i["linestyle"]["colour"] \
-                  + i["linestyle"]["style"]
-                pl.errorbar(r, measurement[0], yerr = measurement[1],
-                            fmt = error_linestyle, label = i["label"])
-                pl.plot(r_fit, fit_line, plot_linestyle,
-                        label = i["label"] + " fit")
-
-            if settings.has_key("store"):
-                output.append(r)
-                output.append(measurement[0])
-                output.append(measurement[1])
-
-    if settings.has_key("plot"):
-        pl.xlabel(settings["plot"]["xlabel"])
-        pl.ylabel(settings["plot"]["ylabel"])
-        pl.title(settings["plot"]["title"])
-        pl.legend(loc=0)
-        pl.show()
-
-        if settings["plot"].has_key("filename"):
-            pl.savefig(settings["plot"]["filename"])
-
-    if settings.has_key("store"):
-        save(settings["store"]["filename"], output)
+    save(settings["store"]["filename"], output)
 
 
 def lattice_spacing(settings):
     """Load the input file(s) in the lattice spacing settings, calculate the
-    lattice spacing function and plot and store it if necessary.
+    lattice spacing function and store it.
 
     The settings dictionary should be a nested dictionary with the same
     structure as the xml settings."""
@@ -122,10 +80,8 @@ def lattice_spacing(settings):
                                      settings["bin_size"])
 
             print("Lattice spacing: %f +/- %f fm" % measurement)
+            output.append(measurement[0])
+            output.append(measurement[1])
+            
+    save(settings["store"]["filename"], output)
 
-            if settings.has_key("store"):
-                output.append(measurement[0])
-                output.append(measurement[1])
-
-    if settings.has_key("store"):
-        save(settings["store"]["filename"], output)
