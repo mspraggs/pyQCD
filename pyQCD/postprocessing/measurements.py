@@ -6,6 +6,27 @@ import itertools
 import sys
 import IPython
 
+def get_all_momenta(p):
+    """Generates all possible equivalent lattice momenta"""
+    temp_list = []
+    out = []
+    p_rev = p[::-1]
+    
+    for i in xrange(3):
+        temp_list.append([p[(j + i) % 3] for j in xrange(3)])
+        temp_list.append([-p[(j + i) % 3] for j in xrange(3)])
+        temp_list.append([p_rev[(j + i) % 3] for j in xrange(3)])
+        temp_list.append([-p_rev[(j + i) % 3] for j in xrange(3)])
+        
+    # Remove duplicates
+    for p2 in temp_list:
+        if not p2 in out:
+            out.append(p2)
+            
+    out.sort()
+            
+    return out
+
 def pair_potential(b, r):
     """Calculates the quark pair potential as b[0] * r - b[1] / r + b[2]"""
     return b[0] * r + b[1] / r + b[2]
@@ -120,7 +141,7 @@ def compute_correlator(prop1, prop2, Gamma):
     return correlator.real
 
 def meson_spec(prop_file1, prop_file2, lattice_shape, momentum,
-               Gamma_selection = None):
+               Gamma_selection = None, average_momenta = False):
     """Calculates the 16 meson correlators"""
     
     num_props = len(prop_file1.keys())
@@ -139,6 +160,13 @@ def meson_spec(prop_file1, prop_file2, lattice_shape, momentum,
     momentum_prefactors = [2 * pl.pi / N for N in lattice_shape[1:]]
     momentum = [x * y for x, y in zip(momentum, momentum_prefactors)]
     
+    if average_momenta:
+        momenta = get_all_momenta(momentum)
+    else:
+        momenta = [momentum]
+        
+    num_momenta = len(momenta)
+    
     key_pair = list(enumerate(prop_file1.keys()))
     
     for i, key in key_pair:
@@ -154,13 +182,18 @@ def meson_spec(prop_file1, prop_file2, lattice_shape, momentum,
             pos_correl \
               = pl.reshape(compute_correlator(prop1, prop2, Gamma),
                            (lattice_shape[0], len(sites)))
-            # Get the exponential weighting factors for the momentum
-            # projection
-            exponentials \
-              = pl.exp(1j * pl.dot(sites, momentum))
-            # Project onto the given momentum and store the result
-            correlators[j][i, :, 1] \
-              = pl.dot(pos_correl, exponentials).real
+            # Loop through the momenta
+            for p in momenta:
+                # Get the exponential weighting factors for the 
+                # momentum projection
+                exponentials \
+                  = pl.exp(1j * pl.dot(sites, p))
+                # Project onto the given momentum and store the result
+                correlators[j][i, :, 1] \
+                  += pl.dot(pos_correl, exponentials).real
+                  
+            correlators[j][i, :, 1] /= num_momenta
+            
         print("Done!")
         sys.stdout.flush()
 
