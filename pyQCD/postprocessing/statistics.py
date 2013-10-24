@@ -49,7 +49,6 @@ def bootstrap_measurement(X, func, num_bootstraps, binsize, args = []):
         
     out = pl.array(out) if len(out) > 1 else pl.array(out[0])
 
-    print(out)
     out_mean = pl.mean(out, axis=0)
     out_std = pl.std(out, axis=0)
 
