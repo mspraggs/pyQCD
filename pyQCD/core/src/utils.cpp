@@ -249,7 +249,7 @@ namespace pyQCD
     // Declare somewhere to keep the triplets we're going to make
     cusp::array1d<int, cusp::host_memory> rows(nTriplets);
     cusp::array1d<int, cusp::host_memory> cols(nTriplets);
-    cusp::array1d<cusp::complex<float>, cusp::host_memory> values(nTriplets);
+    cusp::array1d<cusp::complex<double>, cusp::host_memory> values(nTriplets);
 
     // Loop through the non-zero entries and store the positions and values
     // in the triplet
@@ -259,8 +259,8 @@ namespace pyQCD
 	     it; ++it) {
 	rows[index] = it.row();
 	cols[index] = it.col();
-	values[index] = cusp::complex<float>(float(it.value().real()),
-					 float(it.value().imag()));
+	values[index] = cusp::complex<double>(float(it.value().real()),
+					 double(it.value().imag()));
 
 	index++;
       }
@@ -298,8 +298,8 @@ namespace pyQCD
     eigenToCusp(eigenSourceSmear, cuspSourceSmear);
     eigenToCusp(eigenSinkSmear, cuspSinkSmear);
 
-    cusp::array2d<cusp::complex<float>, hostMem>
-      cuspPropagator(nRows, 12, cusp::complex<float>(0, 0));
+    cusp::array2d<cusp::complex<double>, hostMem>
+      cuspPropagator(nRows, 12, cusp::complex<double>(0, 0));
 
     cuda::bicgstab(cuspDirac, cuspSourceSmear, cuspSinkSmear, spatialIndex,
 		   cuspPropagator, verbosity);
@@ -340,8 +340,8 @@ namespace pyQCD
     eigenToCusp(eigenSourceSmear, cuspSourceSmear);
     eigenToCusp(eigenSinkSmear, cuspSinkSmear);
 
-    cusp::array2d<cusp::complex<float>, hostMem>
-      cuspPropagator(nRows, 12, cusp::complex<float>(0, 0));
+    cusp::array2d<cusp::complex<double>, hostMem>
+      cuspPropagator(nRows, 12, cusp::complex<double>(0, 0));
 
     cuda::cg(cuspM, cuspDiracAdjoint, cuspSourceSmear, cuspSinkSmear,
 	     spatialIndex, cuspPropagator, verbosity);
