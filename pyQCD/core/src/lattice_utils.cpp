@@ -89,11 +89,11 @@ Matrix2cd Lattice::makeHeatbathSu2(double coefficients[4],
   // (See Gattringer and Lang)
   // Initialise lambdaSquared so that we'll go into the for loop
   double lambdaSquared = 2.0;
-  // A random squared double to use in the while loop
+  // A random squared float to use in the while loop
   double randomSquare = pow(rng.generateReal(), 2);
   // Loop until lambdaSquared meets the distribution condition
   while (randomSquare > 1.0 - lambdaSquared) {
-    // Generate three random doubles in (0,1] as per Gattringer and Lang
+    // Generate three random floats in (0,1] as per Gattringer and Lang
     double r1 = 1 - rng.generateReal();
     double r2 = 1 - rng.generateReal();
     double r3 = 1 - rng.generateReal();

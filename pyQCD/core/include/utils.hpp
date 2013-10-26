@@ -15,7 +15,7 @@
 #include <iostream>
 
 typedef cusp::host_memory hostMem;
-typedef cusp::coo_matrix<int, cusp::complex<double>, hostMem> complexHybridHost;
+typedef cusp::coo_matrix<int, cusp::complex<float>, hostMem> complexHybridHost;
 
 #endif
 
@@ -89,7 +89,7 @@ namespace pyQCD
 			 const complexHybridHost& hostSourceSmear,
 			 const complexHybridHost& hostSinkSmear,
 			 const int spatialIndex,
-			 cusp::array2d<cusp::complex<double>, hostMem>&
+			 cusp::array2d<cusp::complex<float>, hostMem>&
 			 propagator,
 			 const int verbosity);
 
@@ -98,7 +98,7 @@ namespace pyQCD
 		   const complexHybridHost& hostSourceSmear,
 		   const complexHybridHost& hostSinkSmear,
 		   const int spatialIndex,
-		   cusp::array2d<cusp::complex<double>, hostMem>& propagator,
+		   cusp::array2d<cusp::complex<float>, hostMem>& propagator,
 		   const int verbosity);
   }
 #endif
