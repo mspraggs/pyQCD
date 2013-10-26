@@ -10,6 +10,7 @@ Analyses a set of Wilson loops to extract the pair potential.
 	<type>WILSON_LOOP</type>
 	<!-- The input file -->
 	<filename>"wilson_loops.npy"</filename>
+	<label>"Pair potential"</label>
       </input>
       <!-- The output file -->
       <filename>pair_potential</filename>
