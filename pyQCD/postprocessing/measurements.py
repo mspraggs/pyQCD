@@ -167,9 +167,7 @@ def meson_spec(prop_file1, prop_file2, lattice_shape, momentum,
         
     num_momenta = len(momenta)
     
-    key_pair = list(enumerate(prop_file1.keys()))
-    
-    for i, key in key_pair:
+    for i, key in enumerate(prop_file1.keys()):
         print("Calculating correlators for propagator pair %d and momentum "
               "%d, %d, %d... " % tuple([i] + momentum)),
         sys.stdout.flush()

@@ -137,7 +137,7 @@ def postprocess(input_file):
         if action == "auto_correlation":
             main.auto_correlation(postprocess_settings[action])
         elif action == "correlator":
-            pass
+            main.correlators(postprocess_settings[action])
         elif action == "pair_potential":
             main.pair_potential(postprocess_settings[action])
         elif action == "lattice_spacing":
