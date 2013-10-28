@@ -133,3 +133,31 @@ def correlators(settings):
               % tuple([output_file] + p)
               
             savez(output_file, **measurement)
+
+def hadron_energy(settings):
+    """Load a set of correlators and extract the hadron energies from
+    them"""
+    
+    inputs = settings["input"]
+    output = []
+    
+    for i in inputs:
+        if i["type"] != 3:
+            print("Error: invalid input data. Skipping.")
+        else:
+            input_data = load(i["filename"])
+            
+            keys = input_data.keys()
+            
+            for key in keys:
+                measurement = statistics \
+                  .bootstrap_measurement(input_data[key],
+                                         measurements.compute_energy,
+                                         settings["num_bootstraps"],
+                                         settings["bin_size"])
+            
+                output.append(measurement)
+                print("{}:\t{} +/- {}".format(key, measurement[0],
+                                              measurement[1]))
+        
+    save(settings["filename"], output)

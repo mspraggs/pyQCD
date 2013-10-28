@@ -16,7 +16,8 @@ truefalse = {'TRUE': 1,
 
 data_types = {'PLAQUETTE': 0,
               'WILSON_LOOP': 1,
-              'PROPAGATOR': 2}
+              'PROPAGATOR': 2,
+              'CORRELATOR': 3}
 
 colours = {'BLACK': 'k',
            'BLUE': 'b',

@@ -199,3 +199,44 @@ def meson_spec(prop_file1, prop_file2, lattice_shape, momentum,
         sys.stdout.flush()
 
     return dict(zip(Gamma_selection, correlators))
+
+def fit_correlator(data, trunc):
+    """Fits a cosh-like function to the supplied correlator
+    to extract the energy"""
+    
+    T = data[:,0].size
+    
+    x = data[trunc:(T-trunc),0]
+    y = data[trunc:(T-trunc),1]
+    
+    fit_func = lambda b, t, Ct: \
+      Ct - b[0] * (np.exp(-b[1] * (T - t)) + np.exp(-b[1] * t))
+    
+    b, result = spop.curve_fit(fit_func, [1.0, 1.0], args = (x, y))
+    
+    if [1, 2, 3, 4].count(result) < 1:
+        print("Warning! Fit failed.")
+    
+    return b
+
+def compute_energy(data, trunc):
+    """Fits a cosh function to the supplied correlator to
+    extract the energy of the hadronic state"""
+
+    if len(data.shape) == 2:
+        fit = fit_correlator(data, trunc)
+        
+        return fit[1]
+    
+    else:
+        out = pl.zeros(data.shape[0])
+        
+        for i in xrange(out.size):
+            out[i] = compute_energy(data[i])
+            
+        return out
+    
+def compute_square_energy(data, trunc):
+    """Calculates the square of the energy from a set of correlators"""
+    
+    return compute_energy(data, trunc)**2
