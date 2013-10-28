@@ -96,8 +96,6 @@ def lattice_spacing(settings):
 def correlators(settings):
     """Open the input correlator files in the correlator settings and
     compute the correlators"""
-    
-    print("Doing correlators")
 
     inputs = settings["input"]
     num_inputs = len(inputs)
