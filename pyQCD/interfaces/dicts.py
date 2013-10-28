@@ -1,3 +1,4 @@
+import pyQCD.postprocessing.constants as const
 
 update_methods = {'HEATBATH': 0,
                   'STAPLE_MONTE_CARLO': 1,
@@ -83,6 +84,17 @@ defaults = {
                 'type': None
                 }],
             'num_bootstraps': 0
+            },
+        'correlator': {
+            'filename': None,
+            'input': [{
+                'filename': None,
+                'type': None
+                }],
+            'lattice_shape': None,
+            'momenta': [0, 0, 0],
+            'avg_equiv_momenta': 'TRUE',
+            'mesons': const.Gamma_mesons
             },
         'lattice_spacing': {
             'bin_size': 0,

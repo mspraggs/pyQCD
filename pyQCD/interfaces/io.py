@@ -48,7 +48,8 @@ class XmlInterface:
                        "simulation",
                        "gauge_action",
                        "pair_potential",
-                       "ensemble"]
+                       "ensemble",
+                       "correlator"]
 
         for key in keys:
             if settings.has_key(key):
