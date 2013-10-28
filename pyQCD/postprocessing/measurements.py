@@ -151,21 +151,23 @@ def meson_spec(prop_file1, prop_file2, lattice_shape, momentum,
 
     Gammas = [const.Gammas[g] for g in Gamma_selection]
 
-    correlators = 16 * [pl.zeros((num_props, lattice_shape[0], 2))]
+    correlators = [pl.zeros((num_props, lattice_shape[0], 2))
+                   for Gamma in Gammas]
 
     sites = list(itertools.product(xrange(lattice_shape[1]),
                                    xrange(lattice_shape[2]),
                                    xrange(lattice_shape[3])))
 
-    momentum_prefactors = [2 * pl.pi / N for N in lattice_shape[1:]]
-    momentum = [x * y for x, y in zip(momentum, momentum_prefactors)]
+    momentum_prefactors \
+      = pl.array([2 * pl.pi / N for N in lattice_shape[1:]])
     
     if average_momenta:
-        momenta = get_all_momenta(momentum)
+        momenta = pl.array(get_all_momenta(momentum))
     else:
-        momenta = [momentum]
+        momenta = pl.array([momentum])
         
-    num_momenta = len(momenta)
+    momenta = pl.einsum('ij,j->ij',momenta, momentum_prefactors)
+    num_momenta = momenta.shape[0]
     
     for i, key in enumerate(prop_file1.keys()):
         print("Calculating correlators for propagator pair %d and momentum "
