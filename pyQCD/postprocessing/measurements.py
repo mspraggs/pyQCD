@@ -197,7 +197,7 @@ def meson_spec(prop_file1, prop_file2, lattice_shape, momentum,
             
         print("Done!")
         sys.stdout.flush()
-
+        
     return dict(zip(Gamma_selection, correlators))
 
 def fit_correlator(data, trunc):
@@ -210,7 +210,7 @@ def fit_correlator(data, trunc):
     y = data[trunc:(T-trunc),1]
     
     fit_func = lambda b, t, Ct: \
-      Ct - b[0] * (np.exp(-b[1] * (T - t)) + np.exp(-b[1] * t))
+      Ct - b[0] * (pl.exp(-b[1] * (T - t)) + pl.exp(-b[1] * t))
     
     b, result = spop.curve_fit(fit_func, [1.0, 1.0], args = (x, y))
     
