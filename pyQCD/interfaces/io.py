@@ -154,11 +154,6 @@ def load_propagator(prop_file, prop_key):
     gamma matrices."""
 
     prop = prop_file[prop_key]
-
-    num_sites = prop.shape[0]
-
-    prop = np.swapaxes(np.reshape(prop, (num_sites, 4, 3, 4, 3)), 2, 3)
-
     return prop
 
 def load_config(filename, config_num):

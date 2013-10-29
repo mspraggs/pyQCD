@@ -21,8 +21,8 @@ class LatticeInterface:
         t = xrange(self.lattice.T)
         links = itertools.product(t, r, r, r, range(4))
             
-        return [np.matrix(self.lattice.get_link(list(link)))
-                for link in links]
+        return np.array([self.lattice.get_link(list(link))
+                         for link in links])
 
     def set_links(self, links):
         """Sets the links of the lattice equal to those in the supplied list.
@@ -62,7 +62,7 @@ class LatticeInterface:
                   .av_wilson_loop(r, t, num_field_smears, field_smearing_param)
                 
         return out
-
+    
     def get_propagator(self, mass,
                        a = 1.0,
                        source_site = [0, 0, 0, 0],
@@ -75,18 +75,20 @@ class LatticeInterface:
                        solver_method = 0,
                        verbosity = 0):
         """Extracts the Wilson fermion propagator, as calculated for the
-        specified mass, lattice spacing and source site, as a flattened list of
-        numpy matrices. The list index corresponds to the lattice coordinates t,
-        x, y and z via the following formula:
+        specified mass, lattice spacing and source site, as a numpy array.
+        The first index corresponds to the lattice coordinates t, x, y and
+        z via the following formula:
 
         site_index = z + L * y + L**2 * x + L**3 * t
 
-        where L is the spatial extent of the lattice.
+        where L is the spatial extent of the lattice. The latter four indices
+        correspond to the two spin and two colour indices in each propagator
+        matrix.
 
         It is possible to apply stout smearing to the lattice gauge field
         and Jacobi smearing to the propagator source and sink using the
         given function arguments."""
-        raw_propagator = self \
+        raw_propagator = np.array(self \
           .lattice.propagator(mass,
                               a,
                               source_site,
@@ -97,6 +99,8 @@ class LatticeInterface:
                               num_sink_smears,
                               sink_smearing_param,
                               solver_method,
-                              verbosity)
+                              verbosity))
+        
+        num_sites = raw_propagator.shape[0]
 
-        return [np.matrix(matrix) for matrix in raw_propagator]
+        return np.swapaxes(np.reshape(prop, (num_sites, 4, 3, 4, 3)), 2, 3)
