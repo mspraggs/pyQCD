@@ -103,7 +103,7 @@ def calculate_spacing(wilson_loops):
     else:
         return 0.5 / pl.sqrt((1.65 + fit_params[1]) / fit_params[0])
 
-def compute_correlator(prop1, prop2, Gamma):
+def compute_correlator(prop1, prop2, Gamma_code):
     """Calculates correlator defined by interpolator Gamma"""
 
     # Do sums and traces over spin and colour
@@ -116,6 +116,8 @@ def compute_correlator(prop1, prop2, Gamma):
     Gamma2, pl.conj(prop1),
     Gamma3, prop2).real
     """
+    
+    Gamma = const.Gammas[Gamma_code]
 
     # The above isn't very efficient. It's faster to split
     # it up into sepearate stages.
@@ -149,10 +151,8 @@ def meson_spec(prop_file1, prop_file2, lattice_shape, momentum,
     if Gamma_selection == None:
         Gamma_selection = const.Gamma_mesons
 
-    Gammas = [const.Gammas[g] for g in Gamma_selection]
-
     correlators = [pl.zeros((num_props, lattice_shape[0], 2))
-                   for Gamma in Gammas]
+                   for Gamma in Gamma_selection]
 
     sites = list(itertools.product(xrange(lattice_shape[1]),
                                    xrange(lattice_shape[2]),
@@ -176,7 +176,7 @@ def meson_spec(prop_file1, prop_file2, lattice_shape, momentum,
         prop1 = io.load_propagator(prop_file1, key)
         prop2 = io.load_propagator(prop_file2, key)
         # Iterate through the 16 Gamma matrices in the consts file
-        for j, Gamma in enumerate(Gammas):
+        for j, Gamma in enumerate(Gamma_selection):
             # Add the time variable to the correlator
             correlators[j][i, :, 0] = pl.arange(lattice_shape[0])
             # Get the position space correlator
