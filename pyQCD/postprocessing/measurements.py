@@ -142,6 +142,24 @@ def compute_correlator(prop1, prop2, Gamma_code):
 
     return correlator.real
 
+def compute_projected_correlator(prop1, prop2, Gamma_code, lattice_shape,
+                                 momentum = [0, 0, 0]):
+    """Calculates correlator defined by Gamma code and projects to
+    specified momentum"""
+    
+    sites = list(itertools.product(xrange(lattice_shape[1]),
+                                   xrange(lattice_shape[2]),
+                                   xrange(lattice_shape[3])))
+    
+    pos_correl \
+      = pl.reshape(compute_correlator(prop1, prop2, Gamma_code),
+                   (lattice_shape[0], len(sites)))
+    
+    exponentials \
+      = pl.exp(1j * pl.dot(sites, momentum))
+      
+    return pl.dot(pos_correl, exponentials).real
+
 def meson_spec(prop_file1, prop_file2, lattice_shape, momentum,
                Gamma_selection = None, average_momenta = False):
     """Calculates the 16 meson correlators"""
