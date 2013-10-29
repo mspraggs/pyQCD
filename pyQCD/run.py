@@ -132,6 +132,8 @@ def postprocess(input_file):
     # Get the list of measurements to be made
     actions = postprocess_settings.keys()
     
+    t0 = time.time()
+    
     # Loop through the actions and call the relevant functions
     for action in actions:
         if action == "auto_correlation":
@@ -142,6 +144,16 @@ def postprocess(input_file):
             main.pair_potential(postprocess_settings[action])
         elif action == "lattice_spacing":
             main.lattice_spacing(postprocess_settings[action])
+    
+    t1 = time.time()
+    total_time = t1 - t0
+    
+    hrs = int((total_time) / 3600)
+    mins = int((total_time - 3600 * hrs) / 60)
+    secs = total_time - 3600 * hrs - 60 * mins
+    
+    print("Postprocessing completed in %d hours, %d minutes and %f seconds" \
+          % (hrs,mins,secs))
             
 if __name__ == "__main__":
     # Parse the command line arguments
