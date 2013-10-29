@@ -96,12 +96,16 @@ def auto_correlation(plaquettes):
 def calculate_spacing(wilson_loops):
     """Calculates the lattice spacing from a set of average wilson loops and
     the Sommer scale."""
-    potentials = calculate_potential(wilson_loops)
-    fit_params = potential_params(potentials)
-    if len(pl.shape(fit_params)) > 1:
-        return 0.5 / pl.sqrt((1.65 + fit_params[:,1]) / fit_params[:,0])
+    if len(pl.shape(wilson_loops)) > 2:
+        out = pl.zeros((wilson_loops.shape[0], 2))
+        for i in xrange(wilson_loops.shape[0]):
+            out[i] = calculate_spacing(wilson_loops[i])
+        return out
     else:
-        return 0.5 / pl.sqrt((1.65 + fit_params[1]) / fit_params[0])
+        potentials = calculate_potential(wilson_loops)
+        fit_params = potential_params(potentials)
+        spacing = 0.5 / pl.sqrt((1.65 + fit_params[1]) / fit_params[0])
+        return pl.array([spacing, 197 / spacing])
 
 def compute_correlator(prop1, prop2, Gamma_code):
     """Calculates correlator defined by interpolator Gamma"""

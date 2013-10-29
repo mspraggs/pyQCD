@@ -86,10 +86,14 @@ def lattice_spacing(settings):
                                      measurements.calculate_spacing,
                                      settings["num_bootstraps"],
                                      settings["bin_size"])
+            
+            print("Input file: {}".format(i["filename"]))
 
-            print("Lattice spacing: %f +/- %f fm" % measurement)
-            output.append(measurement[0])
-            output.append(measurement[1])
+            print("Lattice spacing: %f +/- %f fm" % (measurement[0][0],
+                                                     measurement[1][0]))
+            print("Inverse lattice spacing: %f +/- %f MeV" % (measurement[0][1],
+                                                              measurement[1][1]))
+            output.append(measurement)
             
     save(settings["filename"], output)
 
