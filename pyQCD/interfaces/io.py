@@ -155,10 +155,8 @@ class XmlInterface:
             return dict()
 
 def load_propagator(prop_file, prop_key):
-    """Loads and reshapes the propagator give by prop_key in the
-    npz archive given by prop_file. The reshaped propagator has
-    two spin and two colour axes to facilitate products with
-    gamma matrices."""
+    """Loads the propagator given by prop_key in the npz archive
+    given by prop_file."""
 
     prop = prop_file[prop_key]
     return prop
