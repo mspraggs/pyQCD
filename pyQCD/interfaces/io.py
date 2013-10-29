@@ -17,7 +17,7 @@ class XmlInterface:
 
         self.settings = self.parse_tree(xmlroot)
 
-        self.fill_defaults(self.settings, dicts.defaults)
+        self.fill_defaults(self.settings, dicts.defaults, "")
         self.fill_dicts(self.settings)
 
     def __str__(self):
@@ -26,7 +26,7 @@ class XmlInterface:
         with open(self.filename) as f:
             return f.read()
 
-    def fill_defaults(self, settings, defaults):
+    def fill_defaults(self, settings, defaults, path):
         """Loops through the settings dictionary, looks for corresponding keys
         in the defaults dictionary and applies the values there, if any, in
         a recursive fashion."""
@@ -49,31 +49,38 @@ class XmlInterface:
                        "gauge_action",
                        "pair_potential",
                        "ensemble",
-                       "correlator"]
+                       "correlator",
+                       "hadron_energy"]
 
         for key in keys:
             if settings.has_key(key):
                 if settings[key] == None:
                     if defaults[key] == None:
+                        print self.settings
                         raise ET. \
-                          ParseError("Missing required configuration tag.")
+                          ParseError("Missing required configuration tag in {}: {}"\
+                                     .format(path, key))
                     else:
                         settings[key] = defaults[key]
 
                 elif key == "input":
                     for input_dict in settings[key]:
-                        self.fill_defaults(input_dict, defaults[key][0])
+                        self.fill_defaults(input_dict, defaults[key][0],
+                                           "{}/{}".format(path, key))
                 elif type(settings[key]) == dict:
-                    self.fill_defaults(settings[key], defaults[key])
+                    self.fill_defaults(settings[key], defaults[key],
+                                       "{}/{}".format(path, key))
             else:
                 if do_not_adds.count(key) == 0:
                     if not defaults.has_key(key):
                         raise ET \
-                          .ParseError("Missing required configuration tag.")
+                          .ParseError("Missing required configuration tag: {}: {}"\
+                                     .format(path, key))
                     else:
                         settings.update({key: defaults[key]})
                         if type(defaults[key]) == dict:
-                            self.fill_defaults(settings[key], defaults[key])
+                            self.fill_defaults(settings[key], defaults[key],
+                                               "{}/{}".format(path, key))
 
     def fill_dicts(self, settings):
         """Loops through the settings dictionary and, if possible, uses the
