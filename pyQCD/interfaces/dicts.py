@@ -97,6 +97,16 @@ defaults = {
             'avg_equiv_momenta': 'TRUE',
             'mesons': const.Gamma_mesons
             },
+        'hadron_energy': {
+            'bin_size': 0,
+            'filename': None,
+            'input': [{
+                'filename': None,
+                'type': None
+                }],
+            'fit_range': None,
+            'num_bootstraps': 0
+            },
         'lattice_spacing': {
             'bin_size': 0,
             'filename': None,

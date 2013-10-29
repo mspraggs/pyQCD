@@ -140,6 +140,8 @@ def postprocess(input_file):
             main.auto_correlation(postprocess_settings[action])
         elif action == "correlator":
             main.correlators(postprocess_settings[action])
+        elif action == "hadron_energy":
+            main.hadron_energy(postprocess_settings[action])
         elif action == "pair_potential":
             main.pair_potential(postprocess_settings[action])
         elif action == "lattice_spacing":

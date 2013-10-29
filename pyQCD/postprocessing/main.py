@@ -1,5 +1,6 @@
 import pylab as pl
 from numpy import save, load, savez
+from numpy.lib.npyio import NpzFile
 import statistics
 import measurements
 import sys
@@ -149,17 +150,31 @@ def hadron_energy(settings):
         else:
             input_data = load(i["filename"])
             
-            keys = input_data.keys()
+            print("Input file: {}".format(i["filename"]))
             
-            for key in keys:
+            if type(input_data) == pl.ndarray:
                 measurement = statistics \
                   .bootstrap_measurement(input_data[key],
                                          measurements.compute_energy,
                                          settings["num_bootstraps"],
-                                         settings["bin_size"])
-            
+                                         settings["bin_size"],
+                                         [settings["fit_range"]])
+                
                 output.append(measurement)
-                print("{}:\t{} +/- {}".format(key, measurement[0],
-                                              measurement[1]))
+                
+            elif type(input_data) == NpzFile:
+                keys = input_data.keys()
+            
+                for key in keys:
+                    measurement = statistics \
+                      .bootstrap_measurement(input_data[key],
+                                             measurements.compute_energy,
+                                             settings["num_bootstraps"],
+                                             settings["bin_size"],
+                                             [settings["fit_range"]])
+            
+                    output.append(measurement)
+                    print("{}:\t{} +/- {}".format(key, measurement[0],
+                                                  measurement[1]))
         
     save(settings["filename"], output)

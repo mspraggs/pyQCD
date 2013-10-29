@@ -228,13 +228,13 @@ def fit_correlator(data, trunc):
     
     T = data[:,0].size
     
-    x = data[trunc:(T-trunc),0]
-    y = data[trunc:(T-trunc),1]
+    x = data[trunc[0]:trunc[1],0]
+    y = data[trunc[0]:trunc[1],1]
     
     fit_func = lambda b, t, Ct: \
       Ct - b[0] * (pl.exp(-b[1] * (T - t)) + pl.exp(-b[1] * t))
     
-    b, result = spop.curve_fit(fit_func, [1.0, 1.0], args = (x, y))
+    b, result = optimize.leastsq(fit_func, [1.0, 1.0], args = (x, y))
     
     if [1, 2, 3, 4].count(result) < 1:
         print("Warning! Fit failed.")
@@ -254,7 +254,7 @@ def compute_energy(data, trunc):
         out = pl.zeros(data.shape[0])
         
         for i in xrange(out.size):
-            out[i] = compute_energy(data[i])
+            out[i] = compute_energy(data[i], trunc)
             
         return out
     
