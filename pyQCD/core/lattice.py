@@ -62,5 +62,26 @@ class Lattice(lattice.Lattice):
     def get_propagator(self):
         pass
     
-    def __str__(self):
-        pass
+    def __repr__(self):
+        
+        out = \
+          "Lattice Object\n" \
+        "--------------\n" \
+        "Spatial extent: {}\n" \
+        "Temportal extent: {}\n" \
+        "Number of sites: {}\n" \
+        "Number of links: {}\n" \
+        "Gauge action: {}\n" \
+        "Inverse coupling (beta): {}\n" \
+        "Mean link (u0): {}\n" \
+        "Update method: {}\n" \
+        "Measurement spacing: {}\n" \
+        "Parallel updates: {}\n" \
+        "Parallel update block size: {}\n" \
+        "Random number seed: {}".format(self.L, self.T, self.L**3 * self.T,
+                                        self.L**3 * self.T * 4, self.action,
+                                        self.beta, self.u0, self.update_method,
+                                        self.n_cor, self.parallel_updates,
+                                        self.block_size, self.rand_seed)
+        
+        return out
