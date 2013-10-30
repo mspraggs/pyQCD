@@ -38,9 +38,7 @@ class Lattice(lattice.Lattice):
             links[t][x][y][z][mu] = np.array(self.get_link([t, x, y, z, mu]))
             
         out = config.Config(links, self.L, self.T, self.beta, self.u0,
-                            self.action, self.n_cor, self.update_method,
-                            self.parallel_updates, self.block_size,
-                            self.rand_seed)
+                            self.action)
         
         return out
     

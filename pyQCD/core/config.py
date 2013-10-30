@@ -2,9 +2,8 @@ import numpy as np
 
 class Config:
     
-    def __init__(self, links, L, T, beta, u0, action, n_cor, update_method,
-                 parallel_updates, block_size, rand_seed):
         """Create a configuration container."""
+    def __init__(self, links, L, T, beta, u0, action):
         
         expected_shape = (T, L, L, L, 4, 3, 3)
         if links.shape != expected_shape:
@@ -17,11 +16,6 @@ class Config:
         self.beta = beta
         self.u0 = u0
         self.action = action
-        self.n_cor = n_cor
-        self.update_method = update_method
-        self.parallel_updates = parallel_updates
-        self.block_size = block_size
-        self.rand_seed = rand_seed
         
         self.data = links
     
@@ -50,15 +44,8 @@ class Config:
         "Temportal extent: {}\n" \
         "Gauge action: {}\n" \
         "Inverse coupling (beta): {}\n" \
-        "Mean link (u0): {}\n" \
-        "Update method: {}\n" \
-        "Measurement spacing: {}\n" \
-        "Parallel updates: {}\n" \
-        "Parallel update block size: {}\n" \
-        "Random number seed: {}".format(self.L, self.T, self.action, self.beta,
-                                        self.u0, self.update_method, self.n_cor,
-                                        self.parallel_updates, self.block_size,
-                                        self.rand_seed)
+        "Mean link (u0): {}".format(self.L, self.T, self.action, self.beta,
+                                    self.u0)
         
         return out
     
