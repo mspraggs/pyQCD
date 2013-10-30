@@ -1,20 +1,19 @@
-import pyQCD.postprocessing.constants as const
 
-update_methods = {'HEATBATH': 0,
-                  'STAPLE_MONTE_CARLO': 1,
-                  'MONTE_CARLO': 2}
+update_methods = {'heatbath': 0,
+                  'staple_metopolis': 1,
+                  'metropolis': 2}
 
-gauge_actions = {'WILSON': 0,
-                 'RECTANGLE_IMPROVED': 1,
-                 'TWISTED_RECTANGLE_IMPROVED': 2}
+gauge_actions = {'wilson': 0,
+                 'rectangle_improved': 1,
+                 'twisted_rectangle_improved': 2}
 
-solver_methods = {'BiCGSTAB': 0,
-                  'ConjugateGradient': 1}
+solver_methods = {'bicgstab': 0,
+                  'conjugate_gradient': 1}
 
-truefalse = {'TRUE': 1,
-             'FALSE': 0}
+truefalse = {True: 1,
+             False: 0}
 
-data_types = {'PLAQUETTE': 0,
+data_types = {'plaquette': 0,
               'WILSON_LOOP': 1,
               'PROPAGATOR': 2,
               'CORRELATOR': 3}
@@ -95,7 +94,7 @@ defaults = {
             'lattice_shape': None,
             'momenta': [0, 0, 0],
             'avg_equiv_momenta': 'TRUE',
-            'mesons': const.Gamma_mesons
+            'mesons': None
             },
         'hadron_energy': {
             'bin_size': 0,
