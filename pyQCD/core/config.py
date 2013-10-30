@@ -14,4 +14,5 @@ class Config:
         pass
 
     @classmethod
-    def load(self, filename)
+    def load(self, filename):
+        pass
