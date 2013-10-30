@@ -20,7 +20,7 @@ class Config:
         self.n_cor = n_cor
         self.update_method = update_method
         self.parallel_updates = parallel_updates
-        self.block_size = block_size,
+        self.block_size = block_size
         self.rand_seed = rand_seed
         
         self.data = links
