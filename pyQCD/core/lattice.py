@@ -9,6 +9,34 @@ class Lattice(lattice.Lattice):
     def __init__(self, L=4, T=8, beta=5.5, u0=1.0, action="wilson",
                  n_cor=10, update_method="heatbath", parallel_updates=True,
                  block_size=4, rand_seed=-1):
+        """Create a Lattice object.
+                 
+        :param L: The spatial extent of the lattice
+        :type L: :class:`int`
+        :param T: The temporal extent of the lattice
+        :type T: :class:`int`
+        :param beta: The inverse coupling
+        :type beta: :class:`float`
+        :param u0: The mean link
+        :type u0: :class:`float`
+        :param action: The gauge action
+        :type action: :class:`str`, one of wilson, rectangle_improved or
+        twisted_rectangle_improved
+        :param n_cor: The number of field configurations between measurements
+        :type n_cor: :class:`int`
+        :param update_method: The method used to update the field configuration
+        :type update_method: :class:`str`, one of heatbath, metropolis or
+        staple metropolis
+        :param parallel_updates: Specify whether to use parallel updates
+        :type parallel_updates: :class:`bool`
+        :param block_size: The block edge length used when dividing the lattice
+        into domains during parallel updates
+        :type block_size: :class:`int`, must be a factor of both :samp:`L` and
+        :samp:`T`
+        :param rand_seed: A seed for the random number generator
+        :type rand_seed: :class:`int`, -1 specifies a random seed, whilst 0 and
+        above specifies a pre-determined seed
+        """
         
         self.beta = beta
         self.u0 = u0

@@ -2,9 +2,25 @@ import numpy as np
 
 class Config:
     
-        """Create a configuration container."""
     def __init__(self, links, L, T, beta, u0, action):
+        """Create a field configuration container.
+                 
+        :param links: The field configuration
+        :type links: :class:`np.ndarray` with shape :samp:`(T, L, L, L, 4, 3, 3)`
+        :param L: The spatial extent of the corresponding :class:`Lattice`
+        :type L: :class:`int`
+        :param T: The temporal extent of the corresponding :class:`Lattice`
+        :type T: :class:`int`
+        :param beta: The inverse coupling
+        :type beta: :class:`float`
+        :param u0: The mean link
+        :type u0: :class:`float`
+        :param action: The gauge action
+        :type action: :class:`str`, one of wilson, rectangle_improved or
+        twisted_rectangle_improved
+        """
         
+        # Validate the shape of the links array
         expected_shape = (T, L, L, L, 4, 3, 3)
         if links.shape != expected_shape:
             raise ValueError("Shape of specified links array, {}, does not "
