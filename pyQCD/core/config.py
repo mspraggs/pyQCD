@@ -41,8 +41,26 @@ class Config:
     def save_raw(self, filename):
         np.save(filename, self.data)
     
-    def __str__(self):
-        pass
+    def __repr__(self):
+        
+        out = \
+          "Field Configuration Object\n" \
+        "--------------\n" \
+        "Spatial extent: {}\n" \
+        "Temportal extent: {}\n" \
+        "Gauge action: {}\n" \
+        "Inverse coupling (beta): {}\n" \
+        "Mean link (u0): {}\n" \
+        "Update method: {}\n" \
+        "Measurement spacing: {}\n" \
+        "Parallel updates: {}\n" \
+        "Parallel update block size: {}\n" \
+        "Random number seed: {}".format(self.L, self.T, self.action, self.beta,
+                                        self.u0, self.update_method, self.n_cor,
+                                        self.parallel_updates, self.block_size,
+                                        self.rand_seed)
+        
+        return out
     
     def av_plaquette(self):
         pass
