@@ -16,3 +16,13 @@ class Config:
     @classmethod
     def load(self, filename):
         pass
+        
+    def save_raw(self, filename):
+        np.save(filename, self.data)
+    
+    def __str__(self):
+        pass
+    
+    def av_plaquette(self):
+        pass
+
