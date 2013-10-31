@@ -53,7 +53,7 @@ class Lattice(lattice.Lattice):
                                  rand_seed)
     
     def get_config(self):
-        
+        """Returns the current field configuration."""
         raw_links = []
         r = xrange(self.L)
         t = xrange(self.T)
@@ -74,6 +74,7 @@ class Lattice(lattice.Lattice):
         pass
     
     def save_config(self, filename):
+        """Saves the current field configuration to a file"""
         
         configuration = self.get_config()
         configuration.save(filename)
