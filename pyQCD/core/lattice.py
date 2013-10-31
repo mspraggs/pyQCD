@@ -103,7 +103,7 @@ class Lattice(lattice.Lattice):
         configuration.save(filename)
         
     def load_config(self, filename):
-        configuration = config.Config(filename)
+        configuration = config.Config.load(filename)
         self.set_config(configuration)
     
     def get_wilson_loops(self):
