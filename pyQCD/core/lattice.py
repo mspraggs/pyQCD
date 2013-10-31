@@ -53,7 +53,10 @@ class Lattice(lattice.Lattice):
                                  rand_seed)
     
     def get_config(self):
-        """Returns the current field configuration."""
+        """Returns the current field configuration.
+        
+        :returns: :class:`Config`
+        """
         raw_links = []
         r = xrange(self.L)
         t = xrange(self.T)
