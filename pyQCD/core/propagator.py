@@ -1,7 +1,14 @@
 import numpy as np
+from observable import Observable
 
-class Propagator:
+class Propagator(Observable):
     
+    members = ['L', 'T', 'beta', 'u0', 'action', 'mass',
+               'source_site', 'num_field_smears',
+               'field_smearing_param', 'num_source_smears',
+               'source_smearing_param', 'num_sink_smears',
+               'sink_smearing_param']
+        
     def __init__(self, propagator, L, T, beta, u0, action, mass, source_site,
                  num_field_smears, field_smearing_param, num_source_smears,
                  source_smearing_param, num_sink_smears, sink_smearing_param):
@@ -68,6 +75,24 @@ class Propagator:
         
         self.data = propagator
     
+    def save(self, filename):
+        """Saves the propagator to a numpy zip archive
+        
+        :param filename: The file to save to
+        :type filename: :class:`str`
+        """
+        Observable.save(self, filename)
+        
+    @classmethod
+    def load(cls, filename):
+        """Loads and returns a propagator object from a numpy zip
+        archive
+        
+        :param filename: The file to load from
+        :type filename: :class:`str`
+        """
+        return super(Propagator, cls).load(filename)
+        
     def __repr__(self):
         
         out = \

@@ -1,6 +1,9 @@
 import numpy as np
+from observable import Observable
 
-class Config:
+class Config(Observable):
+    
+    members = ['L', 'T', 'beta', 'u0', 'action']
     
     def __init__(self, links, L, T, beta, u0, action):
         """Create a field configuration container.
@@ -37,20 +40,22 @@ class Config:
         self.data = links
     
     def save(self, filename):
-        """Documentation"""
-        keys = ['L', 'T', 'beta', 'u0', 'action', 'n_cor', 'update_method',
-                'parallel_updates', 'block_size', 'rand_seed']
+        """Saves the configuration to a numpy zip archive
         
-        items = [getattr(self, key) for key in keys]
-        
-        np.savez(filename, header = dict(zip(keys, items)), data = self.data)
+        :param filename: The file to save to
+        :type filename: :class:`str`
+        """
+        Observable.save(self, filename)
         
     @classmethod
-    def load(self, filename):
-        pass
+    def load(cls, filename):
+        """Loads and returns a configuration object from a numpy zip
+        archive
         
-    def save_raw(self, filename):
-        np.save(filename, self.data)
+        :param filename: The file to load from
+        :type filename: :class:`str`
+        """
+        return super(Config, cls).load(filename)
     
     def __repr__(self):
         
