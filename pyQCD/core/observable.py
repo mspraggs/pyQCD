@@ -28,6 +28,7 @@ class Observable(object):
         
         :param filename: The file to load from
         :type filename: :class:`str`
+        :returns: :class:`Observable`
         """
         
         numpy_archive = np.load(filename)
@@ -51,6 +52,16 @@ class Observable(object):
         """
         np.save(filename, self.data)
         
+    def header(self):
+        """Retrieves the list of variables used in the header
+        
+        :returns: :class:`dict`
+        """
+        
+        items = [getattr(self, member) for member in members]
+        
+        return dict(zip(members, items))
+         
     def __repr__(self):
         
         string_list = ["Observable Object\n",

@@ -97,12 +97,22 @@ class Lattice(lattice.Lattice):
             self.set_link([t, x, y, z, mu], link_matrix)
     
     def save_config(self, filename):
-        """Saves the current field configuration to a file"""
+        """Saves the current field configuration to a file
+        
+        :param filename: The file to which the config will be saved
+        :type filename: :class:`str`
+        """
         
         configuration = self.get_config()
         configuration.save(filename)
         
     def load_config(self, filename):
+        """Loads the configuration in the specified file
+        
+        :param filename: The file from which the config will be loaded
+        :type filename: :class:`str`
+        """
+        
         configuration = config.Config.load(filename)
         self.set_config(configuration)
     

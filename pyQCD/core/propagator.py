@@ -90,6 +90,7 @@ class Propagator(Observable):
         
         :param filename: The file to load from
         :type filename: :class:`str`
+        :returns: :class:`Propagator`
         """
         return super(Propagator, cls).load(filename)
         
