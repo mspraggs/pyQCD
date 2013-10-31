@@ -86,8 +86,64 @@ class Lattice(lattice.Lattice):
     def get_wilson_loops(self):
         pass
     
-    def get_propagator(self):
-        pass
+    def get_propagator(self, mass,
+                       source_site = [0, 0, 0, 0],
+                       num_field_smears = 0,
+                       field_smearing_param = 1.0,
+                       num_source_smears = 0,
+                       source_smearing_param = 1.0,
+                       num_sink_smears = 0,
+                       sink_smearing_param = 1.0,
+                       solver_method = 0,
+                       verbosity = 0):
+        """Create a field configuration container.
+                 
+        :param mass: The bare quark mass
+        :type mass: :class:`float`
+        :param source_site: The source site used when doing the inversion
+        :type source_site: :class:`list`
+        :param num_field_smears: The number of stout smears applied when
+        computing the propagator
+        :type num_field_smears: :class:`int`
+        :param field_smearing_param: The stout smearing parameter
+        :type field_smearing_param: :class:`float`
+        :param num_source_smears: The number of Jacobian smears performed
+        on the source when computing the propagator
+        :type num_source_smears: :class:`int`
+        :param source_smearing_param: The Jacobi smearing parameter used
+        when smearing the source
+        :type source_smearing_param: :class:`float`
+        :param num_sink_smears: The number of Jacobian smears performed
+        on the source when computing the propagator
+        :type num_sink_smears: :class:`int`
+        :param sink_smearing_param: The Jacobi smearing parameter used
+        when smearing the source
+        :type sink_smearing_param: :class:`float`
+        :returns: :class:`Propagator`
+        """
+        
+        raw_propagator = np.array(self.propagator(mass,
+                                                  1.0,
+                                                  source_site,
+                                                  num_field_smears,
+                                                  field_smearing_param,
+                                                  num_source_smears,
+                                                  source_smearing_param,
+                                                  num_sink_smears,
+                                                  sink_smearing_param,
+                                                  solver_method,
+                                                  verbosity))
+        
+        prop = np.swapaxes(np.reshape(prop, (self.T, self.L, self.L, self.L,
+                                             4, 3, 4, 3)), 2, 3)
+        
+        out = propagator.Propagator(prop, self.L, self.T, self.beta, self.u0,
+                                    self.action, mass, source_site,
+                                    num_field_smears, field_smearing_param,
+                                    num_source_smears, source_smearing_param,
+                                    num_sink_smears, sink_smearing_param)
+        
+        return out
     
     def __repr__(self):
         
