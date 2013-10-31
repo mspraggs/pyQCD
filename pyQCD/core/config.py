@@ -18,6 +18,7 @@ class Config:
         :param action: The gauge action
         :type action: :class:`str`, one of wilson, rectangle_improved or
         twisted_rectangle_improved
+        :raises: ValueError
         """
         
         # Validate the shape of the links array
