@@ -73,7 +73,28 @@ class Lattice(lattice.Lattice):
         return out
     
     def set_config(self, configuration):
-        pass
+        """Sets the current field configuration
+        
+        :param configuration: The field configuration
+        :type configuration: :class:`Config`
+        """
+        expected_shape = (self.T, self.L, self.L, self.L, 4, 3, 3)
+        
+        if configuration.data.shape != expected_shape:
+            raise ValueError("Shape of field configuration, {}, does not "
+                             "match the current lattice shape, {}"
+                             .format(configuration.data.shape, expected_shape))
+        
+        r = xrange(self.L)
+        t = xrange(self.T)
+        sites = itertools.product(t, r, r, r, range(4))
+        
+        links = np.zeros((self.T, self.L, self.L, self.L, 4, 3, 3),
+                         dtype=complex)
+        
+        for t, x, y, z, mu in sites:
+            link_matrix = configuration.data[t][x][y][z][mu].tolist()
+            self.set_link([t, x, y, z, mu], link_matrix)
     
     def save_config(self, filename):
         """Saves the current field configuration to a file"""
