@@ -66,7 +66,7 @@ class Propagator:
         self.num_sink_smears = sink_smearing_param
         self.sink_smearing_param = sink_smearing_param
         
-        self.data = links
+        self.data = propagator
     
     def __repr__(self):
         
