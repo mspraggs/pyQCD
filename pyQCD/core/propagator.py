@@ -87,7 +87,7 @@ class Propagator:
         "Number of sink jacobi smears: {}\n" \
         "Sink Jacobi smearing parameter: {}\n" \
         .format(self.L, self.T, self.action, self.beta,
-                self.u0, self.mass = mass, self.source_site,
+                self.u0, self.mass, self.source_site,
                 self.num_field_smears, self.field_smearing_param,
                 self.num_source_smears, self.source_smearing_param,
                 self.num_sink_smears, self.sink_smearing_param)
