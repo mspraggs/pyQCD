@@ -57,7 +57,6 @@ class Lattice(lattice.Lattice):
         
         :returns: :class:`Config`
         """
-        raw_links = []
         r = xrange(self.L)
         t = xrange(self.T)
         sites = itertools.product(t, r, r, r, range(4))
