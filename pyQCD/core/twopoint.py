@@ -12,14 +12,16 @@ class TwoPoint(Observable):
         :raises: ValueError
         """
         
-        if prop1.T != prop2.T
-            raise ValueError("Temporal extents of the two propagators, {} and "
-                             "{}, do not match".format(prop1.T, prop2.T))
-        
-        if prop2.L != prop2.L:
-            raise ValueError("Spatial extents of the two propagators, {} and "
-                             "{}, do not match".format(prop1.L, prop2.L))
+        for member in TwoPoint.common_members:
+            prop1_member = getattr(prop1, member)
+            prop2_member = getattr(prop2, member)
+            
+            if prop1_member != prop2_member:
+                raise ValueError("{} members in propagators 1 ({}) and "
+                                 "2 ({}) do not match."
+                                 .format(member, prop1_member, prop2_member))
         
         self.prop1 = prop1
         self.prop2 = prop2
+        self.computed_correlators = []
 
