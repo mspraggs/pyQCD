@@ -114,7 +114,7 @@ void Lattice::update()
 {
   // Iterate through the lattice and apply the appropriate update
   // function
-  if (this->parallelFlag_ == 1) {
+  if (this->parallelFlag_ == 0) {
     for (int i = 0; i < this->nLinks_; ++i)
       (this->*updateFunction_)(i);
   }
