@@ -52,15 +52,15 @@ class Observable(object):
         """
         np.save(filename, self.data)
         
-    def header(self):
+    def header(cls):
         """Retrieves the list of variables used in the header
         
         :returns: :class:`dict`
         """
         
-        items = [getattr(self, member) for member in members]
+        items = [getattr(cls, member) for member in cls.members]
         
-        return dict(zip(members, items))
+        return dict(zip(cls.members, items))
          
     def __repr__(self):
         
