@@ -97,8 +97,8 @@ class Propagator(Observable):
     def __repr__(self):
         
         out = \
-          "Field Configuration Object\n" \
-        "--------------\n" \
+          "Propagator Object\n" \
+        "-----------------\n" \
         "Spatial extent: {}\n" \
         "Temportal extent: {}\n" \
         "Gauge action: {}\n" \
@@ -108,9 +108,9 @@ class Propagator(Observable):
         "Inversion source site: {}\n" \
         "Number of stout field smears: {}\n" \
         "Stout smearing parameter: {}\n" \
-        "Number of source jacobi smears: {}\n" \
+        "Number of source Jacobi smears: {}\n" \
         "Source Jacobi smearing parameter: {}\n" \
-        "Number of sink jacobi smears: {}\n" \
+        "Number of sink Jacobi smears: {}\n" \
         "Sink Jacobi smearing parameter: {}\n" \
         .format(self.L, self.T, self.action, self.beta,
                 self.u0, self.mass, self.source_site,
