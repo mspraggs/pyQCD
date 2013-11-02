@@ -7,7 +7,7 @@ Matrix3cd Lattice::computePath(const vector<vector<int> >& path)
   // Multiplies the matrices together specified by the indices in path
   Matrix3cd out = Matrix3cd::Identity();
   
-  for (int i = 0; i < path.size() - 1; ++i) {
+  for (unsigned int i = 0; i < path.size() - 1; ++i) {
     // Which dimension are we moving in?
     int dimension = path[i][4];
     int dimensionDifference = path[i + 1][dimension] - path[i][dimension];

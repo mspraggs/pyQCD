@@ -7,8 +7,6 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
   // Calculates the Dirac matrix for the current field configuration
   // using Wilson fermions
   
-  // Calculate some useful quantities
-  int nSites = this->nLinks_ / 4;
   // Create the sparse matrix we're going to return
   SparseMatrix<complex<double> > out(3 * this->nLinks_, 3 * this->nLinks_);
 
@@ -83,7 +81,7 @@ SparseMatrix<complex<double> > Lattice::computeDiracMatrix(const double mass,
   }
 
   for (int i = 0; i < this->nLinks_ / 4; ++i)
-    for (int j = 0; j < tempTripletList[i].size(); ++j)
+    for (unsigned int j = 0; j < tempTripletList[i].size(); ++j)
       tripletList.push_back(tempTripletList[i][j]);
   
   // Add all the triplets to the sparse matrix
@@ -171,7 +169,7 @@ Lattice::computeSmearingOperator(const double smearingParameter,
     }
 
     for (int i = 0; i < this->nLinks_ / 4; ++i)
-      for (int j = 0; j < tempTripletList[i].size(); ++j)
+      for (unsigned int j = 0; j < tempTripletList[i].size(); ++j)
 	tripletList.push_back(tempTripletList[i][j]);
     
     // Add all the triplets to the sparse matrix
@@ -244,12 +242,12 @@ Lattice::computePropagator(const double mass, const double spacing, int site[4],
 
   // How many indices are we dealing with?
   int nSites = this->nLinks_ / 4;
-  int nIndices = 3 * this->nLinks_;
 
+#ifdef USE_CUDA
   // Index for the vector point source
   int spatialIndex = pyQCD::getLinkIndex(site[0], site[1], site[2], site[3], 0,
 					 this->spatialExtent);
-
+#endif
   // Declare a variable to hold our propagator
   vector<MatrixXcd> propagator(nSites, MatrixXcd::Zero(12, 12));
 

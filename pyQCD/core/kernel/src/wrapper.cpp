@@ -112,7 +112,6 @@ struct lattice_pickle_suite : py::pickle_suite
       }
     }
     // And the same for the random SU3 matrices.
-    int index = 0;
     for (int i = 0; i < 20; i++) {
       for (int j = 0; j < 20; j++) {
 	Matrix3cd tempMatrix;

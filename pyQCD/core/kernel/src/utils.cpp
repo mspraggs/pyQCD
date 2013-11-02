@@ -91,7 +91,6 @@ namespace pyQCD
   void getLinkIndices(int n, const int spaceSize, const int timeSize,
 		      int link[5])
   {
-    int i = 0;
     link[4] = mod(n, 4);
     n /= 4;
     for (int i = 0; i < 3; ++i) {

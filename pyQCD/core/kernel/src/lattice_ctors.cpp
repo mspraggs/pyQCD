@@ -53,8 +53,6 @@ Lattice::Lattice(const int spatialExtent, const int temporalExtent,
     int rowLink[5];
     pyQCD::getLinkIndices(i, this->spatialExtent, this->temporalExtent, rowLink);
     
-    int neighbourCount = 0;
-    int dimension = 0;
     
     // Loop through the offsets
     for (int j = 0; j < 8; ++j) {
@@ -168,9 +166,6 @@ Lattice::Lattice(const int spatialExtent, const int temporalExtent,
     }
   }
   
-  int nChunks = int(pow(this->spatialExtent / chunkSize, 3)
-		    * this->temporalExtent / chunkSize);
-  
   for (int i = 0; i < this->temporalExtent; i += chunkSize) {
     for (int j = 0; j < this->spatialExtent; j += chunkSize) {
       for (int k = 0; k < this->spatialExtent; k += chunkSize) {
@@ -237,6 +232,8 @@ Lattice& Lattice::operator=(const Lattice& lattice)
   this->randSeed_ = lattice.randSeed_;
   if (this->randSeed_ > -1)
     this->rng.setSeed(this->randSeed_);
+
+  return *this;
 }
 
 
