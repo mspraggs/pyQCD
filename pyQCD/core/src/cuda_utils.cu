@@ -238,16 +238,9 @@ namespace pyQCD
       cusp::array1d<double, devMem> temp;
       if (verbosity > 0)
 	std::cout << "  Transferring matrices to device..." << std::flush;
-      int tmp1 = getMem();
       complexHybridDev devDirac = hostDirac;
-      int tmp2 = getMem();
-      std::cout << tmp1 - tmp2 << std::endl;
       complexHybridDev devSourceSmear = hostSourceSmear;
-      tmp1 = getMem();
-      std::cout << tmp2 - tmp1 << std::endl;
       complexHybridDev devSinkSmear = hostSinkSmear;
-      tmp2 = getMem();
-      std::cout << tmp1 - tmp2 << std::endl;
       if (verbosity > 0)
 	std::cout << " Done!" << std::endl;
 
