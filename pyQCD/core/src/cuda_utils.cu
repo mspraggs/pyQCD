@@ -125,7 +125,7 @@ namespace pyQCD
 	      fieldElement[0] = gaugeField[18 * (spatialIndex - adjointOffset)
 					   + 6 * xColour + 2 * bColour];
 	      fieldElement[1] = -gaugeField[18 * (spatialIndex - adjointOffset)
-					    + 6 * xColour + 2 * bColour + 1];	      
+					    + 6 * xColour + 2 * bColour + 1];
 	    }
 	    else {
 	      fieldElement[0] = gaugeField[18 * spatialIndex + 6 * bColour
@@ -159,7 +159,7 @@ namespace pyQCD
       unprecWilsonAction(int N, float mass,
 			 cusp::array1d<cusp::complex<float>, hostMem>&
 			 cuspGaugeField,
-			 int latticeShape[4]) : super(N,N)
+			 const int latticeShape[4]) : super(N,N)
       {
 	int fieldSize = 4 * latticeShape[0] * latticeShape[1] * latticeShape[2]
 	  * latticeShape[3];
@@ -188,8 +188,8 @@ namespace pyQCD
       void operator()(const VectorType1& x, VectorType2& y) const
       {
 	// obtain a raw pointer to device memory
-	const float * x_ptr = thrust::raw_pointer_cast(&x[0]);
-	float * y_ptr = thrust::raw_pointer_cast(&y[0]);
+	const float* x_ptr = thrust::raw_pointer_cast((float*)&x[0]);
+	float* y_ptr = thrust::raw_pointer_cast((float*)&y[0]);
 
 	unprecWilsonKernel<<<16,(N + 15) / 16>>>(this->gaugeField,
 						 this->mass,
@@ -257,7 +257,7 @@ namespace pyQCD
 	    std::cout << "  Inverting for spin " << i
 		      << " and colour " << j << "..." << std::endl;
 	  // Create the source using the smearing operator
-	  createSource(spatialIndex, i, j, devSourceSmear, source,
+	  createSource(spatialIndex, i, j, source,
 		       tempSource);
 	  // Set up the monitor for use in the solver
 	  cusp::default_monitor<cusp::complex<float> >
@@ -265,13 +265,11 @@ namespace pyQCD
 	  
 	  // Do the inversion
 	  cusp::krylov::bicgstab(devDirac, solution, source, monitor);
-	  // Smear at the sink
-	  cusp::multiply(devSinkSmear, solution, tempSolution);
 	  // Create a view to the relevant column of the propagator
 	  cusp::array2d<cusp::complex<float>, devMem>::column_view
 	    propagatorView = tempPropagator.column(j + 3 * i);
 	  // Copy the solution to the propagator output
-	  cusp::copy(tempSolution, propagatorView);
+	  cusp::copy(solution, propagatorView);
 	  if (verbosity > 0)
 	    std::cout << "  -> Inversion reached tolerance of " 
 		      << monitor.residual_norm() << " in "
