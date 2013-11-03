@@ -16,6 +16,7 @@
 
 typedef cusp::host_memory hostMem;
 typedef cusp::coo_matrix<int, cusp::complex<float>, hostMem> complexHybridHost;
+typedef vector<Matrix3cd, aligned_allocator<Matrix3cd> > GaugeField;
 
 #endif
 
