@@ -242,12 +242,12 @@ namespace pyQCD
   {
     // Converts the gauge field to a 2d array
 
-    cuspGaugeField.resize(3 * gaugeField.size(), 3);
+    cuspGaugeField.resize(9 * gaugeField.size());
 
     for (int i = 0; i < gaugeField.size(); ++i)
       for (int j = 0; j < 3; ++j)
 	for (int k = 0; k < 3; ++k)
-	  cuspGaugeField[12 * i + 3 * j + k] = gaugeField[i](j, k);
+	  cuspGaugeField[9 * i + 3 * j + k] = gaugeField[i](j, k);
   }
 
   void eigenToCusp(const SparseMatrix<complex<double> >& eigenMatrix,
@@ -293,29 +293,21 @@ namespace pyQCD
 
 
 
-  void cudaBiCGstab(const SparseMatrix<complex<double> >& eigenDirac,
-		    const SparseMatrix<complex<double> >& eigenSourceSmear,
-		    const SparseMatrix<complex<double> >& eigenSinkSmear,
-		    const int spatialIndex, vector<MatrixXcd>& propagator,
-		    const int verbosity)
+  void cudaBiCGstab(const GaugeField& gaugeField, const double mass,
+		    const int latticeShape, const int spatialIndex,
+		    vector<MatrixXcd>& propagator, const int verbosity)
   {
-    int nTriplets = eigenDirac.nonZeros();
-    int nRows = eigenDirac.rows();
-    int nCols = eigenDirac.cols();
-    int nSites = nRows / 12;
+    int nSites = latticeShape[0] * latticeShape[1] * latticeShape[2]
+      * latticeShape[3];
 
-    complexHybridHost cuspDirac;
-    complexHybridHost cuspSourceSmear;
-    complexHybridHost cuspSinkSmear;
+    const cusp::array1d<cusp::complex<float>, hostMem> field;
 
-    eigenToCusp(eigenDirac, cuspDirac);
-    eigenToCusp(eigenSourceSmear, cuspSourceSmear);
-    eigenToCusp(eigenSinkSmear, cuspSinkSmear);
+    gaugeFieldToCusp(gaugeField, field);
 
     cusp::array2d<cusp::complex<float>, hostMem>
       cuspPropagator(nRows, 12, cusp::complex<float>(0, 0));
 
-    cuda::bicgstab(cuspDirac, cuspSourceSmear, cuspSinkSmear, spatialIndex,
+    cuda::bicgstab(gaugeField, mass, latticeShape, spatialIndex,
 		   cuspPropagator, verbosity);
 
     for (int i = 0; i < nSites; ++i) {

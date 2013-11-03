@@ -25,14 +25,12 @@ namespace pyQCD
 {
   namespace cuda {
     void createSource(const int site[4], const int spin, const int colour,
-		      const complexHybridDev& smearingOperator,
 		      cusp::array1d<cusp::complex<float>, devMem>& source,
 		      cusp::array1d<cusp::complex<float>, devMem>&
 		      tempSource);
 
-    void bicgstab(const complexHybridHost& hostDirac,
-		  const complexHybridHost& hostSourceSmear,
-		  const complexHybridHost& hostSinkSmear,
+    void bicgstab(const cusp::array1d<cusp::complex<float>, hostMem>& field,
+		  const float mass, const int latticeShape[4],
 		  const int spatialIndex,
 		  cusp::array2d<cusp::complex<float>, hostMem>& propagator,
 		  const int verbosity);
