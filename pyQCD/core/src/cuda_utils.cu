@@ -42,7 +42,7 @@ namespace pyQCD
     }
 
     __device__
-    void getCoords(const int n, int coords[4], int latticeShape[4])
+    void getCoords(const int n, int coords[4], const int latticeShape[4])
     {
       int m = n;
       for (int i = 0; i < 4; ++i) {
@@ -57,14 +57,14 @@ namespace pyQCD
       int ret = 0;
 
       for (int i = 0; i < 4; ++i) {
-	out *= latticeShape[i];
-	out += mod(coords[i], latticeShape[i]);
+	ret *= latticeShape[i];
+	ret += mod(coords[i], latticeShape[i]);
       }
       return ret;
     }
 
     __device__
-    void multiplyComplex(float* x, float* y, float* z)
+    void multiplyComplex(const float* x, const float* y, float* z)
     {
       z[0] = x[0] * y[0] - x[1] * y[1];
       z[1] = x[0] * y[1] + x[1] * y[0];
@@ -72,19 +72,19 @@ namespace pyQCD
 
     __global__
     void unprecWilsonKernel(const float* gaugeField, const float mass,
-			    const int N, const float* x, const float* b,)
+			    const int* latticeShape, const int N, const float* x,
+			    float* b)
     {
       int index = blockDim.x * blockIdx.x + threadIdx.x;
 
-      __constant__ 
-	int offsets[8][4] = {{-1,0,0,0},{0,-1,0,0},{0,0,-1,0},{0,0,0,-1},
-			     {1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
+      int offsets[8][4] = {{-1,0,0,0},{0,-1,0,0},{0,0,-1,0},{0,0,0,-1},
+      	  	           {1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
 
       if (index < N) {
 	int spatialIndex = index / 12;
 	int bSpin = (index % 12) / 3;
 	int bColour = (index % 12) % 3;
-	__device__ int coords[4];
+	int coords[4];
 	getCoords(spatialIndex, coords, latticeShape);
 
 	// The mass term
@@ -94,7 +94,7 @@ namespace pyQCD
 	int boundaryCondition = 1;
 	// The nearest neighbours
 	for (int i = 0; i < 8; ++i) {
-	  __device__ int offsetCoords[4];
+	  int offsetCoords[4];
 	  int dim = i % 4;
 	  addCoords(coords, offsets[i], offsetCoords);
 
@@ -109,9 +109,9 @@ namespace pyQCD
 
 	    int xIndex = 2 * (j + 12 * offsetIndex);
 	    
-	    __device__ float spinColourProduct[2];
-	    __device__ float fieldElement[2];
-	    __device__ float gammaElement[2];
+	    float spinColourProduct[2];
+	    float fieldElement[2];
+	    float gammaElement[2];
 
 	    gammaElement[0] = gammas[32 * dim + 8 * bSpin + 2 * xSpin];
 	    gammaElement[1] = gammas[32 * dim + 8 * bSpin + 2 * xSpin + 1];
@@ -134,8 +134,9 @@ namespace pyQCD
 					   + 2 * xColour + 1];
 	    }
 
-	    __device__ float result[2];
-	    multiplyComplex(fieldElement, gammaElement);
+	    multiplyComplex(fieldElement, gammaElement, spinColourProduct);
+	    float result[2];
+	    multiplyComplex(spinColourProduct, &x[xIndex], result);
 	    b[2 * index] -= 0.5 * boundaryCondition * result[0];
 	    b[2 * index + 1] -= 0.5 * boundaryCondition * result[1];
 	  }
@@ -151,12 +152,12 @@ namespace pyQCD
 
       int N;
       float* gaugeField;
-      float* latticeShape;
+      int* latticeShape;
       float mass;
 
       // constructor
       unprecWilsonAction(int N, float mass,
-			 cusp::array1d<cusp::complex<float>, cusp::hostMem>&
+			 cusp::array1d<cusp::complex<float>, hostMem>&
 			 cuspGaugeField,
 			 int latticeShape[4]) : super(N,N)
       {
@@ -192,6 +193,7 @@ namespace pyQCD
 
 	unprecWilsonKernel<<<16,(N + 15) / 16>>>(this->gaugeField,
 						 this->mass,
+						 this->latticeShape,
 						 N, x_ptr, y_ptr);
       }
     };

@@ -13,10 +13,12 @@
 #include <cusp/print.h>
 
 #include <iostream>
+#include <vector>
 
 typedef cusp::host_memory hostMem;
 typedef cusp::coo_matrix<int, cusp::complex<float>, hostMem> complexHybridHost;
-typedef vector<Matrix3cd, aligned_allocator<Matrix3cd> > GaugeField;
+typedef std::vector<Eigen::Matrix3cd,
+		    Eigen::aligned_allocator<Eigen::Matrix3cd> > GaugeField;
 
 #endif
 
