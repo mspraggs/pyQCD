@@ -3,7 +3,155 @@
 namespace pyQCD
 {
   namespace cuda
-  {  
+  {
+    __device__
+    int mod(int number, const int divisor)
+    {
+      int ret = number % divisor;
+      if (ret < 0)
+	ret += divisor;
+      return ret;
+    }
+
+    __device__
+    void addCoords(const int x[4], const int y[4], int z[4])
+    {
+      for (int i = 0; i < 4; ++i)
+	z[i] = x[i] + y[i];
+    }
+
+    __device__
+    void getCoords(const int n, int coords[4], int latticeShape[4])
+    {
+      int m = n;
+      for (int i = 0; i < 4; ++i) {
+        coords[3 - i] = mod(m, latticeShape[3 - i]);
+	m /= latticeShape[3 - i];
+      }
+    }
+
+    __device__
+    int getIndex(const int coords[4], const int latticeShape[4])
+    {
+      int ret = 0;
+
+      for (int i = 0; i < 4; ++i) {
+	out *= latticeShape[i];
+	out += mod(coords[i], latticeShape[i]);
+      }
+      return ret;
+    }
+
+    __device__
+    void multiplyComplex(float* x, float* y, float* z)
+    {
+      z[0] = x[0] * y[0] - x[1] * y[1];
+      z[1] = x[0] * y[1] + x[1] * y[0];
+    }
+
+    __global__
+    void unprecWilsonKernel(const float* gaugeField, const float mass,
+			    const float* gammas, const int N, const float* x,
+			    const float* b,)
+    {
+      int index = blockDim.x * blockIdx.x + threadIdx.x;
+
+      int offsets[8][4] = {{-1,0,0,0},{0,-1,0,0},{0,0,-1,0},{0,0,0,-1},
+			   {1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
+
+      if (index < N) {
+	int spatialIndex = index / 12;
+	int bSpin = (index % 12) / 3;
+	int bColour = (index % 12) % 3;
+	int coords[4];
+	getCoords(spatialIndex, coords, latticeShape);
+
+	// The mass term
+	b[2 * index] = (4 + mass) * x[2 * index];
+	b[2 * index + 1] = (4 + mass) * x[2 * index + 1];
+
+	int boundaryCondition = 1;
+	// The nearest neighbours
+	for (int i = 0; i < 8; ++i) {
+	  int offsetCoords[4];
+	  int dim = i % 4;
+	  addCoords(coords, offsets[i], offsetCoords);
+
+	  if (offsetCoords[0] >= latticeShape[0] || offsetCoords[0] < 0)
+	    boundaryCondition = -1;
+
+	  int offsetIndex = getIndex(offsetCoords, latticeShape);
+
+	  for (int j = 0; j < 12; ++j) {
+	    int xSpin = j / 3;
+	    int xColour = j % 3;
+
+	    int xIndex = 2 * (j + 12 * offsetIndex);
+	    
+	    float spinColourProduct[2];
+	    float fieldElement[2];
+	    float gammaElement[2];
+
+	    gammaElement[0] = gammas[32 * dim + 8 * bSpin + 2 * xSpin];
+	    gammaElement[1] = gammas[32 * dim + 8 * bSpin + 2 * xSpin + 1];
+
+	    if (i < 4) {
+	      int adjointOffset = 1;
+
+	      for (int k = dim + 1; k < 4; ++k)
+		adjointOffset *= latticeShape[k];
+	      
+	      fieldElement[0] = gaugeField[18 * (spatialIndex - adjointOffset)
+					   + 6 * xColour + 2 * bColour];
+	      fieldElement[1] = -gaugeField[18 * (spatialIndex - adjointOffset)
+					    + 6 * xColour + 2 * bColour + 1];	      
+	    }
+	    else {
+	      fieldElement[0] = gaugeField[18 * spatialIndex + 6 * bColour
+					   + 2 * xColour];
+	      fieldElement[1] = gaugeField[18 * spatialIndex + 6 * bColour
+					   + 2 * xColour + 1];
+	    }
+
+	    float result[2];
+	    multiplyComplex(fieldElement, gammaElement);
+	    b[2 * index] -= 0.5 * boundaryCondition * result[0];
+	    b[2 * index + 1] -= 0.5 * boundaryCondition * result[1];
+	  }
+	}
+      }
+    }
+
+
+    class unprecWilsonAction : public cusp::linear_operator<float,cusp::device_memory>
+    {
+    public:
+      typedef cusp::linear_operator<float,cusp::device_memory> super;
+
+      int N;
+      float gammas[128] = {
+
+      // constructor
+      unprecWilsonKernel(int N) : super(N*N,N*N), N(N) {}
+
+      // linear operator y = A*x
+      template <typename VectorType1,
+		typename VectorType2>
+      void operator()(const VectorType1& x, VectorType2& y) const
+      {
+	// obtain a raw pointer to device memory
+	const float * x_ptr = thrust::raw_pointer_cast(&x[0]);
+	float * y_ptr = thrust::raw_pointer_cast(&y[0]);
+
+	dim3 dimBlock(16,16);
+	dim3 dimGrid((N + 15) / 16, (N + 15) / 16);
+
+	unprecWilsonKernel<<<dimGrid,dimBlock>>>(N, x_ptr, y_ptr);
+      }
+    };
+
+
+  
     void createSource(const int spatialIndex, const int spin, const int colour,
 		      const complexHybridDev& smearingOperator,
 		      cusp::array1d<cusp::complex<float>, devMem>& source,
@@ -15,6 +163,16 @@ namespace pyQCD
       tempSource[index] = cusp::complex<float>(1.0, 0.0);
 
       cusp::multiply(smearingOperator, tempSource, source);
+    }
+
+
+    int getMem()
+    {
+      size_t free;
+      size_t total;
+      cuMemGetInfo(&free, &total);
+
+      return free;
     }
 
   
@@ -29,11 +187,19 @@ namespace pyQCD
       // Get the size of the Dirac matrix
       int nCols = hostDirac.num_cols;
       // Transfer the Dirac and smearing matrices to the device.
+      cusp::array1d<double, devMem> temp;
       if (verbosity > 0)
 	std::cout << "  Transferring matrices to device..." << std::flush;
+      int tmp1 = getMem();
       complexHybridDev devDirac = hostDirac;
+      int tmp2 = getMem();
+      std::cout << tmp1 - tmp2 << std::endl;
       complexHybridDev devSourceSmear = hostSourceSmear;
+      tmp1 = getMem();
+      std::cout << tmp2 - tmp1 << std::endl;
       complexHybridDev devSinkSmear = hostSinkSmear;
+      tmp2 = getMem();
+      std::cout << tmp1 - tmp2 << std::endl;
       if (verbosity > 0)
 	std::cout << " Done!" << std::endl;
 
