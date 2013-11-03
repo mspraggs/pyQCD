@@ -156,8 +156,8 @@ namespace pyQCD
       float mass;
 
       // constructor
-      unprecWilsonAction(int N, float mass,
-			 cusp::array1d<cusp::complex<float>, hostMem>&
+      unprecWilsonAction(int N, const float mass,
+			 const cusp::array1d<cusp::complex<float>, hostMem>&
 			 cuspGaugeField,
 			 const int latticeShape[4]) : super(N,N)
       {
