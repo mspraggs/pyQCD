@@ -1,6 +1,7 @@
 from observable import Observable
 from propagator import Propagator
 import numpy as np
+import constants as const
 
 class TwoPoint(Observable):
     
@@ -118,6 +119,16 @@ class TwoPoint(Observable):
                            header['sink_smearing_param_2'])
         
         return TwoPoint(prop1, prop2)
+    
+    def available_mesons(self):
+        """Returns a list of possible meson interpolators for use
+        in the meson_correlator function
+        
+        :returns: :class:`list` of tuples, each describing the meson
+        state and the gamma matrix combination associated with it"""
+        
+        return zip(const.Gamma_mesons, const.Gamma_combinations)
+    
         
     def __repr__(self):
         
