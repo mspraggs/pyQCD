@@ -189,8 +189,8 @@ namespace pyQCD
       {
 	// obtain a raw pointer to device memory
 	const cusp::complex<float>* x_ptr 
-	  = thrust::raw_pointer_cast(&x[0]);
-	cusp::complex<float>* y_ptr = thrust::raw_pointer_cast(&y[0]);
+	  = (float*) thrust::raw_pointer_cast(&x[0]);
+	cusp::complex<float>* y_ptr = (float*) thrust::raw_pointer_cast(&y[0]);
 
 	unprecWilsonKernel<<<16,(N + 15) / 16>>>(this->gaugeField,
 						 this->mass,
