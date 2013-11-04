@@ -100,16 +100,19 @@ class Propagator(Observable):
             raise ValueError("Error: Propagator cannot be multiplied by type "
                              "{}".format(type(matrix)))
         
+        properties = dict(zip(Propagator.members,
+                              [getattr(self, m) for m in Propagator.members]))
+        
         if matrix.shape == (4, 4): # Multiply by a spin matrix
             out = np.tensordot(self.data, matrix, (5, 0))
             out = np.swapaxes(np.swapaxes(out, 6, 7), 5, 6)
             
-            return out
+            return Propagator(out, **properties)
         
         if matrix.shape == (3, 3): # Multiply by a colour matrix
-            out = np.tensordot(self.data, matrix, (7, 3))
+            out = np.tensordot(self.data, matrix, (7, 0))
             
-            return out
+            return Propagator(out, **properties)
         
     def __repr__(self):
         
