@@ -4,7 +4,6 @@ import numpy as np
 
 class TwoPoint(Observable):
     
-    mesons = []
     common_members = ['L', 'T', 'beta', 'u0', 'action']
     
     def __init__(self, prop1, prop2):
