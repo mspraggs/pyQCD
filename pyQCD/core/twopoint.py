@@ -28,7 +28,7 @@ class TwoPoint(Observable):
         
         self.prop1 = prop1
         self.prop2 = prop2
-        self.computed_correlators = []
+        self.computed_correlators = {}
 
     
     def save(self, filename):
