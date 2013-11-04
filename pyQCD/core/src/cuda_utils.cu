@@ -226,7 +226,7 @@ namespace pyQCD
 		  const float mass, const int latticeShape[4],
 		  const int spatialIndex,
 		  cusp::array2d<cusp::complex<float>, hostMem>& propagator,
-		  const int verbosity)
+		  const int verbosity);
     {
       // Get the size of the Dirac matrix
       int nCols = field.size() / 6;
