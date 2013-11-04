@@ -188,8 +188,8 @@ namespace pyQCD
       void operator()(const VectorType1& x, VectorType2& y) const
       {
 	// obtain a raw pointer to device memory
-	const float* x_ptr = thrust::raw_pointer_cast((float*)&x[0]);
-	float* y_ptr = thrust::raw_pointer_cast((float*)&y[0]);
+	const float* x_ptr = thrust::raw_pointer_cast(&((float)x[0]));
+	float* y_ptr = thrust::raw_pointer_cast(&((float)y[0]));
 
 	unprecWilsonKernel<<<16,(N + 15) / 16>>>(this->gaugeField,
 						 this->mass,
