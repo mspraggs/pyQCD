@@ -129,6 +129,23 @@ class TwoPoint(Observable):
         
         return zip(const.Gamma_mesons, const.Gamma_combinations)
     
+    def meson_correlator(self, meson, momentum = [0, 0, 0],
+                         average_momenta = True):
+        """Computes and stores the specified meson correlator within the
+        current TwoPoint object
+        
+        :param meson: The meson interpolater to use in calculating the
+        correlator
+        :type meson: :class:`str`, possibilities given by available_mesons
+        :param momentum: The lattice momentum to project the correlator onto
+        :type momentum: :class:`list` of three :class:`int`s, or a compound
+        list containing several momenta
+        :param average_momenta: Determines whether equivalent momenta are
+        averaged over
+        :type average_momenta: :class:`bool`
+        """
+        
+        Gamma = const.Gammas[meson]
         
     def __repr__(self):
         
