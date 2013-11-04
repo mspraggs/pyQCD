@@ -1,13 +1,13 @@
 #include <cuda_utils.h>
-#include <cusp/print.h>
-
-typedef cusp::complex<float> ValueType;
 
 namespace pyQCD
 {
   namespace cuda
   {
-    ValueType gammas[64] =
+    typedef ValueType cusp::complex<float>
+
+    __constant__
+    float gammas[64] =
       {ValueType(0, 0), ValueType(0, 0), ValueType(1, 0), ValueType(0, 0),
        ValueType(0, 0), ValueType(0, 0), ValueType(0, 0), ValueType(1, 0),
        ValueType(1, 0), ValueType(0, 0), ValueType(0, 0), ValueType(0, 0),
@@ -27,10 +27,7 @@ namespace pyQCD
        ValueType(0, 0), ValueType(0, 0), ValueType(0, 0), ValueType(0, 1),
        ValueType(0, 1), ValueType(0, 0), ValueType(0, 0), ValueType(0, 0),
        ValueType(0, 0), ValueType(0, -1), ValueType(0, 0), ValueType(0, 0)};
-
-    __constant__
-    ValueType* devGammas;
- 
+    
     __device__
     int mod(int number, const int divisor)
     {
@@ -118,7 +115,7 @@ namespace pyQCD
 	    ValueType fieldElement;
 	    ValueType gammaElement;
 
-	    gammaElement = devGammas[16 * dim + 4 * bSpin + xSpin];
+	    gammaElement = gammas[16 * dim + 4 * bSpin + xSpin];
 
 	    if (i < 4) {
 	      int adjointOffset = 1;
@@ -138,17 +135,17 @@ namespace pyQCD
 
 	    spinColourProduct = fieldElement * gammaElement;
 	    ValueType result = spinColourProduct * x[xIndex];
-	    b[index] += result * (float)(0.5 * boundaryCondition);
+	    b[index] -= 0.5 * boundaryCondition * result;
 	  }
 	}
       }
     }
 
 
-    class unprecWilsonAction : public cusp::linear_operator<ValueType,cusp::device_memory>
+    class unprecWilsonAction : public cusp::linear_operator<float,cusp::device_memory>
     {
     public:
-      typedef cusp::linear_operator<ValueType,cusp::device_memory> super;
+      typedef cusp::linear_operator<float,cusp::device_memory> super;
 
       int N;
       ValueType* gaugeField;
@@ -173,9 +170,6 @@ namespace pyQCD
 		   2 * fieldSize * sizeof(float),
 		   cudaMemcpyHostToDevice);
 
-	cudaMalloc((void**) &devGammas, 128 * sizeof(float));
-	cudaMemcpy(devGammas, gammas, 128 * sizeof(float), cudaMemcpyHostToDevice);
-
         this->mass = mass;
       }
 
@@ -191,10 +185,9 @@ namespace pyQCD
       void operator()(const VectorType1& x, VectorType2& y) const
       {
 	// obtain a raw pointer to device memory
-	const ValueType* x_ptr = thrust::raw_pointer_cast(&x[0]);
-	ValueType* y_ptr = thrust::raw_pointer_cast(&y[0]);
+	const cusp::complex<float>* x_ptr = thrust::raw_pointer_cast(&x[0]);
+	cusp::complex<float>* y_ptr = thrust::raw_pointer_cast(&y[0]);
 
-	//std::cout << "About to call Wilson kernel" << std::endl;
 	unprecWilsonKernel<<<16,(N + 15) / 16>>>(this->gaugeField,
 						 this->mass,
 						 this->latticeShape,
@@ -243,8 +236,6 @@ namespace pyQCD
       cusp::array1d<cusp::complex<float>, devMem>
 	solution(nCols, cusp::complex<float>(0, 0));
 
-      //cusp::print(field);
-
       // And another load as we'll need duplicates for the
       // multiplication routines
       cusp::array1d<cusp::complex<float>, devMem>
@@ -265,17 +256,11 @@ namespace pyQCD
 	  // Create the source using the smearing operator
 	  createSource(spatialIndex, i, j, source,
 		       tempSource);
-	  std::cout << "Created source" << std::endl;
-	  cusp::multiply(devDirac, source, tempSource);
-	  cusp::array1d<cusp::complex<float>, hostMem> temp
-	    = tempSource;
-	  cusp::print(temp);
 	  // Set up the monitor for use in the solver
 	  cusp::default_monitor<cusp::complex<float> >
 	    monitor(source, 1000, 0, 1e-8);
 	  
 	  // Do the inversion
-	  std::cout << "About to launch solver" << std::endl;
 	  cusp::krylov::bicgstab(devDirac, solution, source, monitor);
 	  // Create a view to the relevant column of the propagator
 	  cusp::array2d<cusp::complex<float>, devMem>::column_view

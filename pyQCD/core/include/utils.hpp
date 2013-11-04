@@ -71,14 +71,11 @@ namespace pyQCD
   double oneNorm(const Matrix3cd& matrix);
 
 #ifdef USE_CUDA
-  void gaugeFieldToCusp(const GaugeField& gaugeField,
-			cusp::array1d<cusp::complex<float>, cusp::host_memory>&
-			cuspGaugeField);
   void eigenToCusp(SparseMatrix<complex<double> >& eigenMatrix,
 		   const cusp::coo_matrix<int, cusp::complex<double>,
 		   hostMem>& cuspMatrix);
   void cudaBiCGstab(const GaugeField& gaugeField, const double mass,
-		    const int latticeShape[4], const int spatialIndex,
+		    const int latticeShape, const int spatialIndex,
 		    vector<MatrixXcd>& propagator, const int verbosity);
   void cudaCG(const SparseMatrix<complex<double> >& eigenDiracDiracAdjoint,
 	      const SparseMatrix<complex<double> >& eigenDiracAdjoint,
