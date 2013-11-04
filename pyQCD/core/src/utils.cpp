@@ -236,20 +236,6 @@ namespace pyQCD
 
 #ifdef USE_CUDA
 
-  void gaugeFieldToCusp(const GaugeField& gaugeField,
-			cusp::array1d<cusp::complex<float>, cusp::host_memory>&
-			cuspGaugeField)
-  {
-    // Converts the gauge field to a 2d array
-
-    cuspGaugeField.resize(3 * gaugeField.size(), 3);
-
-    for (int i = 0; i < gaugeField.size(); ++i)
-      for (int j = 0; j < 3; ++j)
-	for (int k = 0; k < 3; ++k)
-	  cuspGaugeField[12 * i + 3 * j + k] = gaugeField[i](j, k);
-  }
-
   void eigenToCusp(const SparseMatrix<complex<double> >& eigenMatrix,
 		   complexHybridHost& cuspMatrix)
   {
