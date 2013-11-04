@@ -27,7 +27,7 @@ gamma3 = np.array([[0, 0, -1j, 0],
                    [0, -1j, 0, 0]],
                    dtype = np.complex)
 
-gamma4 = gamma1
+gamma4 = gamma0
 
 gamma5 = np.array([[1, 0, 0, 0],
                    [0, 1, 0, 0],
