@@ -114,6 +114,9 @@ class Propagator(Observable):
             
             return Propagator(out, **properties)
         
+    def __rmul__(self, matrix):
+        pass
+        
     def __repr__(self):
         
         out = \
