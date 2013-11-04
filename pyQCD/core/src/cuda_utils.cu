@@ -4,29 +4,26 @@ namespace pyQCD
 {
   namespace cuda
   {
-    typedef ValueType cusp::complex<float>
-
     __constant__
-    float gammas[64] =
-      {ValueType(0, 0), ValueType(0, 0), ValueType(1, 0), ValueType(0, 0),
-       ValueType(0, 0), ValueType(0, 0), ValueType(0, 0), ValueType(1, 0),
-       ValueType(1, 0), ValueType(0, 0), ValueType(0, 0), ValueType(0, 0),
-       ValueType(0, 0), ValueType(1, 0), ValueType(0, 0), ValueType(0, 0),
-       
-       ValueType(0, 0), ValueType(0, 0), ValueType(0, 0), ValueType(0, -1),
-       ValueType(0, 0), ValueType(0, 0), ValueType(0, -1), ValueType(0, 0),
-       ValueType(0, 0), ValueType(0, 1), ValueType(0, 0), ValueType(0, 0),
-       ValueType(0, 1), ValueType(0, 0), ValueType(0, 0), ValueType(0, 0),
+    float gammas[128] = {0, 0, 0, 0, 1, 0, 0, 0,
+			 0, 0, 0, 0, 0, 0, 1, 0,
+			 1, 0, 0, 0, 0, 0, 0, 0,
+			 0, 0, 1, 0, 0, 0, 0, 0,
+			   
+			 0, 0, 0, 0, 0, 0, 0, -1,
+			 0, 0, 0, 0, 0, -1, 0, 0,
+			 0, 0, 0, 1, 0, 0, 0, 0,
+			 0, 1, 0, 0, 0, 0, 0, 0,
 
-       ValueType(0, 0), ValueType(0, 0), ValueType(0, 0), ValueType(-1, 0),
-       ValueType(0, 0), ValueType(0, 0), ValueType(1, 0), ValueType(0, 0),
-       ValueType(0, 0), ValueType(1, 0), ValueType(0, 0), ValueType(0, 0),
-       ValueType(-1, 0), ValueType(0, 0), ValueType(0, 0), ValueType(0, 0),
+			 0, 0, 0, 0, 0, 0, -1, 0,
+			 0, 0, 0, 0, 1, 0, 0, 0,
+			 0, 0, 1, 0, 0, 0, 0, 0,
+			 -1, 0, 0, 0, 0, 0, 0, 0,
 
-       ValueType(0, 0), ValueType(0, 0), ValueType(0, -1), ValueType(0, 0),
-       ValueType(0, 0), ValueType(0, 0), ValueType(0, 0), ValueType(0, 1),
-       ValueType(0, 1), ValueType(0, 0), ValueType(0, 0), ValueType(0, 0),
-       ValueType(0, 0), ValueType(0, -1), ValueType(0, 0), ValueType(0, 0)};
+			 0, 0, 0, 0, 0, -1, 0, 0,
+			 0, 0, 0, 0, 0, 0, 0, 1,
+			 0, 1, 0, 0, 0, 0, 0, 0,
+			 0, 0, 0, -1, 0, 0, 0, 0};
     
     __device__
     int mod(int number, const int divisor)
@@ -74,9 +71,9 @@ namespace pyQCD
     }
 
     __global__
-    void unprecWilsonKernel(const ValueType* gaugeField, const float mass,
-			    const int* latticeShape, const int N,
-			    const ValueType* x, ValueType* b)
+    void unprecWilsonKernel(const float* gaugeField, const float mass,
+			    const int* latticeShape, const int N, const float* x,
+			    float* b)
     {
       int index = blockDim.x * blockIdx.x + threadIdx.x;
 
@@ -91,7 +88,8 @@ namespace pyQCD
 	getCoords(spatialIndex, coords, latticeShape);
 
 	// The mass term
-	b[index] = (4 + mass) * x[index];
+	b[2 * index] = (4 + mass) * x[2 * index];
+	b[2 * index + 1] = (4 + mass) * x[2 * index + 1];
 
 	int boundaryCondition = 1;
 	// The nearest neighbours
@@ -109,13 +107,14 @@ namespace pyQCD
 	    int xSpin = j / 3;
 	    int xColour = j % 3;
 
-	    int xIndex = (j + 12 * offsetIndex);
+	    int xIndex = 2 * (j + 12 * offsetIndex);
 	    
-	    ValueType spinColourProduct;
-	    ValueType fieldElement;
-	    ValueType gammaElement;
+	    float spinColourProduct[2];
+	    float fieldElement[2];
+	    float gammaElement[2];
 
-	    gammaElement = gammas[16 * dim + 4 * bSpin + xSpin];
+	    gammaElement[0] = gammas[32 * dim + 8 * bSpin + 2 * xSpin];
+	    gammaElement[1] = gammas[32 * dim + 8 * bSpin + 2 * xSpin + 1];
 
 	    if (i < 4) {
 	      int adjointOffset = 1;
@@ -123,19 +122,23 @@ namespace pyQCD
 	      for (int k = dim + 1; k < 4; ++k)
 		adjointOffset *= latticeShape[k];
 	      
-	      fieldElement = gaugeField[9 * (spatialIndex - adjointOffset)
-					+ 3 * xColour + bColour];
-	      fieldElement = ValueType(fieldElement.real(),
-				       -fieldElement.imag());
+	      fieldElement[0] = gaugeField[18 * (spatialIndex - adjointOffset)
+					   + 6 * xColour + 2 * bColour];
+	      fieldElement[1] = -gaugeField[18 * (spatialIndex - adjointOffset)
+					    + 6 * xColour + 2 * bColour + 1];
 	    }
 	    else {
-	      fieldElement = gaugeField[9 * spatialIndex + 3 * bColour
-					+ xColour];
+	      fieldElement[0] = gaugeField[18 * spatialIndex + 6 * bColour
+					   + 2 * xColour];
+	      fieldElement[1] = gaugeField[18 * spatialIndex + 6 * bColour
+					   + 2 * xColour + 1];
 	    }
 
-	    spinColourProduct = fieldElement * gammaElement;
-	    ValueType result = spinColourProduct * x[xIndex];
-	    b[index] -= 0.5 * boundaryCondition * result;
+	    multiplyComplex(fieldElement, gammaElement, spinColourProduct);
+	    float result[2];
+	    multiplyComplex(spinColourProduct, &x[xIndex], result);
+	    b[2 * index] -= 0.5 * boundaryCondition * result[0];
+	    b[2 * index + 1] -= 0.5 * boundaryCondition * result[1];
 	  }
 	}
       }
@@ -148,7 +151,7 @@ namespace pyQCD
       typedef cusp::linear_operator<float,cusp::device_memory> super;
 
       int N;
-      ValueType* gaugeField;
+      float* gaugeField;
       int* latticeShape;
       float mass;
 
@@ -185,7 +188,8 @@ namespace pyQCD
       void operator()(const VectorType1& x, VectorType2& y) const
       {
 	// obtain a raw pointer to device memory
-	const cusp::complex<float>* x_ptr = thrust::raw_pointer_cast(&x[0]);
+	const cusp::complex<float>* x_ptr 
+	  = thrust::raw_pointer_cast(&x[0]);
 	cusp::complex<float>* y_ptr = thrust::raw_pointer_cast(&y[0]);
 
 	unprecWilsonKernel<<<16,(N + 15) / 16>>>(this->gaugeField,
