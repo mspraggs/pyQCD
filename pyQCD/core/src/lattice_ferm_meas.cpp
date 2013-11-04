@@ -306,10 +306,10 @@ Lattice::computePropagator(const double mass, const double spacing, int site[4],
   }
   else {
 #ifdef USE_CUDA
-    int latticeShape = {this->temporalExtent,
-			this->spatialExtent,
-			this->spatialExtent,
-			this->spatialExtent};
+    int latticeShape[4] = {this->temporalExtent,
+			   this->spatialExtent,
+			   this->spatialExtent,
+			   this->spatialExtent};
     pyQCD::cudaBiCGstab(this->links_, mass, latticeShape,
 			spatialIndex, propagator, verbosity);
 #else
