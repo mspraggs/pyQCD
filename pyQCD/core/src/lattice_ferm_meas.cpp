@@ -306,11 +306,7 @@ Lattice::computePropagator(const double mass, const double spacing, int site[4],
   }
   else {
 #ifdef USE_CUDA
-    int latticeShape = {this->temporalExtent,
-			this->spatialExtent,
-			this->spatialExtent,
-			this->spatialExtent};
-    pyQCD::cudaBiCGstab(this->links_, mass, latticeShape,
+    pyQCD::cudaBiCGstab(D, sourceSmearingOperator, sinkSmearingOperator,
 			spatialIndex, propagator, verbosity);
 #else
     // Otherwise just use BiCGSTAB

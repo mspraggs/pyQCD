@@ -201,6 +201,7 @@ namespace pyQCD
 
   
     void createSource(const int spatialIndex, const int spin, const int colour,
+		      const complexHybridDev& smearingOperator,
 		      cusp::array1d<cusp::complex<float>, devMem>& source,
 		      cusp::array1d<cusp::complex<float>, devMem>&
 		      tempSource)
@@ -208,6 +209,8 @@ namespace pyQCD
       int index = colour + 3 * (spin + spatialIndex);
       cusp::blas::fill(tempSource, cusp::complex<float>(0.0, 0.0));
       tempSource[index] = cusp::complex<float>(1.0, 0.0);
+
+      cusp::multiply(smearingOperator, tempSource, source);
     }
 
 
@@ -221,17 +224,25 @@ namespace pyQCD
     }
 
   
-
-    void bicgstab(const cusp::array1d<cusp::complex<float>, hostMem>& field,
-		  const float mass, const int latticeShape[4],
+  
+    void bicgstab(const complexHybridHost& hostDirac,
+		  const complexHybridHost& hostSourceSmear,
+		  const complexHybridHost& hostSinkSmear,
 		  const int spatialIndex,
 		  cusp::array2d<cusp::complex<float>, hostMem>& propagator,
-		  const int verbosity);
+		  const int verbosity)
     {
       // Get the size of the Dirac matrix
-      int nCols = field.size() / 6;
-
-      unprecWilsonAction devDirac(nCols, mass, field, latticeShape);
+      int nCols = hostDirac.num_cols;
+      // Transfer the Dirac and smearing matrices to the device.
+      cusp::array1d<double, devMem> temp;
+      if (verbosity > 0)
+	std::cout << "  Transferring matrices to device..." << std::flush;
+      complexHybridDev devDirac = hostDirac;
+      complexHybridDev devSourceSmear = hostSourceSmear;
+      complexHybridDev devSinkSmear = hostSinkSmear;
+      if (verbosity > 0)
+	std::cout << " Done!" << std::endl;
 
       // Create some device arrays to hold the source and solution
       cusp::array1d<cusp::complex<float>, devMem>
@@ -249,6 +260,10 @@ namespace pyQCD
       // Create a temporary propagator variable for fast access
       cusp::array2d<cusp::complex<float>, devMem>
 	tempPropagator(nCols, 12, cusp::complex<float>(0, 0));
+
+      // Create the preconditioner
+      cusp::precond::diagonal<cusp::complex<float>, devMem>
+	preconditioner(devDirac);
       
       // Loop through all spins and colours and do the inversions
       for (int i = 0; i < 4; ++i) {
@@ -264,7 +279,8 @@ namespace pyQCD
 	    monitor(source, 1000, 0, 1e-8);
 	  
 	  // Do the inversion
-	  cusp::krylov::bicgstab(devDirac, solution, source, monitor);
+	  cusp::krylov::bicgstab(devDirac, solution, source, monitor,
+				 preconditioner);
 	  // Smear at the sink
 	  cusp::multiply(devSinkSmear, solution, tempSolution);
 	  // Create a view to the relevant column of the propagator
