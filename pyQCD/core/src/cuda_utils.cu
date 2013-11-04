@@ -4,27 +4,6 @@ namespace pyQCD
 {
   namespace cuda
   {
-    __constant__
-    float gammas[128] = {0, 0, 0, 0, 1, 0, 0, 0,
-			 0, 0, 0, 0, 0, 0, 1, 0,
-			 1, 0, 0, 0, 0, 0, 0, 0,
-			 0, 0, 1, 0, 0, 0, 0, 0,
-			   
-			 0, 0, 0, 0, 0, 0, 0, -1,
-			 0, 0, 0, 0, 0, -1, 0, 0,
-			 0, 0, 0, 1, 0, 0, 0, 0,
-			 0, 1, 0, 0, 0, 0, 0, 0,
-
-			 0, 0, 0, 0, 0, 0, -1, 0,
-			 0, 0, 0, 0, 1, 0, 0, 0,
-			 0, 0, 1, 0, 0, 0, 0, 0,
-			 -1, 0, 0, 0, 0, 0, 0, 0,
-
-			 0, 0, 0, 0, 0, -1, 0, 0,
-			 0, 0, 0, 0, 0, 0, 0, 1,
-			 0, 1, 0, 0, 0, 0, 0, 0,
-			 0, 0, 0, -1, 0, 0, 0, 0};
-    
     __device__
     int mod(int number, const int divisor)
     {
@@ -72,19 +51,19 @@ namespace pyQCD
 
     __global__
     void unprecWilsonKernel(const float* gaugeField, const float mass,
-			    const int N, const float* x, const float* b,)
+			    const float* gammas, const int N, const float* x,
+			    const float* b,)
     {
       int index = blockDim.x * blockIdx.x + threadIdx.x;
 
-      __constant__ 
-	int offsets[8][4] = {{-1,0,0,0},{0,-1,0,0},{0,0,-1,0},{0,0,0,-1},
-			     {1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
+      int offsets[8][4] = {{-1,0,0,0},{0,-1,0,0},{0,0,-1,0},{0,0,0,-1},
+			   {1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
 
       if (index < N) {
 	int spatialIndex = index / 12;
 	int bSpin = (index % 12) / 3;
 	int bColour = (index % 12) % 3;
-	__device__ int coords[4];
+	int coords[4];
 	getCoords(spatialIndex, coords, latticeShape);
 
 	// The mass term
@@ -94,7 +73,7 @@ namespace pyQCD
 	int boundaryCondition = 1;
 	// The nearest neighbours
 	for (int i = 0; i < 8; ++i) {
-	  __device__ int offsetCoords[4];
+	  int offsetCoords[4];
 	  int dim = i % 4;
 	  addCoords(coords, offsets[i], offsetCoords);
 
@@ -109,9 +88,9 @@ namespace pyQCD
 
 	    int xIndex = 2 * (j + 12 * offsetIndex);
 	    
-	    __device__ float spinColourProduct[2];
-	    __device__ float fieldElement[2];
-	    __device__ float gammaElement[2];
+	    float spinColourProduct[2];
+	    float fieldElement[2];
+	    float gammaElement[2];
 
 	    gammaElement[0] = gammas[32 * dim + 8 * bSpin + 2 * xSpin];
 	    gammaElement[1] = gammas[32 * dim + 8 * bSpin + 2 * xSpin + 1];
@@ -134,7 +113,7 @@ namespace pyQCD
 					   + 2 * xColour + 1];
 	    }
 
-	    __device__ float result[2];
+	    float result[2];
 	    multiplyComplex(fieldElement, gammaElement);
 	    b[2 * index] -= 0.5 * boundaryCondition * result[0];
 	    b[2 * index + 1] -= 0.5 * boundaryCondition * result[1];
@@ -150,36 +129,10 @@ namespace pyQCD
       typedef cusp::linear_operator<float,cusp::device_memory> super;
 
       int N;
-      float* gaugeField;
-      float* latticeShape;
-      float mass;
+      float gammas[128] = {
 
       // constructor
-      unprecWilsonAction(int N, float mass,
-			 cusp::array1d<cusp::complex<float>, cusp::hostMem>&
-			 cuspGaugeField,
-			 int latticeShape[4]) : super(N,N)
-      {
-	int fieldSize = 4 * latticeShape[0] * latticeShape[1] * latticeShape[2]
-	  * latticeShape[3];
-	cudaMalloc((void**) &this->latticeShape, 4 * sizeof(int));
-	cudaMemcpy(this->latticeShape, latticeShape, 4 * sizeof(int),
-		   cudaMemcpyHostToDevice);
-
-	cudaMalloc((void**) &this->gaugeField, 2 * fieldSize * sizeof(float));
-        cudaMemcpy(this->gaugeField,
-		   thrust::raw_pointer_cast(&cuspGaugeField[0]),
-		   2 * fieldSize * sizeof(float),
-		   cudaMemcpyHostToDevice);
-
-        this->mass = mass;
-      }
-
-      ~unprecWilsonAction()
-      {
-	cudaFree(this->gaugeField);
-	cudaFree(this->latticeShape);
-      }
+      unprecWilsonKernel(int N) : super(N*N,N*N), N(N) {}
 
       // linear operator y = A*x
       template <typename VectorType1,
@@ -190,9 +143,10 @@ namespace pyQCD
 	const float * x_ptr = thrust::raw_pointer_cast(&x[0]);
 	float * y_ptr = thrust::raw_pointer_cast(&y[0]);
 
-	unprecWilsonKernel<<<16,(N + 15) / 16>>>(this->gaugeField,
-						 this->mass,
-						 N, x_ptr, y_ptr);
+	dim3 dimBlock(16,16);
+	dim3 dimGrid((N + 15) / 16, (N + 15) / 16);
+
+	unprecWilsonKernel<<<dimGrid,dimBlock>>>(N, x_ptr, y_ptr);
       }
     };
 

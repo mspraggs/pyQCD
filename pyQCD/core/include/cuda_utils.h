@@ -5,7 +5,6 @@
 
 #include <cusp/ell_matrix.h>
 #include <cusp/coo_matrix.h>
-#include <cusp/linear_operator.h>
 #include <cusp/precond/diagonal.h>
 #include <cusp/krylov/bicgstab.h>
 #include <cusp/krylov/cg.h>
