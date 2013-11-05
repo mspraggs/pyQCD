@@ -96,51 +96,64 @@ class Propagator(Observable):
     
     def __mul__(self, matrix):
         
-        if type(matrix) != np.ndarray:
+        if type(matrix) != np.matrixlib.defmatrix.matrix \
+          and type(matrix) != float and type(matrix) != int:
             raise ValueError("Error: Propagator cannot be multiplied by type "
                              "{}".format(type(matrix)))
         
         properties = dict(zip(Propagator.members,
                               [getattr(self, m) for m in Propagator.members]))
         
-        if matrix.shape == (4, 4): # Multiply by a spin matrix
-            out = np.tensordot(self.data, matrix, (5, 0))
-            out = np.swapaxes(np.swapaxes(out, 6, 7), 5, 6)
+        if type(matrix) == np.matrixlib.defmatrix.matrix:
+            if matrix.shape == (4, 4): # Multiply by a spin matrix
+                out = np.tensordot(self.data, matrix, (5, 0))
+                out = np.swapaxes(np.swapaxes(out, 6, 7), 5, 6)
             
-            return Propagator(out, **properties)
+                return Propagator(out, **properties)
         
-        if matrix.shape == (3, 3): # Multiply by a colour matrix
-            out = np.tensordot(self.data, matrix, (7, 0))
+            elif matrix.shape == (3, 3): # Multiply by a colour matrix
+                out = np.tensordot(self.data, matrix, (7, 0))
             
+                return Propagator(out, **properties)
+        
+        elif type(matrix) == float or type(matrix) == int:
+            out = self.data * matrix
             return Propagator(out, **properties)
+            
         
     def __rmul__(self, matrix):
         
-        if type(matrix) != np.matrixlib.defmatrix.matrix:
+        if type(matrix) != np.matrixlib.defmatrix.matrix \
+          and type(matrix) != float and type(matrix) != int:
             raise ValueError("Error: Propagator cannot multiply by type "
                              "{}".format(type(matrix)))
         
         properties = dict(zip(Propagator.members,
                               [getattr(self, m) for m in Propagator.members]))
         
-        if matrix.shape == (4, 4):
-            out = np.tensordot(matrix, self.data, (1, 4))
-            out = np.swapaxes(out, 0, 1)
-            out = np.swapaxes(out, 1, 2)
-            out = np.swapaxes(out, 2, 3)
-            out = np.swapaxes(out, 3, 4)
-            
-            return Propagator(out, **properties)
+        if type(matrix) == np.matrixlib.defmatrix.matrix:
+            if matrix.shape == (4, 4):
+                out = np.tensordot(matrix, self.data, (1, 4))
+                out = np.swapaxes(out, 0, 1)
+                out = np.swapaxes(out, 1, 2)
+                out = np.swapaxes(out, 2, 3)
+                out = np.swapaxes(out, 3, 4)
+                
+                return Propagator(out, **properties)
         
-        if matrix.shape == (3, 3):
-            out = np.tensordot(matrix, self.data, (1, 6))
-            out = np.swapaxes(out, 0, 1)
-            out = np.swapaxes(out, 1, 2)
-            out = np.swapaxes(out, 2, 3)
-            out = np.swapaxes(out, 3, 4)
-            out = np.swapaxes(out, 4, 5)
-            out = np.swapaxes(out, 5, 6)
+            elif matrix.shape == (3, 3):
+                out = np.tensordot(matrix, self.data, (1, 6))
+                out = np.swapaxes(out, 0, 1)
+                out = np.swapaxes(out, 1, 2)
+                out = np.swapaxes(out, 2, 3)
+                out = np.swapaxes(out, 3, 4)
+                out = np.swapaxes(out, 4, 5)
+                out = np.swapaxes(out, 5, 6)
             
+                return Propagator(out, **properties)
+        
+        elif type(matrix) == float or type(matrix) == int:
+            out = self.data * matrix
             return Propagator(out, **properties)
         
     def __repr__(self):
