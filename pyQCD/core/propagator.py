@@ -115,7 +115,33 @@ class Propagator(Observable):
             return Propagator(out, **properties)
         
     def __rmul__(self, matrix):
-        pass
+        
+        if type(matrix) != np.matrixlib.defmatrix.matrix:
+            raise ValueError("Error: Propagator cannot multiply by type "
+                             "{}".format(type(matrix)))
+        
+        properties = dict(zip(Propagator.members,
+                              [getattr(self, m) for m in Propagator.members]))
+        
+        if matrix.shape == (4, 4):
+            out = np.tensordot(matrix, self.data, (1, 4))
+            out = np.swapaxes(out, 0, 1)
+            out = np.swapaxes(out, 1, 2)
+            out = np.swapaxes(out, 2, 3)
+            out = np.swapaxes(out, 3, 4)
+            
+            return Propagator(out, **properties)
+        
+        if matrix.shape == (3, 3):
+            out = np.tensordot(matrix, self.data, (1, 6))
+            out = np.swapaxes(out, 0, 1)
+            out = np.swapaxes(out, 1, 2)
+            out = np.swapaxes(out, 2, 3)
+            out = np.swapaxes(out, 3, 4)
+            out = np.swapaxes(out, 4, 5)
+            out = np.swapaxes(out, 5, 6)
+            
+            return Propagator(out, **properties)
         
     def __repr__(self):
         
