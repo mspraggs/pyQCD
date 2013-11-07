@@ -26,7 +26,8 @@ class TwoPoint(Observable):
             if prop1_member != prop2_member:
                 raise ValueError("{} members in propagators 1 ({}) and "
                                  "2 ({}) do not match."
-                                 .format(member, prop1_member, prop2_member))
+                                 .format(member, prop1_member,
+                                         prop2_member))
         
         self.prop1 = prop1
         self.prop2 = prop2
