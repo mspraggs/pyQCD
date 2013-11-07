@@ -94,6 +94,16 @@ class Propagator(Observable):
         """
         return super(Propagator, cls).load(filename)
     
+    def conjugate(self):
+        """Returns the complex-conjugated propagator
+        
+        :returns: :class:`Propagator`
+        """
+        
+        new_data = np.conj(self.data)
+        
+        return Propagator(new_data, **self.header())        
+        
     def __mul__(self, matrix):
         
         if type(matrix) != np.matrixlib.defmatrix.matrix \
