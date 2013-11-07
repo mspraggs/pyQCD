@@ -180,7 +180,7 @@ class TwoPoint(Observable):
             position_correlator = np.reshape(position_correlator,
                                              (self.prop1.T, self.L**3))
             for i, ps in enumerate(all_momenta):
-                correlator_sum = np.zeros(self.prop1.T)
+                correlator_sum = np.zeros(self.T)
                 
                 for p in ps:
                     exponential_prefactors = np.exp(1j * np.dot(sites, p))
