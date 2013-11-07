@@ -171,7 +171,8 @@ class TwoPoint(Observable):
                                        xrange(self.L),
                                        xrange(self.L)))
         
-        # Now go through all momenta and all mesons and compute the correlators
+        # Now go through all momenta and all mesons and compute the
+        # correlators
         for meson in mesons:
             Gamma = const.Gammas[meson]
             position_correlator = self._compute_correlator(Gamma)
@@ -198,8 +199,8 @@ class TwoPoint(Observable):
         """Computes the energy of the specified particles at the specified
         momenta
         
-        :param particles: The particle or list of particle to find the energy
-        of
+        :param particles: The particle or list of particle to find the
+        energy of
         :type particles: :class:`str` or :class:`list`
         :param fit_range: The two time slices specifying the range to fit
         over
@@ -237,16 +238,20 @@ class TwoPoint(Observable):
 
         for particle in particles:
             for momentum in momenta:
-                attrib_name = "{}_px{}_py{}_pz{}".format(particle, *momentum)
+                attrib_name = "{}_px{}_py{}_pz{}".format(particle,
+                                                         *momentum)
                 current_correlator \
                   = getattr(self, attrib_name)
-                x = np.arange(current_correlator.size)[fit_range[0]:fit_range[1]]
+                x = np.arange(current_correlator.size)[fit_range[0]:
+                                                       fit_range[1]]
                 y = current_correlator[fit_range[0]:fit_range[1]]
                 
                 fit_function = lambda b, t, Ct: \
-                  Ct - b[0] * (np.exp(-b[1] * (self.T - t)) + np.exp(-b[1] * t))
+                  Ct - b[0] * (np.exp(-b[1] * (self.T - t))
+                               + np.exp(-b[1] * t))
                   
-                b, result = spop.leastsq(fit_function, [1.0, 1.0], args=(x, y))
+                b, result = spop.leastsq(fit_function, [1.0, 1.0],
+                                         args=(x, y))
                 
                 if [1, 2, 3, 4].count(result) < 1:
                     print("Warning: fit failed for {} with momentum {}"
