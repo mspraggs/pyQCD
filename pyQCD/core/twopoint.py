@@ -290,14 +290,18 @@ class TwoPoint(Observable):
         "Source Jacobi smearing parameter: {}\n" \
         "Number of sink Jacobi smears: {}\n" \
         "Sink Jacobi smearing parameter: {}\n" \
-        .format(self.prop1.L, self.prop1.T, self.prop1.action, self.prop1.beta,
-                self.prop1.u0, self.prop1.mass, self.prop1.source_site,
-                self.prop1.num_field_smears, self.prop1.field_smearing_param,
-                self.prop1.num_source_smears, self.prop1.source_smearing_param,
+        .format(self.prop1.L, self.prop1.T, self.prop1.action,
+                self.prop1.beta, self.prop1.u0, self.prop1.mass,
+                self.prop1.source_site, self.prop1.num_field_smears,
+                self.prop1.field_smearing_param,
+                self.prop1.num_source_smears,
+                self.prop1.source_smearing_param,
                 self.prop1.num_sink_smears, self.prop1.sink_smearing_param,
                 self.prop2.mass, self.prop2.source_site,
-                self.prop2.num_field_smears, self.prop2.field_smearing_param,
-                self.prop2.num_source_smears, self.prop2.source_smearing_param,
+                self.prop2.num_field_smears,
+                self.prop2.field_smearing_param,
+                self.prop2.num_source_smears,
+                self.prop2.source_smearing_param,
                 self.prop2.num_sink_smears, self.prop2.sink_smearing_param)
         
         return out
