@@ -102,7 +102,27 @@ class Propagator(Observable):
         
         new_data = np.conj(self.data)
         
-        return Propagator(new_data, **self.header())        
+        return Propagator(new_data, **self.header())
+    
+    def transpose_spin(self):
+        """Returns the propagator with spin indices transposed
+        
+        :returns: :class:`Propagator`
+        """
+        
+        new_data = np.swapaxes(self.data, 4, 5)
+        
+        return Propagator(new_data, **self.header())
+    
+    def transpose_colour(self):
+        """Returns the propagator with colour indices transposed
+        
+        :returns: :class:`Propagator`
+        """
+        
+        new_data = np.swapaxes(self.data, 6, 7)
+        
+        return Propagator(new_data, **self.header())
         
     def __mul__(self, matrix):
         
