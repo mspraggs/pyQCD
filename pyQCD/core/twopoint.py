@@ -322,7 +322,11 @@ class TwoPoint(Observable):
         Gamma1 = np.matrix(np.dot(gamma, const.gamma5))
         Gamma2 = np.matrix(np.dot(const.gamma5, gamma))
         
-        gp1 = Gamma1 * self.prop1.conjugate()
+        print(Gamma1)
+        print(Gamma2)
+        
+        gp1 = Gamma1 * self.prop1.transpose_spin() \
+          .transpose_colour().conjugate()
         gp2 = Gamma2 * self.prop2
         """
         gp1 = np.tensordot(Gamma1, np.conj(self.prop1), (1, 1))
@@ -332,7 +336,7 @@ class TwoPoint(Observable):
         gp2 = np.swapaxes(gp2, 0, 1)
         gp2 = np.swapaxes(gp2, 1, 2)
         """
-        return np.einsum('txyzijab,txyzijab->txyz',
+        return np.einsum('txyzijab,txyzjiba->txyz',
                          gp1.data, gp2.data).real
 
     @staticmethod
