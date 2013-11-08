@@ -230,9 +230,10 @@ class TwoPoint(Observable):
                                                                 *momentum)):
                     outstanding_particles.append(particle)
                     outstanding_momenta.append(momentum)
-        
-        self.meson_correlator(outstanding_particles, outstanding_momenta,
-                              average_momenta)
+                    
+        if len(outstanding_particles) > 0 and len(outstanding_momenta):
+            self.meson_correlator(outstanding_particles, outstanding_momenta,
+                                  average_momenta)
         
         energies = []
         keys = []
