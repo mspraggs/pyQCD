@@ -123,7 +123,15 @@ class TwoPoint(Observable):
                            header['num_sink_smears_2'],
                            header['sink_smearing_param_2'])
         
-        return TwoPoint(prop1, prop2)
+        ret = TwoPoint(prop1, prop2)
+        setattr(ret, 'L', header['L'])
+        setattr(ret, 'T', header['T'])
+        
+        for correlator in numpy_archive.keys():
+            if ['prop_1', 'prop_2', 'header'].count(correlator):
+                setattr(ret, correlator, numpy_archive[correlator])
+        
+        return ret
     
     def available_mesons(self):
         """Returns a list of possible meson interpolators for use
