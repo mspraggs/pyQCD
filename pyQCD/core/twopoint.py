@@ -178,7 +178,7 @@ class TwoPoint(Observable):
             Gamma = const.Gammas[meson]
             position_correlator = self._compute_correlator(Gamma)
             position_correlator = np.reshape(position_correlator,
-                                             (self.prop1.T, self.L**3))
+                                             (self.T, self.L**3))
             for i, ps in enumerate(all_momenta):
                 correlator_sum = np.zeros(self.T)
                 
