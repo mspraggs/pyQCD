@@ -44,6 +44,7 @@ class DataSet:
         
         :param datum: The data to add
         :type datum: The type specified in the object constructor
+        :raises: TypeError
         """
         
         if type(datum) != self.datatype:
