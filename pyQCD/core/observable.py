@@ -61,7 +61,25 @@ class Observable(object):
         items = [getattr(cls, member) for member in cls.members]
         
         return dict(zip(cls.members, items))
-         
+
+    def __add__(self, ob):
+        """Addition operator overload"""
+        
+        if type(ob) != type(self):
+            raise TypeError("Types {} and {} do not match"
+                            .format(type(self), type(ob)))
+        
+        for member in self.members:
+            if getattr(self, member) != getattr(ob, member):
+                raise ValueError("Attribute {} differs between objects "
+                                 "({} and {})".format(member,
+                                                      getattr(self, member),
+                                                      getattr(ob, member)))
+            
+        new_data = self.data + ob.data
+        
+        return self.__class__(new_data, **self.header())
+             
     def __repr__(self):
         
         string_list = ["Observable Object\n",

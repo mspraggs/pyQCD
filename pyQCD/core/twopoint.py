@@ -271,6 +271,39 @@ class TwoPoint(Observable):
                 keys.append(attrib_name)
                 
         return dict(zip(keys, energies))
+    
+    def __add__(self, tp):
+        """Addition operator overload"""
+        
+        if type(tp) != type(self):
+            raise TypeError("Types {} and {} do not match"
+                            .format(type(self), type(tp)))
+        
+        for cm in self.common_members:
+            if getattr(self, cm) != getattr(tp, cm):
+                raise ValueError("Attribute {} differs between objects "
+                                 "({} and {})".format(cm,
+                                                      getattr(self, cm),
+                                                      getattr(tp, cm)))
+            
+        new_prop1 = self.prop1 + tp.prop1
+        new_prop2 = self.prop2 + tp.prop2
+        
+        out = TwoPoint(new_prop1, new_prop2)
+        
+        comp_corr1 = self.computed_correlators
+        comp_corr2 = tp.computed_correlators
+        
+        for cc in comp_corr1:
+            setattr(out, cc, getattr(self, cc))
+            
+        for cc in comp_corr2:
+            if hasattr(out, cc):
+                setattr(out, cc, getattr(out, cc) + getattr(tp, cc))
+            else:
+                setattr(out, cc, getattr(tp, cc))
+                
+        return out
                         
     def __repr__(self):
         
