@@ -61,6 +61,57 @@ class DataSet:
         self.num_data += 1
     
     def get_datum(self, index):
+        """Retrieves the specified datum from the zip archive
+        
+        :param index: The index of the item to be retrieved
+        :type index: :class:`int`
+        :returns: The datum as the type specified in the constructor
+        """
+        
+        filename = "{}{}.npz".format(self.datatype.__name__, index)
+        
+        with zipfile.ZipFile(self.filename, 'r', self.storage_mode,
+                             self.large_file) as zfile:
+            zfile.extract(filename)
+            
+        output = self.datatype.load(filename)
+        os.unlink(filename)
+        
+        return output
+    
+    def measure(self, func, data=[], stddev=False, args=[]):
+        """Performs a measurement on each item in the data set using the
+        supplied function and returns the average of the measurements
+        
+        :param func: The measurement function, whose first argument is the
+        datum object on which to perform the measurement
+        :type func: :class:`function`
+        :param data: The data indices to perform the measurement on
+        :type data: :class:`list`
+        :param stddev: If True, returns a list of two elements, with the
+        second element being the standard deviation in the result
+        :type stddev: :class:`bool`
+        :param args: The arguments required by the supplied function
+        :type args: :class:`list`
+        """
+        pass
+    
+    def bootstrap(self, func, binsize, num_bootstraps, args=[]):
+        """Performs a bootstraped measurement on the dataset using the
+        supplied function
+        
+        :param func: The measurement function
+        :type func: :class:`function`
+        :param binsize: The bin size used when binning
+        :type binsize: :class:`int`
+        :param num_bootstraps: The number of bootstraps to perform
+        :type num_bootstraps: :class:`int`
+        :param args: The arguments required by the supplied function
+        :type args: :class:`list`
+        """
+        pass
+    
+    def jackknife(self, function, binsize, args):
         pass
         
     def save(self, filename):
