@@ -214,5 +214,104 @@ class DataSet:
             
         return out / binsize
 
+    @staticmethod
+    def _add_measurements(a, b):
+        """Adds two measurements (used for dictionaries etc)"""
         
-        func = lambda x: measurement(x, *args)
+        if type(a) == tuple:
+            a = list(a)
+        if type(b) == tuple:
+            b = list(b)
+        
+        if type(a) == list and type(b) == list:
+            return [DataSet._add_measurements(x, y) for x, y in zip(a, b)]
+        elif type(a) == dict and type(b) == dict:
+            return DataSet._add_measurements(a, b.values())
+        elif type(a) == dict and type(b) == list:
+            return dict(zip(a.keys(), DataSet._add_measurements(a.values(), b)))
+        elif type(a) == list and type(b) == dict:
+            return DataSet._add_measurements(b, a)
+        elif (type(a) == int or type(a) == float or type(a) == np.float64) \
+          and (type(b) == int or type(b) == float or type(b) == np.float64):
+            return a + b
+        else:
+            raise TypeError("Supplied types {} and {} cannot be summed"
+                            .format(type(a), type(b)))
+
+    @staticmethod
+    def _sub_measurements(a, b):
+        """Adds two measurements (used for dictionaries etc)"""
+        
+        if type(a) == tuple:
+            a = list(a)
+        if type(b) == tuple:
+            b = list(b)
+        
+        if type(a) == list and type(b) == list:
+            return [DataSet._sub_measurements(x, y) for x, y in zip(a, b)]
+        elif type(a) == dict and type(b) == dict:
+            return DataSet._sub_measurements(a, b.values())
+        elif type(a) == dict and type(b) == list:
+            return dict(zip(a.keys(), DataSet._sub_measurements(a.values(), b)))
+        elif type(a) == list and type(b) == dict:
+            return DataSet._sub_measurements(b, a)
+        elif (type(a) == int or type(a) == float or type(a) == np.float64) \
+          and (type(b) == int or type(b) == float or type(b) == np.float64):
+            return a - b
+        else:
+            raise TypeError("Supplied types {} and {} cannot be summed"
+                            .format(type(a), type(b)))
+
+    @staticmethod
+    def _mul_measurements(a, b):
+        """Adds two measurements (used for dictionaries etc)"""
+        
+        if type(a) == tuple:
+            a = list(a)
+        if type(b) == tuple:
+            b = list(b)
+        
+        if type(a) == list and type(b) == list:
+            return [DataSet._mul_measurements(x, y) for x, y in zip(a, b)]
+        elif type(a) == dict and type(b) == dict:
+            return DataSet._mul_measurements(a, b.values())
+        elif type(a) == dict and type(b) == list:
+            return dict(zip(a.keys(), DataSet._mul_measurements(a.values(), b)))
+        elif type(a) == list and type(b) == dict:
+            return DataSet._mul_measurements(b, a)
+        elif (type(a) == int or type(a) == float or type(a) == np.float64) \
+          and (type(b) == int or type(b) == float or type(b) == np.float64):
+            return a * b
+        else:
+            raise TypeError("Supplied types {} and {} cannot be summed"
+                            .format(type(a), type(b)))
+            
+    @staticmethod
+    def _div_measurements(a, div):
+        """Divides a measurement by a scalar value"""
+        
+        if type(div) != float and type(div) != int:
+            raise TypeError("Unsupported divisor of type {}".format(type(div)))
+        
+        if type(a) == list or type(a) == tuple:
+            return [DataSet._div_measurements(x, div) for x in a]
+        
+        if type(a) == dict:
+            return dict(zip(a.keys(), DataSet._div_measurements(a.values(),
+                                                                div)))
+        
+        if type(a) == float or type(a) == int or type(a) == np.float64:
+            return a / div
+            
+    @staticmethod
+    def _sqrt_measurements(a):
+        """Divides a measurement by a scalar value"""
+        
+        if type(a) == list or type(a) == tuple:
+            return [DataSet._sqrt_measurements(x) for x in a]
+        
+        if type(a) == dict:
+            return dict(zip(a.keys(), DataSet._sqrt_measurements(a.values())))
+        
+        if type(a) == float or type(a) == int or type(a) == np.float64:
+            return np.sqrt(a)
