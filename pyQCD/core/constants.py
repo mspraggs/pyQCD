@@ -87,10 +87,10 @@ Gammas = {0: id4,
           'pion': gamma5
           }
 
-Gamma_mesons = ['a0', 'rho_x', 'rho_y', 'b1_z', 'rho_z', 'b1_y', 'b1_x',
-                'pion_2', 'a0_2', 'rho_x_2', 'rho_y_2', 'a1_z', 'rho_z_2',
-                'a1_y', 'a1_x', 'pion']
+mesons = ['a0', 'rho_x', 'rho_y', 'b1_z', 'rho_z', 'b1_y', 'b1_x',
+          'pion_2', 'a0_2', 'rho_x_2', 'rho_y_2', 'a1_z', 'rho_z_2',
+          'a1_y', 'a1_x', 'pion']
     
-Gamma_combinations = ['1', 'g1', 'g2', 'g1g2', 'g3', 'g1g3', 'g2g3', 'g5g4',
-                      'g4', 'g1g4', 'g2g4', 'g3g5', 'g3g4', '-g2g5', 'g1g5',
-                      'g5']
+interpolators = ['1', 'g1', 'g2', 'g1g2', 'g3', 'g1g3', 'g2g3', 'g5g4',
+                 'g4', 'g1g4', 'g2g4', 'g3g5', 'g3g4', '-g2g5', 'g1g5',
+                 'g5']

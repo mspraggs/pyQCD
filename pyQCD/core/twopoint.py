@@ -140,7 +140,7 @@ class TwoPoint(Observable):
         :returns: :class:`list` of tuples, each describing the meson
         state and the gamma matrix combination associated with it"""
         
-        return zip(const.Gamma_mesons, const.Gamma_combinations)
+        return zip(const.mesons, const.combinations)
     
     def meson_correlator(self, mesons, momenta = [0, 0, 0],
                          average_momenta = True):
