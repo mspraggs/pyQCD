@@ -304,6 +304,23 @@ class TwoPoint(Observable):
                 setattr(out, cc, getattr(tp, cc))
                 
         return out
+    
+    def __div__(self, div):
+        """Division operator overloading"""
+        
+        if type(div) != int and type(div) != float:
+            raise TypeError("Expected an int or float divisor, got {}"
+                            .format(type(div)))
+        
+        new_prop1 = self.prop1 / div
+        new_prop2 = self.prop2 / div
+        
+        out = TwoPoint(new_prop1, new_prop2)
+        
+        for cc in self.computed_correlators:
+            setattr(out, cc, getattr(self, cc) / div)
+            
+        return out
                         
     def __repr__(self):
         
