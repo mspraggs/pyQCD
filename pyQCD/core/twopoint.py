@@ -299,6 +299,42 @@ class TwoPoint(Observable):
         return dict(zip(energies.keys(),
                         [x**2 for x in energies.values()]))
     
+    def compute_c_square(self, particle, fit_range, momenta,
+                         average_momentum = True):
+        """Computes the square speed of light of the specified particles at the
+        specified momenta
+        
+        :param particle: The particle to find the speed of light of
+        :type particles: :class:`str`
+        :param fit_range: The two time slices specifying the range to fit
+        over
+        :type fit_range: :class:`list` of two :class:`int`s
+        :param momenta: The list of momenta to compute the speed of light for
+        :type momenta: :class:`list`
+        :param average_momenta: Determines whether equivalent momenta should
+        be averaged over
+        :type average_momenta: :class:`bool`
+        :returns: :class:`list` with entries corresponding to the supplied momenta
+        """
+        
+        if type(momenta[0]) != list:
+            momenta = [momenta]
+        E0_square = self.compute_square_energy(particle, fit_range, [0, 0, 0])
+        Es_square = self.compute_square_energy(particle, fit_range, momenta)
+        
+        out = []
+        
+        for p in momenta:
+            E_square = Es_square["{}_px{}_py{}_pz{}".format(particle, *p)]
+            
+            p_square = sum([(2 * np.pi * x / self.L)**2 for x in p])
+            
+            c_square = (E_square - E0_square["{}_px0_py0_pz0".format(particle)]) \
+              / p_square
+              
+            out.append(c_square)
+            
+        return out
     
     def __add__(self, tp):
         """Addition operator overload"""
