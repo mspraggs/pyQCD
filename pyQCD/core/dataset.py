@@ -315,3 +315,41 @@ class DataSet:
         
         if type(a) == float or type(a) == int or type(a) == np.float64:
             return np.sqrt(a)
+        
+    @staticmethod
+    def _mean(data):
+        """Calculates the mean of the supplied list of measurements"""
+        
+        if type(data) == list:
+            out = data[0]
+            
+            for datum in data[1:]:
+                out = DataSet._add_measurements(out, datum)
+                
+            out = DataSet._div_measurements(out, len(data))
+            
+            return out
+        
+        if type(data) == np.ndarray:
+            return np.mean(data, axis=0)
+
+    @staticmethod
+    def _std(data):
+        """Calculates the standard deviation of the supplied list of
+        measurements"""
+        
+        if type(data) == list:
+            mean = DataSet._mean(data)
+            
+            diff = DataSet._sub_measurements(data[0], mean)
+            out = DataSet._mul_measurements(diff, diff)
+            
+            for datum in data[1:]:
+                diff = DataSet._sub_measurements(datum, mean)
+                square = DataSet._mul_measurements(diff, diff)
+                out = DataSet._add_measurements(out, square)
+                
+            return DataSet._div_measurements(out, len(data))
+        
+        if type(data) == np.ndarray:
+            return np.std(data, axis=0)
