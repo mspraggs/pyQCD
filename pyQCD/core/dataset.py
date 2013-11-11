@@ -12,8 +12,10 @@ class DataSet:
         
         :param datatype: The data type stored in the data set
         :type datatype: :class:`type`
-        :param filename: The npz file to save the data to
+        :param filename: The zip file to save the data to
         :type filename: :class:`str`
+        :param compress: Determines whether compression is used
+        :type compress: :class:`bool`
         """
         
         storage_mode = zipfile.ZIP_DEFLATED if compress else zipfile.ZIP_STORED
