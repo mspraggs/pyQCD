@@ -220,6 +220,7 @@ class TwoPoint(Observable):
         :param average_momenta: Determines whether equivalent momenta should
         be averaged over
         :type average_momenta: :class:`bool`
+        :returns: :class:`dict` with keys specifying particles and momenta
         """
         
         # First make sure that all relevant correlators have been calculated
