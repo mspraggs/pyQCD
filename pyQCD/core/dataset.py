@@ -153,7 +153,7 @@ class DataSet:
             
         return DataSet._mean(out), DataSet._std(out)
     
-    def jackknife(self, function, binsize, args):
+    def jackknife(self, func, binsize, args):
         pass
         
     def save(self, filename):
