@@ -272,6 +272,33 @@ class TwoPoint(Observable):
                 keys.append(attrib_name)
                 
         return dict(zip(keys, energies))
+                
+    def compute_square_energy(self, particles, fit_range, momenta = [0, 0, 0],
+                              average_momenta = True):
+        """Computes the square energy of the specified particles at the specified
+        momenta
+        
+        :param particles: The particle or list of particle to find the
+        energy of
+        :type particles: :class:`str` or :class:`list`
+        :param fit_range: The two time slices specifying the range to fit
+        over
+        :type fit_range: :class:`list` of two :class:`int`s
+        :param momenta: The momentum or a list of momenta to compute the
+        energy for
+        :type momenta: :class:`list`
+        :param average_momenta: Determines whether equivalent momenta should
+        be averaged over
+        :type average_momenta: :class:`bool`
+        :returns: :class:`dict` with keys specifying particles and momenta
+        """
+        
+        energies = self.compute_energy(particles, fit_range, momenta,
+                                       average_momenta)
+        
+        return dict(zip(energies.keys(),
+                        [x**2 for x in energies.values()]))
+    
     
     def __add__(self, tp):
         """Addition operator overload"""
