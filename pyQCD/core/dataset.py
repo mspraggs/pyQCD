@@ -264,8 +264,10 @@ class DataSet:
             return dict(zip(a.keys(), DataSet._add_measurements(a.values(), b)))
         elif type(a) == list and type(b) == dict:
             return DataSet._add_measurements(b, a)
-        elif (type(a) == int or type(a) == float or type(a) == np.float64) \
-          and (type(b) == int or type(b) == float or type(b) == np.float64):
+        elif (type(a) == int or type(a) == float or type(a) == np.float64 \
+          or type(a) == np.ndarray) \
+          and (type(b) == int or type(b) == float or type(b) == np.float64 \
+          or type(b) == np.ndarray):
             return a + b
         else:
             raise TypeError("Supplied types {} and {} cannot be summed"
@@ -288,8 +290,10 @@ class DataSet:
             return dict(zip(a.keys(), DataSet._sub_measurements(a.values(), b)))
         elif type(a) == list and type(b) == dict:
             return DataSet._sub_measurements(b, a)
-        elif (type(a) == int or type(a) == float or type(a) == np.float64) \
-          and (type(b) == int or type(b) == float or type(b) == np.float64):
+        elif (type(a) == int or type(a) == float or type(a) == np.float64 \
+          or type(a) == np.ndarray) \
+          and (type(b) == int or type(b) == float or type(b) == np.float64 \
+          or type(b) == np.ndarray):
             return a - b
         else:
             raise TypeError("Supplied types {} and {} cannot be summed"
@@ -312,8 +316,10 @@ class DataSet:
             return dict(zip(a.keys(), DataSet._mul_measurements(a.values(), b)))
         elif type(a) == list and type(b) == dict:
             return DataSet._mul_measurements(b, a)
-        elif (type(a) == int or type(a) == float or type(a) == np.float64) \
-          and (type(b) == int or type(b) == float or type(b) == np.float64):
+        elif (type(a) == int or type(a) == float or type(a) == np.float64 \
+          or type(a) == np.ndarray) \
+          and (type(b) == int or type(b) == float or type(b) == np.float64 \
+          or type(b) == np.ndarray):
             return a * b
         else:
             raise TypeError("Supplied types {} and {} cannot be summed"
@@ -333,7 +339,8 @@ class DataSet:
             return dict(zip(a.keys(), DataSet._div_measurements(a.values(),
                                                                 div)))
         
-        if type(a) == float or type(a) == int or type(a) == np.float64:
+        if type(a) == float or type(a) == int or type(a) == np.float64 \
+          or type(a) == np.ndarray:
             return a / div
             
     @staticmethod
