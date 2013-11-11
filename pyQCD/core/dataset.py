@@ -1,6 +1,8 @@
 import cPickle
 import zipfile
 import os
+import numpy as np
+import numpy.random as npr
 
 class DataSet:
     # Generic data set class. Contains header that denotes type of data.
