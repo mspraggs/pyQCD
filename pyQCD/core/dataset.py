@@ -161,7 +161,42 @@ class DataSet:
     
     @classmethod
     def load(self, filename):
-        pass
+        """Load an existing data set from the supplied zip archive
+        
+        :param filename: The file containing the dataset
+        :type filename: :class:`str`
+        :returns: :class:`DataSet`
+        """
+        
+        storage_mode = zipfile.ZIP_DEFLATED
+        compress = True
+        
+        try:
+            zfile = zipfile.ZipFile(filename, 'r', storage_mode, True)
+        except RuntimeError:
+            storage_mode = zipfile.ZIP_STORED
+            zfile = zipfile.ZipFile(filename, 'r', storage_mode, False)
+            compress = False
+        
+        zfile.extract("type")
+        
+        typefile = open("type", 'r')
+        datatype = cPickle.load(typefile)
+        typefile.close()
+        os.unlink("type")
+        
+        out = DataSet(datatype, "000.zip", compress)
+        out.filename = filename
+        os.unlink("000.zip")
+        
+        data = [int(fname[len(datatype.__name__):-4])
+                for fname in zfile.namelist()
+                if fname.startswith(datatype.__name__)]
+        
+        if len(data) > 0:
+            out.num_data = max(data) + 1
+        
+        return out
 
         
         func = lambda x: measurement(x, *args)
