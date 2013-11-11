@@ -94,7 +94,20 @@ class DataSet:
         :param args: The arguments required by the supplied function
         :type args: :class:`list`
         """
-        pass
+
+        if data == []:
+            data = range(self.num_data)
+            
+        measurements = []
+        for i in data:
+            datum = self.get_datum(i)
+            measurement = func(datum, *args)
+            measurements.append(measurement)
+            
+        if stddev:
+            return DataSet._mean(measurements), DataSet._std(measurements)
+        else:
+            return DataSet._mean(measurements)
     
     def bootstrap(self, func, binsize, num_bootstraps, args=[]):
         """Performs a bootstraped measurement on the dataset using the
