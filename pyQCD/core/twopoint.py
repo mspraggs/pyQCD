@@ -300,7 +300,7 @@ class TwoPoint(Observable):
                         [x**2 for x in energies.values()]))
     
     def compute_c_square(self, particle, fit_range, momenta,
-                         average_momentum = True):
+                         average_momentum=True, use_lattice_momenta=True):
         """Computes the square speed of light of the specified particles at the
         specified momenta
         
@@ -314,6 +314,9 @@ class TwoPoint(Observable):
         :param average_momenta: Determines whether equivalent momenta should
         be averaged over
         :type average_momenta: :class:`bool`
+        :param use_lattice_momenta: Determines whether a sine function is used
+        when implementing the dispersion relation
+        :type average_momenta: :class: `bool`
         :returns: :class:`list` with entries corresponding to the supplied momenta
         """
         
@@ -327,7 +330,10 @@ class TwoPoint(Observable):
         for p in momenta:
             E_square = Es_square["{}_px{}_py{}_pz{}".format(particle, *p)]
             
-            p_square = sum([(2 * np.pi * x / self.L)**2 for x in p])
+            if use_lattice_momenta:
+                p_square = sum([np.sin(2 * np.pi * x / self.L)**2 for x in p])
+            else:
+                p_square = sum([(2 * np.pi * x / self.L)**2 for x in p])
             
             c_square = (E_square - E0_square["{}_px0_py0_pz0".format(particle)]) \
               / p_square
