@@ -117,8 +117,29 @@ class Lattice(lattice.Lattice):
         configuration = config.Config.load(filename)
         self.set_config(configuration)
     
-    def get_wilson_loops(self):
-        pass
+    def get_wilson_loops(self, num_field_smears=0, field_smearing_param=1.0):
+        """Calculates and returns all Wilson loops of size m x n,
+        with m = 0, 1, ... , L and n = 0, 1, ... , T.
+        
+        :param num_field smears: The number of stout smears to perform
+        :type num_field_smears: :class:`int`
+        :param field_smearing_param: The stout smearing parameter to use
+        :type field_smearing_param: :class:`float`
+        :returns: :class:`WilsonLoops`
+        """
+        
+        loops = np.zeros((self.L, self.T))
+        
+        for r in xrange(self.L):
+            for t in xrange(self.T):
+                loops[r, t] = self.av_wilson_loop(r, t, num_field_smears,
+                                                  field_smearing_param)
+                
+        out = wilslps.WilsonLoops(loops, self.L, self.T, self.beta, self.u0,
+                                  self.action, num_field_smears,
+                                  field_smearing_param)
+        
+        return out
     
     def get_propagator(self, mass,
                        source_site = [0, 0, 0, 0],
