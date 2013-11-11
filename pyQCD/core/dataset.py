@@ -197,6 +197,22 @@ class DataSet:
             out.num_data = max(data) + 1
         
         return out
+    
+    def _get_bin(self, binsize, binnum):
+        """Average the binsize data in binnum"""
+        
+        out = self.get_datum(binsize * binnum)
+        
+        first_datum = binsize * binnum + 1
+        last_datum = binsize * (binnum + 1)
+        
+        if last_datum > self.num_data:
+            last_datum = self.num_data
+        
+        for i in xrange(first_datum, last_datum):
+            out += self.get_datum(i)
+            
+        return out / binsize
 
         
         func = lambda x: measurement(x, *args)
