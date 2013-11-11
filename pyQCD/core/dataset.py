@@ -156,8 +156,6 @@ class DataSet:
     def jackknife(self, func, binsize, args):
         pass
         
-    def save(self, filename):
-        pass
     
     @classmethod
     def load(self, filename):
