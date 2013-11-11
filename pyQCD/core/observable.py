@@ -79,6 +79,17 @@ class Observable(object):
         new_data = self.data + ob.data
         
         return self.__class__(new_data, **self.header())
+    
+    def __div__(self, div):
+        """Division operator overload"""
+        
+        if type(div) != int and type(div) != float:
+            raise TypeError("Expected an int or float divisor, got {}"
+                            .format(type(div)))
+        
+        new_data = self.data / div
+        
+        return self.__class__(new_data, **self.header())
              
     def __repr__(self):
         
