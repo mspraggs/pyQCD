@@ -134,7 +134,5 @@ class DataSet:
     def load(self, filename):
         pass
 
-    def compute_observable(self, measurement, num_bootstraps, jacknife,
-                           bin_size, args):
         
         func = lambda x: measurement(x, *args)
