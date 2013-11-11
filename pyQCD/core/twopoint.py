@@ -279,7 +279,7 @@ class TwoPoint(Observable):
             raise TypeError("Types {} and {} do not match"
                             .format(type(self), type(tp)))
         
-        for cm in self.common_members:
+        for cm in self.common_members[:2]:
             if getattr(self, cm) != getattr(tp, cm):
                 raise ValueError("Attribute {} differs between objects "
                                  "({} and {})".format(cm,
