@@ -113,7 +113,7 @@ class DataSet:
         else:
             return DataSet._mean(measurements)
     
-    def bootstrap(self, func, binsize, num_bootstraps, args=[]):
+    def bootstrap(self, func, num_bootstraps, binsize=1, args=[]):
         """Performs a bootstraped measurement on the dataset using the
         supplied function
         
@@ -126,7 +126,32 @@ class DataSet:
         :param args: The arguments required by the supplied function
         :type args: :class:`list`
         """
-        pass
+        
+        if binsize < 1:
+            raise ValueError("Supplied bin size {} is less than 1"
+                             .format(binsize))
+        
+        num_bins = self.num_data / binsize
+        if self.num_data % binsize > 0:
+            num_bins += 1
+            
+        out = []
+        
+        for i in xrange(num_bootstraps):
+            
+            bins = npr.randint(num_bins, size = num_bins).tolist()
+            
+            bin_out = []            
+            for b in bins:
+                datum = self._get_bin(binsize, b)
+                
+                measurement = func(datum, *args)
+                bin_out.append(measurement)
+                
+            out.append(DataSet._mean(bin_out))
+            
+            
+        return DataSet._mean(out), DataSet._std(out)
     
     def jackknife(self, function, binsize, args):
         pass
