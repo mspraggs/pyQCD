@@ -154,8 +154,41 @@ class DataSet:
         return DataSet._mean(out), DataSet._std(out)
     
     def jackknife(self, func, binsize, args):
-        pass
+        """Performs a jackknifed measurement on the dataset using the
+        supplied function
         
+        :param func: The measurement function
+        :type func: :class:`function`
+        :param binsize: The bin size used when binning
+        :type binsize: :class:`int`
+        :param args: The arguments required by the supplied function
+        :type args: :class:`list`
+        """
+        
+        if binsize < 1:
+            raise ValueError("Supplied bin size {} is less than 1"
+                             .format(binsize))
+        
+        num_bins = self.num_data / binsize
+        if self.num_data % binsize > 0:
+            num_bins += 1
+            
+        out = []
+        
+        for i in xrange(num_bins):
+            
+            bins = [j for j in xrange(num_bins) if j != i]
+            
+            bin_out = []            
+            for b in bins:
+                datum = self._get_bin(binsize, b)
+                
+                measurement = func(datum, *args)
+                bin_out.append(measurement)
+                
+            out.append(DataSet._mean(bin_out))
+            
+        return DataSet._mean(out), DataSet._std(out)
     
     @classmethod
     def load(self, filename):
