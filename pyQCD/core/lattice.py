@@ -189,8 +189,9 @@ class Lattice(lattice.Lattice):
                                                   solver_method,
                                                   verbosity))
         
-        prop = np.swapaxes(np.reshape(raw_propagator, (self.T, self.L, self.L, self.L,
-                                                       4, 3, 4, 3)), 5, 6)
+        prop = np.swapaxes(np.reshape(raw_propagator, (self.T, self.L, self.L,
+                                                       self.L, 4, 3, 4, 3)), 5,
+                                                       6)
         
         out = propagator.Propagator(prop, self.L, self.T, self.beta, self.u0,
                                     self.action, mass, source_site,
