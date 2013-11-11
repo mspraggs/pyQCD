@@ -16,6 +16,8 @@ class DataSet:
         :type filename: :class:`str`
         :param compress: Determines whether compression is used
         :type compress: :class:`bool`
+        :returns: :class:`DataSet`
+        :raises: RuntimeError
         """
         
         storage_mode = zipfile.ZIP_DEFLATED if compress else zipfile.ZIP_STORED

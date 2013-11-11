@@ -36,6 +36,7 @@ class Lattice(lattice.Lattice):
         :param rand_seed: A seed for the random number generator
         :type rand_seed: :class:`int`, -1 specifies a random seed, whilst 0 and
         above specifies a pre-determined seed
+        :returns: :class:`Lattice`
         """
         
         self.beta = beta

@@ -21,6 +21,7 @@ class Config(Observable):
         :param action: The gauge action
         :type action: :class:`str`, one of wilson, rectangle_improved or
         twisted_rectangle_improved
+        :returns: :class:`Config`
         :raises: ValueError
         """
         
@@ -54,6 +55,7 @@ class Config(Observable):
         
         :param filename: The file to load from
         :type filename: :class:`str`
+        :returns: :class:`Config`
         """
         return super(Config, cls).load(filename)
     
