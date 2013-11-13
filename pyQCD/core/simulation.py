@@ -197,4 +197,12 @@ class Simulation(object):
         pass
 
     def __str__(self):
-        pass
+        
+        out = \
+          """Simulation Settings
+        -------------------
+        Number of configurations: {}
+        Measurement spacing: {}
+        Thermalization updates: {}
+        Update method: {}
+        """
