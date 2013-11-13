@@ -180,6 +180,16 @@ class Simulation(object):
             print("Done!")
     
     def run(self, timing_run=False, num_timing_configs=10):
+        """Runs the simulation
+        
+        :param timing_run: Performs a number of trial updates and measurements
+        to estimate the total wall clock time of the simulation
+        :type timing_run: :class:`bool`
+        :param num_timing_configs: The number of updates and measurements used
+        to estimate the total wall clock time
+        :type num_timing_configs: :class:`int`
+        """
+        
         pass
     
     @classmethod
