@@ -164,8 +164,20 @@ class Simulation(object):
             raise TypeError("Measurement data type {} is not understood"
                             .format(meas_type))
     
-    def do_measurements(self):
-        pass
+    def _do_measurements(self):
+        """Iterate through self.measurements and gather results"""
+        
+        keys = self.measurements.keys()
+        
+        for key in keys:
+            print("%s...".format(key))
+            
+            measurement = getattr(self.lattice, self.measurements[key][2]) \
+              (self.measurements[key][0])
+            
+            self.measurements[key][1].add_datum(measurement)
+              
+            print("Done!")
     
     def run(self, timing_run=False, num_timing_configs=10):
         pass
