@@ -8,7 +8,8 @@ import numpy as np
 class Simulation(object):
     
     def __init__(self, num_configs, measurement_spacing, num_warmup_updates,
-                 update_method="heatbath", run_parallel=True, rand_seed=-1):
+                 update_method="heatbath", run_parallel=True, rand_seed=-1,
+                 verbosity=1):
         """Creates and returns a simulation object
         
         :param num_configs: The number of configurations on which to perform
