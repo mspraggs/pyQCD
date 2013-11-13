@@ -100,8 +100,69 @@ class Simulation(object):
             self.ensemble = ensemble
             self.use_ensemble = True
     
-    def add_measurement(self, meas_type, **kwargs):
-        pass
+    def add_measurement(self, meas_type, meas_file, **kwargs):
+        """Adds a measurement to the simulation to be performed when the
+        simulation is run
+        
+        Possible parameters (depending on :samp:`meas_type`):
+        
+        :param meas_type: The class corresponding to the measurement to be
+        performed
+        :type meas_type: :class:`type`
+        :param meas_file: The :class:`DataSet` file in which to store the
+        measurement
+        :param mass: The mass to use if a propagator is to be calculated
+        :type mass: :class:`float`
+        :param source_site: The source site to use when computing a propagator
+        (default it [0, 0, 0, 0])
+        :type source_site: :class:`list`
+        :param num_field_smears: The number of times to stout smear the gauge
+        (default is 0)
+        field before performing a measurement
+        :type num_field_smears: :class:`int`
+        :param field_smearing_param: The stout smearing parameter default is 1.0
+        :type field_smearing_param: :class:`float`
+        :param num_source_smears: The number of Jacobi smears to apply to the
+        source when computing a propagator (default is 0)
+        :type num_source_smears: :class:`int`
+        :param source_smearing_param: The smearing parameter to use when
+        smearing the source (default is 1.0)
+        :type source_smearing_param: :class:`float`
+        :param num_sink_smears: The number of Jacobi smears to apply to the
+        sink when computing a propagator (default is 0)
+        :type num_sink_smears: :class:`int`
+        :param sink_smearing_param: The smearing parameter to use when
+        smearing the sink (default is 1.0)
+        :type sink_smearing_param: :class:`float`
+        :param solver_method: The method to use when computing a propagator, may
+        either be "bicgstab" or "conjugate_gradient" (default "bicgstab")
+        :type sink_smearing_param: :class:`str`
+        """
+        
+        if meas_type == Config:
+            dataset = DataSet(meas_type, meas_file)
+            message = "Saving field configuration"
+            function = "get_config"
+            
+            self.measurements.update([(message, (kwargs, dataset, function))])
+        
+        elif meas_type == WilsonLoops:
+            dataset = DataSet(meas_type, meas_file)
+            message = "Computing wilson loops"
+            function = "get_wilson_loops"
+            
+            self.measurements.update([(message, (kwargs, dataset, function))])
+            
+        elif meas_type == Propagator
+            dataset = DataSet(meas_type, meas_file)
+            message = "Computing propagator"
+            function = "get_propagator"
+            
+            self.measurements.update([(message, (kwargs, dataset, function))])
+            
+        else:
+            raise TypeError("Measurement data type {} is not understood"
+                            .format(meas_type))
     
     def do_measurements(self):
         pass
