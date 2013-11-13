@@ -19,6 +19,19 @@ class Simulation(object):
         :param num_warmup_updates: The number of updates used to thermalize
         the lattice
         :type num_warmup_updates: :class:`int`
+        :param update_method: The method used to update the lattice; current
+        supported methods are "heatbath", "staple_metropolis" and "metropolis"
+        :type update_method: :class:`str`
+        :param run_parallel: Determines whether OpenMP is used when updating
+        the lattice
+        :type run_parallel: :class:`bool`
+        :param rand_seed: The random number seed used for performing updates;
+        -1 results in the current time being used
+        :type rand_seed: :class:`int`
+        :param verbosity: The level of verbosity when peforming the simulation,
+        with 0 producing no output, 1 producing some output and 2 producing the
+        most output, such as details of propagator inversions
+        :type verbosity: :class:`int`
         """
         
         self.num_configs = num_configs
@@ -28,8 +41,11 @@ class Simulation(object):
         self.update_method = update_method
         self.run_parallel = run_parallel
         self.rand_seed = rand_seed
+        self.verbosity = verbosity
         
         self.use_ensemble = False
+        
+        self.measurements = {}
     
     def create_lattice(self, L, T, action, beta, u0=1.0, block_size=None):
         """Creates a Lattice instance to use in the simulation
