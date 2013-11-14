@@ -62,6 +62,20 @@ class Lattice(lattice.Lattice):
                                  dicts.update_methods[update_method],
                                  dicts.truefalse[parallel_updates], block_size,
                                  rand_seed)
+        
+    def get_link(self, link):
+        """Returns the specified gauge field link
+        
+        :param link: The site and dimension of the link to be returned
+        :type link: :class:`list` of five ints, of the form [t, x, y, z, mu]
+        :returns: :class:`numpy.ndarray`
+        """
+        
+        return np.array(lattice.Lattice.get_link(self, link))
+    
+    def set_link(self, link, matrix):
+        
+        lattice.Lattice.set_link(self, link, matrix.tolist())
     
     def get_config(self):
         """Returns the current field configuration.
@@ -76,7 +90,8 @@ class Lattice(lattice.Lattice):
                          dtype=complex)
         
         for t, x, y, z, mu in sites:
-            links[t][x][y][z][mu] = np.array(self.get_link([t, x, y, z, mu]))
+            links[t][x][y][z][mu] \
+              = np.array(lattice.Lattice.get_link(self, [t, x, y, z, mu]))
             
         out = config.Config(links, self.L, self.T, self.beta, self.u0,
                             self.action)
@@ -105,7 +120,7 @@ class Lattice(lattice.Lattice):
         
         for t, x, y, z, mu in sites:
             link_matrix = configuration.data[t][x][y][z][mu].tolist()
-            self.set_link([t, x, y, z, mu], link_matrix)
+            lattice.Lattice.set_link(self, [t, x, y, z, mu], link_matrix)
     
     def save_config(self, filename):
         """Saves the current field configuration to a file
@@ -126,6 +141,126 @@ class Lattice(lattice.Lattice):
         
         configuration = config.Config.load(filename)
         self.set_config(configuration)
+        
+    def update(self):
+        """Update the gauge field using the method specified in the
+        Lattice constructor        
+        """
+        
+        lattice.Lattice.update(self)
+        
+    def next_config(self):
+        """Updates the gauge field by a number of times specified
+        by measurement spacing in the Lattice constructor
+        """
+        
+        lattice.Lattice.get_next_config(self)
+        
+    def get_plaquette(self, site, dim1, dim2):
+        """Computes and returns the value of the specified plaquette
+        
+        :param site: The site specifying the corner of the plaquette
+        :type site: :class:`list` of the form [t, x, y, z]
+        :param dim1: The first dimension specifying the plane in which
+        the plaquette lies
+        :type dim1: :class:`int`
+        :param dim2: The second dimension specifying the plane in which
+        the plaquette lies
+        :type dim2: :class:`int`
+        :returns: :class:`float`
+        """
+        
+        return lattice.Lattice.get_plaquette(self, site, dim1, dim2)
+        
+    def get_rectangle(self, site, dim1, dim2):
+        """Computes and returns the value of the specified 2 x 1 rectangle
+        
+        :param site: The site specifying the corner of the rectangle
+        :type site: :class:`list` of the form [t, x, y, z]
+        :param dim1: The first dimension specifying the longer rectangle edge
+        :type dim1: :class:`int`
+        :param dim2: The second dimension specifying the shorter edge of the
+        rectangle
+        :type dim2: :class:`int`
+        :returns: :class:`float`
+        """
+        
+        return lattice.Lattice.get_rectangle(self, site, dim1, dim2)
+        
+    def get_twist_rect(self, site, dim1, dim2):
+        """Computes and returns the value of the specified 2 x 1 twisted
+        rectangle
+        
+        :param site: The site specifying the corner of the twisted rectangle
+        :type site: :class:`list` of the form [t, x, y, z]
+        :param dim1: The first dimension specifying the longer twisted
+        rectangle edge
+        :type dim1: :class:`int`
+        :param dim2: The second dimension specifying the shorter edge of the
+        twisted rectangle
+        :type dim2: :class:`int`
+        :returns: :class:`float`
+        """
+        
+        return lattice.Lattice.get_twist_rect(self, site, dim1, dim2)
+        
+    def get_wilson_loop(self, corner, r, t, dim, num_smears=0,
+                        smearing_param=1.0):
+        
+        """Computes and returns the value of the specified Wilson loop
+        
+        :param corner: The starting corner of the Wilson loop
+        :type corner: :class:`list` of the form [t, x, y, z]
+        :param r: The size of the loop in the spatial direction
+        :type r: :class:`int`
+        :param t: The size of the loop in the temporal direction
+        :type t: :class:`int`
+        :param dim: The spatial dimension of the Wilson loop
+        :type dim: :class:`int`
+        :param num_smears: The number of stout gauge field smears to perform
+        before computing the Wilson loop
+        :type num_smears: :class:`int`
+        :param smearing_param: The stout gauge field smearing parameter
+        :type smearing_param: :class:`float`
+        :returns: :class:`float`
+        """
+        
+        return lattice.Lattice.get_wilson_loop(self, corner, r, t, dim,
+                                               num_smears, smearing_param)
+        
+    def get_av_plaquette(self):
+        """Computes the plaquette expectation value
+        
+        :returns: :class:`float`
+        """
+        
+        return lattice.Lattice.get_av_plaquette(self)
+    
+    def get_av_rectangle(self):
+        """Computes the rectangle expectation value
+        
+        :returns: :class:`float`
+        """
+        
+        return lattice.Lattice.get_av_rectangle(self)
+    
+    def get_av_wilson_loop(self, r, t, num_smears=0, smearing_param=1.0):
+        """Computes the average wilson loop of a given size
+        
+        :param r: The spatial extent of the Wilson loop
+        :type r: :class:`int`
+        :param t: The temporal extent of the Wilson loop
+        :type t: :class:`int`
+        :param num_smears: The number of stout gauge field smears to perform
+        before computing the Wilson loops
+        :type num_smears: :class:`int`
+        :param smearing_param: The stout gauge field smearing parameter
+        :type smearing_param: :class:`float`
+        :returns: :class:`float`
+        """
+        
+        return lattice.Lattice.get_av_wilson_loop(self, r, t, num_smears,
+                                                  smearing_param)
     
     def get_wilson_loops(self, num_field_smears=0, field_smearing_param=1.0):
         """Calculates and returns all Wilson loops of size m x n,
@@ -142,8 +277,9 @@ class Lattice(lattice.Lattice):
         
         for r in xrange(self.L):
             for t in xrange(self.T):
-                loops[r, t] = self.av_wilson_loop(r, t, num_field_smears,
-                                                  field_smearing_param)
+                loops[r, t] \
+                  = lattice.Lattice.av_wilson_loop(self, r, t, num_field_smears,
+                                                   field_smearing_param)
                 
         out = wilslps.WilsonLoops(loops, self.L, self.T, self.beta, self.u0,
                                   self.action, num_field_smears,
@@ -194,7 +330,9 @@ class Lattice(lattice.Lattice):
         """
         
         raw_propagator \
-          = np.array(self.propagator(mass,
+          = np.array(lattice.Lattice \
+                     .get_propagator(self,
+                                     mass,
                                      1.0,
                                      source_site,
                                      num_field_smears,
@@ -217,6 +355,14 @@ class Lattice(lattice.Lattice):
                                     num_sink_smears, sink_smearing_param)
         
         return out
+    
+    def get_av_link(self):
+        """Computes the mean of the real part of the trace of each link matrix
+        
+        :returns: :class:`float`
+        """
+        
+        return lattice.Lattice.get_av_link(self)
     
     def __str__(self):
         

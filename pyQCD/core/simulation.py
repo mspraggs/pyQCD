@@ -280,7 +280,7 @@ class Simulation(object):
                     print(" Done!")
                     
             if store_plaquette:
-                self.plaquettes[i] = self.lattice.av_plaquette()
+                self.plaquettes[i] = self.lattice.get_av_plaquette()
                 if self.verbosity > 0:
                     print("Average plaquette: {}"
                           .format(self.plaquettes[i]))
