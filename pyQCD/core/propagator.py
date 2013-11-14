@@ -15,8 +15,7 @@ class Propagator(Observable):
         """Create a propagator container.
                  
         :param propagator: The propagator array
-        :type links: :class:`np.ndarray` with shape
-        :samp:`(T, L, L, L, 4, 4, 3, 3)`
+        :type links: :class:`np.ndarray` with shape :samp:`(T, L, L, L, 4, 4, 3, 3)`
         :param L: The spatial extent of the corresponding :class:`Lattice`
         :type L: :class:`int`
         :param T: The temporal extent of the corresponding :class:`Lattice`
