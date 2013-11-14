@@ -235,7 +235,6 @@ class Simulation(object):
         
         if self.verbosity > 0:
             print(self)
-            print("")
         
         if not self.use_ensemble:
             if self.verbosity > 0:
@@ -290,6 +289,9 @@ class Simulation(object):
                 print("Performing measurements...")
                 sys.stdout.flush()
             self._do_measurements(not timing_run)
+            
+            if self.verbosity > 0:
+                print("")
             
         t2 = time.time()
         
