@@ -217,7 +217,7 @@ class Simulation(object):
                     
                 sys.stdout.flush()
     
-    def run(self, timing_run=False, num_timing_configs=10):
+    def run(self, timing_run=False, num_timing_configs=10, store_plaquette=True):
         """Runs the simulation
         
         :param timing_run: Performs a number of trial updates and measurements
@@ -227,6 +227,9 @@ class Simulation(object):
         to estimate the total wall clock time
         :type num_timing_configs: :class:`int`
         """
+        
+        if store_plaquette:
+            self.plaquettes = np.zeros(self.num_configs)
         
         t0 = time.time()
         
@@ -275,7 +278,13 @@ class Simulation(object):
                 self.lattice.next_config()
                 
                 if self.verbosity > 0:
-                    print(" Done!")                    
+                    print(" Done!")
+                    
+            if store_plaquette:
+                self.plaquettes[i] = self.lattice.av_plaquette()
+                if self.verbosity > 0:
+                    print("Average plaquette: {}"
+                          .format(self.plaquettes[i]))
                     
             if self.verbosity > 0:
                 print("Performing measurements...")
