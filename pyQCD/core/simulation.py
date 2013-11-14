@@ -162,6 +162,11 @@ class Simulation(object):
             message = "Computing propagator"
             function = "get_propagator"
             
+            if self.verbosity > 0:
+                kwargs.update([("verbosity", self.verbosity - 1)])
+            else:
+                kwargs.update([("verbosity", 0)])
+            
             self.measurements.update([(message, (kwargs, dataset, function))])
             
         else:
