@@ -159,7 +159,7 @@ class Lattice(lattice.Lattice):
                        source_smearing_param = 1.0,
                        num_sink_smears = 0,
                        sink_smearing_param = 1.0,
-                       solver_method = 0,
+                       solver_method = "bicgstab",
                        verbosity = 0):
         """Create a field configuration container.
                  
@@ -187,17 +187,18 @@ class Lattice(lattice.Lattice):
         :returns: :class:`Propagator`
         """
         
-        raw_propagator = np.array(self.propagator(mass,
-                                                  1.0,
-                                                  source_site,
-                                                  num_field_smears,
-                                                  field_smearing_param,
-                                                  num_source_smears,
-                                                  source_smearing_param,
-                                                  num_sink_smears,
-                                                  sink_smearing_param,
-                                                  solver_method,
-                                                  verbosity))
+        raw_propagator \
+          = np.array(self.propagator(mass,
+                                     1.0,
+                                     source_site,
+                                     num_field_smears,
+                                     field_smearing_param,
+                                     num_source_smears,
+                                     source_smearing_param,
+                                     num_sink_smears,
+                                     sink_smearing_param,
+                                     dicts.solver_methods[solver_method],
+                                     verbosity))
         
         prop = np.swapaxes(np.reshape(raw_propagator, (self.T, self.L, self.L,
                                                        self.L, 4, 3, 4, 3)), 5,
