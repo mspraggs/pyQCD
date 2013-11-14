@@ -26,28 +26,22 @@ class Propagator(Observable):
         :param u0: The mean link
         :type u0: :class:`float`
         :param action: The gauge action
-        :type action: :class:`str`, one of wilson, rectangle_improved or
-        twisted_rectangle_improved
+        :type action: :class:`str`, one of wilson, rectangle_improved or twisted_rectangle_improved
         :param mass: The bare quark mass
         :type mass: :class:`float`
         :param source_site: The source site used when doing the inversion
         :type source_site: :class:`list`
-        :param num_field_smears: The number of stout smears applied when
-        computing the propagator
+        :param num_field_smears: The number of stout smears applied when computing the propagator
         :type num_field_smears: :class:`int`
         :param field_smearing_param: The stout smearing parameter
         :type field_smearing_param: :class:`float`
-        :param num_source_smears: The number of Jacobian smears performed
-        on the source when computing the propagator
+        :param num_source_smears: The number of Jacobian smears performed on the source when computing the propagator
         :type num_source_smears: :class:`int`
-        :param source_smearing_param: The Jacobi smearing parameter used
-        when smearing the source
+        :param source_smearing_param: The Jacobi smearing parameter used when smearing the source
         :type source_smearing_param: :class:`float`
-        :param num_sink_smears: The number of Jacobian smears performed
-        on the source when computing the propagator
+        :param num_sink_smears: The number of Jacobian smears performed on the source when computing the propagator
         :type num_sink_smears: :class:`int`
-        :param sink_smearing_param: The Jacobi smearing parameter used
-        when smearing the source
+        :param sink_smearing_param: The Jacobi smearing parameter used when smearing the source
         :type sink_smearing_param: :class:`float`
         :raises: ValueError
         """

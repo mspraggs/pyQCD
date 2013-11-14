@@ -20,22 +20,17 @@ class Lattice(lattice.Lattice):
         :param u0: The mean link
         :type u0: :class:`float`
         :param action: The gauge action
-        :type action: :class:`str`, one of wilson, rectangle_improved or
-        twisted_rectangle_improved
+        :type action: :class:`str`, one of wilson, rectangle_improved or twisted_rectangle_improved
         :param n_cor: The number of field configurations between measurements
         :type n_cor: :class:`int`
         :param update_method: The method used to update the field configuration
-        :type update_method: :class:`str`, one of heatbath, metropolis or
-        staple metropolis
+        :type update_method: :class:`str`, one of heatbath, metropolis or staple metropolis
         :param parallel_updates: Specify whether to use parallel updates
         :type parallel_updates: :class:`bool`
-        :param block_size: The block edge length used when dividing the lattice
-        into domains during parallel updates
-        :type block_size: :class:`int`, must be a factor of both :samp:`L` and
-        :samp:`T`
+        :param block_size: The block edge length used when dividing the lattice into domains during parallel updates
+        :type block_size: :class:`int`, must be a factor of both :samp:`L` and :samp:`T`
         :param rand_seed: A seed for the random number generator
-        :type rand_seed: :class:`int`, -1 specifies a random seed, whilst 0 and
-        above specifies a pre-determined seed
+        :type rand_seed: :class:`int`, -1 specifies a random seed, whilst 0 and above specifies a pre-determined seed
         :returns: :class:`Lattice`
         """
         
@@ -161,11 +156,9 @@ class Lattice(lattice.Lattice):
         
         :param site: The site specifying the corner of the plaquette
         :type site: :class:`list` of the form [t, x, y, z]
-        :param dim1: The first dimension specifying the plane in which
-        the plaquette lies
+        :param dim1: The first dimension specifying the plane in which the plaquette lies
         :type dim1: :class:`int`
-        :param dim2: The second dimension specifying the plane in which
-        the plaquette lies
+        :param dim2: The second dimension specifying the plane in which the plaquette lies
         :type dim2: :class:`int`
         :returns: :class:`float`
         """
@@ -179,8 +172,7 @@ class Lattice(lattice.Lattice):
         :type site: :class:`list` of the form [t, x, y, z]
         :param dim1: The first dimension specifying the longer rectangle edge
         :type dim1: :class:`int`
-        :param dim2: The second dimension specifying the shorter edge of the
-        rectangle
+        :param dim2: The second dimension specifying the shorter edge of the rectangle
         :type dim2: :class:`int`
         :returns: :class:`float`
         """
@@ -193,11 +185,9 @@ class Lattice(lattice.Lattice):
         
         :param site: The site specifying the corner of the twisted rectangle
         :type site: :class:`list` of the form [t, x, y, z]
-        :param dim1: The first dimension specifying the longer twisted
-        rectangle edge
+        :param dim1: The first dimension specifying the longer twisted rectangle edge
         :type dim1: :class:`int`
-        :param dim2: The second dimension specifying the shorter edge of the
-        twisted rectangle
+        :param dim2: The second dimension specifying the shorter edge of the twisted rectangle
         :type dim2: :class:`int`
         :returns: :class:`float`
         """
@@ -217,8 +207,7 @@ class Lattice(lattice.Lattice):
         :type t: :class:`int`
         :param dim: The spatial dimension of the Wilson loop
         :type dim: :class:`int`
-        :param num_smears: The number of stout gauge field smears to perform
-        before computing the Wilson loop
+        :param num_smears: The number of stout gauge field smears to perform before computing the Wilson loop
         :type num_smears: :class:`int`
         :param smearing_param: The stout gauge field smearing parameter
         :type smearing_param: :class:`float`
@@ -251,8 +240,7 @@ class Lattice(lattice.Lattice):
         :type r: :class:`int`
         :param t: The temporal extent of the Wilson loop
         :type t: :class:`int`
-        :param num_smears: The number of stout gauge field smears to perform
-        before computing the Wilson loops
+        :param num_smears: The number of stout gauge field smears to perform before computing the Wilson loops
         :type num_smears: :class:`int`
         :param smearing_param: The stout gauge field smearing parameter
         :type smearing_param: :class:`float`
@@ -303,28 +291,21 @@ class Lattice(lattice.Lattice):
         :type mass: :class:`float`
         :param source_site: The source site used when doing the inversion
         :type source_site: :class:`list`
-        :param num_field_smears: The number of stout smears applied when
-        computing the propagator
+        :param num_field_smears: The number of stout smears applied when computing the propagator
         :type num_field_smears: :class:`int`
         :param field_smearing_param: The stout smearing parameter
         :type field_smearing_param: :class:`float`
-        :param num_source_smears: The number of Jacobian smears performed
-        on the source when computing the propagator
+        :param num_source_smears: The number of Jacobian smears performed on the source when computing the propagator
         :type num_source_smears: :class:`int`
-        :param source_smearing_param: The Jacobi smearing parameter used
-        when smearing the source
+        :param source_smearing_param: The Jacobi smearing parameter used when smearing the source
         :type source_smearing_param: :class:`float`
-        :param num_sink_smears: The number of Jacobian smears performed
-        on the source when computing the propagator
+        :param num_sink_smears: The number of Jacobian smears performed on the source when computing the propagator
         :type num_sink_smears: :class:`int`
-        :param sink_smearing_param: The Jacobi smearing parameter used
-        when smearing the source
+        :param sink_smearing_param: The Jacobi smearing parameter used when smearing the source
         :type sink_smearing_param: :class:`float`
-        :param solver_method: The method to use when performing the
-        inversion
+        :param solver_method: The method to use when performing the inversion
         :type solver_method: :class:`str`
-        :param verbosity: Determines the degree of output printed to
-        the screen
+        :param verbosity: Determines the degree of output printed to the screen
         :type verbosity: :class:`int`
         :returns: :class:`Propagator`
         """

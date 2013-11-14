@@ -30,26 +30,19 @@ class Simulation(object):
                  verbosity=1):
         """Creates and returns a simulation object
         
-        :param num_configs: The number of configurations on which to perform
-        measurements
+        :param num_configs: The number of configurations on which to perform measurements
         :type num_configs: :class:`int`
         :param measurement_spacing: The number of updates between measurements
         :type measurement_spacing: :class:`int`
-        :param num_warmup_updates: The number of updates used to thermalize
-        the lattice
+        :param num_warmup_updates: The number of updates used to thermalize the lattice
         :type num_warmup_updates: :class:`int`
-        :param update_method: The method used to update the lattice; current
-        supported methods are "heatbath", "staple_metropolis" and "metropolis"
+        :param update_method: The method used to update the lattice; current supported methods are "heatbath", "staple_metropolis" and "metropolis"
         :type update_method: :class:`str`
-        :param run_parallel: Determines whether OpenMP is used when updating
-        the lattice
+        :param run_parallel: Determines whether OpenMP is used when updating the lattice
         :type run_parallel: :class:`bool`
-        :param rand_seed: The random number seed used for performing updates;
-        -1 results in the current time being used
+        :param rand_seed: The random number seed used for performing updates; -1 results in the current time being used
         :type rand_seed: :class:`int`
-        :param verbosity: The level of verbosity when peforming the simulation,
-        with 0 producing no output, 1 producing some output and 2 producing the
-        most output, such as details of propagator inversions
+        :param verbosity: The level of verbosity when peforming the simulation, with 0 producing no output, 1 producing some output and 2 producing the most output, such as details of propagator inversions
         :type verbosity: :class:`int`
         """
         
@@ -79,8 +72,7 @@ class Simulation(object):
         :type beta: :class:`float`
         :param u0: The mean link to use in tadpole improvement
         :type u0: :class:`float`
-        :param block_size: The sub-lattice size to use when performing gauge
-        field updates in parallel
+        :param block_size: The sub-lattice size to use when performing gauge field updates in parallel
         """
         
         self.lattice = Lattice(L, T, beta, u0, action, self.measurement_spacing,
@@ -125,36 +117,26 @@ class Simulation(object):
         
         Possible parameters (depending on :samp:`meas_type`):
         
-        :param meas_type: The class corresponding to the measurement to be
-        performed
+        :param meas_type: The class corresponding to the measurement to be performed
         :type meas_type: :class:`type`
-        :param meas_file: The :class:`DataSet` file in which to store the
-        measurement
+        :param meas_file: The :class:`DataSet` file in which to store the measurement
         :param mass: The mass to use if a propagator is to be calculated
         :type mass: :class:`float`
-        :param source_site: The source site to use when computing a propagator
-        (default it [0, 0, 0, 0])
+        :param source_site: The source site to use when computing a propagator (default it [0, 0, 0, 0])
         :type source_site: :class:`list`
-        :param num_field_smears: The number of times to stout smear the gauge
-        (default is 0)
-        field before performing a measurement
+        :param num_field_smears: The number of times to stout smear the gauge (default is 0) field before performing a measurement
         :type num_field_smears: :class:`int`
         :param field_smearing_param: The stout smearing parameter default is 1.0
         :type field_smearing_param: :class:`float`
-        :param num_source_smears: The number of Jacobi smears to apply to the
-        source when computing a propagator (default is 0)
+        :param num_source_smears: The number of Jacobi smears to apply to the source when computing a propagator (default is 0)
         :type num_source_smears: :class:`int`
-        :param source_smearing_param: The smearing parameter to use when
-        smearing the source (default is 1.0)
+        :param source_smearing_param: The smearing parameter to use when smearing the source (default is 1.0)
         :type source_smearing_param: :class:`float`
-        :param num_sink_smears: The number of Jacobi smears to apply to the
-        sink when computing a propagator (default is 0)
+        :param num_sink_smears: The number of Jacobi smears to apply to the sink when computing a propagator (default is 0)
         :type num_sink_smears: :class:`int`
-        :param sink_smearing_param: The smearing parameter to use when
-        smearing the sink (default is 1.0)
+        :param sink_smearing_param: The smearing parameter to use when smearing the sink (default is 1.0)
         :type sink_smearing_param: :class:`float`
-        :param solver_method: The method to use when computing a propagator, may
-        either be "bicgstab" or "conjugate_gradient" (default "bicgstab")
+        :param solver_method: The method to use when computing a propagator, may either be "bicgstab" or "conjugate_gradient" (default "bicgstab")
         :type sink_smearing_param: :class:`str`
         """
         
@@ -220,11 +202,9 @@ class Simulation(object):
     def run(self, timing_run=False, num_timing_configs=10, store_plaquette=True):
         """Runs the simulation
         
-        :param timing_run: Performs a number of trial updates and measurements
-        to estimate the total wall clock time of the simulation
+        :param timing_run: Performs a number of trial updates and measurements to estimate the total wall clock time of the simulation
         :type timing_run: :class:`bool`
-        :param num_timing_configs: The number of updates and measurements used
-        to estimate the total wall clock time
+        :param num_timing_configs: The number of updates and measurements used to estimate the total wall clock time
         :type num_timing_configs: :class:`int`
         """
         

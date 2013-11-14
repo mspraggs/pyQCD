@@ -137,8 +137,8 @@ class TwoPoint(Observable):
         """Returns a list of possible meson interpolators for use
         in the meson_correlator function
         
-        :returns: :class:`list` of tuples, each describing the meson
-        state and the gamma matrix combination associated with it"""
+        :returns: :class:`list` of tuples, each describing the meson state and the gamma matrix combination associated with it
+        """
         
         return zip(const.mesons, const.combinations)
     
@@ -147,15 +147,11 @@ class TwoPoint(Observable):
         """Computes and stores the specified meson correlator within the
         current TwoPoint object
         
-        :param meson: The meson interpolater(s) to use in calculating the
-        correlator
-        :type meson: :class:`str` or :class:`str` of strings, possibilities
-        given by available_mesons
+        :param meson: The meson interpolater(s) to use in calculating the correlator
+        :type meson: :class:`str` or :class:`str` of strings, possibilities given by available_mesons
         :param momenta: The lattice momentum to project the correlator onto
-        :type momenta: :class:`list` of three :class:`int`s, or a compound
-        list containing several momenta
-        :param average_momenta: Determines whether equivalent momenta are
-        averaged over
+        :type momenta: :class:`list` of three :class:`int`s, or a compound list containing several momenta
+        :param average_momenta: Determines whether equivalent momenta are averaged over
         :type average_momenta: :class:`bool`
         """
         if type(mesons) == str:
@@ -208,17 +204,13 @@ class TwoPoint(Observable):
         """Computes the energy of the specified particles at the specified
         momenta
         
-        :param particles: The particle or list of particle to find the
-        energy of
+        :param particles: The particle or list of particle to find the energy of
         :type particles: :class:`str` or :class:`list`
-        :param fit_range: The two time slices specifying the range to fit
-        over
+        :param fit_range: The two time slices specifying the range to fit over
         :type fit_range: :class:`list` of two :class:`int`s
-        :param momenta: The momentum or a list of momenta to compute the
-        energy for
+        :param momenta: The momentum or a list of momenta to compute the energy for
         :type momenta: :class:`list`
-        :param average_momenta: Determines whether equivalent momenta should
-        be averaged over
+        :param average_momenta: Determines whether equivalent momenta should be averaged over
         :type average_momenta: :class:`bool`
         :returns: :class:`dict` with keys specifying particles and momenta
         """
@@ -278,17 +270,13 @@ class TwoPoint(Observable):
         """Computes the square energy of the specified particles at the specified
         momenta
         
-        :param particles: The particle or list of particle to find the
-        energy of
+        :param particles: The particle or list of particle to find the energy of
         :type particles: :class:`str` or :class:`list`
-        :param fit_range: The two time slices specifying the range to fit
-        over
+        :param fit_range: The two time slices specifying the range to fit over
         :type fit_range: :class:`list` of two :class:`int`s
-        :param momenta: The momentum or a list of momenta to compute the
-        energy for
+        :param momenta: The momentum or a list of momenta to compute the energy for
         :type momenta: :class:`list`
-        :param average_momenta: Determines whether equivalent momenta should
-        be averaged over
+        :param average_momenta: Determines whether equivalent momenta should be averaged over
         :type average_momenta: :class:`bool`
         :returns: :class:`dict` with keys specifying particles and momenta
         """
@@ -306,17 +294,14 @@ class TwoPoint(Observable):
         
         :param particle: The particle to find the speed of light of
         :type particles: :class:`str`
-        :param fit_range: The two time slices specifying the range to fit
-        over
+        :param fit_range: The two time slices specifying the range to fit over
         :type fit_range: :class:`list` of two :class:`int`s
         :param momenta: The list of momenta to compute the speed of light for
         :type momenta: :class:`list`
-        :param average_momenta: Determines whether equivalent momenta should
-        be averaged over
+        :param average_momenta: Determines whether equivalent momenta should be averaged over
         :type average_momenta: :class:`bool`
-        :param use_lattice_momenta: Determines whether a sine function is used
-        when implementing the dispersion relation
-        :type average_momenta: :class: `bool`
+        :param use_lattice_momenta: Determines whether a sine function is used when implementing the dispersion relation
+        :type use_lattice_momenta: :class: `bool`
         :returns: :class:`list` with entries corresponding to the supplied momenta
         """
         

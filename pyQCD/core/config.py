@@ -19,8 +19,7 @@ class Config(Observable):
         :param u0: The mean link
         :type u0: :class:`float`
         :param action: The gauge action
-        :type action: :class:`str`, one of wilson, rectangle_improved or
-        twisted_rectangle_improved
+        :type action: :class:`str`, one of wilson, rectangle_improved or twisted_rectangle_improved
         :returns: :class:`Config`
         :raises: ValueError
         """

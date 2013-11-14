@@ -22,11 +22,9 @@ class WilsonLoops(Observable):
         :param u0: The mean link
         :type u0: :class:`float`
         :param action: The gauge action
-        :type action: :class:`str`, one of wilson, rectangle_improved or
-        twisted_rectangle_improved
+        :type action: :class:`str`, one of wilson, rectangle_improved or twisted_rectangle_improved
         :type source_site: :class:`list`
-        :param num_field_smears: The number of stout smears applied when
-        computing the propagator
+        :param num_field_smears: The number of stout smears applied when computing the propagator
         :type num_field_smears: :class:`int`
         :returns: :class:`WilsonLoops`
         :raises: ValueError
@@ -52,8 +50,7 @@ class WilsonLoops(Observable):
     def lattice_spacing(self):
         """Compute the lattice spacing using the Sommer scale
         
-        :returns: :class:`list` containg the lattice spacing in fm and
-        the inverse lattice spacing in GeV
+        :returns: :class:`list` containg the lattice spacing in fm and the inverse lattice spacing in GeV
         """
         
         potential_params = self._potential_parameters()

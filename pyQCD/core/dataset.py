@@ -89,13 +89,11 @@ class DataSet:
         """Performs a measurement on each item in the data set using the
         supplied function and returns the average of the measurements
         
-        :param func: The measurement function, whose first argument is the
-        datum object on which to perform the measurement
+        :param func: The measurement function, whose first argument is the datum object on which to perform the measurement
         :type func: :class:`function`
         :param data: The data indices to perform the measurement on
         :type data: :class:`list`
-        :param stddev: If True, returns a list of two elements, with the
-        second element being the standard deviation in the result
+        :param stddev: If True, returns a list of two elements, with the second element being the standard deviation in the result
         :type stddev: :class:`bool`
         :param args: The arguments required by the supplied function
         :type args: :class:`list`

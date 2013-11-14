@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # pyQCD documentation build configuration file, created by
-# sphinx-quickstart on Thu Aug 22 16:45:18 2013.
+# sphinx-quickstart on Thu Nov 14 21:47:29 2013.
 #
 # This file is execfile()d with the current directory set to its containing dir.
 #
@@ -11,105 +11,31 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys, os, re, glob
+import sys, os
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-
-#sys.path.insert(0, os.path.abspath('../../src'))
-sys.path.insert(0,os.path.abspath('..'))
-print sys.path
-
-
-def isBoostFunc(what,obj):
-	return what=='function' and obj.__repr__().startswith('<Boost.Python.function object at 0x')
-def isBoostMethod(what,obj):
-	"I don't know how to distinguish boost and non-boost methods..."
-	return what=='method' and obj.__repr__().startswith('<unbound method ')
-def isBoostStaticMethod(what,obj):
-	return what=='method' and obj.__repr__().startswith('<Boost.Python.function object at 0x')
-
-def fixDocstring(app,what,name,obj,options,lines):
-	if isBoostFunc(what,obj) or isBoostMethod(what,obj) or isBoostStaticMethod(what,obj):
-		l2=boostFuncSignature(name,obj)[1]
-		# we must replace lines one by one (in-place) :-|
-		# knowing that l2 is always shorter than lines (l2 is docstring with the signature stripped off)
-		for i in range(0,len(lines)):
-			lines[i]=l2[i] if i<len(l2) else ''
-
-def fixSignature(app, what, name, obj, options, signature, return_annotation):
-	print what,obj
-	if what in ('attribute','class'): return signature,None
-	elif isBoostFunc(what,obj):
-		sig=boostFuncSignature(name,obj)[0] or ' (wrapped c++ function)'
-		return sig,None
-	elif isBoostMethod(what,obj):
-		sig=boostFuncSignature(name,obj,removeSelf=True)[0]
-		return sig,None
-	elif isBoostStaticMethod(what,obj):
-		sig=boostFuncSignature(name,obj,removeSelf=True)[0]+' [STATIC]'
-		return sig,None
-
-def boostFuncSignature(name,obj,removeSelf=False):
-	"""Scan docstring of obj, returning tuple of properly formatted boost python signature
-	(first line of the docstring) and the rest of docstring (as list of lines).
-	The rest of docstring is stripped of 4 leading spaces which are automatically
-	added by boost.
-	
-	removeSelf will attempt to remove the first argument from the signature.
-	"""
-	doc=obj.__doc__
-	if doc==None: # not a boost method
-		return None,None
-	nname=name.split('.')[-1]
-	docc=doc.split('\n')
-	if len(docc)<2: return None,docc
-	doc1=docc[1]
-	# functions with weird docstring, likely not documented by boost
-	if not re.match('^'+nname+r'(.*)->.*$',doc1):
-		return None,docc
-	if doc1.endswith(':'): doc1=doc1[:-1]
-	strippedDoc=doc.split('\n')[2:]
-	# check if all lines are padded
-	allLinesHave4LeadingSpaces=True
-	for l in strippedDoc:
-		if l.startswith('    '): continue
-		allLinesHave4LeadingSpaces=False; break
-	# remove the padding if so
-	if allLinesHave4LeadingSpaces: strippedDoc=[l[4:] for l in strippedDoc]
-	for i in range(len(strippedDoc)):
-		# fix signatures inside docstring (one function with multiple signatures)
-		strippedDoc[i],n=re.subn(r'([a-zA-Z_][a-zA-Z0-9_]*\() \(object\)arg1(, |)',r'\1',strippedDoc[i].replace('->','→'))
-	# inspect dosctring after mangling
-	sig=doc1.split('(',1)[1]
-	if removeSelf:
-		# remove up to the first comma; if no comma present, then the method takes no arguments
-		# if [ precedes the comma, add it to the result (ugly!)
-		try:
-			ss=sig.split(',',1)
-			if ss[0].endswith('['): sig='['+ss[1]
-			else: sig=ss[1]
-		except IndexError:
-			# grab the return value
-			try:
-				sig=') -> '+sig.split('->')[-1]
-			except IndexError:
-				sig=')'
-	return '('+sig,strippedDoc
-
-def setup(app):
-	app.connect('autodoc-process-docstring',fixDocstring)
-	app.connect('autodoc-process-signature',fixSignature)
+#sys.path.insert(0, os.path.abspath('.'))
 
 # -- General configuration -----------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
-#needs_sphinx = '1.0'
+needs_sphinx = '1.1'
+
+def skip(app, what, name, obj, skip, options):
+    if name == "__init__":
+        return False
+    return skip
+
+def setup(app):
+    app.connect("autodoc-skip-member", skip)
+
+sys.path.insert(0, os.path.abspath(".."))
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo', 'sphinx.ext.coverage', 'sphinx.ext.pngmath', 'sphinx.ext.viewcode']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -125,16 +51,16 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'pyQCD'
-copyright = u'2013, Matthew Spraggs'
+copyright = u'2013, Matt Spraggs'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
 # The short X.Y version.
-version = ''
+version = '1.0.0'
 # The full version, including alpha/beta/rc tags.
-release = ''
+release = '1.0.0'
 
 # The language for content autogenerated by Sphinx. Refer to documentation
 # for a list of supported languages.
@@ -148,7 +74,7 @@ release = ''
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = []
+exclude_patterns = ['_build']
 
 # The reST default role (used for this markup: `text`) to use for all documents.
 #default_role = None
@@ -175,7 +101,7 @@ pygments_style = 'sphinx'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'default'
+html_theme = 'nature'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -268,7 +194,7 @@ latex_elements = {
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
   ('index', 'pyQCD.tex', u'pyQCD Documentation',
-   u'Author', 'manual'),
+   u'Matt Spraggs', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -298,7 +224,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'pyqcd', u'pyQCD Documentation',
-     [u'Author'], 1)
+     [u'Matt Spraggs'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -312,7 +238,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
   ('index', 'pyQCD', u'pyQCD Documentation',
-   u'Author', 'pyQCD', 'One line description of project.',
+   u'Matt Spraggs', 'pyQCD', 'One line description of project.',
    'Miscellaneous'),
 ]
 
@@ -324,46 +250,3 @@ texinfo_documents = [
 
 # How to display URL addresses: 'footnote', 'no', or 'inline'.
 #texinfo_show_urls = 'footnote'
-
-
-# -- Options for Epub output ---------------------------------------------------
-
-# Bibliographic Dublin Core info.
-epub_title = u'pyQCD'
-epub_author = u'Author'
-epub_publisher = u'Author'
-epub_copyright = u'2013, Author'
-
-# The language of the text. It defaults to the language option
-# or en if the language is not set.
-#epub_language = ''
-
-# The scheme of the identifier. Typical schemes are ISBN or URL.
-#epub_scheme = ''
-
-# The unique identifier of the text. This can be a ISBN number
-# or the project homepage.
-#epub_identifier = ''
-
-# A unique identification for the text.
-#epub_uid = ''
-
-# A tuple containing the cover image and cover page html template filenames.
-#epub_cover = ()
-
-# HTML files that should be inserted before the pages created by sphinx.
-# The format is a list of tuples containing the path and title.
-#epub_pre_files = []
-
-# HTML files shat should be inserted after the pages created by sphinx.
-# The format is a list of tuples containing the path and title.
-#epub_post_files = []
-
-# A list of files that should not be packed into the epub file.
-#epub_exclude_files = []
-
-# The depth of the table of contents in toc.ncx.
-#epub_tocdepth = 3
-
-# Allow duplicate toc entries.
-#epub_tocdup = True
