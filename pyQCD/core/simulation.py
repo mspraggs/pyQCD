@@ -213,8 +213,78 @@ class Simulation(object):
         :type num_timing_configs: :class:`int`
         """
         
-        pass
+        t0 = time.time()
+        
+        if self.verbosity > 0:
+            print(self)
+            print("")
+        
+        if not self.use_ensemble:
+            if self.verbosity > 0:
+                print("Thermalizing lattice..."),
+                sys.stdout.flush()
+        
+            self.lattice.thermalize(self.num_warmup_updates)
+        
+            if self.verbosity > 0:
+                print(" Done!")
+                
+        if timing_run:
+            N = num_timing_configs
+        else:
+            N = self.num_configs
+            
+        t1 = time.time()
+            
+        for i in xrange(N):
+            if self.verbosity > 0:
+                print("Configuration: {}".format(i))
+                sys.stdout.flush()
+            
+            if self.use_ensemble:
+                if self.verbosity > 0:
+                    print("Loading gauge field..."),
+                    sys.stdout.flush()
+                    
+                config = self.ensemble.get_datum(i)
+                self.lattice.set_config(config)
+                
+                if self.verbosity > 0:
+                    print(" Done!")
+            
+            else:
+                if self.verbosity > 0:
+                    print("Updating gauge field..."),
+                    sys.stdout.flush()
+                    
+                self.lattice.next_config()
+                
+                if self.verbosity > 0:
+                    print(" Done!")                    
+                    
+            if self.verbosity > 0:
+                print("Performing measurements...")
+                sys.stdout.flush()
+            self._do_measurements(not timing_run)
+            
+        t2 = time.time()
+        
+        if self.verbosity > 0:
+        
+            total_time = (t2 - t1) / N * self.num_configs + t1 - t0 \
+              if timing_run else t2 - t0
+          
+            hrs = int((total_time) / 3600)
+            mins = int((total_time - 3600 * hrs) / 60)
+            secs = total_time - 3600 * hrs - 60 * mins
     
+            if timing_run:
+                print("Estimated run time: {} hours, {} minutes and {} seconds"
+                      .format(hrs, mins, secs))
+            else:
+                print("Simulation completed in {} hours, {} minutes and {} "
+                      "seconds".format(hrs, mins, secs))
+            
     @classmethod
     def load(cls, xmlfile):
         pass
