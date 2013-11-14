@@ -222,10 +222,45 @@ class Simulation(object):
     def __str__(self):
         
         out = \
-          """Simulation Settings
-        -------------------
-        Number of configurations: {}
-        Measurement spacing: {}
-        Thermalization updates: {}
-        Update method: {}
-        """
+          "Simulation Settings\n" \
+          "-------------------\n" \
+          "Number of configurations: {}\n" \
+          "Measurement spacing: {}\n" \
+          "Thermalization updates: {}\n" \
+          "Update method: {}\n" \
+          "Use OpenMP: {}\n" \
+          "Random number generator seed: {}\n" \
+          "\n" \
+          "Lattice Settings\n" \
+          "----------------\n" \
+          "Spatial extent: {}\n" \
+          "Temporal extent: {}\n" \
+          "Gauge action: {}\n" \
+          "Inverse coupling (beta): {}\n" \
+          "Mean link (u0): {}\n" \
+          "Parallel sub-lattice size: {}\n" \
+          "\n".format(self.num_configs, self.measurement_spacing,
+                      self.num_warmup_updates, self.update_method,
+                      self.run_parallel, self.rand_seed, self.lattice.L,
+                      self.lattice.T, self.lattice.action, self.lattice.beta,
+                      self.lattice.u0, self.lattice.block_size)
+        
+        for measurement in self.measurements.values():
+            heading_underline \
+              = (len(measurement[1].datatype.__name__) + 21) * "-"
+            meas_settings = \
+              "{} Measurement Settings\n" \
+              "{}\n".format(measurement[1].datatype.__name__, heading_underline)
+            
+            meas_settings \
+              = "".join([meas_settings,
+                         "Filename: {}".format(measurement[1].filename)])
+                
+            for key, value in measurement[0].items():
+                meas_settings = "".join([meas_settings,
+                                        "{}: {}\n".format(key, value)])
+                
+        
+            out = "".join([out, meas_settings])
+            
+        return out
