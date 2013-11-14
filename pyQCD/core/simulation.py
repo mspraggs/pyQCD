@@ -157,7 +157,7 @@ class Simulation(object):
             
             self.measurements.update([(message, (kwargs, dataset, function))])
             
-        elif meas_type == Propagator
+        elif meas_type == Propagator:
             dataset = DataSet(meas_type, meas_file)
             message = "Computing propagator"
             function = "get_propagator"
