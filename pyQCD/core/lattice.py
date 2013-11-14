@@ -8,7 +8,7 @@ class Lattice(lattice.Lattice):
     
     def __init__(self, L=4, T=8, beta=5.5, u0=1.0, action="wilson",
                  n_cor=10, update_method="heatbath", parallel_updates=True,
-                 block_size=4, rand_seed=-1):
+                 block_size=None, rand_seed=-1):
         """Create a Lattice object.
                  
         :param L: The spatial extent of the lattice
@@ -38,6 +38,16 @@ class Lattice(lattice.Lattice):
         above specifies a pre-determined seed
         :returns: :class:`Lattice`
         """
+        
+        if block_size == None:
+            block_size = 3
+            
+            while L % block_size > 0 or T % block_size > 0:
+                block_size += 1
+                if block_size > L or block_size > T:
+                    raise ValueError("Lattice shape {} cannot accomodate "
+                                     "sub-lattices with side-length {}"
+                                     .format((T, L, L, L), block_size))
         
         self.beta = beta
         self.u0 = u0
