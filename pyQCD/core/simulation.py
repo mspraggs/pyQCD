@@ -4,6 +4,9 @@ from propagator import Propagator
 from wilslps import WilsonLoops
 from dataset import DataSet
 import numpy as np
+import sys
+import time
+import inspect
 
 class Simulation(object):
     
