@@ -173,20 +173,34 @@ class Simulation(object):
             raise TypeError("Measurement data type {} is not understood"
                             .format(meas_type))
     
-    def _do_measurements(self):
+    def _do_measurements(self, save=True):
         """Iterate through self.measurements and gather results"""
         
         keys = self.measurements.keys()
         
         for key in keys:
-            print("%s...".format(key))
+            if self.verbosity > 0:
+                if self.measurements[key][2] == "get_propagator":
+                    print("- {}...".format(key))
+                else:
+                    print("- {}...".format(key)),
+                    
+                sys.stdout.flush()
             
             measurement = getattr(self.lattice, self.measurements[key][2]) \
-              (self.measurements[key][0])
+              (**self.measurements[key][0])
             
-            self.measurements[key][1].add_datum(measurement)
-              
-            print("Done!")
+            if save:
+                self.measurements[key][1].add_datum(measurement)
+            
+            
+            if self.verbosity > 0:
+                if self.measurements[key][2] == "get_propagator":
+                    print("  Done!")
+                else:
+                    print(" Done!")
+                    
+                sys.stdout.flush()
     
     def run(self, timing_run=False, num_timing_configs=10):
         """Runs the simulation
