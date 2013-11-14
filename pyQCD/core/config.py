@@ -59,7 +59,7 @@ class Config(Observable):
         """
         return super(Config, cls).load(filename)
     
-    def __repr__(self):
+    def __str__(self):
         
         out = \
           "Field Configuration Object\n" \

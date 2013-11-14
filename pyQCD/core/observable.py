@@ -91,7 +91,7 @@ class Observable(object):
         
         return self.__class__(new_data, **self.header())
              
-    def __repr__(self):
+    def __str__(self):
         
         string_list = ["Observable Object\n",
                        "-----------------\n"]

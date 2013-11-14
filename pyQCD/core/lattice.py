@@ -218,7 +218,7 @@ class Lattice(lattice.Lattice):
         
         return out
     
-    def __repr__(self):
+    def __str__(self):
         
         out = \
           "Lattice Object\n" \

@@ -100,7 +100,7 @@ class WilsonLoops(Observable):
             
         return b
 
-    def __repr__(self):
+    def __str__(self):
         
         out = \
           "Wilson Loop Object\n" \

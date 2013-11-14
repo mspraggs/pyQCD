@@ -186,7 +186,7 @@ class Propagator(Observable):
             out = self.data * matrix
             return Propagator(out, **properties)
         
-    def __repr__(self):
+    def __str__(self):
         
         out = \
           "Propagator Object\n" \

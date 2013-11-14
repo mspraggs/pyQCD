@@ -392,7 +392,7 @@ class TwoPoint(Observable):
             
         return out
                         
-    def __repr__(self):
+    def __str__(self):
         
         out = \
           "Two-Point Function Object\n" \
