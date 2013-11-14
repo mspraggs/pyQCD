@@ -1,6 +1,7 @@
 from lattice import Lattice
 from config import Config
 from propagator import Propagator
+from wilslps import WilsonLoops
 from dataset import DataSet
 import numpy as np
 
