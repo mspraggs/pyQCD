@@ -70,7 +70,7 @@ class Simulation(object):
         
         self.lattice = Lattice(L, T, beta, u0, action, self.measurement_spacing,
                                self.update_method, self.run_parallel,
-                               block_size, rand_seed)
+                               block_size, self.rand_seed)
     
     def load_ensemble(self, filename):
         """Loads a gauge configuration dataset to use in the simulation
