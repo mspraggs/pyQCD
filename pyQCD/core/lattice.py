@@ -184,6 +184,12 @@ class Lattice(lattice.Lattice):
         :param sink_smearing_param: The Jacobi smearing parameter used
         when smearing the source
         :type sink_smearing_param: :class:`float`
+        :param solver_method: The method to use when performing the
+        inversion
+        :type solver_method: :class:`str`
+        :param verbosity: Determines the degree of output printed to
+        the screen
+        :type verbosity: :class:`int`
         :returns: :class:`Propagator`
         """
         
