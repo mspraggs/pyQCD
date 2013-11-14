@@ -324,7 +324,7 @@ class Simulation(object):
             
             meas_settings \
               = "".join([meas_settings,
-                         "Filename: {}".format(measurement[1].filename)])
+                         "Filename: {}\n".format(measurement[1].filename)])
                 
             for key, value in measurement[0].items():
                 meas_settings = "".join([meas_settings,
