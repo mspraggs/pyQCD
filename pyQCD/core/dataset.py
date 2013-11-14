@@ -155,7 +155,7 @@ class DataSet:
             
         return DataSet._mean(out), DataSet._std(out)
     
-    def jackknife(self, func, binsize, args):
+    def jackknife(self, func, binsize=1, args=[]):
         """Performs a jackknifed measurement on the dataset using the
         supplied function
         
