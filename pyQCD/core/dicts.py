@@ -1,6 +1,6 @@
 
 update_methods = {'heatbath': 0,
-                  'staple_metopolis': 1,
+                  'staple_metropolis': 1,
                   'metropolis': 2}
 
 gauge_actions = {'wilson': 0,
