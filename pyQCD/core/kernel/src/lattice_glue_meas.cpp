@@ -121,8 +121,8 @@ double Lattice::computeWilsonLoop(const int corner1[4], const int corner2[4],
       linkStore1[i] = this->links_[corner1Timeslice + i];
       linkStore2[i] = this->links_[corner2Timeslice + i];
     }
-    this->smearLinks(corner1[0], nSmears, smearingParameter);
-    this->smearLinks(corner2[0], nSmears, smearingParameter);
+    this->smearLinks(corner1Timeslice, nSmears, smearingParameter);
+    this->smearLinks(corner2Timeslice, nSmears, smearingParameter);
   }
 
   // Check that corner1 and corner2 are on the same plane
@@ -543,6 +543,8 @@ void Lattice::smearLinks(const int time, const int nSmears,
   // Smear the specified time slice by iterating calling this function
   int nSpatialLinks = this->nLinks_ / this->temporalExtent;
 
+  int time_mod = pyQCD::mod(time, this->temporalExtent);
+
   if (this->parallelFlag_ == 1) {
 
     for (int i = 0; i < nSmears; ++i) {
@@ -552,11 +554,11 @@ void Lattice::smearLinks(const int time, const int nSmears,
 #pragma omp parallel for
       for (int j = 0; j < nSpatialLinks; j+=4) {
 	// NB, spatial links only, so l > 0!
-	newLinks[j] = this->links_[time * nSpatialLinks + j];
+	newLinks[j] = this->links_[time_mod * nSpatialLinks + j];
 	for (int k = 1; k < 4; ++k) {
 	  // Create a temporary matrix to store the new link
 	  int link[5];
-	  pyQCD::getLinkIndices(time * nSpatialLinks + j + k,
+	  pyQCD::getLinkIndices(time_mod * nSpatialLinks + j + k,
 				this->spatialExtent, this->temporalExtent, link);
 	  Matrix3cd tempMatrix = this->computeQ(link, smearingParameter);
 	  newLinks[j + k] = (pyQCD::i * tempMatrix).exp() * this->getLink(link);
@@ -564,7 +566,7 @@ void Lattice::smearLinks(const int time, const int nSmears,
       }
       // Apply the changes to the existing lattice.
       for (int i = 0; i < nSpatialLinks; ++i) {
-	this->links_[time * nSpatialLinks + i] = newLinks[i];
+	this->links_[time_mod * nSpatialLinks + i] = newLinks[i];
       }
     }
   }
@@ -577,11 +579,11 @@ void Lattice::smearLinks(const int time, const int nSmears,
 
       for (int j = 0; j < nSpatialLinks; j+=4) {
 	// NB, spatial links only, so l > 0!
-	newLinks[j] = this->links_[time * nSpatialLinks + j];
+	newLinks[j] = this->links_[time_mod * nSpatialLinks + j];
 	for (int k = 1; k < 4; ++k) {
 	  // Create a temporary matrix to store the new link
 	  int link[5];
-	  pyQCD::getLinkIndices(time * nSpatialLinks + j + k,
+	  pyQCD::getLinkIndices(time_mod * nSpatialLinks + j + k,
 				this->spatialExtent, this->temporalExtent, link);
 	  Matrix3cd tempMatrix = this->computeQ(link, smearingParameter);
 	  newLinks[j + k] = (pyQCD::i * tempMatrix).exp()
@@ -590,7 +592,7 @@ void Lattice::smearLinks(const int time, const int nSmears,
       }
       // Apply the changes to the existing lattice.
       for (int i = 0; i < nSpatialLinks; ++i) {
-	this->links_[time * nSpatialLinks + i] = newLinks[i];
+	this->links_[time_mod * nSpatialLinks + i] = newLinks[i];
       }
     }
   }
