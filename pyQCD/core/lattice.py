@@ -149,7 +149,7 @@ class Lattice(lattice.Lattice):
         by measurement spacing in the Lattice constructor
         """
         
-        lattice.Lattice.get_next_config(self)
+        lattice.Lattice.next_config(self)
         
     def get_plaquette(self, site, dim1, dim2):
         """Computes and returns the value of the specified plaquette
