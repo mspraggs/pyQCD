@@ -279,8 +279,9 @@ class Lattice(lattice.Lattice):
         for r in xrange(self.L):
             for t in xrange(self.T):
                 loops[r, t] \
-                  = lattice.Lattice.av_wilson_loop(self, r, t, num_field_smears,
-                                                   field_smearing_param)
+                  = lattice.Lattice.get_av_wilson_loop(self, r, t,
+                                                       num_field_smears,
+                                                       field_smearing_param)
                 
         out = wilslps.WilsonLoops(loops, self.L, self.T, self.beta, self.u0,
                                   self.action, num_field_smears,
