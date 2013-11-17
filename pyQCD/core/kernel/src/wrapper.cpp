@@ -156,6 +156,7 @@ BOOST_PYTHON_MODULE(lattice)
     .def("set_link", &pyLattice::setLinkP, (py::arg("link"), py::arg("matrix")))
     .def("update", &pyLattice::update)
     .def("next_config", &pyLattice::getNextConfig)
+    .def("thermalize", &pyLattice::thermalize, (py::arg("num_updates")))
     .def("get_plaquette", &pyLattice::computePlaquetteP,
 	 (py::arg("site"), py::arg("dim1"), py::arg("dim2")))
     .def("get_rectangle", &pyLattice::computeRectangleP,
