@@ -5,6 +5,7 @@ import itertools
 import numpy as np
 
 class Lattice(lattice.Lattice):
+    """docstring"""
     
     def __init__(self, L=4, T=8, beta=5.5, u0=1.0, action="wilson",
                  n_cor=10, update_method="heatbath", parallel_updates=True,
@@ -32,6 +33,7 @@ class Lattice(lattice.Lattice):
         :param rand_seed: A seed for the random number generator
         :type rand_seed: :class:`int`, -1 specifies a random seed, whilst 0 and above specifies a pre-determined seed
         :returns: :class:`Lattice`
+        :raises: ValueError
         """
         
         if block_size == None:
@@ -98,6 +100,7 @@ class Lattice(lattice.Lattice):
         
         :param configuration: The field configuration
         :type configuration: :class:`Config`
+        :raises: ValueError
         """
         expected_shape = (self.T, self.L, self.L, self.L, 4, 3, 3)
         
