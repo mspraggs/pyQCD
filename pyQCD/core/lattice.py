@@ -154,6 +154,16 @@ class Lattice(lattice.Lattice):
         
         lattice.Lattice.next_config(self)
         
+    def thermalize(self, num_updates):
+        """Thermalizes the lattice by ensuring num_updates have been
+        performed
+        
+        :param num_updates: The number of updates to ensure have been performed
+        :type num_updates: :class:`int`
+        """
+        
+        lattice.Lattice.thermalize(self, num_updates)
+        
     def get_plaquette(self, site, dim1, dim2):
         """Computes and returns the value of the specified plaquette
         
