@@ -6,6 +6,7 @@ pyQCD/core/kernel/Makefile
 pyQCD/core/kernel/cmake_install.cmake
 pyQCD/core/kernel/lattice.so
 pyQCD/core/kernel/libcudainverters.a
+pyQCD/core/kernel/test_lattice
 pyQCD.egg-info/*
 build/*
 dist/*
