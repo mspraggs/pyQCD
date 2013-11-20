@@ -19,8 +19,9 @@ To build and install the module, the following packages are required:
 * Eigen C++ matrix library, version 3.1.3 or greater;
 * numpy version 1.7 or greater;
 * scipy version 0.12 or greater;
-* OpenMP (version 3), required for parallel updates, but not essential.
-* py.test for Python testing
+* OpenMP (version 3), required for parallel updates, but not essential;
+* py.test for Python testing;
+* Python Sphinx to build the docs.
 
 pyQCD is capable of using CUDA capable GPUs to accelerate the inversion of Dirac matrices to generate
 propagators. If you have a CUDA enabled GPU, and you want to use its capabilities, then you'll also need the
