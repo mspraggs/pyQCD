@@ -138,8 +138,7 @@ and analyzed in an object-orientated manner, as follows:
     
     for i in xrange(propagators.num_data):
         # Specify the propagators that make up the two-point function
-        correlators.add_datum(pyQCD.TwoPoint(propagators.get_datum(i),
-                              pyQCD.TwoPoint(propagators.get_datum(i))))
+        correlators.add_datum(pyQCD.TwoPoint(propagators.get_datum(i), propagators.get_datum(i)))
     # Compute the energies of the zero-momentum pion and rho_x with a fit range of 2 <= t <= 6
     energies = correlators.jackknife(pyQCD.TwoPoint.compute_energy,
                                      args=(["pion", "rho_x"], [2, 6]))
