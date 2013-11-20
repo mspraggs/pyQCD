@@ -1,10 +1,11 @@
 *~
 *.pyc
-pyQCD/core/CMakeCache.txt
-pyQCD/core/CMakeFiles/*
-pyQCD/core/Makefile
-pyQCD/core/cmake_install.cmake
-pyQCD/core/lattice.so
+pyQCD/core/kernel/CMakeCache.txt
+pyQCD/core/kernel/CMakeFiles/*
+pyQCD/core/kernel/Makefile
+pyQCD/core/kernel/cmake_install.cmake
+pyQCD/core/kernel/lattice.so
+pyQCD/core/kernel/libcudainverters.a
 pyQCD.egg-info/*
 build/*
 dist/*
@@ -15,4 +16,6 @@ Makefile
 cmake_install.cmake
 push
 install_manifest.txt
-docs/_build
+docs/_build/*
+docs/_static/*
+docs/_templates/*
