@@ -15,11 +15,12 @@ Installation
 To build and install the module, the following packages are required:
 
 * Python setuptools, tested with version 0.6.24, though may work with older versions;
-* boost::python and boost::random, both version 1.49.0 or greater;
+* boost::python, boost::random and boost::test, all version 1.49.0 or greater;
 * Eigen C++ matrix library, version 3.1.3 or greater;
 * numpy version 1.7 or greater;
 * scipy version 0.12 or greater;
 * OpenMP (version 3), required for parallel updates, but not essential.
+* py.test for Python testing
 
 pyQCD is capable of using CUDA capable GPUs to accelerate the inversion of Dirac matrices to generate
 propagators. If you have a CUDA enabled GPU, and you want to use its capabilities, then you'll also need the
@@ -64,7 +65,15 @@ paths:
     -DBoost_LIBRARY_DIR=...
     -DPYTHON_LIBRARY=...
 
-To build the documentation on linux, enter the doc directory and run
+Once everything's built and installed, it's a good idea to test it. First run the boost test executable:
+
+    make test
+
+Then test the Python implementation:
+
+    py.test
+
+To build the documentation on linux, enter the docs directory and run
 
     make html
 
@@ -78,25 +87,58 @@ reference. In the future this will hopefully be more detailed.
 Quick Start
 -----------
 
-The library contains two high-level functions: one to run lattice simulations and one to process the results.
-Both functions accept an input xml that specifies the settings for the simulation or processing. Examples of
-these may be found in the examples directory, with each file containing a description of what the file encodes. A
-list of the default values for the xml input files may be found in the simulation_default.xml file. These values
-are automatically inserted when they are missing in the main xml file.
+The package is designed to be highly object-orientated. Simulations are performed using the Simulation class.
+The settings for an individual simulation may be specified individually or loaded from an xml file. For
+example:
 
-To run a very basic simulation, without measurements, from the project root directory, do
+    import pyQCD
+    
+    simulation1 = pyQCD.Simulation(num_configs=100,
+                                   measurement_spacing=10,
+                                   num_warmup_updates=100,
+                                   update_method="heatbath",
+                                   run_parallel=True,
+                                   rand_seed=-1,
+                                   verbosity=2)
 
-    from pyQCD.run import simulate
-    simulate("examples/basic.xml")
+    simulation1.create_lattice(L=4, T=8, action="wilson", beta=5.5, u0=1.0)
+    simulation1.run()
 
-Postprocessing can be executed in a similar way:
+    simulation2 = pyQCD.Simulation.load("examples/basic.xml")
+    simulation2.run()
 
-    from pyQCD.run import postprocess
-    postprocess("examples/plaquette_autocorrelation.xml")
+The plaquettes for each of the individual configurations are then stored in the simulation object as the
+member "plaquettes", so in the above cases simulation1.plaquettes and simulation2.plaquettes contain the
+sequence of plaquttes values from the set of generated configurations.
 
-Once installed, the run.py file may be used to run a simulation and postprocess the results from the command line,
-with the input file specified using the -i or --input=... flags. To run a simulation, add an -s flag. To
-postprocess results, add a -p flag, as follows:
+Measurements can be added to the simulation using the add_measurement function or inserted into the xml
+file, as follows:
 
-    python -m pyQCD.run -s -i examples/basic.xml
-    python -m pyQCD.run -p -i examples/plaquette_autocorrelation.xml
+    .
+    .
+    .
+    simulation.add_measurement(pyQCD.Propagator, "propagators.zip", mass=0.4)
+    simulation.run()
+    
+    complete_simulation = pyQCD.Simulation.load("examples/measurements.xml")
+    complete_simulation.run()
+
+There is a one to one correspondence between the keyword argument names in the simulation functions and the
+tags used in the xml files, to create a coherent and unified interface (e.g. one can use num_field_smears in
+both the xml file and the Simulation.add_measurement function).
+
+Results are saved in zip archives that can be opened using the pyQCD.DataSet object. The results may be loaded
+and analyzed in an object-orientated manner, as follows:
+
+    import pyQCD
+    
+    propagators = pyQCD.DataSet.load("propagators.zip")
+    correlators = pyQCD.DataSet(pyQCD.TwoPoint, "correlators.zip")
+    
+    for i in xrange(propagators.num_data):
+        # Specify the propagators that make up the two-point function
+        correlators.add_datum(pyQCD.TwoPoint(propagators.get_datum(i),
+                              pyQCD.TwoPoint(propagators.get_datum(i))))
+    # Compute the energies of the zero-momentum pion and rho_x with a fit range of 2 <= t <= 6
+    energies = correlators.jackknife(pyQCD.TwoPoint.compute_energy,
+                                     args=(["pion", "rho_x"], [2, 6]))
