@@ -72,7 +72,13 @@ Once everything's built and installed, it's a good idea to test it. First run th
 
 Then test the Python implementation:
 
+    py.test pyQCD
+
+in the project root directory or
+
     py.test
+
+in the module root directory
 
 To build the documentation on linux, enter the docs directory and run
 
