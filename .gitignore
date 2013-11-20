@@ -1,5 +1,8 @@
 *~
 *.pyc
+CTestTestfile.cmake
+Testing/*
+pyQCD/core/kernel/CTestTestfile.cmake
 pyQCD/core/kernel/CMakeCache.txt
 pyQCD/core/kernel/CMakeFiles/*
 pyQCD/core/kernel/Makefile
