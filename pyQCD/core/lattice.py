@@ -378,7 +378,7 @@ class Lattice(lattice.Lattice):
         "Random number seed: {}".format(self.L, self.T, self.L**3 * self.T,
                                         self.L**3 * self.T * 4, self.action,
                                         self.beta, self.u0, self.update_method,
-                                        self.n_cor, self.parallel_updates,
+                                        self.num_cor, self.parallel_updates,
                                         self.block_size, self.rand_seed)
         
         return out
