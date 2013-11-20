@@ -22,5 +22,7 @@ Runs a very basic simulation: no measurements, 100 configurations,
     <run_parallel>True</run_parallel>
     <rand_seed>-1</rand_seed> <!-- Set the seed based on the time -->
     <verbosity>0</verbosity> <!-- Currently may also be 1 or 2 -->
+    <!-- An existing ensemble can potentially be specified -->
+    <!--<ensemble>configs.zip</ensemble>-->
   </simulation>
 </pyQCD>
