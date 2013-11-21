@@ -3,6 +3,7 @@ from observable import Observable
 from propagator import Propagator
 from config import Config
 from twopoint import TwoPoint
+from baretwopoint import BareTwoPoint
 from wilslps import WilsonLoops
 from dataset import DataSet
 from simulation import Simulation
