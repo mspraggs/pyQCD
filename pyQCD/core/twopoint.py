@@ -86,7 +86,7 @@ class TwoPoint(Observable):
         
         :param filename: The file to load from
         :type filename: :class:`str`
-        :returns: :class:`Observable`
+        :returns: :class:`TwoPoint`
         """
         
         numpy_archive = np.load(filename)
