@@ -372,6 +372,9 @@ class TwoPoint(Observable):
             
         return out
     
+    def compute_effmass(self, particle, momentum):
+        pass
+    
     def __add__(self, tp):
         """Addition operator overload"""
         
