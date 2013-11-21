@@ -7,4 +7,4 @@ Subpackages
 .. toctree::
 
     pyQCD.core
-
+    pyQCD.test
