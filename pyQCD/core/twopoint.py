@@ -142,6 +142,51 @@ class TwoPoint(Observable):
         
         return zip(const.mesons, const.combinations)
     
+    def add_correlator(self, data, particle, momentum=[0, 0, 0],
+                       projected=True):
+        """Adds the supplied correlator to the current instance
+        
+        :param data: The correlator itself
+        :type data: 1D :class:`numpy.ndarray` if projected is True, otherwise 4D :class:`numpy.ndarray` with shape (T, L, L, L)
+        :param particle: The name of the particle
+        :type particle: :class:`str`
+        :param momentum: The momentum of the particle
+        :type momentum: :class:`list` with three integers
+        :param projected: Whether the correlator has been projected onto the specified momentum
+        :type projected: :class:`bool`
+        :raises: ValueError
+        """
+        correlator_name = "{}_px{}_py{}_pz{}".format(particle,
+                                                     *momentum)
+        
+        if projected:
+            if len(data.shape) != 1 or data.shape[0] != self.T:
+                raise ValueError("Expected a correlator with shape "
+                                 "({},), recieved {}"
+                                 .format(self.T, data.shape))
+            
+            setattr(self, correlator_name, data)
+            
+        else:
+            expected_shape = (self.T, self.L, self.L, self.L)
+            if len(data.shape) != 1 or data.shape != expected_shape:
+                raise ValueError("Expected a correlator with shape "
+                                 "{}, recieved {}"
+                                 .format(expected_shape, data.shape))
+            
+            sites = list(itertools.product(xrange(self.L),
+                                           xrange(self.L),
+                                           xrange(self.L)))
+            exponential_prefactors \
+              = np.exp(2 * np.pi / self.L * 1j * np.dot(sites, p))
+            
+            correlator = np.dot(data, exponential_prefactors).real
+            
+            if not member_name in self.computed_correlators:
+                self.computed_correlators.append(correlator_name)
+            
+            setattr(self, correlator_name, correlator)
+    
     def meson_correlator(self, mesons, momenta = [0, 0, 0],
                          average_momenta = True):
         """Computes and stores the specified meson correlator within the
