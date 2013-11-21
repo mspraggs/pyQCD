@@ -9,7 +9,7 @@ Welcome to pyQCD's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 4
 
    pyQCD
 
