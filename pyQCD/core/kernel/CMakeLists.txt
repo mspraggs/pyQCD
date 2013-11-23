@@ -92,7 +92,7 @@ endif()
 add_test(lattice test_lattice)
 
 IF(CMAKE_COMPILER_IS_GNUCXX)
-  ADD_DEFINITIONS("-O3")
+  ADD_DEFINITIONS("-O3 -ffast-math")
 ENDIF()
 IF(CMAKE_COMPILER_IS_MSVC)
   ADD_DEFINITIONS("/O2")
