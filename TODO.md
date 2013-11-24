@@ -9,4 +9,4 @@ pyQCD Feature and Bug Todo List
 - Linop-based Dirac matrices
 - Finish tests
 - Module docstrings, more documentation
-- Watch this space...
+- List of features in README.md
