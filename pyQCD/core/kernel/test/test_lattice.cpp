@@ -296,7 +296,7 @@ BOOST_AUTO_TEST_CASE( update_test )
   BOOST_CHECK_CLOSE(latticeMetropolis.getLink(linkCoords).trace().real(),
 		    2.954800753378521, 1e-11);
   BOOST_CHECK_CLOSE(latticeMetropolis.getLink(linkCoords).trace().imag(),
-		    -0.0003684966990749328, 1e-11);
+		    -0.0003684966990749328, 1e-10);
 
   // Now check that about 50% of the updates are accepted.
   double firstAction = latticeMetropolis.computeLocalWilsonAction(linkCoords);
@@ -329,7 +329,7 @@ BOOST_AUTO_TEST_CASE( update_test )
   BOOST_CHECK_CLOSE(latticeNoStaples.getLink(linkCoords).trace().real(),
 		    2.969009580997734, 1e-11);
   BOOST_CHECK_CLOSE(latticeNoStaples.getLink(linkCoords).trace().imag(),
-		    -0.0001512992876672274, 1e-11);
+		    -0.0001512992876672274, 1e-10);
 
   // Test thermalization using parallel and serial update methods
   // First try serial
@@ -369,9 +369,8 @@ BOOST_AUTO_TEST_CASE( propagator_test )
   BOOST_CHECK_SMALL(propagators[0].trace().imag(), 1e-10);
 #else
   BOOST_CHECK_CLOSE(propagators[0].trace().real(),
-		    2.684902007542121, 1e-11);
-  BOOST_CHECK_CLOSE(propagators[0].trace().imag(),
-		    2.931700592109537e-15, 1e-11);
+		    2.684902007542121, 1.5e-10);
+  BOOST_CHECK_SMALL(propagators[0].trace().imag(), 1e-11);
 #endif
 
   // Check some of the smearing operators
