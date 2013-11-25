@@ -216,7 +216,7 @@ class TestLattice:
     def test_update(self):
         
         lattice = Lattice(rand_seed = 0, update_method = "heatbath")
-        tolerance = 1e-15 * np.ones((lattice.T, lattice.L, lattice.L,
+        tolerance = 1e-14 * np.ones((lattice.T, lattice.L, lattice.L,
                                      lattice.L, 4, 3, 3))
         lattice.update()
         
@@ -263,7 +263,7 @@ class TestLattice:
         expected_config = np.load("{}/config_staple_metropolis_rs1.npy".format(data_dir))
         actual_config = lattice.get_config().data
         
-        assert (np.abs(expected_config - actual_config) < tolerance).all()                     
+        assert (np.abs(expected_config - actual_config) < tolerance).all()      
 
     def test_next_config(self):
         
