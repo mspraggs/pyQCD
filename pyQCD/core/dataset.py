@@ -188,7 +188,7 @@ class DataSet:
                 
             out.append(DataSet._mean(bin_out))
             
-        return DataSet._mean(out), DataSet._std(out)
+        return DataSet._mean(out), DataSet._std_jackknife(out)
     
     @classmethod
     def load(self, filename):
@@ -389,6 +389,29 @@ class DataSet:
                 out = DataSet._add_measurements(out, square)
                 
             return DataSet._sqrt_measurements(DataSet._div_measurements(out, len(data)))
+        
+        if type(data) == np.ndarray:
+            return np.std(data, axis=0)
+
+    @staticmethod
+    def _std_jackknife(data):
+        """Calculates the standard deviation of the supplied list of
+        measurements for the case of the jackknife"""
+        
+        if type(data) == list:
+            mean = DataSet._mean(data)
+            
+            diff = DataSet._sub_measurements(data[0], mean)
+            out = DataSet._mul_measurements(diff, diff)
+            
+            for datum in data[1:]:
+                diff = DataSet._sub_measurements(datum, mean)
+                square = DataSet._mul_measurements(diff, diff)
+                out = DataSet._add_measurements(out, square)
+                
+            div = float(len(data)) / (len(data) - 1)
+                
+            return DataSet._sqrt_measurements(DataSet._div_measurements(out, div))
         
         if type(data) == np.ndarray:
             return np.std(data, axis=0)
