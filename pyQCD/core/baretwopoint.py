@@ -32,6 +32,9 @@ class BareTwoPoint(TwoPoint):
         for member in BareTwoPoint.common_members:
             header_keys.append(member)
             header_values.append(getattr(self, member))
+                
+        header_keys.append("computed_correlators")
+        header_values.append(self.computed_correlators)
             
         header = dict(zip(header_keys, header_values))
         
@@ -61,10 +64,12 @@ class BareTwoPoint(TwoPoint):
         header = numpy_archive['header'].item()
         
         ret = BareTwoPoint(header['T'], header['L'])
+        setattr(ret, "computed_correlators",
+                header["computed_correlators"])
         
         for correlator in numpy_archive.keys():
             if correlator != 'header':
-                setattr(ret, correlator, numpy_archive(correlator))
+                setattr(ret, correlator, numpy_archive[correlator])
                 
         return ret
         
@@ -100,12 +105,14 @@ class BareTwoPoint(TwoPoint):
         
         for cc in comp_corr1:
             setattr(out, cc, getattr(self, cc))
+            out.computed_correlators.append(cc)
             
         for cc in comp_corr2:
             if hasattr(out, cc):
                 setattr(out, cc, getattr(out, cc) + getattr(tp, cc))
             else:
                 setattr(out, cc, getattr(tp, cc))
+                out.computed_correlators.append(cc)
                 
         return out
     
@@ -116,10 +123,11 @@ class BareTwoPoint(TwoPoint):
             raise TypeError("Expected an int or float divisor, got {}"
                             .format(type(div)))
         
-        out = TwoPoint(self.T, self.L)
+        out = BareTwoPoint(self.T, self.L)
         
         for cc in self.computed_correlators:
             setattr(out, cc, getattr(self, cc) / div)
+            out.computed_correlators.append(cc)
             
         return out
                         

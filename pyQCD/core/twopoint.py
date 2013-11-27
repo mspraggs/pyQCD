@@ -61,6 +61,9 @@ class TwoPoint(Observable):
                 header_key = "".join([key, "_2"])
                 header_keys.append(header_key)
                 header_values.append(getattr(self.prop2, key))
+                
+        header_keys.append("computed_correlators")
+        header_values.append(self.computed_correlators)
 
         header = dict(zip(header_keys, header_values))
         
@@ -126,6 +129,8 @@ class TwoPoint(Observable):
         ret = TwoPoint(prop1, prop2)
         setattr(ret, 'L', header['L'])
         setattr(ret, 'T', header['T'])
+        setattr(ret, "computed_correlators",
+                header["computed_correlators"])
         
         for correlator in numpy_archive.keys():
             if ['prop_1', 'prop_2', 'header'].count(correlator):
@@ -167,6 +172,9 @@ class TwoPoint(Observable):
             
             setattr(self, correlator_name, data)
             
+            if not correlator_name in self.computed_correlators:
+                self.computed_correlators.append(correlator_name)
+            
         else:
             expected_shape = (self.T, self.L, self.L, self.L)
             if len(data.shape) != 1 or data.shape != expected_shape:
@@ -182,7 +190,7 @@ class TwoPoint(Observable):
             
             correlator = np.dot(data, exponential_prefactors).real
             
-            if not member_name in self.computed_correlators:
+            if not correlator_name in self.computed_correlators:
                 self.computed_correlators.append(correlator_name)
             
             setattr(self, correlator_name, correlator)
@@ -372,8 +380,16 @@ class TwoPoint(Observable):
             
         return out
     
-    def compute_effmass(self, particle, momentum):
-        pass
+    def compute_effmass(self, particle, momentum = [0, 0, 0]):
+        """Computes the effective mass curve for the specified particle with
+        specified momentum"""
+        
+        if not hasattr(self, "{}_px{}_py{}_pz{}".format(particle, *momentum)):
+            self.meson_correlator(particle, momentum)
+        
+        correlator = getattr(self, "{}_px{}_py{}_pz{}".format(particle, *momentum))
+            
+        return np.log(np.abs(correlator / np.roll(correlator, -1)))
     
     def __add__(self, tp):
         """Addition operator overload"""
@@ -422,6 +438,8 @@ class TwoPoint(Observable):
         
         for cc in self.computed_correlators:
             setattr(out, cc, getattr(self, cc) / div)
+        
+        out.computed_correlators = self.computed_correlators
             
         return out
                         
