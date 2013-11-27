@@ -351,7 +351,8 @@ class DataSet:
         if type(a) == dict:
             return dict(zip(a.keys(), DataSet._sqrt_measurements(a.values())))
         
-        if type(a) == float or type(a) == int or type(a) == np.float64:
+        if type(a) == float or type(a) == int or type(a) == np.float64 \
+          or type(a) == np.ndarray:
             return np.sqrt(a)
         
     @staticmethod
@@ -387,7 +388,7 @@ class DataSet:
                 square = DataSet._mul_measurements(diff, diff)
                 out = DataSet._add_measurements(out, square)
                 
-            return DataSet._div_measurements(out, len(data))
+            return DataSet._sqrt_measurements(DataSet._div_measurements(out, len(data)))
         
         if type(data) == np.ndarray:
             return np.std(data, axis=0)
