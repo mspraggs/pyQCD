@@ -141,14 +141,13 @@ class DataSet:
             
             bins = npr.randint(num_bins, size = num_bins).tolist()
             
-            bin_out = []            
-            for b in bins:
-                datum = self._get_bin(binsize, b)
+            new_datum = self._get_bin(binsize, bins[0])
+            for b in bins[1:]:
+                new_datum += self._get_bin(binsize, b)
                 
-                measurement = func(datum, *args)
-                bin_out.append(measurement)
-                
-            out.append(DataSet._mean(bin_out))
+            new_datum /= len(bins)
+            measurement = func(new_datum, *args)                
+            out.append(measurement)
             
             
         return DataSet._mean(out), DataSet._std(out)
@@ -179,14 +178,13 @@ class DataSet:
             
             bins = [j for j in xrange(num_bins) if j != i]
             
-            bin_out = []            
-            for b in bins:
-                datum = self._get_bin(binsize, b)
+            new_datum = self._get_bin(binsize, bins[0])
+            for b in bins[1:]:
+                new_datum += self._get_bin(binsize, b)
                 
-                measurement = func(datum, *args)
-                bin_out.append(measurement)
-                
-            out.append(DataSet._mean(bin_out))
+            new_datum /= len(bins)
+            measurement = func(new_datum, *args)                
+            out.append(measurement)
             
         return DataSet._mean(out), DataSet._std_jackknife(out)
     
