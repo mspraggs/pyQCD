@@ -414,3 +414,7 @@ class DataSet:
         
         if type(data) == np.ndarray:
             return np.std(data, axis=0)
+
+    def __getitem__(index):
+        """Square brackets overload"""
+        return self.get_datum(index)
