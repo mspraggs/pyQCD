@@ -111,6 +111,22 @@ class DataSet:
             zfile.write(filename)
             
         os.unlink(filename)
+        
+    def apply_function(self, func, args):
+        """Applies the specified function to each datum in the dataset before
+        saving each new datum over the original
+        
+        :param function: The function to apply
+        :type function: :class:`function`
+        :param args: The function arguments
+        :type args: :class:`list`
+        """
+        
+        for i in xrange(self.num_data):
+            datum = self.get_datum(i)
+            new_datum = func(datum, *args)
+            self.set_datum(i, new_datum)
+    
     def measure(self, func, data=[], stddev=False, args=[]):
         """Performs a measurement on each item in the data set using the
         supplied function and returns the average of the measurements
