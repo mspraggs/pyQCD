@@ -443,7 +443,7 @@ class TwoPoint(Observable):
             
         return out
     
-    def __neg__(self, tp):
+    def __neg__(self):
         """Negation operator overload"""
             
         new_prop1 = -self.prop1
@@ -459,10 +459,10 @@ class TwoPoint(Observable):
                 
         return out
     
-    def __sub__(self, tp)
+    def __sub__(self, tp):
         """Subtraction operator overload"""
         
-        return self.__sub__(tp.__neg__())
+        return self.__add__(tp.__neg__())
                         
     def __str__(self):
         

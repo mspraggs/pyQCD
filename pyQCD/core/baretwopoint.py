@@ -131,10 +131,10 @@ class BareTwoPoint(TwoPoint):
             
         return out
     
-    def __neg__(self, tp):
+    def __neg__(self):
         """Negation operator overload"""
         
-        out = TwoPoint(T=self.T, L=self.L)
+        out = BareTwoPoint(T=self.T, L=self.L)
         
         comp_corr1 = self.computed_correlators
         out.computed_correlators = comp_corr1
@@ -144,10 +144,10 @@ class BareTwoPoint(TwoPoint):
                 
         return out
     
-    def __sub__(self, tp)
+    def __sub__(self, tp):
         """Subtraction operator overload"""
         
-        return self.__sub__(tp.__neg__())
+        return self.__add__(tp.__neg__())
                         
     def __str__(self):
         
