@@ -174,15 +174,16 @@ class DataSet:
             
         out = []
         
+        data_sum = self._get_bin(binsize, 0)
+        for i in xrange(1, num_bins):
+            data_sum += self._get_bin(binsize, i)
+        
         for i in xrange(num_bins):
+            print("Doing jackknife {}".format(i))
             
             bins = [j for j in xrange(num_bins) if j != i]
             
-            new_datum = self._get_bin(binsize, bins[0])
-            for b in bins[1:]:
-                new_datum += self._get_bin(binsize, b)
-                
-            new_datum /= len(bins)
+            new_datum = (data_sum - self._get_bin(binsize, i)) / (num_bins - 1)
             measurement = func(new_datum, *args)                
             out.append(measurement)
             
