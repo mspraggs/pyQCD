@@ -98,7 +98,7 @@ class BareTwoPoint(TwoPoint):
                                                       getattr(self, cm),
                                                       getattr(tp, cm)))
         
-        out = TwoPoint(self.T, self.L)
+        out = BareTwoPoint(self.T, self.L)
         
         comp_corr1 = self.computed_correlators
         comp_corr2 = tp.computed_correlators
