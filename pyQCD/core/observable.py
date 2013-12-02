@@ -90,6 +90,18 @@ class Observable(object):
         new_data = self.data / div
         
         return self.__class__(new_data, **self.header())
+
+    def __neg__(self):
+        """Negation operator overload"""
+            
+        new_data = -self.data
+        
+        return self.__class__(new_data, **self.header())
+    
+    def __sub__(self, ob):
+        """Subtraction operator overload"""
+        
+        return self.__add__(ob.__neg__())
              
     def __str__(self):
         

@@ -130,6 +130,24 @@ class BareTwoPoint(TwoPoint):
             out.computed_correlators.append(cc)
             
         return out
+    
+    def __neg__(self, tp):
+        """Negation operator overload"""
+        
+        out = TwoPoint(T=self.T, L=self.L)
+        
+        comp_corr1 = self.computed_correlators
+        out.computed_correlators = comp_corr1
+        
+        for cc in comp_corr1:
+            setattr(out, cc, -getattr(self, cc))
+                
+        return out
+    
+    def __sub__(self, tp)
+        """Subtraction operator overload"""
+        
+        return self.__sub__(tp.__neg__())
                         
     def __str__(self):
         

@@ -442,6 +442,27 @@ class TwoPoint(Observable):
         out.computed_correlators = self.computed_correlators
             
         return out
+    
+    def __neg__(self, tp):
+        """Negation operator overload"""
+            
+        new_prop1 = -self.prop1
+        new_prop2 = -self.prop2
+        
+        out = TwoPoint(new_prop1, new_prop2)
+        
+        comp_corr1 = self.computed_correlators
+        out.computed_correlators = comp_corr1
+        
+        for cc in comp_corr1:
+            setattr(out, cc, -getattr(self, cc))
+                
+        return out
+    
+    def __sub__(self, tp)
+        """Subtraction operator overload"""
+        
+        return self.__sub__(tp.__neg__())
                         
     def __str__(self):
         
