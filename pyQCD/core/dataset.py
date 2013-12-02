@@ -85,6 +85,32 @@ class DataSet:
         
         return output
     
+    def set_datum(self, index, datum):
+        """Sets the specified datum to the specified value
+        
+        :param index: The index of the item being set
+        :type index: :class:`int`
+        :param datum: The value used to set the specified datum to
+        :type datum: The type specified in the object constructor
+        :raises: ValueError
+        """
+        
+        if type(datum) != self.datatype:
+            raise TypeError("Supplied data type {} does not match the required "
+                            "data type {}".format(type(datum), self.datatype))
+        
+        if index >= self.num_data:
+            raise TypeError("Datum {} does not exist".format(index))
+        
+        filename = "{}{}.npz".format(self.datatype.__name__, self.num_data)
+        
+        datum.save(filename[:-4])
+        
+        with zipfile.ZipFile(self.filename, 'a', self.storage_mode,
+                             self.large_file) as zfile:
+            zfile.write(filename)
+            
+        os.unlink(filename)
     def measure(self, func, data=[], stddev=False, args=[]):
         """Performs a measurement on each item in the data set using the
         supplied function and returns the average of the measurements
