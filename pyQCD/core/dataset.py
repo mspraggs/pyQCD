@@ -220,9 +220,7 @@ class DataSet:
         for i in xrange(1, num_bins):
             data_sum += self._get_bin(binsize, i)
         
-        for i in xrange(num_bins):
-            print("Doing jackknife {}".format(i))
-            
+        for i in xrange(num_bins):            
             bins = [j for j in xrange(num_bins) if j != i]
             
             new_datum = (data_sum - self._get_bin(binsize, i)) / (num_bins - 1)
@@ -457,6 +455,6 @@ class DataSet:
         if type(data) == np.ndarray:
             return np.std(data, axis=0)
 
-    def __getitem__(index):
+    def __getitem__(self, index):
         """Square brackets overload"""
         return self.get_datum(index)
