@@ -302,9 +302,16 @@ class TwoPoint(Observable):
                                                        fit_range[1]]
                 y = current_correlator[fit_range[0]:fit_range[1]]
                 
-                fit_function = lambda b, t, Ct: \
-                  Ct - b[0] * (np.exp(-b[1] * (self.T - t))
-                               + np.exp(-b[1] * t))
+                if fit_range[1] < self.T / 2:
+                    fit_function = lambda b, t, Ct: \
+                      Ct - b[0] * np.exp(-b[1] * t)
+                elif fit_range[0] > self.T / 2:
+                    fit_function = lambda b, t, Ct: \
+                      Ct - b[0] * np.exp(-b[1] * (self.T - t))
+                else:
+                    fit_function = lambda b, t, Ct: \
+                      Ct - b[0] * (np.exp(-b[1] * (self.T - t))
+                                   + np.exp(-b[1] * t))
                   
                 b, result = spop.leastsq(fit_function, [1.0, 1.0],
                                          args=(x, y))
