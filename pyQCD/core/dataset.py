@@ -427,7 +427,8 @@ class DataSet:
                 square = DataSet._mul_measurements(diff, diff)
                 out = DataSet._add_measurements(out, square)
                 
-            return DataSet._sqrt_measurements(DataSet._div_measurements(out, len(data)))
+            return DataSet._sqrt_measurements(DataSet \
+                                              ._div_measurements(out, len(data)))
         
         if type(data) == np.ndarray:
             return np.std(data, axis=0)
