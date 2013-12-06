@@ -224,7 +224,7 @@ class DataSet:
             bins = [j for j in xrange(num_bins) if j != i]
             
             new_datum = (data_sum - self._get_bin(binsize, i)) / (num_bins - 1)
-            measurement = func(new_datum, *args)                
+            measurement = func(new_datum, *args)
             out.append(measurement)
             
         return DataSet._mean(out), DataSet._std_jackknife(out)
