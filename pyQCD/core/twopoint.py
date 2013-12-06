@@ -313,7 +313,8 @@ class TwoPoint(Observable):
                       Ct - b[0] * (np.exp(-b[1] * (self.T - t))
                                    + np.exp(-b[1] * t))
                   
-                b, result = spop.leastsq(fit_function, [1.0, 1.0],
+                b, result = spop.leastsq(fit_function,
+                                         [current_correlator[0], 1.0],
                                          args=(x, y))
                 
                 if [1, 2, 3, 4].count(result) < 1:
