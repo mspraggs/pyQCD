@@ -148,7 +148,8 @@ class DataSet:
         for i in data:
             datum = self.get_datum(i)
             measurement = func(datum, *args)
-            measurements.append(measurement)
+            if measurement != None:
+                measurements.append(measurement)
             
         if stddev:
             return DataSet._mean(measurements), DataSet._std(measurements)
@@ -188,9 +189,9 @@ class DataSet:
                 new_datum += self._get_bin(binsize, b)
                 
             new_datum /= len(bins)
-            measurement = func(new_datum, *args)                
-            out.append(measurement)
-            
+            measurement = func(new_datum, *args)
+            if measurement != None:                
+                out.append(measurement)
             
         return DataSet._mean(out), DataSet._std(out)
     
@@ -225,7 +226,8 @@ class DataSet:
             
             new_datum = (data_sum - self._get_bin(binsize, i)) / (num_bins - 1)
             measurement = func(new_datum, *args)
-            out.append(measurement)
+            if measurement != None:
+                out.append(measurement)
             
         return DataSet._mean(out), DataSet._std_jackknife(out)
     
