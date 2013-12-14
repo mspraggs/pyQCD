@@ -253,7 +253,7 @@ class TwoPoint(Observable):
                 setattr(self, member_name, correlator_sum)
                 
     def compute_energy(self, particles, fit_range, momenta = [0, 0, 0],
-                       average_momenta = True):
+                       average_momenta = True, stddev = None):
         """Computes the energy of the specified particles at the specified
         momenta
         
@@ -265,6 +265,8 @@ class TwoPoint(Observable):
         :type momenta: :class:`list`
         :param average_momenta: Determines whether equivalent momenta should be averaged over
         :type average_momenta: :class:`bool`
+        :param stddev: The standard deviation in the correlators of the specified particles and momenta
+        :type stddev: :class:`dict` with keys of the form (particle, momentum) for each correlator
         :returns: :class:`dict` with keys specifying particles and momenta
         """
         
@@ -274,6 +276,21 @@ class TwoPoint(Observable):
             
         if type(particles) != list:
             particles = [particles]
+        
+        num_correlators = len(particles) * len(momenta)
+            
+        if stddev == None:
+            naive_stddevs = [np.ones(self.T) for i in xrange(num_correlators)]
+            tuple_momenta = [tuple(p) for p in momenta]
+            keys = itertools.product(particles, tuple_momenta)
+            pairs = tuple(zip(keys, naive_stddevs))
+            stddev = dict(pairs)
+            
+        if len(stddev.keys()) != num_correlators:
+            raise ValueError("Number of supplied correlator standard deviations "
+                             "({}) does not match the specified number of "
+                             "correlators ({})".format(len(stddev.keys()),
+                                                       num_correlators))
             
         outstanding_particles = []
         outstanding_momenta = []
@@ -291,6 +308,16 @@ class TwoPoint(Observable):
         
         energies = []
         keys = []
+        
+        # Specify the fit function
+                
+        if fit_range[1] < self.T / 2:
+            fit_function = lambda b, t: b[0] * np.exp(-b[1] * t)
+        elif fit_range[0] > self.T / 2:
+            fit_function = lambda b, t: b[0] * np.exp(-b[1] * (self.T - t))
+        else:
+            fit_function = lambda b, t, Ct: \
+              b[0] * (np.exp(-b[1] * (self.T - t)) + np.exp(-b[1] * t))
 
         for particle in particles:
             for momentum in momenta:
@@ -301,27 +328,19 @@ class TwoPoint(Observable):
                 x = np.arange(current_correlator.size)[fit_range[0]:
                                                        fit_range[1]]
                 y = current_correlator[fit_range[0]:fit_range[1]]
-                
-                if fit_range[1] < self.T / 2:
-                    fit_function = lambda b, t, Ct: \
-                      Ct - b[0] * np.exp(-b[1] * t)
-                elif fit_range[0] > self.T / 2:
-                    fit_function = lambda b, t, Ct: \
-                      Ct - b[0] * np.exp(-b[1] * (self.T - t))
-                else:
-                    fit_function = lambda b, t, Ct: \
-                      Ct - b[0] * (np.exp(-b[1] * (self.T - t))
-                                   + np.exp(-b[1] * t))
+                yerr = stddev[(particle, tuple(momentum))][fit_range[0]:
+                                                           fit_range[1]]
                   
-                b, result = spop.leastsq(fit_function,
-                                         [current_correlator[0], 1.0],
-                                         args=(x, y))
+                result = spop.minimize(TwoPoint._chi_squared,
+                                       [current_correlator[0], 1.0],
+                                       args=(x, y, yerr, fit_function),
+                                       method="Powell")
                 
-                if [1, 2, 3, 4].count(result) < 1:
+                if not result['success']:
                     print("Warning: fit failed for {} with momentum {}"
                           .format(particle, momentum))
                     
-                energies.append(b[1])
+                energies.append(result['x'][1])
                 keys.append(attrib_name)
                 
         return dict(zip(keys, energies))
@@ -564,3 +583,12 @@ class TwoPoint(Observable):
         out.sort()
             
         return out
+    
+    @staticmethod
+    def _chi_squared(b, t, Ct, err, fit_function):
+        """Computes the chi squared value for the supplied
+        data, fit function and fit parameters"""
+        
+        residuals = (Ct - fit_function(b, t)) / err
+            
+        return np.sum(residuals**2)
