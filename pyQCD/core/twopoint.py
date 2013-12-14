@@ -346,7 +346,7 @@ class TwoPoint(Observable):
         return dict(zip(keys, energies))
                 
     def compute_square_energy(self, particles, fit_range, momenta = [0, 0, 0],
-                              average_momenta = True):
+                              average_momenta = True, stddev=None):
         """Computes the square energy of the specified particles at the specified
         momenta
         
@@ -358,17 +358,20 @@ class TwoPoint(Observable):
         :type momenta: :class:`list`
         :param average_momenta: Determines whether equivalent momenta should be averaged over
         :type average_momenta: :class:`bool`
+        :param stddev: The standard deviation in the correlators of the specified particles and momenta
+        :type stddev: :class:`dict` with keys of the form (particle, momentum) for each correlator
         :returns: :class:`dict` with keys specifying particles and momenta
         """
         
         energies = self.compute_energy(particles, fit_range, momenta,
-                                       average_momenta)
+                                       average_momenta, stddev)
         
         return dict(zip(energies.keys(),
                         [x**2 for x in energies.values()]))
     
     def compute_c_square(self, particle, fit_range, momenta,
-                         average_momentum=True, use_lattice_momenta=True):
+                         average_momentum=True, use_lattice_momenta=True,
+                         stddev=None):
         """Computes the square speed of light of the specified particles at the
         specified momenta
         
@@ -382,13 +385,17 @@ class TwoPoint(Observable):
         :type average_momenta: :class:`bool`
         :param use_lattice_momenta: Determines whether a sine function is used when implementing the dispersion relation
         :type use_lattice_momenta: :class: `bool`
+        :param stddev: The standard deviation in the correlators of the specified particles and momenta
+        :type stddev: :class:`dict` with keys of the form (particle, momentum) for each correlator
         :returns: :class:`list` with entries corresponding to the supplied momenta
         """
         
         if type(momenta[0]) != list:
             momenta = [momenta]
-        E0_square = self.compute_square_energy(particle, fit_range, [0, 0, 0])
-        Es_square = self.compute_square_energy(particle, fit_range, momenta)
+        E0_square = self.compute_square_energy(particle, fit_range, [0, 0, 0],
+                                               stddev)
+        Es_square = self.compute_square_energy(particle, fit_range, momenta,
+                                               stddev)
         
         out = []
         
