@@ -289,7 +289,7 @@ class TwoPoint(Observable):
             pairs = tuple(zip(keys, naive_stddevs))
             stddev = dict(pairs)
             
-        if len(stddev.keys()) != num_correlators:
+        if len(stddev.keys()) < num_correlators:
             raise ValueError("Number of supplied correlator standard deviations "
                              "({}) does not match the specified number of "
                              "correlators ({})".format(len(stddev.keys()),
