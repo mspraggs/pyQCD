@@ -595,10 +595,19 @@ class TwoPoint(Observable):
         return out
     
     @staticmethod
-    def _chi_squared(b, t, Ct, err, fit_function):
+    def _chi_squared(b, t, Ct, err, fit_function, b_est=None, b_est_err=None):
         """Computes the chi squared value for the supplied
         data, fit function and fit parameters"""
         
         residuals = (Ct - fit_function(b, t)) / err
+        
+        if b_est != None and b_est_err != None:
+            b = np.array(b)
+            b_est = np.array(b_est)
+            b_est_err = np.array(b_est_err)
             
-        return np.sum(residuals**2)
+            param_residuals = (b - b_est) / b_est_err
+        else:
+            param_residuals = 0
+            
+        return np.sum(residuals**2) + np.sum(param_residuals**2)
