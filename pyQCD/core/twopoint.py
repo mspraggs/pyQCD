@@ -266,7 +266,7 @@ class TwoPoint(Observable):
         :param average_momenta: Determines whether equivalent momenta should be averaged over
         :type average_momenta: :class:`bool`
         :param stddev: The standard deviation in the correlators of the specified particles and momenta
-        :type stddev: :class:`dict` with keys of the form (particle, momentum) for each correlator
+        :type stddev: :class:`dict` with keys of the form (particle, momentum) for each correlator, or a single :class:`numpy.ndarray` where one particle and momentum are specified
         :returns: :class:`dict` with keys specifying particles and momenta
         """
         
@@ -278,6 +278,9 @@ class TwoPoint(Observable):
             particles = [particles]
         
         num_correlators = len(particles) * len(momenta)
+        
+        if num_correlators == 1 and type(stddev) != dict:
+            stddev = {(particles[0], tuple(momenta[0])) : stddev}
             
         if stddev == None:
             naive_stddevs = [np.ones(self.T) for i in xrange(num_correlators)]
