@@ -253,7 +253,8 @@ class TwoPoint(Observable):
                 setattr(self, member_name, correlator_sum)
                 
     def compute_energy(self, particles, fit_range, momenta = [0, 0, 0],
-                       average_momenta = True, stddev = None):
+                       average_momenta = True, stddev = None,
+                       return_amplitude=False):
         """Computes the energy of the specified particles at the specified
         momenta
         
@@ -267,7 +268,9 @@ class TwoPoint(Observable):
         :type average_momenta: :class:`bool`
         :param stddev: The standard deviation in the correlators of the specified particles and momenta
         :type stddev: :class:`dict` with keys of the form (particle, momentum) for each correlator, or a single :class:`numpy.ndarray` where one particle and momentum are specified
-        :returns: :class:`dict` with keys specifying particles and momenta
+        :param return_amplitude: Determines whether the square amplitude is returned
+        :type return_amplitude: :class:`bool`
+        :returns: :class:`dict` with keys specifying the particles and momenta, along with the corresponding energies and, where applicable, the square amplitudes
         """
         
         # First make sure that all relevant correlators have been calculated
@@ -342,8 +345,13 @@ class TwoPoint(Observable):
                 if not result['success']:
                     print("Warning: fit failed for {} with momentum {}"
                           .format(particle, momentum))
-                    
-                energies.append(result['x'][1])
+                
+                result_values = result['x']
+                result_values[0] /= (2 * result_values[1])
+                if return_amplitude:
+                    energies.append(result_values)
+                else:
+                    energies.append(result_values[1])
                 keys.append(attrib_name)
                 
         return dict(zip(keys, energies))
