@@ -362,7 +362,7 @@ class TwoPoint(Observable):
         :param average_momenta: Determines whether equivalent momenta should be averaged over
         :type average_momenta: :class:`bool`
         :param stddev: The standard deviation in the correlators of the specified particles and momenta
-        :type stddev: :class:`dict` with keys of the form (particle, momentum) for each correlator
+        :type stddev: :class:`dict` with keys of the form (particle, momentum) for each correlator, or a single :class:`numpy.ndarray` where one particle and momentum are specified
         :returns: :class:`dict` with keys specifying particles and momenta
         """
         
@@ -389,7 +389,7 @@ class TwoPoint(Observable):
         :param use_lattice_momenta: Determines whether a sine function is used when implementing the dispersion relation
         :type use_lattice_momenta: :class: `bool`
         :param stddev: The standard deviation in the correlators of the specified particles and momenta
-        :type stddev: :class:`dict` with keys of the form (particle, momentum) for each correlator
+        :type stddev: :class:`dict` with keys of the form (particle, momentum) for each correlator, or a single :class:`numpy.ndarray` where one particle and momentum are specified
         :returns: :class:`list` with entries corresponding to the supplied momenta
         """
         
