@@ -4,10 +4,13 @@ class Observable(object):
     
     members = []
     
-    def __init__(self):
+    def __init__(self, data=None):
         """Constructs an observable object"""
         
-        self.data = np.array([])
+        if data == None:
+            self.data = np.array([])
+        else:
+            self.data = data
         
     def save(self, filename):
         """Saves the observable to a numpy zip archive
