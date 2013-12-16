@@ -500,3 +500,5 @@ class TestLattice:
     def test_get_av_link(self):
         
         lattice = Lattice()
+
+        assert lattice.get_av_link() - 1.0 < 1e-10
