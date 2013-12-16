@@ -13,3 +13,4 @@ pyQCD Feature and Bug Todo List
 - Figure out some way of tidying up interface to correlator computation in TwoPoint object
 - General code review and tidy up of code
 - Tidy up __str__ functions in all objects
+- Optimize Wilson loop calculation
