@@ -34,7 +34,7 @@ def test_random_su():
         
         UUdagger = np.dot(U, np.conj(U.T))
         assert (np.abs(UUdagger - np.identity(i)) 
-                < 1e-15 * np.ones((i, i))).all()
+                < 1e-12 * np.ones((i, i))).all()
         
 def make_links(T, L):
         
@@ -96,12 +96,12 @@ def test_random_su3_transform():
     
     for link in links:
         determinant = spla.det(lattice.get_link(link))
-        assert np.abs(determinant - 1.0) < 1e-15
+        assert np.abs(determinant - 1.0) < 1e-12
         
         UUdagger = np.dot(lattice.get_link(link),
                           np.conj(lattice.get_link(link).T))
         assert (np.abs(UUdagger - np.identity(3))
-                < 1e-15 * np.ones((3, 3))).all()
+                < 1e-12 * np.ones((3, 3))).all()
     
 class TestLattice:
     
@@ -276,11 +276,11 @@ class TestLattice:
             matrix = lattice.get_link([0, 0, 0, 0, 0])
             # Test that the gauge links are SU3
             determinant = spla.det(matrix)
-            assert np.abs(spla.det(matrix) - 1.0) < 1e-15
+            assert np.abs(spla.det(matrix) - 1.0) < 1e-12
         
             UUdagger = np.dot(matrix, np.conj(matrix.T))
             assert (np.abs(UUdagger - np.identity(3)) 
-                    < 1e-15 * np.ones((3, 3))).all()
+                    < 1e-12 * np.ones((3, 3))).all()
             
     def test_thermalize(self):
         
@@ -424,22 +424,22 @@ class TestLattice:
         lattice = Lattice(rand_seed=0)
         lattice.update()
         
-        assert np.abs(lattice.get_av_plaquette() - 0.6744055385048071) < 1e-15
+        assert np.abs(lattice.get_av_plaquette() - 0.6744055385048071) < 1e-12
         
         random_su3_transform(lattice)
         
-        assert np.abs(lattice.get_av_plaquette() - 0.6744055385048071) < 1e-15
+        assert np.abs(lattice.get_av_plaquette() - 0.6744055385048071) < 1e-12
 
     def test_get_av_rectangle(self):
         
         lattice = Lattice(rand_seed=0)
         lattice.update()
         
-        assert np.abs(lattice.get_av_rectangle() - 0.5093032901600738) < 1e-15
+        assert np.abs(lattice.get_av_rectangle() - 0.5093032901600738) < 1e-12
         
         random_su3_transform(lattice)
         
-        assert np.abs(lattice.get_av_rectangle() - 0.5093032901600738) < 1e-15
+        assert np.abs(lattice.get_av_rectangle() - 0.5093032901600738) < 1e-12
 
     def test_get_av_wilson_loop(self):
         
@@ -447,12 +447,12 @@ class TestLattice:
         lattice.update()
         
         W = lattice.get_av_wilson_loop(4, 4)
-        assert np.abs(W - 0.2883925516552541) < 1e-15
+        assert np.abs(W - 0.2883925516552541) < 1e-12
 
         random_su3_transform(lattice)
         
         W = lattice.get_av_wilson_loop(4, 4)
-        assert np.abs(W - 0.2883925516552541) < 1e-15
+        assert np.abs(W - 0.2883925516552541) < 1e-12
 
     def test_get_wilson_loops(self):
         
@@ -477,7 +477,7 @@ class TestLattice:
         
         assert expected_shape == actual_shape
         
-        tolerance = 1e-15 * np.ones(expected_shape)
+        tolerance = 1e-12 * np.ones(expected_shape)
         
         expected_propagator \
           = np.load("{}/propagator_tree_level_4c8_4000_no_smear.npy"
