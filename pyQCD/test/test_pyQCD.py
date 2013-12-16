@@ -569,7 +569,7 @@ class TestObservable:
     def test_division(self):
         
         data = random_complex(100)
-        div = random_complex()
+        div = npr.random()
         
         ob1 = Observable(data)
         ob2 = ob1 / div
