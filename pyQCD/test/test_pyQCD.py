@@ -16,7 +16,7 @@ def random_complex(shape):
 
 def make_random_su(N):
     
-    A = spla.expm(2 * np.pi * 1j * npr.rand(N, N))
+    A = spla.expm(2 * np.pi * 1j * npr.random((N, N)))
     B = (A - np.trace(A) * np.identity(N) / N)
     C = 0.5 * (B - np.conj(B.T))
     
