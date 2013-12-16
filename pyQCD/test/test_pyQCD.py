@@ -597,4 +597,68 @@ class TestObservable:
         
         assert (ob3.data == ob1.data - ob2.data).all()
 
+class TestConfig:
     
+    def test_init(self):
+        
+        config_data = random_complex(32 * 36)
+        config_data = np.reshape(config_data, (4, 2, 2, 2, 4, 3, 3))
+        
+        with pytest.raises(ValueError):
+            config = Config(config_data, 2, 2, 5.5, 1.0, "wilson")
+
+        config = Config(config_data, 2, 4, 5.5, 1.0, "wilson")
+        
+    def test_save(self):
+        
+        config_data = random_complex(32 * 36)
+        config_data = np.reshape(config_data, (4, 2, 2, 2, 4, 3, 3))
+        
+        config = Config(config_data, 2, 4, 5.5, 1.0, "wilson")
+        config.save("test_config.npz")
+        
+        assert os.path.exists("test_config.npz")
+
+        test_config = np.load("test_config.npz")
+        
+        assert "data" in test_config.files
+        assert "header" in test_config.files
+        
+        assert (test_config["data"] == config_data).all()
+        assert test_config["header"] == {'L': 2, 'T': 4, 'beta': 5.5, 'u0': 1.0,
+                                         'action': 'wilson'}
+
+    def test_load(self):
+        
+        config = Config.load("test_config.npz")
+        
+        assert config.data.shape == (4, 2, 2, 2, 4, 3, 3)
+        
+        os.unlink("test_config.npz")
+
+    def test_save_raw(self):
+        
+        config_data = random_complex(32 * 36)
+        config_data = np.reshape(config_data, (4, 2, 2, 2, 4, 3, 3))
+        
+        config = Config(config_data, 2, 4, 5.5, 1.0, "wilson")
+        config.save_raw("test_config.npy")
+        
+        assert os.path.exists("test_config.npy")
+        
+        test_config = np.load("test_config.npy")
+        
+        assert (test_config == config_data).all()
+        
+        os.unlink("test_config.npy")
+        
+    def test_header(self):
+        
+        config_data = random_complex(32 * 36)
+        config_data = np.reshape(config_data, (4, 2, 2, 2, 4, 3, 3))
+        
+        config = Config(config_data, 2, 4, 5.5, 1.0, "wilson")
+        header = config.header()
+        
+        assert header == {'L': 2, 'T': 4, 'beta': 5.5, 'u0': 1.0,
+                          'action': 'wilson'}
