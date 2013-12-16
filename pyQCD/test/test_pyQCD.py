@@ -506,11 +506,11 @@ class TestObservable:
     
     def test_init(self):
         ob = Observable()
-        ob = Observable(npr.rand(100))
+        ob = Observable(random_complex(100))
 
     def test_save(self):
         
-        data = npr.rand(100)
+        data = random_complex(100)
         
         ob = Observable(data)
         ob.save("test_observable.npz")
@@ -535,7 +535,7 @@ class TestObservable:
         
     def test_save_raw(self):
         
-        data = npr.rand(100)
+        data = random_complex(100)
         ob = Observable(data)
         ob.save_raw("test_observable.npy")
         
@@ -556,8 +556,8 @@ class TestObservable:
         
     def test_addition(self):
         
-        data1 = npr.rand(100)
-        data2 = npr.rand(100)
+        data1 = random_complex(100)
+        data2 = random_complex(100)
         
         ob1 = Observable(data1)
         ob2 = Observable(data2)
@@ -568,8 +568,8 @@ class TestObservable:
 
     def test_division(self):
         
-        data = npr.rand(100)
-        div = npr.rand()
+        data = random_complex(100)
+        div = random_complex()
         
         ob1 = Observable(data)
         ob2 = ob1 / div
@@ -578,7 +578,7 @@ class TestObservable:
 
     def test_negation(self):
         
-        data = npr.rand(100)
+        data = random_complex(100)
         
         ob1 = Observable(data)
         ob2 = -ob1
@@ -587,8 +587,8 @@ class TestObservable:
         
     def test_addition(self):
         
-        data1 = npr.rand(100)
-        data2 = npr.rand(100)
+        data1 = random_complex(100)
+        data2 = random_complex(100)
         
         ob1 = Observable(data1)
         ob2 = Observable(data2)
