@@ -497,3 +497,98 @@ class TestLattice:
         lattice = Lattice()
 
         assert lattice.get_av_link() - 1.0 < 1e-10
+
+class TestObservable:
+    
+    def test_init(self):
+        ob = Observable()
+        ob = Observable(npr.rand(100))
+
+    def test_save(self):
+        
+        data = npr.rand(100)
+        
+        ob = Observable(data)
+        ob.save("test_observable.npz")
+        
+        assert os.path.exists("test_observable.npz")
+
+        test_ob = np.load("test_observable.npz")
+        
+        assert "data" in test_ob.files
+        assert "header" in test_ob.files
+        
+        assert (test_ob["data"] == data).all()
+        assert test_ob["header"] == {}
+
+    def test_load(self):
+        
+        ob = Observable.load("test_observable.npz")
+        
+        assert ob.data.shape == (100,)
+        
+        os.unlink("test_observable.npz")
+        
+    def test_save_raw(self):
+        
+        data = npr.rand(100)
+        ob = Observable(data)
+        ob.save_raw("test_observable.npy")
+        
+        assert os.path.exists("test_observable.npy")
+        
+        test_ob = np.load("test_observable.npy")
+        
+        assert (test_ob == data).all()
+
+    def test_header(self):
+        
+        ob = Observable()
+        header = ob.header()
+        
+        assert header == {}
+        
+    def test_addition(self):
+        
+        data1 = npr.rand(100)
+        data2 = npr.rand(100)
+        
+        ob1 = Observable(data1)
+        ob2 = Observable(data2)
+        
+        ob3 = ob1 + ob2
+        
+        assert (ob3.data == ob1.data + ob2.data).all()
+
+    def test_division(self):
+        
+        data = npr.rand(100)
+        div = npr.rand()
+        
+        ob1 = Observable(data)
+        ob2 = ob1 / div
+        
+        assert (ob2.data == data / div).all()
+
+    def test_negation(self):
+        
+        data = npr.rand(100)
+        
+        ob1 = Observable(data)
+        ob2 = -ob1
+        
+        assert (ob2.data == -data).all()
+        
+    def test_addition(self):
+        
+        data1 = npr.rand(100)
+        data2 = npr.rand(100)
+        
+        ob1 = Observable(data1)
+        ob2 = Observable(data2)
+        
+        ob3 = ob1 - ob2
+        
+        assert (ob3.data == ob1.data - ob2.data).all()
+
+    
