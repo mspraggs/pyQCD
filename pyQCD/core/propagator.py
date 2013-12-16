@@ -130,7 +130,7 @@ class Propagator(Observable):
         if type(matrix) == np.matrixlib.defmatrix.matrix:
             if matrix.shape == (4, 4): # Multiply by a spin matrix
                 out = np.tensordot(self.data, matrix, (5, 0))
-                out = np.swapaxes(np.swapaxes(out, 6, 7), 5, 6)
+                out = np.transpose(out, (0, 1, 2, 3, 4, 7, 5, 6))
             
                 return Propagator(out, **properties)
         
@@ -157,21 +157,13 @@ class Propagator(Observable):
         if type(matrix) == np.matrixlib.defmatrix.matrix:
             if matrix.shape == (4, 4):
                 out = np.tensordot(matrix, self.data, (1, 4))
-                out = np.swapaxes(out, 0, 1)
-                out = np.swapaxes(out, 1, 2)
-                out = np.swapaxes(out, 2, 3)
-                out = np.swapaxes(out, 3, 4)
+                out = np.transpose(out, (1, 2, 3, 4, 0, 5, 6, 7))
                 
                 return Propagator(out, **properties)
         
             elif matrix.shape == (3, 3):
                 out = np.tensordot(matrix, self.data, (1, 6))
-                out = np.swapaxes(out, 0, 1)
-                out = np.swapaxes(out, 1, 2)
-                out = np.swapaxes(out, 2, 3)
-                out = np.swapaxes(out, 3, 4)
-                out = np.swapaxes(out, 4, 5)
-                out = np.swapaxes(out, 5, 6)
+                out = np.transpose(out, (1, 2, 3, 4, 5, 6, 0, 7))
             
                 return Propagator(out, **properties)
         
