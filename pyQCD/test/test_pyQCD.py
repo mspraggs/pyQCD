@@ -9,6 +9,10 @@ import itertools
 from pyQCD import *
         
 data_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data')
+        
+def random_complex(shape):
+    
+    return npr.random(shape) * np.exp(2 * np.pi * 1j * npr.random(shape))
 
 def make_random_su(N):
     
