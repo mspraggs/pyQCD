@@ -610,7 +610,7 @@ class TestConfig:
         
     def test_save(self):
         
-        config_data = random.complex((4, 2, 2, 2, 4, 3, 3))
+        config_data = random_complex((4, 2, 2, 2, 4, 3, 3))
         
         config = Config(config_data, 2, 4, 5.5, 1.0, "wilson")
         config.save("test_config.npz")
