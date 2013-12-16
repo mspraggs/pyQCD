@@ -544,6 +544,8 @@ class TestObservable:
         test_ob = np.load("test_observable.npy")
         
         assert (test_ob == data).all()
+        
+        os.unlink("test_observable.npy")
 
     def test_header(self):
         
