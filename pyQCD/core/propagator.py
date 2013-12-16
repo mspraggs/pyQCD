@@ -63,7 +63,7 @@ class Propagator(Observable):
         self.field_smearing_param = field_smearing_param
         self.num_source_smears = num_source_smears
         self.source_smearing_param = source_smearing_param
-        self.num_sink_smears = sink_smearing_param
+        self.num_sink_smears = num_sink_smears
         self.sink_smearing_param = sink_smearing_param
         
         self.data = propagator
