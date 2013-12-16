@@ -658,3 +658,174 @@ class TestConfig:
         
         assert header == {'L': 2, 'T': 4, 'beta': 5.5, 'u0': 1.0,
                           'action': 'wilson'}
+
+class TestPropagator:
+    
+    def test_init(self):
+        
+        data = random_complex((2, 2, 2, 2, 4, 4, 3, 3))
+        
+        with pytest.raises(ValueError):
+            propagator = Propagator(data, 2, 4, 5.5, 1.0, "wilson", 0.4,
+                                    [0, 0, 0, 0], 0, 1.0, 0, 1.0, 0, 1.0)
+        
+        propagator = Propagator(data, 2, 2, 5.5, 1.0, "wilson", 0.4,
+                                [0, 0, 0, 0], 0, 1.0, 0, 1.0, 0, 1.0)
+
+    def test_save(self):
+        
+        prop_data = random_complex((4, 2, 2, 2, 4, 4, 3, 3))
+        prop = Propagator(prop_data, 2, 4, 5.5, 1.0, "wilson", 0.4, [0, 0, 0, 0],
+                          0, 1.0, 0, 1.0, 0, 1.0)
+        prop.save("test_prop.npz")
+        
+        assert os.path.exists("test_prop.npz")
+
+        test_prop = np.load("test_prop.npz")
+        
+        assert "data" in test_prop.files
+        assert "header" in test_prop.files
+        
+        assert (test_prop["data"] == prop_data).all()
+        assert test_prop["header"].item() == {'L': 2, 'T': 4, 'beta': 5.5,
+                                              'u0': 1.0, 'action': 'wilson',
+                                              'mass': 0.4,
+                                              'source_site': [0, 0, 0, 0],
+                                              'num_field_smears': 0,
+                                              'field_smearing_param': 1.0,
+                                              'num_source_smears': 0,
+                                              'source_smearing_param': 1.0,
+                                              'num_sink_smears': 0,
+                                              'sink_smearing_param': 1.0}
+    
+    def test_load(self):
+        
+        prop = Propagator.load("test_prop.npz")
+        
+        assert prop.data.shape == (4, 2, 2, 2, 4, 4, 3, 3)
+        
+        os.unlink("test_prop.npz")
+
+    def test_save_raw(self):
+        
+        prop_data = random_complex((4, 2, 2, 2, 4, 4, 3, 3))
+        prop = Propagator(prop_data, 2, 4, 5.5, 1.0, "wilson", 0.4, [0, 0, 0, 0],
+                          0, 1.0, 0, 1.0, 0, 1.0)
+        prop.save_raw("test_prop.npy")
+        
+        assert os.path.exists("test_prop.npy")
+        
+        test_prop = np.load("test_prop.npy")
+        
+        assert (test_prop == prop_data).all()
+        
+        os.unlink("test_prop.npy")
+        
+    def test_header(self):
+        
+        prop_data = random_complex((4, 2, 2, 2, 4, 4, 3, 3))
+        prop = Propagator(prop_data, 2, 4, 5.5, 1.0, "wilson", 0.4, [0, 0, 0, 0],
+                          0, 1.0, 0, 1.0, 0, 1.0)
+        header = prop.header()
+        
+        assert header == {'L': 2, 'T': 4, 'beta': 5.5,
+                          'u0': 1.0, 'action': 'wilson',
+                          'mass': 0.4,
+                          'source_site': [0, 0, 0, 0],
+                          'num_field_smears': 0,
+                          'field_smearing_param': 1.0,
+                          'num_source_smears': 0,
+                          'source_smearing_param': 1.0,
+                          'num_sink_smears': 0,
+                          'sink_smearing_param': 1.0}
+    
+    def test_conjugate(self):
+        
+        prop_data = random_complex((4, 2, 2, 2, 4, 4, 3, 3))
+        prop = Propagator(prop_data, 2, 4, 5.5, 1.0, "wilson", 0.4, [0, 0, 0, 0],
+                          0, 1.0, 0, 1.0, 0, 1.0)
+        
+        prop_conj = prop.conjugate()
+        
+        assert (prop_conj.data == np.conj(prop_data)).all()
+        
+    def test_transpose_spin(self):
+        
+        prop_data = random_complex((4, 2, 2, 2, 4, 4, 3, 3))
+        prop = Propagator(prop_data, 2, 4, 5.5, 1.0, "wilson", 0.4, [0, 0, 0, 0],
+                          0, 1.0, 0, 1.0, 0, 1.0)
+        
+        prop_transpose = prop.transpose_spin()
+        
+        assert (prop_transpose.data == np.swapaxes(prop_data, 4, 5)).all()
+        
+    def test_transpose_colour(self):
+        
+        prop_data = random_complex((4, 2, 2, 2, 4, 4, 3, 3))
+        prop = Propagator(prop_data, 2, 4, 5.5, 1.0, "wilson", 0.4, [0, 0, 0, 0],
+                          0, 1.0, 0, 1.0, 0, 1.0)
+        
+        prop_transpose = prop.transpose_colour()
+        
+        assert (prop_transpose.data == np.swapaxes(prop_data, 6, 7)).all()
+        
+    def test_multiply(self):
+        
+        prop_data = random_complex((4, 2, 2, 2, 4, 4, 3, 3))
+        prop = Propagator(prop_data, 2, 4, 5.5, 1.0, "wilson", 0.4, [0, 0, 0, 0],
+                          0, 1.0, 0, 1.0, 0, 1.0)
+        
+        with pytest.raises(ValueError):
+            prop_multiplied = prop * []
+            
+        scalar_multiple = npr.random()
+        prop_multiplied = prop * scalar_multiple
+        
+        assert (prop_multiplied.data == prop_data * scalar_multiple).all()
+        
+        matrix_multiple = np.matrix(npr.random((4, 4)))
+        prop_multiplied = prop * matrix_multiple
+        
+        expected_product = np.tensordot(prop_data, matrix_multiple, (5, 0))
+        expected_product = np.swapaxes(np.swapaxes(expected_product, 6, 7), 5, 6)
+        
+        assert (prop_multiplied.data == expected_product).all()
+        
+        matrix_multiple = np.matrix(npr.random((3, 3)))
+        prop_multiplied = prop * matrix_multiple
+        
+        expected_product = np.tensordot(prop_data, matrix_multiple, (7, 0))
+        
+        assert (prop_multiplied.data == expected_product).all()
+
+    def test_right_multiply(self):
+        
+        prop_data = random_complex((4, 2, 2, 2, 4, 4, 3, 3))
+        prop = Propagator(prop_data, 2, 4, 5.5, 1.0, "wilson", 0.4, [0, 0, 0, 0],
+                          0, 1.0, 0, 1.0, 0, 1.0)
+        
+        with pytest.raises(ValueError):
+            prop_multiplied = prop * []
+            
+        scalar_multiple = npr.random()
+        prop_multiplied = prop * scalar_multiple
+        
+        assert (prop_multiplied.data == prop_data * scalar_multiple).all()
+        
+        matrix_multiple = np.matrix(npr.random((4, 4)))
+        prop_multiplied = matrix_multiple * prop
+        
+        expected_product = np.tensordot(matrix_multiple, prop_data, (1, 4))
+        expected_product = np.transpose(expected_product,
+                                        (1, 2, 3, 4, 0, 5, 6, 7))
+        
+        assert (prop_multiplied.data == expected_product).all()
+        
+        matrix_multiple = np.matrix(npr.random((3, 3)))
+        prop_multiplied = matrix_multiple * prop
+        
+        expected_product = np.tensordot(matrix_multiple, prop_data, (1, 6))
+        expected_product = np.transpose(expected_product,
+                                        (1, 2, 3, 4, 5, 6, 0, 7))
+        
+        assert (prop_multiplied.data == expected_product).all()
