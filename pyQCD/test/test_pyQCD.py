@@ -6,12 +6,7 @@ import scipy.linalg as spla
 import os
 import itertools
 
-from pyQCD import Config
-from pyQCD import Lattice
-from pyQCD import Observable
-from pyQCD import Propagator
-from pyQCD import TwoPoint
-from pyQCD import WilsonLoops
+from pyQCD import *
         
 data_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data')
 
