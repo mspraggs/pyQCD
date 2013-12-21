@@ -254,7 +254,7 @@ class TwoPoint(Observable):
                 
     def compute_energy(self, particles, fit_range, momenta = [0, 0, 0],
                        average_momenta = True, stddev = None,
-                       return_amplitude=False):
+                       return_amplitude=False, fit_function=None):
         """Computes the energy of the specified particles at the specified
         momenta
         
@@ -270,6 +270,8 @@ class TwoPoint(Observable):
         :type stddev: :class:`dict` with keys of the form (particle, momentum) for each correlator, or a single :class:`numpy.ndarray` where one particle and momentum are specified
         :param return_amplitude: Determines whether the square amplitude is returned
         :type return_amplitude: :class:`bool`
+        :param fit_function: The function used to fit to. Defaults to a cosh-like function
+        :type fit_function: :class:`function`
         :returns: :class:`dict` with keys specifying the particles and momenta, along with the corresponding energies and, where applicable, the square amplitudes
         """
         
@@ -316,13 +318,8 @@ class TwoPoint(Observable):
         keys = []
         
         # Specify the fit function
-                
-        if fit_range[1] < self.T / 2:
-            fit_function = lambda b, t: b[0] * np.exp(-b[1] * t)
-        elif fit_range[0] > self.T / 2:
-            fit_function = lambda b, t: b[0] * np.exp(-b[1] * (self.T - t))
-        else:
-            fit_function = lambda b, t, Ct: \
+        if fit_function == None:
+            fit_function = lambda b, t: \
               b[0] * (np.exp(-b[1] * (self.T - t)) + np.exp(-b[1] * t))
 
         for particle in particles:
