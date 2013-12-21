@@ -283,9 +283,6 @@ class TwoPoint(Observable):
             particles = [particles]
         
         num_correlators = len(particles) * len(momenta)
-        
-        if num_correlators == 1 and type(stddev) != dict:
-            stddev = {(particles[0], tuple(momenta[0])) : stddev}
             
         if stddev == None:
             naive_stddevs = [np.ones(self.T) for i in xrange(num_correlators)]
@@ -293,6 +290,9 @@ class TwoPoint(Observable):
             keys = itertools.product(particles, tuple_momenta)
             pairs = tuple(zip(keys, naive_stddevs))
             stddev = dict(pairs)
+        
+        if num_correlators == 1 and type(stddev) != dict:
+            stddev = {(particles[0], tuple(momenta[0])) : stddev}
             
         if len(stddev.keys()) < num_correlators:
             raise ValueError("Number of supplied correlator standard deviations "
