@@ -344,7 +344,7 @@ class TwoPoint(Observable):
                           .format(particle, momentum))
                 
                 result_values = result['x']
-                result_values[0] /= (2 * result_values[1])
+                result_values[0] *= (2 * result_values[1])
                 if return_amplitude:
                     energies.append(result_values)
                 else:
