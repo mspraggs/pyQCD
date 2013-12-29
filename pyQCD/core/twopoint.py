@@ -188,7 +188,7 @@ class TwoPoint(Observable):
             
         else:
             expected_shape = (self.T, self.L, self.L, self.L)
-            if len(data.shape) != 1 or data.shape != expected_shape:
+            if data.shape != expected_shape:
                 raise ValueError("Expected a correlator with shape "
                                  "{}, recieved {}"
                                  .format(expected_shape, data.shape))
@@ -197,9 +197,10 @@ class TwoPoint(Observable):
                                            xrange(self.L),
                                            xrange(self.L)))
             exponential_prefactors \
-              = np.exp(2 * np.pi / self.L * 1j * np.dot(sites, p))
+              = np.exp(2 * np.pi / self.L * 1j * np.dot(sites, momentum))
             
-            correlator = np.dot(data, exponential_prefactors).real
+            correlator = np.dot(np.reshape(data, (self.T, self.L**3)),
+                                exponential_prefactors).real
             
             if not correlator_name in self.computed_correlators:
                 self.computed_correlators.append(correlator_name)
