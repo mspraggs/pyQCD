@@ -138,14 +138,15 @@ class TwoPoint(Observable):
         
         return ret
     
-    def available_mesons(self):
+    @staticmethod
+    def available_mesons():
         """Returns a list of possible meson interpolators for use
         in the meson_correlator function
         
         :returns: :class:`list` of tuples, each describing the meson state and the gamma matrix combination associated with it
         """
         
-        return zip(const.mesons, const.combinations)
+        return zip(const.mesons, const.interpolators)
     
     def add_correlator(self, data, particle, momentum=[0, 0, 0],
                        projected=True):
