@@ -831,7 +831,158 @@ class TestPropagator:
         assert (prop_multiplied.data == expected_product).all()
 
 class TestTwoPoint:
-    pass
+    
+    def test_init(self):
+        
+        data1 = random_complex((2, 2, 2, 2, 4, 4, 3, 3))
+        data2 = random_complex((4, 2, 2, 2, 4, 4, 3, 3))
+        
+        prop1 = Propagator(data1, 2, 2, 5.5, 1.0, "wilson", 0.4, [0, 0, 0, 0],
+                           0, 1.0, 0, 1.0, 0, 1.0)
+        prop2 = Propagator(data2, 2, 4, 5.5, 1.0, "wilson", 0.4, [0, 0, 0, 0],
+                           0, 1.0, 0, 1.0, 0, 1.0)
+        
+        with pytest.raises(ValueError):
+            twopoint = TwoPoint(prop1, prop2)
+        
+        data1 = random_complex((2, 2, 2, 2, 4, 4, 3, 3))
+        data2 = random_complex((2, 2, 2, 2, 4, 4, 3, 3))
+        
+        prop1 = Propagator(data1, 2, 2, 5.5, 1.0, "wilson", 0.4, [0, 0, 0, 0],
+                           0, 1.0, 0, 1.0, 0, 1.0)
+        prop2 = Propagator(data2, 2, 2, 5.5, 1.0, "wilson", 0.4, [0, 0, 0, 0],
+                           0, 1.0, 0, 1.0, 0, 1.0)
+        
+        twopoint = TwoPoint(prop1, prop2)
+        
+    def test_save(self):
+        
+        data1 = random_complex((2, 2, 2, 2, 4, 4, 3, 3))
+        data2 = random_complex((2, 2, 2, 2, 4, 4, 3, 3))
+        
+        prop1 = Propagator(data1, 2, 2, 5.5, 1.0, "wilson", 0.4, [0, 0, 0, 0],
+                           0, 1.0, 0, 1.0, 0, 1.0)
+        prop2 = Propagator(data2, 2, 2, 5.5, 1.0, "wilson", 0.4, [0, 0, 0, 0],
+                           0, 1.0, 0, 1.0, 0, 1.0)
+        
+        twopoint = TwoPoint(prop1, prop2)
+        attribute_name = "pion_px0_py0_pz0"
+        correlator = npr.random(10)
+        setattr(twopoint, attribute_name, correlator)
+        twopoint.computed_correlators.append(attribute_name)
+              
+        twopoint.save("test_twopoint.npz")
+        
+        assert os.path.exists("test_twopoint.npz")
+        
+        test_twopoint = np.load("test_twopoint.npz")
+        
+        assert "prop_1" in test_twopoint.files
+        assert "prop_2" in test_twopoint.files
+        assert attribute_name in test_twopoint.files
+        
+        assert (test_twopoint["prop_1"] == data1).all()
+        assert (test_twopoint["prop_2"] == data2).all()
+        assert test_twopoint["header"].item() == {'L': 2, 'T': 2,
+                                                  'action': 'wilson',
+                                                  'beta': 5.5,
+                                                  'computed_correlators':
+                                                  ['pion_px0_py0_pz0'],
+                                                  'field_smearing_param_1': 1.0,
+                                                  'field_smearing_param_2': 1.0,
+                                                  'mass_1': 0.4, 'mass_2': 0.4,
+                                                  'num_field_smears_1': 0,
+                                                  'num_field_smears_2': 0,
+                                                  'num_sink_smears_1': 0,
+                                                  'num_sink_smears_2': 0,
+                                                  'num_source_smears_1': 0,
+                                                  'num_source_smears_2': 0,
+                                                  'sink_smearing_param_1': 1.0,
+                                                  'sink_smearing_param_2': 1.0,
+                                                  'source_site_1': [0, 0, 0, 0],
+                                                  'source_site_2': [0, 0, 0, 0],
+                                                  'source_smearing_param_1': 1.0,
+                                                  'source_smearing_param_2': 1.0,
+                                                  'u0': 1.0}
+        
+    def test_load(self):
+        
+        twopoint = TwoPoint.load("test_twopoint.npz")
+        
+        assert twopoint.prop1.data.shape == (2, 2, 2, 2, 4, 4, 3, 3)
+        assert twopoint.prop2.data.shape == (2, 2, 2, 2, 4, 4, 3, 3)
+        
+        os.unlink("test_twopoint.npz")
+        
+    def test_save_raw(self):
+        
+        data1 = random_complex((2, 2, 2, 2, 4, 4, 3, 3))
+        data2 = random_complex((2, 2, 2, 2, 4, 4, 3, 3))
+        
+        prop1 = Propagator(data1, 2, 2, 5.5, 1.0, "wilson", 0.4, [0, 0, 0, 0],
+                           0, 1.0, 0, 1.0, 0, 1.0)
+        prop2 = Propagator(data2, 2, 2, 5.5, 1.0, "wilson", 0.4, [0, 0, 0, 0],
+                           0, 1.0, 0, 1.0, 0, 1.0)
+        
+        twopoint = TwoPoint(prop1, prop2)
+        
+        with pytest.raises(NotImplementedError):
+            twopoint.save_raw("test")
+            
+    def test_available_mesons(self):
+        
+        mesons = TwoPoint.available_mesons()
+        
+        assert len(mesons) == 16
+        
+        for meson in mesons:
+            assert len(meson) == 2
+            
+    def test_add_correlator(self):
+        
+        data1 = random_complex((4, 2, 2, 2, 4, 4, 3, 3))
+        data2 = random_complex((4, 2, 2, 2, 4, 4, 3, 3))
+        
+        prop1 = Propagator(data1, 2, 4, 5.5, 1.0, "wilson", 0.4, [0, 0, 0, 0],
+                           0, 1.0, 0, 1.0, 0, 1.0)
+        prop2 = Propagator(data2, 2, 4, 5.5, 1.0, "wilson", 0.4, [0, 0, 0, 0],
+                           0, 1.0, 0, 1.0, 0, 1.0)
+        
+        twopoint = TwoPoint(prop1, prop2)
+        
+        correlator = npr.random(4)
+        
+        twopoint.add_correlator(correlator, "dummy_name")
+        twopoint.add_correlator(correlator, "dummy_name", [1, 1, 1])
+        
+        assert (getattr(twopoint, "dummy_name_px0_py0_pz0") == correlator).all()
+        assert (getattr(twopoint, "dummy_name_px1_py1_pz1") == correlator).all()
+        
+        with pytest.raises(ValueError):
+            twopoint.add_correlator(npr.random(3), "dummy_name")
+            twopoint.add_correlator(npr.random((2, 2)), "dummy_name")
+            
+        raw_correlator = random_complex((4, 2, 2, 2))
+        sites = [[x, y, z]
+                 for x in xrange(2)
+                 for y in xrange(2)
+                 for z in xrange(2)]
+        
+        prefactors = np.exp(1j * np.pi * np.dot(sites, [1, 0, 0]))
+        correlator = np.dot(np.reshape(raw_correlator, (4, 8)), prefactors).real
+        twopoint.add_correlator(raw_correlator, "dummy_name", [1, 0, 0], False)
+        assert (twopoint.dummy_name_px1_py0_pz0 == correlator).all()
+        
+        prefactors = np.exp(1j * np.pi * np.dot(sites, [1, 1, 0]))
+        correlator = np.dot(np.reshape(raw_correlator, (4, 8)), prefactors).real
+        twopoint.add_correlator(raw_correlator, "dummy_name", [1, 1, 0], False)
+        assert (twopoint.dummy_name_px1_py1_pz0 == correlator).all()
+        
+        with pytest.raises(ValueError):
+            twopoint.add_correlator(npr.random((4, 2, 2, 1)), "dummy_name",
+                                    [1, 1, 0], False)
+            twopoint.add_correlator(npr.random((4, 2, 2)), "dummy_name",
+                                    [1, 1, 0], False)
 
 class TestBareTwoPoint:
     pass
