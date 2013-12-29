@@ -138,6 +138,16 @@ class TwoPoint(Observable):
         
         return ret
     
+    def save_raw(self, filename):
+        """Override the save_raw function from Observable, as the member
+        variable data does not exist
+        
+        :raises: NotImplementedError
+        """
+    
+        raise NotImplementedError("TwoPoint object cannot be saved as raw "
+                                  "numpy arrays")
+    
     @staticmethod
     def available_mesons():
         """Returns a list of possible meson interpolators for use
