@@ -983,6 +983,9 @@ class TestTwoPoint:
                                     [1, 1, 0], False)
             twopoint.add_correlator(npr.random((4, 2, 2)), "dummy_name",
                                     [1, 1, 0], False)
+            
+    def test_meson_correlator(self):
+        pass
 
 class TestBareTwoPoint:
     pass
