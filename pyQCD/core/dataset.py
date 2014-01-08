@@ -195,6 +195,36 @@ class DataSet:
             
         return DataSet._mean(out), DataSet._std(out)
     
+    def jackknife_datum(self, index, binsize=1):
+        """Computes a jackknifed datum
+        
+        :param index: The configuration to remove when computing the jackknife
+        :type index: :class:`int`
+        :param binsize: The bin size to use when binning
+        :type binsize: :class:`int`
+        :raises: ValueError
+        """
+        
+        if binsize < 1:
+            raise ValueError("Supplied bin size {} is less than 1"
+                             .format(binsize))
+        
+        if index >= self.num_data:
+            raise ValueError("Supplied index {} is greater than the number of "
+                             "data {}"
+                             .format(index, self.num_data))
+        
+        num_bins = self.num_data / binsize
+        if self.num_data % binsize > 0:
+            num_bins += 1
+        
+        data_sum = self._get_bin(binsize, 0)
+        for i in xrange(1, num_bins):
+            data_sum += self._get_bin(binsize, i)
+            
+        return (data_sum - self._get_bin(binsize, index)) / (num_bins - 1)
+            
+    
     def jackknife(self, func, binsize=1, args=[]):
         """Performs a jackknifed measurement on the dataset using the
         supplied function
