@@ -4,6 +4,7 @@ import numpy as np
 import constants as const
 import itertools
 import scipy.optimize as spop
+import re
 
 class TwoPoint(Observable):
     
@@ -583,6 +584,44 @@ class TwoPoint(Observable):
         
         return np.einsum('txyzijab,txyzjiba->txyz',
                          gp1.data, gp2.data).real
+    @staticmethod
+    def _get_correlator_name(label, quark_masses, lattice_momentum,
+                             source_type, sink_type):
+        """Generates the member name of the correlator"""
+        
+        momentum_string = "_px{0}_py{1}_pz{2}".format(*lattice_momentum)
+        mass_string = "".join(["_M{0}".format(round(mass, 4)).replace(".", "p")
+                               for mass in quark_masses])
+        source_sink_string = "_{0}_{1}".format(source_type, sink_type)
+        
+        return "{0}{1}{2}{3}".format(label, momentum_string, mass_string,
+                                     source_sink_string)
+    
+    @staticmethod
+    def _get_correlator_parameters(attribute_name):
+        """Parses the attribute name and returns the parameters in the
+        attribute name"""
+        
+        attribute_mask \
+          = r'(\w+)_px(\d+)_py(\d+)_pz(\d+)(_\w+)_([a-zA-Z]+)_([a-zA-Z]+)'
+        
+        split_attribute_name = re.findall(attribute_mask, attribute_name)
+        
+        if len(split_attribute_name) == 0:
+            raise ValueError("Unable to parse correlator name: {0}"
+                             .format(attribute_name))
+        
+        split_attribute_name = split_attribute_name[0]
+                
+        label = split_attribute_name[0]
+        mass_attributes = re.findall(r'M(\d+p\d+)', split_attribute_name[4])
+        
+        momentum = [eval(p) for p in split_attribute_name[1:4]]
+        masses = [eval(mass.replace("p", ".")) for mass in mass_attributes]
+        source_type = split_attribute_name[5]
+        sink_type = split_attribute_name[6]
+        
+        return label, tuple(masses), tuple(momentum), source_type, sink_type
 
     @staticmethod
     def _get_all_momenta(p):
