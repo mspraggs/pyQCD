@@ -897,6 +897,44 @@ class TestTwoPoint:
         for meson in mesons:
             assert len(meson) == 2
             
+    def test_get_correlator(self):
+        
+        twopoint = TwoPoint(8, 4)
+        
+        source_sink_types = ["point", "wall", "smeared", "stochastic"]
+        
+        for i in xrange(10):
+            label = random_variable_name()
+            momentum = [npr.randint(4) for i in xrange(3)]
+            masses = [npr.random() for i in xrange(npr.randint(1, 5))]
+            source_type = source_sink_types[npr.randint(len(source_sink_types))]
+            sink_type = source_sink_types[npr.randint(len(source_sink_types))]
+            
+            attribute_name \
+              = "{0}_px{1}_py{2}_pz{3}".format(label, *momentum)
+              
+            for mass in masses:
+                attribute_name \
+                  += "_M{0}".format(round(mass, 4)).replace(".", "p")
+                
+            attribute_name += "_{0}_{1}".format(source_type, sink_type)
+            
+            correlator = npr.random(8)
+            setattr(twopoint, attribute_name, correlator)
+            twopoint.computed_correlators.append(attribute_name)
+        
+            assert (twopoint.get_correlator(label,
+                                            momentum,
+                                            masses,
+                                            source_type,
+                                            sink_type) == correlator).all()
+        
+        all_correlators = twopoint.get_correlator()
+            
+        assert type(all_correlators) == dict
+        assert type(all_correlators.keys()[0]) == tuple
+        assert len(all_correlators.values()) == 10
+            
     def test_add_correlator(self):
         
         data1 = random_complex((4, 2, 2, 2, 4, 4, 3, 3))
