@@ -937,48 +937,49 @@ class TestTwoPoint:
             
     def test_add_correlator(self):
         
-        data1 = random_complex((4, 2, 2, 2, 4, 4, 3, 3))
-        data2 = random_complex((4, 2, 2, 2, 4, 4, 3, 3))
+        twopoint = TwoPoint(8, 4)
         
-        prop1 = Propagator(data1, 2, 4, 5.5, 1.0, "wilson", 0.4, [0, 0, 0, 0],
-                           0, 1.0, 0, 1.0, 0, 1.0)
-        prop2 = Propagator(data2, 2, 4, 5.5, 1.0, "wilson", 0.4, [0, 0, 0, 0],
-                           0, 1.0, 0, 1.0, 0, 1.0)
+        correlator = npr.random(8)
         
-        twopoint = TwoPoint(prop1, prop2)
+        label = "dummy_name"
         
-        correlator = npr.random(4)
+        twopoint.add_correlator(correlator, label)
+        twopoint.add_correlator(correlator, label, [0.1, 0.1])
+        twopoint.add_correlator(correlator, label, [0.1, 0.5, 0.2], [1, 1, 1])
         
-        twopoint.add_correlator(correlator, "dummy_name")
-        twopoint.add_correlator(correlator, "dummy_name", [1, 1, 1])
-        
-        assert (getattr(twopoint, "dummy_name_px0_py0_pz0") == correlator).all()
-        assert (getattr(twopoint, "dummy_name_px1_py1_pz1") == correlator).all()
+        assert (twopoint.dummy_name_px0_py0_pz0_None_None \
+                == correlator).all()
+        assert (twopoint.dummy_name_px0_py0_pz0_M0p1_M0p1_None_None \
+                == correlator).all()
+        assert (twopoint.dummy_name_px1_py1_pz1_M0p1_M0p5_M0p2_None_None \
+                == correlator).all()
         
         with pytest.raises(ValueError):
-            twopoint.add_correlator(npr.random(3), "dummy_name")
-            twopoint.add_correlator(npr.random((2, 2)), "dummy_name")
+            twopoint.add_correlator(npr.random(3), label, [0.1, 0.1])
+            twopoint.add_correlator(npr.random((2, 2)), label, [0.1, 0.1])
             
-        raw_correlator = random_complex((4, 2, 2, 2))
+        raw_correlator = random_complex((8, 4, 4, 4))
         sites = [[x, y, z]
-                 for x in xrange(2)
-                 for y in xrange(2)
-                 for z in xrange(2)]
+                 for x in xrange(4)
+                 for y in xrange(4)
+                 for z in xrange(4)]
         
-        prefactors = np.exp(1j * np.pi * np.dot(sites, [1, 0, 0]))
-        correlator = np.dot(np.reshape(raw_correlator, (4, 8)), prefactors).real
-        twopoint.add_correlator(raw_correlator, "dummy_name", [1, 0, 0], False)
-        assert (twopoint.dummy_name_px1_py0_pz0 == correlator).all()
+        prefactors = np.exp(1j * np.pi / 2 * np.dot(sites, [1, 0, 0]))
+        correlator = np.dot(np.reshape(raw_correlator, (8, 64)), prefactors).real
+        twopoint.add_correlator(raw_correlator, label, [], [1, 0, 0],
+                                projected=False)
+        assert (twopoint.dummy_name_px1_py0_pz0_None_None == correlator).all()
         
-        prefactors = np.exp(1j * np.pi * np.dot(sites, [1, 1, 0]))
-        correlator = np.dot(np.reshape(raw_correlator, (4, 8)), prefactors).real
-        twopoint.add_correlator(raw_correlator, "dummy_name", [1, 1, 0], False)
-        assert (twopoint.dummy_name_px1_py1_pz0 == correlator).all()
+        prefactors = np.exp(1j * np.pi / 2 * np.dot(sites, [1, 1, 0]))
+        correlator = np.dot(np.reshape(raw_correlator, (8, 64)), prefactors).real
+        twopoint.add_correlator(raw_correlator, label, [], [1, 1, 0],
+                                projected=False)
+        assert (twopoint.dummy_name_px1_py1_pz0_None_None == correlator).all()
         
         with pytest.raises(ValueError):
-            twopoint.add_correlator(npr.random((4, 2, 2, 1)), "dummy_name",
+            twopoint.add_correlator(npr.random((4, 2, 2, 1)), label, [0.1, 0.1],
                                     [1, 1, 0], False)
-            twopoint.add_correlator(npr.random((4, 2, 2)), "dummy_name",
+            twopoint.add_correlator(npr.random((4, 2, 2)), label, [0.1, 0.1],
                                     [1, 1, 0], False)
             
     def test_meson_correlator(self):
