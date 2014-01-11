@@ -192,62 +192,81 @@ class TwoPoint(Observable):
             
             setattr(self, correlator_name, correlator)
     
-    def meson_correlator(self, mesons, momenta = [0, 0, 0],
+    def meson_correlator(self, propagator1, propagator2, source_interpolator,
+                         sink_interpolator, label, momenta = [0, 0, 0],
                          average_momenta = True):
         """Computes and stores the specified meson correlator within the
         current TwoPoint object
         
-        :param meson: The meson interpolater(s) to use in calculating the correlator
-        :type meson: :class:`str` or :class:`str` of strings, possibilities given by available_mesons
-        :param momenta: The lattice momentum to project the correlator onto
-        :type momenta: :class:`list` of three :class:`int`s, or a compound list containing several momenta
+        Colour and spin traces are taken over the following product:
+        
+        propagator1 * source_interpolator * propagator2 * sink_interpolator
+        
+        :param propagator1: The first propagator to use in calculating the correlator
+        :type propagator1: :class:`Propagator`
+        :param propagator2: The first propagator to use in calculating the correlator
+        :type propagator2: :class:`Propagator`
+        :param source_interpolator: The interpolating operator describing the source of the two-point function
+        :type source_interpolator: :class:`numpy.ndarray` or :class:`str`
+        :param label: A label for the resulting correlator
+        :type label: :class:`str`
+        :param momenta: The lattice momentum (or momenta) to project the correlator onto
+        :type momenta: :class:`list` of three :class:`int`s, or a compound list containing several such objects
         :param average_momenta: Determines whether equivalent momenta are averaged over
         :type average_momenta: :class:`bool`
         """
-        if type(mesons) == str:
-            mesons = [mesons]
-        
-        # First compile a list of all momenta we need to compute for
-        all_momenta = []
-        if type(momenta[0]) != list:
-            momenta = [momenta]
             
-        for p in momenta:
-            if average_momenta:
-                equiv_momenta = TwoPoint._get_all_momenta(p)
-                equiv_momenta = [[2 * np.pi / self.L * n for n in p]
-                                 for p in equiv_momenta]
-                all_momenta.append(equiv_momenta)
-            else:
-                all_momenta.append([[2 * np.pi / self.L * n for n in p]])
-                
-        # We'll need this for calculating the exponentials
-        sites = list(itertools.product(xrange(self.L),
-                                       xrange(self.L),
-                                       xrange(self.L)))
+        if type(source_interpolator) == str:
+            source_interpolator = const.Gammas[source_interpolator]
+        if type(sink_interpolator) == str:
+            sink_interpolator = const.Gammas[sink_interpolator]
+            
+        if type(momenta[0]) != list and type(momenta[0]) != tuple:
+            momenta = [momenta]
         
-        # Now go through all momenta and all mesons and compute the
+        spatial_correlator = self._compute_correlator(propagator1, propagator2,
+                                                      source_interpolator,
+                                                      sink_interpolator)
+        
+        if propagator1.num_source_smears == 0 \
+          and propagator2.num_source_smears == 0:
+            source_type = "point"
+        elif propagator1.num_source_smears > 0 \
+          and propagator2.num_source_smears > 0:
+            source_type = "shell"
+        else:
+            source_type = None
+            
+        if propagator1.num_sink_smears == 0 \
+          and propagator2.num_sink_smears == 0:
+            sink_type = "point"
+        elif propagator1.num_sink_smears > 0 \
+          and propagator2.num_sink_smears > 0:
+            sink_type = "shell"
+        else:
+            sink_type = None
+        
+        # Now go through all momenta and compute the
         # correlators
-        for meson in mesons:
-            Gamma = const.Gammas[meson]
-            position_correlator = self._compute_correlator(Gamma)
-            position_correlator = np.reshape(position_correlator,
-                                             (self.T, self.L**3))
-            for i, ps in enumerate(all_momenta):
-                correlator_sum = np.zeros(self.T)
+        for momentum in momenta:
+            if average_momenta:
+                equiv_momenta = self._get_all_momenta(momentum)
+                equiv_correlators = np.zeros((len(equiv_momenta), self.T))
                 
-                for p in ps:
-                    exponential_prefactors = np.exp(1j * np.dot(sites, p))
-                    correlator_sum += np.dot(position_correlator,
-                                             exponential_prefactors).real
+                for i, equiv_momentum in enumerate(equiv_momenta):
+                    equiv_correlators[i] \
+                      = self._project_correlator(spatial_correlator,
+                                                 equiv_momentum)
                     
-                correlator_sum /= len(ps)
+                correlator = np.mean(equiv_correlators, axis=0)
                 
-                member_name = "{}_px{}_py{}_pz{}".format(meson, *momenta[i])
-                if not member_name in self.computed_correlators:
-                    self.computed_correlators.append(member_name)
-                
-                setattr(self, member_name, correlator_sum)
+            else:
+                correlator = self._project_correlator(spatial_correlator,
+                                                      momentum)
+            
+            self.add_correlator(correlator, label,
+                                [propagator1.mass, propagator2.mass],
+                                momentum, source_type, sink_type)
                 
     def compute_energy(self, particles, fit_range, momenta = [0, 0, 0],
                        average_momenta = True, stddev = None,
