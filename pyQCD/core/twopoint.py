@@ -98,22 +98,74 @@ class TwoPoint(Observable):
         
         return zip(const.mesons, const.interpolators)
     
-    def add_correlator(self, data, particle, momentum=[0, 0, 0],
-                       projected=True):
+    def get_correlator(self, label=None, momentum=None, masses=None,
+                       source_type=None, sink_type=None):
+        """Returns the specified correlator, or a dictionary containing the
+        correlators that match the arguments supplied to the function
+        
+        :param label: The correlator label
+        :type label: :class:`str`
+        :param momentum: The lattice momentum of the correlator
+        :type momentum: :class:`list`
+        :param masses: The masses of the quarks in the correlator
+        :type masses: :class:`list`
+        :param source_label: The source type
+        :type source_label: :class:`str`
+        :param sink_label: The sink type
+        :type sink_label: :class:`str`
+        """
+        
+        correlator_attributes \
+          = [self._get_correlator_parameters(name)
+             for name in self.computed_correlators]
+        
+        if masses != None:
+            masses = tuple([round(mass, 4) for mass in masses])
+            
+        if momentum != None:
+            momentum = tuple(momentum)
+        
+        filter_params = [label, masses, momentum, source_type, sink_type]
+        
+        for i, param in enumerate(filter_params):       
+            if param != None:
+                correlator_attributes \
+                  = [attrib for attrib in correlator_attributes
+                     if attrib[i] == param]
+                  
+        attribute_names = [self._get_correlator_name(*attribs)
+                           for attribs in correlator_attributes]
+        
+        if len(attribute_names) == 1:
+            return getattr(self, attribute_names[0])
+        else:
+            attribute_values = [getattr(self, name) for name in attribute_names]
+           
+            return dict(zip(tuple(correlator_attributes),
+                            tuple(attribute_values)))
+    
+    def add_correlator(self, data, label, masses=[], momentum=[0, 0, 0],
+                       source_type=None, sink_type=None, projected=True):
         """Adds the supplied correlator to the current instance
         
         :param data: The correlator itself
         :type data: 1D :class:`numpy.ndarray` if projected is True, otherwise 4D :class:`numpy.ndarray` with shape (T, L, L, L)
-        :param particle: The name of the particle
-        :type particle: :class:`str`
+        :param label: The label for the correlator
+        :type label: :class:`str`
+        :param masses: The masses of the quarks forming the particle
+        :type masses: :class:`list`
         :param momentum: The momentum of the particle
         :type momentum: :class:`list` with three integers
+        :param source_type: The nature of the source (smeared, point, etc...)
+        :type source_type: :class:`str`
+        :param sink_type: The nature of the sink (smeared, point, etc...)
+        :type source_type: :class:`str`
         :param projected: Whether the correlator has been projected onto the specified momentum
         :type projected: :class:`bool`
         :raises: ValueError
         """
-        correlator_name = "{}_px{}_py{}_pz{}".format(particle,
-                                                     *momentum)
+        correlator_name = self._get_correlator_name(label, masses, momentum,
+                                                    source_type, sink_type)
         
         if projected:
             if len(data.shape) != 1 or data.shape[0] != self.T:
@@ -133,14 +185,7 @@ class TwoPoint(Observable):
                                  "{}, recieved {}"
                                  .format(expected_shape, data.shape))
             
-            sites = list(itertools.product(xrange(self.L),
-                                           xrange(self.L),
-                                           xrange(self.L)))
-            exponential_prefactors \
-              = np.exp(2 * np.pi / self.L * 1j * np.dot(sites, momentum))
-            
-            correlator = np.dot(np.reshape(data, (self.T, self.L**3)),
-                                exponential_prefactors).real
+            correlator = self._project_correlator(data, momentum)
             
             if not correlator_name in self.computed_correlators:
                 self.computed_correlators.append(correlator_name)
