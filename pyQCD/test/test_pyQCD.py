@@ -5,6 +5,7 @@ import scipy.linalg as spla
 
 import os
 import itertools
+import string
 
 from pyQCD import *
         
@@ -13,6 +14,21 @@ data_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data')
 def random_complex(shape):
     
     return npr.random(shape) * np.exp(2 * np.pi * 1j * npr.random(shape))
+
+def random_variable_name():
+    
+    allowed_chars = string.uppercase + string.lowercase + string.digits
+    
+    name = (string.uppercase + string.lowercase)[npr.randint(52)]
+    
+    character_indices = [npr.randint(62) for i in xrange(npr.randint(30))]
+    
+    for i, index in enumerate(character_indices):
+        if npr.random() < 0.2:
+            name += "_"
+        name += allowed_chars[index]
+        
+    return name
 
 def make_random_su(N):
     
