@@ -983,7 +983,76 @@ class TestTwoPoint:
                                     [1, 1, 0], False)
             
     def test_meson_correlator(self):
-        pass
+        
+        tolerance = 1e-6
+        
+        expected_correlator = np.array([0.7499591307765168,
+                                        0.0475944363680059,
+                                        0.013851732183308966,
+                                        0.007241421784254808,
+                                        0.0057323242970728815,
+                                        0.00724142178425481,
+                                        0.013851732183308969,
+                                        0.047594436368005914])
+        
+        propagator_data \
+          = np.load("{}/propagator_tree_level_4c8_4000_no_smear.npy"
+                    .format(data_dir))
+        
+        propagator = Propagator(propagator_data, 4, 8, 5.5, 1.0, "wilson", 0.4,
+                                [0, 0, 0, 0], 0, 1.0, 0, 1.0, 0, 1.0)
+        
+        momenta = [0, 0, 0]
+        twopoint = TwoPoint(8, 4)
+        source_interpolators = [constants.gamma5, "g5", "pion"]
+        sink_interpolators = source_interpolators
+        label = "pion"
+        
+        for source_interpolator, sink_interpolator \
+          in zip(source_interpolators, sink_interpolators):
+            twopoint.meson_correlator(propagator, propagator,
+                                      source_interpolator, sink_interpolator,
+                                      label, momenta, average_momenta=True)
+        
+            correlator_name = "{}_px{}_py{}_pz{}_M{}_M{}_point_point" \
+              .format(label, momenta[0], momenta[1], momenta[2], 0.4, 0.4) \
+              .replace(".", "p")
+        
+            assert (np.abs(getattr(twopoint, correlator_name)
+                           - expected_correlator)
+                    < np.abs(expected_correlator)).all()
+            
+        momenta = [[0, 0, 0], [1, 0, 0], [1, 1, 0], [1, 1, 1]]
+        
+        propagator_data \
+          = np.load("{}/propagator_tree_level_8c16_10000_no_smear.npy"
+                    .format(data_dir))
+        
+        propagator = Propagator(propagator_data, 8, 16, 5.5, 1.0, "wilson", 1.0,
+                                [0, 0, 0, 0], 0, 1.0, 0, 1.0, 0, 1.0)
+        
+        expected_correlators \
+          = np.load("{}/correlators_tree_level_8c16_10000.npy"
+                    .format(data_dir))
+        
+        twopoint = TwoPoint(16, 8)
+        source_interpolator = constants.gamma5
+        sink_interpolator = constants.gamma5
+        label = "another_pion"
+        
+        twopoint.meson_correlator(propagator, propagator,
+                                  source_interpolator, sink_interpolator,
+                                  label, momenta, average_momenta=True)
+        
+        for i, momentum in enumerate(momenta):
+            
+            correlator_name = "{}_px{}_py{}_pz{}_M{}_M{}_point_point" \
+              .format(label, momentum[0], momentum[1], momentum[2], 1.0, 1.0) \
+              .replace(".", "p")
+        
+            assert (np.abs(getattr(twopoint, correlator_name)
+                           - expected_correlators[i])
+                    < np.abs(expected_correlator[i])).all()
 
 class TestBareTwoPoint:
     pass
