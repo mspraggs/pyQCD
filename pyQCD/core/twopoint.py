@@ -563,24 +563,24 @@ class TwoPoint(Observable):
         
         return out
 
-    def _compute_correlator(self, gamma):
+    @staticmethod
+    def _compute_correlator(prop1, prop2, gamma1, gamma2):
         """Calculates the correlator for all space-time points
         
-        We're doing the following (g = Gamma, p1 = self.prop1,
+        We're doing the following (g1 = gamma1, g2 = gamma2, p1 = self.prop1,
         p2 = self.prop2, g5 = const.gamma5):
         
-        sum_{spin,colour} g * g5 * p1 * g5 * g * p2
+        sum_{spin,colour} g1 * g5 * p1 * g5 * g2 * p2
         
         The g5s are used to find the Hermitian conjugate of the first
         propagator
         """
         
-        Gamma1 = np.matrix(np.dot(gamma, const.gamma5))
-        Gamma2 = np.matrix(np.dot(const.gamma5, gamma))
+        Gamma1 = np.matrix(np.dot(gamma1, const.gamma5))
+        Gamma2 = np.matrix(np.dot(const.gamma5, gamma2))
         
-        gp1 = Gamma1 * self.prop1.transpose_spin() \
-          .transpose_colour().conjugate()
-        gp2 = Gamma2 * self.prop2
+        gp1 = Gamma1 * prop1.transpose_spin().transpose_colour().conjugate()
+        gp2 = Gamma2 * prop2
         
         return np.einsum('txyzijab,txyzjiba->txyz',
                          gp1.data, gp2.data).real
