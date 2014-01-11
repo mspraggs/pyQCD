@@ -584,6 +584,20 @@ class TwoPoint(Observable):
         
         return np.einsum('txyzijab,txyzjiba->txyz',
                          gp1.data, gp2.data).real
+    
+    def _project_correlator(self, spatial_correlator, momentum):
+        """Projects the supplied spatial correlator onto a given momentum"""
+            
+        sites = list(itertools.product(xrange(self.L),
+                                       xrange(self.L),
+                                       xrange(self.L)))
+        exponential_prefactors \
+          = np.exp(2 * np.pi / self.L * 1j * np.dot(sites, momentum))
+            
+        correlator = np.dot(np.reshape(spatial_correlator, (self.T, self.L**3)),
+                            exponential_prefactors).real
+        return correlator
+    
     @staticmethod
     def _get_correlator_name(label, quark_masses, lattice_momentum,
                              source_type, sink_type):
