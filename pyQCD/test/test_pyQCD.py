@@ -854,15 +854,7 @@ class TestTwoPoint:
         
     def test_save(self):
         
-        data1 = random_complex((2, 2, 2, 2, 4, 4, 3, 3))
-        data2 = random_complex((2, 2, 2, 2, 4, 4, 3, 3))
-        
-        prop1 = Propagator(data1, 2, 2, 5.5, 1.0, "wilson", 0.4, [0, 0, 0, 0],
-                           0, 1.0, 0, 1.0, 0, 1.0)
-        prop2 = Propagator(data2, 2, 2, 5.5, 1.0, "wilson", 0.4, [0, 0, 0, 0],
-                           0, 1.0, 0, 1.0, 0, 1.0)
-        
-        twopoint = TwoPoint(prop1, prop2)
+        twopoint = TwoPoint(8, 4)
         attribute_name = "pion_px0_py0_pz0"
         correlator = npr.random(10)
         setattr(twopoint, attribute_name, correlator)
@@ -874,54 +866,24 @@ class TestTwoPoint:
         
         test_twopoint = np.load("test_twopoint.npz")
         
-        assert "prop_1" in test_twopoint.files
-        assert "prop_2" in test_twopoint.files
         assert attribute_name in test_twopoint.files
+        assert (test_twopoint[attribute_name] == correlator).all()
         
-        assert (test_twopoint["prop_1"] == data1).all()
-        assert (test_twopoint["prop_2"] == data2).all()
-        assert test_twopoint["header"].item() == {'L': 2, 'T': 2,
-                                                  'action': 'wilson',
-                                                  'beta': 5.5,
+        assert test_twopoint["header"].item() == {'L': 4, 'T': 8,
                                                   'computed_correlators':
-                                                  ['pion_px0_py0_pz0'],
-                                                  'field_smearing_param_1': 1.0,
-                                                  'field_smearing_param_2': 1.0,
-                                                  'mass_1': 0.4, 'mass_2': 0.4,
-                                                  'num_field_smears_1': 0,
-                                                  'num_field_smears_2': 0,
-                                                  'num_sink_smears_1': 0,
-                                                  'num_sink_smears_2': 0,
-                                                  'num_source_smears_1': 0,
-                                                  'num_source_smears_2': 0,
-                                                  'sink_smearing_param_1': 1.0,
-                                                  'sink_smearing_param_2': 1.0,
-                                                  'source_site_1': [0, 0, 0, 0],
-                                                  'source_site_2': [0, 0, 0, 0],
-                                                  'source_smearing_param_1': 1.0,
-                                                  'source_smearing_param_2': 1.0,
-                                                  'u0': 1.0}
+                                                  ['pion_px0_py0_pz0']}
         
     def test_load(self):
         
         twopoint = TwoPoint.load("test_twopoint.npz")
         
-        assert twopoint.prop1.data.shape == (2, 2, 2, 2, 4, 4, 3, 3)
-        assert twopoint.prop2.data.shape == (2, 2, 2, 2, 4, 4, 3, 3)
+        assert twopoint.pion_px0_py0_pz0.shape == (10,)
         
-        os.unlink("test_twopoint.npz")
+        #os.unlink("test_twopoint.npz")
         
     def test_save_raw(self):
         
-        data1 = random_complex((2, 2, 2, 2, 4, 4, 3, 3))
-        data2 = random_complex((2, 2, 2, 2, 4, 4, 3, 3))
-        
-        prop1 = Propagator(data1, 2, 2, 5.5, 1.0, "wilson", 0.4, [0, 0, 0, 0],
-                           0, 1.0, 0, 1.0, 0, 1.0)
-        prop2 = Propagator(data2, 2, 2, 5.5, 1.0, "wilson", 0.4, [0, 0, 0, 0],
-                           0, 1.0, 0, 1.0, 0, 1.0)
-        
-        twopoint = TwoPoint(prop1, prop2)
+        twopoint = TwoPoint(4, 8)
         
         with pytest.raises(NotImplementedError):
             twopoint.save_raw("test")

@@ -8,7 +8,7 @@ import re
 
 class TwoPoint(Observable):
     
-    common_members = ['L', 'T', 'beta', 'u0', 'action']
+    common_members = ['L', 'T']
     
     def __init__(self, T, L):
         """Create a two-point function from two propagators
@@ -22,7 +22,6 @@ class TwoPoint(Observable):
         self.L = L
         self.T = T
         self.computed_correlators = []
-
     
     def save(self, filename):
         """Saves the two-point function to a numpy zip archive
@@ -36,19 +35,7 @@ class TwoPoint(Observable):
         
         for member in TwoPoint.common_members:
             header_keys.append(member)
-            header_values.append(getattr(self.prop1, member))
-        
-        for key in self.prop1.header().keys():
-            if not key in TwoPoint.common_members:
-                header_key = "".join([key, "_1"])
-                header_keys.append(header_key)
-                header_values.append(getattr(self.prop1, key))
-        
-        for key in self.prop2.header().keys():
-            if not key in TwoPoint.common_members:
-                header_key = "".join([key, "_2"])
-                header_keys.append(header_key)
-                header_values.append(getattr(self.prop2, key))
+            header_values.append(getattr(self, member))
                 
         header_keys.append("computed_correlators")
         header_values.append(self.computed_correlators)
@@ -57,10 +44,6 @@ class TwoPoint(Observable):
         
         data_keys = []
         data_values = []
-        data_keys.append("prop_1")
-        data_values.append(self.prop1.data)
-        data_keys.append("prop_2")
-        data_values.append(self.prop2.data)
         
         for key in self.computed_correlators:
             data_keys.append(key)
@@ -84,44 +67,13 @@ class TwoPoint(Observable):
         
         header = numpy_archive['header'].item()
         
-        prop1 = Propagator(numpy_archive['prop_1'],
-                           header['L'],
-                           header['T'],
-                           header['beta'],
-                           header['u0'],
-                           header['action'],
-                           header['mass_1'],
-                           header['source_site_1'],
-                           header['num_field_smears_1'],
-                           header['field_smearing_param_1'],
-                           header['num_source_smears_1'],
-                           header['source_smearing_param_1'],
-                           header['num_sink_smears_1'],
-                           header['sink_smearing_param_1'])
-        
-        prop2 = Propagator(numpy_archive['prop_2'],
-                           header['L'],
-                           header['T'],
-                           header['beta'],
-                           header['u0'],
-                           header['action'],
-                           header['mass_2'],
-                           header['source_site_2'],
-                           header['num_field_smears_2'],
-                           header['field_smearing_param_2'],
-                           header['num_source_smears_2'],
-                           header['source_smearing_param_2'],
-                           header['num_sink_smears_2'],
-                           header['sink_smearing_param_2'])
-        
-        ret = TwoPoint(prop1, prop2)
-        setattr(ret, 'L', header['L'])
-        setattr(ret, 'T', header['T'])
-        setattr(ret, "computed_correlators",
-                header["computed_correlators"])
+        ret = TwoPoint(8, 4)
+        ret.L = header['L']
+        ret.T = header['T']
+        ret.comuted_correlators = header['computed_correlators']
         
         for correlator in numpy_archive.keys():
-            if ['prop_1', 'prop_2', 'header'].count(correlator):
+            if ['header'].count(correlator) == 0:
                 setattr(ret, correlator, numpy_archive[correlator])
         
         return ret
