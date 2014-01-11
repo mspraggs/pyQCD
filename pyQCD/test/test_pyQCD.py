@@ -888,9 +888,9 @@ class TestTwoPoint:
         with pytest.raises(NotImplementedError):
             twopoint.save_raw("test")
             
-    def test_available_mesons(self):
+    def test_available_interpolators(self):
         
-        mesons = TwoPoint.available_mesons()
+        mesons = TwoPoint.available_interpolators()
         
         assert len(mesons) == 16
         

@@ -89,9 +89,9 @@ class TwoPoint(Observable):
                                   "numpy arrays")
     
     @staticmethod
-    def available_mesons():
-        """Returns a list of possible meson interpolators for use
-        in the meson_correlator function
+    def available_interpolators():
+        """Returns a list of possible interpolators for use in the
+        meson_correlator function
         
         :returns: :class:`list` of tuples, each describing the meson state and the gamma matrix combination associated with it
         """
