@@ -850,26 +850,7 @@ class TestTwoPoint:
     
     def test_init(self):
         
-        data1 = random_complex((2, 2, 2, 2, 4, 4, 3, 3))
-        data2 = random_complex((4, 2, 2, 2, 4, 4, 3, 3))
-        
-        prop1 = Propagator(data1, 2, 2, 5.5, 1.0, "wilson", 0.4, [0, 0, 0, 0],
-                           0, 1.0, 0, 1.0, 0, 1.0)
-        prop2 = Propagator(data2, 2, 4, 5.5, 1.0, "wilson", 0.4, [0, 0, 0, 0],
-                           0, 1.0, 0, 1.0, 0, 1.0)
-        
-        with pytest.raises(ValueError):
-            twopoint = TwoPoint(prop1, prop2)
-        
-        data1 = random_complex((2, 2, 2, 2, 4, 4, 3, 3))
-        data2 = random_complex((2, 2, 2, 2, 4, 4, 3, 3))
-        
-        prop1 = Propagator(data1, 2, 2, 5.5, 1.0, "wilson", 0.4, [0, 0, 0, 0],
-                           0, 1.0, 0, 1.0, 0, 1.0)
-        prop2 = Propagator(data2, 2, 2, 5.5, 1.0, "wilson", 0.4, [0, 0, 0, 0],
-                           0, 1.0, 0, 1.0, 0, 1.0)
-        
-        twopoint = TwoPoint(prop1, prop2)
+        twopoint = TwoPoint(8, 4)
         
     def test_save(self):
         
