@@ -1163,48 +1163,6 @@ class TestTwoPoint:
         assert (np.abs(actual_effmass - expected_effmass)
                 < 1e-6 * np.abs(expected_effmass)).all()
         
-    def test_add(self):
-        
-        twopoint1 = TwoPoint(16, 8)
-        twopoint2 = TwoPoint(16, 8)
-        
-        correlator1 = npr.random(twopoint1.T)
-        correlator2 = npr.random(twopoint2.T)
-        correlator3 = npr.random(twopoint1.T)
-        correlator4 = npr.random(twopoint2.T)
-        
-        twopoint1.add_correlator(correlator1, "test", [0.1, 0.1], [0, 0, 0],
-                                 "point", "point")
-        twopoint1.add_correlator(correlator3, "test", [0.2, 0.5], [0, 0, 0],
-                                 "point", "point")
-        twopoint2.add_correlator(correlator2, "test", [0.1, 0.1], [0, 0, 0],
-                                 "point", "point")
-        twopoint2.add_correlator(correlator4, "test", [1.0, 0.1], [1, 0, 0],
-                                 "point", "point")
-        
-        twopoint3 = twopoint1 + twopoint2
-        
-        expected_correlator = correlator1 + correlator2
-        actual_correlator = twopoint3.get_correlator("test", [0.1, 0.1],
-                                                     [0, 0, 0], "point",
-                                                     "point")
-        assert (np.abs(actual_correlator - expected_correlator)
-                < 1e-10 * np.abs(expected_correlator)).all()
-        
-        expected_correlator = correlator3
-        actual_correlator = twopoint3.get_correlator("test", [0.2, 0.5],
-                                                     [0, 0, 0], "point",
-                                                     "point")
-        assert (np.abs(actual_correlator - expected_correlator)
-                < 1e-10 * np.abs(expected_correlator)).all()
-        
-        expected_correlator = correlator4
-        actual_correlator = twopoint3.get_correlator("test", [1.0, 0.1],
-                                                     [1, 0, 0], "point",
-                                                     "point")
-        assert (np.abs(actual_correlator - expected_correlator)
-                < 1e-10 * np.abs(expected_correlator)).all()
-        
     def test_div(self):
         
         twopoint = TwoPoint(16, 8)
@@ -1239,6 +1197,48 @@ class TestTwoPoint:
         actual_correlator = twopoint_neg.get_correlator("test", [0.1, 0.1],
                                                         [0, 0, 0], "point",
                                                         "point")
+        assert (np.abs(actual_correlator - expected_correlator)
+                < 1e-10 * np.abs(expected_correlator)).all()
+        
+    def test_sub(self):
+        
+        twopoint1 = TwoPoint(16, 8)
+        twopoint2 = TwoPoint(16, 8)
+        
+        correlator1 = npr.random(twopoint1.T)
+        correlator2 = npr.random(twopoint2.T)
+        correlator3 = npr.random(twopoint1.T)
+        correlator4 = npr.random(twopoint2.T)
+        
+        twopoint1.add_correlator(correlator1, "test", [0.1, 0.1], [0, 0, 0],
+                                 "point", "point")
+        twopoint1.add_correlator(correlator3, "test", [0.2, 0.5], [0, 0, 0],
+                                 "point", "point")
+        twopoint2.add_correlator(correlator2, "test", [0.1, 0.1], [0, 0, 0],
+                                 "point", "point")
+        twopoint2.add_correlator(correlator4, "test", [1.0, 0.1], [1, 0, 0],
+                                 "point", "point")
+        
+        twopoint3 = twopoint1 - twopoint2
+        
+        expected_correlator = correlator1 - correlator2
+        actual_correlator = twopoint3.get_correlator("test", [0.1, 0.1],
+                                                     [0, 0, 0], "point",
+                                                     "point")
+        assert (np.abs(actual_correlator - expected_correlator)
+                < 1e-10 * np.abs(expected_correlator)).all()
+        
+        expected_correlator = correlator3
+        actual_correlator = twopoint3.get_correlator("test", [0.2, 0.5],
+                                                     [0, 0, 0], "point",
+                                                     "point")
+        assert (np.abs(actual_correlator - expected_correlator)
+                < 1e-10 * np.abs(expected_correlator)).all()
+        
+        expected_correlator = -correlator4
+        actual_correlator = twopoint3.get_correlator("test", [1.0, 0.1],
+                                                     [1, 0, 0], "point",
+                                                     "point")
         assert (np.abs(actual_correlator - expected_correlator)
                 < 1e-10 * np.abs(expected_correlator)).all()
 
