@@ -436,15 +436,29 @@ class TwoPoint(Observable):
             
         return out
     
-    def compute_effmass(self, particle, momentum = [0, 0, 0]):
-        """Computes the effective mass curve for the specified particle with
-        specified momentum"""
+    def compute_effmass(self, label=None, momentum=None, masses=None,
+                       source_type=None, sink_type=None):
+        """Computes the effective mass for the specified correlator
         
-        if not hasattr(self, "{}_px{}_py{}_pz{}".format(particle, *momentum)):
-            self.meson_correlator(particle, momentum)
+        :param label: The correlator label
+        :type label: :class:`str`
+        :param momentum: The lattice momentum of the correlator
+        :type momentum: :class:`list`
+        :param masses: The masses of the quarks in the correlator
+        :type masses: :class:`list`
+        :param source_type: The source type
+        :type source_type: :class:`str`
+        :param sink_type: The sink type
+        :type sink_type: :class:`str`
+        """
         
-        correlator = getattr(self, "{}_px{}_py{}_pz{}".format(particle, *momentum))
-            
+        correlator = self.get_correlator(label, masses, momentum, source_type,
+                                         sink_type)
+        
+        if type(correlator) == dict:
+            raise TypeError("Correlator specifiers returned more than one "
+                            "correlator.")
+        
         return np.log(np.abs(correlator / np.roll(correlator, -1)))
     
     def __add__(self, tp):
