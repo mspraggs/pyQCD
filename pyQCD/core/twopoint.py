@@ -347,7 +347,9 @@ class TwoPoint(Observable):
         """
         
         fit_function \
-          = lambda b, t, Ct, err: (Ct - b[0] * np.exp(-b[1] * t)) / err
+          = lambda b, t, Ct, err: \
+          (Ct - b[0] * np.exp(-b[1] * t) - b[0] * np.exp(-b[1] * (self.T - t))) \
+          / err
           
         postprocess_function = lambda b: b[1]
         
@@ -379,7 +381,9 @@ class TwoPoint(Observable):
         """
         
         fit_function \
-          = lambda b, t, Ct, err: (Ct - b[0] * np.exp(-b[1] * t)) / err
+          = lambda b, t, Ct, err: \
+          (Ct - b[0] * np.exp(-b[1] * t) - b[0] * np.exp(-b[1] * (self.T - t))) \
+          / err
           
         postprocess_function = lambda b: b[1]**2
         
