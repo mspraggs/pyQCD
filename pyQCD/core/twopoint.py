@@ -192,9 +192,10 @@ class TwoPoint(Observable):
             
             setattr(self, correlator_name, correlator)
     
-    def meson_correlator(self, propagator1, propagator2, source_interpolator,
-                         sink_interpolator, label, momenta = [0, 0, 0],
-                         average_momenta = True):
+    def compute_meson_correlator(self, propagator1, propagator2,
+                                 source_interpolator,
+                                 sink_interpolator, label, momenta = [0, 0, 0],
+                                 average_momenta = True):
         """Computes and stores the specified meson correlator within the
         current TwoPoint object
         
