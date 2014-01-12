@@ -417,6 +417,9 @@ class TwoPoint(Observable):
         
         if type(momenta[0]) != list and type(momenta[0]) != tuple:
             momenta = [momenta]
+            
+        if correlator_stds == None:
+            correlator_stds = (len(momenta) + 1) * [None]
         
         E0_square \
           = self.compute_square_energy(fit_range, initial_parameters,
