@@ -1131,8 +1131,8 @@ class TestTwoPoint:
         momenta = [[0, 0, 0], [1, 0, 0], [1, 1, 0]]
         
         expected_result \
-          = np.array([(energy1**2 - mass**2) / (np.pi / 4),
-                      (energy2**2 - mass**2) / (np.pi / 2)])
+          = np.array([(energy1**2 - mass**2) / (np.pi / 4)**2,
+                      (energy2**2 - mass**2) / ((np.pi / 4)**2 * 2)])
         
         for m, p in zip([mass, energy1, energy2], momenta):
             correlator = amplitude * np.exp(-m * np.arange(twopoint.T)) \

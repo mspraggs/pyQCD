@@ -434,7 +434,7 @@ class TwoPoint(Observable):
                                                   masses, momentum, source_type,
                                                   sink_type)
             
-            p_square = sum([x**2 for x in momentum])
+            p_square = sum([(2 * np.pi * x / self.L)**2 for x in momentum])
             out[i] = (E_square - E0_square) / p_square
             
         return out
