@@ -1119,6 +1119,33 @@ class TestTwoPoint:
         
         fitted_mass = twopoint.compute_square_energy(range(twopoint.T), [500, 1])
         assert np.abs(fitted_mass - mass**2) < 1e-6 * mass**2
+        
+    def test_compute_c_square(self):
+        
+        twopoint = TwoPoint(16, 8)
+        
+        amplitude = 1000 * npr.random()
+        mass = npr.random()
+        energy1 = 1 + npr.random()
+        energy2 = 2 + npr.random()
+        momenta = [[0, 0, 0], [1, 0, 0], [1, 1, 0]]
+        
+        expected_result \
+          = np.array([(energy1**2 - mass**2) / (np.pi / 4),
+                      (energy2**2 - mass**2) / (np.pi / 4 * np.sqrt(2))])
+        
+        for m, p in zip([mass, energy1, energy2], momenta):
+            correlator = amplitude * np.exp(-m * np.arange(twopoint.T)) \
+              + amplitude * np.exp(-m * (twopoint.T - np.arange(twopoint.T)))
+              
+            twopoint.add_correlator(correlator, "test", [0.1, 0.1], p, "point",
+                                    "point")
+            
+        actual_result = twopoint.compute_c_square(range(16), [500, 1],
+                                                  [[1, 0, 0], [1, 1, 0]])
+        
+        assert (np.abs(actual_result - expected_result)
+                < 1e-6 * np.abs(expected_result)).all()
 
 class TestBareTwoPoint:
     pass
