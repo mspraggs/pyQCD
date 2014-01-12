@@ -1055,6 +1055,38 @@ class TestTwoPoint:
             assert (np.abs(getattr(twopoint, correlator_name)
                            - expected_correlators[i])
                     < np.abs(expected_correlator[i])).all()
+            
+    def test_fit_correlator(self):
+        
+        twopoint = TwoPoint(16, 8)
+        
+        mass = npr.random()
+        amplitude = 1000 * npr.random()
+        expected_result = np.array([amplitude, mass])
+        
+        correlator = amplitude * np.exp(-mass * np.arange(twopoint.T))        
+        twopoint.add_correlator(correlator, "test", [0.1, 0.1], [0, 0, 0],
+                                "point", "point")
+        
+        fit_function \
+          = lambda b, t, Ct, err: Ct - b[0] * np.exp(-b[1] * t)
+        
+        fit_result = twopoint.fit_correlator(fit_function, range(twopoint.T),
+                                             [500, 1])
+        fit_result = np.array(fit_result)
+        assert (np.abs(fit_result - expected_result)
+                < 1e-6 * np.abs(expected_result)).all()
+        
+        fit_result = twopoint.fit_correlator(fit_function, [0, twopoint.T],
+                                             [500, 1])
+        fit_result = np.array(fit_result)
+        assert (np.abs(fit_result - expected_result)
+                < 1e-6 * np.abs(expected_result)).all()
+        
+        fit_result = twopoint.fit_correlator(fit_function, range(twopoint.T),
+                                             [500, 1], np.ones(twopoint.T),
+                                             lambda x: x[1]**2)
+        assert np.abs(fit_result - mass**2) < 1e-6 * mass**2
 
 class TestBareTwoPoint:
     pass
