@@ -1146,6 +1146,22 @@ class TestTwoPoint:
         
         assert (np.abs(actual_result - expected_result)
                 < 1e-6 * np.abs(expected_result)).all()
+        
+    def test_compute_effmass(self):
+        
+        twopoint = TwoPoint(16, 8)
+        
+        correlator = npr.random(twopoint.T)
+        expected_effmass = np.log(np.abs(correlator / np.roll(correlator, -1)))
+        
+        twopoint.add_correlator(correlator, "test", [0.1, 0.1], [0, 0, 0],
+                                "point", "point")
+        
+        actual_effmass = twopoint.compute_effmass("test", [0.1, 0.1], [0, 0, 0],
+                                                  "point", "point")
+        
+        assert (np.abs(actual_effmass - expected_effmass)
+                < 1e-6 * np.abs(expected_effmass)).all()
 
 class TestBareTwoPoint:
     pass
