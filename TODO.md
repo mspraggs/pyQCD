@@ -14,4 +14,4 @@ pyQCD Feature and Bug Todo List
 - General code review and tidy up of code
 - Tidy up __str__ functions in all objects
 - Optimize Wilson loop calculation
-- Create slimmed-down interface for correlator computation and curve fitting etc.
+- Fix measurement function in DataSet - average must be taken before measurement function applied
