@@ -268,7 +268,61 @@ class TwoPoint(Observable):
             self.add_correlator(correlator, label,
                                 [propagator1.mass, propagator2.mass],
                                 momentum, source_type, sink_type)
+            
+    def fit_correlator(self, fit_function, fit_range, initial_parameters,
+                       correlator_std=None, postprocess_function=None,
+                       label=None, masses=None, momentum=None, source_type=None,
+                       sink_type=None):
+        """Fits the specified function to the specified correlator
+        
+        :param fit_function: The function to fit to the correlator
+        :type fit_function: :class:`function`
+        :param fit_range: two-tuple or list of integers specifying the timeslices over which to fit
+        :type fit_range: :class:`tuple` or :class:`list`
+        :param initial_parameters: The initial value of the fit parameters
+        :type initial_parameters: :class:`tuple` or :class:`list`
+        :param correlator_std: The standard deviation in the relevant correlator
+        :type correlator_std: :class:`numpy.ndarray`
+        :param postprocess_function: The function to apply to apply to the resulting fit parameters before returning a result
+        :type postprocess_function: :class:`function`
+        :param label: The correlator label
+        :type label: :class:`str`
+        :param masses: The correlator quark masses
+        :type masses: :class:`list`
+        :param momentum: The lattice momentum of the particle described by the correlator
+        :type momentum: :class:`list` or :class:`tuple`
+        :param source_type: The correlator source type
+        :type source_type: :class:`str`
+        :param sink_type: The correlator sink type
+        :type sink_type: :class:`str`
+        """
+        
+        correlator = self.get_correlator(label, masses, momentum, source_type,
+                                         sink_type)
+        
+        if type(correlator) == dict:
+            raise TypeError("Correlator specifiers returned more than one "
+                            "correlator.")
                 
+        if correlator_std == None:
+            correlator_std = np.ones(self.T)
+        if len(fit_range) == 2:
+            fit_range = range(*fit_range)
+            
+        t = np.arange(self.T)
+        
+        x = t[fit_range]
+        y = correlator[fit_range]
+        err = correlator_std[fit_range]
+        
+        b, result = spop.leastsq(fit_function, initial_parameters,
+                                 args=(x, y, err))
+        
+        if postprocess_function == None:
+            return b
+        else:
+            return postprocess_function(b)
+        
     def compute_energy(self, particles, fit_range, momenta = [0, 0, 0],
                        average_momenta = True, stddev = None,
                        return_amplitude=False, fit_function=None):
