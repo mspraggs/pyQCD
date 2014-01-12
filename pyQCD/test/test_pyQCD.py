@@ -924,8 +924,8 @@ class TestTwoPoint:
             twopoint.computed_correlators.append(attribute_name)
         
             assert (twopoint.get_correlator(label,
-                                            momentum,
                                             masses,
+                                            momentum,
                                             source_type,
                                             sink_type) == correlator).all()
         

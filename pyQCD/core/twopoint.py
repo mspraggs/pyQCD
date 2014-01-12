@@ -98,17 +98,17 @@ class TwoPoint(Observable):
         
         return zip(const.mesons, const.interpolators)
     
-    def get_correlator(self, label=None, momentum=None, masses=None,
+    def get_correlator(self, label=None, masses=None, momentum=None,
                        source_type=None, sink_type=None):
         """Returns the specified correlator, or a dictionary containing the
         correlators that match the arguments supplied to the function
         
         :param label: The correlator label
         :type label: :class:`str`
-        :param momentum: The lattice momentum of the correlator
-        :type momentum: :class:`list`
         :param masses: The masses of the quarks in the correlator
         :type masses: :class:`list`
+        :param momentum: The lattice momentum of the correlator
+        :type momentum: :class:`list`
         :param source_type: The source type
         :type source_type: :class:`str`
         :param sink_type: The sink type
