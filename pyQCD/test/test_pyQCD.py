@@ -878,6 +878,7 @@ class TestTwoPoint:
         twopoint = TwoPoint.load("test_twopoint.npz")
         
         assert twopoint.pion_px0_py0_pz0.shape == (10,)
+        assert len(twopoint.computed_correlators) == 1
         
         #os.unlink("test_twopoint.npz")
         
