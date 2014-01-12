@@ -439,7 +439,7 @@ class TwoPoint(Observable):
             
         return out
     
-    def compute_effmass(self, label=None, momentum=None, masses=None,
+    def compute_effmass(self, label=None, masses=None, momentum=None,
                        source_type=None, sink_type=None):
         """Computes the effective mass for the specified correlator
         
