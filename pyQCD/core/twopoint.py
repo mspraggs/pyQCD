@@ -70,10 +70,10 @@ class TwoPoint(Observable):
         ret = TwoPoint(8, 4)
         ret.L = header['L']
         ret.T = header['T']
-        ret.comuted_correlators = header['computed_correlators']
+        ret.computed_correlators = header['computed_correlators']
         
         for correlator in numpy_archive.keys():
-            if ['header'].count(correlator) == 0:
+            if correlator != "header":
                 setattr(ret, correlator, numpy_archive[correlator])
         
         return ret
