@@ -1204,6 +1204,25 @@ class TestTwoPoint:
                                                      "point")
         assert (np.abs(actual_correlator - expected_correlator)
                 < 1e-10 * np.abs(expected_correlator)).all()
+        
+    def test_div(self):
+        
+        twopoint = TwoPoint(16, 8)
+        
+        correlator = npr.random(16)
+        
+        twopoint.add_correlator(correlator, "test", [0.1, 0.1], [0, 0, 0],
+                                "point", "point")
+
+        div = npr.random()        
+        twopoint_div = twopoint / div
+        
+        expected_correlator = correlator / div
+        actual_correlator = twopoint_div.get_correlator("test", [0.1, 0.1],
+                                                        [0, 0, 0], "point",
+                                                        "point")
+        assert (np.abs(actual_correlator - expected_correlator)
+                < 1e-10 * np.abs(expected_correlator)).all()
 
 class TestBareTwoPoint:
     pass
