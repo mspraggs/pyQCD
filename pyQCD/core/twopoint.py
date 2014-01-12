@@ -323,6 +323,70 @@ class TwoPoint(Observable):
         else:
             return postprocess_function(b)
         
+    def compute_energy(self, fit_range, initial_parameters, correlator_std=None,
+                       label=None, masses=None, momentum=None, source_type=None,
+                       sink_type=None):
+        """Computes the ground state energy of the specified correlator
+        
+        :param fit_range: two-tuple or list of integers specifying the timeslices over which to fit
+        :type fit_range: :class:`tuple` or :class:`list`
+        :param initial_parameters: The initial value of the fit parameters
+        :type initial_parameters: :class:`tuple` or :class:`list`
+        :param correlator_std: The standard deviation in the relevant correlator
+        :type correlator_std: :class:`numpy.ndarray`
+        :param label: The correlator label
+        :type label: :class:`str`
+        :param masses: The correlator quark masses
+        :type masses: :class:`list`
+        :param momentum: The lattice momentum of the particle described by the correlator
+        :type momentum: :class:`list` or :class:`tuple`
+        :param source_type: The correlator source type
+        :type source_type: :class:`str`
+        :param sink_type: The correlator sink type
+        :type sink_type: :class:`str`
+        """
+        
+        fit_function \
+          = lambda b, t, Ct, err: (Ct - b[0] * np.exp(-b[1] * t)) / err
+          
+        postprocess_function = lambda b: b[1]
+        
+        return self.fit_correlator(fit_function, fit_range, initial_parameters,
+                                   correlator_std, postprocess_function, label,
+                                   masses, momentum, source_type, sink_type)
+        
+    def compute_square_energy(self, fit_range, initial_parameters,
+                              correlator_std=None, label=None, masses=None,
+                              momentum=None, source_type=None, sink_type=None):
+        """Computes the ground state energy of the specified correlator
+        
+        :param fit_range: two-tuple or list of integers specifying the timeslices over which to fit
+        :type fit_range: :class:`tuple` or :class:`list`
+        :param initial_parameters: The initial value of the fit parameters
+        :type initial_parameters: :class:`tuple` or :class:`list`
+        :param correlator_std: The standard deviation in the relevant correlator
+        :type correlator_std: :class:`numpy.ndarray`
+        :param label: The correlator label
+        :type label: :class:`str`
+        :param masses: The correlator quark masses
+        :type masses: :class:`list`
+        :param momentum: The lattice momentum of the particle described by the correlator
+        :type momentum: :class:`list` or :class:`tuple`
+        :param source_type: The correlator source type
+        :type source_type: :class:`str`
+        :param sink_type: The correlator sink type
+        :type sink_type: :class:`str`
+        """
+        
+        fit_function \
+          = lambda b, t, Ct, err: (Ct - b[0] * np.exp(-b[1] * t)) / err
+          
+        postprocess_function = lambda b: b[1]**2
+        
+        return self.fit_correlator(fit_function, fit_range, initial_parameters,
+                                   correlator_std, postprocess_function, label,
+                                   masses, momentum, source_type, sink_type)
+        
     def compute_energy(self, particles, fit_range, momenta = [0, 0, 0],
                        average_momenta = True, stddev = None,
                        return_amplitude=False, fit_function=None):
