@@ -982,7 +982,7 @@ class TestTwoPoint:
             twopoint.add_correlator(npr.random((4, 2, 2)), label, [0.1, 0.1],
                                     [1, 1, 0], False)
             
-    def test_meson_correlator(self):
+    def test_compute_meson_correlator(self):
         
         tolerance = 1e-6
         
@@ -1010,9 +1010,11 @@ class TestTwoPoint:
         
         for source_interpolator, sink_interpolator \
           in zip(source_interpolators, sink_interpolators):
-            twopoint.meson_correlator(propagator, propagator,
-                                      source_interpolator, sink_interpolator,
-                                      label, momenta, average_momenta=True)
+            twopoint.compute_meson_correlator(propagator, propagator,
+                                              source_interpolator,
+                                              sink_interpolator,
+                                              label, momenta,
+                                              average_momenta=True)
         
             correlator_name = "{}_px{}_py{}_pz{}_M{}_M{}_point_point" \
               .format(label, momenta[0], momenta[1], momenta[2], 0.4, 0.4) \
@@ -1040,9 +1042,9 @@ class TestTwoPoint:
         sink_interpolator = constants.gamma5
         label = "another_pion"
         
-        twopoint.meson_correlator(propagator, propagator,
-                                  source_interpolator, sink_interpolator,
-                                  label, momenta, average_momenta=True)
+        twopoint.compute_meson_correlator(propagator, propagator,
+                                          source_interpolator, sink_interpolator,
+                                          label, momenta, average_momenta=True)
         
         for i, momentum in enumerate(momenta):
             
