@@ -109,10 +109,10 @@ class TwoPoint(Observable):
         :type momentum: :class:`list`
         :param masses: The masses of the quarks in the correlator
         :type masses: :class:`list`
-        :param source_label: The source type
-        :type source_label: :class:`str`
-        :param sink_label: The sink type
-        :type sink_label: :class:`str`
+        :param source_type: The source type
+        :type source_type: :class:`str`
+        :param sink_type: The sink type
+        :type sink_type: :class:`str`
         """
         
         correlator_attributes \
