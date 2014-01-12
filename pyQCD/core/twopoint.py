@@ -391,48 +391,48 @@ class TwoPoint(Observable):
                                    correlator_std, postprocess_function, label,
                                    masses, momentum, source_type, sink_type)
     
-    def compute_c_square(self, particle, fit_range, momenta,
-                         average_momentum=True, use_lattice_momenta=True,
-                         stddev=None):
-        """Computes the square speed of light of the specified particles at the
-        specified momenta
+    def compute_c_square(self, fit_range, initial_parameters, momenta,
+                         correlator_stds=None, label=None, masses=None,
+                         source_type=None, sink_type=None):
+        """Computes the square of the speed of light for the given particle
+        at each of the specified momenta
         
-        :param particle: The particle to find the speed of light of
-        :type particles: :class:`str`
-        :param fit_range: The two time slices specifying the range to fit over
-        :type fit_range: :class:`list` of two :class:`int`s
-        :param momenta: The list of momenta to compute the speed of light for
-        :type momenta: :class:`list`
-        :param average_momenta: Determines whether equivalent momenta should be averaged over
-        :type average_momenta: :class:`bool`
-        :param use_lattice_momenta: Determines whether a sine function is used when implementing the dispersion relation
-        :type use_lattice_momenta: :class: `bool`
-        :param stddev: The standard deviation in the correlators of the specified particles and momenta
-        :type stddev: :class:`dict` with keys of the form (particle, momentum) for each correlator, or a single :class:`numpy.ndarray` where one particle and momentum are specified
-        :returns: :class:`list` with entries corresponding to the supplied momenta
+        :param fit_range: two-tuple or list of integers specifying the timeslices over which to fit
+        :type fit_range: :class:`tuple` or :class:`list`
+        :param momenta: The lattice momenta or momentum at which to compute the speed of light
+        :type momenta: (possibly compound) :class:`list` or :class:`tuple`
+        :param initial_parameters: The initial value of the fit parameters
+        :type initial_parameters: :class:`tuple` or :class:`list`
+        :param correlator_stds: The standard deviation of the correlator at zero momentum and the standard deviation of the non-zero momentum correlators
+        :type correlator_stds: :class:`list` of :class:`numpy.ndarray`
+        :param label: The correlator label
+        :type label: :class:`str`
+        :param masses: The correlator quark masses
+        :type masses: :class:`list`
+        :param source_type: The correlator source type
+        :type source_type: :class:`str`
+        :param sink_type: The correlator sink type
+        :type sink_type: :class:`str`
         """
         
-        if type(momenta[0]) != list:
+        if type(momenta[0]) != list and type(momenta[0]) != tuple:
             momenta = [momenta]
-        E0_square = self.compute_square_energy(particle, fit_range, [0, 0, 0],
-                                               stddev)
-        Es_square = self.compute_square_energy(particle, fit_range, momenta,
-                                               stddev)
         
-        out = []
+        E0_square \
+          = self.compute_square_energy(fit_range, initial_parameters,
+                                       correlator_stds[0], label, masses,
+                                       [0, 0, 0], source_type, sink_type)
         
-        for p in momenta:
-            E_square = Es_square["{}_px{}_py{}_pz{}".format(particle, *p)]
+        out = np.zeros(len(momenta))
+        
+        for i, momentum in enumerate(momenta):
+            E_square = self.compute_square_energy(fit_range, initial_parameters,
+                                                  correlator_stds[i + 1], label,
+                                                  masses, momentum, source_type,
+                                                  sink_type)
             
-            if use_lattice_momenta:
-                p_square = sum([np.sin(2 * np.pi * x / self.L)**2 for x in p])
-            else:
-                p_square = sum([(2 * np.pi * x / self.L)**2 for x in p])
-            
-            c_square = (E_square - E0_square["{}_px0_py0_pz0".format(particle)]) \
-              / p_square
-              
-            out.append(c_square)
+            p_square = sum([x**2 for x in momentum])
+            out[i] = (E_square - E0_square) / p_square
             
         return out
     
