@@ -471,29 +471,28 @@ class TwoPoint(Observable):
             raise TypeError("Types {} and {} do not match"
                             .format(type(self), type(tp)))
         
-        for cm in self.common_members[:2]:
+        for cm in self.common_members:
             if getattr(self, cm) != getattr(tp, cm):
                 raise ValueError("Attribute {} differs between objects "
                                  "({} and {})".format(cm,
                                                       getattr(self, cm),
                                                       getattr(tp, cm)))
-            
-        new_prop1 = self.prop1 + tp.prop1
-        new_prop2 = self.prop2 + tp.prop2
         
-        out = TwoPoint(new_prop1, new_prop2)
+        out = TwoPoint(tp.T, tp.L)
         
         comp_corr1 = self.computed_correlators
         comp_corr2 = tp.computed_correlators
         
         for cc in comp_corr1:
             setattr(out, cc, getattr(self, cc))
+            out.computed_correlators.append(cc)
             
         for cc in comp_corr2:
             if hasattr(out, cc):
                 setattr(out, cc, getattr(out, cc) + getattr(tp, cc))
             else:
                 setattr(out, cc, getattr(tp, cc))
+                out.computed_correlators.append(cc)
                 
         return out
     
