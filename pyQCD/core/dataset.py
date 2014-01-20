@@ -127,7 +127,7 @@ class DataSet:
             new_datum = func(datum, *args)
             self.set_datum(i, new_datum)
     
-    def measure(self, func, data=[], stddev=False, args=[]):
+    def measure(self, func, data=[], args=[]):
         """Performs a measurement on each item in the data set using the
         supplied function and returns the average of the measurements
         
@@ -135,8 +135,6 @@ class DataSet:
         :type func: :class:`function`
         :param data: The data indices to perform the measurement on
         :type data: :class:`list`
-        :param stddev: If True, returns a list of two elements, with the second element being the standard deviation in the result
-        :type stddev: :class:`bool`
         :param args: The arguments required by the supplied function
         :type args: :class:`list`
         """
@@ -144,12 +142,15 @@ class DataSet:
         if data == []:
             data = range(self.num_data)
             
-        measurements = []
-        for i in data:
-            datum = self.get_datum(i)
-            measurement = func(datum, *args)
-            if measurement != None:
-                measurements.append(measurement)
+        datum_sum = self.get_datum(data[0])
+
+        for i in data[1:]:
+            datum_sum += self.get_datum(i)
+                
+        datum_sum /= len(data)
+        measurement = func(datum_sum, *args)
+        
+        return measurement
             
         if stddev:
             return DataSet._mean(measurements), DataSet._std(measurements)
