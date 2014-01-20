@@ -151,11 +151,29 @@ class DataSet:
         measurement = func(datum_sum, *args)
         
         return measurement
+    
+    def statistics(self):
+        """Computes and returns the mean and standard deviation of the data within
+        the dataset
+        
+        :returns: :class:`tuple` of types stored within current dataset
+        """
+        
+        data_sum = self.get_datum(0)
+        
+        for i in xrange(self.num_data):
+            data_sum += self.get_datum(i)
             
-        if stddev:
-            return DataSet._mean(measurements), DataSet._std(measurements)
-        else:
-            return DataSet._mean(measurements)
+        data_mean = data_sum / self.num_data
+        
+        data_std = (self.get_datum(0) - data_mean)**2
+        
+        for i in xrange(self.num_data):
+            data_std += (self.get_datum(i) - data_mean)**2
+                
+        data_std /= self.num_data
+        
+        return data_mean, data_std**0.5
     
     def bootstrap(self, func, num_bootstraps, binsize=1, args=[]):
         """Performs a bootstraped measurement on the dataset using the
