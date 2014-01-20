@@ -25,6 +25,7 @@ class DataSet:
         self.datatype = datatype
         self.num_data = 0
         self.filename = filename
+        self.jackknifes_cached = False
         
         try:
             zfile = zipfile.ZipFile(filename, 'w', storage_mode, True)
@@ -265,18 +266,52 @@ class DataSet:
             num_bins += 1
             
         out = []
-        
-        data_sum = self._get_bin(binsize, 0)
-        for i in xrange(1, num_bins):
-            data_sum += self._get_bin(binsize, i)
-        
-        for i in xrange(num_bins):            
-            bins = [j for j in xrange(num_bins) if j != i]
             
-            new_datum = (data_sum - self._get_bin(binsize, i)) / (num_bins - 1)
-            measurement = func(new_datum, *args)
-            if measurement != None:
-                out.append(measurement)
+        if self.jackknifes_cached:
+            
+            for i in xrange(num_bins):
+            
+                jackknife_filename = "{}_jackknife_binsize{}_{}.npz" \
+                  .format(self.datatype.__name__, binsize, i)
+            
+                with zipfile.ZipFile(self.filename, 'a', self.storage_mode,
+                                     self.large_file) as zfile:
+                    zfile.extract(jackknife_filename)
+                    
+                jackknife_datum = self.datatype.load(jackknife_filename)
+                os.unlink(jackknife_filename)
+            
+                measurement = func(jackknife_datum, *args)
+                if measurement != None:
+                    out.append(measurement)
+            
+        else:
+        
+            data_sum = self._get_bin(binsize, 0)
+            for i in xrange(1, num_bins):
+                data_sum += self._get_bin(binsize, i)
+        
+            for i in xrange(num_bins):            
+                bins = [j for j in xrange(num_bins) if j != i]
+            
+                new_datum = (data_sum - self._get_bin(binsize, i)) / (num_bins - 1)
+            
+                jackknife_filename = "{}_jackknife_binsize{}_{}.npz" \
+                  .format(self.datatype.__name__, binsize, i)
+            
+                new_datum.save(jackknife_filename)
+            
+                with zipfile.ZipFile(self.filename, 'a', self.storage_mode,
+                                     self.large_file) as zfile:
+                    zfile.write(jackknife_filename)
+            
+                os.unlink(jackknife_filename)
+            
+                measurement = func(new_datum, *args)
+                if measurement != None:
+                    out.append(measurement)
+                    
+            self.jackknifes_cached = True
             
         return DataSet._mean(out), DataSet._std_jackknife(out)
     
@@ -312,10 +347,17 @@ class DataSet:
         
         data = [int(fname[len(datatype.__name__):-4])
                 for fname in zfile.namelist()
-                if fname.startswith(datatype.__name__)]
+                if fname.startswith(datatype.__name__) and fname.find("jackknife") < 0]
         
         if len(data) > 0:
             out.num_data = max(data) + 1
+            
+        data = [fname
+                for fname in zfile.namelist()
+                if fname.find("jackknife") > -1]
+        
+        if len(data) >= out.num_data:
+            out.jackknifes_cached = True
         
         return out
     
