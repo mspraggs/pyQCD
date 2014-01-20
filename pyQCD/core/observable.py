@@ -105,6 +105,17 @@ class Observable(object):
         """Subtraction operator overload"""
         
         return self.__add__(ob.__neg__())
+    
+    def __pow__(self, exponent):
+        """Power operator overload"""
+        
+        if type(div) != int and type(div) != float:
+            raise TypeError("Expected an int or float exponent, got {}"
+                            .format(type(exponent)))
+        
+        new_data = self.data ** exponent
+        
+        return self.__class__(new_data, **self.header())
              
     def __str__(self):
         

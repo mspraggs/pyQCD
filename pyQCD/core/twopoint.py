@@ -529,6 +529,22 @@ class TwoPoint(Observable):
         """Subtraction operator overload"""
         
         return self.__add__(tp.__neg__())
+    
+    def __pow__(self, exponent):
+        """Power operator overloading"""
+        
+        if type(exponent) != int and type(exponent) != float:
+            raise TypeError("Expected an int or float exponent, got {}"
+                            .format(type(exponent)))
+        
+        out = TwoPoint(self.T, self.L)
+        
+        for cc in self.computed_correlators:
+            setattr(out, cc, getattr(self, cc) ** exponent)
+        
+        out.computed_correlators = self.computed_correlators
+            
+        return out
                         
     def __str__(self):
         
