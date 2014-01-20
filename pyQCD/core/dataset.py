@@ -96,6 +96,8 @@ class DataSet:
         :raises: ValueError
         """
         
+        raise NotImplementedError("DataSet.set_datum not properly implemented")
+        
         if type(datum) != self.datatype:
             raise TypeError("Supplied data type {} does not match the required "
                             "data type {}".format(type(datum), self.datatype))
