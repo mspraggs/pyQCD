@@ -6,6 +6,7 @@ import scipy.linalg as spla
 import os
 import itertools
 import string
+import zipfile
 
 from pyQCD import *
         
@@ -1268,7 +1269,87 @@ class TestBareTwoPoint:
     pass
 
 class TestDataSet:
-    pass
+    
+    def test_init(self):
+        
+        dataset = DataSet(floatWrapper, "test_data.zip")
+        
+    def test_add_datum(self):
+        
+        dataset = DataSet(floatWrapper, "test_data.zip")
+        
+        rand_ints = npr.randint(100, size=100)
+        
+        for i in rand_ints:
+            dataset.add_datum(floatWrapper(i))
+        
+        try:
+            zfile = zipfile.ZipFile("test_data.zip", 'r', zipfile.ZIP_DEFLATED, True)
+        except RuntimeError:
+            zfile = zipfile.ZipFile("test_data.zip", 'r', zipfile.ZIP_STORED, False)
+            
+        assert len(zfile.namelist()) == 101
+        assert zfile.namelist().count("floatWrapper99.npz") == 1
+            
+        zfile.close()
+            
+    def test_get_datum(self):
+        
+        dataset = DataSet(floatWrapper, "test_data.zip")
+        
+        rand_ints = npr.randint(100, size=100)
+        
+        for i in rand_ints:
+            dataset.add_datum(floatWrapper(i))
+            
+        for j, i in enumerate(rand_ints):
+            assert i == dataset.get_datum(j)
+            
+    def test_set_datum(self):
+        
+        dataset = DataSet(floatWrapper, "test_data.zip")
+        dataset.add_datum(floatWrapper(3))
+        with pytest.raises(NotImplementedError):
+            dataset.set_datum(0, floatWrapper(4))
+            
+    def test_apply_function(self):
+        
+        dataset = DataSet(floatWrapper, "test_data.zip")
+        dataset.add_datum(floatWrapper(3))
+        with pytest.raises(NotImplementedError):
+            dataset.apply_function(lambda x: x, [])
+            
+    def test_measure(self):
+        
+        dataset = DataSet(floatWrapper, "test_data.zip")
+        
+        rand_ints = npr.randint(100, size=100)
+        
+        for i in rand_ints:
+            dataset.add_datum(floatWrapper(i))
+            
+        data_mean = rand_ints.mean()
+            
+        assert np.abs(dataset.measure(lambda x: x**2) - data_mean**2) < 1e-10 * data_mean**2
+        assert dataset.measure(lambda x, b: b * np.sin(x), args=[2]) == 2 * np.sin(data_mean)
+        
+    def test_statistics(self):
+        
+        dataset = DataSet(floatWrapper, "test_data.zip")
+        
+        rand_ints = npr.randint(100, size=100)
+        
+        for i in rand_ints:
+            dataset.add_datum(floatWrapper(i))
+            
+        data_mean = rand_ints.mean()
+        
+        data_std = rand_ints.std()
+        
+        statistics = dataset.statistics()
+        
+        assert statistics[0] == data_mean
+        assert statistics[1] == data_std
 
 class TestEnsemble:
     pass
