@@ -1265,9 +1265,6 @@ class TestTwoPoint:
         assert (np.abs(actual_correlator - expected_correlator)
                 < 1e-10 * np.abs(expected_correlator)).all()
 
-class TestBareTwoPoint:
-    pass
-
 class TestDataSet:
     
     def test_init(self):
