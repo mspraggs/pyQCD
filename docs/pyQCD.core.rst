@@ -1,14 +1,6 @@
 core Package
 ============
 
-:mod:`baretwopoint` Module
---------------------
-
-.. automodule:: pyQCD.core.baretwopoint
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 :mod:`config` Module
 --------------------
 
