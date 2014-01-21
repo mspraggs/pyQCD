@@ -247,7 +247,7 @@ class DataSet:
         return (data_sum - self._get_bin(binsize, index)) / (num_bins - 1)
     
     def generate_jackknife_cache(self, binsize=1):
-        """Generates the jackknifed data and stores it in the folder cache
+        """Generates the jackknifed data and stores it in the folder pyQCDcache
         
         :param binsize: The bin size to use when handling the data
         :type binsize: :class:`int`
