@@ -164,14 +164,14 @@ class DataSet:
         
         data_sum = self.get_datum(0)
         
-        for i in xrange(self.num_data):
+        for i in xrange(1, self.num_data):
             data_sum += self.get_datum(i)
             
         data_mean = data_sum / self.num_data
         
         data_std = (self.get_datum(0) - data_mean)**2
         
-        for i in xrange(self.num_data):
+        for i in xrange(1, self.num_data):
             data_std += (self.get_datum(i) - data_mean)**2
                 
         data_std /= self.num_data
