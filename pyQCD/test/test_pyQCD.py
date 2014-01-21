@@ -117,6 +117,27 @@ def test_random_su3_transform():
                           np.conj(lattice.get_link(link).T))
         assert (np.abs(UUdagger - np.identity(3))
                 < 1e-12 * np.ones((3, 3))).all()
+        
+class floatWrapper(float):
+    
+    def save(self, filename):
+        
+        if filename[-4:] != ".npz":
+            filename += ".npz"
+            
+        with open(filename, "w") as f:
+            f.write(self.__repr__())
+    
+    @classmethod
+    def load(self, filename):
+        
+        if filename[-4:] != ".npz":
+            filename += ".npz"        
+        
+        with open(filename) as f:
+            value = floatWrapper(f.read())
+        
+        return value
     
 class TestLattice:
     
