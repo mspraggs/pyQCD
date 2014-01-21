@@ -26,6 +26,7 @@ class DataSet:
         self.num_data = 0
         self.filename = filename
         self.jackknifes_cached = False
+        self.bootstraps_cached = False
         
         try:
             zfile = zipfile.ZipFile(filename, 'w', storage_mode, True)
@@ -178,7 +179,41 @@ class DataSet:
         
         return data_mean, data_std**0.5
     
-    def bootstrap(self, func, num_bootstraps, binsize=1, args=[]):
+    def generate_bootstrap_cache(self, num_bootstraps, binsize=1):
+        """Generates the bootstrapped data and stores it in the folder pyQCDcache
+        
+        :param num_bootstraps: The number of bootstraps to perform
+        :type num_bootstraps: :class:`bool`
+        :param binsize: The bin size to use when handling the data
+        :type binsize: :class:`int`
+        """
+        
+        if binsize < 1:
+            raise ValueError("Supplied bin size {} is less than 1"
+                             .format(binsize))
+        
+        num_bins = self.num_data / binsize
+        if self.num_data % binsize > 0:
+            num_bins += 1
+            
+        for i in xrange(num_bootstraps):
+            
+            bins = npr.randint(num_bins, size = num_bins).tolist()
+            
+            new_datum = self._get_bin(binsize, bins[0])
+            for b in bins[1:]:
+                new_datum += self._get_bin(binsize, b)
+                
+            new_datum /= len(bins)
+            
+            bootstrap_filename = "pyQCDcache/{}_bootstrap_binsize{}_{}.npz" \
+              .format(self.datatype.__name__, binsize, i)
+            
+            new_datum.save(bootstrap_filename)
+            
+        self.bootstraps_cached = True
+    
+    def bootstrap(self, func, num_bootstraps, binsize=1, args=[], use_cache=True):
         """Performs a bootstraped measurement on the dataset using the
         supplied function
         
@@ -190,6 +225,8 @@ class DataSet:
         :type num_bootstraps: :class:`int`
         :param args: The arguments required by the supplied function
         :type args: :class:`list`
+        :param use_cache: Determines whether cached bootstrap copies are used.
+        :type use_cache: :class:`bool`
         """
         
         if binsize < 1:
@@ -201,19 +238,35 @@ class DataSet:
             num_bins += 1
             
         out = []
-        
-        for i in xrange(num_bootstraps):
             
-            bins = npr.randint(num_bins, size = num_bins).tolist()
+        if use_cache:            
+            if not self.bootstraps_cached:
+                self.generate_bootstrap_cache(num_bootstraps, binsize)
             
-            new_datum = self._get_bin(binsize, bins[0])
-            for b in bins[1:]:
-                new_datum += self._get_bin(binsize, b)
+            for i in xrange(num_bins):
+            
+                bootstrap_filename = "pyQCDcache/{}_bootstrap_binsize{}_{}.npz" \
+                  .format(self.datatype.__name__, binsize, i)
+                    
+                bootstrap_datum = self.datatype.load(bootstrap_filename)
+            
+                measurement = func(bootstrap_datum, *args)
+                if measurement != None:
+                    out.append(measurement)
+            
+        else:        
+            for i in xrange(num_bootstraps):
+            
+                bins = npr.randint(num_bins, size = num_bins).tolist()
+            
+                new_datum = self._get_bin(binsize, bins[0])
+                for b in bins[1:]:
+                    new_datum += self._get_bin(binsize, b)
                 
-            new_datum /= len(bins)
-            measurement = func(new_datum, *args)
-            if measurement != None:                
-                out.append(measurement)
+                new_datum /= len(bins)
+                measurement = func(new_datum, *args)
+                if measurement != None:                
+                    out.append(measurement)
             
         return DataSet._mean(out), DataSet._std(out)
     
@@ -278,7 +331,7 @@ class DataSet:
             
             new_datum.save(jackknife_filename)
                     
-        self.jackknifes_cached = True          
+        self.jackknifes_cached = True
                     
     
     def jackknife(self, func, binsize=1, args=[], use_cache=True):
