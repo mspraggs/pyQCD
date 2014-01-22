@@ -1452,6 +1452,11 @@ class TestDataSet:
         
         assert len(files) == 100
         
+        with pytest.raises(ValueError):
+            dataset.generate_jackknife_cache(-1)
+            
+        dataset.generate_jackknife_cache(3)
+        
         for f in files:
             os.unlink("pyQCDcache/{}".format(f))
         
