@@ -195,6 +195,9 @@ class DataSet:
         num_bins = self.num_data / binsize
         if self.num_data % binsize > 0:
             num_bins += 1
+        
+        if not os.path.isdir("pyQCDcache"):
+            os.makedirs("pyQCDcache")
             
         for i in xrange(num_bootstraps):
             
