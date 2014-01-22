@@ -71,7 +71,4 @@ class Config(Observable):
                                     self.u0)
         
         return out
-    
-    def av_plaquette(self):
-        pass
 
