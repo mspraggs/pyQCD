@@ -1296,12 +1296,19 @@ class TestDataSet:
             dataset.add_datum(floatWrapper(i))
         
         try:
-            zfile = zipfile.ZipFile("test_data.zip", 'r', zipfile.ZIP_DEFLATED, True)
+            zfile = zipfile.ZipFile("test_data.zip", 'r', zipfile.ZIP_DEFLATED,
+                                    True)
         except RuntimeError:
-            zfile = zipfile.ZipFile("test_data.zip", 'r', zipfile.ZIP_STORED, False)
+            zfile = zipfile.ZipFile("test_data.zip", 'r', zipfile.ZIP_STORED,
+                                    False)
             
         assert len(zfile.namelist()) == 101
-        assert zfile.namelist().count("floatWrapper99.npz") == 1
+        
+        for i in xrange(100):
+            assert zfile.namelist().count("floatWrapper{}.npz".format(i)) == 1
+        
+        with pytest.raises(TypeError):
+            dataset.add_datum({})
             
         zfile.close()
             
