@@ -1408,6 +1408,13 @@ class TestDataSet:
         
         assert np.abs(bootstrap_mean - data_mean**2) < 0.1 * data_mean**2
         
+        with pytest.raises(ValueError):
+            result = dataset.bootstrap(lambda x: x**2, 10, -1)
+            
+        result = dataset.bootstrap(lambda x: x**2, 10, 3, use_cache=False)
+            
+        dataset.generate_boostrap_cache(10, 3)
+        
         files = os.listdir("pyQCDcache")
         
         for f in files:
