@@ -99,23 +99,6 @@ class DataSet:
         
         raise NotImplementedError("DataSet.set_datum not properly implemented")
         
-        if type(datum) != self.datatype:
-            raise TypeError("Supplied data type {} does not match the required "
-                            "data type {}".format(type(datum), self.datatype))
-        
-        if index >= self.num_data:
-            raise TypeError("Datum {} does not exist".format(index))
-        
-        filename = "{}{}.npz".format(self.datatype.__name__, self.num_data)
-        
-        datum.save(filename[:-4])
-        
-        with zipfile.ZipFile(self.filename, 'a', self.storage_mode,
-                             self.large_file) as zfile:
-            zfile.write(filename)
-            
-        os.unlink(filename)
-        
     def apply_function(self, func, args):
         """Applies the specified function to each datum in the dataset before
         saving each new datum over the original
