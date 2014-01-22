@@ -16,3 +16,4 @@ pyQCD Feature and Bug Todo List
 - Optimize Wilson loop calculation
 - Add average_plaquette function to Config data type
 - Add fermion action type to Propagator common_members
+- Implement all warning properly
