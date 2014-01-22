@@ -1431,6 +1431,12 @@ class TestDataSet:
         
         assert dataset.jackknife_datum(0) == rand_floats[1:].mean()
         
+        with pytest.raises(ValueError):
+            dataset.jackknife_datum(0, -1)
+            dataset.jackknife_datum(100)
+            
+        jackknife_result = dataset.jackknife_datum(0, 3)
+        
     def test_generate_jackknife_cache(self):
         
         dataset = DataSet(floatWrapper, "test_data.zip")
