@@ -140,6 +140,21 @@ class floatWrapper(float):
         
         return value
     
+    def __add__(self, x):
+        return floatWrapper(float.__add__(self, x))
+    
+    def __sub__(self, x):
+        return floatWrapper(float.__sub__(self, x))
+    
+    def __mul__(self, x):
+        return floatWrapper(float.__mul__(self, x))
+    
+    def __div__(self, x):
+        return floatWrapper(float.__div__(self, x))
+    
+    def __pow__(self, x):
+        return floatWrapper(float.__pow__(self, x))
+    
 class TestLattice:
     
     def test_block_calculation(self):
@@ -1275,9 +1290,9 @@ class TestDataSet:
         
         dataset = DataSet(floatWrapper, "test_data.zip")
         
-        rand_ints = npr.randint(100, size=100)
+        rand_floats = npr.randint(100, size=100)
         
-        for i in rand_ints:
+        for i in rand_floats:
             dataset.add_datum(floatWrapper(i))
         
         try:
@@ -1294,12 +1309,12 @@ class TestDataSet:
         
         dataset = DataSet(floatWrapper, "test_data.zip")
         
-        rand_ints = npr.randint(100, size=100)
+        rand_floats = npr.randint(100, size=100)
         
-        for i in rand_ints:
+        for i in rand_floats:
             dataset.add_datum(floatWrapper(i))
             
-        for j, i in enumerate(rand_ints):
+        for j, i in enumerate(rand_floats):
             assert i == dataset.get_datum(j)
             
     def test_set_datum(self):
@@ -1320,33 +1335,123 @@ class TestDataSet:
         
         dataset = DataSet(floatWrapper, "test_data.zip")
         
-        rand_ints = npr.randint(100, size=100)
+        rand_floats = npr.randint(100, size=100)
         
-        for i in rand_ints:
+        for i in rand_floats:
             dataset.add_datum(floatWrapper(i))
             
-        data_mean = rand_ints.mean()
+        data_mean = rand_floats.mean()
             
-        assert np.abs(dataset.measure(lambda x: x**2) - data_mean**2) < 1e-10 * data_mean**2
+        assert dataset.measure(lambda x: x**2) == data_mean**2
         assert dataset.measure(lambda x, b: b * np.sin(x), args=[2]) == 2 * np.sin(data_mean)
         
     def test_statistics(self):
         
         dataset = DataSet(floatWrapper, "test_data.zip")
         
-        rand_ints = npr.randint(100, size=100)
+        rand_floats = npr.randint(100, size=100)
         
-        for i in rand_ints:
+        for i in rand_floats:
             dataset.add_datum(floatWrapper(i))
             
-        data_mean = rand_ints.mean()
+        data_mean = rand_floats.mean()
         
-        data_std = rand_ints.std()
+        data_std = rand_floats.std()
         
         statistics = dataset.statistics()
         
         assert statistics[0] == data_mean
         assert statistics[1] == data_std
+        
+    def test_generate_bootstrap_cache(self):
+        
+        dataset = DataSet(floatWrapper, "test_data.zip")
+        
+        rand_floats = npr.randint(100, size=100)
+        
+        for i in rand_floats:
+            dataset.add_datum(floatWrapper(i))
+        
+        dataset.generate_bootstrap_cache(10)
+        
+        files = os.listdir("pyQCDcache")
+        
+        assert len(files) == 10
+        
+        for f in files:
+            os.unlink("pyQCDcache/{}".format(f))
+        
+    def test_bootstrap(self):
+        
+        dataset = DataSet(floatWrapper, "test_data.zip")
+        
+        rand_floats = npr.randint(100, size=100)
+        
+        for i in rand_floats:
+            dataset.add_datum(floatWrapper(i))
+            
+        data_mean = rand_floats.mean()
+        
+        bootstrap_mean, bootstrap_std = dataset.bootstrap(lambda x: x**2, 100)
+        
+        assert np.abs(bootstrap_mean - data_mean**2) < 0.1 * data_mean**2
+        
+        files = os.listdir("pyQCDcache")
+        
+        for f in files:
+            os.unlink("pyQCDcache/{}".format(f))
+            
+    def test_jackknife_datum(self):
+        
+        dataset = DataSet(floatWrapper, "test_data.zip")
+        
+        rand_floats = npr.randint(100, size=100)
+        
+        for i in rand_floats:
+            dataset.add_datum(floatWrapper(i))        
+        
+        assert dataset.jackknife_datum(0) == rand_floats[1:].mean()
+        
+    def test_generate_jackknife_cache(self):
+        
+        dataset = DataSet(floatWrapper, "test_data.zip")
+        
+        rand_floats = npr.randint(100, size=100)
+        
+        for i in rand_floats:
+            dataset.add_datum(floatWrapper(i))
+        
+        dataset.generate_jackknife_cache()
+        
+        files = os.listdir("pyQCDcache")
+        
+        assert len(files) == 100
+        
+        for f in files:
+            os.unlink("pyQCDcache/{}".format(f))
+        
+    def test_jackknife(self):
+        
+        dataset = DataSet(floatWrapper, "test_data.zip")
+        
+        rand_floats = npr.randint(100, size=100)
+        
+        for i in rand_floats:
+            dataset.add_datum(floatWrapper(i))
+            
+        data_mean = rand_floats.mean()
+        
+        jackknife_mean, jackknife_std = dataset.jackknife(lambda x: x**2)
+        
+        assert np.abs(jackknife_mean - data_mean**2) < 0.001 * data_mean**2
+        
+        files = os.listdir("pyQCDcache")
+        
+        for f in files:
+            os.unlink("pyQCDcache/{}".format(f))
+            
+    def test_load(self):
+        pass
 
 class TestEnsemble:
     pass
