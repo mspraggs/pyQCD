@@ -1385,6 +1385,11 @@ class TestDataSet:
         
         assert len(files) == 10
         
+        with pytest.raises(ValueError):
+            dataset.generate_bootstrap_cache(10, -1)
+            
+        dataset.generate_boostrap_cache(10, 3)
+        
         for f in files:
             os.unlink("pyQCDcache/{}".format(f))
         
