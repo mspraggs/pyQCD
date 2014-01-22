@@ -454,6 +454,10 @@ class DataSet:
         if type(b) == tuple:
             b = list(b)
         
+        if hasattr(a, "__add__") and hasattr(b, "__add__") \
+          and type(a) != list and type(b) != list:
+            return a.__add__(b)
+        
         if type(a) == list and type(b) == list:
             return [DataSet._add_measurements(x, y) for x, y in zip(a, b)]
         elif type(a) == dict and type(b) == dict:
@@ -474,6 +478,9 @@ class DataSet:
     @staticmethod
     def _sub_measurements(a, b):
         """Adds two measurements (used for dictionaries etc)"""
+        
+        if hasattr(a, "__sub__") and hasattr(b, "__sub__"):
+            return a.__sub__(b)
         
         if type(a) == tuple:
             a = list(a)
@@ -506,6 +513,10 @@ class DataSet:
         if type(b) == tuple:
             b = list(b)
         
+        if hasattr(a, "__mul__") and hasattr(b, "__mul__") \
+          and type(a) != list and type(b) != list:
+            return a.__mul__(b)
+        
         if type(a) == list and type(b) == list:
             return [DataSet._mul_measurements(x, y) for x, y in zip(a, b)]
         elif type(a) == dict and type(b) == dict:
@@ -529,6 +540,9 @@ class DataSet:
         
         if type(div) != float and type(div) != int:
             raise TypeError("Unsupported divisor of type {}".format(type(div)))
+        
+        if hasattr(a, "__div__"):
+            return a.__div__(div)
         
         if type(a) == list or type(a) == tuple:
             return [DataSet._div_measurements(x, div) for x in a]
