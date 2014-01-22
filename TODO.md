@@ -14,3 +14,5 @@ pyQCD Feature and Bug Todo List
 - General code review and tidy up of code
 - Tidy up __str__ functions in all objects
 - Optimize Wilson loop calculation
+- Add average_plaquette function to Config data type
+- Add fermion action type to Propagator common_members
