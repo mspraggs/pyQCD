@@ -1413,7 +1413,7 @@ class TestDataSet:
             
         result = dataset.bootstrap(lambda x: x**2, 10, 3, use_cache=False)
             
-        dataset.generate_boostrap_cache(10, 3)
+        dataset.generate_bootstrap_cache(10, 3)
         
         files = os.listdir("pyQCDcache")
         
