@@ -1451,7 +1451,11 @@ class TestDataSet:
             os.unlink("pyQCDcache/{}".format(f))
             
     def test_load(self):
-        pass
+        
+        dataset = DataSet.load("test_data.zip")
+        
+        assert dataset.num_data == 100
+        os.unlink("test_data.zip")
 
 class TestEnsemble:
     pass
