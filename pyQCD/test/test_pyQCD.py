@@ -1285,6 +1285,11 @@ class TestDataSet:
     
     def test_init(self):
         
+        try:
+            shutil.rmtree("pyQCDcache")
+        except:
+            pass
+        
         dataset = DataSet(floatWrapper, "test_data.zip")
         
     def test_add_datum(self):
