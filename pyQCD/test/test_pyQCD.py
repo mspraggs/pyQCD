@@ -1404,7 +1404,10 @@ class TestDataSet:
         data_mean = rand_floats.mean()
         
         bootstrap_mean, bootstrap_std = dataset.bootstrap(lambda x: x**2, 100)
+        assert np.abs(bootstrap_mean - data_mean**2) < 0.1 * data_mean**2
         
+        bootstrap_mean, bootstrap_std = dataset.bootstrap(lambda x: x**2, 100,
+                                                          use_cache=False)
         assert np.abs(bootstrap_mean - data_mean**2) < 0.1 * data_mean**2
         
         with pytest.raises(ValueError):
