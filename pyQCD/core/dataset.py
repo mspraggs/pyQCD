@@ -487,7 +487,7 @@ class DataSet:
         elif type(a) == dict and type(b) == list:
             return dict(zip(a.keys(), DataSet._sub_measurements(a.values(), b)))
         elif type(a) == list and type(b) == dict:
-            return DataSet._sub_measurements(b, a)
+            return dict(zip(b.keys(), DataSet._sub_measurements(a, b.values())))
         elif (type(a) == int or type(a) == float or type(a) == np.float64 \
           or type(a) == np.ndarray) \
           and (type(b) == int or type(b) == float or type(b) == np.float64 \
