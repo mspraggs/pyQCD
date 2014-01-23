@@ -1382,6 +1382,7 @@ class TestDataSet:
         
         dataset.generate_bootstrap_cache(10)
         
+        files = os.listdir("pyQCDcache")
         
         assert len(files) == 10
         
@@ -1447,6 +1448,7 @@ class TestDataSet:
         
         dataset.generate_jackknife_cache()
         
+        files = os.listdir("pyQCDcache")
         assert len(files) == 100
         
         with pytest.raises(ValueError):
