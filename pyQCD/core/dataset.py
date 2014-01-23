@@ -233,8 +233,11 @@ class DataSet:
             
                 bootstrap_filename = "pyQCDcache/{}_bootstrap_binsize{}_{}.npz" \
                   .format(self.datatype.__name__, binsize, i)
-                    
-                bootstrap_datum = self.datatype.load(bootstrap_filename)
+                try:
+                    bootstrap_datum = self.datatype.load(bootstrap_filename)
+                except IOError:
+                    self.generate_bootstrap_cache(num_bootstraps, binsize)
+                    bootstrap_datum = self.datatype.load(bootstrap_filename)
             
                 measurement = func(bootstrap_datum, *args)
                 if measurement != None:
@@ -352,8 +355,12 @@ class DataSet:
             
                 jackknife_filename = "pyQCDcache/{}_jackknife_binsize{}_{}.npz" \
                   .format(self.datatype.__name__, binsize, i)
-                    
-                jackknife_datum = self.datatype.load(jackknife_filename)
+                
+                try:
+                    jackknife_datum = self.datatype.load(jackknife_filename)
+                except IOError:
+                    self.generate_jackknife_cache(binsize)
+                    jackknife_datum = self.datatype.load(jackknife_filename)
             
                 measurement = func(jackknife_datum, *args)
                 if measurement != None:
