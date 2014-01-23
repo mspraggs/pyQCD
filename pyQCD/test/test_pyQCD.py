@@ -1494,6 +1494,86 @@ class TestDataSet:
         
         assert dataset.num_data == 100
         os.unlink("test_data.zip")
+        
+    def test_utils(self):
+        
+        a = npr.random(10)
+        b = npr.random(10)
+        
+        # First check addition
+        assert DataSet._add_measurements(a.tolist(), b.tolist()) \
+          == (a + b).tolist()
+        assert DataSet._add_measurements(tuple(a.tolist()), tuple(b.tolist())) \
+          == (a + b).tolist()
+          
+        a_dict = dict(zip(range(10), a.tolist()))
+        assert DataSet._add_measurements(a_dict, tuple(b.tolist())) \
+          == dict(zip(a_dict.keys(), (a + b).tolist()))
+          
+        b_dict = dict(zip(range(10), b.tolist()))
+        assert DataSet._add_measurements(tuple(a.tolist()), b_dict) \
+          == dict(zip(b_dict.keys(), (a + b).tolist()))
+          
+        b_dict = dict(zip(range(10), b.tolist()))
+        assert DataSet._add_measurements(a_dict, b_dict) \
+          == dict(zip(b_dict.keys(), (a + b).tolist()))
+        
+        # Now subtraction
+        assert DataSet._sub_measurements(a.tolist(), b.tolist()) \
+          == (a - b).tolist()
+        assert DataSet._sub_measurements(tuple(a.tolist()), tuple(b.tolist())) \
+          == (a - b).tolist()
+          
+        a_dict = dict(zip(range(10), a.tolist()))
+        assert DataSet._sub_measurements(a_dict, tuple(b.tolist())) \
+          == dict(zip(a_dict.keys(), (a - b).tolist()))
+          
+        b_dict = dict(zip(range(10), b.tolist()))
+        assert DataSet._sub_measurements(tuple(a.tolist()), b_dict) \
+          == dict(zip(b_dict.keys(), (a - b).tolist()))
+          
+        b_dict = dict(zip(range(10), b.tolist()))
+        assert DataSet._sub_measurements(a_dict, b_dict) \
+          == dict(zip(b_dict.keys(), (a - b).tolist()))
+        
+        # Now multiplication
+        assert DataSet._mul_measurements(a.tolist(), b.tolist()) \
+          == (a * b).tolist()
+        assert DataSet._mul_measurements(tuple(a.tolist()), tuple(b.tolist())) \
+          == (a * b).tolist()
+          
+        a_dict = dict(zip(range(10), a.tolist()))
+        assert DataSet._mul_measurements(a_dict, tuple(b.tolist())) \
+          == dict(zip(a_dict.keys(), (a * b).tolist()))
+          
+        b_dict = dict(zip(range(10), b.tolist()))
+        assert DataSet._mul_measurements(tuple(a.tolist()), b_dict) \
+          == dict(zip(b_dict.keys(), (a * b).tolist()))
+          
+        b_dict = dict(zip(range(10), b.tolist()))
+        assert DataSet._mul_measurements(a_dict, b_dict) \
+          == dict(zip(b_dict.keys(), (a * b).tolist()))
+        
+        # Now division
+        div = npr.random()
+        assert DataSet._div_measurements(a.tolist(), div) \
+          == (a / div).tolist()
+        assert DataSet._div_measurements(tuple(a.tolist()), div) \
+          == (a / div).tolist()
+          
+        a_dict = dict(zip(range(10), a.tolist()))
+        assert DataSet._div_measurements(a_dict, div) \
+          == dict(zip(a_dict.keys(), (a / div).tolist()))
+          
+        # Now square root
+        assert DataSet._sqrt_measurements(a.tolist()) \
+          == np.sqrt(a).tolist()
+        assert DataSet._sqrt_measurements(tuple(a.tolist())) \
+          == np.sqrt(a).tolist()
+          
+        a_dict = dict(zip(range(10), a.tolist()))
+        assert DataSet._sqrt_measurements(a_dict) \
+          == dict(zip(a_dict.keys(), np.sqrt(a).tolist()))
 
 class TestEnsemble:
     pass
