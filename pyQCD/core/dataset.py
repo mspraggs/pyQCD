@@ -622,7 +622,7 @@ class DataSet:
             return DataSet._sqrt_measurements(DataSet._div_measurements(out, div))
         
         if type(data) == np.ndarray:
-            return np.std(data, axis=0)
+            return np.sqrt(data.shape[0] - 1) * np.std(data, axis=0)
 
     def __getitem__(self, index):
         """Square brackets overload"""
