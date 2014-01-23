@@ -1467,9 +1467,17 @@ class TestDataSet:
             
         data_mean = rand_floats.mean()
         
-        jackknife_mean, jackknife_std = dataset.jackknife(lambda x: x**2)
-        
+        jackknife_mean, jackknife_std = dataset.jackknife(lambda x: x**2)        
         assert np.abs(jackknife_mean - data_mean**2) < 0.001 * data_mean**2
+        
+        jackknife_mean, jackknife_std = dataset.jackknife(lambda x: x**2,
+                                                          use_cache=False)        
+        assert np.abs(jackknife_mean - data_mean**2) < 0.001 * data_mean**2
+        
+        with pytest.raises(ValueError):
+            result = dataset.jackknife(lambda x: x**2, 0)
+            
+        result = dataset.jackknife(lambda x: x**2, 3)
         
         shutil.rmtree("pyQCDcache")
             
