@@ -4,6 +4,7 @@ import numpy.random as npr
 import scipy.linalg as spla
 
 import os
+import shutil
 import itertools
 import string
 import zipfile
@@ -1390,8 +1391,7 @@ class TestDataSet:
             
         dataset.generate_boostrap_cache(10, 3)
         
-        for f in files:
-            os.unlink("pyQCDcache/{}".format(f))
+        shutil.rmtree("pyQCDcache")
         
     def test_bootstrap(self):
         
@@ -1417,8 +1417,7 @@ class TestDataSet:
         
         files = os.listdir("pyQCDcache")
         
-        for f in files:
-            os.unlink("pyQCDcache/{}".format(f))
+        shutil.rmtree("pyQCDcache")
             
     def test_jackknife_datum(self):
         
@@ -1457,8 +1456,7 @@ class TestDataSet:
             
         dataset.generate_jackknife_cache(3)
         
-        for f in files:
-            os.unlink("pyQCDcache/{}".format(f))
+        shutil.rmtree("pyQCDcache")
         
     def test_jackknife(self):
         
@@ -1477,8 +1475,7 @@ class TestDataSet:
         
         files = os.listdir("pyQCDcache")
         
-        for f in files:
-            os.unlink("pyQCDcache/{}".format(f))
+        shutil.rmtree("pyQCDcache")
             
     def test_load(self):
         
