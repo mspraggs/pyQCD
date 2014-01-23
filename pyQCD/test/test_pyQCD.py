@@ -1473,7 +1473,7 @@ class TestDataSet:
         assert np.abs(jackknife_mean - data_mean**2) < 0.001 * data_mean**2
         
         jackknife_mean, jackknife_std = dataset.jackknife(lambda x: x**2,
-                                                          use_cache=False)        
+                                                          use_cache=False) 
         assert np.abs(jackknife_mean - data_mean**2) < 0.001 * data_mean**2
         
         with pytest.raises(ValueError):
