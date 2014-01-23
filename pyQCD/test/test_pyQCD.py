@@ -1389,7 +1389,7 @@ class TestDataSet:
         with pytest.raises(ValueError):
             dataset.generate_bootstrap_cache(10, -1)
             
-        dataset.generate_boostrap_cache(10, 3)
+        dataset.generate_bootstrap_cache(10, 3)
         
         shutil.rmtree("pyQCDcache")
         
