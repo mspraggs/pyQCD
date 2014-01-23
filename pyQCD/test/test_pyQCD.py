@@ -1382,7 +1382,6 @@ class TestDataSet:
         
         dataset.generate_bootstrap_cache(10)
         
-        files = os.listdir("pyQCDcache")
         
         assert len(files) == 10
         
@@ -1415,8 +1414,6 @@ class TestDataSet:
             
         dataset.generate_bootstrap_cache(10, 3)
         
-        files = os.listdir("pyQCDcache")
-        
         shutil.rmtree("pyQCDcache")
             
     def test_jackknife_datum(self):
@@ -1447,8 +1444,6 @@ class TestDataSet:
         
         dataset.generate_jackknife_cache()
         
-        files = os.listdir("pyQCDcache")
-        
         assert len(files) == 100
         
         with pytest.raises(ValueError):
@@ -1472,8 +1467,6 @@ class TestDataSet:
         jackknife_mean, jackknife_std = dataset.jackknife(lambda x: x**2)
         
         assert np.abs(jackknife_mean - data_mean**2) < 0.001 * data_mean**2
-        
-        files = os.listdir("pyQCDcache")
         
         shutil.rmtree("pyQCDcache")
             
