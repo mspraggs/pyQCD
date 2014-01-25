@@ -1574,6 +1574,46 @@ class TestDataSet:
         a_dict = dict(zip(range(10), a.tolist()))
         assert DataSet._sqrt_measurements(a_dict) \
           == dict(zip(a_dict.keys(), np.sqrt(a).tolist()))
-
+          
+class TestWilsonLoops:
+    
+    def test_init(self):
+        
+        wilslp_data = npr.random((4, 8))
+        
+        wilslps = WilsonLoops(wilslp_data, 4, 8, 5.5, 1.0, "wilson", 0, 1.0)
+        
+        with pytest.raises(ValueError):
+            wilslps = WilsonLoops(wilslp_data.T, 4, 8, 5.5, 1.0, "wilson", 0,
+                                  1.0)
+            
+    def test_lattice_spacing(self):
+        
+        expected_lattice_spacing \
+          = np.array([0.31695984599258381, 0.62152983253471605])
+        
+        wilslp_data = np.load("{}/wilslps_no_smear.npy".format(data_dir))
+        wilslps = WilsonLoops(wilslp_data, 4, 8, 5.5, 1.0, "wilson", 0, 1.0)
+        
+        actual_lattice_spacing = np.array(wilslps.lattice_spacing())
+        
+        assert (np.abs(actual_lattice_spacing - expected_lattice_spacing)
+                < 1e-10 * np.abs(expected_lattice_spacing)).all()
+        
+    def test_pair_potential(self):
+        
+        expected_potential = np.array([-5.2410818817814314e-14,
+                                       0.66603341142068573,
+                                       1.2964758874025355,
+                                       1.9389738652985116])
+        
+        wilslp_data = np.load("{}/wilslps_no_smear.npy".format(data_dir))
+        wilslps = WilsonLoops(wilslp_data, 4, 8, 5.5, 1.0, "wilson", 0, 1.0)
+        
+        actual_potential = wilslps.pair_potential()
+        
+        assert (np.abs(actual_potential - expected_potential)
+                < 1e-10 * np.abs(expected_potential)).all()
+        
 class TestEnsemble:
     pass
