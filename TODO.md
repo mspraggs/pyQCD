@@ -17,3 +17,4 @@ pyQCD Feature and Bug Todo List
 - Add average_plaquette function to Config data type
 - Add fermion action type to Propagator common_members
 - Implement all warning properly
+- Refactor Simulation object - could accept arbitrary measurement function
