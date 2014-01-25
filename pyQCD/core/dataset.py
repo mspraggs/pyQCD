@@ -59,13 +59,14 @@ class DataSet:
             raise TypeError("Supplied data type {} does not match the required "
                             "data type {}".format(type(datum), self.datatype))
         
-        datum.save("{}{}".format(self.datatype.__name__, self.num_data))
-        
+        filename = "{}{}.npz".format(self.datatype.__name__, self.num_data)
+        self._datum_save(filename, datum)
+                
         with zipfile.ZipFile(self.filename, 'a', self.storage_mode,
                              self.large_file) as zfile:
-            zfile.write("{}{}.npz".format(self.datatype.__name__, self.num_data))
+            zfile.write(filename)
         
-        os.unlink("{}{}.npz".format(self.datatype.__name__, self.num_data))
+        os.unlink(filename)
         self.num_data += 1
     
     def get_datum(self, index):
@@ -77,12 +78,11 @@ class DataSet:
         """
         
         filename = "{}{}.npz".format(self.datatype.__name__, index)
-        
         with zipfile.ZipFile(self.filename, 'r', self.storage_mode,
                              self.large_file) as zfile:
             zfile.extract(filename)
-            
-        output = self.datatype.load(filename)
+         
+        output = self._datum_load(filename)
         os.unlink(filename)
         
         return output
@@ -194,8 +194,7 @@ class DataSet:
             
             bootstrap_filename = "pyQCDcache/{}_bootstrap_binsize{}_{}.npz" \
               .format(self.datatype.__name__, binsize, i)
-            
-            new_datum.save(bootstrap_filename)
+            self._datum_save(bootstrap_filename, new_datum)
             
         self.bootstraps_cached = True
     
@@ -234,10 +233,10 @@ class DataSet:
                 bootstrap_filename = "pyQCDcache/{}_bootstrap_binsize{}_{}.npz" \
                   .format(self.datatype.__name__, binsize, i)
                 try:
-                    bootstrap_datum = self.datatype.load(bootstrap_filename)
+                    bootstrap_datum = self._datum_load(bootstrap_filename)
                 except IOError:
                     self.generate_bootstrap_cache(num_bootstraps, binsize)
-                    bootstrap_datum = self.datatype.load(bootstrap_filename)
+                    bootstrap_datum = self._datum_load(bootstrap_filename)
             
                 measurement = func(bootstrap_datum, *args)
                 if measurement != None:
@@ -318,7 +317,7 @@ class DataSet:
             jackknife_filename = "pyQCDcache/{}_jackknife_binsize{}_{}.npz" \
               .format(self.datatype.__name__, binsize, i)
             
-            new_datum.save(jackknife_filename)
+            self._datum_save(jackknife_filename, new_datum)
                     
         self.jackknifes_cached = True
                     
@@ -357,10 +356,10 @@ class DataSet:
                   .format(self.datatype.__name__, binsize, i)
                 
                 try:
-                    jackknife_datum = self.datatype.load(jackknife_filename)
+                    jackknife_datum = self._datum_load(jackknife_filename)
                 except IOError:
                     self.generate_jackknife_cache(binsize)
-                    jackknife_datum = self.datatype.load(jackknife_filename)
+                    jackknife_datum = self._datum_load(jackknife_filename)
             
                 measurement = func(jackknife_datum, *args)
                 if measurement != None:
@@ -623,6 +622,27 @@ class DataSet:
         
         if type(data) == np.ndarray:
             return np.sqrt(data.shape[0] - 1) * np.std(data, axis=0)
+        
+    @staticmethod
+    def _datum_save(filename, datum):
+        """Saves the file either in plain text or numpy zip archive depending
+        on the format"""
+        
+        try:
+            datum.save(filename)
+        except AttributeError:
+            with open(filenaem) as f:
+                f.write(datum.__repr__())
+                
+    def _datum_load(self, filename):
+        """Loads the datum from disk into the appropriate type"""
+        
+        try:
+            return self.datatype.load(filename)
+        except AttributeError:
+            from numpy import array
+            with open(filename) as f:
+                return self.datatype(eval(f.read()))
 
     def __getitem__(self, index):
         """Square brackets overload"""
