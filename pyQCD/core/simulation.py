@@ -4,20 +4,11 @@ from propagator import Propagator
 from wilslps import WilsonLoops
 from dataset import DataSet
 
-import xml.etree.ElementTree as ET
 import numpy as np
 import sys
 import time
 import inspect
 import warnings
-        
-def makeParseError(msg):
-    out = ET.ParseError()
-    out.msg = msg
-    out.filename = __file__
-    out.lineno = inspect.currentframe().f_back.f_lineno
-            
-    return out
 
 class Simulation(object):
     
@@ -239,118 +230,6 @@ class Simulation(object):
             else:
                 print("Simulation completed in {} hours, {} minutes and {} "
                       "seconds".format(hrs, mins, secs))
-            
-    @classmethod
-    def load(cls, filename):
-        """Creates a simulation object based on the supplied xml configuration
-        file
-        
-        :param filename: The file name of the xml input file
-        :type filename: :class:`str`
-        :returns: :class:`Simulation`
-        """
-        
-        # Wee function to correctly compose ParseError
-        
-        xmltree = ET.parse(filename)
-        xmlroot = xmltree.getroot()
-        
-        if xmlroot.tag != "pyQCD":
-            raise makeParseError("Supplied xml file {} contains no <pyQCD> tag"
-                                 .format(filename))
-        
-        raise_ParseError \
-          = '''raise makeParseError("Supplied xml file {} does not specify "
-                                    "any {} settings; there is no "
-                                    "<{}> tag".format(filename, root_element.tag,
-                                                      root_element.tag))'''
-        
-        show_warning \
-          = 'warnings.warn("Xml file has no <{}> tag".format(root_element.tag))'
-        
-        # First set up a simulation object. To do so we need to extract the
-        # simulation settings from the XML file
-        
-        simulation_settings = xmlroot.find("simulation")
-        required_options = ["num_configs", "measurement_spacing",
-                            "num_warmup_updates"]
-        optional_options = ["update_method", "run_parallel", "rand_seed",
-                            "verbosity", "ensemble"]
-            
-        simulation_dict \
-          = Simulation._settings_to_dict(simulation_settings, required_options,
-                                         optional_options, raise_ParseError)
-        
-        use_ensemble = False
-        if simulation_dict.has_key("ensemble"):
-            ensemble_file = simulation_dict.pop("ensemble")
-            use_ensemble = True
-        
-        simulation = Simulation(**simulation_dict)
-        
-        lattice_settings = xmlroot.find("lattice")
-        required_options = ["L", "T", "action", "beta"]
-        optional_options = ["u0", "block_size"]
-        
-        lattice_dict \
-          = Simulation._settings_to_dict(lattice_settings, required_options,
-                                         optional_options, show_warning)
-        
-        simulation.create_lattice(**lattice_dict)
-        
-        if use_ensemble:
-            simulation.load_ensemble(ensemble_file)
-            
-        measurement_settings = xmlroot.find("measurements")
-        
-        if measurement_settings != None:        
-            for measurement in measurement_settings:
-                settings = [setting.tag for setting in measurement]
-                meas_name = measurement.tag
-                meas_dict = Simulation._settings_to_dict(measurement, settings, [], "None")
-                
-                meas_file = meas_dict.pop("filename")
-                
-                simulation.add_measurement(Simulation.xml_meas_dict[meas_name][0],
-                                           meas_file, **meas_dict)
-            
-        return simulation
-    
-    @staticmethod
-    def _settings_to_dict(root_element, required_tags, optional_tags, fail_code):
-        """Loads the supplied options found in the root_element into a dict"""
-        
-        if root_element == None:
-            eval(fail_code)
-        else:            
-            option_keys = []
-            option_values = []
-            
-            for option in required_tags:
-                current_element = root_element.find(option)
-                
-                if current_element == None:
-                    raise makeParseError("{} settings missing required "
-                                         "tag {}".format(root_element.tag.capitalize(),
-                                                         option))
-                else:
-                    option_keys.append(option)
-                    try:
-                        option_values.append(eval(current_element.text))
-                    except NameError:
-                        option_values.append(current_element.text)
-                    
-            for option in optional_tags:
-                current_element = root_element.find(option)
-                
-                if current_element != None:
-                    option_keys.append(option)
-                    try:
-                        option_values.append(eval(current_element.text))
-                    except NameError:
-                        option_values.append(current_element.text)
-                    
-        return dict(zip(option_keys, option_values))
     
     def __str__(self):
         
