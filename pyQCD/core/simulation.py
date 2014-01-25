@@ -87,10 +87,10 @@ class Simulation(object):
         """
         
         if not hasattr(self, "lattice"):
-            AttributeError("A lattice must be defined before an ensemble may "
-                           "be loaded.")
+            raise AttributeError("A lattice must be defined before an ensemble "
+                                 "may be loaded.")
         
-        ensemble = DataSet.load(Config, filename)
+        ensemble = DataSet.load(filename)
         
         if ensemble.num_data != self.num_configs:
             raise AttributeError("Number of configutations in ensemble ({}) "
