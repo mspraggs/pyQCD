@@ -1615,5 +1615,68 @@ class TestWilsonLoops:
         assert (np.abs(actual_potential - expected_potential)
                 < 1e-10 * np.abs(expected_potential)).all()
         
+class TestSimulation:
+    
+    def test_init(self):
+        
+        simulation = Simulation(100, 10, 250)
+        simulation = Simulation(100, 10, 250, "heatbath", False, rand_seed=-1,
+                                verbosity=0)
+        
+    def test_create_lattice(self):
+        
+        simulation = Simulation(100, 10, 250)
+        simulation.create_lattice(4, 8, "wilson", 5.5)
+        simulation.create_lattice(4, 8, "wilson", 5.5, 1.0, 4)
+        
+    def test_load_ensemble(self):
+        
+        simulation = Simulation(100, 10, 250)
+        
+        with pytest.raises(AttributeError):
+            simulation.load_ensemble("dummy")
+            
+        simulation.create_lattice(4, 8, "wilson", 5.5)
+        
+        with pytest.raises(AttributeError):
+            simulation.load_ensemble("{}/4c8_ensemble.zip".format(data_dir))
+            
+        simulation = Simulation(3, 10, 100)
+        simulation.create_lattice(8, 8, "wilson", 5.5)
+        
+        with pytest.raises(AttributeError):
+            simulation.load_ensemble("{}/4c8_ensemble.zip".format(data_dir))
+            
+        simulation = Simulation(3, 10, 100)
+        simulation.create_lattice(4, 16, "wilson", 5.5)
+        
+        with pytest.raises(AttributeError):
+            simulation.load_ensemble("{}/4c8_ensemble.zip".format(data_dir))
+            
+        simulation = Simulation(3, 10, 100)
+        simulation.create_lattice(4, 8, "wilson", 5.5)
+        simulation.load_ensemble("{}/4c8_ensemble.zip".format(data_dir))
+        
+    def test_add_measurement(self):
+        
+        simulation = Simulation(100, 10, 250)
+        simulation.add_measurement(Lattice.get_config, Config,
+                                   "configs.zip", "Storing gauge configuration")
+        
+    def test_run(self):
+        
+        simulation = Simulation(5, 10, 100)
+        simulation.create_lattice(4, 8, "wilson", 5.5)
+        simulation.add_measurement(Lattice.get_config, Config, "configs.zip",
+                                   "Storing gauge configuration")
+        simulation.run()
+        
+        simulation = Simulation(3, 10, 100)
+        simulation.create_lattice(4, 8, "wilson", 5.5)
+        simulation.load_ensemble("{}/4c8_ensemble.zip".format(data_dir))
+        simulation.add_measurement(Lattice.get_config, Config, "configs.zip",
+                                   "Storing gauge configuration")
+        simulation.run()
+               
 class TestEnsemble:
     pass
