@@ -153,9 +153,6 @@ class Simulation(object):
         
         t0 = time.time()
         
-        if self.verbosity > 0:
-            print(self)
-        
         if not self.use_ensemble:
             if self.verbosity > 0:
                 print("Thermalizing lattice..."),
