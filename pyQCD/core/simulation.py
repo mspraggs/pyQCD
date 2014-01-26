@@ -153,6 +153,9 @@ class Simulation(object):
         
         if store_plaquette:
             self.plaquettes = np.zeros(self.num_configs)
+            
+        if self.verbosity > 0:
+            print(self)
         
         t0 = time.time()
         
