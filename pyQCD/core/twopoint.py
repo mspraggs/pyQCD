@@ -550,43 +550,21 @@ class TwoPoint(Observable):
         
         out = \
           "Two-Point Function Object\n" \
-        "-------------------------\n" \
-        "Spatial extent: {}\n" \
-        "Temportal extent: {}\n" \
-        "Gauge action: {}\n" \
-        "Inverse coupling (beta): {}\n" \
-        "Mean link (u0): {}\n\n" \
-        "*** Propagator 1 ***\n" \
-        "Bare quark mass (m): {}\n" \
-        "Inversion source site: {}\n" \
-        "Number of stout field smears: {}\n" \
-        "Stout smearing parameter: {}\n" \
-        "Number of source Jacobi smears: {}\n" \
-        "Source Jacobi smearing parameter: {}\n" \
-        "Number of sink Jacobi smears: {}\n" \
-        "Sink Jacobi smearing parameter: {}\n\n" \
-        "*** Propagator 2 ***\n" \
-        "Bare quark mass (m): {}\n" \
-        "Inversion source site: {}\n" \
-        "Number of stout field smears: {}\n" \
-        "Stout smearing parameter: {}\n" \
-        "Number of source Jacobi smears: {}\n" \
-        "Source Jacobi smearing parameter: {}\n" \
-        "Number of sink Jacobi smears: {}\n" \
-        "Sink Jacobi smearing parameter: {}\n" \
-        .format(self.prop1.L, self.prop1.T, self.prop1.action,
-                self.prop1.beta, self.prop1.u0, self.prop1.mass,
-                self.prop1.source_site, self.prop1.num_field_smears,
-                self.prop1.field_smearing_param,
-                self.prop1.num_source_smears,
-                self.prop1.source_smearing_param,
-                self.prop1.num_sink_smears, self.prop1.sink_smearing_param,
-                self.prop2.mass, self.prop2.source_site,
-                self.prop2.num_field_smears,
-                self.prop2.field_smearing_param,
-                self.prop2.num_source_smears,
-                self.prop2.source_smearing_param,
-                self.prop2.num_sink_smears, self.prop2.sink_smearing_param)
+          "-------------------------\n" \
+          "Spatial extent: {}\n" \
+          "Temportal extent: {}\n\n" \
+          "Computed correlators:\n" \
+          "- (label, masses, momentum, source, sink)\n".format(self.L, self.T)
+        
+        if len(self.computed_correlators) > 0:
+            for correlator in self.computed_correlators:
+                correlator_parameters \
+                  = self._get_correlator_parameters(correlator)
+                  
+                out += "- {}\n".format(correlator_parameters)
+                
+        else:
+            out += "None\n"
         
         return out
 

@@ -62,7 +62,7 @@ class Config(Observable):
         
         out = \
           "Field Configuration Object\n" \
-        "--------------\n" \
+        "--------------------------\n" \
         "Spatial extent: {}\n" \
         "Temportal extent: {}\n" \
         "Gauge action: {}\n" \

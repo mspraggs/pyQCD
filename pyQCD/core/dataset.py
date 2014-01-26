@@ -647,3 +647,15 @@ class DataSet:
     def __getitem__(self, index):
         """Square brackets overload"""
         return self.get_datum(index)
+    
+    def __str__(self):
+        
+        out = \
+          "Data Set Object\n" \
+          "---------------\n" \
+          "Data type: {}\n" \
+          "Data file: {}\n" \
+          "Number of data: {}".format(self.datatype.__name__,
+                                      self.filename, self.num_data)
+        
+        return out

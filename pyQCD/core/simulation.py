@@ -254,19 +254,22 @@ class Simulation(object):
                       self.lattice.T, self.lattice.action, self.lattice.beta,
                       self.lattice.u0, self.lattice.block_size)
         
-        for measurement in self.measurements:
-            heading_underline \
-              = (len(measurement[1].datatype.__name__) + 21) * "-"
-            meas_settings = \
-              "{} Measurement Settings\n" \
-              "{}\n".format(measurement[1].datatype.__name__, heading_underline)
+        if len(self.measurements) > 0:
+            for measurement in self.measurements:
+                heading_underline \
+                  = (len(measurement[0].__name__) + 21) * "-"
+                meas_settings = \
+                  "{} Measurement Settings\n" \
+                  "{}\n".format(measurement[0].__name__.replace("_", " ")
+                                .title(),
+                                heading_underline)
             
-            meas_settings \
-              = "".join([meas_settings,
-                         "Filename: {}\n".format(measurement[1].filename)])
+                meas_settings \
+                  = "".join([meas_settings,
+                             "Filename: {}\n".format(measurement[3].filename)])
                 
-            for key, value in measurement[0].items():
-                meas_settings = "".join([meas_settings,
+                for key, value in measurement[2].items():
+                    meas_settings = "".join([meas_settings,
                                         "{}: {}\n".format(key, value)])
                 
         
