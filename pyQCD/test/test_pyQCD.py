@@ -1661,21 +1661,22 @@ class TestSimulation:
         
         simulation = Simulation(100, 10, 250)
         simulation.add_measurement(Lattice.get_config, Config,
-                                   "configs.zip", "Storing gauge configuration")
+                                   "configs.zip")
+        simulation.add_measurement(Lattice.get_config, Config, "configs.zip",
+                                   meas_message="Getting correlator")
         
     def test_run(self):
         
         simulation = Simulation(5, 10, 100)
         simulation.create_lattice(4, 8, "wilson", 5.5)
         simulation.add_measurement(Lattice.get_config, Config, "configs.zip",
-                                   "Storing gauge configuration")
+                                   meas_message="Storing gauge configuration")
         simulation.run()
         
         simulation = Simulation(3, 10, 100)
         simulation.create_lattice(4, 8, "wilson", 5.5)
         simulation.load_ensemble("{}/4c8_ensemble.zip".format(data_dir))
-        simulation.add_measurement(Lattice.get_config, Config, "configs.zip",
-                                   "Storing gauge configuration")
+        simulation.add_measurement(Lattice.get_config, Config, "configs.zip")
         simulation.run()
                
 class TestEnsemble:
