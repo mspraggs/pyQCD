@@ -102,8 +102,8 @@ class Simulation(object):
             self.ensemble = ensemble
             self.use_ensemble = True
             
-    def add_measurement(self, meas_function, meas_type, meas_file, meas_message,
-                        kwargs={}):
+    def add_measurement(self, meas_function, meas_type, meas_file, kwargs={},
+                        meas_message=None):
         """Adds a measurement to the simulation to be performed when the
         simulation is run
         
@@ -113,12 +113,15 @@ class Simulation(object):
         :type meas_type: :class:`type`
         :param meas_file: The :class:`DataSet` file in which to store the measurements
         :type meas_file: :class:`str`
-        :param meas_message: The message to display when performing the measurement
-        :type meas_message: :class:`str`
         :param kwargs: The keyword arguments for the measurement function.
         :type kwargs: :class:`dict`
+        :param meas_message: The message to display when performing the measurement
+        :type meas_message: :class:`str`
         """
         
+        if meas_message == None:
+            meas_message = "Running {}".format(meas_function.__name__)
+
         self.measurements.append([meas_function, meas_message, kwargs,
                                   DataSet(meas_type, meas_file)])
     
