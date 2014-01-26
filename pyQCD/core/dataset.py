@@ -24,7 +24,7 @@ class DataSet:
         
         self.datatype = datatype
         self.num_data = 0
-        self.filename = filename
+        self.filename = os.path.abspath(filename)
         self.jackknifes_cached = False
         self.bootstraps_cached = False
         
@@ -409,7 +409,7 @@ class DataSet:
         os.unlink("type")
         
         out = DataSet(datatype, "000.zip", compress)
-        out.filename = filename
+        out.filename = os.path.abspath(filename)
         os.unlink("000.zip")
         
         data = [int(fname[len(datatype.__name__):-4])
