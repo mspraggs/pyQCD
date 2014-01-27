@@ -5,7 +5,22 @@ class Observable(object):
     members = []
     
     def __init__(self, data=None):
-        """Constructs an observable object"""
+        """Creates an observable object with the supplied data
+        
+        Keyword Args:
+            data: The data to be held by the observable object.
+            
+        Returns:
+            Observable: The created observable object.
+            
+        Examples:
+            Create some numpy data and encapsulate it using an observable object
+            
+            >>> import pyQCD
+            >>> import numpy.random
+            >>> data = numpy.random.random(100)
+            >>> observable = pyQCD.Observable(data)
+        """
         
         if data == None:
             self.data = np.array([])
@@ -15,8 +30,17 @@ class Observable(object):
     def save(self, filename):
         """Saves the observable to a numpy zip archive
         
-        :param filename: The file to save to
-        :type filename: :class:`str`
+        Args:
+            filename (str): The name of the file in which to save the observable
+            
+        Examples:
+            Create an observable object with some dummy data, then save it.
+            
+            >>> import pyQCD
+            >>> import numpy.random
+            >>> data = numpy.random(100)
+            >>> observable = pyQCD.Observable(data)
+            >>> observable.save("my_observable.npz")
         """
         
         items = [getattr(self, key) for key in self.members]
@@ -29,9 +53,17 @@ class Observable(object):
         """Loads and returns an observable object from a numpy zip
         archive
         
-        :param filename: The file to load from
-        :type filename: :class:`str`
-        :returns: :class:`Observable`
+        Args:
+            filename (str): The filename from which to load the observable
+            
+        Returns:
+            Observable: The loaded observable object.
+            
+        Examples:
+            Load an observable object from disk.
+            
+            >>> import pyQCD
+            >>> observable = pyQCD.Observable.load("my_observable.npz")
         """
         
         numpy_archive = np.load(filename)
@@ -50,15 +82,33 @@ class Observable(object):
     def save_raw(self, filename):
         """Saves the data array as a numpy binary
         
-        :param filename: The file to save to
-        :type filename: :class:`str`
+        Args:
+            filename (str): The filename to save the data as.
+            
+        Examples:
+            Create and observable and save the raw data to disk.
+            
+            >>> import pyQCD
+            >>> import numpy.random
+            >>> data = numpy.random.random(100)
+            >>> observable = pyQCD.Observable(data)
+            >>> observable.save_raw("observable_data")
         """
         np.save(filename, self.data)
         
     def header(cls):
         """Retrieves the list of variables used in the header
         
-        :returns: :class:`dict`
+        Returns:
+            dict: The header variables encapsulated in a dictionary
+            
+        Examples:
+            Create an empty observable object and retrieve the (empty) header
+            
+            >>> import pyQCD
+            >>> observable = pyQCD.Observable()
+            >>> observable.header()
+            {}
         """
         
         items = [getattr(cls, member) for member in cls.members]
