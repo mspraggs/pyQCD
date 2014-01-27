@@ -431,8 +431,7 @@ class Lattice(lattice.Lattice):
         """Computes the plaquette expectation value
         
         Returns:
-            float: The average value of the plaquette for the current
-              configuration
+            float: The average value of the plaquette
               
         Examples:
             Create a lattice, thermalize and compute the average plaquette
@@ -450,8 +449,7 @@ class Lattice(lattice.Lattice):
         """Computes the rectangle expectation value
         
         Returns:
-            float: The average value of the rectangle for the current
-              configuration
+            float: The average value of the rectangle
               
         Examples:
             Create a lattice, thermalize and compute the average rectangle
@@ -503,8 +501,7 @@ class Lattice(lattice.Lattice):
             field_smearing_param (float): The stout field smearing parameter
             
         Returns:
-            WilsonLoops: The Wilson loops object encapsulating the Wilson loop
-              data
+            WilsonLoops: The Wilson loops object encapsulating the Wilson loops
           
         Examples:
             Create a lattice object, thermalize it, then extract the Wilson
