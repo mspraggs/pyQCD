@@ -33,14 +33,6 @@ core Package
     :undoc-members:
     :show-inheritance:
 
-:mod:`ensemble` Module
-----------------------
-
-.. automodule:: pyQCD.core.ensemble
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 :mod:`lattice` Module
 ---------------------
 
