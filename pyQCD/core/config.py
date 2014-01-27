@@ -7,21 +7,36 @@ class Config(Observable):
     
     def __init__(self, links, L, T, beta, u0, action):
         """Create a field configuration container.
-                 
-        :param links: The field configuration
-        :type links: :class:`np.ndarray` with shape :samp:`(T, L, L, L, 4, 3, 3)`
-        :param L: The spatial extent of the corresponding :class:`Lattice`
-        :type L: :class:`int`
-        :param T: The temporal extent of the corresponding :class:`Lattice`
-        :type T: :class:`int`
-        :param beta: The inverse coupling
-        :type beta: :class:`float`
-        :param u0: The mean link
-        :type u0: :class:`float`
-        :param action: The gauge action
-        :type action: :class:`str`, one of wilson, rectangle_improved or twisted_rectangle_improved
-        :returns: :class:`Config`
-        :raises: ValueError
+         
+        Args:
+            links (np.ndarray): The field configuration
+            L (int): The spatial extent of the lattice
+            T (int): The temporal extent of the lattice
+            beta (float): The inverse coupling
+            u0 (float): The mean link/tadpole coefficient
+            action (str): The gauge action
+            
+        Returns:
+            Config: The field configuration object.
+        
+        Raises:
+            ValueError: Shape of specified links array does not match the
+              specified lattice extents
+            
+        Examples:
+            Generate a set of gauge (non-SU(3)) links on a 4 ^ 3 x 8 lattice
+            and use them to create a lattice object. (The 4, 3, 3
+            components of the links shape are for the four space-time
+            dimensions and the components of the SU(3) gauge field
+            matrices.)
+            
+            >>> import pyQCD
+            >>> import numpy
+            >>> links = numpy.zeros((8, 4, 4, 4, 4, 3, 3))
+            >>> config = pyQCD.Config(links, 4, 8, 5.5, 1.0, "wilson")
+            
+            Note instead of wilson one could have rectangle_improved or
+            twisted_rectangle_improved
         """
         
         # Validate the shape of the links array
@@ -42,8 +57,18 @@ class Config(Observable):
     def save(self, filename):
         """Saves the configuration to a numpy zip archive
         
-        :param filename: The file to save to
-        :type filename: :class:`str`
+        Args:
+            filename (str): The file to save to
+            
+        Examples:
+            Extract the gauge field from a lattice object, extract the gauge
+            field and write it to disk.
+            
+            >>> import pyQCD
+            >>> lattice = pyQCD.Lattice(8, 16, action="rectangle_improved")
+            >>> lattice.thermalize(100)
+            >>> config = lattice.get_config()
+            >>> config.save("8c16_quenched_rectangle_symanzik")
         """
         Observable.save(self, filename)
         
@@ -52,9 +77,20 @@ class Config(Observable):
         """Loads and returns a configuration object from a numpy zip
         archive
         
-        :param filename: The file to load from
-        :type filename: :class:`str`
-        :returns: :class:`Config`
+        Args:
+            filename (str): The file to load from
+        
+        Returns:
+            Config: The loaded configuration object
+            
+        Examples:
+            Load a gauge field configuration from disk and set the corresponding
+            gauge field of a lattice object to the new config
+            
+            >>> import pyQCD
+            >>> lattice = pyQCD.Lattice(8, 16, action="rectangle_improved")
+            >>> config = pyQCD.DataSet.load("8c16_quenched_rectangle_symanzik.npz")
+            >>> lattice.set_config(config)
         """
         return super(Config, cls).load(filename)
     
