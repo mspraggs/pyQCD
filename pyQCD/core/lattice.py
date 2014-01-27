@@ -32,6 +32,22 @@ class Lattice(lattice.Lattice):
             rand_seed (int): The seed to be used by the random number
               generator (-1 specifies that a seed based on the time should
               be used).
+               
+        Returns:
+            Lattice: The created lattice object
+            
+        Raises:
+            ValueError: Lattice shape cannot accomodate sub-lattices with
+              the specified side-length
+              
+        Examples:
+            Create an 8^3 x 16 lattice with the Symanzik rectange-improved
+            action, an inverse coupling 4.26 and a tadpole-improvement factor
+            of 0.852.
+            
+            >>> import pyQCD
+            >>> lattice = pyQCD.Lattice(L=8, T=16, action="rectangle_improved"
+            ...                         beta=4.26, u0=0.852)
               
         Notes:
             1. The "wilson" action is the well-known Wilson gauge action. The
@@ -52,22 +68,6 @@ class Lattice(lattice.Lattice):
                number of computations and improving efficiency. The "heatbath"
                method is to be preferred where the computation of staples is
                possible, being the most efficient algorithm.
-               
-        Returns:
-            Lattice: The created lattice object
-            
-        Raises:
-            ValueError: Lattice shape cannot accomodate sub-lattices with
-              the specified side-length
-              
-        Examples:
-            Create an 8^3 x 16 lattice with the Symanzik rectange-improved
-            action, an inverse coupling 4.26 and a tadpole-improvement factor
-            of 0.852.
-            
-            >>> import pyQCD
-            >>> lattice = pyQCD.Lattice(L=8, T=16, action="rectangle_improved"
-            ...                         beta=4.26, u0=0.852)
         """
         
         if block_size == None:
