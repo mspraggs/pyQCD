@@ -559,6 +559,9 @@ class Lattice(lattice.Lattice):
               use before doing the inversion
             solver_method (str): The algorithm to use when doing the inversion.
               Currently "conjugate_gradient" and "bicgstab" are available.
+            verbosity (int): Determines how much inversion is outputted during
+              the inversion. Values greater than zero produce output, whilst 0
+              will produce output.
               
         Returns:
             Propagator: The propagator encapsulated in a Propagator object
