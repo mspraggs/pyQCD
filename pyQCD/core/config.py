@@ -9,7 +9,8 @@ class Config(Observable):
         """Create a field configuration container.
          
         Args:
-            links (np.ndarray): The field configuration
+            links (np.ndarray): The field configuration, with shape
+              (T, L, L, L, 4, 3, 3)
             L (int): The spatial extent of the lattice
             T (int): The temporal extent of the lattice
             beta (float): The inverse coupling
