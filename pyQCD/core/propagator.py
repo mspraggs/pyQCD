@@ -14,35 +14,50 @@ class Propagator(Observable):
                  source_smearing_param, num_sink_smears, sink_smearing_param):
         """Create a propagator container.
                  
-        :param propagator: The propagator array
-        :type links: :class:`np.ndarray` with shape :samp:`(T, L, L, L, 4, 4, 3, 3)`
-        :param L: The spatial extent of the corresponding :class:`Lattice`
-        :type L: :class:`int`
-        :param T: The temporal extent of the corresponding :class:`Lattice`
-        :type T: :class:`int`
-        :param beta: The inverse coupling
-        :type beta: :class:`float`
-        :param u0: The mean link
-        :type u0: :class:`float`
-        :param action: The gauge action
-        :type action: :class:`str`, one of wilson, rectangle_improved or twisted_rectangle_improved
-        :param mass: The bare quark mass
-        :type mass: :class:`float`
-        :param source_site: The source site used when doing the inversion
-        :type source_site: :class:`list`
-        :param num_field_smears: The number of stout smears applied when computing the propagator
-        :type num_field_smears: :class:`int`
-        :param field_smearing_param: The stout smearing parameter
-        :type field_smearing_param: :class:`float`
-        :param num_source_smears: The number of Jacobian smears performed on the source when computing the propagator
-        :type num_source_smears: :class:`int`
-        :param source_smearing_param: The Jacobi smearing parameter used when smearing the source
-        :type source_smearing_param: :class:`float`
-        :param num_sink_smears: The number of Jacobian smears performed on the source when computing the propagator
-        :type num_sink_smears: :class:`int`
-        :param sink_smearing_param: The Jacobi smearing parameter used when smearing the source
-        :type sink_smearing_param: :class:`float`
-        :raises: ValueError
+        Args:
+            propagator (numpy.ndarray): The propagator data, with shape
+              (T, L, L, L, 4, 4, 3, 3), the last four indices in the shape
+              corresponding to spin and colour
+            L (int): The spatial extent of the corresponding lattice
+            T (int): The temporal extent of the corresponding lattice
+            beta (float): The inverse coupling
+            u0 (float): The mean link/tadpole coefficient
+            action (str): The gauge action
+            mass (float): The bare quark mass
+            source_site (list): The source site to use when constructing the
+              source for the inversion, of the form [t, x, y, z]
+            num_field_smears (int): The number of stout field smears applied
+              before doing the inversion
+            field_smearing_param (float): The stout field smearing parameter to
+              use before doing the inversion
+            num_source_smears (int): The number of Jacobi smears to apply
+              to the source before inverting.
+            source_smearing_param (float): The Jacobi field smearing parameter to
+              use before doing the inversion
+            num_sink_smears (int): The number of Jacobi smears to apply
+              to the sink before inverting.
+            sink_smearing_param (float): The Jacobi field smearing parameter to
+              use before doing the inversion
+              
+        Returns:
+            Propagator: The propagator object
+        
+        Raises:
+            ValueError: Shape of specified propagator array does not match the
+              specified lattice extents.
+              
+        Examples:
+            Create a dummy propagator array and use it to generate a Propagator
+            object.
+            
+            >>> import pyQCD
+            >>> import numpy
+            >>> prop_data = numpy.zeros((8, 4, 4, 4, 4, 4, 3, 3))
+            >>> prop = pyQCD.Propagator(prop_data, 4, 8, 5.5, 1.0, "wilson", 0.4,
+            ...                         [0, 0, 0, 0], 0, 1.0, 0, 1.0, 0, 1.0)
+            
+            Ordinarily, one would generate a Propagator object from a given
+            lattice, using the get_propagator member function.
         """
         
         expected_shape = (T, L, L, L, 4, 4, 3, 3)
@@ -71,8 +86,18 @@ class Propagator(Observable):
     def save(self, filename):
         """Saves the propagator to a numpy zip archive
         
-        :param filename: The file to save to
-        :type filename: :class:`str`
+        Args:
+            filename (str): The name of the file in which to save the propagator
+        
+        Examples:
+            Generate a propagator object from a lattice object and save it to
+            disk.
+            
+            >>> import pyQCD
+            >>> lattice = pyQCD.Lattice()
+            >>> lattice.thermalize(100)
+            >>> prop = lattice.get_propagator(0.4)
+            >>> prop.save("myprop.npz")
         """
         Observable.save(self, filename)
         
@@ -81,16 +106,34 @@ class Propagator(Observable):
         """Loads and returns a propagator object from a numpy zip
         archive
         
-        :param filename: The file to load from
-        :type filename: :class:`str`
-        :returns: :class:`Propagator`
+        Args:
+            filename (str): The filename from which to load the observable
+            
+        Returns:
+            Propagator: The loaded propagator object.
+            
+        Examples:
+            Load a propagator object from disk
+            
+            >>> import pyQCD
+            >>> prop = pyQCD.Propagator.load("myprop.npz")
         """
         return super(Propagator, cls).load(filename)
     
     def conjugate(self):
         """Returns the complex-conjugated propagator
         
-        :returns: :class:`Propagator`
+        Returns:
+            Propagator: The complex-conjugated propagator object
+            
+        Examples:
+            Load a propagator from disk and compute the complex-conjugated
+            propagator, before saving back to disk.
+            
+            >>> import pyQCD
+            >>> prop = pyQCD.Propagator.load("myprop.npz")
+            >>> prop_conjugated = prop.conjugate()
+            >>> prop_conjugated.save("myprop_conjugated.npz")
         """
         
         new_data = np.conj(self.data)
@@ -100,7 +143,27 @@ class Propagator(Observable):
     def transpose_spin(self):
         """Returns the propagator with spin indices transposed
         
-        :returns: :class:`Propagator`
+        Returns:
+            Propagator: The spin-transposed propagator object
+            
+        Examples:
+            Load a propagator from disk and use it to compute the correlation
+            function at every site on the lattice. Here we use transpose spin,
+            transpose colour and conjugation, along with gamma 5 hermiticity to
+            compute the hermitian conjugate of the propagator
+            
+            >>> import numpy as np
+            >>> import pyQCD
+            >>> g5 = np.matrix(pyQCD.constants.gamma5)
+            >>> g0 = np.matrix(pyQCD.constants.gamma0)
+            >>> interpolator = g0 * g5
+            >>> prop = pyQCD.Propagator.load("myprop.npz")
+            >>> prop_herm = prop.transpose_spin().transpose_colour().conjugate()
+            >>> prop_herm = g5 * prop_herm * g5
+            >>> first_product = interpolator * prop_herm
+            >>> second_product = interpolator * prop
+            >>> correlator = np.einsum('txyzijab, txyzjiab->txyz',
+            ...                        first_product, second_product)
         """
         
         new_data = np.swapaxes(self.data, 4, 5)
@@ -110,7 +173,28 @@ class Propagator(Observable):
     def transpose_colour(self):
         """Returns the propagator with colour indices transposed
         
-        :returns: :class:`Propagator`
+        Returns:
+            Propagator: The colour-transposed propagator object
+            
+        Examples:
+            Load a propagator from disk and use it to compute the correlation
+            function at every site on the lattice. Here we use transpose colour,
+            transpose colour and conjugation, along with gamma 5 hermiticity to
+            compute the hermitian conjugate of the propagator
+            
+            >>> import numpy as np
+            >>> import pyQCD
+            >>> g5 = np.matrix(pyQCD.constants.gamma5)
+            >>> g0 = np.matrix(pyQCD.constants.gamma0)
+            >>> interpolator = g0 * g5
+            >>> prop = pyQCD.Propagator.load("myprop.npz")
+            >>> prop_herm = \
+            ...     prop.transpose_colour().transpose_colour().conjugate()
+            >>> prop_herm = g5 * prop_herm * g5
+            >>> first_product = interpolator * prop_herm
+            >>> second_product = interpolator * prop
+            >>> correlator = np.einsum('txyzijab, txyzjiab->txyz',
+            ...                        first_product, second_product)
         """
         
         new_data = np.swapaxes(self.data, 6, 7)
