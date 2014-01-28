@@ -163,7 +163,7 @@ class Propagator(Observable):
             >>> first_product = interpolator * prop_herm
             >>> second_product = interpolator * prop
             >>> correlator = np.einsum('txyzijab, txyzjiab->txyz',
-            ...                        first_product, second_product)
+            ...                        first_product.data, second_product.data)
         """
         
         new_data = np.swapaxes(self.data, 4, 5)
@@ -194,7 +194,7 @@ class Propagator(Observable):
             >>> first_product = interpolator * prop_herm
             >>> second_product = interpolator * prop
             >>> correlator = np.einsum('txyzijab, txyzjiab->txyz',
-            ...                        first_product, second_product)
+            ...                        first_product.data, second_product.data)
         """
         
         new_data = np.swapaxes(self.data, 6, 7)
