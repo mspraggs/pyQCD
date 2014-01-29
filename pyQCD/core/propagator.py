@@ -1,5 +1,6 @@
 import numpy as np
 from observable import Observable
+from constants import gamma5
 
 class Propagator(Observable):
     
@@ -200,6 +201,33 @@ class Propagator(Observable):
         new_data = np.swapaxes(self.data, 6, 7)
         
         return Propagator(new_data, **self.header())
+    
+    def adjoint(self):
+        """Returns the spin and colour adjoint of the current propagator
+        
+        Returns:
+            Propagator: The adjoint of the propagator object
+            
+        Examples:
+            Load a propagator from disk and use it to compute the correlation
+            function at every site on the lattice. Here we use the adjoint
+            function to retrieve the adjoing propagator.
+            
+            >>> import numpy as np
+            >>> import pyQCD
+            >>> g5 = np.matrix(pyQCD.constants.gamma5)
+            >>> g0 = np.matrix(pyQCD.constants.gamma0)
+            >>> interpolator = g0 * g5
+            >>> prop = pyQCD.Propagator.load("myprop.npz")
+            >>> prop_adjoint = prop.adjoint()
+            >>> first_product = interpolator * prop_adjoint
+            >>> second_product = interpolator * prop
+            >>> correlator = np.einsum('txyzijab, txyzjiab->txyz',
+            ...                        first_product.data, second_product.data)
+        """
+        
+        g5 = np.matrix(gamma5)
+        return g5 * self.transpose_spin().transpose_colour().conjugate() * g5
         
     def __mul__(self, matrix):
         
