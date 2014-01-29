@@ -823,6 +823,25 @@ class TestPropagator:
         
         assert (prop_transpose.data == np.swapaxes(prop_data, 6, 7)).all()
         
+    def test_adjoint(self):
+        
+        prop_data = np.load("{}/propagator_tree_level_4c8_4000_no_smear.npy"
+                            .format(data_dir))
+        prop = Propagator(prop_data, 4, 8, 5.5, 1.0, "wilson", 0.4, [0, 0, 0, 0],
+                          0, 1.0, 0, 1.0, 0, 1.0)
+        
+        prop_adjoint = prop.adjoint()
+        
+        expected_prop = np.conj(np.transpose(prop_data,
+                                             [0, 1, 2, 3, 5, 4, 7, 6]))
+        
+        expected_prop = np.tensordot(expected_prop, constants.gamma5, (5, 0))
+        expected_prop = np.transpose(expected_prop, [0, 1, 2, 3, 4, 7, 5, 6])
+        expected_prop = np.tensordot(constants.gamma5, expected_prop, (1, 4))
+        expected_prop = np.transpose(expected_prop, [1, 2, 3, 4, 0, 5, 6, 7])
+        
+        assert (prop_adjoint.data == expected_prop).all()
+                
     def test_multiply(self):
         
         prop_data = random_complex((4, 2, 2, 2, 4, 4, 3, 3))
