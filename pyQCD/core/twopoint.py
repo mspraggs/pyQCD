@@ -581,11 +581,8 @@ class TwoPoint(Observable):
         propagator
         """
         
-        Gamma1 = np.matrix(np.dot(gamma1, const.gamma5))
-        Gamma2 = np.matrix(np.dot(const.gamma5, gamma2))
-        
-        gp1 = Gamma1 * prop1.transpose_spin().transpose_colour().conjugate()
-        gp2 = Gamma2 * prop2
+        gp1 = np.matrix(gamma1) * prop1.adjoint()
+        gp2 = np.matrix(gamma2) * prop2
         
         return np.einsum('txyzijab,txyzjiba->txyz',
                          gp1.data, gp2.data).real
