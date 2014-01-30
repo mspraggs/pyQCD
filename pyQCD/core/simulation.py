@@ -13,21 +13,38 @@ import warnings
 class Simulation(object):
     """Creates and returns a simulation object
     
-    :param num_configs: The number of configurations on which to perform measurements
-    :type num_configs: :class:`int`
-    :param measurement_spacing: The number of updates between measurements
-    :type measurement_spacing: :class:`int`
-    :param num_warmup_updates: The number of updates used to thermalize the lattice
-    :type num_warmup_updates: :class:`int`
-    :param update_method: The method used to update the lattice; current supported methods are "heatbath", "staple_metropolis" and "metropolis"
-    :type update_method: :class:`str`
-    :param run_parallel: Determines whether OpenMP is used when updating the lattice
-    :type run_parallel: :class:`bool`
-    :param rand_seed: The random number seed used for performing updates; -1 results in the current time being used
-    :type rand_seed: :class:`int`
-    :param verbosity: The level of verbosity when peforming the simulation, with 0 producing no output, 1 producing some output and 2 producing the most output, such as details of propagator inversions
-    :type verbosity: :class:`int`
-    """
+    Args:
+        num_configs (int): The number of configurations on which to perform
+          measurements
+        measurement_spacing (int): The spacing of configurations on which
+          measurements are performed
+        num_warmup_updates (int): The number of updates used to thermalize the
+          lattice
+        update_method (str): The algorirthm to use when updating the gauge
+          field configuration. Currently "heatbath", "metropolis" and
+          "staple_metropolis" are supported (see help(pyQCD.Lattice) for details)
+        run_parallel (bool): Determines whether to partition the
+          lattice into a red-black/checkerboard pattern, then perform
+          updates on the red blocks in parallel before updating the
+          black blocks. (Requires OpenMP to work.)
+        rand_seed (int): The seed to be used by the random number
+          generator (-1 specifies that a seed based on the time should
+          be used).
+        verbosity (int): The level of verbosity when performing the simulation,
+          with 0 producing no output, 1 producing some output and 2 producing
+          the most output, suc as details of propagator inversions.
+          
+    Examples:
+        Create a simulation to perform measurements on 100 configurations,
+        performing the meausrements every 10 updates. The lattice will be
+        thermalized by doing 100 updates, so 1100 updates are performed in
+        total. The simulation defaults to using heatbath updates and partitions
+        the lattice, parallelising each update. The random number generator is
+        fed a random seed and the verbosity level is set at medium.
+        
+        >>> import pyQCD
+        >>> simulation = pyQCD.Simulation(100, 10, 100)
+        """
     
     xml_meas_dict = {"propagator": (Propagator, "get_propagator"),
                      "wilson_loops": (WilsonLoops, "get_wilson_loops"),
@@ -54,17 +71,26 @@ class Simulation(object):
     def create_lattice(self, L, T, action, beta, u0=1.0, block_size=None):
         """Creates a Lattice instance to use in the simulation
         
-        :param L: The lattice spatial extent
-        :type L: :class:`int`
-        :param T: The lattice temporal extent
-        :type T: :class:`int`
-        :param action: The gauge action to use in gauge field updates
-        :type action: :class:`str`
-        :param beta: The inverse coupling to use in the gauge action
-        :type beta: :class:`float`
-        :param u0: The mean link to use in tadpole improvement
-        :type u0: :class:`float`
-        :param block_size: The sub-lattice size to use when performing gauge field updates in parallel
+        Args:
+            L (int): The lattice spatial extent
+            T (int): The lattice temporal extent
+            action (str): The gauge action to use in gauge field updates. For
+              additional details see help(pyQCD.Lattice).
+            beta (float): The inverse coupling to use in the gauge action.
+            u0 (float): The mean link/tadpole improvement parameter
+            block_size (int): The side length of the sub-lattices used to
+              partition the lattice for parallel updates. If left as None, then
+              this will be determined automatically.
+              
+        Examples:
+            Create a simulation and add a lattice to it, using the Symanzik
+            rectangle-improved gauge action, an inverse coupling of 4.26 and
+            a mean link of 0.852 (this should produce a Sommer scale lattice
+            spacing of ~0.25 fm).
+            
+            >>> import pyQCD
+            >>> simulation = pyQCD.Simulation(100, 10, 100)
+            >>> simulation.add_lattice(4, 8, "rectangle_improved", 4.26, 0.852)
         """
         
         self.lattice = Lattice(L, T, beta, u0, action, self.measurement_spacing,
@@ -74,8 +100,17 @@ class Simulation(object):
     def load_ensemble(self, filename):
         """Loads a gauge configuration dataset to use in the simulation
         
-        :param filename: The ensemble file
-        :type filename: :class:`str`
+        Args:
+            filename (str): The name of the file containing the ensemble
+        
+        Raises:
+            AttributeError: If the number of configurations in the ensemble
+              do not match the number of configurations in the simulation, or
+              if the lattice extents in the ensemble do not match those of the
+              lattice object in the simulation.
+              
+        Examples:
+            
         """
         
         if not hasattr(self, "lattice"):
