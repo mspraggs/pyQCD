@@ -5,26 +5,27 @@ import numpy as np
 import numpy.random as npr
 
 class DataSet:
+    """Create an empty data set holding data of the specified type
+    
+    Args:
+        datatype (type): The data type stored in the data set
+        filename (str): The zip file to save the data to
+        
+    Keyword Args:
+        compress (bool): Determines whether  compression is used
+        
+    Returns:
+        DataSet: The data set object
+        
+    Examples:
+        Create a data set to contain some gauge field configurations
+        
+        >>> import pyQCD
+        >>> data = pyQCD.DataSet(pyQCD.Config, "myensemble.zip")
+    """
     
     def __init__(self, datatype, filename, compress=True):
-        """Create an empty data set holding data of the specified type
-        
-        Args:
-            datatype (type): The data type stored in the data set
-            filename (str): The zip file to save the data to
-            
-        Keyword Args:
-            compress (bool): Determines whether  compression is used
-            
-        Returns:
-            DataSet: The data set object
-            
-        Examples:
-            Create a data set to contain some gauge field configurations
-            
-            >>> import pyQCD
-            >>> data = pyQCD.DataSet(pyQCD.Config, "myensemble.zip")
-        """
+        """Constructor for pyQCD.DataSet (see help(pyQCD.DataSet))"""
         
         storage_mode = zipfile.ZIP_DEFLATED if compress else zipfile.ZIP_STORED
         

@@ -1,26 +1,27 @@
 import numpy as np
 
 class Observable(object):
+    """Creates an observable object with the supplied data
+    
+    Keyword Args:
+        data: The data to be held by the observable object.
+        
+    Returns:
+        Observable: The created observable object.
+        
+    Examples:
+        Create some numpy data and encapsulate it using an observable object
+        
+        >>> import pyQCD
+        >>> import numpy.random
+        >>> data = numpy.random.random(100)
+        >>> observable = pyQCD.Observable(data)
+    """
     
     members = []
     
     def __init__(self, data=None):
-        """Creates an observable object with the supplied data
-        
-        Keyword Args:
-            data: The data to be held by the observable object.
-            
-        Returns:
-            Observable: The created observable object.
-            
-        Examples:
-            Create some numpy data and encapsulate it using an observable object
-            
-            >>> import pyQCD
-            >>> import numpy.random
-            >>> data = numpy.random.random(100)
-            >>> observable = pyQCD.Observable(data)
-        """
+        """Constructor for pyQCD.Observable (see help(pyQCD.Observable))"""
         
         if data == None:
             self.data = np.array([])

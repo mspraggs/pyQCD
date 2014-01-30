@@ -2,44 +2,44 @@ import numpy as np
 from observable import Observable
 
 class Config(Observable):
+    """Create a field configuration container.
+     
+    Args:
+        links (np.ndarray): The field configuration, with shape
+          (T, L, L, L, 4, 3, 3)
+        L (int): The spatial extent of the lattice
+        T (int): The temporal extent of the lattice
+        beta (float): The inverse coupling
+        u0 (float): The mean link/tadpole coefficient
+        action (str): The gauge action
+        
+    Returns:
+        Config: The field configuration object.
+    
+    Raises:
+        ValueError: Shape of specified links array does not match the
+          specified lattice extents
+        
+    Examples:
+        Generate a set of gauge (non-SU(3)) links on a 4 ^ 3 x 8 lattice
+        and use them to create a lattice object. (The 4, 3, 3
+        components of the links shape are for the four space-time
+        dimensions and the components of the SU(3) gauge field
+        matrices.)
+        
+        >>> import pyQCD
+        >>> import numpy
+        >>> links = numpy.zeros((8, 4, 4, 4, 4, 3, 3))
+        >>> config = pyQCD.Config(links, 4, 8, 5.5, 1.0, "wilson")
+        
+        Note instead of wilson one could have rectangle_improved or
+        twisted_rectangle_improved
+    """
     
     members = ['L', 'T', 'beta', 'u0', 'action']
     
     def __init__(self, links, L, T, beta, u0, action):
-        """Create a field configuration container.
-         
-        Args:
-            links (np.ndarray): The field configuration, with shape
-              (T, L, L, L, 4, 3, 3)
-            L (int): The spatial extent of the lattice
-            T (int): The temporal extent of the lattice
-            beta (float): The inverse coupling
-            u0 (float): The mean link/tadpole coefficient
-            action (str): The gauge action
-            
-        Returns:
-            Config: The field configuration object.
-        
-        Raises:
-            ValueError: Shape of specified links array does not match the
-              specified lattice extents
-            
-        Examples:
-            Generate a set of gauge (non-SU(3)) links on a 4 ^ 3 x 8 lattice
-            and use them to create a lattice object. (The 4, 3, 3
-            components of the links shape are for the four space-time
-            dimensions and the components of the SU(3) gauge field
-            matrices.)
-            
-            >>> import pyQCD
-            >>> import numpy
-            >>> links = numpy.zeros((8, 4, 4, 4, 4, 3, 3))
-            >>> config = pyQCD.Config(links, 4, 8, 5.5, 1.0, "wilson")
-            
-            Note instead of wilson one could have rectangle_improved or
-            twisted_rectangle_improved
-        """
-        
+        """Constructor for pyQCD.Config (see help(pyQCD.Config)))"""
         # Validate the shape of the links array
         expected_shape = (T, L, L, L, 4, 3, 3)
         if links.shape != expected_shape:

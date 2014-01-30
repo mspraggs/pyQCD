@@ -11,6 +11,23 @@ import inspect
 import warnings
 
 class Simulation(object):
+    """Creates and returns a simulation object
+    
+    :param num_configs: The number of configurations on which to perform measurements
+    :type num_configs: :class:`int`
+    :param measurement_spacing: The number of updates between measurements
+    :type measurement_spacing: :class:`int`
+    :param num_warmup_updates: The number of updates used to thermalize the lattice
+    :type num_warmup_updates: :class:`int`
+    :param update_method: The method used to update the lattice; current supported methods are "heatbath", "staple_metropolis" and "metropolis"
+    :type update_method: :class:`str`
+    :param run_parallel: Determines whether OpenMP is used when updating the lattice
+    :type run_parallel: :class:`bool`
+    :param rand_seed: The random number seed used for performing updates; -1 results in the current time being used
+    :type rand_seed: :class:`int`
+    :param verbosity: The level of verbosity when peforming the simulation, with 0 producing no output, 1 producing some output and 2 producing the most output, such as details of propagator inversions
+    :type verbosity: :class:`int`
+    """
     
     xml_meas_dict = {"propagator": (Propagator, "get_propagator"),
                      "wilson_loops": (WilsonLoops, "get_wilson_loops"),
@@ -19,23 +36,7 @@ class Simulation(object):
     def __init__(self, num_configs, measurement_spacing, num_warmup_updates,
                  update_method="heatbath", run_parallel=True, rand_seed=-1,
                  verbosity=1):
-        """Creates and returns a simulation object
-        
-        :param num_configs: The number of configurations on which to perform measurements
-        :type num_configs: :class:`int`
-        :param measurement_spacing: The number of updates between measurements
-        :type measurement_spacing: :class:`int`
-        :param num_warmup_updates: The number of updates used to thermalize the lattice
-        :type num_warmup_updates: :class:`int`
-        :param update_method: The method used to update the lattice; current supported methods are "heatbath", "staple_metropolis" and "metropolis"
-        :type update_method: :class:`str`
-        :param run_parallel: Determines whether OpenMP is used when updating the lattice
-        :type run_parallel: :class:`bool`
-        :param rand_seed: The random number seed used for performing updates; -1 results in the current time being used
-        :type rand_seed: :class:`int`
-        :param verbosity: The level of verbosity when peforming the simulation, with 0 producing no output, 1 producing some output and 2 producing the most output, such as details of propagator inversions
-        :type verbosity: :class:`int`
-        """
+        """Constructor for pyQCD.Simulation (see help(pyQCD.Simulation))"""
         
         self.num_configs = num_configs
         self.measurement_spacing = measurement_spacing

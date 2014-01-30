@@ -7,18 +7,19 @@ import scipy.optimize as spop
 import re
 
 class TwoPoint(Observable):
+    """Create a two-point function from two propagators
+    
+    :param L: The spatial extent of the lattice
+    :type L: :class:`int`
+    :param T: The second propagator in the two-point function
+    :type T: :class:`int`
+    :raises: ValueError
+    """
     
     common_members = ['L', 'T']
     
     def __init__(self, T, L):
-        """Create a two-point function from two propagators
-        
-        :param L: The spatial extent of the lattice
-        :type L: :class:`int`
-        :param T: The second propagator in the two-point function
-        :type T: :class:`int`
-        :raises: ValueError
-        """
+        """Constructor for pyQCD.Simulation (see help(pyQCD.Simulation))"""
         self.L = L
         self.T = T
         self.computed_correlators = []

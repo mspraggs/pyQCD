@@ -3,6 +3,53 @@ from observable import Observable
 from constants import gamma5
 
 class Propagator(Observable):
+    """Create a propagator container.
+    
+    Args:
+        propagator (numpy.ndarray): The propagator data, with shape
+          (T, L, L, L, 4, 4, 3, 3), the last four indices in the shape
+          corresponding to spin and colour
+        L (int): The spatial extent of the corresponding lattice
+        T (int): The temporal extent of the corresponding lattice
+        beta (float): The inverse coupling
+        u0 (float): The mean link/tadpole coefficient
+        action (str): The gauge action
+        mass (float): The bare quark mass
+        source_site (list): The source site to use when constructing the
+          source for the inversion, of the form [t, x, y, z]
+        num_field_smears (int): The number of stout field smears applied
+          before doing the inversion
+        field_smearing_param (float): The stout field smearing parameter to
+          use before doing the inversion
+        num_source_smears (int): The number of Jacobi smears to apply
+          to the source before inverting.
+        source_smearing_param (float): The Jacobi field smearing parameter to
+          use before doing the inversion
+        num_sink_smears (int): The number of Jacobi smears to apply
+          to the sink before inverting.
+        sink_smearing_param (float): The Jacobi field smearing parameter to
+          use before doing the inversion
+          
+    Returns:
+        Propagator: The propagator object
+    
+    Raises:
+        ValueError: Shape of specified propagator array does not match the
+          specified lattice extents.
+          
+    Examples:
+        Create a dummy propagator array and use it to generate a Propagator
+        object.
+        
+        >>> import pyQCD
+        >>> import numpy
+        >>> prop_data = numpy.zeros((8, 4, 4, 4, 4, 4, 3, 3))
+        >>> prop = pyQCD.Propagator(prop_data, 4, 8, 5.5, 1.0, "wilson", 0.4,
+        ...                         [0, 0, 0, 0], 0, 1.0, 0, 1.0, 0, 1.0)
+        
+        Ordinarily, one would generate a Propagator object from a given
+        lattice, using the get_propagator member function.
+    """
     
     members = ['L', 'T', 'beta', 'u0', 'action', 'mass',
                'source_site', 'num_field_smears',
@@ -13,53 +60,7 @@ class Propagator(Observable):
     def __init__(self, propagator, L, T, beta, u0, action, mass, source_site,
                  num_field_smears, field_smearing_param, num_source_smears,
                  source_smearing_param, num_sink_smears, sink_smearing_param):
-        """Create a propagator container.
-                 
-        Args:
-            propagator (numpy.ndarray): The propagator data, with shape
-              (T, L, L, L, 4, 4, 3, 3), the last four indices in the shape
-              corresponding to spin and colour
-            L (int): The spatial extent of the corresponding lattice
-            T (int): The temporal extent of the corresponding lattice
-            beta (float): The inverse coupling
-            u0 (float): The mean link/tadpole coefficient
-            action (str): The gauge action
-            mass (float): The bare quark mass
-            source_site (list): The source site to use when constructing the
-              source for the inversion, of the form [t, x, y, z]
-            num_field_smears (int): The number of stout field smears applied
-              before doing the inversion
-            field_smearing_param (float): The stout field smearing parameter to
-              use before doing the inversion
-            num_source_smears (int): The number of Jacobi smears to apply
-              to the source before inverting.
-            source_smearing_param (float): The Jacobi field smearing parameter to
-              use before doing the inversion
-            num_sink_smears (int): The number of Jacobi smears to apply
-              to the sink before inverting.
-            sink_smearing_param (float): The Jacobi field smearing parameter to
-              use before doing the inversion
-              
-        Returns:
-            Propagator: The propagator object
-        
-        Raises:
-            ValueError: Shape of specified propagator array does not match the
-              specified lattice extents.
-              
-        Examples:
-            Create a dummy propagator array and use it to generate a Propagator
-            object.
-            
-            >>> import pyQCD
-            >>> import numpy
-            >>> prop_data = numpy.zeros((8, 4, 4, 4, 4, 4, 3, 3))
-            >>> prop = pyQCD.Propagator(prop_data, 4, 8, 5.5, 1.0, "wilson", 0.4,
-            ...                         [0, 0, 0, 0], 0, 1.0, 0, 1.0, 0, 1.0)
-            
-            Ordinarily, one would generate a Propagator object from a given
-            lattice, using the get_propagator member function.
-        """
+        """Constructor for pyQCD.Propagator (see help(pyQCD.Propagator)))"""
         
         expected_shape = (T, L, L, L, 4, 4, 3, 3)
         

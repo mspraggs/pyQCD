@@ -3,32 +3,33 @@ import numpy as np
 import scipy.optimize as spop
 
 class WilsonLoops(Observable):
+    """Create a Wilson loop object
+    
+    :param loops: The wilson loops
+    :type links: :class:`np.ndarray` with shape :samp:`(T-1, L-1)`
+    :param L: The spatial extent of the corresponding :class:`Lattice`
+    :type L: :class:`int`
+    :param T: The temporal extent of the corresponding :class:`Lattice`
+    :type T: :class:`int`
+    :param beta: The inverse coupling
+    :type beta: :class:`float`
+    :param u0: The mean link
+    :type u0: :class:`float`
+    :param action: The gauge action
+    :type action: :class:`str`, one of wilson, rectangle_improved or twisted_rectangle_improved
+    :type source_site: :class:`list`
+    :param num_field_smears: The number of stout smears applied when computing the propagator
+    :type num_field_smears: :class:`int`
+    :returns: :class:`WilsonLoops`
+    :raises: ValueError
+    """
     
     members = ['L', 'T', 'beta', 'u0', 'action', 'num_field_smears',
                'field_smearing_param']
     
     def __init__(self, loops, L, T, beta, u0, action,
                  num_field_smears, field_smearing_param):
-        """Create a Wilson loop object
-        
-        :param loops: The wilson loops
-        :type links: :class:`np.ndarray` with shape :samp:`(T-1, L-1)`
-        :param L: The spatial extent of the corresponding :class:`Lattice`
-        :type L: :class:`int`
-        :param T: The temporal extent of the corresponding :class:`Lattice`
-        :type T: :class:`int`
-        :param beta: The inverse coupling
-        :type beta: :class:`float`
-        :param u0: The mean link
-        :type u0: :class:`float`
-        :param action: The gauge action
-        :type action: :class:`str`, one of wilson, rectangle_improved or twisted_rectangle_improved
-        :type source_site: :class:`list`
-        :param num_field_smears: The number of stout smears applied when computing the propagator
-        :type num_field_smears: :class:`int`
-        :returns: :class:`WilsonLoops`
-        :raises: ValueError
-        """
+        """Constructor for pyQCD.WilsonLoops (see help(pyQCD.WilsonLoops))"""
         
         expected_shape = (L, T)
         
