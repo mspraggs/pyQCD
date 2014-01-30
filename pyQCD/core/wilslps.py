@@ -5,23 +5,41 @@ import scipy.optimize as spop
 class WilsonLoops(Observable):
     """Create a Wilson loop object
     
-    :param loops: The wilson loops
-    :type links: :class:`np.ndarray` with shape :samp:`(T-1, L-1)`
-    :param L: The spatial extent of the corresponding :class:`Lattice`
-    :type L: :class:`int`
-    :param T: The temporal extent of the corresponding :class:`Lattice`
-    :type T: :class:`int`
-    :param beta: The inverse coupling
-    :type beta: :class:`float`
-    :param u0: The mean link
-    :type u0: :class:`float`
-    :param action: The gauge action
-    :type action: :class:`str`, one of wilson, rectangle_improved or twisted_rectangle_improved
-    :type source_site: :class:`list`
-    :param num_field_smears: The number of stout smears applied when computing the propagator
-    :type num_field_smears: :class:`int`
-    :returns: :class:`WilsonLoops`
-    :raises: ValueError
+    Args:
+        loops (np.ndarray): The expectation values of all possible Wilson
+          loops on the lattice. Should have shape (T, L), with element
+          (i, j) representing a Wilson loop with spatial extent j and
+          temporal extent i
+        L (int): The spatial extent of the corresponding lattice
+        T (int): The temporal extent of the corresponding lattice
+        beta (float): The inverse coupling of the gauge action used
+          to generate the configuration on which the Wilson loops are
+          calculated
+        u0 (float): The mean link/tadpole improvement coefficient
+        action (str): The gauge action. If WilsonLoops are derived from
+          a Lattice object, then this will correspond to the action used
+          by the Lattice object.
+        num_field_smears (int): The number of stout field smears applied to the
+          gauge field before computing the Wilson loops
+        field_smearing_parameter (float): The stout field smearing parameter
+          used to stout smear the gauge field prior to computing the Wilson
+          loops.
+          
+    Returns:
+        WilsonLoops: The computed Wilson loops object
+        
+    Raises:
+        ValueError: Shape of specified Wilson loop array does not match specified
+          lattice extents.
+        
+    Examples:
+        Create a Lattice object, thermalize, then compute the set of all
+        Wilson loops, smearing the fields in the process.
+        
+        >>> import pyQCD
+        >>> lattice = pyQCD.Lattice()
+        >>> lattice.thermalize(100)
+        >>> wilslps = lattice.get_wilson_loops(2, 0.4)
     """
     
     members = ['L', 'T', 'beta', 'u0', 'action', 'num_field_smears',
@@ -51,7 +69,10 @@ class WilsonLoops(Observable):
     def lattice_spacing(self):
         """Compute the lattice spacing using the Sommer scale
         
-        :returns: :class:`list` containg the lattice spacing in fm and the inverse lattice spacing in GeV
+        Returns:
+            list: Contains both the lattice spacing and its inverse
+            
+            The spacing is in fm and the inverse spacing is in GeV
         """
         
         potential_params = self._potential_parameters()
@@ -63,7 +84,8 @@ class WilsonLoops(Observable):
     def pair_potential(self):
         """Computes the pair potential for the set of Wilson loops
         
-        :returns: :class:`numpy.ndarray`
+        Returns:
+            numpy.ndarray: The pair potential, shape = (L,)
         """
         out = np.zeros(self.data.shape[0])
         t = np.arange(self.data.shape[1])
