@@ -3,8 +3,8 @@ import numpy as np
 class Observable(object):
     """Creates an observable object with the supplied data
     
-    Keyword Args:
-        data: The data to be held by the observable object.
+    Args:
+        data (optional): The data to be held by the observable object.
         
     Returns:
         Observable: The created observable object.

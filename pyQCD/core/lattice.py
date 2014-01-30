@@ -7,25 +7,25 @@ import numpy as np
 class Lattice(lattice.Lattice):
     """Create a Lattice object.
                  
-    Keyword Args:
-        L (int): The spatial extent of the lattice
-        T (int): The temporal extent of the lattice
-        beta (float): The inverse coupling of the gauge action
-        u0 (float): The mean link/tadpole improvement factor.
-        action (str): The gauge action to use when updating the lattice.
+    Args:
+        L (int, optional): The spatial extent of the lattice
+        T (int, optional): The temporal extent of the lattice
+        beta (float, optional): The inverse coupling of the gauge action
+        u0 (float, optional): The mean link/tadpole improvement factor.
+        action (str, optional): The gauge action to use when updating the lattice.
           Currently "wilson", "rectangle_improved" and
           "twisted_rectangle_improved" are supported (see note 1).
-        n_cor (int): The number of configurations between measurements
-        update_method (str): The algorithm to use when updating the
+        n_cor (int, optional): The number of configurations between measurements
+        update_method (str, optional): The algorithm to use when updating the
           gauge field configuration. Currently "heatbath", "metropolis"
           and "staple_metropolis" are supported (see note 2).
-        parallel_updates (bool): Determines whether to partition the
+        parallel_updates (bool, optional): Determines whether to partition the
           lattice into a red-black/checkerboard pattern, then perform
           updates on the red blocks in parallel before updating the
           black blocks. (Requires OpenMP to work.)
-        block_size (int): The side-length of the blocks to partition the
+        block_size (int, optional): The side-length of the blocks to partition the
           lattice into when performing parallel updates.
-        rand_seed (int): The seed to be used by the random number
+        rand_seed (int, optional): The seed to be used by the random number
           generator (-1 specifies that a seed based on the time should
           be used).
            
@@ -403,11 +403,9 @@ class Lattice(lattice.Lattice):
             r (int): The size of the loop in the spatial direction
             t (int): The size of the loop in the temporal direction
             dim (int): The spatial dimension of the Wilson loop
-        
-        Keyword Args:
-            num_smears (int): The number of stout gauge field smears to perform
+            num_smears (int, optional): The number of stout gauge field smears to perform
               before computing the Wilson loop
-            smearing_param (float): The stout gauge field smearing parameter
+            smearing_param (float, optional): The stout gauge field smearing parameter
             
         Returns:
             float: The value of the Wilson loop
@@ -469,11 +467,9 @@ class Lattice(lattice.Lattice):
         Args:
             r (int): The spatial extent of the Wilson loop
             t (int): The temporal extent of the Wilson loop
-            
-        Keyword Args:
-            num_smears (int): The number of stout gauge field smears to perform
+            num_smears (int, optional): The number of stout gauge field smears to perform
               before computing the Wilson loops
-            smearing_param (float): The stout gauge field smearing parameter
+            smearing_param (float, optional): The stout gauge field smearing parameter
         
         Returns:
             float: The value of the average Wilson loop
@@ -495,10 +491,10 @@ class Lattice(lattice.Lattice):
         """Calculates and returns all Wilson loops of size m x n,
         with m = 0, 1, ... , L and n = 0, 1, ... , T.
         
-        Keyword Args:
-            num_field_smears (int): The number of stout field smears to perform
+        Args:
+            num_field_smears (int, optional): The number of stout field smears to perform
               on the gauge field prior to computing the Wilson loops
-            field_smearing_param (float): The stout field smearing parameter
+            field_smearing_param (float, optional): The stout field smearing parameter
             
         Returns:
             WilsonLoops: The Wilson loops object encapsulating the Wilson loops
@@ -542,24 +538,22 @@ class Lattice(lattice.Lattice):
                        
         Args:
             mass (float): The bare quark mass
-            
-        Keyword Args:
-            source_site (list): The source site to use when doing the inversion
-            num_field_smears (int): The number of stout field smears applied
+            source_site (list, optional): The source site to use when doing the inversion
+            num_field_smears (int, optional): The number of stout field smears applied
               before doing the inversion
-            field_smearing_param (float): The stout field smearing parameter to
+            field_smearing_param (float, optional): The stout field smearing parameter to
               use before doing the inversion
-            num_source_smears (int): The number of Jacobi smears to apply
+            num_source_smears (int, optional): The number of Jacobi smears to apply
               to the source before inverting.
-            source_smearing_param (float): The Jacobi field smearing parameter to
+            source_smearing_param (float, optional): The Jacobi field smearing parameter to
               use before doing the inversion
-            num_sink_smears (int): The number of Jacobi smears to apply
+            num_sink_smears (int, optional): The number of Jacobi smears to apply
               to the sink before inverting.
-            sink_smearing_param (float): The Jacobi field smearing parameter to
+            sink_smearing_param (float, optional): The Jacobi field smearing parameter to
               use before doing the inversion
-            solver_method (str): The algorithm to use when doing the inversion.
+            solver_method (str, optional): The algorithm to use when doing the inversion.
               Currently "conjugate_gradient" and "bicgstab" are available.
-            verbosity (int): Determines how much inversion is outputted during
+            verbosity (int, optional): Determines how much inversion is outputted during
               the inversion. Values greater than one produce output, whilst 1
               or 0 will produce no output.
               

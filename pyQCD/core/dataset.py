@@ -10,9 +10,7 @@ class DataSet:
     Args:
         datatype (type): The data type stored in the data set
         filename (str): The zip file to save the data to
-        
-    Keyword Args:
-        compress (bool): Determines whether  compression is used
+        compress (bool, optional): Determines whether  compression is used
         
     Returns:
         DataSet: The data set object
@@ -250,9 +248,7 @@ class DataSet:
         
         Args:
             num_bootstraps (int): The number of bootstraps to perform
-            
-        Keyword Args:
-            binsize (int): The bin size to use when performing binning
+            binsize (int, optional): The bin size to use when performing binning
             
         Examples:
             Load some correlators and generate a set of bootstraps, which are
@@ -305,13 +301,11 @@ class DataSet:
               function should accept a type specified in the DataSet datatype
               member variable.
             num_bootstraps (int): The number of bootstraps to perform.
-            
-        Keyword Args:
-            binsize (int): The bin size to bin the data with before performing
+            binsize (int, optional): The bin size to bin the data with before performing
               the bootstrap.
-            args (list): The additional arguments required by the supplied
+            args (list, optional): The additional arguments required by the supplied
               function
-            use_cache (bool): Determines whether to use any cached bootstrap
+            use_cache (bool, optional): Determines whether to use any cached bootstrap
               data. If no cached data exists, it is created.
               
         Returns:
@@ -378,9 +372,7 @@ class DataSet:
         Args:
             index (int): The index of the datum to remove from the dataset when
               performing the jackknife.
-            
-        Keyword Args:
-            binsize (int): The bin size to use to bin the data before performing
+            binsize (int, optional): The bin size to use to bin the data before performing
               the jackknife.
               
         Returns:
@@ -422,8 +414,8 @@ class DataSet:
     def generate_jackknife_cache(self, binsize=1):
         """Generates the jackknifed data and stores it in the folder pyQCDcache
         
-        Keyword Args:
-            binsize (int): The bin size to bin the data with before performing
+        Args:
+            binsize (int, optional): The bin size to bin the data with before performing
               the jackknife
               
         Examples:
@@ -472,13 +464,11 @@ class DataSet:
             func (function): The measurement function. The first argument of this
               function should accept a type specified in the DataSet datatype
               member variable.
-            
-        Keyword Args:
-            binsize (int): The bin size to bin the data with before performing
+            binsize (int, optional): The bin size to bin the data with before performing
               the jackknife.
-            args (list): The additional arguments required by the supplied
+            args (list, optional): The additional arguments required by the supplied
               function
-            use_cache (bool): Determines whether to use any cached jackknife
+            use_cache (bool, optional): Determines whether to use any cached jackknife
               data. If no cached data exists, it is created.
               
         Returns:
