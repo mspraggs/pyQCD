@@ -120,6 +120,10 @@ class Simulation(object):
         :type meas_message: :class:`str`
         """
         
+        if "verbosity" in meas_function.func_code.co_varnames \
+          and not "verbosity" in kwargs.keys():
+            kwargs.update({"verbosity": self.verbosity})
+        
         if meas_message == None:
             meas_message = "Running {}".format(meas_function.__name__)
 

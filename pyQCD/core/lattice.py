@@ -560,8 +560,8 @@ class Lattice(lattice.Lattice):
             solver_method (str): The algorithm to use when doing the inversion.
               Currently "conjugate_gradient" and "bicgstab" are available.
             verbosity (int): Determines how much inversion is outputted during
-              the inversion. Values greater than zero produce output, whilst 0
-              will produce output.
+              the inversion. Values greater than one produce output, whilst 1
+              or 0 will produce no output.
               
         Returns:
             Propagator: The propagator encapsulated in a Propagator object
@@ -575,6 +575,9 @@ class Lattice(lattice.Lattice):
             >>> prop = lattice.get_propagator(0.4, num_source_smears=2,
             ...                               source_smearing_param=0.4)
         """
+        
+        if verbosity > 0:
+            verbosity -= 1
         
         raw_propagator \
           = np.array(lattice.Lattice \
