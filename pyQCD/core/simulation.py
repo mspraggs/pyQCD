@@ -110,7 +110,19 @@ class Simulation(object):
               lattice object in the simulation.
               
         Examples:
+            Create a simulation to measure on 100 configurations, with each
+            measurement separated by 10 updates. Here the number of warmup
+            updates means nothing, so we set it to None. Then we create a
+            4^3 x 8 lattice using the Wilson action, before loading an
+            existing ensemble. The ensembly must contain the same number of
+            configs as entered when creating the Simulation object, and the
+            extents of the lattice must be the same as those entered when
+            creating the lattice.
             
+            >>> import pyQCD
+            >>> simulation = pyQCD.Simulation(100, 10, None)
+            >>> simulation.create_lattice(8, 4, "wilson", 5.5)
+            >>> simulation.load_ensemble("my_configs.zip")
         """
         
         if not hasattr(self, "lattice"):
@@ -143,16 +155,36 @@ class Simulation(object):
         """Adds a measurement to the simulation to be performed when the
         simulation is run
         
-        :param meas_function: The function defining the measurement
-        :type meas_function: :class:`function`
-        :param meas_type: The type corresponding the output from the measurement function
-        :type meas_type: :class:`type`
-        :param meas_file: The :class:`DataSet` file in which to store the measurements
-        :type meas_file: :class:`str`
-        :param kwargs: The keyword arguments for the measurement function.
-        :type kwargs: :class:`dict`
-        :param meas_message: The message to display when performing the measurement
-        :type meas_message: :class:`str`
+        Args:
+            meas_function (function): The function defining the measurement.
+              This must accept a lattice object as the first argument, and
+              return a type specified my meas_type.
+            meas_type (type): The type of the object returned by
+              meas_function.
+            meas_file (str): The name of the file in which the measurements
+              will be stored.
+            kwargs (dict, optional): The additional keyword arguments to
+              supply to the measurement function.
+            meas_message (str, optional): The message to display when
+              the measurement is being performed, if verbose output is
+              turned on. If this argument is None, the function name is
+              displayed.
+              
+        Examples:
+            Create a simulation object, create a lattice and add the
+            get_propagator function (a member function of pyQCD.Lattice).
+            The function returns a pyQCD.Propagator object, and we store
+            these in "4c8_wilson_purgaug_propagators".
+            
+            When run, the simulation should print "Running get_propagator"
+            
+            >>> import pyQCD
+            >>> sim = pyQCD.Simulation(100, 10, 100)
+            >>> sim.create_lattice(4, 8, "wilson", 5.5)
+            >>> sim.add_measurement(pyQCD.Lattice.get_propagator,
+            ...                     pyQCD.Propagator,
+            ...                     "4c8_wilson_purgaug_propagators.zip"
+            ...                     {"mass": 0.4})
         """
         
         if "verbosity" in meas_function.func_code.co_varnames \
@@ -185,11 +217,69 @@ class Simulation(object):
     def run(self, timing_run=False, num_timing_configs=10, store_plaquette=True):
         """Runs the simulation
         
-        :param timing_run: Performs a number of trial updates and measurements to estimate the total wall clock time of the simulation
-        :type timing_run: :class:`bool`
-        :param num_timing_configs: The number of updates and measurements used to estimate the total wall clock time
-        :type num_timing_configs: :class:`int`
-        """
+        Args:
+            timing_run (bool, optional): Determines whether this is a test
+              run. If True, the simulation perform the number of updates
+              specified by num_timing_configs. No measurements will be saved,
+              and an estimated time for the full simulation to complete
+              will be printed.
+            num_timing_configs (int, optional): Determines the number of
+              configurations generated if a timing run is being performed.
+            store_plaquette (bool, optional): Determines whether the average
+              plaquette value for the lattice should be stored after each
+              update. If this is True, then the plaquettes will be stored in
+              the member variable plaquettes, which has type numpy.ndarray.
+              
+        Examples:
+            Create a simulation object, create a lattice and add the
+            get_config function (a member function of pyQCD.Lattice).
+            The function returns a pyQCD.Config object, and we store
+            these in "4c8_wilson_purgaug_configs".
+            
+            >>> import pyQCD
+            >>> sim = pyQCD.Simulation(100, 10, 100)
+            >>> sim.create_lattice(4, 8, "wilson", 5.5)
+            >>> sim.add_measurement(pyQCD.Lattice.get_config,
+            ...                     pyQCD.Config,
+            ...                     "4c8_wilson_purgaug_configs.zip")
+            >>> sim.run()
+            Simulation Settings
+            -------------------
+            Number of configurations: 100
+            Measurement spacing: 10
+            Thermalization updates: 100
+            Update method: heatbath
+            Use OpenMP: True
+            Random number generator seed: -1
+            
+            Lattice Settings
+            ----------------
+            Spatial extent: 4
+            Temporal extent: 8
+            Gauge action: wilson
+            Inverse coupling (beta): 5.5
+            Mean link (u0): 1.0
+            Parallel sub-lattice size: 4
+            
+            Get Config Measurement Settings
+            -------------------------------
+            Filename: /absolute/path/to/configs.zip
+            
+            Thermalizing lattice...  Done!
+            Configuration: 0
+            Updating gauge field...  Done!
+            Average plaquette: 0.499948844134
+            Performing measurements...
+            - Running get_config...
+            Done!
+            .
+            .
+            .
+            Simulation completed in 0 hours, 5 minutes and 16.9606249332 seconds
+            
+            >>> simulation.plaquettes.shape
+            (100,)
+            """
         
         if store_plaquette:
             self.plaquettes = np.zeros(self.num_configs)
