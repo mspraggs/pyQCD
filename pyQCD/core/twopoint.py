@@ -9,11 +9,19 @@ import re
 class TwoPoint(Observable):
     """Create a two-point function from two propagators
     
-    :param L: The spatial extent of the lattice
-    :type L: :class:`int`
-    :param T: The second propagator in the two-point function
-    :type T: :class:`int`
-    :raises: ValueError
+    Args:
+        L (int): The spatial extent of the lattice
+        T (int): The temporal extent of the lattice
+        
+    Returns:
+        TwoPoint: The two-point function object.
+        
+    Examples:
+        Create an empty TwoPoint object to hold correlators from a 16^3 x 32
+        lattice.
+        
+        >>> import pyQCD
+        >>> twopoint = pyQCD.TwoPoint(16, 32)
     """
     
     common_members = ['L', 'T']
@@ -27,8 +35,19 @@ class TwoPoint(Observable):
     def save(self, filename):
         """Saves the two-point function to a numpy zip archive
         
-        :param filename: The file to save to
-        :type filename: :class`str`
+        Args:
+            filename (str): The name of the file in which the TwoPoint data
+              will be saved.
+              
+        Examples:
+            Create and empty TwoPoint object, add some dummy correlator data
+            then save the object to disk.
+            
+            >>> import pyQCD
+            >>> import numpy.random as npr
+            >>> twopoint = pyQCD.TwoPoint(16, 32)
+            >>> twopoint.add_correlator(npr.random(32))
+            >>> twopoint.save("some_fake_correlator.npz")
         """
         
         header_keys = []
@@ -56,12 +75,20 @@ class TwoPoint(Observable):
         
     @classmethod
     def load(cls, filename):
-        """Loads and returns a two-point function from a numpy zip
+        """Loads and returns a twopoint object from a numpy zip
         archive
         
-        :param filename: The file to load from
-        :type filename: :class:`str`
-        :returns: :class:`TwoPoint`
+        Args:
+            filename (str): The filename from which to load the observable
+            
+        Returns:
+            TwoPoint: The loaded twopoint object.
+            
+        Examples:
+            Load a twopoint object from disk
+            
+            >>> import pyQCD
+            >>> prop = pyQCD.TwoPoint.load("my_correlator.npz")
         """
         
         numpy_archive = np.load(filename)
@@ -83,7 +110,11 @@ class TwoPoint(Observable):
         """Override the save_raw function from Observable, as the member
         variable data does not exist
         
-        :raises: NotImplementedError
+        Args:
+            filename (str): The file in which to save the data.
+            
+        Raises:
+            NotImplementedError: Currently not implemented
         """
     
         raise NotImplementedError("TwoPoint object cannot be saved as raw "
@@ -92,9 +123,15 @@ class TwoPoint(Observable):
     @staticmethod
     def available_interpolators():
         """Returns a list of possible interpolators for use in the
-        meson_correlator function
+        compute_meson_correlator function
         
-        :returns: :class:`list` of tuples, each describing the meson state and the gamma matrix combination associated with it
+        Returns:
+            list: Contains pairs of strings denoting interpolator names
+            
+            The pairs of interpolator names are equivalent. For example "pion"
+            and "g5" are equivalent (g5 here denoting the fifth gamma matrix,
+            which represents the creation of a pseudoscalar quark pair, of which
+            the pion is one such possibility).
         """
         
         return zip(const.mesons, const.interpolators)
