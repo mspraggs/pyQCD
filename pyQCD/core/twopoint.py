@@ -46,7 +46,7 @@ class TwoPoint(Observable):
             >>> import pyQCD
             >>> import numpy.random as npr
             >>> twopoint = pyQCD.TwoPoint(16, 32)
-            >>> twopoint.add_correlator(npr.random(32))
+            >>> twopoint.add_correlator(npr.random(32), "particle_name")
             >>> twopoint.save("some_fake_correlator.npz")
         """
         
@@ -141,16 +141,41 @@ class TwoPoint(Observable):
         """Returns the specified correlator, or a dictionary containing the
         correlators that match the arguments supplied to the function
         
-        :param label: The correlator label
-        :type label: :class:`str`
-        :param masses: The masses of the quarks in the correlator
-        :type masses: :class:`list`
-        :param momentum: The lattice momentum of the correlator
-        :type momentum: :class:`list`
-        :param source_type: The source type
-        :type source_type: :class:`str`
-        :param sink_type: The sink type
-        :type sink_type: :class:`str`
+        Args:
+            label (str, optional): The correlator label
+            masses (array-like, optional): The masses of the valence quarks that
+              form the hadron that corresponds to the correlator.
+            momentum (array-like, optional): The momentum of the hadron that
+              corresponds to the correlator
+            source_type (str, optional): The type of the source used when
+              computing the propagator(s) used to compute the corresponding
+              correlator.
+            sink_type (str, optional): The type of the sink used when
+              computing the propagator(s) used to compute the corresponding
+              correlator.
+              
+        Returns:
+            dict or numpy.ndarray: The correlator(s) matching the criteria
+            
+            If the supplied criteria match more than one correlator, then
+            a dict is returned, containing the correlators that match these
+            criteria. The keys are tuples containing the corresponding
+            criteria for the correlators. If only one correlator is found, then
+            the correlator itself is returned as a numpy array.
+            
+        Examples:
+            Load a two-point object from disk and retreive the correlator
+            denoted by the label "pion" with zero momentum.
+            
+            >>> import pyQCD
+            >>> pion_correlators = pyQCD.TwoPoint.load("pion_correlator.npz")
+            >>> pion_correlators.get_correlator("pion", momentum=(0, 0, 0))
+            array([  9.19167425e-01,   4.41417607e-02,   4.22095090e-03,
+                     4.68472393e-04,   5.18833346e-05,   5.29751835e-06,
+                     5.84481783e-07,   6.52953123e-08,   1.59048703e-08,
+                     7.97830102e-08,   7.01262406e-07,   6.08545149e-06,
+                     5.71428481e-05,   5.05306201e-04,   4.74744759e-03,
+                     4.66148785e-02])
         """
         
         correlator_attributes \
@@ -186,21 +211,34 @@ class TwoPoint(Observable):
                        source_type=None, sink_type=None, projected=True):
         """Adds the supplied correlator to the current instance
         
-        :param data: The correlator itself
-        :type data: 1D :class:`numpy.ndarray` if projected is True, otherwise 4D :class:`numpy.ndarray` with shape (T, L, L, L)
-        :param label: The label for the correlator
-        :type label: :class:`str`
-        :param masses: The masses of the quarks forming the particle
-        :type masses: :class:`list`
-        :param momentum: The momentum of the particle
-        :type momentum: :class:`list` with three integers
-        :param source_type: The nature of the source (smeared, point, etc...)
-        :type source_type: :class:`str`
-        :param sink_type: The nature of the sink (smeared, point, etc...)
-        :type source_type: :class:`str`
-        :param projected: Whether the correlator has been projected onto the specified momentum
-        :type projected: :class:`bool`
-        :raises: ValueError
+        Args:
+            data (numpy.ndarray): The correlator data. If projected is True, then
+              data must have shape (T,), otherwise it should have shape
+              (T, L, L, L), where T and L are the lattice temporal and spatial
+              extents.
+            label (str): The label for the correlator.
+            masses (list, optional): The masses of the valence quarks that form
+              the corresponding hadron.
+            momentum (list, optional): The momentum of the corresponding hadron.
+            source_type (str, optional): The type of source used when inverting
+              the propagator(s) used to compute the correlator.
+            sink_type (str, optional): The type of sink used when inverting the
+              propagator(s) used to compute the correlator.
+            projected (bool, optional): Determines whether the supplied
+              correlator contains a value for every lattice site, or whether it
+              has already been projected onto a fixed momentum.
+              
+        Raises:
+            ValueError: If the supplied correlator data does not match the
+              lattice extents.
+              
+        Examples:
+            Create an empty correlator object and add some dummy data.
+            
+            >>> import pyQCD
+            >>> import numpy.random as npr
+            >>> twopoint = pyQCD.TwoPoint(16, 32)
+            >>> twopoint.add_correlator(npr.random(32), "particle_name")
         """
         correlator_name = self._get_correlator_name(label, masses, momentum,
                                                     source_type, sink_type)
