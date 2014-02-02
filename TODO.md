@@ -15,3 +15,4 @@ pyQCD Feature and Bug Todo List
 - Add fermion action type to Propagator common_members
 - Implement all warning properly
 - Need to put class member variables in class docstrings
+- Create some more rigorous tests
