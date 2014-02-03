@@ -450,6 +450,108 @@ class TwoPoint(Observable):
                 
                     self.add_correlator(correlator, label, (mass_1, mass_2),
                                         momentum, source_type, sink_type)
+            
+    def load_chroma_hadspec_baryons(self, filename):
+        """Loads the baryon correlator(s) present in the supplied Chroma
+        hadspec output xml file
+        
+        Args:
+            filename (str): The name of the file in which the correlators
+              are contained.
+              
+        Raises:
+            ValueError: If lattice shape does not match twopoint spatial
+              and temporal extents
+              
+        Examples:
+            Create a TwoPoint object to hold correlators for a 48^3 x 96
+            lattice, then load some correlators computed by Chroma's
+            hadspec routine.
+            
+            >>> import pyQCD
+            >>> twopoint = pyQCD.TwoPoint(96, 48)
+            >>> twopoint.load_chroma_hadspec_baryons("96c48_pion_corr.xml")
+        """
+        
+        xmlfile = ET.parse(filename)
+        xmlroot = xmlfile.getroot()
+        
+        lattice_shape \
+          = [int(x) for x in
+             xmlroot.find("ProgramInfo/Setgeom/latt_size").text.split()]
+        
+        if not (lattice_shape[0] == lattice_shape[1] == lattice_shape[2]):
+            raise ValueError("Chroma lattice shape has differing spatial "
+                             "extents.")
+        
+        # Assume lattice_shape[3] is the time extent
+        if lattice_shape[0] != self.L or lattice_shape[3] != self.T:
+            expected_shape = (self.T, self.L, self.L, self.L)
+            actual_shape = (lattice_shape[3], lattice_shape[0],
+                            lattice_shape[1], lattice_shape[2])
+            raise ValueError("Expected lattice shape, {}, does not match "
+                             "received lattice shape, {}"
+                             .format(expected_shape, actual_shape))
+        
+        propagator_pairs = xmlroot.findall("Wilson_hadron_measurements/elem")
+        
+        for propagator_pair in propagator_pairs:            
+            mass_1 = float(propagator_pair.find("Mass_1").text)
+            mass_2 = float(propagator_pair.find("Mass_2").text)
+            
+            if mass_1 == mass_2:
+                baryon_names = const.baryons_degenerate
+            elif mass_1 < mass_2:
+                baryon_names = baryons_m1m2
+            else:
+                baryon_names = baryons_m2m1
+            
+            raw_source_string \
+              = propagator_pairs[0] \
+              .find("SourceSinkType/source_type_1").text \
+              .lower()
+            raw_sink_string \
+              = propagator_pairs[0] \
+              .find("SourceSinkType/sink_type_1").text \
+              .lower()
+            
+            source_sink_types = ["point", "shell", "wall"]
+            
+            for source_sink_type in source_sink_types:
+                if raw_source_string.find(source_sink_type) > -1:
+                    source_type = source_sink_type
+                if raw_sink_string.find(source_sink_type) > -1:
+                    sink_type = source_sink_type
+            
+            interpolator_tag_prefix \
+              = "{}_{}".format(source_type.capitalize(),
+                               sink_type.capitalize())
+            
+            interpolators \
+              = propagator_pair.findall("{}_Wilson_Baryons/elem"
+                                     .format(interpolator_tag_prefix))
+            
+            for interpolator in interpolators:
+                
+                gamma_matrix \
+                  = int(interpolator.find("baryon_num").text)
+                label = baryon_names[gamma_matrix]
+                
+                correlator_data \
+                  = interpolator.find("momenta")
+                
+                for correlator_datum in correlator_data:
+                    momentum_string = correlator_datum.find("sink_mom").text
+                    momentum = [int(x) for x in momentum_string.split()]
+                
+                    correlator_values \
+                      = correlator_datum.findall("barprop/elem/re")
+                  
+                    correlator = np.array([float(x.text)
+                                           for x in correlator_values])
+                
+                    self.add_correlator(correlator, label, (mass_1, mass_2),
+                                        momentum, source_type, sink_type)
     
     def compute_meson_correlator(self, propagator1, propagator2,
                                  source_interpolator,
