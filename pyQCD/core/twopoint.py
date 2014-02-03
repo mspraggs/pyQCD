@@ -309,7 +309,7 @@ class TwoPoint(Observable):
                             lattice_shape[1], lattice_shape[2])
             raise ValueError("Expected lattice shape, {}, does not match "
                              "received lattice shape, {}"
-                             .format(expected_shape, received_shape))
+                             .format(expected_shape, actual_shape))
         
         interpolators = xmlroot.findall("Wilson_hadron_measurements/elem")
         
