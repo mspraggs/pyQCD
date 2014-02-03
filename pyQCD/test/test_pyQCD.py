@@ -1049,6 +1049,24 @@ class TestTwoPoint:
                                        
         assert len(twopoint.computed_correlators) == 8
             
+    def test_load_chroma_hadspec_mesons(self):
+        
+        twopoint = TwoPoint(8, 4)
+        
+        twopoint.load_chroma_hadspec_mesons("{}/hadspec.dat.xml" \
+                                            .format(data_dir))
+                                       
+        assert len(twopoint.computed_correlators) == 64
+            
+    def test_load_chroma_hadspec_baryons(self):
+        
+        twopoint = TwoPoint(8, 4)
+        
+        twopoint.load_chroma_hadspec_baryons("{}/hadspec.dat.xml" \
+                                             .format(data_dir))
+                                       
+        assert len(twopoint.computed_correlators) == 20
+            
     def test_compute_meson_correlator(self):
         
         tolerance = 1e-6
