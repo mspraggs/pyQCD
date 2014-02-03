@@ -5,6 +5,7 @@ import constants as const
 import itertools
 import scipy.optimize as spop
 import re
+import xml.etree.ElementTree as ET
 
 class TwoPoint(Observable):
     """Create a two-point function from two propagators
@@ -267,6 +268,93 @@ class TwoPoint(Observable):
                 self.computed_correlators.append(correlator_name)
             
             setattr(self, correlator_name, correlator)
+            
+    def load_chroma_mesonspec(self, filename):
+        """Loads the meson correlator(s) present in the supplied Chroma
+        mesonspec output xml file
+        
+        Args:
+            filename (str): The name of the file in which the correlators
+              are contained.
+              
+        Raises:
+            ValueError: If lattice shape does not match twopoint spatial
+              and temporal extents
+              
+        Examples:
+            Create a TwoPoint object to hold correlators for a 48^3 x 96
+            lattice, then load some correlators computed by Chroma's
+            mesonspec routine.
+            
+            >>> import pyQCD
+            >>> twopoint = pyQCD.TwoPoint(96, 48)
+            >>> twopoint.load_chroma_mesonspec("96c48_pion_corr.xml")
+        """
+        
+        xmlfile = ET.parse(filename)
+        xmlroot = xmlfile.getroot()
+        
+        lattice_shape \
+          = [int(x) for x in
+             xmlroot.find("ProgramInfo/Setgeom/latt_size").text.split()]
+        
+        if not (lattice_shape[0] == lattice_shape[1] == lattice_shape[2]):
+            raise ValueError("Chroma lattice shape has differing spatial "
+                             "extents.")
+        
+        # Assume lattice_shape[3] is the time extent
+        if lattice_shape[0] != self.L or lattice_shape[3] != self.T:
+            expected_shape = (self.T, self.L, self.L, self.L)
+            actual_shape = (lattice_shape[3], lattice_shape[0],
+                            lattice_shape[1], lattice_shape[2])
+            raise ValueError("Expected lattice shape, {}, does not match "
+                             "received lattice shape, {}"
+                             .format(expected_shape, received_shape))
+        
+        interpolators = xmlroot.findall("Wilson_hadron_measurements/elem")
+        
+        for interpolator in interpolators:
+            source_particle_label = interpolator.find("source_particle").text
+            sink_particle_label = interpolator.find("sink_particle").text
+            
+            label = "{}_{}".format(source_particle_label,
+                                   sink_particle_label)
+            
+            mass_1 = float(interpolator.find("Mass_1").text)
+            mass_2 = float(interpolator.find("Mass_2").text)
+            
+            raw_source_string \
+              = interpolators[0] \
+              .find("SourceSinkType/elem/source_type_1").text \
+              .lower()
+            raw_sink_string \
+              = interpolators[0] \
+              .find("SourceSinkType/elem/sink_type_1").text \
+              .lower()
+            
+            source_sink_types = ["point", "shell", "wall"]
+            
+            for source_sink_type in source_sink_types:
+                if raw_source_string.find(source_sink_type) > -1:
+                    source_type = source_sink_type
+                if raw_sink_string.find(source_sink_type) > -1:
+                    sink_type = source_sink_type
+                    
+            correlator_data = interpolator.findall("Mesons/momenta/elem")
+            
+            for correlator_datum in correlator_data:
+                
+                momentum_string = correlator_datum.find("sink_mom").text
+                momentum = [int(x) for x in momentum_string.split()]
+                
+                correlator_value_elems \
+                  = correlator_datum.findall("mesprop/elem/re")
+                  
+                correlator = np.array([float(x.text)
+                                       for x in correlator_value_elems])
+                
+                self.add_correlator(correlator, label, (mass_1, mass_2),
+                                    momentum, source_type, sink_type)
     
     def compute_meson_correlator(self, propagator1, propagator2,
                                  source_interpolator,

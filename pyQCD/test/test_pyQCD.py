@@ -1040,6 +1040,15 @@ class TestTwoPoint:
             twopoint.add_correlator(npr.random((4, 2, 2)), label, [0.1, 0.1],
                                     [1, 1, 0], False)
             
+    def test_load_chroma_mesonspec(self):
+        
+        twopoint = pyQCD.TwoPoint(32, 16)
+        
+        twopoint.load_chroma_mesonspec("{}/mesonspec_hh_6000_1.xml" \
+                                       .format(data_dir))
+                                       
+        assert len(twopoint.computed_correlators) == 8
+            
     def test_compute_meson_correlator(self):
         
         tolerance = 1e-6
