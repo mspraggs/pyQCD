@@ -91,6 +91,18 @@ mesons = ['a0', 'rho_x', 'rho_y', 'b1_z', 'rho_z', 'b1_y', 'b1_x',
           'pion_2', 'a0_2', 'rho_x_2', 'rho_y_2', 'a1_z', 'rho_z_2',
           'a1_y', 'a1_x', 'pion']
     
+baryons_degenerate = ['proton', 'lambda', 'delta', 'proton', 'lambda', 'delta',
+                      'proton', 'lambda', 'delta', 'proton', 'proton', 'proton',
+                      'lambda', 'xi', 'lambda', 'xi', 'proton_negpar']
+    
+baryons_m1m2 = ['sigma', 'lambda', 'sigma_st', 'sigma', 'lambda', 'sigma_st',
+                'sigma', 'lambda', 'sigma_st', 'sigma', 'sigma', 'sigma',
+                'lambda', 'xi', 'lambda', 'xi', 'sigma_negpar']
+    
+baryons_m2m1 = ['xi', 'lambda', 'xi_st', 'xi', 'lambda', 'xi_st',
+                'xi', 'lambda', 'xi_st', 'xi', 'xi', 'xi',
+                'lambda', 'sigma', 'lambda', 'sigma', 'xi_negpar']
+    
 interpolators = ['1', 'g1', 'g2', 'g1g2', 'g3', 'g1g3', 'g2g3', 'g5g4',
                  'g4', 'g1g4', 'g2g4', 'g3g5', 'g3g4', '-g2g5', 'g1g5',
                  'g5']
