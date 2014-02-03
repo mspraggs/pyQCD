@@ -1042,7 +1042,7 @@ class TestTwoPoint:
             
     def test_load_chroma_mesonspec(self):
         
-        twopoint = pyQCD.TwoPoint(32, 16)
+        twopoint = TwoPoint(32, 16)
         
         twopoint.load_chroma_mesonspec("{}/mesonspec_hh_6000_1.xml" \
                                        .format(data_dir))
