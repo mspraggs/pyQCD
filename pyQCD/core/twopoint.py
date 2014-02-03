@@ -716,7 +716,7 @@ class TwoPoint(Observable):
           "Two-Point Function Object\n" \
           "-------------------------\n" \
           "Spatial extent: {}\n" \
-          "Temportal extent: {}\n\n" \
+          "Temporal extent: {}\n\n" \
           "Computed correlators:\n" \
           "- (label, masses, momentum, source, sink)\n".format(self.L, self.T)
         
