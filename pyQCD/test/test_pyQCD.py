@@ -1226,7 +1226,7 @@ class TestTwoPoint:
             twopoint.add_correlator(correlator, "test", [0.1, 0.1], p, "point",
                                     "point")
             
-        actual_result = twopoint.compute_c_square(range(16), [500, 1],
+        actual_result = twopoint.compute_c_square(3 * [range(16)], [500, 1],
                                                   [[1, 0, 0], [1, 1, 0]])
         
         assert (np.abs(actual_result - expected_result)

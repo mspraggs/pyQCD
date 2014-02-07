@@ -752,7 +752,7 @@ class TwoPoint(Observable):
                                    correlator_std, postprocess_function, label,
                                    masses, momentum, source_type, sink_type)
     
-    def compute_c_square(self, fit_range, initial_parameters, momenta,
+    def compute_c_square(self, fit_ranges, initial_parameters, momenta,
                          correlator_stds=None, label=None, masses=None,
                          source_type=None, sink_type=None):
         """Computes the square of the speed of light for the given particle
@@ -783,14 +783,15 @@ class TwoPoint(Observable):
             correlator_stds = (len(momenta) + 1) * [None]
         
         E0_square \
-          = self.compute_square_energy(fit_range, initial_parameters,
+          = self.compute_square_energy(fit_ranges[0], initial_parameters,
                                        correlator_stds[0], label, masses,
                                        [0, 0, 0], source_type, sink_type)
         
         out = np.zeros(len(momenta))
         
         for i, momentum in enumerate(momenta):
-            E_square = self.compute_square_energy(fit_range, initial_parameters,
+            E_square = self.compute_square_energy(fit_ranges[i + 1],
+                                                  initial_parameters,
                                                   correlator_stds[i + 1], label,
                                                   masses, momentum, source_type,
                                                   sink_type)
