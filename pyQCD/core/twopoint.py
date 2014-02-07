@@ -662,7 +662,7 @@ class TwoPoint(Observable):
                                          sink_type)
         
         if type(correlator) == dict:
-            raise TypeError("Correlator specifiers returned more than one "
+            raise NameError("Correlator specifiers returned more than one "
                             "correlator.")
                 
         if correlator_std == None:
@@ -820,7 +820,7 @@ class TwoPoint(Observable):
                                          sink_type)
         
         if type(correlator) == dict:
-            raise TypeError("Correlator specifiers returned more than one "
+            raise NameError("Correlator specifiers returned more than one "
                             "correlator.")
         
         return np.log(np.abs(correlator / np.roll(correlator, -1)))
