@@ -375,7 +375,7 @@ class TwoPoint(Observable):
             
             >>> import pyQCD
             >>> twopoint = pyQCD.TwoPoint(96, 48)
-            >>> twopoint.load_chroma_hadspec_mesons("96c48_pion_corr.xml")
+            >>> twopoint.load_chroma_hadspec_mesons("96c48_hadspec_corr.xml")
         """
         
         xmlfile = ET.parse(filename)
@@ -470,7 +470,7 @@ class TwoPoint(Observable):
             
             >>> import pyQCD
             >>> twopoint = pyQCD.TwoPoint(96, 48)
-            >>> twopoint.load_chroma_hadspec_baryons("96c48_pion_corr.xml")
+            >>> twopoint.load_chroma_hadspec_baryons("96c48_hadspec_corr.xml")
         """
         
         xmlfile = ET.parse(filename)
