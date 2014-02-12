@@ -11,18 +11,18 @@ class TwoPoint(Observable):
     """Create a two-point function from two propagators
     
     Args:
-        L (int): The spatial extent of the lattice
-        T (int): The temporal extent of the lattice
-        
+      L (int): The spatial extent of the lattice
+      T (int): The temporal extent of the lattice
+      
     Returns:
-        TwoPoint: The two-point function object.
-        
+      TwoPoint: The two-point function object.
+      
     Examples:
-        Create an empty TwoPoint object to hold correlators from a 16^3 x 32
-        lattice.
-        
-        >>> import pyQCD
-        >>> twopoint = pyQCD.TwoPoint(16, 32)
+      Create an empty TwoPoint object to hold correlators from a 16^3 x 32
+      lattice.
+      
+      >>> import pyQCD
+      >>> twopoint = pyQCD.TwoPoint(16, 32)
     """
     
     common_members = ['L', 'T']
@@ -37,18 +37,18 @@ class TwoPoint(Observable):
         """Saves the two-point function to a numpy zip archive
         
         Args:
-            filename (str): The name of the file in which the TwoPoint data
-              will be saved.
-              
-        Examples:
-            Create and empty TwoPoint object, add some dummy correlator data
-            then save the object to disk.
+          filename (str): The name of the file in which the TwoPoint data
+            will be saved.
             
-            >>> import pyQCD
-            >>> import numpy.random as npr
-            >>> twopoint = pyQCD.TwoPoint(16, 32)
-            >>> twopoint.add_correlator(npr.random(32), "particle_name")
-            >>> twopoint.save("some_fake_correlator.npz")
+        Examples:
+          Create and empty TwoPoint object, add some dummy correlator data
+          then save the object to disk.
+          
+          >>> import pyQCD
+          >>> import numpy.random as npr
+          >>> twopoint = pyQCD.TwoPoint(16, 32)
+          >>> twopoint.add_correlator(npr.random(32), "particle_name")
+          >>> twopoint.save("some_fake_correlator.npz")
         """
         
         header_keys = []
@@ -80,16 +80,16 @@ class TwoPoint(Observable):
         archive
         
         Args:
-            filename (str): The filename from which to load the observable
-            
+          filename (str): The filename from which to load the observable
+          
         Returns:
-            TwoPoint: The loaded twopoint object.
-            
+          TwoPoint: The loaded twopoint object.
+          
         Examples:
-            Load a twopoint object from disk
-            
-            >>> import pyQCD
-            >>> prop = pyQCD.TwoPoint.load("my_correlator.npz")
+          Load a twopoint object from disk
+          
+          >>> import pyQCD
+          >>> prop = pyQCD.TwoPoint.load("my_correlator.npz")
         """
         
         numpy_archive = np.load(filename)
@@ -112,10 +112,10 @@ class TwoPoint(Observable):
         variable data does not exist
         
         Args:
-            filename (str): The file in which to save the data.
-            
+          filename (str): The file in which to save the data.
+          
         Raises:
-            NotImplementedError: Currently not implemented
+          NotImplementedError: Currently not implemented
         """
     
         raise NotImplementedError("TwoPoint object cannot be saved as raw "
@@ -127,12 +127,12 @@ class TwoPoint(Observable):
         compute_meson_correlator function
         
         Returns:
-            list: Contains pairs of strings denoting interpolator names
-            
-            The pairs of interpolator names are equivalent. For example "pion"
-            and "g5" are equivalent (g5 here denoting the fifth gamma matrix,
-            which represents the creation of a pseudoscalar quark pair, of which
-            the pion is one such possibility).
+          list: Contains pairs of strings denoting interpolator names
+          
+          The pairs of interpolator names are equivalent. For example "pion"
+          and "g5" are equivalent (g5 here denoting the fifth gamma matrix,
+          which represents the creation of a pseudoscalar quark pair, of which
+          the pion is one such possibility).
         """
         
         return zip(const.mesons, const.interpolators)
@@ -143,40 +143,40 @@ class TwoPoint(Observable):
         correlators that match the arguments supplied to the function
         
         Args:
-            label (str, optional): The correlator label
-            masses (array-like, optional): The masses of the valence quarks that
-              form the hadron that corresponds to the correlator.
-            momentum (array-like, optional): The momentum of the hadron that
-              corresponds to the correlator
-            source_type (str, optional): The type of the source used when
-              computing the propagator(s) used to compute the corresponding
-              correlator.
-            sink_type (str, optional): The type of the sink used when
-              computing the propagator(s) used to compute the corresponding
-              correlator.
-              
+          label (str, optional): The correlator label
+          masses (array-like, optional): The masses of the valence quarks that
+            form the hadron that corresponds to the correlator.
+          momentum (array-like, optional): The momentum of the hadron that
+            corresponds to the correlator
+          source_type (str, optional): The type of the source used when
+            computing the propagator(s) used to compute the corresponding
+            correlator.
+          sink_type (str, optional): The type of the sink used when
+            computing the propagator(s) used to compute the corresponding
+            correlator.
+            
         Returns:
-            dict or numpy.ndarray: The correlator(s) matching the criteria
-            
-            If the supplied criteria match more than one correlator, then
-            a dict is returned, containing the correlators that match these
-            criteria. The keys are tuples containing the corresponding
-            criteria for the correlators. If only one correlator is found, then
-            the correlator itself is returned as a numpy array.
-            
+          dict or numpy.ndarray: The correlator(s) matching the criteria
+          
+          If the supplied criteria match more than one correlator, then
+          a dict is returned, containing the correlators that match these
+          criteria. The keys are tuples containing the corresponding
+          criteria for the correlators. If only one correlator is found, then
+          the correlator itself is returned as a numpy array.
+          
         Examples:
-            Load a two-point object from disk and retreive the correlator
-            denoted by the label "pion" with zero momentum.
-            
-            >>> import pyQCD
-            >>> pion_correlators = pyQCD.TwoPoint.load("pion_correlator.npz")
-            >>> pion_correlators.get_correlator("pion", momentum=(0, 0, 0))
-            array([  9.19167425e-01,   4.41417607e-02,   4.22095090e-03,
-                     4.68472393e-04,   5.18833346e-05,   5.29751835e-06,
-                     5.84481783e-07,   6.52953123e-08,   1.59048703e-08,
-                     7.97830102e-08,   7.01262406e-07,   6.08545149e-06,
-                     5.71428481e-05,   5.05306201e-04,   4.74744759e-03,
-                     4.66148785e-02])
+          Load a two-point object from disk and retreive the correlator
+          denoted by the label "pion" with zero momentum.
+          
+          >>> import pyQCD
+          >>> pion_correlators = pyQCD.TwoPoint.load("pion_correlator.npz")
+          >>> pion_correlators.get_correlator("pion", momentum=(0, 0, 0))
+          array([  9.19167425e-01,   4.41417607e-02,   4.22095090e-03,
+                   4.68472393e-04,   5.18833346e-05,   5.29751835e-06,
+                   5.84481783e-07,   6.52953123e-08,   1.59048703e-08,
+                   7.97830102e-08,   7.01262406e-07,   6.08545149e-06,
+                   5.71428481e-05,   5.05306201e-04,   4.74744759e-03,
+                   4.66148785e-02])
         """
         
         correlator_attributes \
@@ -213,33 +213,33 @@ class TwoPoint(Observable):
         """Adds the supplied correlator to the current instance
         
         Args:
-            data (numpy.ndarray): The correlator data. If projected is True, then
-              data must have shape (T,), otherwise it should have shape
-              (T, L, L, L), where T and L are the lattice temporal and spatial
-              extents.
-            label (str): The label for the correlator.
-            masses (list, optional): The masses of the valence quarks that form
-              the corresponding hadron.
-            momentum (list, optional): The momentum of the corresponding hadron.
-            source_type (str, optional): The type of source used when inverting
-              the propagator(s) used to compute the correlator.
-            sink_type (str, optional): The type of sink used when inverting the
-              propagator(s) used to compute the correlator.
-            projected (bool, optional): Determines whether the supplied
-              correlator contains a value for every lattice site, or whether it
-              has already been projected onto a fixed momentum.
-              
-        Raises:
-            ValueError: If the supplied correlator data does not match the
-              lattice extents.
-              
-        Examples:
-            Create an empty correlator object and add some dummy data.
+          data (numpy.ndarray): The correlator data. If projected is True, then
+            data must have shape (T,), otherwise it should have shape
+            (T, L, L, L), where T and L are the lattice temporal and spatial
+            extents.
+          label (str): The label for the correlator.
+          masses (list, optional): The masses of the valence quarks that form
+            the corresponding hadron.
+          momentum (list, optional): The momentum of the corresponding hadron.
+          source_type (str, optional): The type of source used when inverting
+            the propagator(s) used to compute the correlator.
+          sink_type (str, optional): The type of sink used when inverting the
+            propagator(s) used to compute the correlator.
+          projected (bool, optional): Determines whether the supplied
+            correlator contains a value for every lattice site, or whether it
+            has already been projected onto a fixed momentum.
             
-            >>> import pyQCD
-            >>> import numpy.random as npr
-            >>> twopoint = pyQCD.TwoPoint(16, 32)
-            >>> twopoint.add_correlator(npr.random(32), "particle_name")
+        Raises:
+          ValueError: If the supplied correlator data does not match the
+            lattice extents.
+            
+        Examples:
+          Create an empty correlator object and add some dummy data.
+          
+          >>> import pyQCD
+          >>> import numpy.random as npr
+          >>> twopoint = pyQCD.TwoPoint(16, 32)
+          >>> twopoint.add_correlator(npr.random(32), "particle_name")
         """
         correlator_name = self._get_correlator_name(label, masses, momentum,
                                                     source_type, sink_type)
@@ -274,21 +274,21 @@ class TwoPoint(Observable):
         mesonspec output xml file
         
         Args:
-            filename (str): The name of the file in which the correlators
-              are contained.
-              
-        Raises:
-            ValueError: If lattice shape does not match twopoint spatial
-              and temporal extents
-              
-        Examples:
-            Create a TwoPoint object to hold correlators for a 48^3 x 96
-            lattice, then load some correlators computed by Chroma's
-            mesonspec routine.
+          filename (str): The name of the file in which the correlators
+            are contained.
             
-            >>> import pyQCD
-            >>> twopoint = pyQCD.TwoPoint(96, 48)
-            >>> twopoint.load_chroma_mesonspec("96c48_pion_corr.xml")
+        Raises:
+          ValueError: If lattice shape does not match twopoint spatial
+            and temporal extents
+            
+        Examples:
+          Create a TwoPoint object to hold correlators for a 48^3 x 96
+          lattice, then load some correlators computed by Chroma's
+          mesonspec routine.
+          
+          >>> import pyQCD
+          >>> twopoint = pyQCD.TwoPoint(96, 48)
+          >>> twopoint.load_chroma_mesonspec("96c48_pion_corr.xml")
         """
         
         xmlfile = ET.parse(filename)
@@ -361,21 +361,21 @@ class TwoPoint(Observable):
         hadspec output xml file
         
         Args:
-            filename (str): The name of the file in which the correlators
-              are contained.
-              
-        Raises:
-            ValueError: If lattice shape does not match twopoint spatial
-              and temporal extents
-              
-        Examples:
-            Create a TwoPoint object to hold correlators for a 48^3 x 96
-            lattice, then load some correlators computed by Chroma's
-            hadspec routine.
+          filename (str): The name of the file in which the correlators
+            are contained.
             
-            >>> import pyQCD
-            >>> twopoint = pyQCD.TwoPoint(96, 48)
-            >>> twopoint.load_chroma_hadspec_mesons("96c48_hadspec_corr.xml")
+        Raises:
+          ValueError: If lattice shape does not match twopoint spatial
+            and temporal extents
+            
+        Examples:
+          Create a TwoPoint object to hold correlators for a 48^3 x 96
+          lattice, then load some correlators computed by Chroma's
+          hadspec routine.
+          
+          >>> import pyQCD
+          >>> twopoint = pyQCD.TwoPoint(96, 48)
+          >>> twopoint.load_chroma_hadspec_mesons("96c48_hadspec_corr.xml")
         """
         
         xmlfile = ET.parse(filename)
@@ -456,21 +456,21 @@ class TwoPoint(Observable):
         hadspec output xml file
         
         Args:
-            filename (str): The name of the file in which the correlators
-              are contained.
-              
-        Raises:
-            ValueError: If lattice shape does not match twopoint spatial
-              and temporal extents
-              
-        Examples:
-            Create a TwoPoint object to hold correlators for a 48^3 x 96
-            lattice, then load some correlators computed by Chroma's
-            hadspec routine.
+          filename (str): The name of the file in which the correlators
+            are contained.
             
-            >>> import pyQCD
-            >>> twopoint = pyQCD.TwoPoint(96, 48)
-            >>> twopoint.load_chroma_hadspec_baryons("96c48_hadspec_corr.xml")
+        Raises:
+          ValueError: If lattice shape does not match twopoint spatial
+            and temporal extents
+            
+        Examples:
+          Create a TwoPoint object to hold correlators for a 48^3 x 96
+          lattice, then load some correlators computed by Chroma's
+          hadspec routine.
+          
+          >>> import pyQCD
+          >>> twopoint = pyQCD.TwoPoint(96, 48)
+          >>> twopoint.load_chroma_hadspec_baryons("96c48_hadspec_corr.xml")
         """
         
         xmlfile = ET.parse(filename)
@@ -565,44 +565,44 @@ class TwoPoint(Observable):
         propagator1 * source_interpolator * propagator2 * sink_interpolator
         
         Args:
-            propagator1 (Propagator): The first propagator to use in calculating
-              the correlator.
-            propagator2 (Propagator): The second propagator to use in calculating
-              the correlator.
-            source_interpolator (numpy.ndarray or str): The interpolator
-              describing the source of the two-point function. If a numpy array
-              is passed, then it must have the shape (4, 4) (i.e. must encode
-              some form of spin structure). If a string is passed, then the
-              operator is searched for in pyQCD.constants.Gammas. A list of
-              possible strings to use as this argument can be seen by calling
-              TwoPoint.available_interpolators()
-            sink_interpolator (numpy.ndarray or str): The interpolator describing
-              the sink of the two-point function. Conventions for this argument
-              follow those of source_interpolator.
-            label (str): The label ascribed to the resulting correlator.
-            momenta (list, optional): The momenta to project the spatial
-              correlator onto. May be either a list of three ints defining a
-              single lattice momentum, or a list of such lists defining multiple
-              momenta.
-            average_momenta (bool, optional): Determines whether the correlator
-              is computed at all momenta equivalent to that in the momenta
-              argument before an averable is taken (e.g. an average of the
-              correlators for p = [1, 0, 0], [0, 1, 0], [0, 0, 1] and so on would
-              be taken).
-              
+          propagator1 (Propagator): The first propagator to use in calculating
+            the correlator.
+          propagator2 (Propagator): The second propagator to use in calculating
+            the correlator.
+          source_interpolator (numpy.ndarray or str): The interpolator
+            describing the source of the two-point function. If a numpy array
+            is passed, then it must have the shape (4, 4) (i.e. must encode
+            some form of spin structure). If a string is passed, then the
+            operator is searched for in pyQCD.constants.Gammas. A list of
+            possible strings to use as this argument can be seen by calling
+            TwoPoint.available_interpolators()
+          sink_interpolator (numpy.ndarray or str): The interpolator describing
+            the sink of the two-point function. Conventions for this argument
+            follow those of source_interpolator.
+          label (str): The label ascribed to the resulting correlator.
+          momenta (list, optional): The momenta to project the spatial
+            correlator onto. May be either a list of three ints defining a
+            single lattice momentum, or a list of such lists defining multiple
+            momenta.
+          average_momenta (bool, optional): Determines whether the correlator
+            is computed at all momenta equivalent to that in the momenta
+            argument before an averable is taken (e.g. an average of the
+            correlators for p = [1, 0, 0], [0, 1, 0], [0, 0, 1] and so on would
+            be taken).
+            
         Examples:
-            Create and thermalize a lattice, generate some propagators and use
-            them to compute a pseudoscalar correlator.
-            
-            >>> import pyQCD
-            >>> lattice = pyQCD.Lattice()
-            >>> lattice.thermalize(100)
-            >>> prop = lattice.get_propagator(0.4)
-            >>> twopoint = pyQCD.TwoPoint(8, 4)
-            >>> twopoint.compute_meson_correlator(prop, prop, "g5", "g5"
-            ...                                   "pseudoscalar")
+          Create and thermalize a lattice, generate some propagators and use
+          them to compute a pseudoscalar correlator.
+          
+          >>> import pyQCD
+          >>> lattice = pyQCD.Lattice()
+          >>> lattice.thermalize(100)
+          >>> prop = lattice.get_propagator(0.4)
+          >>> twopoint = pyQCD.TwoPoint(8, 4)
+          >>> twopoint.compute_meson_correlator(prop, prop, "g5", "g5"
+          ...                                   "pseudoscalar")
         """
-            
+          
         if type(source_interpolator) == str:
             source_interpolator = const.Gammas[source_interpolator]
         if type(sink_interpolator) == str:
@@ -661,80 +661,80 @@ class TwoPoint(Observable):
                        sink_type=None):
         """Fits the specified function to the specified correlator using
         scipy.optimize.leastsq
-                       
+                     
         Args:
-            fit_function (function): The function with which to fit the
-              correlator. Must accept a list of fitting parameters as
-              the first argument, followed by a numpy.ndarray of time
-              coordinates, a numpy.ndarray of correlator values and a
-              numpy.ndarray of correlator errors.
-            fit_range (list or tuple): Specifies the timeslices over which
-              to perform the fit. If a list or tuple with two elements is
-              supplied, then range(*fit_range): is applied to the function
-              to generate a list of timeslices to fit over.
-            initial_parameters (list or tuple): The initial parameters to
-              supply to the fitting routine.
-            correlator_std (numpy.ndarray, optional): The standard deviation
-              in the specified correlator. If no standard deviation is
-              supplied, then it is taken to be unity for each timeslice.
-              This is equivalent to neglecting the error when computing
-              the residuals for the fit.
-            postprocess_function (function, optional): The function to apply
-              to the result from scipy.optimize.leastsq.
-            label (str, optional): The label of the correlator to be fitted.
-            masses (list, optional): The bare quark masses of the quarks
-              that form the hadron that the correlator corresponds to.
-            momentum (list, optional): The momentum of the hadron that
-              the correlator corresponds to.
-            source_type (str, optional): The type of source used when
-              generating the propagators that form the correlator.
-            sink_type (str, optional): The type of sink used when
-              generating the propagators that form the correlator.
-              
+          fit_function (function): The function with which to fit the
+            correlator. Must accept a list of fitting parameters as
+            the first argument, followed by a numpy.ndarray of time
+            coordinates, a numpy.ndarray of correlator values and a
+            numpy.ndarray of correlator errors.
+          fit_range (list or tuple): Specifies the timeslices over which
+            to perform the fit. If a list or tuple with two elements is
+            supplied, then range(*fit_range): is applied to the function
+            to generate a list of timeslices to fit over.
+          initial_parameters (list or tuple): The initial parameters to
+            supply to the fitting routine.
+          correlator_std (numpy.ndarray, optional): The standard deviation
+            in the specified correlator. If no standard deviation is
+            supplied, then it is taken to be unity for each timeslice.
+            This is equivalent to neglecting the error when computing
+            the residuals for the fit.
+          postprocess_function (function, optional): The function to apply
+            to the result from scipy.optimize.leastsq.
+          label (str, optional): The label of the correlator to be fitted.
+          masses (list, optional): The bare quark masses of the quarks
+            that form the hadron that the correlator corresponds to.
+          momentum (list, optional): The momentum of the hadron that
+            the correlator corresponds to.
+          source_type (str, optional): The type of source used when
+            generating the propagators that form the correlator.
+          sink_type (str, optional): The type of sink used when
+            generating the propagators that form the correlator.
+            
         Returns:
-            list: The fitted parameters for the fit function.
-              
+          list: The fitted parameters for the fit function.
+            
         Raises:
-            NameError: An error occurs if the correlator parameters do not
-              specify a unique correlator.
-              
+          NameError: An error occurs if the correlator parameters do not
+            specify a unique correlator.
+            
         Examples:
-            Load a correlator from disk and fit a simple exponential to it.
-            Because there is only one correlator in the loaded TwoPoint
-            object, no specifiers need to be provided, since get_correlator
-            will return a unique correlator regardless. A postprocess
-            function to select the mass from the fit result is also
-            specified.
-            
-            >>> import pyQCD
-            >>> import numpy as np
-            >>> correlator = pyQCD.TwoPoint.load("my_correlator.npz")
-            >>> def fit_function(b, t, Ct, err):
-            ...     return (Ct - b[0] * np.exp(-b[1] * t)) / err
-            ...
-            >>> postprocess = lambda b: b[1]
-            >>> correlator.fit_correlator(fit_function, [5, 10], [1., 1.],
-            ...                           postprocess_function=postprocess)
-            1.356389
-            
-            Load a TwoPoint DataSet from disk and jackknife an exponential
-            fit. We use DataSet.statistics to get an estimate of the error
-            in the correlator.
-            
-            >>> import pyQCD
-            >>> import numpy as np
-            >>> correlator_data = pyQCD.DataSet.load("correlators.zip")
-            >>> def fit_function(b, t, Ct, err):
-            ...     return (Ct - b[0] * np.exp(-b[1] * t)) / err
-            ...
-            >>> postprocess = lambda b: b[1]
-            >>> stats = correlator_data.statistics()
-            >>> correlator_std = stats[1].get_correlator("pion")
-            >>> correlator_data.jackknife(pyQCD.TwoPoint.fit_correlator,
-            ...                           args=[fit_function, [5, 10],
-            ...                                 [1., 1.], correlator_std,
-            ...                                 postprocess, "pion"])
-            (1.356541, 0.088433)
+          Load a correlator from disk and fit a simple exponential to it.
+          Because there is only one correlator in the loaded TwoPoint
+          object, no specifiers need to be provided, since get_correlator
+          will return a unique correlator regardless. A postprocess
+          function to select the mass from the fit result is also
+          specified.
+          
+          >>> import pyQCD
+          >>> import numpy as np
+          >>> correlator = pyQCD.TwoPoint.load("my_correlator.npz")
+          >>> def fit_function(b, t, Ct, err):
+          ...     return (Ct - b[0] * np.exp(-b[1] * t)) / err
+          ...
+          >>> postprocess = lambda b: b[1]
+          >>> correlator.fit_correlator(fit_function, [5, 10], [1., 1.],
+          ...                           postprocess_function=postprocess)
+          1.356389
+          
+          Load a TwoPoint DataSet from disk and jackknife an exponential
+          fit. We use DataSet.statistics to get an estimate of the error
+          in the correlator.
+          
+          >>> import pyQCD
+          >>> import numpy as np
+          >>> correlator_data = pyQCD.DataSet.load("correlators.zip")
+          >>> def fit_function(b, t, Ct, err):
+          ...     return (Ct - b[0] * np.exp(-b[1] * t)) / err
+          ...
+          >>> postprocess = lambda b: b[1]
+          >>> stats = correlator_data.statistics()
+          >>> correlator_std = stats[1].get_correlator("pion")
+          >>> correlator_data.jackknife(pyQCD.TwoPoint.fit_correlator,
+          ...                           args=[fit_function, [5, 10],
+          ...                                 [1., 1.], correlator_std,
+          ...                                 postprocess, "pion"])
+          (1.356541, 0.088433)
         """
         
         correlator = self.get_correlator(label, masses, momentum, source_type,
@@ -768,45 +768,45 @@ class TwoPoint(Observable):
                        sink_type=None):
         """Computes the ground state energy of the specified correlator
         by fitting a cosh-shaped curve to the data.
-                       
+                     
         Args:
-            fit_range (list): (list or tuple): Specifies the timeslices over which
-              to perform the fit. If a list or tuple with two elements is
-              supplied, then range(*fit_range): is applied to the function
-              to generate a list of timeslices to fit over.
-            initial_parameters (list or tuple): The initial parameters to
-              supply to the fitting routine.
-            correlator_std (numpy.ndarray, optional): The standard deviation
-              in the specified correlator. If no standard deviation is
-              supplied, then it is taken to be unity for each timeslice.
-              This is equivalent to neglecting the error when computing
-              the residuals for the fit.
-            label (str, optional): The label of the correlator to be fitted.
-            masses (list, optional): The bare quark masses of the quarks
-              that form the hadron that the correlator corresponds to.
-            momentum (list, optional): The momentum of the hadron that
-              the correlator corresponds to.
-            source_type (str, optional): The type of source used when
-              generating the propagators that form the correlator.
-            sink_type (str, optional): The type of sink used when
-              generating the propagators that form the correlator.
+          fit_range (list): (list or tuple): Specifies the timeslices over which
+            to perform the fit. If a list or tuple with two elements is
+            supplied, then range(*fit_range): is applied to the function
+            to generate a list of timeslices to fit over.
+          initial_parameters (list or tuple): The initial parameters to
+            supply to the fitting routine.
+          correlator_std (numpy.ndarray, optional): The standard deviation
+            in the specified correlator. If no standard deviation is
+            supplied, then it is taken to be unity for each timeslice.
+            This is equivalent to neglecting the error when computing
+            the residuals for the fit.
+          label (str, optional): The label of the correlator to be fitted.
+          masses (list, optional): The bare quark masses of the quarks
+            that form the hadron that the correlator corresponds to.
+          momentum (list, optional): The momentum of the hadron that
+            the correlator corresponds to.
+          source_type (str, optional): The type of source used when
+            generating the propagators that form the correlator.
+          sink_type (str, optional): The type of sink used when
+            generating the propagators that form the correlator.
         
         Returns:
-            float: The fitted ground state energy.
-            
+          float: The fitted ground state energy.
+          
         Raises:
-            NameError: An error occurs if the correlator parameters do not
-              specify a unique correlator.
-            
+          NameError: An error occurs if the correlator parameters do not
+            specify a unique correlator.
+          
         Examples:
-            This function works in a very similar way to fit_correlator
-            function, except the fitting function and the postprocessing
-            function are already specified.
-            
-            >>> import pyQCD
-            >>> correlator = pyQCD.TwoPoint.load("correlator.npz")
-            >>> correlator.compute_energy([5, 16], [1.0, 1.0])
-            1.532435
+          This function works in a very similar way to fit_correlator
+          function, except the fitting function and the postprocessing
+          function are already specified.
+          
+          >>> import pyQCD
+          >>> correlator = pyQCD.TwoPoint.load("correlator.npz")
+          >>> correlator.compute_energy([5, 16], [1.0, 1.0])
+          1.532435
         """
         
         fit_function \
@@ -825,45 +825,45 @@ class TwoPoint(Observable):
                               momentum=None, source_type=None, sink_type=None):
         """Computes the square of the ground state energy of the specified
         correlator by fitting a cosh-shaped curve to the data.
-                       
+                     
         Args:
-            fit_range (list): (list or tuple): Specifies the timeslices over
-              which to perform the fit. If a list or tuple with two elements
-              is supplied, then range(*fit_range): is applied to the function
-              to generate a list of timeslices to fit over.
-            initial_parameters (list or tuple): The initial parameters to
-              supply to the fitting routine.
-            correlator_std (numpy.ndarray, optional): The standard deviation
-              in the specified correlator. If no standard deviation is
-              supplied, then it is taken to be unity for each timeslice.
-              This is equivalent to neglecting the error when computing
-              the residuals for the fit.
-            label (str, optional): The label of the correlator to be fitted.
-            masses (list, optional): The bare quark masses of the quarks
-              that form the hadron that the correlator corresponds to.
-            momentum (list, optional): The momentum of the hadron that
-              the correlator corresponds to.
-            source_type (str, optional): The type of source used when
-              generating the propagators that form the correlator.
-            sink_type (str, optional): The type of sink used when
-              generating the propagators that form the correlator.
+          fit_range (list): (list or tuple): Specifies the timeslices over
+            which to perform the fit. If a list or tuple with two elements
+            is supplied, then range(*fit_range): is applied to the function
+            to generate a list of timeslices to fit over.
+          initial_parameters (list or tuple): The initial parameters to
+            supply to the fitting routine.
+          correlator_std (numpy.ndarray, optional): The standard deviation
+            in the specified correlator. If no standard deviation is
+            supplied, then it is taken to be unity for each timeslice.
+            This is equivalent to neglecting the error when computing
+            the residuals for the fit.
+          label (str, optional): The label of the correlator to be fitted.
+          masses (list, optional): The bare quark masses of the quarks
+            that form the hadron that the correlator corresponds to.
+          momentum (list, optional): The momentum of the hadron that
+            the correlator corresponds to.
+          source_type (str, optional): The type of source used when
+            generating the propagators that form the correlator.
+          sink_type (str, optional): The type of sink used when
+            generating the propagators that form the correlator.
         
         Returns:
-            float: The fitted ground state energy squared.
-            
+          float: The fitted ground state energy squared.
+          
         Raises:
-            NameError: An error occurs if the correlator parameters do not
-              specify a unique correlator.
-            
+          NameError: An error occurs if the correlator parameters do not
+            specify a unique correlator.
+          
         Examples:
-            This function works in a very similar way to fit_correlator
-            and compute_energy functions, except the fitting function and
-            the postprocessing function are already specified.
-            
-            >>> import pyQCD
-            >>> correlator = pyQCD.TwoPoint.load("correlator.npz")
-            >>> correlator.compute_square_energy([5, 16], [1.0, 1.0])
-            2.262435
+          This function works in a very similar way to fit_correlator
+          and compute_energy functions, except the fitting function and
+          the postprocessing function are already specified.
+          
+          >>> import pyQCD
+          >>> correlator = pyQCD.TwoPoint.load("correlator.npz")
+          >>> correlator.compute_square_energy([5, 16], [1.0, 1.0])
+          2.262435
         """
         
         fit_function \
@@ -889,45 +889,45 @@ class TwoPoint(Observable):
         equal to 2 * pi * p / L.
         
         Args:
-            fit_ranges (list): A compound list containing the timeslices
-              over which to fit the correlator. These are specified in the
-              same way as in compute_energy or compute_square_energy.
-            initial_parameters (list): The initial parameters to use in
-              performing.
-            correlator_stds (list, optional): The standard deviations in the
-              corresponding correlators as numpy.ndarrays.
-            label (str, optional): The correlator label.
-            masses (list, optional): The masses of the quarks forming the
-              particle being studied.
-            source_type (str, optional): The type of source used when
-              generating the propagators that form the correlator.
-            sink_type (str, optional): The type of sink used when
-              generating the propagators that form the correlator.
-              
+          fit_ranges (list): A compound list containing the timeslices
+            over which to fit the correlator. These are specified in the
+            same way as in compute_energy or compute_square_energy.
+          initial_parameters (list): The initial parameters to use in
+            performing.
+          correlator_stds (list, optional): The standard deviations in the
+            corresponding correlators as numpy.ndarrays.
+          label (str, optional): The correlator label.
+          masses (list, optional): The masses of the quarks forming the
+            particle being studied.
+          source_type (str, optional): The type of source used when
+            generating the propagators that form the correlator.
+          sink_type (str, optional): The type of sink used when
+            generating the propagators that form the correlator.
+            
         Returns:
-            np.ndarray: The speeds of light squared
-            
-            The positions of the values in this array correspond directly
-            to the positions in the momenta variable.
-            
+          np.ndarray: The speeds of light squared
+          
+          The positions of the values in this array correspond directly
+          to the positions in the momenta variable.
+          
         Raises:
-            NameError: An error occurs if the correlator parameters do not
-              specify a unique correlator.
-              
-        Examples:
-            This function works in a similar way to the compute_energy
-            and compute_square_energy functions. Here we load a set of
-            correlators and compute the speed of light squared at the
-            first three non-zero lattice momenta.
+          NameError: An error occurs if the correlator parameters do not
+            specify a unique correlator.
             
-            >>> import pyQCD
-            >>> correlators = pyQCD.TwoPoint("correlators.npz")
-            >>> correlators.compute_c_square([[4, 10], [6, 12],
-            ...                               [7, 13], [8, 13]],
-            ...                              [1.0, 1.0],
-            ...                              [[1, 0, 0], [1, 1, 0]
-            ...                               [1, 1, 1]])
-            array([ 0.983245,  0.952324, 0.928973])
+        Examples:
+          This function works in a similar way to the compute_energy
+          and compute_square_energy functions. Here we load a set of
+          correlators and compute the speed of light squared at the
+          first three non-zero lattice momenta.
+          
+          >>> import pyQCD
+          >>> correlators = pyQCD.TwoPoint("correlators.npz")
+          >>> correlators.compute_c_square([[4, 10], [6, 12],
+          ...                               [7, 13], [8, 13]],
+          ...                              [1.0, 1.0],
+          ...                              [[1, 0, 0], [1, 1, 0]
+          ...                               [1, 1, 1]])
+          array([ 0.983245,  0.952324, 0.928973])
         """
         
         if type(momenta[0]) != list and type(momenta[0]) != tuple:
@@ -961,34 +961,34 @@ class TwoPoint(Observable):
         by computing log(C(t) / C(t + 1))
         
         Args:
-            label (str, optional): The label of the correlator to be fitted.
-            masses (list, optional): The bare quark masses of the quarks
-              that form the hadron that the correlator corresponds to.
-            momentum (list, optional): The momentum of the hadron that
-              the correlator corresponds to.
-            source_type (str, optional): The type of source used when
-              generating the propagators that form the correlator.
-            sink_type (str, optional): The type of sink used when
-              generating the propagators that form the correlator.
-              
+          label (str, optional): The label of the correlator to be fitted.
+          masses (list, optional): The bare quark masses of the quarks
+            that form the hadron that the correlator corresponds to.
+          momentum (list, optional): The momentum of the hadron that
+            the correlator corresponds to.
+          source_type (str, optional): The type of source used when
+            generating the propagators that form the correlator.
+          sink_type (str, optional): The type of sink used when
+            generating the propagators that form the correlator.
+            
         Returns:
-            numpy.ndarray: The effective mass.
-            
+          numpy.ndarray: The effective mass.
+          
         Raises:
-            NameError: An error occurs if the correlator parameters do not
-              specify a unique correlator.
-              
-        Examples:
-            Load a TwoPoint object containing a single correlator and
-            compute its effective mass.
+          NameError: An error occurs if the correlator parameters do not
+            specify a unique correlator.
             
-            >>> import pyQCD
-            >>> correlator = pyQCD.TwoPoint.load("mycorrelator.npz")
-            >>> correlator.compute_effmass()
-            array([ 0.44806453,  0.41769303,  0.38761196,  0.3540968 ,
-                    0.3112345 ,  0.2511803 ,  0.16695767,  0.05906789,
-                   -0.05906789, -0.16695767, -0.2511803 , -0.3112345 ,
-                   -0.3540968 , -0.38761196, -0.41769303, -0.44806453])
+        Examples:
+          Load a TwoPoint object containing a single correlator and
+          compute its effective mass.
+          
+          >>> import pyQCD
+          >>> correlator = pyQCD.TwoPoint.load("mycorrelator.npz")
+          >>> correlator.compute_effmass()
+          array([ 0.44806453,  0.41769303,  0.38761196,  0.3540968 ,
+                  0.3112345 ,  0.2511803 ,  0.16695767,  0.05906789,
+                 -0.05906789, -0.16695767, -0.2511803 , -0.3112345 ,
+                 -0.3540968 , -0.38761196, -0.41769303, -0.44806453])
         """
         
         correlator = self.get_correlator(label, masses, momentum, source_type,

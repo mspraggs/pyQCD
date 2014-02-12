@@ -6,40 +6,40 @@ class WilsonLoops(Observable):
     """Create a Wilson loop object
     
     Args:
-        loops (np.ndarray): The expectation values of all possible Wilson
-          loops on the lattice. Should have shape (T, L), with element
-          (i, j) representing a Wilson loop with spatial extent j and
-          temporal extent i
-        L (int): The spatial extent of the corresponding lattice
-        T (int): The temporal extent of the corresponding lattice
-        beta (float): The inverse coupling of the gauge action used
-          to generate the configuration on which the Wilson loops are
-          calculated
-        u0 (float): The mean link/tadpole improvement coefficient
-        action (str): The gauge action. If WilsonLoops are derived from
-          a Lattice object, then this will correspond to the action used
-          by the Lattice object.
-        num_field_smears (int): The number of stout field smears applied to the
-          gauge field before computing the Wilson loops
-        field_smearing_parameter (float): The stout field smearing parameter
-          used to stout smear the gauge field prior to computing the Wilson
-          loops.
-          
+      loops (np.ndarray): The expectation values of all possible Wilson
+        loops on the lattice. Should have shape (T, L), with element
+        (i, j) representing a Wilson loop with spatial extent j and
+        temporal extent i
+      L (int): The spatial extent of the corresponding lattice
+      T (int): The temporal extent of the corresponding lattice
+      beta (float): The inverse coupling of the gauge action used
+        to generate the configuration on which the Wilson loops are
+        calculated
+      u0 (float): The mean link/tadpole improvement coefficient
+      action (str): The gauge action. If WilsonLoops are derived from
+        a Lattice object, then this will correspond to the action used
+        by the Lattice object.
+      num_field_smears (int): The number of stout field smears applied to the
+        gauge field before computing the Wilson loops
+      field_smearing_parameter (float): The stout field smearing parameter
+        used to stout smear the gauge field prior to computing the Wilson
+        loops.
+        
     Returns:
-        WilsonLoops: The computed Wilson loops object
-        
+      WilsonLoops: The computed Wilson loops object
+      
     Raises:
-        ValueError: Shape of specified Wilson loop array does not match specified
-          lattice extents.
-        
+      ValueError: Shape of specified Wilson loop array does not match specified
+        lattice extents.
+      
     Examples:
-        Create a Lattice object, thermalize, then compute the set of all
-        Wilson loops, smearing the fields in the process.
-        
-        >>> import pyQCD
-        >>> lattice = pyQCD.Lattice()
-        >>> lattice.thermalize(100)
-        >>> wilslps = lattice.get_wilson_loops(2, 0.4)
+      Create a Lattice object, thermalize, then compute the set of all
+      Wilson loops, smearing the fields in the process.
+      
+      >>> import pyQCD
+      >>> lattice = pyQCD.Lattice()
+      >>> lattice.thermalize(100)
+      >>> wilslps = lattice.get_wilson_loops(2, 0.4)
     """
     
     members = ['L', 'T', 'beta', 'u0', 'action', 'num_field_smears',
@@ -70,9 +70,9 @@ class WilsonLoops(Observable):
         """Compute the lattice spacing using the Sommer scale
         
         Returns:
-            list: Contains both the lattice spacing and its inverse
-            
-            The spacing is in fm and the inverse spacing is in GeV
+          list: Contains both the lattice spacing and its inverse
+          
+          The spacing is in fm and the inverse spacing is in GeV
         """
         
         potential_params = self._potential_parameters()
@@ -85,7 +85,7 @@ class WilsonLoops(Observable):
         """Computes the pair potential for the set of Wilson loops
         
         Returns:
-            numpy.ndarray: The pair potential, shape = (L,)
+          numpy.ndarray: The pair potential, shape = (L,)
         """
         out = np.zeros(self.data.shape[0])
         t = np.arange(self.data.shape[1])

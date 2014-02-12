@@ -6,65 +6,65 @@ import numpy as np
 
 class Lattice(lattice.Lattice):
     """Create a Lattice object.
-                 
+             
     Args:
-        L (int, optional): The spatial extent of the lattice
-        T (int, optional): The temporal extent of the lattice
-        beta (float, optional): The inverse coupling of the gauge action
-        u0 (float, optional): The mean link/tadpole improvement factor.
-        action (str, optional): The gauge action to use when updating the lattice.
-          Currently "wilson", "rectangle_improved" and
-          "twisted_rectangle_improved" are supported (see note 1).
-        n_cor (int, optional): The number of configurations between measurements
-        update_method (str, optional): The algorithm to use when updating the
-          gauge field configuration. Currently "heatbath", "metropolis"
-          and "staple_metropolis" are supported (see note 2).
-        parallel_updates (bool, optional): Determines whether to partition the
-          lattice into a red-black/checkerboard pattern, then perform
-          updates on the red blocks in parallel before updating the
-          black blocks. (Requires OpenMP to work.)
-        block_size (int, optional): The side-length of the blocks to partition the
-          lattice into when performing parallel updates.
-        rand_seed (int, optional): The seed to be used by the random number
-          generator (-1 specifies that a seed based on the time should
-          be used).
-           
+      L (int, optional): The spatial extent of the lattice
+      T (int, optional): The temporal extent of the lattice
+      beta (float, optional): The inverse coupling of the gauge action
+      u0 (float, optional): The mean link/tadpole improvement factor.
+      action (str, optional): The gauge action to use when updating the lattice.
+        Currently "wilson", "rectangle_improved" and
+        "twisted_rectangle_improved" are supported (see note 1).
+      n_cor (int, optional): The number of configurations between measurements
+      update_method (str, optional): The algorithm to use when updating the
+        gauge field configuration. Currently "heatbath", "metropolis"
+        and "staple_metropolis" are supported (see note 2).
+      parallel_updates (bool, optional): Determines whether to partition the
+        lattice into a red-black/checkerboard pattern, then perform
+        updates on the red blocks in parallel before updating the
+        black blocks. (Requires OpenMP to work.)
+      block_size (int, optional): The side-length of the blocks to partition the
+        lattice into when performing parallel updates.
+      rand_seed (int, optional): The seed to be used by the random number
+        generator (-1 specifies that a seed based on the time should
+        be used).
+         
     Returns:
-        Lattice: The created lattice object
-        
+      Lattice: The created lattice object
+      
     Raises:
-        ValueError: Lattice shape cannot accomodate sub-lattices with
-          the specified side-length
-          
-    Examples:
-        Create an 8^3 x 16 lattice with the Symanzik rectange-improved
-        action, an inverse coupling 4.26 and a tadpole-improvement factor
-        of 0.852.
+      ValueError: Lattice shape cannot accomodate sub-lattices with
+        the specified side-length
         
-        >>> import pyQCD
-        >>> lattice = pyQCD.Lattice(L=8, T=16, action="rectangle_improved"
-        ...             beta=4.26, u0=0.852)
-          
+    Examples:
+      Create an 8^3 x 16 lattice with the Symanzik rectange-improved
+      action, an inverse coupling 4.26 and a tadpole-improvement factor
+      of 0.852.
+      
+      >>> import pyQCD
+      >>> lattice = pyQCD.Lattice(L=8, T=16, action="rectangle_improved"
+      ...           beta=4.26, u0=0.852)
+        
     Notes:
-        1. The "wilson" action is the well-known Wilson gauge action. The
-           action specified by "rectangle_improved" is the Symanzik
-           rectangle-improved gauge action. This is an a^2 improved gauge
-           action. The action specified by "twisted_rectangle_improved"
-           uses the twisted rectangle operator to eliminate
-           discretisation errors of order a^2. Staple computation for this
-           operator is difficult, and as such the heatbath algorithm is
-           not capable of using this action. See Lepage, "Lattice QCD
-           for novices", for more details on these actions.
-        2. The update method "metropolis" computes the local change in the
-           action without using the staples for the given link. This is
-           highly inefficient, but inescapable when using actions such as
-           twisted rectangle imporoved action where the staples are
-           difficult to define and compute. The "staple_metropolis"
-           algorithm computes the staples for each link, thus reducing the
-           number of computations and improving efficiency. The "heatbath"
-           method is to be preferred where the computation of staples is
-           possible, being the most efficient algorithm.
-        """
+      1. The "wilson" action is the well-known Wilson gauge action. The
+         action specified by "rectangle_improved" is the Symanzik
+         rectangle-improved gauge action. This is an a^2 improved gauge
+         action. The action specified by "twisted_rectangle_improved"
+         uses the twisted rectangle operator to eliminate
+         discretisation errors of order a^2. Staple computation for this
+         operator is difficult, and as such the heatbath algorithm is
+         not capable of using this action. See Lepage, "Lattice QCD
+         for novices", for more details on these actions.
+      2. The update method "metropolis" computes the local change in the
+         action without using the staples for the given link. This is
+         highly inefficient, but inescapable when using actions such as
+         twisted rectangle imporoved action where the staples are
+         difficult to define and compute. The "staple_metropolis"
+         algorithm computes the staples for each link, thus reducing the
+         number of computations and improving efficiency. The "heatbath"
+         method is to be preferred where the computation of staples is
+         possible, being the most efficient algorithm.
+    """
     
     def __init__(self, L=4, T=8, beta=5.5, u0=1.0, action="wilson",
                  n_cor=10, update_method="heatbath", parallel_updates=True,
@@ -98,14 +98,14 @@ class Lattice(lattice.Lattice):
         """Returns the specified gauge field link
         
         Args:
-            link (list): The link to return. The supplied list should be of
-              the form [t, x, y, z, mu].
-            
+          link (list): The link to return. The supplied list should be of
+            the form [t, x, y, z, mu].
+          
         Returns:
-            numpy.ndarray: The SU(3) gauge field link.
-            
-            The returned link will be a 3 x 3 numpy array
-            
+          numpy.ndarray: The SU(3) gauge field link.
+          
+          The returned link will be a 3 x 3 numpy array
+          
         Examples:
            Create a basic lattice and return the link at the origin
            in the time direction.
@@ -124,20 +124,20 @@ class Lattice(lattice.Lattice):
         """Sets the specified link to the value specified in matrix
         
         Args:
-            link (list): The link to set. The supplied list should be of
-              the form [t, x, y, z, mu].
-            matrix (numpy.ndarray): 3 x 3 numpy array specifying the link
-              matrix.
-              
-        Examples:
-            Set the temporal link at the origin to the identity for
-            the created lattice.
+          link (list): The link to set. The supplied list should be of
+            the form [t, x, y, z, mu].
+          matrix (numpy.ndarray): 3 x 3 numpy array specifying the link
+            matrix.
             
-            >>> import pyQCD
-            >>> import numpy
-            >>> lattice = pyQCD.Lattice()
-            >>> lattice.thermalize(100)
-            >>> lattice.set_link([0, 0, 0, 0, 0], numpy.identity(3))
+        Examples:
+          Set the temporal link at the origin to the identity for
+          the created lattice.
+          
+          >>> import pyQCD
+          >>> import numpy
+          >>> lattice = pyQCD.Lattice()
+          >>> lattice.thermalize(100)
+          >>> lattice.set_link([0, 0, 0, 0, 0], numpy.identity(3))
         """
         
         lattice.Lattice.set_link(self, link, matrix.tolist())
@@ -146,23 +146,23 @@ class Lattice(lattice.Lattice):
         """Returns the current field configuration.
         
         Returns:
-            Config: The current gauge field configuration
-            
+          Config: The current gauge field configuration
+          
         Examples:
-            Create a lattice, thermalize it, then retrieve the current
-            gauge field configuration.
-            
-            >>> import pyQCD
-            >>> lattice = pyQCD.Lattice()
-            >>> lattice.thermalize(100)
-            >>> lattice.get_config()
-            Field Configuration Object
-            --------------------------
-            Spatial extent: 4
-            Temportal extent: 8
-            Gauge action: wilson
-            Inverse coupling (beta): 5.5
-            Mean link (u0): 1.0
+          Create a lattice, thermalize it, then retrieve the current
+          gauge field configuration.
+          
+          >>> import pyQCD
+          >>> lattice = pyQCD.Lattice()
+          >>> lattice.thermalize(100)
+          >>> lattice.get_config()
+          Field Configuration Object
+          --------------------------
+          Spatial extent: 4
+          Temportal extent: 8
+          Gauge action: wilson
+          Inverse coupling (beta): 5.5
+          Mean link (u0): 1.0
         """
         r = xrange(self.L)
         t = xrange(self.T)
@@ -184,21 +184,21 @@ class Lattice(lattice.Lattice):
         """Sets the current field configuration
         
         Args:
-            configuration (Config): The pyQCD.Config object containing
-              the gauge field configuration to use.
-              
-        Raises:
-            ValueError: Shape of field configuration does not match the
-              current lattice shape.
-              
-        Examples:
-            Load a gauge field configuration from disk and load it into
-            the current lattice object.
+          configuration (Config): The pyQCD.Config object containing
+            the gauge field configuration to use.
             
-            >>> import pyQCD
-            >>> config = pyQCD.Config.load("myconfig.npz")
-            >>> lattice = pyQCD.Lattice()
-            >>> lattice.set_config(config)
+        Raises:
+          ValueError: Shape of field configuration does not match the
+            current lattice shape.
+            
+        Examples:
+          Load a gauge field configuration from disk and load it into
+          the current lattice object.
+          
+          >>> import pyQCD
+          >>> config = pyQCD.Config.load("myconfig.npz")
+          >>> lattice = pyQCD.Lattice()
+          >>> lattice.set_config(config)
         """
         expected_shape = (self.T, self.L, self.L, self.L, 4, 3, 3)
         
@@ -222,16 +222,16 @@ class Lattice(lattice.Lattice):
         """Saves the current field configuration to a numpy zip file
         
         Args:
-            filename (str): The file to save the configuration to.
-            
+          filename (str): The file to save the configuration to.
+          
         Examples:
-            Create a lattice, thermalize and save the resulting config
-            to myconfig.npz.
-            
-            >>> import pyQCD
-            >>> lattice = pyQCD.Lattice()
-            >>> lattice.thermalize(100)
-            >>> lattice.save_config("myconfig")
+          Create a lattice, thermalize and save the resulting config
+          to myconfig.npz.
+          
+          >>> import pyQCD
+          >>> lattice = pyQCD.Lattice()
+          >>> lattice.thermalize(100)
+          >>> lattice.save_config("myconfig")
         """
         
         configuration = self.get_config()
@@ -241,16 +241,16 @@ class Lattice(lattice.Lattice):
         """Loads the configuration in the specified file
         
         Args:
-            filename (str): The filename of the field configuration
-              (as a numpy zipped archive).
-              
-        Examples:
-            Create a lattice and load the configuration in myconfig.npz
-            from disk into it.
+          filename (str): The filename of the field configuration
+            (as a numpy zipped archive).
             
-            >>> import pyQCD
-            >>> lattice = pyQCD.Lattice()
-            >>> lattice.load_config("myconfig.npz")
+        Examples:
+          Create a lattice and load the configuration in myconfig.npz
+          from disk into it.
+          
+          >>> import pyQCD
+          >>> lattice = pyQCD.Lattice()
+          >>> lattice.load_config("myconfig.npz")
         """
         
         configuration = config.Config.load(filename)
@@ -261,14 +261,14 @@ class Lattice(lattice.Lattice):
         Lattice constructor
         
         Examples:
-            Create a lattice and update it 10 times. After each update,
-            print the average plaquette.
-            
-            >>> import pyQCD
-            >>> lattice = pyQCD.Lattice(L=8, T=8)
-            >>> for i in xrange(10):
-            ...     lattice.update()
-            ...     print(lattice.get_av_plaquette())
+          Create a lattice and update it 10 times. After each update,
+          print the average plaquette.
+          
+          >>> import pyQCD
+          >>> lattice = pyQCD.Lattice(L=8, T=8)
+          >>> for i in xrange(10):
+          ...     lattice.update()
+          ...     print(lattice.get_av_plaquette())
         """
         
         lattice.Lattice.update(self)
@@ -278,15 +278,15 @@ class Lattice(lattice.Lattice):
         by measurement spacing (n_cor) in the Lattice constructor
         
         Examples:
-            Create a lattice and generate 10 configurations, each
-            separated by 10 field updates. After each configuration
-            is generated, print the average plaquette.
-            
-            >>> import pyQCD
-            >>> lattice = pyQCD.Lattice(L=8, T=8)
-            >>> for i in xrange(10):
-            ...     lattice.next_config()
-            ...     print(lattice.get_av_plaquette())
+          Create a lattice and generate 10 configurations, each
+          separated by 10 field updates. After each configuration
+          is generated, print the average plaquette.
+          
+          >>> import pyQCD
+          >>> lattice = pyQCD.Lattice(L=8, T=8)
+          >>> for i in xrange(10):
+          ...     lattice.next_config()
+          ...     print(lattice.get_av_plaquette())
         """
         
         lattice.Lattice.next_config(self)
@@ -296,17 +296,17 @@ class Lattice(lattice.Lattice):
         performed
         
         Args:
-            num_updates (int): The number of updates to ensure have been
-              performed.
-              
+          num_updates (int): The number of updates to ensure have been
+            performed.
+            
         Examples:
-             Create a lattice and thermalize it with 100 updates, then print
-             the average plaquette.
-             
-             >>> import pyQCD
-             >>> lattice = pyQCD.Lattice()
-             >>> lattice.thermalize(100)
-             >>> print(lattice.get_av_plaquette())
+           Create a lattice and thermalize it with 100 updates, then print
+           the average plaquette.
+           
+           >>> import pyQCD
+           >>> lattice = pyQCD.Lattice()
+           >>> lattice.thermalize(100)
+           >>> print(lattice.get_av_plaquette())
         """
         
         lattice.Lattice.thermalize(self, num_updates)
@@ -315,25 +315,25 @@ class Lattice(lattice.Lattice):
         """Computes and returns the value of the specified plaquette
         
         Args:
-            site (list): The site specifying the corner of the plaquette,
-              of the form [t, x, y, z]
-            dim1 (int): The first dimension specifying the plane in which the
-              plaquette lies
-            dim2 (int): The second dimension specifying the plane in which the
-              plaquette lies
-            
+          site (list): The site specifying the corner of the plaquette,
+            of the form [t, x, y, z]
+          dim1 (int): The first dimension specifying the plane in which the
+            plaquette lies
+          dim2 (int): The second dimension specifying the plane in which the
+            plaquette lies
+          
         Returns:
-            float: The plaquette values.
-            
+          float: The plaquette values.
+          
         Examples:
-            Create a lattice, thermalize it, then compute the plaquette sited
-            at [0, 0, 0, 0] in the t and x plane (i.e. P_01(0, 0, 0, 0)).
-            
-            >>> import pyQCD
-            >>> lattice = pyQCD.Lattice()
-            >>> lattice.thermalize(100)
-            >>> print(lattice.get_plaquette([0, 0, 0, 0], 0, 1))
-            0.21414804616056343
+          Create a lattice, thermalize it, then compute the plaquette sited
+          at [0, 0, 0, 0] in the t and x plane (i.e. P_01(0, 0, 0, 0)).
+          
+          >>> import pyQCD
+          >>> lattice = pyQCD.Lattice()
+          >>> lattice.thermalize(100)
+          >>> print(lattice.get_plaquette([0, 0, 0, 0], 0, 1))
+          0.21414804616056343
         """
         
         return lattice.Lattice.get_plaquette(self, site, dim1, dim2)
@@ -342,25 +342,25 @@ class Lattice(lattice.Lattice):
         """Computes and returns the value of the specified 2 x 1 rectangle
         
         Args:
-            site (list): The site specifying the corner of the rectangle,
-              of the form [t, x, y, z]
-            dim1 (int): The first dimension specifying the plane in which the
-              rectangle lies
-            dim2 (int): The second dimension specifying the plane in which the
-              rectangle lies
-            
+          site (list): The site specifying the corner of the rectangle,
+            of the form [t, x, y, z]
+          dim1 (int): The first dimension specifying the plane in which the
+            rectangle lies
+          dim2 (int): The second dimension specifying the plane in which the
+            rectangle lies
+          
         Returns:
-            float: The rectangle values.
-            
+          float: The rectangle values.
+          
         Examples:
-            Create a lattice, thermalize it, then compute the rectangle sited
-            at [0, 0, 0, 0] in the t and x plane (i.e. R_01(0, 0, 0, 0)).
-            
-            >>> import pyQCD
-            >>> lattice = pyQCD.Lattice()
-            >>> lattice.thermalize(100)
-            >>> print(lattice.get_rectangle([0, 0, 0, 0], 0, 1))
-            0.501128452826521
+          Create a lattice, thermalize it, then compute the rectangle sited
+          at [0, 0, 0, 0] in the t and x plane (i.e. R_01(0, 0, 0, 0)).
+          
+          >>> import pyQCD
+          >>> lattice = pyQCD.Lattice()
+          >>> lattice.thermalize(100)
+          >>> print(lattice.get_rectangle([0, 0, 0, 0], 0, 1))
+          0.501128452826521
         """
         
         return lattice.Lattice.get_rectangle(self, site, dim1, dim2)
@@ -370,25 +370,25 @@ class Lattice(lattice.Lattice):
         rectangle
         
         Args:
-            site (list): The site specifying the corner of the twisted rectangle,
-              of the form [t, x, y, z]
-            dim1 (int): The first dimension specifying the plane in which the
-              twisted rectangle lies
-            dim2 (int): The second dimension specifying the plane in which the
-              twisted rectangle lies
-            
+          site (list): The site specifying the corner of the twisted rectangle,
+            of the form [t, x, y, z]
+          dim1 (int): The first dimension specifying the plane in which the
+            twisted rectangle lies
+          dim2 (int): The second dimension specifying the plane in which the
+            twisted rectangle lies
+          
         Returns:
-            float: The twisted rectangle values.
-            
+          float: The twisted rectangle values.
+          
         Examples:
-            Create a lattice, thermalize it, then compute the twisted rectangle
-            sited at [0, 0, 0, 0] in the t and x plane (i.e. T_01(0, 0, 0, 0)).
-            
-            >>> import pyQCD
-            >>> lattice = pyQCD.Lattice()
-            >>> lattice.thermalize(100)
-            >>> print(lattice.get_twisted rect([0, 0, 0, 0], 0, 1))
-            -0.10429666482691154
+          Create a lattice, thermalize it, then compute the twisted rectangle
+          sited at [0, 0, 0, 0] in the t and x plane (i.e. T_01(0, 0, 0, 0)).
+          
+          >>> import pyQCD
+          >>> lattice = pyQCD.Lattice()
+          >>> lattice.thermalize(100)
+          >>> print(lattice.get_twisted rect([0, 0, 0, 0], 0, 1))
+          -0.10429666482691154
         """
         
         return lattice.Lattice.get_twist_rect(self, site, dim1, dim2)
@@ -396,30 +396,31 @@ class Lattice(lattice.Lattice):
     def get_wilson_loop(self, corner, r, t, dim, num_smears=0,
                         smearing_param=1.0):
         """Computes and returns the value of the specified Wilson loop
-                        
+                    
         Args:
-            corner (list): The starting corner of the Wilson loop, of the form
-              [t, x, y, z].
-            r (int): The size of the loop in the spatial direction
-            t (int): The size of the loop in the temporal direction
-            dim (int): The spatial dimension of the Wilson loop
-            num_smears (int, optional): The number of stout gauge field smears to perform
-              before computing the Wilson loop
-            smearing_param (float, optional): The stout gauge field smearing parameter
-            
+          corner (list): The starting corner of the Wilson loop, of the form
+            [t, x, y, z].
+          r (int): The size of the loop in the spatial direction
+          t (int): The size of the loop in the temporal direction
+          dim (int): The spatial dimension of the Wilson loop
+          num_smears (int, optional): The number of stout gauge field smears to
+            perform before computing the Wilson loop
+          smearing_param (float, optional): The stout gauge field smearing
+            parameter
+          
         Returns:
-            float: The value of the Wilson loop
-            
+          float: The value of the Wilson loop
+          
         Examples:
-            Create a lattice, thermalize it, then compute the wilson loop sited
-            at [4, 0, 2, 0] in the t and x plane (i.e. W_01(4, 0, 2, 0)), with
-            spatial width 2 and temporal width 4.
-            
-            >>> import pyQCD
-            >>> lattice = pyQCD.Lattice()
-            >>> lattice.thermalize(100)
-            >>> lattice.get_wilson_loop([4, 0, 2, 0], 2, 4, 1)
-            -0.19872418745939716
+          Create a lattice, thermalize it, then compute the wilson loop sited
+          at [4, 0, 2, 0] in the t and x plane (i.e. W_01(4, 0, 2, 0)), with
+          spatial width 2 and temporal width 4.
+          
+          >>> import pyQCD
+          >>> lattice = pyQCD.Lattice()
+          >>> lattice.thermalize(100)
+          >>> lattice.get_wilson_loop([4, 0, 2, 0], 2, 4, 1)
+          -0.19872418745939716
         """
         
         return lattice.Lattice.get_wilson_loop(self, corner, r, t, dim,
@@ -429,16 +430,16 @@ class Lattice(lattice.Lattice):
         """Computes the plaquette expectation value
         
         Returns:
-            float: The average value of the plaquette
-              
-        Examples:
-            Create a lattice, thermalize and compute the average plaquette
+          float: The average value of the plaquette
             
-            >>> import pyQCD
-            >>> lattice = pyQCD.Lattice(L=8, T=8)
-            >>> lattice.thermalize(100)
-            >>> lattice.get_av_plaquette()
-            0.49751028964943506
+        Examples:
+          Create a lattice, thermalize and compute the average plaquette
+          
+          >>> import pyQCD
+          >>> lattice = pyQCD.Lattice(L=8, T=8)
+          >>> lattice.thermalize(100)
+          >>> lattice.get_av_plaquette()
+          0.49751028964943506
         """
         
         return lattice.Lattice.get_av_plaquette(self)
@@ -447,16 +448,16 @@ class Lattice(lattice.Lattice):
         """Computes the rectangle expectation value
         
         Returns:
-            float: The average value of the rectangle
-              
-        Examples:
-            Create a lattice, thermalize and compute the average rectangle
+          float: The average value of the rectangle
             
-            >>> import pyQCD
-            >>> lattice = pyQCD.Lattice(L=8, T=8)
-            >>> lattice.thermalize(100)
-            >>> lattice.get_av_rectangle()
-            0.2605558875384393
+        Examples:
+          Create a lattice, thermalize and compute the average rectangle
+          
+          >>> import pyQCD
+          >>> lattice = pyQCD.Lattice(L=8, T=8)
+          >>> lattice.thermalize(100)
+          >>> lattice.get_av_rectangle()
+          0.2605558875384393
         """
         
         return lattice.Lattice.get_av_rectangle(self)
@@ -465,23 +466,23 @@ class Lattice(lattice.Lattice):
         """Computes the average wilson loop of a given size
         
         Args:
-            r (int): The spatial extent of the Wilson loop
-            t (int): The temporal extent of the Wilson loop
-            num_smears (int, optional): The number of stout gauge field smears to perform
-              before computing the Wilson loops
-            smearing_param (float, optional): The stout gauge field smearing parameter
+          r (int): The spatial extent of the Wilson loop
+          t (int): The temporal extent of the Wilson loop
+          num_smears (int, optional): The number of stout gauge field smears to perform
+            before computing the Wilson loops
+          smearing_param (float, optional): The stout gauge field smearing parameter
         
         Returns:
-            float: The value of the average Wilson loop
-            
+          float: The value of the average Wilson loop
+          
         Examples:
-            Create a lattice, thermalize and compute the average Wilson loop
-            
-            >>> import pyQCD
-            >>> lattice = pyQCD.Lattice()
-            >>> lattice.thermalize(100)
-            >>> lattice.get_av_wilson_loop(3, 3)
-            0.007159100123379076
+          Create a lattice, thermalize and compute the average Wilson loop
+          
+          >>> import pyQCD
+          >>> lattice = pyQCD.Lattice()
+          >>> lattice.thermalize(100)
+          >>> lattice.get_av_wilson_loop(3, 3)
+          0.007159100123379076
         """
         
         return lattice.Lattice.get_av_wilson_loop(self, r, t, num_smears,
@@ -492,21 +493,22 @@ class Lattice(lattice.Lattice):
         with m = 0, 1, ... , L and n = 0, 1, ... , T.
         
         Args:
-            num_field_smears (int, optional): The number of stout field smears to perform
-              on the gauge field prior to computing the Wilson loops
-            field_smearing_param (float, optional): The stout field smearing parameter
-            
+          num_field_smears (int, optional): The number of stout field smears to
+            perform on the gauge field prior to computing the Wilson loops
+          field_smearing_param (float, optional): The stout field smearing
+            parameter
+          
         Returns:
-            WilsonLoops: The Wilson loops object encapsulating the Wilson loops
+          WilsonLoops: The Wilson loops object encapsulating the Wilson loops
           
         Examples:
-            Create a lattice object, thermalize it, then extract the Wilson
-            loops, smearing the gauge field a bit beforehand
-            
-            >>> import pyQCD
-            >>> lattice = pyQCD.Lattice()
-            >>> lattice.thermalize(100)
-            >>> wilson_loops = lattice.get_wilson_loops(2, 0.4)
+          Create a lattice object, thermalize it, then extract the Wilson
+          loops, smearing the gauge field a bit beforehand
+          
+          >>> import pyQCD
+          >>> lattice = pyQCD.Lattice()
+          >>> lattice.thermalize(100)
+          >>> wilson_loops = lattice.get_wilson_loops(2, 0.4)
         """
         
         loops = np.zeros((self.L, self.T))
@@ -537,37 +539,39 @@ class Lattice(lattice.Lattice):
         """Compute the Wilson propagator using the Wilson fermion action
                        
         Args:
-            mass (float): The bare quark mass
-            source_site (list, optional): The source site to use when doing the inversion
-            num_field_smears (int, optional): The number of stout field smears applied
-              before doing the inversion
-            field_smearing_param (float, optional): The stout field smearing parameter to
-              use before doing the inversion
-            num_source_smears (int, optional): The number of Jacobi smears to apply
-              to the source before inverting.
-            source_smearing_param (float, optional): The Jacobi field smearing parameter to
-              use before doing the inversion
-            num_sink_smears (int, optional): The number of Jacobi smears to apply
-              to the sink before inverting.
-            sink_smearing_param (float, optional): The Jacobi field smearing parameter to
-              use before doing the inversion
-            solver_method (str, optional): The algorithm to use when doing the inversion.
-              Currently "conjugate_gradient" and "bicgstab" are available.
-            verbosity (int, optional): Determines how much inversion is outputted during
-              the inversion. Values greater than one produce output, whilst 1
-              or 0 will produce no output.
-              
+          mass (float): The bare quark mass
+          source_site (list, optional): The source site to use when doing the
+            inversion
+          num_field_smears (int, optional): The number of stout field smears
+            applied before doing the inversion
+          field_smearing_param (float, optional): The stout field smearing
+            parameter to use before doing the inversion
+          num_source_smears (int, optional): The number of Jacobi smears to apply
+            to the source before inverting.
+          source_smearing_param (float, optional): The Jacobi field smearing
+            parameter to use before doing the inversion
+          num_sink_smears (int, optional): The number of Jacobi smears to apply
+            to the sink before inverting.
+          sink_smearing_param (float, optional): The Jacobi field smearing
+            parameter to use before doing the inversion
+          solver_method (str, optional): The algorithm to use when doing the
+            inversion. Currently "conjugate_gradient" and "bicgstab" are
+            available.
+          verbosity (int, optional): Determines how much inversion is outputted
+            during the inversion. Values greater than one produce output, whilst
+            1 or 0 will produce no output.
+            
         Returns:
-            Propagator: The propagator encapsulated in a Propagator object
-            
+          Propagator: The propagator encapsulated in a Propagator object
+          
         Examples:
-            Create a lattice, thermalize it, and invert on a smeared source.
-            
-            >>> import pyQCD
-            >>> lattice = pyQCD.Lattice()
-            >>> lattice.thermalize(100)
-            >>> prop = lattice.get_propagator(0.4, num_source_smears=2,
-            ...                               source_smearing_param=0.4)
+          Create a lattice, thermalize it, and invert on a smeared source.
+          
+          >>> import pyQCD
+          >>> lattice = pyQCD.Lattice()
+          >>> lattice.thermalize(100)
+          >>> prop = lattice.get_propagator(0.4, num_source_smears=2,
+          ...                               source_smearing_param=0.4)
         """
         
         if verbosity > 0:
@@ -604,15 +608,15 @@ class Lattice(lattice.Lattice):
         """Computes the mean of the real part of the trace of each link matrix
         
         Returns:
-            float: The value of the mean link.
-            
+          float: The value of the mean link.
+          
         Examples:
-            Create a lattice and compute the mean link.
-            
-            >>> import pyQCD
-            >>> lattice = pyQCD.Lattice()
-            >>> lattice.get_av_link()
-            1.0
+          Create a lattice and compute the mean link.
+          
+          >>> import pyQCD
+          >>> lattice = pyQCD.Lattice()
+          >>> lattice.get_av_link()
+          1.0
         """
         
         return lattice.Lattice.get_av_link(self)

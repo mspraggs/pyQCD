@@ -4,18 +4,18 @@ class Observable(object):
     """Creates an observable object with the supplied data
     
     Args:
-        data (optional): The data to be held by the observable object.
-        
+      data (optional): The data to be held by the observable object.
+      
     Returns:
-        Observable: The created observable object.
-        
+      Observable: The created observable object.
+      
     Examples:
-        Create some numpy data and encapsulate it using an observable object
-        
-        >>> import pyQCD
-        >>> import numpy.random
-        >>> data = numpy.random.random(100)
-        >>> observable = pyQCD.Observable(data)
+      Create some numpy data and encapsulate it using an observable object
+      
+      >>> import pyQCD
+      >>> import numpy.random
+      >>> data = numpy.random.random(100)
+      >>> observable = pyQCD.Observable(data)
     """
     
     members = []
@@ -32,16 +32,16 @@ class Observable(object):
         """Saves the observable to a numpy zip archive
         
         Args:
-            filename (str): The name of the file in which to save the observable
-            
+          filename (str): The name of the file in which to save the observable
+          
         Examples:
-            Create an observable object with some dummy data, then save it.
-            
-            >>> import pyQCD
-            >>> import numpy.random
-            >>> data = numpy.random(100)
-            >>> observable = pyQCD.Observable(data)
-            >>> observable.save("my_observable.npz")
+          Create an observable object with some dummy data, then save it.
+          
+          >>> import pyQCD
+          >>> import numpy.random
+          >>> data = numpy.random(100)
+          >>> observable = pyQCD.Observable(data)
+          >>> observable.save("my_observable.npz")
         """
         
         items = [getattr(self, key) for key in self.members]
@@ -55,16 +55,16 @@ class Observable(object):
         archive
         
         Args:
-            filename (str): The filename from which to load the observable
-            
+          filename (str): The filename from which to load the observable
+          
         Returns:
-            Observable: The loaded observable object.
-            
+          Observable: The loaded observable object.
+          
         Examples:
-            Load an observable object from disk.
-            
-            >>> import pyQCD
-            >>> observable = pyQCD.Observable.load("my_observable.npz")
+          Load an observable object from disk.
+          
+          >>> import pyQCD
+          >>> observable = pyQCD.Observable.load("my_observable.npz")
         """
         
         numpy_archive = np.load(filename)
@@ -84,16 +84,16 @@ class Observable(object):
         """Saves the data array as a numpy binary
         
         Args:
-            filename (str): The filename to save the data as.
-            
+          filename (str): The filename to save the data as.
+          
         Examples:
-            Create and observable and save the raw data to disk.
-            
-            >>> import pyQCD
-            >>> import numpy.random
-            >>> data = numpy.random.random(100)
-            >>> observable = pyQCD.Observable(data)
-            >>> observable.save_raw("observable_data")
+          Create and observable and save the raw data to disk.
+          
+          >>> import pyQCD
+          >>> import numpy.random
+          >>> data = numpy.random.random(100)
+          >>> observable = pyQCD.Observable(data)
+          >>> observable.save_raw("observable_data")
         """
         np.save(filename, self.data)
         
@@ -101,15 +101,15 @@ class Observable(object):
         """Retrieves the list of variables used in the header
         
         Returns:
-            dict: The header variables encapsulated in a dictionary
-            
+          dict: The header variables encapsulated in a dictionary
+          
         Examples:
-            Create an empty observable object and retrieve the (empty) header
-            
-            >>> import pyQCD
-            >>> observable = pyQCD.Observable()
-            >>> observable.header()
-            {}
+          Create an empty observable object and retrieve the (empty) header
+          
+          >>> import pyQCD
+          >>> observable = pyQCD.Observable()
+          >>> observable.header()
+          {}
         """
         
         items = [getattr(cls, member) for member in cls.members]
