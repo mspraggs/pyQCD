@@ -2,7 +2,29 @@ import numpy as np
 from observable import Observable
 
 class Config(Observable):
-    """Create a field configuration container.
+    """Lattice field configuration container.
+    
+    Contains the data for one SU(3) field configuration, along
+    with information relating to the action used to generate
+    the configuration. The Config class also provides methods
+    to save and load field configuration data (inherited from
+    the Observable base class).
+    
+    Attributes:
+      members (list): List of member variable names that will
+        be stored on disk when the Config object is saved.
+      L (int): The spatial extent of the lattice on which the
+        the field configuration resides.
+      T (int): The temporal extent of the lattice on which the
+        the field configuration resides.
+      beta (float): The inverse coupling used in the gauge action
+        used to generate the field configuration.
+      u0 (float): The mean link/tadpole coefficient used in the
+        gauge action used to generate the field configuration.
+      action (str): The gauge action used to generate the
+        configuration.
+      data (numpy.ndarray): The field configuration data in a
+        numpy array of shape (T, L, L, L, 4, 3, 3).
      
     Args:
       links (np.ndarray): The field configuration, with shape
