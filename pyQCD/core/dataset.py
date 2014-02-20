@@ -5,7 +5,33 @@ import numpy as np
 import numpy.random as npr
 
 class DataSet:
-    """Create an empty data set holding data of the specified type
+    """Data set container holding data of the specified type.
+    
+    Once a data set has been initialized and contains at least one data
+    point, it is then possible to call the jackknife or bootstrap member
+    functions, supplying a measurement function, in order to compute an
+    observable and estimate the error.
+    
+    The data is stored on disk in a zip file. Each file within the zip file
+    corresponds to one of the measurement objects within the data set. If
+    the type specified in the DataSet constructor inherits from the
+    pyQCD.Object class, then the files within the data set zip file will be
+    numpy zip archives. Otherwise, the data will be stored as ascii text
+    in a file. The datatype for the data set is pickled and stored in a
+    file name datatype.
+    
+    Attributes:
+      bootstraps_cached (bool): Indicates whether copies of the
+        bootstrapped data have been cached on disk.
+      datatype (type): The python data type stored in the data set
+      filename (str): The zip file name to save the data ot
+      jackknifes_cached (bool): Indicates whether copies of the
+        jackknifed data have been cached on disk.
+      large_file (bool): Indicates whether 64 bit zip extensions
+        have been used to compress a large file (over 2GB)
+      num_data (int): The number of data stored in the data set
+      storage_mode (int): Determines whether the zip file on disk
+        is compressed or not.
     
     Args:
       datatype (type): The data type stored in the data set
@@ -146,6 +172,9 @@ class DataSet:
           index (int): The datum number to overwrite
           datum: The datum to overwrite with, of type specified in the datatype
             member variable
+            
+        Raises:
+          NotImplementedError: This feature has not yet been implemented.
         """
         
         raise NotImplementedError("DataSet.set_datum not properly implemented")
