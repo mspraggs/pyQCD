@@ -19,22 +19,19 @@ class Lattice(lattice.Lattice):
       T (int): The temporal extent of the lattice
       beta (float): The inverse coupling of the gauge action
       u0 (float): The mean link/tadpole improvement factor.
-      action (str): The gauge action to use when updating the lattice.
-        Currently "wilson", "rectangle_improved" and
-        "twisted_rectangle_improved" are supported (see note 1).
+      action (str): The gauge action to use when updating the lattice
+        (see note 1).
       n_cor (int): The number of configurations between measurements
       update_method (str): The algorithm to use when updating the
-        gauge field configuration. Currently "heatbath", "metropolis"
-        and "staple_metropolis" are supported (see note 2).
+        gauge field configuration (see note 2).
       parallel_updates (bool): Determines whether to partition the
         lattice into a red-black/checkerboard pattern, then perform
         updates on the red blocks in parallel before updating the
         black blocks. (Requires OpenMP to work.)
-      block_size (int): The side-length of the blocks to partition the
-        lattice into when performing parallel updates.
+      block_size (int): The side-length of the blocks used to partition
+        the lattice.
       rand_seed (int): The seed to be used by the random number
-        generator (-1 specifies that a seed based on the time should
-        be used).     
+        generator.     
     
     Args:
       L (int, optional): The spatial extent of the lattice
