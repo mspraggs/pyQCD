@@ -1,7 +1,15 @@
 import numpy as np
 
 class Observable(object):
-    """Creates an observable object with the supplied data
+    """Encapsulate numerical data, providing wrappers to save to disk.
+    
+    This class forms a base for a host of observable data, providing the
+    core saving and loading functions, which store data in a numpy zip
+    archive. Information about the measurement, specified in a set of
+    member variables, is written to the numpy zip archive as a dictionary.
+    
+    Attributes:
+      data: The data to be held by the observable object.
     
     Args:
       data (optional): The data to be held by the observable object.
