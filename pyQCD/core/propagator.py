@@ -3,7 +3,39 @@ from observable import Observable
 from constants import gamma5
 
 class Propagator(Observable):
-    """Create a propagator container.
+    """Encapsulates propagator data.
+    
+    Besides wrapping propagator data, this class provides several functions
+    with which to the to act upon the propagator data, such as computing
+    the hermitian conjugate and transposing the spin and colour indices
+    of the propagator. Crucially, the left and right multiplication
+    routines have been overridden for 4 x 4 and 3 x 3 numpy matrices,
+    allowing the propagator to be multiplied by spin and colour matrices.
+    
+    Attributes:
+      data (numpy.ndarray): The propagator data, with shape
+        (T, L, L, L, 4, 4, 3, 3), the last four indices in the shape
+        corresponding to spin and colour
+      L (int): The spatial extent of the corresponding lattice
+      T (int): The temporal extent of the corresponding lattice
+      beta (float): The inverse coupling
+      u0 (float): The mean link/tadpole coefficient
+      action (str): The gauge action
+      mass (float): The bare quark mass
+      source_site (list): The source site to use when constructing the
+        source for the inversion, of the form [t, x, y, z]
+      num_field_smears (int): The number of stout field smears applied
+        before doing the inversion
+      field_smearing_param (float): The stout field smearing parameter
+        used before doing the inversion
+      num_source_smears (int): The number of Jacobi smears applied
+        to the source before inverting.
+      source_smearing_param (float): The Jacobi field smearing parameter
+        used before doing the inversion
+      num_sink_smears (int): The number of Jacobi smears applied
+        to the sink before inverting.
+      sink_smearing_param (float): The Jacobi field smearing parameter
+        used before doing the inversion
     
     Args:
       propagator (numpy.ndarray): The propagator data, with shape
