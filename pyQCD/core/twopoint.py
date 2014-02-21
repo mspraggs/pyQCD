@@ -44,7 +44,7 @@ class TwoPoint(Observable):
       >>> twopoint = pyQCD.TwoPoint(16, 32)
     """
     
-    common_members = ['L', 'T']
+    members = ['L', 'T']
     
     def __init__(self, T, L):
         """Constructor for pyQCD.Simulation (see help(pyQCD.Simulation))"""
@@ -73,7 +73,7 @@ class TwoPoint(Observable):
         header_keys = []
         header_values = []
         
-        for member in TwoPoint.common_members:
+        for member in TwoPoint.members:
             header_keys.append(member)
             header_values.append(getattr(self, member))
                 
@@ -1026,7 +1026,7 @@ class TwoPoint(Observable):
             raise TypeError("Types {} and {} do not match"
                             .format(type(self), type(tp)))
         
-        for cm in self.common_members:
+        for cm in self.members:
             if getattr(self, cm) != getattr(tp, cm):
                 raise ValueError("Attribute {} differs between objects "
                                  "({} and {})".format(cm,
