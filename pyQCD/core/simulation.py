@@ -7,8 +7,6 @@ from dataset import DataSet
 import numpy as np
 import sys
 import time
-import inspect
-import warnings
 
 class Simulation(object):
     """Creates, configures and runs a lattice simulation.
@@ -77,10 +75,6 @@ class Simulation(object):
       >>> import pyQCD
       >>> simulation = pyQCD.Simulation(100, 10, 100)
       """
-    
-    xml_meas_dict = {"propagator": (Propagator, "get_propagator"),
-                     "wilson_loops": (WilsonLoops, "get_wilson_loops"),
-                     "configuration": (Config, "get_config")}
     
     def __init__(self, num_configs, measurement_spacing, num_warmup_updates,
                  update_method="heatbath", run_parallel=True, rand_seed=-1,
