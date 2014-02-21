@@ -11,7 +11,39 @@ import inspect
 import warnings
 
 class Simulation(object):
-    """Creates and returns a simulation object
+    """Creates, configures and runs a lattice simulation.
+    
+    Before being able to run a simulation, a Lattice object, contained within
+    the Simulation object, must be created. An gauge ensemble can then specified,
+    the configurations of which will then be loaded into the Lattice object
+    during the simulation. If no ensemble is specified, then a gauge field will
+    be initialized and thermalized prior to performing measurements.
+    Measurements are then specified by passing functions to the Simulation
+    object.
+    
+    Attributes:
+      lattice (Lattice): The lattice object used by the simulation.
+      measurement_spacing (int): The number of gauge field updates between
+        measurements.
+      measurements (list): Specifies the mesurements to be performed on the
+        gauge configuration, in the form of a list of lists, with each sub-list
+        specifying the measurement in the following format:
+        [measurement function, measurement_message, function_keyword_args,
+         dataset_object_containing_measurements].
+      num_configs (int): The number of configurations on which measurements
+        are performed.
+      num_warmup_updates (int): The number of updates used to thermalize the
+        lattice
+      update_method (str): The algorithm to use when updating the gauge
+        field configuration (see help(pyQCD.Lattice) for details).
+      rand_seed (int): The seed to be used by the Lattice random number
+        generator (-1 specifies that a seed based on the time should
+        be used).
+      run_parallel (bool): Determines whether the lattice is updated in
+        parallel. (Requires OpenMP to work.)
+      verbosity (int): The level of verbosity when performing the simulation,
+        with 0 producing no output, 1 producing some output and 2 producing
+        the most output, such as details of propagator inversions.
     
     Args:
       num_configs (int): The number of configurations on which to perform
@@ -20,7 +52,7 @@ class Simulation(object):
         measurements are performed
       num_warmup_updates (int): The number of updates used to thermalize the
         lattice
-      update_method (str): The algorirthm to use when updating the gauge
+      update_method (str): The algorithm to use when updating the gauge
         field configuration. Currently "heatbath", "metropolis" and
         "staple_metropolis" are supported (see help(pyQCD.Lattice) for details)
       run_parallel (bool): Determines whether to partition the
@@ -32,7 +64,7 @@ class Simulation(object):
         be used).
       verbosity (int): The level of verbosity when performing the simulation,
         with 0 producing no output, 1 producing some output and 2 producing
-        the most output, suc as details of propagator inversions.
+        the most output, such as details of propagator inversions.
         
     Examples:
       Create a simulation to perform measurements on 100 configurations,
@@ -240,8 +272,8 @@ class Simulation(object):
           >>> sim = pyQCD.Simulation(100, 10, 100)
           >>> sim.create_lattice(4, 8, "wilson", 5.5)
           >>> sim.add_measurement(pyQCD.Lattice.get_config,
-          ...                   pyQCD.Config,
-          ...                   "4c8_wilson_purgaug_configs.zip")
+          ...                     pyQCD.Config,
+          ...                     "4c8_wilson_purgaug_configs.zip")
           >>> sim.run()
           Simulation Settings
           -------------------
