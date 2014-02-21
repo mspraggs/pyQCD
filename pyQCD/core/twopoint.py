@@ -8,7 +8,26 @@ import re
 import xml.etree.ElementTree as ET
 
 class TwoPoint(Observable):
-    """Create a two-point function from two propagators
+    """Encapsulates two-point function data and provides fitting tools.
+    
+    The data for two-point functions is stored in member variables. Each
+    individual correlator is referenced using a label, and optionally by
+    the masses of the corresponding quark masses, the momentum of the
+    corresponding hadron and the source and sink types used when computing
+    the two-point function.
+    
+    Various member functions are provided to import data from Chroma XML
+    data files produced by the hadron spectrum and meson spectrum measurements.
+    Meson correlators may also be computed using pyQCD.Propagator objects.
+    Correlator data may also be added by hand using the add_correlator function.
+    
+    Attributes:
+      computed_correlators (list): A list of tuples corresponding to those
+        correlators stored in the TwoPoint object. Each element in the list
+        has the following format:
+        [label, quark_masses, hadron_momentum, source_type, sink_type]
+      L (int): The spatial extent of the lattice
+      T (int): The temporal extent of the lattice
     
     Args:
       L (int): The spatial extent of the lattice
