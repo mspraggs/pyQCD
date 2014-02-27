@@ -88,14 +88,14 @@ class Simulation(object):
       ...                     "4c8_wilson_purgaug_configs.zip")
       >>> sim.run()
       Simulation Settings
-      ``-------------------``
+      -------------------
       Number of configurations: 100
       Measurement spacing: 10
       Thermalization updates: 100
       Update method: heatbath
       Use OpenMP: True
       Random number generator seed: -1
-      
+      .
       Lattice Settings
       ----------------
       Spatial extent: 4
@@ -104,11 +104,11 @@ class Simulation(object):
       Inverse coupling (beta): 5.5
       Mean link (u0): 1.0
       Parallel sub-lattice size: 4
-      
+      .
       Get Config Measurement Settings
       -------------------------------
       Filename: /absolute/path/to/configs.zip
-      
+      .
       Thermalizing lattice...  Done!
       Configuration: 0
       Updating gauge field...  Done!
@@ -120,7 +120,7 @@ class Simulation(object):
       .
       .
       Simulation completed in 0 hours, 5 minutes and 16.9606249332 seconds
-      
+      .
       >>> simulation.plaquettes.shape
       (100,)
       """
@@ -326,7 +326,7 @@ class Simulation(object):
           Update method: heatbath
           Use OpenMP: True
           Random number generator seed: -1
-          # Blank line
+          .
           Lattice Settings
           ----------------
           Spatial extent: 4
@@ -335,11 +335,11 @@ class Simulation(object):
           Inverse coupling (beta): 5.5
           Mean link (u0): 1.0
           Parallel sub-lattice size: 4
-          # Blank line
+          .
           Get Config Measurement Settings
           -------------------------------
           Filename: /absolute/path/to/configs.zip
-          # Blank line
+          .
           Thermalizing lattice...  Done!
           Configuration: 0
           Updating gauge field...  Done!
