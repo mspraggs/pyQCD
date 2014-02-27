@@ -14,7 +14,13 @@ class TwoPoint(Observable):
     individual correlator is referenced using a label, and optionally by
     the masses of the corresponding quark masses, the momentum of the
     corresponding hadron and the source and sink types used when computing
-    the two-point function.
+    the two-point function. These descriptors must be supplied to specify a
+    unique correlator stored in the TwoPoint object when calling a function
+    that operates on a correlator. For example, if several correlators are
+    stored with the label "pseudoscalar", but correspond to mesons with
+    different bare quark masses, then the masses can be used to distinguish
+    between the correlators. Likewise, two correlators could share the same
+    label but correspond to different hadron momenta.
     
     Various member functions are provided to import data from Chroma XML
     data files produced by the hadron spectrum and meson spectrum measurements.
@@ -42,6 +48,28 @@ class TwoPoint(Observable):
       
       >>> import pyQCD
       >>> twopoint = pyQCD.TwoPoint(16, 32)
+      
+      Load a TwoPoint object from disk, then extract a correlation function
+      from it labelled "pion" with quark masses (0.01, 0.01). Note that if
+      this is the only correlator stored in the TwoPoint object with the
+      specified quark masses, then the correlator is uniquely defined and
+      it is the only correlator returned.
+      
+      >>> import pyQCD
+      >>> twopoint = pyQCD.TwoPoint.load("correlators.npz")
+      >>> twopoint.get_correlator("pion", masses=(0.01, 0.01))
+      array([  9.19167425e-01,   4.41417607e-02,   4.22095090e-03,
+               4.68472393e-04,   5.18833346e-05,   5.29751835e-06,
+               5.84481783e-07,   6.52953123e-08,   1.59048703e-08,
+               7.97830102e-08,   7.01262406e-07,   6.08545149e-06,
+               5.71428481e-05,   5.05306201e-04,   4.74744759e-03,
+               4.66148785e-02])
+               
+      Note that if there were other correlators with the same label and quark
+      masses, then another descriptor would be required to specify a particular
+      correlator, such as momentum. The same principle applies to functions that
+      perform computations using a single correlator, such as curve fitting:
+      enough descriptors must be supplied to specify a single unique correlator.
     """
     
     members = ['L', 'T']
