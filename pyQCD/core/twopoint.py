@@ -256,7 +256,8 @@ class TwoPoint(Observable):
                             tuple(attribute_values)))
     
     def add_correlator(self, data, label, masses=[], momentum=[0, 0, 0],
-                       source_type=None, sink_type=None, projected=True):
+                       source_type=None, sink_type=None, projected=True,
+                       fold=False):
         """Adds the supplied correlator to the current instance
         
         Args:
@@ -275,6 +276,8 @@ class TwoPoint(Observable):
           projected (bool, optional): Determines whether the supplied
             correlator contains a value for every lattice site, or whether it
             has already been projected onto a fixed momentum.
+          fold (bool, optional): Determines whether the correlator is folded
+            about it's mid-point.
             
         Raises:
           ValueError: If the supplied correlator data does not match the
@@ -297,6 +300,7 @@ class TwoPoint(Observable):
                                  "({},), recieved {}"
                                  .format(self.T, data.shape))
             
+            data = TwoPoint._fold(data) if fold else data
             setattr(self, correlator_name, data)
             
             if not correlator_name in self.computed_correlators:
@@ -314,15 +318,18 @@ class TwoPoint(Observable):
             if not correlator_name in self.computed_correlators:
                 self.computed_correlators.append(correlator_name)
             
+            correlator = TwoPoint._fold(correlator) if fold else correlator
             setattr(self, correlator_name, correlator)
             
-    def load_chroma_mesonspec(self, filename):
+    def load_chroma_mesonspec(self, filename, fold=False):
         """Loads the meson correlator(s) present in the supplied Chroma
         mesonspec output xml file
         
         Args:
           filename (str): The name of the file in which the correlators
             are contained.
+          fold (bool, optional): Determines whether the correlator is folded
+            about it's mid-point.
             
         Raises:
           ValueError: If lattice shape does not match twopoint spatial
@@ -401,15 +408,17 @@ class TwoPoint(Observable):
                                        for x in correlator_value_elems])
                 
                 self.add_correlator(correlator, label, (mass_1, mass_2),
-                                    momentum, source_type, sink_type)
+                                    momentum, source_type, sink_type, True, fold)
             
-    def load_chroma_hadspec_mesons(self, filename):
+    def load_chroma_hadspec_mesons(self, filename, fold=False):
         """Loads the meson correlator(s) present in the supplied Chroma
         hadspec output xml file
         
         Args:
           filename (str): The name of the file in which the correlators
             are contained.
+          fold (bool, optional): Determines whether the correlator is folded
+            about it's mid-point.
             
         Raises:
           ValueError: If lattice shape does not match twopoint spatial
@@ -496,15 +505,18 @@ class TwoPoint(Observable):
                                            for x in correlator_values])
                 
                     self.add_correlator(correlator, label, (mass_1, mass_2),
-                                        momentum, source_type, sink_type)
+                                        momentum, source_type, sink_type, True,
+                                        fold)
             
-    def load_chroma_hadspec_baryons(self, filename):
+    def load_chroma_hadspec_baryons(self, filename, fold=False):
         """Loads the baryon correlator(s) present in the supplied Chroma
         hadspec output xml file
         
         Args:
           filename (str): The name of the file in which the correlators
             are contained.
+          fold (bool, optional): Determines whether the correlator is folded
+            about it's mid-point.
             
         Raises:
           ValueError: If lattice shape does not match twopoint spatial
@@ -598,12 +610,14 @@ class TwoPoint(Observable):
                                            for x in correlator_values])
                 
                     self.add_correlator(correlator, label, (mass_1, mass_2),
-                                        momentum, source_type, sink_type)
+                                        momentum, source_type, sink_type, True,
+                                        fold)
     
     def compute_meson_correlator(self, propagator1, propagator2,
                                  source_interpolator,
                                  sink_interpolator, label, momenta = [0, 0, 0],
-                                 average_momenta = True):
+                                 average_momenta=True,
+                                 fold=False):
         """Computes and stores the specified meson correlator within the
         current TwoPoint object
         
@@ -636,6 +650,8 @@ class TwoPoint(Observable):
             argument before an averable is taken (e.g. an average of the
             correlators for p = [1, 0, 0], [0, 1, 0], [0, 0, 1] and so on would
             be taken).
+          fold (bool, optional): Determines whether the correlator is folded
+            about it's mid-point.
             
         Examples:
           Create and thermalize a lattice, generate some propagators and use
@@ -700,7 +716,7 @@ class TwoPoint(Observable):
             
             self.add_correlator(correlator, label,
                                 [propagator1.mass, propagator2.mass],
-                                momentum, source_type, sink_type)
+                                momentum, source_type, sink_type, True, fold)
             
     def fit_correlator(self, fit_function, fit_range, initial_parameters,
                        correlator_std=None, postprocess_function=None,
@@ -1266,3 +1282,25 @@ class TwoPoint(Observable):
             param_residuals = 0
             
         return np.sum(residuals**2) + np.sum(param_residuals**2)
+    
+    @staticmethod
+    def _detect_cosh(x):
+        if np.sign(x[1]) == np.sign(x[-1]):
+            return True
+        else:
+            return False
+    
+    @staticmethod
+    def _fold_cosh(x):
+        return np.append(x[0], (x[:0:-1] + x[1:]) / 2)
+    
+    @staticmethod
+    def _fold_sinh(x):
+        return np.append(x[0], (x[1:] - x[:0:-1]) / 2)
+    
+    @staticmethod
+    def _fold(x):
+        if TwoPoint._detect_cosh(x):
+            return TwoPoint._fold_cosh(x)
+        else:
+            return TwoPoint._fold_sinh(x)
