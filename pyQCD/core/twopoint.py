@@ -830,7 +830,8 @@ class TwoPoint(Observable):
                        label=None, masses=None, momentum=None, source_type=None,
                        sink_type=None):
         """Computes the ground state energy of the specified correlator
-        by fitting a cosh-shaped curve to the data.
+        by fitting a curve to the data. The type of curve to be fitted
+        (cosh or sinh) is determined from the shape of the correlator.
                      
         Args:
           fit_range (list): (list or tuple): Specifies the timeslices over which
@@ -872,10 +873,21 @@ class TwoPoint(Observable):
           1.532435
         """
         
-        fit_function \
-          = lambda b, t, Ct, err: \
-          (Ct - b[0] * np.exp(-b[1] * t) - b[0] * np.exp(-b[1] * (self.T - t))) \
-          / err
+        correlator = self.get_correlator(label, masses, momentum, source_type,
+                                         sink_type)
+        
+        if TwoPoint._detect_cosh(correlator):
+            fit_function \
+              = lambda b, t, Ct, err: \
+              (Ct - b[0] * np.exp(-b[1] * t)
+               - b[0] * np.exp(-b[1] * (self.T - t))) \
+              / err
+        else:
+            fit_function \
+              = lambda b, t, Ct, err: \
+              (Ct - b[0] * np.exp(-b[1] * t)
+               + b[0] * np.exp(-b[1] * (self.T - t))) \
+              / err
           
         postprocess_function = lambda b: b[1]
         
@@ -887,7 +899,8 @@ class TwoPoint(Observable):
                               correlator_std=None, label=None, masses=None,
                               momentum=None, source_type=None, sink_type=None):
         """Computes the square of the ground state energy of the specified
-        correlator by fitting a cosh-shaped curve to the data.
+        correlator by fitting a curve to the data. The type of curve to be
+        fitted (cosh or sinh) is determined from the shape of the correlator.
                      
         Args:
           fit_range (list): (list or tuple): Specifies the timeslices over
@@ -929,16 +942,9 @@ class TwoPoint(Observable):
           2.262435
         """
         
-        fit_function \
-          = lambda b, t, Ct, err: \
-          (Ct - b[0] * np.exp(-b[1] * t) - b[0] * np.exp(-b[1] * (self.T - t))) \
-          / err
-          
-        postprocess_function = lambda b: b[1]**2
-        
-        return self.fit_correlator(fit_function, fit_range, initial_parameters,
-                                   correlator_std, postprocess_function, label,
-                                   masses, momentum, source_type, sink_type)
+        return self.compute_energy(fit_range, initial_parameters, correlator_std,
+                                   label, masses, momentum, source_type,
+                                   sink_type) ** 2
     
     def compute_c_square(self, fit_ranges, initial_parameters, momenta,
                          correlator_stds=None, label=None, masses=None,
