@@ -4,7 +4,8 @@ pyQCD provides a Python package for running coarse lattice QCD simulations on de
 
 pyQCD may not be as powerful or as fully-featured as the likes of Chroma or UKHADRON, but through simplicity it
 is more transparent and perfect for basic desktop simulations. By interfacing with Python and numpy, it
-facilitates the analysis of results.
+facilitates the analysis of results. Most importantly, it is well documented, so it shouldn't take long to
+learn
 
 ***Please note that this software is very much still in alpha stage and is not yet mature, so backwards
 compatability is not yet guaranteed for newer versions. If something's broken, have a look at the function
@@ -21,7 +22,7 @@ To build and install the module, the following packages are required:
 * scipy version 0.12 or greater;
 * OpenMP (version 3), required for parallel updates, but not essential;
 * py.test for Python testing;
-* Python Sphinx to build the docs.
+* Python Sphinx along with the Napoleon extension to build the docs.
 
 pyQCD is capable of using CUDA capable GPUs to accelerate the inversion of Dirac matrices to generate
 propagators. If you have a CUDA enabled GPU, and you want to use its capabilities, then you'll also need the
@@ -95,44 +96,35 @@ Quick Start
 -----------
 
 The package is designed to be highly object-orientated. Simulations are performed using the Simulation class.
-The settings for an individual simulation may be specified individually or loaded from an xml file. For
-example:
+The settings for an individual simulation may be specified individually. For example:
 
     import pyQCD
     
-    simulation1 = pyQCD.Simulation(num_configs=100,
-                                   measurement_spacing=10,
-                                   num_warmup_updates=100,
-                                   update_method="heatbath",
-                                   run_parallel=True,
-                                   rand_seed=-1,
-                                   verbosity=2)
+    simulation = pyQCD.Simulation(num_configs=100,
+                                  measurement_spacing=10,
+                                  num_warmup_updates=100,
+                                  update_method="heatbath",
+                                  run_parallel=True,
+                                  rand_seed=-1,
+                                  verbosity=2)
 
-    simulation1.create_lattice(L=4, T=8, action="wilson", beta=5.5, u0=1.0)
-    simulation1.run()
-
-    simulation2 = pyQCD.Simulation.load("examples/basic.xml")
-    simulation2.run()
-
-The plaquettes for each of the individual configurations are then stored in the simulation object as the
-member "plaquettes", so in the above cases simulation1.plaquettes and simulation2.plaquettes contain the
-sequence of plaquttes values from the set of generated configurations.
-
-Measurements can be added to the simulation using the add_measurement function or inserted into the xml
-file, as follows:
-
-    .
-    .
-    .
-    simulation.add_measurement(pyQCD.Propagator, "propagators.zip", mass=0.4)
+    simulation.create_lattice(L=4, T=8, action="wilson", beta=5.5, u0=1.0)
     simulation.run()
-    
-    complete_simulation = pyQCD.Simulation.load("examples/measurements.xml")
-    complete_simulation.run()
 
-There is a one to one correspondence between the keyword argument names in the simulation functions and the
-tags used in the xml files, to create a coherent and unified interface (e.g. one can use num_field_smears in
-both the xml file and the Simulation.add_measurement function).
+The plaquettes for each of the individual configurations are then stored in the simulation object as the member
+"plaquettes", so in the above cases simulation.plaquettes contain the sequence of plaquttes values from the set
+of generated configurations.
+
+Measurements can be added to the simulation using the add_measurement function as follows:
+
+    .
+    .
+    .
+    simulation.add_measurement(pyQCD.Lattice.get_propagator,
+                               pyQCD.Propagator,
+			       "propagators.zip",
+			       kwargs={"mass": 0.4})
+    simulation.run()
 
 Results are saved in zip archives that can be opened using the pyQCD.DataSet object. The results may be loaded
 and analyzed in an object-orientated manner, as follows:
@@ -144,7 +136,10 @@ and analyzed in an object-orientated manner, as follows:
     
     for i in xrange(propagators.num_data):
         # Specify the propagators that make up the two-point function
-        correlators.add_datum(pyQCD.TwoPoint(propagators.get_datum(i), propagators.get_datum(i)))
+	twopoint = pyQCD.TwoPoint(L=4, T=8)
+	twopoint.compute_meson_correlator(propagators[i], propagators[i], pyQCD.gamma5, pyQCD.gamma5, "pion")
+        correlators.add_datum(twopoint)
     # Compute the energies of the zero-momentum pion and rho_x with a fit range of 2 <= t <= 6
+    correlator_mean, correlator_std = correlators.statistics()
     energies = correlators.jackknife(pyQCD.TwoPoint.compute_energy,
-                                     args=(["pion", "rho_x"], [2, 6]))
+                                     args=([2, 6], [1.0, 1.0], correlator_std.get_correlator("pion"), "pion"))
