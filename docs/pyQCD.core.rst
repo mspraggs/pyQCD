@@ -1,18 +1,15 @@
 core Package
 ============
 
-:mod:`config` Module
---------------------
-
-.. automodule:: pyQCD.core.config
+.. automodule:: pyQCD.core
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`constants` Module
------------------------
+:mod:`config` Module
+--------------------
 
-.. automodule:: pyQCD.core.constants
+.. automodule:: pyQCD.core.config
     :members:
     :undoc-members:
     :show-inheritance:

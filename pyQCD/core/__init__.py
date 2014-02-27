@@ -1,3 +1,17 @@
+"""
+Contains the core datatype used to store data and implement
+lattice simulations and analysis.
+
+Classes:
+  * Config
+  * DataSet
+  * Lattice
+  * Propagator
+  * Simulation
+  * TwoPoint
+  * WilsonLoops
+"""
+
 from lattice import Lattice
 from observable import Observable
 from propagator import Propagator

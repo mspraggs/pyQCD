@@ -74,6 +74,55 @@ class Simulation(object):
       
       >>> import pyQCD
       >>> simulation = pyQCD.Simulation(100, 10, 100)
+      
+      Create a simulation object, create a lattice and add the
+      get_config function (a member function of pyQCD.Lattice).
+      The function returns a pyQCD.Config object, and we store
+      these in "4c8_wilson_purgaug_configs".
+      
+      >>> import pyQCD
+      >>> sim = pyQCD.Simulation(100, 10, 100)
+      >>> sim.create_lattice(4, 8, "wilson", 5.5)
+      >>> sim.add_measurement(pyQCD.Lattice.get_config,
+      ...                     pyQCD.Config,
+      ...                     "4c8_wilson_purgaug_configs.zip")
+      >>> sim.run()
+      Simulation Settings
+      ``-------------------``
+      Number of configurations: 100
+      Measurement spacing: 10
+      Thermalization updates: 100
+      Update method: heatbath
+      Use OpenMP: True
+      Random number generator seed: -1
+      
+      Lattice Settings
+      ----------------
+      Spatial extent: 4
+      Temporal extent: 8
+      Gauge action: wilson
+      Inverse coupling (beta): 5.5
+      Mean link (u0): 1.0
+      Parallel sub-lattice size: 4
+      
+      Get Config Measurement Settings
+      -------------------------------
+      Filename: /absolute/path/to/configs.zip
+      
+      Thermalizing lattice...  Done!
+      Configuration: 0
+      Updating gauge field...  Done!
+      Average plaquette: 0.499948844134
+      Performing measurements...
+      - Running get_config...
+      Done!
+      .
+      .
+      .
+      Simulation completed in 0 hours, 5 minutes and 16.9606249332 seconds
+      
+      >>> simulation.plaquettes.shape
+      (100,)
       """
     
     def __init__(self, num_configs, measurement_spacing, num_warmup_updates,
