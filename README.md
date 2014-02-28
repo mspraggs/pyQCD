@@ -11,20 +11,35 @@ learn
 compatability is not yet guaranteed for newer versions. If something's broken, have a look at the function
 reference below, or check the python source code.***
 
-Installation
-------------
-To build and install the module, the following packages are required:
+Installation for Analysis Alone
+-------------------------------
+To get set up with the analysis components of the package only (i.e. without any tools to generate gauge
+configurations, compute propagators and the like) the following packages are required:
 
 * Python setuptools, tested with version 0.6.24, though may work with older versions;
+* numpy version 1.7 or greater;
+* scipy version 0.12 or greater.
+
+To test the module and build the docs, you'll need the following:
+
+* py.test for Python testing;
+* Python Sphinx along with the Napoleon extension.
+
+Installation should then be straightforward (administrator priviledges may be needed):
+
+    python setup.py install
+
+Installation for Simulation and Analysis
+----------------------------------------
+To build and use the simulation components of the package, you will need the following packages in addition
+to those above:
+
+* CMake 2.6 or greater
 * boost::python, boost::random and boost::test, all version 1.49.0 or greater;
 * Eigen C++ matrix library, version 3.1.3 or greater;
-* numpy version 1.7 or greater;
-* scipy version 0.12 or greater;
-* OpenMP (version 3), required for parallel updates, but not essential;
-* py.test for Python testing;
-* Python Sphinx along with the Napoleon extension to build the docs.
+* OpenMP (version 3), required for parallel updates, but not essential.
 
-pyQCD is capable of using CUDA capable GPUs to accelerate the inversion of Dirac matrices to generate
+pyQCD is capable of using CUDA-capable GPUs to accelerate the inversion of Dirac matrices to generate
 propagators. If you have a CUDA enabled GPU, and you want to use its capabilities, then you'll also need the
 following packages:
 
@@ -34,7 +49,6 @@ following packages:
 Once these are installed, the package can be built using cmake. On Unix-like OSes, this is straightforward:
 
     cmake .
-    make lattice
     make
 
 If you want to use CUDA, then you'll need to specify the path to CUSP when you run cmake. For example,
@@ -47,11 +61,7 @@ if you clone the CUSP library into /home/user/cusplibrary, then you'll need to r
 If you don't want to use CUDA, then you can either omit the CUSP library include path, in which case cmake
 will fall back to Eigen's sparse matrix inverters, or use the flag -DUSE_CUDA=0 when running cmake.
 
-With the package configured, the package can then be installed:
-
-    sudo make install
-
-Or, alternatively...
+Then proceed as above:
 
     python setup.py install
 
@@ -67,6 +77,8 @@ paths:
     -DBoost_LIBRARY_DIR=...
     -DPYTHON_LIBRARY=...
 
+Running the Tests
+-----------------
 Once everything's built and installed, it's a good idea to test it. First run the boost test executable:
 
     make test
@@ -79,8 +91,10 @@ in the project root directory or
 
     py.test
 
-in the module root directory
+in the module root directory.
 
+Building the Docs
+-----------------
 To build the documentation on linux, enter the docs directory and run
 
     make html

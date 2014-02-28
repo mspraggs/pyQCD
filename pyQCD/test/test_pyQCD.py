@@ -10,6 +10,12 @@ import string
 import zipfile
 
 from pyQCD import *
+
+try:
+    test_lattice = Lattice()
+    lattice_exists = True
+except NameError:
+    lattice_exists = False
         
 data_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data')
         
@@ -102,23 +108,24 @@ def random_su3_transform(lattice):
         matrix = lattice.get_link(link)
         new_matrix = np.dot(U, np.dot(matrix, np.conj(U.T)))
         lattice.set_link(link, new_matrix)
+
+if lattice_exists:
+    def test_random_su3_transform():
         
-def test_random_su3_transform():
-    
-    lattice = Lattice()
-    
-    random_su3_transform(lattice)
-    
-    links = make_links(lattice.T, lattice.L)
-    
-    for link in links:
-        determinant = spla.det(lattice.get_link(link))
-        assert np.abs(determinant - 1.0) < 1e-12
+        lattice = Lattice()
         
-        UUdagger = np.dot(lattice.get_link(link),
-                          np.conj(lattice.get_link(link).T))
-        assert (np.abs(UUdagger - np.identity(3))
-                < 1e-12 * np.ones((3, 3))).all()
+        random_su3_transform(lattice)
+        
+        links = make_links(lattice.T, lattice.L)
+        
+        for link in links:
+            determinant = spla.det(lattice.get_link(link))
+            assert np.abs(determinant - 1.0) < 1e-12
+        
+            UUdagger = np.dot(lattice.get_link(link),
+                              np.conj(lattice.get_link(link).T))
+            assert (np.abs(UUdagger - np.identity(3))
+                    < 1e-12 * np.ones((3, 3))).all()
         
 class floatWrapper(float):
     
@@ -156,405 +163,407 @@ class floatWrapper(float):
     def __pow__(self, x):
         return floatWrapper(float.__pow__(self, x))
     
-class TestLattice:
+if lattice_exists:
+    class TestLattice:
     
-    def test_block_calculation(self):
-        with pytest.raises(ValueError):
-            lattice = Lattice(L=3, T=5)
+        def test_block_calculation(self):
+            with pytest.raises(ValueError):
+                lattice = Lattice(L=3, T=5)
             
-    def test_get_link(self):
-        lattice = Lattice()
-        
-        links = make_links(lattice.T, lattice.L)
-        
-        offsets = [[t, x, y, z, 0]
+        def test_get_link(self):
+            lattice = Lattice()
+            
+            links = make_links(lattice.T, lattice.L)
+            
+            offsets = [[t, x, y, z, 0]
                    for t in [0, lattice.T]
                    for x in [0, lattice.L]
                    for y in [0, lattice.L]
                    for z in [0, lattice.L]]
         
-        # Check that periodic boundary conditions work
-        # Note if this test fails, most of the others will too because they
-        # depend on get_link (or the C++ version)
+            # Check that periodic boundary conditions work
+            # Note if this test fails, most of the others will too because they
+            # depend on get_link (or the C++ version)
         
-        for link in links:
-            for offset in offsets:
-                link_offset = map(lambda x, y: x + y, link, offset)
-                
-                assert (lattice.get_link(link) 
-                        == lattice.get_link(link_offset)).all()
+            for link in links:
+                for offset in offsets:
+                    link_offset = map(lambda x, y: x + y, link, offset)
+                    
+                    assert (lattice.get_link(link) 
+                            == lattice.get_link(link_offset)).all()
 
-    def test_set_link(self):
-        
-        lattice = Lattice()        
-        links = make_links(lattice.T, lattice.L)
-        
-        # Check that each link can be set properly
-        
-        for link in links:
-            U = make_random_su(3)
-            lattice.set_link(link, U)
-            assert (lattice.get_link(link) == U).all()
-        
-    def test_get_config(self):
-        
-        lattice = Lattice()
-        lattice.update()
-        
-        config = lattice.get_config()
-        
-        assert config.L == lattice.L
-        assert config.T == lattice.T
-        assert config.beta == lattice.beta
-        assert config.u0 == lattice.u0
-        assert config.action == lattice.action
-        
-        expected_shape = (lattice.T, lattice.L, lattice.L, lattice.L, 4, 3, 3)
-        
-        assert config.data.shape == expected_shape
-        
-        links = make_links(lattice.T, lattice.L)
-        
-        for link in links:
-            assert (lattice.get_link(link) == config.data[tuple(link)]).all()
-
-    def test_set_config(self):
-        # This could fail if the Config constructor doesn't work
-        lattice = Lattice()
-        
-        # Generate some fake su3 config
-        config_shape = (lattice.T, lattice.L, lattice.L, lattice.L, 4, 3, 3)
-        data = np.zeros(config_shape, dtype=np.complex)
-
-        links = make_links(lattice.T, lattice.L)
-        
-        for t, x, y, z, mu in links:
-            data[t][x][y][z] = make_random_su(3)
-
-        config = Config(data, lattice.L, lattice.T, lattice.beta, lattice.u0,
-                        lattice.action)
-        
-        lattice.set_config(config)
-        
-        assert lattice.L == config.L
-        assert lattice.T == config.T
-        assert lattice.beta == config.beta
-        assert lattice.u0 == config.u0
-        assert lattice.action == config.action
-        
-        for link in links:
-            assert (lattice.get_link(link) == config.data[tuple(link)]).all()
+        def test_set_link(self):
             
-    def test_save_config(self):
-        
-        lattice = Lattice()
-        
-        lattice.save_config("test_config.npz")
-        
-        assert os.path.exists("test_config.npz")
-        
-        test_config = np.load("test_config.npz")
-        
-        assert "data" in test_config.files
-        assert "header" in test_config.files
-
-    def test_load_config(self):
-        
-        lattice = Lattice()
-
-        lattice.load_config("test_config.npz")
-        
-        os.unlink("test_config.npz")
-        
-    def test_update(self):
-        
-        lattice = Lattice(rand_seed = 0, update_method = "heatbath")
-        tolerance = 1e-14 * np.ones((lattice.T, lattice.L, lattice.L,
-                                     lattice.L, 4, 3, 3))
-        lattice.update()
-        
-        expected_config = np.load("{}/config_heatbath_rs0.npy".format(data_dir))
-        actual_config = lattice.get_config().data
-        
-        assert (np.abs(expected_config - actual_config) < tolerance).all()
-        
-        lattice = Lattice(rand_seed = 1, update_method = "heatbath")
-        lattice.update()
-        
-        expected_config = np.load("{}/config_heatbath_rs1.npy".format(data_dir))
-        actual_config = lattice.get_config().data
-        
-        assert (np.abs(expected_config - actual_config) < tolerance).all()
-        
-        lattice = Lattice(rand_seed = 0, update_method = "metropolis")
-        lattice.update()
-        
-        expected_config = np.load("{}/config_metropolis_rs0.npy".format(data_dir))
-        actual_config = lattice.get_config().data
-        
-        assert (np.abs(expected_config - actual_config) < tolerance).all()
-        
-        lattice = Lattice(rand_seed = 1, update_method = "metropolis")
-        lattice.update()
-        
-        expected_config = np.load("{}/config_metropolis_rs1.npy".format(data_dir))
-        actual_config = lattice.get_config().data
-        
-        assert (np.abs(expected_config - actual_config) < tolerance).all()
-        
-        lattice = Lattice(rand_seed = 0, update_method = "staple_metropolis")
-        lattice.update()
-        
-        expected_config = np.load("{}/config_staple_metropolis_rs0.npy".format(data_dir))
-        actual_config = lattice.get_config().data
-        
-        assert (np.abs(expected_config - actual_config) < tolerance).all()
-        
-        lattice = Lattice(rand_seed = 1, update_method = "staple_metropolis")
-        lattice.update()
-        
-        expected_config = np.load("{}/config_staple_metropolis_rs1.npy".format(data_dir))
-        actual_config = lattice.get_config().data
-        
-        assert (np.abs(expected_config - actual_config) < tolerance).all()      
-
-    def test_next_config(self):
-        
-        lattice = Lattice(rand_seed=0, n_cor=100)
-        
-        lattice.next_config()
-        links = make_links(lattice.T, lattice.L)
-        
-        for link in links:
-            matrix = lattice.get_link([0, 0, 0, 0, 0])
-            # Test that the gauge links are SU3
-            determinant = spla.det(matrix)
-            assert np.abs(spla.det(matrix) - 1.0) < 1e-12
-        
-            UUdagger = np.dot(matrix, np.conj(matrix.T))
-            assert (np.abs(UUdagger - np.identity(3)) 
-                    < 1e-12 * np.ones((3, 3))).all()
+            lattice = Lattice()
+            links = make_links(lattice.T, lattice.L)
             
-    def test_thermalize(self):
-        
-        lattice = Lattice(T=8, L=8)
-        
-        lattice.thermalize(200)
-        
-        assert np.abs(lattice.get_av_plaquette() - 0.5) < 0.1
-
-    def test_get_plaquette(self):
-        
-        lattice = Lattice()
-        
-        sites = make_sites(lattice.T, lattice.L)
-        
-        for site in sites:
-            for mu, nu in zip([0, 0, 0, 1, 1, 2], [1, 2, 3, 2, 3, 3]):
-                assert lattice.get_plaquette(site, mu, nu) == 1.0
-                
-        for i in xrange(100):
+            # Check that each link can be set properly
+            
+            for link in links:
+                U = make_random_su(3)
+                lattice.set_link(link, U)
+                assert (lattice.get_link(link) == U).all()
+            
+        def test_get_config(self):
+            
+            lattice = Lattice()
             lattice.update()
-        
-        # Test for gauge invariance  
-        plaquettes = [lattice.get_plaquette(site, mu, nu)
-                      for mu in [0, 0, 0, 1, 1, 2]
-                      for nu in [1, 2, 3, 2, 3, 3]
-                      for site in sites]
 
-        random_su3_transform(lattice)
-        
-        transformed_plaquettes = [lattice.get_plaquette(site, mu, nu)
-                                  for mu in [0, 0, 0, 1, 1, 2]
-                                  for nu in [1, 2, 3, 2, 3, 3]
-                                  for site in sites]
+            config = lattice.get_config()
+            
+            assert config.L == lattice.L
+            assert config.T == lattice.T
+            assert config.beta == lattice.beta
+            assert config.u0 == lattice.u0
+            assert config.action == lattice.action
+            
+            expected_shape = (lattice.T, lattice.L, lattice.L, lattice.L, 4, 3, 3)
+            
+            assert config.data.shape == expected_shape
+            
+            links = make_links(lattice.T, lattice.L)
+            
+            for link in links:
+                assert (lattice.get_link(link) == config.data[tuple(link)]).all()
 
-        for P1, P2 in zip(plaquettes, transformed_plaquettes):
-            assert np.abs(P1 - P2) < 5e-15
+        def test_set_config(self):
+            # This could fail if the Config constructor doesn't work
+            lattice = Lattice()
+            
+            # Generate some fake su3 config
+            config_shape = (lattice.T, lattice.L, lattice.L, lattice.L, 4, 3, 3)
+            data = np.zeros(config_shape, dtype=np.complex)
 
-    def test_get_rectangle(self):
-        
-        lattice = Lattice()
-        
-        sites = make_sites(lattice.T, lattice.L)
-        
-        for site in sites:
-            for mu, nu in zip([0, 0, 0, 1, 1, 2], [1, 2, 3, 2, 3, 3]):
-                assert lattice.get_rectangle(site, mu, nu) == 1.0
+            links = make_links(lattice.T, lattice.L)
+            
+            for t, x, y, z, mu in links:
+                data[t][x][y][z] = make_random_su(3)
+
+            config = Config(data, lattice.L, lattice.T, lattice.beta, lattice.u0,
+                            lattice.action)
+            
+            lattice.set_config(config)
+            
+            assert lattice.L == config.L
+            assert lattice.T == config.T
+            assert lattice.beta == config.beta
+            assert lattice.u0 == config.u0
+            assert lattice.action == config.action
+            
+            for link in links:
+                assert (lattice.get_link(link) == config.data[tuple(link)]).all()
                 
-        for i in xrange(100):
+        def test_save_config(self):
+        
+            lattice = Lattice()
+            
+            lattice.save_config("test_config.npz")
+            
+            assert os.path.exists("test_config.npz")
+            
+            test_config = np.load("test_config.npz")
+            
+            assert "data" in test_config.files
+            assert "header" in test_config.files
+
+        def test_load_config(self):
+            
+            lattice = Lattice()
+
+            lattice.load_config("test_config.npz")
+            
+            os.unlink("test_config.npz")
+            
+        def test_update(self):
+            
+            lattice = Lattice(rand_seed = 0, update_method = "heatbath")
+            tolerance = 1e-14 * np.ones((lattice.T, lattice.L, lattice.L,
+                                         lattice.L, 4, 3, 3))
             lattice.update()
-        
-        # Test for gauge invariance  
-        rectangles = [lattice.get_rectangle(site, mu, nu)
-                      for mu in [0, 0, 0, 1, 1, 2]
-                      for nu in [1, 2, 3, 2, 3, 3]
-                      for site in sites]
+            
+            expected_config = np.load("{}/config_heatbath_rs0.npy".format(data_dir))
+            actual_config = lattice.get_config().data
+            
+            assert (np.abs(expected_config - actual_config) < tolerance).all()
+            
+            lattice = Lattice(rand_seed = 1, update_method = "heatbath")
+            lattice.update()
+            
+            expected_config = np.load("{}/config_heatbath_rs1.npy".format(data_dir))
+            actual_config = lattice.get_config().data
+            
+            assert (np.abs(expected_config - actual_config) < tolerance).all()
+            
+            lattice = Lattice(rand_seed = 0, update_method = "metropolis")
+            lattice.update()
+            
+            expected_config = np.load("{}/config_metropolis_rs0.npy".format(data_dir))
+            actual_config = lattice.get_config().data
+            
+            assert (np.abs(expected_config - actual_config) < tolerance).all()
+            
+            lattice = Lattice(rand_seed = 1, update_method = "metropolis")
+            lattice.update()
+            
+            expected_config = np.load("{}/config_metropolis_rs1.npy".format(data_dir))
+            actual_config = lattice.get_config().data
+            
+            assert (np.abs(expected_config - actual_config) < tolerance).all()
+            
+            lattice = Lattice(rand_seed = 0, update_method = "staple_metropolis")
+            lattice.update()
+            
+            expected_config = np.load("{}/config_staple_metropolis_rs0.npy".format(data_dir))
+            actual_config = lattice.get_config().data
+            
+            assert (np.abs(expected_config - actual_config) < tolerance).all()
+            
+            lattice = Lattice(rand_seed = 1, update_method = "staple_metropolis")
+            lattice.update()
+            
+            expected_config = np.load("{}/config_staple_metropolis_rs1.npy".format(data_dir))
+            actual_config = lattice.get_config().data
+            
+            assert (np.abs(expected_config - actual_config) < tolerance).all()      
 
-        random_su3_transform(lattice)
-        
-        transformed_rectangles = [lattice.get_rectangle(site, mu, nu)
-                                  for mu in [0, 0, 0, 1, 1, 2]
-                                  for nu in [1, 2, 3, 2, 3, 3]
-                                  for site in sites]
+        def test_next_config(self):
+            
+            lattice = Lattice(rand_seed=0, n_cor=100)
+            
+            lattice.next_config()
+            links = make_links(lattice.T, lattice.L)
+            
+            for link in links:
+                matrix = lattice.get_link([0, 0, 0, 0, 0])
+                # Test that the gauge links are SU3
+                determinant = spla.det(matrix)
+                assert np.abs(spla.det(matrix) - 1.0) < 1e-12
+            
+                UUdagger = np.dot(matrix, np.conj(matrix.T))
+                assert (np.abs(UUdagger - np.identity(3)) 
+                        < 1e-12 * np.ones((3, 3))).all()
+            
+        def test_thermalize(self):
+            
+            lattice = Lattice(T=8, L=8)
+            
+            lattice.thermalize(200)
+            
+            assert np.abs(lattice.get_av_plaquette() - 0.5) < 0.1
 
-        for R1, R2 in zip(rectangles, transformed_rectangles):
-            assert np.abs(R1 - R2) < 5e-15
+        def test_get_plaquette(self):
+            
+            lattice = Lattice()
+            
+            sites = make_sites(lattice.T, lattice.L)
+            
+            for site in sites:
+                for mu, nu in zip([0, 0, 0, 1, 1, 2], [1, 2, 3, 2, 3, 3]):
+                    assert lattice.get_plaquette(site, mu, nu) == 1.0
+                        
+            for i in xrange(100):
+                lattice.update()
+            
+            # Test for gauge invariance  
+            plaquettes = [lattice.get_plaquette(site, mu, nu)
+                          for mu in [0, 0, 0, 1, 1, 2]
+                          for nu in [1, 2, 3, 2, 3, 3]
+                          for site in sites]
 
-    def test_get_twist_rect(self):
-        
-        lattice = Lattice()
-        
-        sites = make_sites(lattice.T, lattice.L)
-        
-        for site in sites:
-            for mu, nu in zip([0, 0, 0, 1, 1, 2], [1, 2, 3, 2, 3, 3]):
-                assert lattice.get_rectangle(site, mu, nu) == 1.0
+            random_su3_transform(lattice)
+            
+            transformed_plaquettes = [lattice.get_plaquette(site, mu, nu)
+                                      for mu in [0, 0, 0, 1, 1, 2]
+                                      for nu in [1, 2, 3, 2, 3, 3]
+                                      for site in sites]
+
+            for P1, P2 in zip(plaquettes, transformed_plaquettes):
+                assert np.abs(P1 - P2) < 5e-15
+
+        def test_get_rectangle(self):
                 
-        for i in xrange(100):
-            lattice.update()
-        
-        # Test for gauge invariance  
-        twist_rectangles = [lattice.get_twist_rect(site, mu, nu)
-                      for mu in [0, 0, 0, 1, 1, 2]
-                      for nu in [1, 2, 3, 2, 3, 3]
-                      for site in sites]
-
-        random_su3_transform(lattice)
-        
-        transformed_twist_rectangles = [lattice.get_twist_rect(site, mu, nu)
-                                        for mu in [0, 0, 0, 1, 1, 2]
-                                        for nu in [1, 2, 3, 2, 3, 3]
-                                        for site in sites]
-
-        for T1, T2 in zip(twist_rectangles, transformed_twist_rectangles):
-            assert np.abs(T1 - T2) < 5e-15
-
-    def test_get_wilson_loop(self):
-        
-        lattice = Lattice()
-        
-        sites = make_sites(lattice.T, lattice.L)
-        
-        T_range = [1, lattice.T / 2, lattice.T - 1]
-        L_range = [1, lattice.L / 2, lattice.L - 1]
-        
-        for site in sites:
-            for r, t in itertools.product(L_range, T_range):
-                for dim in range(1, 4):
-                    for n in range(3):
-                        assert lattice.get_wilson_loop(site, r, t, dim, n, 0.5) \
-                          == 1.0
+            lattice = Lattice()
+            
+            sites = make_sites(lattice.T, lattice.L)
+            
+            for site in sites:
+                for mu, nu in zip([0, 0, 0, 1, 1, 2], [1, 2, 3, 2, 3, 3]):
+                    assert lattice.get_rectangle(site, mu, nu) == 1.0
                 
-        for i in xrange(100):
+            for i in xrange(100):
+                lattice.update()
+            
+            # Test for gauge invariance  
+            rectangles = [lattice.get_rectangle(site, mu, nu)
+                          for mu in [0, 0, 0, 1, 1, 2]
+                          for nu in [1, 2, 3, 2, 3, 3]
+                          for site in sites]
+
+            random_su3_transform(lattice)
+            
+            transformed_rectangles = [lattice.get_rectangle(site, mu, nu)
+                                      for mu in [0, 0, 0, 1, 1, 2]
+                                      for nu in [1, 2, 3, 2, 3, 3]
+                                      for site in sites]
+
+            for R1, R2 in zip(rectangles, transformed_rectangles):
+                assert np.abs(R1 - R2) < 5e-15
+
+        def test_get_twist_rect(self):
+        
+            lattice = Lattice()
+        
+            sites = make_sites(lattice.T, lattice.L)
+        
+            for site in sites:
+                for mu, nu in zip([0, 0, 0, 1, 1, 2], [1, 2, 3, 2, 3, 3]):
+                    assert lattice.get_rectangle(site, mu, nu) == 1.0
+                
+            for i in xrange(100):
+                lattice.update()
+        
+            # Test for gauge invariance  
+            twist_rectangles = [lattice.get_twist_rect(site, mu, nu)
+                                for mu in [0, 0, 0, 1, 1, 2]
+                                for nu in [1, 2, 3, 2, 3, 3]
+                                for site in sites]
+
+            random_su3_transform(lattice)
+        
+            transformed_twist_rectangles = [lattice.get_twist_rect(site, mu, nu)
+                                            for mu in [0, 0, 0, 1, 1, 2]
+                                            for nu in [1, 2, 3, 2, 3, 3]
+                                            for site in sites]
+
+            for T1, T2 in zip(twist_rectangles, transformed_twist_rectangles):
+                assert np.abs(T1 - T2) < 5e-15
+
+        def test_get_wilson_loop(self):
+        
+            lattice = Lattice()
+            
+            sites = make_sites(lattice.T, lattice.L)
+            
+            T_range = [1, lattice.T / 2, lattice.T - 1]
+            L_range = [1, lattice.L / 2, lattice.L - 1]
+            
+            for site in sites:
+                for r, t in itertools.product(L_range, T_range):
+                    for dim in range(1, 4):
+                        for n in range(3):
+                            assert lattice.get_wilson_loop(site, r, t,
+                                                           dim, n, 0.5) \
+                              == 1.0
+                
+            for i in xrange(100):
+                lattice.update()
+            
+            # Test for gauge invariance - only valid for non-smeared gauge fields   
+            wilson_loops \
+              = [lattice.get_wilson_loop(site, r, t, dim)
+                 for dim in range(1, 4)
+                 for r, t in itertools.product(L_range, T_range)
+                 for site in sites]
+
+            random_su3_transform(lattice)
+            
+            transformed_wilson_loops \
+              = [lattice.get_wilson_loop(site, r, t, dim)
+                 for dim in range(1, 4)
+                 for r, t in itertools.product(L_range, T_range)
+                 for site in sites]
+
+            for W1, W2 in zip(wilson_loops, transformed_wilson_loops):
+                assert np.abs(W1 - W2) < 5e-15
+            
+            W1 = lattice.get_wilson_loop([0, 0, 0, 0, 0], 4, 4, 1)
+            for n in xrange(10):
+                W2 = lattice.get_wilson_loop([0, 0, 0, 0, 0], 4, 4, 1, 0, 0.1 * n)
+                assert W1 == W2
+
+        def test_get_av_plaquette(self):
+            
+            lattice = Lattice(rand_seed=0)
             lattice.update()
-        
-        # Test for gauge invariance - only valid for non-smeared gauge fields   
-        wilson_loops \
-          = [lattice.get_wilson_loop(site, r, t, dim)
-             for dim in range(1, 4)
-             for r, t in itertools.product(L_range, T_range)
-             for site in sites]
+            
+            assert np.abs(lattice.get_av_plaquette() - 0.6744055385048071) < 1e-12
+            
+            random_su3_transform(lattice)
+            
+            assert np.abs(lattice.get_av_plaquette() - 0.6744055385048071) < 1e-12
 
-        random_su3_transform(lattice)
-        
-        transformed_wilson_loops \
-          = [lattice.get_wilson_loop(site, r, t, dim)
-             for dim in range(1, 4)
-             for r, t in itertools.product(L_range, T_range)
-             for site in sites]
+        def test_get_av_rectangle(self):
+            
+            lattice = Lattice(rand_seed=0)
+            lattice.update()
+            
+            assert np.abs(lattice.get_av_rectangle() - 0.5093032901600738) < 1e-12
+            
+            random_su3_transform(lattice)
+            
+            assert np.abs(lattice.get_av_rectangle() - 0.5093032901600738) < 1e-12
 
-        for W1, W2 in zip(wilson_loops, transformed_wilson_loops):
-            assert np.abs(W1 - W2) < 5e-15
-        
-        W1 = lattice.get_wilson_loop([0, 0, 0, 0, 0], 4, 4, 1)
-        for n in xrange(10):
-            W2 = lattice.get_wilson_loop([0, 0, 0, 0, 0], 4, 4, 1, 0, 0.1 * n)
-            assert W1 == W2
+        def test_get_av_wilson_loop(self):
+            
+            lattice = Lattice(rand_seed=0)
+            lattice.update()
+            
+            W = lattice.get_av_wilson_loop(4, 4)
+            assert np.abs(W - 0.2883925516552541) < 1e-12
 
-    def test_get_av_plaquette(self):
-        
-        lattice = Lattice(rand_seed=0)
-        lattice.update()
-        
-        assert np.abs(lattice.get_av_plaquette() - 0.6744055385048071) < 1e-12
-        
-        random_su3_transform(lattice)
-        
-        assert np.abs(lattice.get_av_plaquette() - 0.6744055385048071) < 1e-12
+            random_su3_transform(lattice)
+            
+            W = lattice.get_av_wilson_loop(4, 4)
+            assert np.abs(W - 0.2883925516552541) < 1e-12
 
-    def test_get_av_rectangle(self):
-        
-        lattice = Lattice(rand_seed=0)
-        lattice.update()
-        
-        assert np.abs(lattice.get_av_rectangle() - 0.5093032901600738) < 1e-12
-        
-        random_su3_transform(lattice)
-        
-        assert np.abs(lattice.get_av_rectangle() - 0.5093032901600738) < 1e-12
+        def test_get_wilson_loops(self):
+            
+            lattice = Lattice()
+            
+            for n in xrange(3):
+                wilson_loops = lattice.get_wilson_loops(n, 0.5)
+            
+                for r in xrange(lattice.L):
+                    for t in xrange(lattice.T):
+                        assert wilson_loops.data[r, t] \
+                          == lattice.get_av_wilson_loop(r, t, n, 0.5)
 
-    def test_get_av_wilson_loop(self):
+        def test_get_propagator(self):
+            
+            lattice = Lattice(rand_seed=0, update_method="heatbath")
+            
+            propagator = lattice.get_propagator(0.4)
+            
+            expected_shape = (lattice.T, lattice.L, lattice.L, lattice.L, 4, 4, 3, 3)
+            actual_shape = propagator.data.shape
+            
+            assert expected_shape == actual_shape
+            
+            tolerance = 1e-12 * np.ones(expected_shape)
+            
+            expected_propagator \
+              = np.load("{}/propagator_tree_level_4c8_4000_no_smear.npy"
+                        .format(data_dir))
+            actual_propagator = propagator.data
+            
+            assert (np.abs(expected_propagator - actual_propagator)
+                    < tolerance).all()
+            
+            lattice.update()
+            
+            expected_propagator \
+              = np.load("{}/propagator_tree_level_4c8_4000_no_smear.npy"
+                        .format(data_dir))
+            actual_propagator = propagator.data
         
-        lattice = Lattice(rand_seed=0)
-        lattice.update()
-        
-        W = lattice.get_av_wilson_loop(4, 4)
-        assert np.abs(W - 0.2883925516552541) < 1e-12
-
-        random_su3_transform(lattice)
-        
-        W = lattice.get_av_wilson_loop(4, 4)
-        assert np.abs(W - 0.2883925516552541) < 1e-12
-
-    def test_get_wilson_loops(self):
-        
-        lattice = Lattice()
-        
-        for n in xrange(3):
-            wilson_loops = lattice.get_wilson_loops(n, 0.5)
-        
-            for r in xrange(lattice.L):
-                for t in xrange(lattice.T):
-                    assert wilson_loops.data[r, t] \
-                      == lattice.get_av_wilson_loop(r, t, n, 0.5)
-
-    def test_get_propagator(self):
-        
-        lattice = Lattice(rand_seed=0, update_method="heatbath")
-        
-        propagator = lattice.get_propagator(0.4)
-        
-        expected_shape = (lattice.T, lattice.L, lattice.L, lattice.L, 4, 4, 3, 3)
-        actual_shape = propagator.data.shape
-        
-        assert expected_shape == actual_shape
-        
-        tolerance = 1e-12 * np.ones(expected_shape)
-        
-        expected_propagator \
-          = np.load("{}/propagator_tree_level_4c8_4000_no_smear.npy"
-                    .format(data_dir))
-        actual_propagator = propagator.data
-        
-        assert (np.abs(expected_propagator - actual_propagator)
-                < tolerance).all()
-        
-        lattice.update()
-        
-        expected_propagator \
-          = np.load("{}/propagator_tree_level_4c8_4000_no_smear.npy"
-                    .format(data_dir))
-        actual_propagator = propagator.data
-        
-        assert (np.abs(expected_propagator - actual_propagator)
-                < tolerance).all()        
+            assert (np.abs(expected_propagator - actual_propagator)
+                    < tolerance).all()        
     
-    def test_get_av_link(self):
-        
-        lattice = Lattice()
+        def test_get_av_link(self):
+            
+            lattice = Lattice()
 
-        assert lattice.get_av_link() - 1.0 < 1e-10
+            assert lattice.get_av_link() - 1.0 < 1e-10
 
 class TestObservable:
     
@@ -835,9 +844,9 @@ class TestPropagator:
         expected_prop = np.conj(np.transpose(prop_data,
                                              [0, 1, 2, 3, 5, 4, 7, 6]))
         
-        expected_prop = np.tensordot(expected_prop, constants.gamma5, (5, 0))
+        expected_prop = np.tensordot(expected_prop, gamma5, (5, 0))
         expected_prop = np.transpose(expected_prop, [0, 1, 2, 3, 4, 7, 5, 6])
-        expected_prop = np.tensordot(constants.gamma5, expected_prop, (1, 4))
+        expected_prop = np.tensordot(gamma5, expected_prop, (1, 4))
         expected_prop = np.transpose(expected_prop, [1, 2, 3, 4, 0, 5, 6, 7])
         
         assert (prop_adjoint.data == expected_prop).all()
@@ -1089,7 +1098,7 @@ class TestTwoPoint:
         
         momenta = [0, 0, 0]
         twopoint = TwoPoint(8, 4)
-        source_interpolators = [constants.gamma5, "g5", "pion"]
+        source_interpolators = [gamma5, "g5", "pion"]
         sink_interpolators = source_interpolators
         label = "pion"
         
@@ -1123,8 +1132,8 @@ class TestTwoPoint:
                     .format(data_dir))
         
         twopoint = TwoPoint(16, 8)
-        source_interpolator = constants.gamma5
-        sink_interpolator = constants.gamma5
+        source_interpolator = gamma5
+        sink_interpolator = gamma5
         label = "another_pion"
         
         twopoint.compute_meson_correlator(propagator, propagator,
@@ -1660,70 +1669,71 @@ class TestWilsonLoops:
         
         assert (np.abs(actual_potential - expected_potential)
                 < 1e-10 * np.abs(expected_potential)).all()
-        
-class TestSimulation:
     
-    def test_init(self):
+if lattice_exists:
+    class TestSimulation:
         
-        simulation = Simulation(100, 10, 250)
-        simulation = Simulation(100, 10, 250, "heatbath", False, rand_seed=-1,
-                                verbosity=0)
-        
-    def test_create_lattice(self):
-        
-        simulation = Simulation(100, 10, 250)
-        simulation.create_lattice(4, 8, "wilson", 5.5)
-        simulation.create_lattice(4, 8, "wilson", 5.5, 1.0, 4)
-        
-    def test_load_ensemble(self):
-        
-        simulation = Simulation(100, 10, 250)
-        
-        with pytest.raises(AttributeError):
-            simulation.load_ensemble("dummy")
+        def test_init(self):
             
-        simulation.create_lattice(4, 8, "wilson", 5.5)
+            simulation = Simulation(100, 10, 250)
+            simulation = Simulation(100, 10, 250, "heatbath", False, rand_seed=-1,
+                                    verbosity=0)
         
-        with pytest.raises(AttributeError):
+        def test_create_lattice(self):
+            
+            simulation = Simulation(100, 10, 250)
+            simulation.create_lattice(4, 8, "wilson", 5.5)
+            simulation.create_lattice(4, 8, "wilson", 5.5, 1.0, 4)
+            
+        def test_load_ensemble(self):
+            
+            simulation = Simulation(100, 10, 250)
+            
+            with pytest.raises(AttributeError):
+                simulation.load_ensemble("dummy")
+                
+            simulation.create_lattice(4, 8, "wilson", 5.5)
+            
+            with pytest.raises(AttributeError):
+                simulation.load_ensemble("{}/4c8_ensemble.zip".format(data_dir))
+                
+            simulation = Simulation(3, 10, 100)
+            simulation.create_lattice(8, 8, "wilson", 5.5)
+            
+            with pytest.raises(AttributeError):
+                simulation.load_ensemble("{}/4c8_ensemble.zip".format(data_dir))
+                
+            simulation = Simulation(3, 10, 100)
+            simulation.create_lattice(4, 16, "wilson", 5.5)
+            
+            with pytest.raises(AttributeError):
+                simulation.load_ensemble("{}/4c8_ensemble.zip".format(data_dir))
+                
+            simulation = Simulation(3, 10, 100)
+            simulation.create_lattice(4, 8, "wilson", 5.5)
             simulation.load_ensemble("{}/4c8_ensemble.zip".format(data_dir))
-            
-        simulation = Simulation(3, 10, 100)
-        simulation.create_lattice(8, 8, "wilson", 5.5)
         
-        with pytest.raises(AttributeError):
+        def test_add_measurement(self):
+        
+            simulation = Simulation(100, 10, 250)
+            simulation.add_measurement(Lattice.get_config, Config,
+                                       "configs.zip")
+            simulation.add_measurement(Lattice.get_config, Config, "configs.zip",
+                                       meas_message="Getting correlator")
+            
+        def test_run(self):
+            
+            simulation = Simulation(5, 10, 100)
+            simulation.create_lattice(4, 8, "wilson", 5.5)
+            simulation.add_measurement(Lattice.get_config, Config, "configs.zip",
+                                       meas_message="Storing gauge configuration")
+            simulation.run()
+        
+            simulation = Simulation(3, 10, 100)
+            simulation.create_lattice(4, 8, "wilson", 5.5)
             simulation.load_ensemble("{}/4c8_ensemble.zip".format(data_dir))
-            
-        simulation = Simulation(3, 10, 100)
-        simulation.create_lattice(4, 16, "wilson", 5.5)
-        
-        with pytest.raises(AttributeError):
-            simulation.load_ensemble("{}/4c8_ensemble.zip".format(data_dir))
-            
-        simulation = Simulation(3, 10, 100)
-        simulation.create_lattice(4, 8, "wilson", 5.5)
-        simulation.load_ensemble("{}/4c8_ensemble.zip".format(data_dir))
-        
-    def test_add_measurement(self):
-        
-        simulation = Simulation(100, 10, 250)
-        simulation.add_measurement(Lattice.get_config, Config,
-                                   "configs.zip")
-        simulation.add_measurement(Lattice.get_config, Config, "configs.zip",
-                                   meas_message="Getting correlator")
-        
-    def test_run(self):
-        
-        simulation = Simulation(5, 10, 100)
-        simulation.create_lattice(4, 8, "wilson", 5.5)
-        simulation.add_measurement(Lattice.get_config, Config, "configs.zip",
-                                   meas_message="Storing gauge configuration")
-        simulation.run()
-        
-        simulation = Simulation(3, 10, 100)
-        simulation.create_lattice(4, 8, "wilson", 5.5)
-        simulation.load_ensemble("{}/4c8_ensemble.zip".format(data_dir))
-        simulation.add_measurement(Lattice.get_config, Config, "configs.zip")
-        simulation.run()
+            simulation.add_measurement(Lattice.get_config, Config, "configs.zip")
+            simulation.run()
                
 class TestEnsemble:
     pass
