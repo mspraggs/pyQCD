@@ -1,7 +1,9 @@
-from observable import Observable
 import warnings
+
 import numpy as np
 import scipy.optimize as spop
+
+from observable import Observable
 
 class WilsonLoops(Observable):
     """Create a Wilson loop object

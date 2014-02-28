@@ -1,12 +1,13 @@
+import sys
+import time
+
+import numpy as np
+
 from lattice import Lattice
 from config import Config
 from propagator import Propagator
 from wilslps import WilsonLoops
 from dataset import DataSet
-
-import numpy as np
-import sys
-import time
 
 class Simulation(object):
     """Creates, configures and runs a lattice simulation.

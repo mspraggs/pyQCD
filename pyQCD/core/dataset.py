@@ -1,7 +1,8 @@
+import os
 import cPickle
 import zipfile
-import os
 import warnings
+
 import numpy as np
 import numpy.random as npr
 

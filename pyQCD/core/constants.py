@@ -1,5 +1,6 @@
-import numpy as np
 import itertools
+
+import numpy as np
 
 id4 = np.identity(4)
 

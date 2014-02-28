@@ -1,8 +1,11 @@
-from kernel import lattice
-import wilslps, propagator, config
-import dicts
 import itertools
 import numpy as np
+
+from kernel import lattice
+import wilslps
+import propagator
+import config
+import dicts
 
 class Lattice(lattice.Lattice):
     """Encapsulates a hypercubic lattice and associated SU(3) gauge field

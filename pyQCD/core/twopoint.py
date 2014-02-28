@@ -1,12 +1,14 @@
-from observable import Observable
-from propagator import Propagator
-import numpy as np
-import constants as const
-import itertools
-import scipy.optimize as spop
 import re
 import xml.etree.ElementTree as ET
+import itertools
 import warnings
+
+import numpy as np
+import scipy.optimize as spop
+
+import constants as const
+from observable import Observable
+from propagator import Propagator
 
 class TwoPoint(Observable):
     """Encapsulates two-point function data and provides fitting tools.
