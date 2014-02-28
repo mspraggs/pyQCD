@@ -1,6 +1,7 @@
 import cPickle
 import zipfile
 import os
+import warnings
 import numpy as np
 import numpy.random as npr
 
@@ -63,7 +64,7 @@ class DataSet:
             zfile = zipfile.ZipFile(filename, 'w', storage_mode, True)
             self.large_file = True
         except RuntimeError:
-            print("Warning: > 2GB data set not supported.")
+            warnings.warn("> 2GB data set not supported.", RuntimeWarning)
             storage_mode = zipfile.ZIP_STORED
             zfile = zipfile.ZipFile(filename, 'w', storage_mode, False)
             self.large_file = False

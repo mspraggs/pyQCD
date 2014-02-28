@@ -6,6 +6,7 @@ import itertools
 import scipy.optimize as spop
 import re
 import xml.etree.ElementTree as ET
+import warnings
 
 class TwoPoint(Observable):
     """Encapsulates two-point function data and provides fitting tools.
@@ -820,6 +821,10 @@ class TwoPoint(Observable):
         
         b, result = spop.leastsq(fit_function, initial_parameters,
                                  args=(x, y, err))
+        
+        if [1, 2, 3, 4].count(result) < 1:
+            warnings.warn("fit failed when calculating potential at "
+                          "r = {}".format(r), RuntimeWarning)
         
         if postprocess_function == None:
             return b

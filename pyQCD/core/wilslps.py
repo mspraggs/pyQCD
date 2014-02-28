@@ -1,4 +1,5 @@
 from observable import Observable
+import warnings
 import numpy as np
 import scipy.optimize as spop
 
@@ -97,8 +98,8 @@ class WilsonLoops(Observable):
                                           args=(t, self.data[r]))
             
             if [1, 2, 3, 4].count(result) < 1:
-                print("Warning: fit failed when calculating potential at "
-                      "r = {}".format(r))
+                warnings.warn("fit failed when calculating potential at "
+                              "r = {}".format(r), RuntimeWarning)
                 
             out[r] = params[1]
             
@@ -116,7 +117,8 @@ class WilsonLoops(Observable):
                                  args=(r[1:], potential[1:]))
         
         if [1, 2, 3, 4].count(result) < 1:
-            print("Warning: fit failed while determining potential parameters")
+            warnings.warn("fit failed when calculating potential at "
+                          "r = {}".format(r), RuntimeWarning)
             
         return b
 
