@@ -1,13 +1,13 @@
-import pytest
-import numpy as np
-import numpy.random as npr
-import scipy.linalg as spla
-
 import os
 import shutil
 import itertools
 import string
 import zipfile
+
+import pytest
+import numpy as np
+import numpy.random as npr
+import scipy.linalg as spla
 
 from pyQCD import *
 
@@ -1057,6 +1057,15 @@ class TestTwoPoint:
                                        .format(data_dir))
                                        
         assert len(twopoint.computed_correlators) == 8
+            
+    def test_load_chroma_hadspec(self):
+        
+        twopoint = TwoPoint(8, 4)
+        
+        twopoint.load_chroma_hadspec("{}/hadspec.dat.xml" \
+                                     .format(data_dir))
+                                       
+        assert len(twopoint.computed_correlators) == 95
             
     def test_load_chroma_hadspec_mesons(self):
         

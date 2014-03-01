@@ -413,6 +413,34 @@ class TwoPoint(Observable):
                 self.add_correlator(correlator, label, (mass_1, mass_2),
                                     momentum, source_type, sink_type, True, fold)
             
+    def load_chroma_hadspec(self, filename, fold=False):
+        """Loads the correlator(s) present in the supplied Chroma
+        hadspec output xml file
+        
+        Args:
+          filename (str): The name of the file in which the correlators
+            are contained.
+          fold (bool, optional): Determines whether the correlator is folded
+            about it's mid-point.
+            
+        Raises:
+          ValueError: If lattice shape does not match twopoint spatial
+            and temporal extents
+            
+        Examples:
+          Create a TwoPoint object to hold correlators for a 48^3 x 96
+          lattice, then load some correlators computed by Chroma's
+          hadspec routine.
+          
+          >>> import pyQCD
+          >>> twopoint = pyQCD.TwoPoint(96, 48)
+          >>> twopoint.load_chroma_hadspec("96c48_hadspec_corr.xml")
+        """
+        
+        self.load_chroma_hadspec_mesons(filename, fold)
+        self.load_chroma_hadspec_baryons(filename, fold)
+        self.load_chroma_hadspec_currents(filename, fold)
+            
     def load_chroma_hadspec_mesons(self, filename, fold=False):
         """Loads the meson correlator(s) present in the supplied Chroma
         hadspec output xml file
