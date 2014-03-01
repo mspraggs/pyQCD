@@ -104,6 +104,15 @@ baryons_m2m1 = ['xi', 'lambda', 'xi_st', 'xi', 'lambda', 'xi_st',
                 'xi', 'lambda', 'xi_st', 'xi', 'xi', 'xi',
                 'lambda', 'sigma', 'lambda', 'sigma', 'xi_negpar']
     
+vector_currents = ["nonconserved_vector_x", "nonconserved_vector_y",
+                   "nonconserved_vector_z", "conserved_vector_x",
+                   "conserved_vector_y", "conserved_vector_z",
+                   "improved_rho_vector_x", "improved_rho_vector_y",
+                   "improved_rho_vector_z", "improved_rho_vector_x",
+                   "improved_rho_vector_y", "improved_rho_vector_z"]
+    
+axial_currents = ["nonlocal_axial", "local_axial"]
+    
 interpolators = ['1', 'g1', 'g2', 'g1g2', 'g3', 'g1g3', 'g2g3', 'g5g4',
                  'g4', 'g1g4', 'g2g4', 'g3g5', 'g3g4', '-g2g5', 'g1g5',
                  'g5']

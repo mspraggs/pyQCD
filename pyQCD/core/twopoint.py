@@ -512,7 +512,7 @@ class TwoPoint(Observable):
                                         fold)
             
     def load_chroma_hadspec_baryons(self, filename, fold=False):
-        """Loads the baryon correlator(s) present in the supplied Chroma
+        """Loads the current correlator(s) present in the supplied Chroma
         hadspec output xml file
         
         Args:
@@ -615,6 +615,115 @@ class TwoPoint(Observable):
                     self.add_correlator(correlator, label, (mass_1, mass_2),
                                         momentum, source_type, sink_type, True,
                                         fold)
+            
+    def load_chroma_hadspec_currents(self, filename, fold=False):
+        """Loads the current correlator(s) present in the supplied Chroma
+        hadspec output xml file
+        
+        Args:
+          filename (str): The name of the file in which the correlators
+            are contained.
+          fold (bool, optional): Determines whether the correlator is folded
+            about it's mid-point.
+            
+        Raises:
+          ValueError: If lattice shape does not match twopoint spatial
+            and temporal extents
+            
+        Examples:
+          Create a TwoPoint object to hold correlators for a 48^3 x 96
+          lattice, then load some correlators computed by Chroma's
+          hadspec routine.
+          
+          >>> import pyQCD
+          >>> twopoint = pyQCD.TwoPoint(96, 48)
+          >>> twopoint.load_chroma_hadspec_currents("96c48_hadspec_corr.xml")
+        """
+        
+        xmlfile = ET.parse(filename)
+        xmlroot = xmlfile.getroot()
+        
+        lattice_shape \
+          = [int(x) for x in
+             xmlroot.find("ProgramInfo/Setgeom/latt_size").text.split()]
+        
+        if not (lattice_shape[0] == lattice_shape[1] == lattice_shape[2]):
+            raise ValueError("Chroma lattice shape has differing spatial "
+                             "extents.")
+        
+        # Assume lattice_shape[3] is the time extent
+        if lattice_shape[0] != self.L or lattice_shape[3] != self.T:
+            expected_shape = (self.T, self.L, self.L, self.L)
+            actual_shape = (lattice_shape[3], lattice_shape[0],
+                            lattice_shape[1], lattice_shape[2])
+            raise ValueError("Expected lattice shape, {}, does not match "
+                             "received lattice shape, {}"
+                             .format(expected_shape, actual_shape))
+        
+        propagator_pairs = xmlroot.findall("Wilson_hadron_measurements/elem")
+        
+        for propagator_pair in propagator_pairs:            
+            mass_1 = float(propagator_pair.find("Mass_1").text)
+            mass_2 = float(propagator_pair.find("Mass_2").text)
+            
+            raw_source_string \
+              = propagator_pairs[0] \
+              .find("SourceSinkType/source_type_1").text \
+              .lower()
+            raw_sink_string \
+              = propagator_pairs[0] \
+              .find("SourceSinkType/sink_type_1").text \
+              .lower()
+            
+            source_sink_types = ["point", "shell", "wall"]
+            
+            for source_sink_type in source_sink_types:
+                if raw_source_string.find(source_sink_type) > -1:
+                    source_type = source_sink_type
+                if raw_sink_string.find(source_sink_type) > -1:
+                    sink_type = source_sink_type
+            
+            interpolator_tag_prefix \
+              = "{}_{}".format(source_type.capitalize(),
+                               sink_type.capitalize())
+            
+            vector_currents \
+              = propagator_pair.findall("{}_Meson_Currents/Vector_currents/elem"
+                                     .format(interpolator_tag_prefix))
+            
+            for vector_current in vector_currents:
+                
+                current_num \
+                  = int(vector_current.find("current_value").text)
+                label = const.vector_currents[current_num]
+                
+                correlator_data = vector_current.find("vector_current").text
+                
+                correlator \
+                  = np.array([float(x) for x in correlator_data.split()])
+                
+                self.add_correlator(correlator, label, (mass_1, mass_2),
+                                    [0, 0, 0], source_type, sink_type, True,
+                                    fold)
+            
+            axial_currents \
+              = propagator_pair.findall("{}_Meson_Currents/Axial_currents/elem"
+                                     .format(interpolator_tag_prefix))
+            
+            for axial_current in axial_currents:
+                
+                current_num \
+                  = int(axial_current.find("current_value").text)
+                label = const.axial_currents[current_num]
+                
+                correlator_data = axial_current.find("axial_current").text
+                
+                correlator \
+                  = np.array([float(x) for x in correlator_data.split()])
+                
+                self.add_correlator(correlator, label, (mass_1, mass_2),
+                                    [0, 0, 0], source_type, sink_type, True,
+                                    fold)
     
     def compute_meson_correlator(self, propagator1, propagator2,
                                  source_interpolator,
