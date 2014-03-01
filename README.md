@@ -55,7 +55,6 @@ If you want to use CUDA, then you'll need to specify the path to CUSP when you r
 if you clone the CUSP library into /home/user/cusplibrary, then you'll need to run:
 
     cmake . -DCUSP_INCLUDE_DIR=/home/user/cusplibrary
-    make lattice
     make
 
 If you don't want to use CUDA, then you can either omit the CUSP library include path, in which case cmake
