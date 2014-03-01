@@ -281,7 +281,8 @@ if lattice_exists:
                                          lattice.L, 4, 3, 3))
             lattice.update()
             
-            expected_config = np.load("{}/config_heatbath_rs0.npy".format(data_dir))
+            expected_config = np.load("{}/config_heatbath_rs0.npy"
+                                      .format(data_dir))
             actual_config = lattice.get_config().data
             
             assert (np.abs(expected_config - actual_config) < tolerance).all()
@@ -289,7 +290,8 @@ if lattice_exists:
             lattice = Lattice(rand_seed = 1, update_method = "heatbath")
             lattice.update()
             
-            expected_config = np.load("{}/config_heatbath_rs1.npy".format(data_dir))
+            expected_config = np.load("{}/config_heatbath_rs1.npy"
+                                      .format(data_dir))
             actual_config = lattice.get_config().data
             
             assert (np.abs(expected_config - actual_config) < tolerance).all()
@@ -297,7 +299,8 @@ if lattice_exists:
             lattice = Lattice(rand_seed = 0, update_method = "metropolis")
             lattice.update()
             
-            expected_config = np.load("{}/config_metropolis_rs0.npy".format(data_dir))
+            expected_config = np.load("{}/config_metropolis_rs0.npy"
+                                      .format(data_dir))
             actual_config = lattice.get_config().data
             
             assert (np.abs(expected_config - actual_config) < tolerance).all()
@@ -305,7 +308,8 @@ if lattice_exists:
             lattice = Lattice(rand_seed = 1, update_method = "metropolis")
             lattice.update()
             
-            expected_config = np.load("{}/config_metropolis_rs1.npy".format(data_dir))
+            expected_config = np.load("{}/config_metropolis_rs1.npy"
+                                      .format(data_dir))
             actual_config = lattice.get_config().data
             
             assert (np.abs(expected_config - actual_config) < tolerance).all()
