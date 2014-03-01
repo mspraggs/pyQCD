@@ -2,6 +2,8 @@ import re
 import xml.etree.ElementTree as ET
 import itertools
 import warnings
+import sys
+import struct
 
 import numpy as np
 import scipy.optimize as spop
@@ -27,6 +29,7 @@ class TwoPoint(Observable):
     
     Various member functions are provided to import data from Chroma XML
     data files produced by the hadron spectrum and meson spectrum measurements.
+    Data can also be imported from UKHADRON meson correlator binaries.
     Meson correlators may also be computed using pyQCD.Propagator objects.
     Correlator data may also be added by hand using the add_correlator function.
     
@@ -752,6 +755,76 @@ class TwoPoint(Observable):
                 self.add_correlator(correlator, label, (mass_1, mass_2),
                                     [0, 0, 0], source_type, sink_type, True,
                                     fold)
+                
+    def load_ukhadron_meson_binary(self, filename, byteorder, fold=False):
+        """Loads the correlators contained in the specified UKHADRON binary
+        file. The correlators are labelled using the CHROMA convention for
+        particle interpolators (see pyQCD.mesons). Note that information
+        on the quark masses and the source and sink types is extracted
+        from the filename, so if this information is missing then the function
+        will fail.
+        
+        Args:
+            filename (str): The name of the file containing the data
+            byteorder (str): The endianness of the binary file. Can either be
+              "little" or "big". For data created from simulations on an intel
+              machine, this is likely to be "little". For data created on one
+              of the IBM Bluegene machines, this is likely to be "big".
+            fold (bool, optional): Determines whether the correlators should
+              be folded prior to being imported.
+              
+        Examples:
+          Create a twopoint object and import the data contained in
+          meson_m_0.45_m_0.45_Z2.280.bin
+          
+          >>> import pyQCD
+          >>> twopoint = pyQCD.TwoPoint(L=16, T=32)
+          >>> twopoint \
+          ...     .load_ukhadron_meson_binary("meson_m_0.45_m_0.45_Z2.280.bin",
+          ...                                 "big")
+        """
+        
+        param_mask = r'meson_m_(\d*\.\d*)_m_(\d*\.\d*)_(\w+)\.\d+\.bin'
+        correlator_params = re.findall(param_mask, filename)[0]
+        
+        quark_masses = (eval(correlator_params[0]), eval(correlator_params[1]))
+        source_type = sink_type = correlator_params[2]
+        
+        if sys.byteorder == byteorder:
+            switch_endianness = lambda x: x
+        else:
+            switch_endianness = lambda x: x[::-1]
+        
+        binary_file = open(filename)
+        
+        mom_num_string = switch_endianness(binary_file.read(4))
+        mom_num = struct.unpack('i', mom_num_string)[0]
+
+        for i in xrange(mom_num):
+            header_string = binary_file.read(40)
+            px = struct.unpack('i', switch_endianness(header_string[16:20]))[0]
+            py = struct.unpack('i', switch_endianness(header_string[20:24]))[0]
+            pz = struct.unpack('i', switch_endianness(header_string[24:28]))[0]
+            Nmu = struct.unpack('i', switch_endianness(header_string[28:32]))[0]
+            Nnu = struct.unpack('i', switch_endianness(header_string[32:36]))[0]
+            T = struct.unpack('i', switch_endianness(header_string[36:40]))[0]
+    
+            correlators = np.zeros((Nmu, Nnu, T))
+    
+            for t in xrange(T):
+                for mu in xrange(Nmu):
+                    for nu in xrange(Nnu):
+                        double_string = switch_endianness(binary_file.read(8))
+                        correlators[mu, nu, t] \
+                          = struct.unpack('d', double_string)[0]
+                        double_string = binary_file.read(8)
+                        
+            for mu in xrange(Nmu):
+                for nu in xrange(Nnu):
+                    label = "{}_{}".format(const.mesons[mu], const.mesons[nu])
+                    self.add_correlator(correlators[mu, nu], label, quark_masses,
+                                        [px, py, pz], source_type, sink_type,
+                                        True, fold)
     
     def compute_meson_correlator(self, propagator1, propagator2,
                                  source_interpolator,

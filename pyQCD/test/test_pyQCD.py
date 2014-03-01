@@ -1094,6 +1094,16 @@ class TestTwoPoint:
                                        
         assert len(twopoint.computed_correlators) == 11
             
+    def test_load_ukhadron_meson_binary(self):
+        
+        twopoint = TwoPoint(32, 16)
+        
+        twopoint \
+          .load_ukhadron_meson_binary("{}/meson_m_0.45_m_0.45_Z2.280.bin"
+                                      .format(data_dir), "big")
+                                       
+        assert len(twopoint.computed_correlators) == 256
+            
     def test_compute_meson_correlator(self):
         
         tolerance = 1e-6
