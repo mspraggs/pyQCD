@@ -22,6 +22,9 @@ class DataSet:
     in a file. The datatype for the data set is pickled and stored in a
     file name datatype.
     
+    A DataSet object can be iteratred over or indexed in much the same way
+    as a list.
+    
     Attributes:
       bootstraps_cached (bool): Indicates whether copies of the
         bootstrapped data have been cached on disk.
@@ -79,6 +82,8 @@ class DataSet:
         zfile.write("type")
         zfile.close()
         os.unlink("type")
+        
+        self.iteration = 0
     
     def add_datum(self, datum):
         """Adds a datum to the dataset
@@ -835,6 +840,19 @@ class DataSet:
     def __getitem__(self, index):
         """Square brackets overload"""
         return self.get_datum(index)
+    
+    def __iter__(self):
+        """Make this object iterable"""
+        return self
+    
+    def next(self):
+        """Return the appropriate datum"""
+        
+        if self.iteration >= self.num_data:
+            raise StopIteration
+        else:
+            self.iteration += 1
+            return self[self.iteration - 1]
     
     def __str__(self):
         

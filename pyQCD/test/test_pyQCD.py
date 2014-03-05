@@ -1580,7 +1580,6 @@ class TestDataSet:
         dataset = DataSet.load("test_data.zip")
         
         assert dataset.num_data == 100
-        os.unlink("test_data.zip")
         
     def test_utils(self):
         
@@ -1661,6 +1660,12 @@ class TestDataSet:
         a_dict = dict(zip(range(10), a.tolist()))
         assert DataSet._sqrt_measurements(a_dict) \
           == dict(zip(a_dict.keys(), np.sqrt(a).tolist()))
+            
+    def test_iteration(self):
+        
+        test_data = DataSet.load("test_data.zip")
+        data = [x for x in test_data]
+        os.unlink("test_data.zip")
           
 class TestWilsonLoops:
     
