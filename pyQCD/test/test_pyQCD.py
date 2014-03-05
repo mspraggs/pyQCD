@@ -1771,6 +1771,3 @@ if lattice_exists:
             simulation.load_ensemble("{}/4c8_ensemble.zip".format(data_dir))
             simulation.add_measurement(Lattice.get_config, Config, "configs.zip")
             simulation.run()
-               
-class TestEnsemble:
-    pass
