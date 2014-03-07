@@ -105,6 +105,11 @@ On Windows:
 This will build html documentation in the _build/html dubdirectory. At the moment this provides a brief function
 reference. In the future this will hopefully be more detailed.
 
+Benchmarking the Package
+------------------------
+To benchmark the package on your machine, run the benchmark.py script in the project root directory. It is
+possible to to provide a string command line argument to filter certain benchmarking functions.
+
 Quick Start
 -----------
 
