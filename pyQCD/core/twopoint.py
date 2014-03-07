@@ -930,6 +930,51 @@ class TwoPoint(Observable):
             self.add_correlator(correlator, label,
                                 [propagator1.mass, propagator2.mass],
                                 momentum, source_type, sink_type, True, fold)
+    
+    def compute_all_meson_correlators(self, propagator1, propagator2,
+                                      momenta = [0, 0, 0],
+                                      average_momenta=True,
+                                      fold=False):
+        """Computes and stores all 256 meson correlators within the
+        current TwoPoint object. CHROMA naming conventions are used for the
+        16 gamma matrix combinations.
+        
+        Args:
+          propagator1 (Propagator): The first propagator to use in calculating
+            the correlator.
+          propagator2 (Propagator): The second propagator to use in calculating
+            the correlator.
+          momenta (list, optional): The momenta to project the spatial
+            correlator onto. May be either a list of three ints defining a
+            single lattice momentum, or a list of such lists defining multiple
+            momenta.
+          average_momenta (bool, optional): Determines whether the correlator
+            is computed at all momenta equivalent to that in the momenta
+            argument before an averable is taken (e.g. an average of the
+            correlators for p = [1, 0, 0], [0, 1, 0], [0, 0, 1] and so on would
+            be taken).
+          fold (bool, optional): Determines whether the correlator is folded
+            about it's mid-point.
+            
+        Examples:
+          Create and thermalize a lattice, generate some propagators and use
+          them to compute a pseudoscalar correlator.
+          
+          >>> import pyQCD
+          >>> lattice = pyQCD.Lattice()
+          >>> lattice.thermalize(100)
+          >>> prop = lattice.get_propagator(0.4)
+          >>> twopoint = pyQCD.TwoPoint(8, 4)
+          >>> twopoint.compute_all_meson_correlators(prop, prop)
+        """
+        
+        for Gamma1 in const.mesons:
+            for Gamma2 in const.mesons:
+                self.compute_meson_correlator(propagator1, propagator2,
+                                              Gamma1, Gamma2,
+                                              "{}_{}".format(Gamma1, Gamma2),
+                                              momenta, average_momenta,
+                                              fold)
             
     def fit_correlator(self, fit_function, fit_range, initial_parameters,
                        correlator_std=None, postprocess_function=None,
