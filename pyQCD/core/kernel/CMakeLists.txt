@@ -12,7 +12,9 @@ file (GLOB
   shared_SRC
   ${SRC_DIR}/lattice_*.cpp
   ${SRC_DIR}/random.cpp
-  ${SRC_DIR}/utils.cpp)
+  ${SRC_DIR}/utils.cpp
+  ${SRC_DIR}/fermion_actions/*.cpp
+  ${SRC_DIR}/solvers.cpp)
 
 file (GLOB
   lattice_SRC
