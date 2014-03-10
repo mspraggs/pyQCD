@@ -1,4 +1,4 @@
-#ifdef LINEAR_OPERATOR_HPP
+#ifndef LINEAR_OPERATOR_HPP
 #define LINEAR_OPERATOR_HPP
 
 #include <complex>
