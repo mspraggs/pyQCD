@@ -69,10 +69,6 @@ namespace pyQCD
 
   double oneNorm(const Matrix3cd& matrix);
 
-  complex<double> sax(const complex<double>* a, const complex<double>*x);
-  complex<double> saxpy(const complex<double>* a, const complex<double>*x,
-			const complex<double>* y);
-
 #ifdef USE_CUDA
   void eigenToCusp(SparseMatrix<complex<double> >& eigenMatrix,
 		   const cusp::coo_matrix<int, cusp::complex<double>,
