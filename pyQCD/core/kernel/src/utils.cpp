@@ -233,6 +233,65 @@ namespace pyQCD
     return out;
   }
 
+  
+
+  complex<double> sax(const complex<double>* a, const complex<double>* x)
+  {
+    complex<double> out(0, 0);
+    // a0reg = [ a.real |  a.real ]
+    // a1reg = [ -a.imag | a.imag ]
+    __m128d ar __attribute__((aligned(16))) = {((double*)a)[0], ((double*)a)[0]};
+    __m128d ai __attribute__((aligned(16)))
+      = {-((double*)a)[1], ((double*)a)[1]};
+    __m128d a0reg = _mm_load_pd((double*) &ar);
+    __m128d a1reg = _mm_load_pd((double*) &ai);
+
+    // x0reg = [ x.imag | x.real ]
+    // x1reg = [ x.real | x.imag ]
+    // y0reg = [ y.imag | y.real ]
+    __m128d register x0reg = _mm_load_pd((double*) x);
+    __m128d register x1reg = _mm_shuffle_pd(x0reg, x0reg, _MM_SHUFFLE2(0, 1));
+    __m128d register y0reg = _mm_setzero_pd();
+
+    x0reg = _mm_mul_pd(a0reg, x0reg);
+    x1reg = _mm_mul_pd(a1reg, x1reg);
+    y0reg = _mm_add_pd(x0reg, y0reg);
+    y0reg = _mm_add_pd(x1reg, y0reg);
+
+    _mm_store_pd((double*) &out, y0reg);
+    return out;
+  }
+
+  
+
+  complex<double> saxpy(const complex<double>* a, const complex<double>*x,
+			const complex<double>* y)
+  {
+    complex<double> out(0, 0);
+    // a0reg = [ a.real |  a.real ]
+    // a1reg = [ -a.imag | a.imag ]
+    __m128d ar __attribute__((aligned(16))) = {((double*)a)[0], ((double*)a)[0]};
+    __m128d ai __attribute__((aligned(16)))
+      = {-((double*)a)[1], ((double*)a)[1]};
+    __m128d a0reg = _mm_load_pd((double*) &ar);
+    __m128d a1reg = _mm_load_pd((double*) &ai);
+
+    // x0reg = [ x.imag | x.real ]
+    // x1reg = [ x.real | x.imag ]
+    // y0reg = [ y.imag | y.real ]
+    __m128d register x0reg = _mm_load_pd((double*) x);
+    __m128d register x1reg = _mm_shuffle_pd(x0reg, x0reg, _MM_SHUFFLE2(0, 1));
+    __m128d register y0reg = _mm_load_pd((double*) y);
+
+    x0reg = _mm_mul_pd(a0reg, x0reg);
+    x1reg = _mm_mul_pd(a1reg, x1reg);
+    y0reg = _mm_add_pd(x0reg, y0reg);
+    y0reg = _mm_add_pd(x1reg, y0reg);
+
+    _mm_store_pd((double*) &out, y0reg);
+    return out;
+  }
+
 #ifdef USE_CUDA
 
   void eigenToCusp(const SparseMatrix<complex<double> >& eigenMatrix,
