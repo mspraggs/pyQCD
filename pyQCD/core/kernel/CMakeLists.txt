@@ -13,7 +13,7 @@ file (GLOB
   ${SRC_DIR}/lattice_*.cpp
   ${SRC_DIR}/random.cpp
   ${SRC_DIR}/utils.cpp
-  ${SRC_DIR}/fermion_actions/*.cpp
+  ${SRC_DIR}/linear_operators/*.cpp
   ${SRC_DIR}/solvers.cpp)
 
 file (GLOB
