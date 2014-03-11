@@ -47,6 +47,7 @@ public:
   void print();
   Matrix3cd& getLink(const int link[5]);
   Matrix3cd& getLink(const vector<int> link);
+  Matrix3cd& getLink(const int index) { return this->links_[index]; };
   void setLink(const int link[5], const Matrix3cd& matrix);
   double u0() const { return this->u0_; };
 
