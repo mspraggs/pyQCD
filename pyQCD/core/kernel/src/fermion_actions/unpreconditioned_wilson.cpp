@@ -84,44 +84,22 @@ VectorXcd UnpreconditionedWilson::apply(const VectorXcd& psi)
   if (psi.size() != this->operatorSize_)
     return eta;
 
-  int latticeShape[4] = {this->lattice_->temporalExtent,
-			 this->lattice_->spatialExtent,
-			 this->lattice_->spatialExtent,
-			 this->lattice_->spatialExtent};
-
 #pragma omp parallel for
   for (int i = 0; i < this->operatorSize_; ++i) {
     int eta_site_index = i / 12; // Site index of the current row in 
     int alpha = (i % 12) / 3; // Spin index of the current row in eta
     int a = i % 3; // Colour index of the current row in eta
 
-    // Determine the coordinates of the site we're on
-    int x[5]; // The coordinates of the lattice site (x[4] denotes ignored link)
-    pyQCD::getLinkIndices(4 * eta_site_index, this->lattice_->spatialExtent,
-			  this->lattice_->temporalExtent, x);
-
     // Now add the mass term
     eta(i) = (4 + this->mass_) * psi(i);
-
-    int x_minus_mu[5]; // Site/link index for the site/link behind us
-    copy(x, x + 5, x_minus_mu);
 
     // Loop over the four gamma indices (mu) in the sum inside the Wilson action
     for (int mu = 0; mu < 4; ++mu) {
       
       // Now we determine the indices of the neighbouring links
 
-      // Reset the site if it's been changed recently
-      if (mu > 0)
-	x_minus_mu[mu - 1] -= 1;
-      x_minus_mu[mu] += 1;
       int x_minus_mu_index = this->nearestNeighbours_[eta_site_index][mu];
-      // Set the link direction we're currently on as we'll need this later
-      x_minus_mu[4] = mu;
-
       int x_plus_mu_index = this->nearestNeighbours_[eta_site_index][mu + 4];
-      // Now set the link direction 
-      x[4] = mu;
 
       // Now loop over spin and colour indices for the portion of the row we're
       // on
@@ -131,13 +109,13 @@ VectorXcd UnpreconditionedWilson::apply(const VectorXcd& psi)
 	int b = j % 3; // Compute colour
 	eta(i)
 	  -= 0.5 * this->spinStructures_[mu + 4](alpha, beta)
-	  * this->lattice_->getLink(x_minus_mu).adjoint()(a, b)
+	  * this->lattice_->getLink(4 * x_minus_mu_index + mu).adjoint()(a, b)
 	  * psi(12 * x_minus_mu_index + 3 * beta + b)
 	  / this->lattice_->u0();
 	
 	eta(i)
 	  -= 0.5 * this->spinStructures_[mu](alpha, beta)
-	  * this->lattice_->getLink(x)(a, b)
+	  * this->lattice_->getLink(4 * eta_site_index + mu)(a, b)
 	  * psi(12 * x_plus_mu_index + 3 * beta + b)
 	  / this->lattice_->u0();
       }
@@ -158,44 +136,22 @@ VectorXcd UnpreconditionedWilson::applyHermitian(const VectorXcd& psi)
   if (psi.size() != this->operatorSize_)
     return eta;
 
-  int latticeShape[4] = {this->lattice_->temporalExtent,
-			 this->lattice_->spatialExtent,
-			 this->lattice_->spatialExtent,
-			 this->lattice_->spatialExtent};
-
 #pragma omp parallel for
   for (int i = 0; i < this->operatorSize_; ++i) {
     int eta_site_index = i / 12; // Site index of the current row in 
     int alpha = (i % 12) / 3; // Spin index of the current row in eta
     int a = i % 3; // Colour index of the current row in eta
 
-    // Determine the coordinates of the site we're on
-    int x[5]; // The coordinates of the lattice site (x[4] denotes ignored link)
-    pyQCD::getLinkIndices(4 * eta_site_index, this->lattice_->spatialExtent,
-			  this->lattice_->temporalExtent, x);
-
     // Now add the mass term
     eta(i) = (4 + this->mass_) * pyQCD::gamma5(alpha, alpha) * psi(i);
-
-    int x_minus_mu[5]; // Site/link index for the site/link behind us
-    copy(x, x + 5, x_minus_mu);
 
     // Loop over the four gamma indices (mu) in the sum inside the Wilson action
     for (int mu = 0; mu < 4; ++mu) {
       
       // Now we determine the indices of the neighbouring links
 
-      // Reset the site if it's been changed recently
-      //if (mu > 0)
-      x_minus_mu[mu - 1] -= 1;
-      x_minus_mu[mu] += 1;
       int x_minus_mu_index = this->nearestNeighbours_[eta_site_index][mu];
-      // Set the link direction we're currently on as we'll need this later
-      x_minus_mu[4] = mu;
-
       int x_plus_mu_index = this->nearestNeighbours_[eta_site_index][mu + 4];
-      // Now set the link direction 
-      x[4] = mu;
 
       // Now loop over spin and colour indices for the portion of the row we're
       // on
@@ -205,13 +161,13 @@ VectorXcd UnpreconditionedWilson::applyHermitian(const VectorXcd& psi)
 	int b = j % 3; // Compute colour
 	eta(i)
 	  -= 0.5 * this->hermitianSpinStructures_[mu + 4](alpha, beta)
-	  * this->lattice_->getLink(x_minus_mu).adjoint()(a, b)
+	  * this->lattice_->getLink(4 * x_minus_mu_index + mu).adjoint()(a, b)
 	  * psi(12 * x_minus_mu_index + 3 * beta + b)
 	  / this->lattice_->u0();
 	
 	eta(i)
 	  -= 0.5 * this->hermitianSpinStructures_[mu](alpha, beta)
-	  * this->lattice_->getLink(x)(a, b)
+	  * this->lattice_->getLink(4 * eta_site_index + mu)(a, b)
 	  * psi(12 * x_plus_mu_index + 3 * beta + b)
 	  / this->lattice_->u0();
       }
