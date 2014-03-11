@@ -8,6 +8,8 @@
 using namespace Eigen;
 using namespace std;
 
+class Lattice;
+
 class LinearOperator
 {
   // The base class from which all Dirac operators are derived
