@@ -19,7 +19,7 @@ VectorXcd cg(LinearOperator* linop, const VectorXcd& lhs,
     solution = solution + alpha * p;
     r = r - alpha * linopP;
 
-    double newRes = r.dot(r).real();
+    double newRes = r.squaredNorm();
 
     cout << sqrt(newRes) << endl;
 
