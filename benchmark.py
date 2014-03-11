@@ -150,7 +150,7 @@ def benchmark_propagator_computation(L=4, T=8):
     
     display_benchmark(function=lattice.get_propagator,
                       args=[0.4, [0, 0, 0, 0], 0, 1.0, 0, 1.0, 0, 1.0,
-                            "conjugate_gradient"])
+                            "conjugate_gradient", 2])
     print("")
     
     for n in xrange(1, 3):    
