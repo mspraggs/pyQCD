@@ -1,4 +1,4 @@
-#include <fermion_actions/unpreconditioned_wilson.hpp>
+#include <linear_operators/unpreconditioned_wilson.hpp>
 
 UnpreconditionedWilson::UnpreconditionedWilson(const double mass,
 					       Lattice* lattice)

@@ -16,7 +16,7 @@
 #include <omp.h>
 
 #include <random.hpp>
-#include <fermion_actions.hpp>
+#include <linear_operators.hpp>
 #include <solvers.hpp>
 
 using namespace Eigen;

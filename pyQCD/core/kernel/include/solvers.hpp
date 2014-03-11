@@ -6,7 +6,7 @@
 #include <omp.h>
 #include <iostream>
 
-#include <fermion_actions/linear_operator.hpp>
+#include <linear_operators/linear_operator.hpp>
 
 using namespace Eigen;
 using namespace std;
