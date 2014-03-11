@@ -256,6 +256,8 @@ Lattice::computePropagator(const double mass, const double spacing, int site[4],
     = computeSmearingOperator(sourceSmearingParameter, nSourceSmears);
   SparseMatrix<complex<double> > sinkSmearingOperator
     = computeSmearingOperator(sinkSmearingParameter, nSinkSmears);
+  
+  LinearOperator* linop = new UnpreconditionedWilson(mass, this);
 
   // If using CG, then we need to multiply D by its adjoint
   if (solverMethod == 1) {
@@ -268,7 +270,6 @@ Lattice::computePropagator(const double mass, const double spacing, int site[4],
     pyQCD::cudaCG(M, Dadj, sourceSmearingOperator, sinkSmearingOperator,
 		  spatialIndex, propagator, verbosity);
 #else
-    LinearOperator* linop = new UnpreconditionedWilson(mass, this);
     // And the solver
     //ConjugateGradient<SparseMatrix<complex<double> > > solver(M);
     //solver.setMaxIterations(1000);
@@ -284,7 +285,9 @@ Lattice::computePropagator(const double mass, const double spacing, int site[4],
 	VectorXcd source = this->makeSource(site, i, j, sourceSmearingOperator);
 	
 	// Do the inversion
-	VectorXcd solution = cg(linop, source, 1e-4, 1000);
+	double residual = 0.0;
+	int iterations = 0;
+	VectorXcd solution = cg(linop, source, 1e-4, 1000, residual, iterations);
 
 	// Smear the sink
 	solution = sinkSmearingOperator * solution;
@@ -297,12 +300,10 @@ Lattice::computePropagator(const double mass, const double spacing, int site[4],
 	}
 	if (verbosity > 0)
 	  cout << "  -> Inversion reached tolerance of "
-	       << "solver.error()" << " in " << "solver.iterations()" 
+	       << residual << " in " << iterations
 	       << " iterations." << endl;
       }
     }
-
-    delete linop;
 #endif
   }
   else {
@@ -311,9 +312,9 @@ Lattice::computePropagator(const double mass, const double spacing, int site[4],
 			spatialIndex, propagator, verbosity);
 #else
     // Otherwise just use BiCGSTAB
-    BiCGSTAB<SparseMatrix<complex<double> > > solver(D);
-    solver.setMaxIterations(1000);
-    solver.setTolerance(1e-8);
+    //BiCGSTAB<SparseMatrix<complex<double> > > solver(D);
+    //solver.setMaxIterations(1000);
+    //solver.setTolerance(1e-8);
     
     // Loop through colour and spin indices and invert propagator
     for (int i = 0; i < 4; ++i) {
@@ -325,7 +326,10 @@ Lattice::computePropagator(const double mass, const double spacing, int site[4],
 	VectorXcd source = this->makeSource(site, i, j, sourceSmearingOperator);
 	
 	// Do the inversion
-	VectorXcd solution = solver.solve(source);
+	double residual = 0.0;
+	int iterations = 0;
+	VectorXcd solution = bicgstab(linop, source, 1e-4, 1000, residual,
+				      iterations);
 
 	// Smear the sink
 	solution = sinkSmearingOperator * solution;
@@ -338,12 +342,14 @@ Lattice::computePropagator(const double mass, const double spacing, int site[4],
 	}
 	if (verbosity > 0)
 	  cout << "  -> Inversion reached tolerance of "
-	       << solver.error() << " in " << solver.iterations() 
+	       << residual << " in " << iterations
 	       << " iterations." << endl;
       }
     }
 #endif
   }
+
+  delete linop;
 
   return propagator;
 }
