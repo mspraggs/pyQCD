@@ -31,5 +31,5 @@ private:
   // The 1 +/- gamma_mu matrices required by the operator
   vector<Matrix4cd, aligned_allocator<Matrix4cd> > spinStructures_;
   // The spinStructes_ above multiplied by gamma_5 from the right
-  vector<Matrix4cd, aligned_allocator<Matrix4cd> > hermitianSpinStructures;
+  vector<Matrix4cd, aligned_allocator<Matrix4cd> > hermitianSpinStructures_;
 };
