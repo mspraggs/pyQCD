@@ -268,10 +268,11 @@ Lattice::computePropagator(const double mass, const double spacing, int site[4],
     pyQCD::cudaCG(M, Dadj, sourceSmearingOperator, sinkSmearingOperator,
 		  spatialIndex, propagator, verbosity);
 #else
+    LinearOperator* linop = new UnpreconditionedWilson(mass, this);
     // And the solver
-    ConjugateGradient<SparseMatrix<complex<double> > > solver(M);
-    solver.setMaxIterations(1000);
-    solver.setTolerance(1e-8);
+    //ConjugateGradient<SparseMatrix<complex<double> > > solver(M);
+    //solver.setMaxIterations(1000);
+    //solver.setTolerance(1e-8);
 
     // Loop through colour and spin indices and invert propagator
     for (int i = 0; i < 4; ++i) {
@@ -283,7 +284,7 @@ Lattice::computePropagator(const double mass, const double spacing, int site[4],
 	VectorXcd source = this->makeSource(site, i, j, sourceSmearingOperator);
 	
 	// Do the inversion
-	VectorXcd solution = Dadj * solver.solve(source);
+	VectorXcd solution = cg(linop, source, 1e-4, 1000);
 
 	// Smear the sink
 	solution = sinkSmearingOperator * solution;
@@ -296,10 +297,12 @@ Lattice::computePropagator(const double mass, const double spacing, int site[4],
 	}
 	if (verbosity > 0)
 	  cout << "  -> Inversion reached tolerance of "
-	       << solver.error() << " in " << solver.iterations() 
+	       << "solver.error()" << " in " << "solver.iterations()" 
 	       << " iterations." << endl;
       }
     }
+
+    delete linop;
 #endif
   }
   else {
