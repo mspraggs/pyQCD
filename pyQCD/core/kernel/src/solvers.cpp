@@ -11,7 +11,7 @@ VectorXcd cg(LinearOperator* linop, const VectorXcd& lhs,
   VectorXcd r = lhs - linop->applyHermitian(solution);
   VectorXcd p = r;
 
-  double oldRes = r.dot(r).real();
+  double oldRes = r.squaredNorm();
 
   for (int i = 0; i < maxIterations; ++i) {
     VectorXcd linopP = linop->applyHermitian(p);
