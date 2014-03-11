@@ -161,7 +161,7 @@ VectorXcd UnpreconditionedWilson::applyHermitian(const VectorXcd& psi)
 	int b = j % 3; // Compute colour
 	eta(i)
 	  -= 0.5 * this->hermitianSpinStructures_[mu + 4](alpha, beta)
-	  * this->lattice_->getLink(4 * x_minus_mu_index + mu).adjoint()(a, b)
+	  * conj(this->lattice_->getLink(4 * x_minus_mu_index + mu)(b, a))
 	  * psi(12 * x_minus_mu_index + 3 * beta + b)
 	  / this->lattice_->u0();
 	
