@@ -21,7 +21,7 @@ VectorXcd cg(LinearOperator* linop, const VectorXcd& lhs,
 
     double newRes = r.squaredNorm();
 
-    cout << sqrt(newRes) << endl;
+    //cout << sqrt(newRes) << endl;
 
     if (sqrt(newRes) < tolerance)
       break;
