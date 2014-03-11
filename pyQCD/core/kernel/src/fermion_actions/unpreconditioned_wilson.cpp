@@ -68,22 +68,22 @@ VectorXcd UnpreconditionedWilson::apply(const VectorXcd& psi)
 
     // Loop over the four gamma indices (mu) in the sum inside the Wilson action
     for (int mu = 0; mu < 4; ++mu) {
-      // First set the link direction 
-      x[4] = mu;
       
       // Now we determine the indices of the neighbouring links
 
       copy(x, x + 5, x_minus_mu);
-      x_minus_mu[mu] = pyQCD::mod(x_plus_mu[mu] - 1, latticeShape[mu]);
+      x_minus_mu[mu] = pyQCD::mod(x_minus_mu[mu] - 1, latticeShape[mu]);
       int x_minus_mu_index = pyQCD::getLinkIndex(x_minus_mu,
-						 latticeShape[1]);
+						 latticeShape[1]) / 4;
       // Set the link direction we're currently on as we'll need this later
       x_minus_mu[4] = mu;
 
       copy(x, x + 5, x_plus_mu);
       x_plus_mu[mu] = pyQCD::mod(x_plus_mu[mu] + 1, latticeShape[mu]);
       int x_plus_mu_index = pyQCD::getLinkIndex(x_plus_mu,
-						latticeShape[1]);
+						latticeShape[1]) / 4;
+      // Now set the link direction 
+      x[4] = mu;
 
       // Now loop over spin and colour indices for the portion of the row we're
       // on
@@ -140,26 +140,26 @@ VectorXcd UnpreconditionedWilson::applyHermitian(const VectorXcd& psi)
     eta(i) = (4 + this->mass_) * pyQCD::gamma5(alpha, alpha) * psi(i);
 
     int x_minus_mu[5]; // Site/link index for the site/link behind us
-    int x_plus_mu[5]; // Site/link index for the site/link in front of us
+    int x_plus_mu[5]; // Site/link index for the site/link behind us
 
     // Loop over the four gamma indices (mu) in the sum inside the Wilson action
     for (int mu = 0; mu < 4; ++mu) {
-      // First set the link direction 
-      x[4] = mu;
       
       // Now we determine the indices of the neighbouring links
 
       copy(x, x + 5, x_minus_mu);
-      x_minus_mu[mu] = pyQCD::mod(x_plus_mu[mu] - 1, latticeShape[mu]);
+      x_minus_mu[mu] = pyQCD::mod(x_minus_mu[mu] - 1, latticeShape[mu]);
       int x_minus_mu_index = pyQCD::getLinkIndex(x_minus_mu,
-						 latticeShape[1]);
+						 latticeShape[1]) / 4;
       // Set the link direction we're currently on as we'll need this later
       x_minus_mu[4] = mu;
 
       copy(x, x + 5, x_plus_mu);
       x_plus_mu[mu] = pyQCD::mod(x_plus_mu[mu] + 1, latticeShape[mu]);
       int x_plus_mu_index = pyQCD::getLinkIndex(x_plus_mu,
-						latticeShape[1]);
+						latticeShape[1]) / 4;
+      // Now set the link direction 
+      x[4] = mu;
 
       // Now loop over spin and colour indices for the portion of the row we're
       // on
