@@ -11,7 +11,7 @@
 using namespace Eigen;
 using namespace std;
 
-VectorXcd cg(const LinearOperator* linop, const VectorXcd& lhs,
+VectorXcd cg(LinearOperator* linop, const VectorXcd& lhs,
 	     const double tolerance, const int maxIterations);
 
 #endif

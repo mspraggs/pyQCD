@@ -31,5 +31,5 @@ VectorXcd cg(LinearOperator* linop, const VectorXcd& lhs,
     oldRes = newRes;
   }
 
-  return solution;
+  return linop->undoHermiticity(solution);
 }
