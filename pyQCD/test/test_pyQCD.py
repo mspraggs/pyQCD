@@ -536,7 +536,8 @@ if lattice_exists:
             
             lattice = Lattice(rand_seed=0, update_method="heatbath")
             
-            propagator = lattice.get_propagator(0.4)
+            propagator \
+              = lattice.get_propagator(0.4, solver_method="conjugate_gradient")
             
             expected_shape = (lattice.T, lattice.L, lattice.L, lattice.L, 4, 4, 3, 3)
             actual_shape = propagator.data.shape
