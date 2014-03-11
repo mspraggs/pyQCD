@@ -35,6 +35,8 @@ private:
   vector<Matrix4cd, aligned_allocator<Matrix4cd> > spinStructures_;
   // The spinStructes_ above multiplied by gamma_5 from the right
   vector<Matrix4cd, aligned_allocator<Matrix4cd> > hermitianSpinStructures_;
+  // Nearest neighbour indices
+  vector<vector<int> > nearestNeighbours_;
 };
 
 #endif

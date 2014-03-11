@@ -24,6 +24,46 @@ UnpreconditionedWilson::UnpreconditionedWilson(const double mass,
     this->hermitianSpinStructures_.push_back(this->spinStructures_[i] 
 					     * pyQCD::gamma5);
   }
+
+  int latticeShape[4] = {this->lattice_->temporalExtent,
+			 this->lattice_->spatialExtent,
+			 this->lattice_->spatialExtent,
+			 this->lattice_->spatialExtent};
+
+  for (int i = 0; i < this->operatorSize_ / 12; ++i) {
+
+    vector<int> neighbours(8, 0);
+
+    // Determine the coordinates of the site we're on
+    int x[5]; // The coordinates of the lattice site (x[4] denotes ignored link)
+    pyQCD::getLinkIndices(4 * i, this->lattice_->spatialExtent,
+			  this->lattice_->temporalExtent, x);
+
+    int x_minus_mu[5]; // Site/link index for the site/link behind us
+    int x_plus_mu[5]; // Site/link index for the site/link in front of us
+
+    // Loop over the four gamma indices (mu) in the sum inside the Wilson action
+    for (int mu = 0; mu < 4; ++mu) {
+          
+      // Now we determine the indices of the neighbouring links
+
+      copy(x, x + 5, x_minus_mu);
+      x_minus_mu[mu] = pyQCD::mod(x_minus_mu[mu] - 1, latticeShape[mu]);
+      int x_minus_mu_index = pyQCD::getLinkIndex(x_minus_mu,
+						 latticeShape[1]) / 4;
+      // Set the link direction we're currently on as we'll need this later
+      x_minus_mu[4] = mu;
+
+      copy(x, x + 5, x_plus_mu);
+      x_plus_mu[mu] = pyQCD::mod(x_plus_mu[mu] + 1, latticeShape[mu]);
+      int x_plus_mu_index = pyQCD::getLinkIndex(x_plus_mu,
+						latticeShape[1]) / 4;
+
+      neighbours[mu] = x_minus_mu_index;
+      neighbours[mu + 4] = x_plus_mu_index;
+    }
+    this->nearestNeighbours_.push_back(neighbours);
+  }
 }
 
 
@@ -64,24 +104,22 @@ VectorXcd UnpreconditionedWilson::apply(const VectorXcd& psi)
     eta(i) = (4 + this->mass_) * psi(i);
 
     int x_minus_mu[5]; // Site/link index for the site/link behind us
-    int x_plus_mu[5]; // Site/link index for the site/link in front of us
+    copy(x, x + 5, x_minus_mu);
 
     // Loop over the four gamma indices (mu) in the sum inside the Wilson action
     for (int mu = 0; mu < 4; ++mu) {
       
       // Now we determine the indices of the neighbouring links
 
-      copy(x, x + 5, x_minus_mu);
-      x_minus_mu[mu] = pyQCD::mod(x_minus_mu[mu] - 1, latticeShape[mu]);
-      int x_minus_mu_index = pyQCD::getLinkIndex(x_minus_mu,
-						 latticeShape[1]) / 4;
+      // Reset the site if it's been changed recently
+      if (mu > 0)
+	x_minus_mu[mu - 1] -= 1;
+      x_minus_mu[mu] += 1;
+      int x_minus_mu_index = this->nearestNeighbours_[eta_site_index][mu];
       // Set the link direction we're currently on as we'll need this later
       x_minus_mu[4] = mu;
 
-      copy(x, x + 5, x_plus_mu);
-      x_plus_mu[mu] = pyQCD::mod(x_plus_mu[mu] + 1, latticeShape[mu]);
-      int x_plus_mu_index = pyQCD::getLinkIndex(x_plus_mu,
-						latticeShape[1]) / 4;
+      int x_plus_mu_index = this->nearestNeighbours_[eta_site_index][mu + 4];
       // Now set the link direction 
       x[4] = mu;
 
@@ -140,24 +178,22 @@ VectorXcd UnpreconditionedWilson::applyHermitian(const VectorXcd& psi)
     eta(i) = (4 + this->mass_) * pyQCD::gamma5(alpha, alpha) * psi(i);
 
     int x_minus_mu[5]; // Site/link index for the site/link behind us
-    int x_plus_mu[5]; // Site/link index for the site/link behind us
+    copy(x, x + 5, x_minus_mu);
 
     // Loop over the four gamma indices (mu) in the sum inside the Wilson action
     for (int mu = 0; mu < 4; ++mu) {
       
       // Now we determine the indices of the neighbouring links
 
-      copy(x, x + 5, x_minus_mu);
-      x_minus_mu[mu] = pyQCD::mod(x_minus_mu[mu] - 1, latticeShape[mu]);
-      int x_minus_mu_index = pyQCD::getLinkIndex(x_minus_mu,
-						 latticeShape[1]) / 4;
+      // Reset the site if it's been changed recently
+      //if (mu > 0)
+      x_minus_mu[mu - 1] -= 1;
+      x_minus_mu[mu] += 1;
+      int x_minus_mu_index = this->nearestNeighbours_[eta_site_index][mu];
       // Set the link direction we're currently on as we'll need this later
       x_minus_mu[4] = mu;
 
-      copy(x, x + 5, x_plus_mu);
-      x_plus_mu[mu] = pyQCD::mod(x_plus_mu[mu] + 1, latticeShape[mu]);
-      int x_plus_mu_index = pyQCD::getLinkIndex(x_plus_mu,
-						latticeShape[1]) / 4;
+      int x_plus_mu_index = this->nearestNeighbours_[eta_site_index][mu + 4];
       // Now set the link direction 
       x[4] = mu;
 
