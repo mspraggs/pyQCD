@@ -203,7 +203,7 @@ Lattice::computeSmearingOperator(const double smearingParameter,
 
 VectorXcd
 Lattice::makeSource(const int site[4], const int spin, const int colour,
-		    const SparseMatrix<complex<double> >& smearingOperator)
+		    LinearOperator* smearingOperator)
 {
   // Generate a (possibly smeared) quark source at the given site, spin and
   // colour
@@ -220,7 +220,7 @@ Lattice::makeSource(const int site[4], const int spin, const int colour,
   source(index) = 1.0;
 
   // Now apply the smearing operator
-  source = smearingOperator * source;
+  source = smearingOperator->apply(source);
 
   return source;
 }
@@ -242,117 +242,64 @@ Lattice::computePropagator(const double mass, const double spacing, int site[4],
 
   // How many indices are we dealing with?
   int nSites = this->nLinks_ / 4;
-
-#ifdef USE_CUDA
-  // Index for the vector point source
-  int spatialIndex = pyQCD::getLinkIndex(site[0], site[1], site[2], site[3], 0,
-					 this->spatialExtent);
-#endif
-  // Declare a variable to hold our propagator
-  vector<MatrixXcd> propagator(nSites, MatrixXcd::Zero(12, 12));
-
-  // Compute the source and sink smearing operators
-  SparseMatrix<complex<double> > sourceSmearingOperator
-    = computeSmearingOperator(sourceSmearingParameter, nSourceSmears);
-  SparseMatrix<complex<double> > sinkSmearingOperator
-    = computeSmearingOperator(sinkSmearingParameter, nSinkSmears);
   
   vector<complex<double> > boundaryConditions(4, complex<double>(1.0, 0.0));
   boundaryConditions[0] = complex<double>(-1.0, 0.0);
-  LinearOperator* linop = new UnpreconditionedWilson(mass, boundaryConditions,
-						     this);
 
-  // If using CG, then we need to multiply D by its adjoint
-  if (solverMethod == 1) {
-    // Get adjoint matrix 
-    SparseMatrix<complex<double> > Dadj = D.adjoint();
+  // Declare a variable to hold our propagator
+  vector<MatrixXcd> propagator(nSites, MatrixXcd::Zero(12, 12));
 
-    // The matrix we'll be inverting
-    SparseMatrix<complex<double> > M = D * Dadj;
-#ifdef USE_CUDA
-    pyQCD::cudaCG(M, Dadj, sourceSmearingOperator, sinkSmearingOperator,
-		  spatialIndex, propagator, verbosity);
-#else
-    // And the solver
-    //ConjugateGradient<SparseMatrix<complex<double> > > solver(M);
-    //solver.setMaxIterations(1000);
-    //solver.setTolerance(1e-8);
+  // Create the source and sink smearing operators
+  LinearOperator* sourceSmearingOperator 
+    = new JacobiSmearing(nSourceSmears, sourceSmearingParameter,
+			 boundaryConditions, this);
+  LinearOperator* sinkSmearingOperator 
+    = new JacobiSmearing(nSinkSmears, sinkSmearingParameter,
+			 boundaryConditions, this);
 
-    // Loop through colour and spin indices and invert propagator
-    for (int i = 0; i < 4; ++i) {
-      for(int j = 0; j < 3; ++j) {
-	if (verbosity > 0)
-	  cout << "  Inverting for spin " << i
-	       << " and colour " << j << "..." << endl;
-	// Create the source vector
-	VectorXcd source = this->makeSource(site, i, j, sourceSmearingOperator);
-	
-	// Do the inversion
-	double residual = 0.0;
-	int iterations = 0;
-	VectorXcd solution = cg(linop, source, 1e-4, 1000, residual, iterations);
+  LinearOperator* diracMatrix 
+    = new UnpreconditionedWilson(mass, boundaryConditions, this);
 
-	// Smear the sink
-	solution = sinkSmearingOperator * solution;
-	
-	// Add the result to the propagator matrix
-	for (int k = 0; k < nSites; ++k) {
-	  for (int l = 0; l < 12; ++l) {
-	    propagator[k](l, j + 3 * i) = solution(12 * k + l);
-	  }
+  // Loop through colour and spin indices and invert propagator
+  for (int i = 0; i < 4; ++i) {
+    for(int j = 0; j < 3; ++j) {
+      if (verbosity > 0)
+	cout << "  Inverting for spin " << i
+	     << " and colour " << j << "..." << endl;
+      // Create the source vector
+      VectorXcd source = this->makeSource(site, i, j, sourceSmearingOperator);
+      
+      // Do the inversion
+      double residual = 0.0;
+      int iterations = 0;
+      
+      VectorXcd solution(3 * this->nLinks_);
+      
+      if (solverMethod == 1)
+	solution = cg(diracMatrix, source, 1e-4, 1000, residual, iterations);
+      else
+	solution = bicgstab(diracMatrix, source, 1e-4, 1000, residual,
+			    iterations);
+      
+      // Smear the sink
+      solution = sinkSmearingOperator->apply(solution);
+      
+      // Add the result to the propagator matrix
+      for (int k = 0; k < nSites; ++k) {
+	for (int l = 0; l < 12; ++l) {
+	  propagator[k](l, j + 3 * i) = solution(12 * k + l);
 	}
-	if (verbosity > 0)
-	  cout << "  -> Inversion reached tolerance of "
-	       << residual << " in " << iterations
-	       << " iterations." << endl;
       }
+      if (verbosity > 0)
+	cout << "  -> Inversion reached tolerance of "
+	     << residual << " in " << iterations
+	     << " iterations." << endl;
     }
-#endif
-  }
-  else {
-#ifdef USE_CUDA
-    pyQCD::cudaBiCGstab(D, sourceSmearingOperator, sinkSmearingOperator,
-			spatialIndex, propagator, verbosity);
-#else
-    // Otherwise just use BiCGSTAB
-    //BiCGSTAB<SparseMatrix<complex<double> > > solver(D);
-    //solver.setMaxIterations(1000);
-    //solver.setTolerance(1e-8);
-    
-    // Loop through colour and spin indices and invert propagator
-    for (int i = 0; i < 4; ++i) {
-      for(int j = 0; j < 3; ++j) {
-	if (verbosity > 0)
-	  cout << "  Inverting for spin " << i
-	       << " and colour " << j << "..." << endl;
-	// Create the source vector
-	VectorXcd source = this->makeSource(site, i, j, sourceSmearingOperator);
-	
-	// Do the inversion
-	double residual = 0.0;
-	int iterations = 0;
-	VectorXcd solution = bicgstab(linop, source, 1e-4, 1000, residual,
-				      iterations);
-
-	// Smear the sink
-	solution = sinkSmearingOperator * solution;
-	
-	// Add the result to the propagator matrix
-	for (int k = 0; k < nSites; ++k) {
-	  for (int l = 0; l < 12; ++l) {
-	    propagator[k](l, j + 3 * i) = solution(12 * k + l);
-	  }
-	}
-	if (verbosity > 0)
-	  cout << "  -> Inversion reached tolerance of "
-	       << residual << " in " << iterations
-	       << " iterations." << endl;
-      }
-    }
-#endif
   }
 
-  delete linop;
+  delete diracMatrix;
+  delete sourceSmearingOperator;
+  delete sinkSmearingOperator;
 
   return propagator;
 }

@@ -77,15 +77,14 @@ VectorXcd JacobiSmearing::apply(const VectorXcd& psi)
 {
   // Apply the smearing operator itself
 
-  VectorXcd eta = VectorXcd::Zero(psi.size()); // The output
+  VectorXcd eta = psi; // The output
 
   // Temporary vector to use in the sum
-  VectorXcd tempTerm = psi;
+  VectorXcd tempTerm = VectorXcd::Zero(psi.size());
 
   for (int i = 0; i < this->numSmears_; ++i) {
-    eta += tempTerm;
-
     tempTerm = this->smearingParameter_ * this->applyOnce(tempTerm);
+    eta += tempTerm;
   }
 
   return eta;
