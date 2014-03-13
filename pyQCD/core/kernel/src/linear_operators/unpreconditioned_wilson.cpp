@@ -1,8 +1,8 @@
 #include <linear_operators/unpreconditioned_wilson.hpp>
 
-UnpreconditionedWilson::UnpreconditionedWilson(const double mass,
-					       Lattice* lattice)
-  : lattice_(lattice)
+UnpreconditionedWilson::UnpreconditionedWilson(
+    const double mass, const vector<complex<double> >& boundaryConditions,
+    Lattice* lattice) : lattice_(lattice)
 {
   // Class constructor - we set the fermion mass, create a pointer to the 
   // lattice and compute the frequently used spin structures used within the
@@ -33,6 +33,8 @@ UnpreconditionedWilson::UnpreconditionedWilson(const double mass,
   for (int i = 0; i < this->operatorSize_ / 12; ++i) {
 
     vector<int> neighbours(8, 0);
+    vector<complex<double> > siteBoundaryConditions(8, complex<double>(1.0,
+								       0.0));
 
     // Determine the coordinates of the site we're on
     int x[5]; // The coordinates of the lattice site (x[4] denotes ignored link)
@@ -44,10 +46,19 @@ UnpreconditionedWilson::UnpreconditionedWilson(const double mass,
 
     // Loop over the four gamma indices (mu) in the sum inside the Wilson action
     for (int mu = 0; mu < 4; ++mu) {
+
+      // Determine whether we need to apply boundary conditions
+
+      copy(x, x + 5, x_minus_mu);
+      if (x[mu] - 1 < latticeShape[mu] ||
+	  x[mu] - 1 > latticeShape[mu])
+	siteBoundaryConditions[mu] = boundaryConditions[mu % 4];
+
+      if (x[mu] + 1 < latticeShape[mu] || x[mu] + 1 > latticeShape[mu])
+	siteBoundaryConditions[mu + 4] = boundaryConditions[mu % 4];
           
       // Now we determine the indices of the neighbouring links
 
-      copy(x, x + 5, x_minus_mu);
       x_minus_mu[mu] = pyQCD::mod(x_minus_mu[mu] - 1, latticeShape[mu]);
       int x_minus_mu_index = pyQCD::getLinkIndex(x_minus_mu,
 						 latticeShape[1]) / 4;
@@ -62,6 +73,7 @@ UnpreconditionedWilson::UnpreconditionedWilson(const double mass,
       neighbours[mu] = x_minus_mu_index;
       neighbours[mu + 4] = x_plus_mu_index;
     }
+    this->boundaryConditions_.push_back(siteBoundaryConditions);
     this->nearestNeighbours_.push_back(neighbours);
   }
 }
@@ -108,13 +120,15 @@ VectorXcd UnpreconditionedWilson::apply(const VectorXcd& psi)
 	int beta = j / 3; // Compute spin
 	int b = j % 3; // Compute colour
 	eta(i)
-	  -= 0.5 * this->spinStructures_[mu + 4](alpha, beta)
+	  -= 0.5 * this->spinStructures_[mu](alpha, beta)
+	  * this->boundaryConditions_[eta_site_index][mu]
 	  * conj(this->lattice_->getLink(4 * x_minus_mu_index + mu)(b, a))
 	  * psi(12 * x_minus_mu_index + 3 * beta + b)
 	  / this->lattice_->u0();
 	
 	eta(i)
-	  -= 0.5 * this->spinStructures_[mu](alpha, beta)
+	  -= 0.5 * this->spinStructures_[mu + 4](alpha, beta)
+	  * this->boundaryConditions_[eta_site_index][mu + 4]
 	  * this->lattice_->getLink(4 * eta_site_index + mu)(a, b)
 	  * psi(12 * x_plus_mu_index + 3 * beta + b)
 	  / this->lattice_->u0();
@@ -160,13 +174,15 @@ VectorXcd UnpreconditionedWilson::applyHermitian(const VectorXcd& psi)
 	int beta = j / 3; // Compute spin
 	int b = j % 3; // Compute colour
 	eta(i)
-	  -= 0.5 * this->hermitianSpinStructures_[mu + 4](alpha, beta)
+	  -= 0.5 * this->hermitianSpinStructures_[mu](alpha, beta)
+	  * this->boundaryConditions_[eta_site_index][mu]
 	  * conj(this->lattice_->getLink(4 * x_minus_mu_index + mu)(b, a))
 	  * psi(12 * x_minus_mu_index + 3 * beta + b)
 	  / this->lattice_->u0();
 	
 	eta(i)
-	  -= 0.5 * this->hermitianSpinStructures_[mu](alpha, beta)
+	  -= 0.5 * this->hermitianSpinStructures_[mu + 4](alpha, beta)
+	  * this->boundaryConditions_[eta_site_index][mu + 4]
 	  * this->lattice_->getLink(4 * eta_site_index + mu)(a, b)
 	  * psi(12 * x_plus_mu_index + 3 * beta + b)
 	  / this->lattice_->u0();

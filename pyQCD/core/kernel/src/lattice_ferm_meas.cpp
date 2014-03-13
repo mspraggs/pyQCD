@@ -257,7 +257,10 @@ Lattice::computePropagator(const double mass, const double spacing, int site[4],
   SparseMatrix<complex<double> > sinkSmearingOperator
     = computeSmearingOperator(sinkSmearingParameter, nSinkSmears);
   
-  LinearOperator* linop = new UnpreconditionedWilson(mass, this);
+  vector<complex<double> > boundaryConditions(4, complex<double>(1.0, 0.0));
+  boundaryConditions[0] = complex<double>(-1.0, 0.0);
+  LinearOperator* linop = new UnpreconditionedWilson(mass, boundaryConditions,
+						     this);
 
   // If using CG, then we need to multiply D by its adjoint
   if (solverMethod == 1) {

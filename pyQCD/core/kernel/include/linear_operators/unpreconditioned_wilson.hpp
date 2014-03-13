@@ -19,7 +19,9 @@ class UnpreconditionedWilson : public LinearOperator
   // Basic unpreconditioned Wilson Dirac operator
 
 public:
-  UnpreconditionedWilson(const double mass, Lattice* lattice);
+  UnpreconditionedWilson(const double mass,
+			 const vector<complex<double> >& boundaryConditions,
+			 Lattice* lattice);
   ~UnpreconditionedWilson();
 
   VectorXcd apply(const VectorXcd& psi);
@@ -37,6 +39,7 @@ private:
   vector<Matrix4cd, aligned_allocator<Matrix4cd> > hermitianSpinStructures_;
   // Nearest neighbour indices
   vector<vector<int> > nearestNeighbours_;
+  vector<vector<complex<double> > > boundaryConditions_;
 };
 
 #endif
