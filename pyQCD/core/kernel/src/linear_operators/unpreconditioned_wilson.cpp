@@ -37,41 +37,40 @@ UnpreconditionedWilson::UnpreconditionedWilson(
 								       0.0));
 
     // Determine the coordinates of the site we're on
-    int x[5]; // The coordinates of the lattice site (x[4] denotes ignored link)
+    int site[5]; // The coordinates of the lattice site
     pyQCD::getLinkIndices(4 * i, this->lattice_->spatialExtent,
-			  this->lattice_->temporalExtent, x);
+			  this->lattice_->temporalExtent, site);
 
-    int x_minus_mu[5]; // Site/link index for the site/link behind us
-    int x_plus_mu[5]; // Site/link index for the site/link in front of us
+    int siteBehind[5]; // Site/link index for the site/link behind us
+    int siteAhead[5]; // Site/link index for the site/link in front of us
 
     // Loop over the four gamma indices (mu) in the sum inside the Wilson action
     for (int mu = 0; mu < 4; ++mu) {
 
       // Determine whether we need to apply boundary conditions
 
-      copy(x, x + 5, x_minus_mu);
-      if (x[mu] - 1 < latticeShape[mu] ||
-	  x[mu] - 1 > latticeShape[mu])
+      copy(site, site + 5, siteBehind);
+      if (site[mu] - 1 < latticeShape[mu] || site[mu] - 1 > latticeShape[mu])
 	siteBoundaryConditions[mu] = boundaryConditions[mu % 4];
 
-      if (x[mu] + 1 < latticeShape[mu] || x[mu] + 1 > latticeShape[mu])
+      if (site[mu] + 1 < latticeShape[mu] || site[mu] + 1 > latticeShape[mu])
 	siteBoundaryConditions[mu + 4] = boundaryConditions[mu % 4];
           
       // Now we determine the indices of the neighbouring links
 
-      x_minus_mu[mu] = pyQCD::mod(x_minus_mu[mu] - 1, latticeShape[mu]);
-      int x_minus_mu_index = pyQCD::getLinkIndex(x_minus_mu,
+      siteBehind[mu] = pyQCD::mod(siteBehind[mu] - 1, latticeShape[mu]);
+      int siteBehindIndex = pyQCD::getLinkIndex(siteBehind,
 						 latticeShape[1]) / 4;
       // Set the link direction we're currently on as we'll need this later
-      x_minus_mu[4] = mu;
+      siteBehind[4] = mu;
 
-      copy(x, x + 5, x_plus_mu);
-      x_plus_mu[mu] = pyQCD::mod(x_plus_mu[mu] + 1, latticeShape[mu]);
-      int x_plus_mu_index = pyQCD::getLinkIndex(x_plus_mu,
+      copy(site, site + 5, siteAhead);
+      siteAhead[mu] = pyQCD::mod(siteAhead[mu] + 1, latticeShape[mu]);
+      int siteAheadIndex = pyQCD::getLinkIndex(siteAhead,
 						latticeShape[1]) / 4;
 
-      neighbours[mu] = x_minus_mu_index;
-      neighbours[mu + 4] = x_plus_mu_index;
+      neighbours[mu] = siteBehindIndex;
+      neighbours[mu + 4] = siteAheadIndex;
     }
     this->boundaryConditions_.push_back(siteBoundaryConditions);
     this->nearestNeighbours_.push_back(neighbours);
@@ -98,7 +97,7 @@ VectorXcd UnpreconditionedWilson::apply(const VectorXcd& psi)
 
 #pragma omp parallel for
   for (int i = 0; i < this->operatorSize_; ++i) {
-    int eta_site_index = i / 12; // Site index of the current row in 
+    int etaSiteIndex = i / 12; // Site index of the current row in 
     int alpha = (i % 12) / 3; // Spin index of the current row in eta
     int a = i % 3; // Colour index of the current row in eta
 
@@ -110,8 +109,8 @@ VectorXcd UnpreconditionedWilson::apply(const VectorXcd& psi)
       
       // Now we determine the indices of the neighbouring links
 
-      int x_minus_mu_index = this->nearestNeighbours_[eta_site_index][mu];
-      int x_plus_mu_index = this->nearestNeighbours_[eta_site_index][mu + 4];
+      int siteBehindIndex = this->nearestNeighbours_[etaSiteIndex][mu];
+      int siteAheadIndex = this->nearestNeighbours_[etaSiteIndex][mu + 4];
 
       // Now loop over spin and colour indices for the portion of the row we're
       // on
@@ -121,16 +120,16 @@ VectorXcd UnpreconditionedWilson::apply(const VectorXcd& psi)
 	int b = j % 3; // Compute colour
 	eta(i)
 	  -= 0.5 * this->spinStructures_[mu](alpha, beta)
-	  * this->boundaryConditions_[eta_site_index][mu]
-	  * conj(this->lattice_->getLink(4 * x_minus_mu_index + mu)(b, a))
-	  * psi(12 * x_minus_mu_index + 3 * beta + b)
+	  * this->boundaryConditions_[etaSiteIndex][mu]
+	  * conj(this->lattice_->getLink(4 * siteBehindIndex + mu)(b, a))
+	  * psi(12 * siteBehindIndex + 3 * beta + b)
 	  / this->lattice_->u0();
 	
 	eta(i)
 	  -= 0.5 * this->spinStructures_[mu + 4](alpha, beta)
-	  * this->boundaryConditions_[eta_site_index][mu + 4]
-	  * this->lattice_->getLink(4 * eta_site_index + mu)(a, b)
-	  * psi(12 * x_plus_mu_index + 3 * beta + b)
+	  * this->boundaryConditions_[etaSiteIndex][mu + 4]
+	  * this->lattice_->getLink(4 * etaSiteIndex + mu)(a, b)
+	  * psi(12 * siteAheadIndex + 3 * beta + b)
 	  / this->lattice_->u0();
       }
     }
@@ -152,7 +151,7 @@ VectorXcd UnpreconditionedWilson::applyHermitian(const VectorXcd& psi)
 
 #pragma omp parallel for
   for (int i = 0; i < this->operatorSize_; ++i) {
-    int eta_site_index = i / 12; // Site index of the current row in 
+    int etaSiteIndex = i / 12; // Site index of the current row in 
     int alpha = (i % 12) / 3; // Spin index of the current row in eta
     int a = i % 3; // Colour index of the current row in eta
 
@@ -164,8 +163,8 @@ VectorXcd UnpreconditionedWilson::applyHermitian(const VectorXcd& psi)
       
       // Now we determine the indices of the neighbouring links
 
-      int x_minus_mu_index = this->nearestNeighbours_[eta_site_index][mu];
-      int x_plus_mu_index = this->nearestNeighbours_[eta_site_index][mu + 4];
+      int siteBehindIndex = this->nearestNeighbours_[etaSiteIndex][mu];
+      int siteAheadIndex = this->nearestNeighbours_[etaSiteIndex][mu + 4];
 
       // Now loop over spin and colour indices for the portion of the row we're
       // on
@@ -175,16 +174,16 @@ VectorXcd UnpreconditionedWilson::applyHermitian(const VectorXcd& psi)
 	int b = j % 3; // Compute colour
 	eta(i)
 	  -= 0.5 * this->hermitianSpinStructures_[mu](alpha, beta)
-	  * this->boundaryConditions_[eta_site_index][mu]
-	  * conj(this->lattice_->getLink(4 * x_minus_mu_index + mu)(b, a))
-	  * psi(12 * x_minus_mu_index + 3 * beta + b)
+	  * this->boundaryConditions_[etaSiteIndex][mu]
+	  * conj(this->lattice_->getLink(4 * siteBehindIndex + mu)(b, a))
+	  * psi(12 * siteBehindIndex + 3 * beta + b)
 	  / this->lattice_->u0();
 	
 	eta(i)
 	  -= 0.5 * this->hermitianSpinStructures_[mu + 4](alpha, beta)
-	  * this->boundaryConditions_[eta_site_index][mu + 4]
-	  * this->lattice_->getLink(4 * eta_site_index + mu)(a, b)
-	  * psi(12 * x_plus_mu_index + 3 * beta + b)
+	  * this->boundaryConditions_[etaSiteIndex][mu + 4]
+	  * this->lattice_->getLink(4 * etaSiteIndex + mu)(a, b)
+	  * psi(12 * siteAheadIndex + 3 * beta + b)
 	  / this->lattice_->u0();
       }
     }
