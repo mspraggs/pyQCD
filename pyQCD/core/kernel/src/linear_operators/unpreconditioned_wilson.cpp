@@ -78,7 +78,7 @@ UnpreconditionedWilson::~UnpreconditionedWilson()
 VectorXcd UnpreconditionedWilson::apply(const VectorXcd& psi)
 {
   // Right multiply a vector by the operator
-  VectorXcd eta = VectorXcd(this->operatorSize_); // The output vector
+  VectorXcd eta = VectorXcd::Zero(this->operatorSize_); // The output vector
 
   // If psi's the wrong size, get out of here before we segfault
   if (psi.size() != this->operatorSize_)
@@ -130,7 +130,7 @@ VectorXcd UnpreconditionedWilson::apply(const VectorXcd& psi)
 VectorXcd UnpreconditionedWilson::applyHermitian(const VectorXcd& psi)
 {
   // Right multiply a vector by the operator
-  VectorXcd eta = VectorXcd(this->operatorSize_); // The output vector
+  VectorXcd eta = VectorXcd::Zero(this->operatorSize_); // The output vector
 
   // If psi's the wrong size, get out of here before we segfault
   if (psi.size() != this->operatorSize_)
