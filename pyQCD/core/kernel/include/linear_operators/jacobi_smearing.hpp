@@ -20,6 +20,7 @@ class JacobiSmearing : public LinearOperator
 
 public:
   JacobiSmearing(const int numSmears, const double smearingParameter,
+		 const vector<complex<double> >& boundaryConditions,
 		 Lattice* lattice);
   ~JacobiSmearing();
 
@@ -35,6 +36,7 @@ private:
   // We'll need the identity matrix when applying the operator
   Matrix4cd identity_;
   vector<vector<int> > nearestNeighbours_;
+  vector<vector<complex<double> > > boundaryConditions_;
   int numSmears_;
   double smearingParameter_;
 };
