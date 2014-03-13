@@ -50,10 +50,10 @@ UnpreconditionedWilson::UnpreconditionedWilson(
       // Determine whether we need to apply boundary conditions
 
       copy(site, site + 5, siteBehind);
-      if (site[mu] - 1 < latticeShape[mu] || site[mu] - 1 > latticeShape[mu])
+      if (site[mu] - 1 < 0 || site[mu] - 1 >= latticeShape[mu])
 	siteBoundaryConditions[mu] = boundaryConditions[mu % 4];
 
-      if (site[mu] + 1 < latticeShape[mu] || site[mu] + 1 > latticeShape[mu])
+      if (site[mu] + 1 < 0 || site[mu] + 1 >= latticeShape[mu])
 	siteBoundaryConditions[mu + 4] = boundaryConditions[mu % 4];
           
       // Now we determine the indices of the neighbouring links
