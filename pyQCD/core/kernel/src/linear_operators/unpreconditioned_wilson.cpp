@@ -61,8 +61,6 @@ UnpreconditionedWilson::UnpreconditionedWilson(
       siteBehind[mu] = pyQCD::mod(siteBehind[mu] - 1, latticeShape[mu]);
       int siteBehindIndex = pyQCD::getLinkIndex(siteBehind,
 						 latticeShape[1]) / 4;
-      // Set the link direction we're currently on as we'll need this later
-      siteBehind[4] = mu;
 
       copy(site, site + 5, siteAhead);
       siteAhead[mu] = pyQCD::mod(siteAhead[mu] + 1, latticeShape[mu]);
