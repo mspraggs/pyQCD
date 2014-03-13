@@ -99,25 +99,12 @@ public:
   void smearLinks(const int time, const int nSmears,
 		  const double smearingParameter);
 
-  SparseMatrix<complex<double> > computeDiracMatrix(const double mass,
-						    const double spacing);
-  SparseMatrix<complex<double> >
-  computeSmearingOperator(const double smearingParameter, const int nSmears);
   VectorXcd makeSource(const int site[4], const int spin, const int colour,
 		       LinearOperator* smearingOperator);
   vector<MatrixXcd> computePropagator(const double mass, const double spacing,
 				      int site[4],
 				      const int nSmears,
 				      const double smearingParameter,
-				      const int nSourceSmears,
-				      const double sourceSmearingParameter,
-				      const int nSinkSmears,
-				      const double sinkSmearingParameter,
-				      const int solverMethod,
-				      const int verbosity);
-  vector<MatrixXcd> computePropagator(const double mass, const double spacing,
-				      int site[4],
-				      const SparseMatrix<complex<double> >& D,
 				      const int nSourceSmears,
 				      const double sourceSmearingParameter,
 				      const int nSinkSmears,

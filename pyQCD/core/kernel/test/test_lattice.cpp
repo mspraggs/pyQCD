@@ -350,11 +350,6 @@ BOOST_AUTO_TEST_CASE( propagator_test )
   // Checking propagator generation
   exposedLattice lattice(4, 8, 5.5, 1.0, 0, 10, 0, 0, 4, 0);
 
-  // First sanity check the free space Dirac matrix
-  SparseMatrix<complex<double> > diracMatrix
-    = lattice.computeDiracMatrix(0.4, 1.0);
-  BOOST_CHECK_EQUAL(diracMatrix.nonZeros(), 104448);
-
   // Now check the free space propagator
   int site[4] = {0, 0, 0, 0};
   vector<MatrixXcd> propagators = lattice.computePropagator(0.4, 1.0, site,
@@ -372,15 +367,5 @@ BOOST_AUTO_TEST_CASE( propagator_test )
 		    2.684902007542121, 1.5e-10);
   BOOST_CHECK_SMALL(propagators[0].trace().imag(), 1e-11);
 #endif
-
-  // Check some of the smearing operators
-  SparseMatrix<complex<double> > smearingOperator
-    = lattice.computeSmearingOperator(0.5, 1);
-  BOOST_CHECK_EQUAL(smearingOperator.nonZeros(), 43008);
-  BOOST_CHECK_EQUAL(smearingOperator.coeffRef(0, 0).real(), 1.0);
-
-  smearingOperator = lattice.computeSmearingOperator(0.5, 2);
-  BOOST_CHECK_EQUAL(smearingOperator.nonZeros(), 135168);
-  BOOST_CHECK_EQUAL(smearingOperator.coeffRef(0, 0).real(), 2.5);
 }
 
