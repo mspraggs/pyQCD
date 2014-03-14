@@ -146,12 +146,12 @@ def benchmark_propagator_computation(L=4, T=8):
     
     display_benchmark(function=lattice.get_propagator,
                       args=[0.4, [0, 0, 0, 0], 0, 1.0, 0, 1.0, 0, 1.0,
-                            "conjugate_gradient", 2])
+                            "conjugate_gradient"])
     print("")
     
     display_benchmark(function=lattice.get_propagator,
                       args=[0.4, [0, 0, 0, 0], 0, 1.0, 0, 1.0, 0, 1.0,
-                            "bicgstab", 2])
+                            "bicgstab"])
     print("")
     
     for n in xrange(1, 3):    
