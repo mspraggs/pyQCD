@@ -9,6 +9,8 @@ gauge_actions = {'wilson': 0,
 
 solver_methods = {'bicgstab': 0,
                   'conjugate_gradient': 1}
+    
+smearing_types = {'jacobi': 0}
 
 truefalse = {True: 1,
              False: 0}

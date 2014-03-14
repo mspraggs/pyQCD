@@ -28,13 +28,57 @@ Lattice::makeSource(const int site[4], const int spin, const int colour,
 
 
 vector<MatrixXcd>
-Lattice::computePropagator(const double mass, const double spacing, int site[4],
+Lattice::computeWilsonPropagator(
+  const double mass, int site[4], const int nSmears,
+  const double smearingParameter, const int sourceSmearingType,
+  const int nSourceSmears, const double sourceSmearingParameter,
+  const int sinkSmearingType, const int nSinkSmears,
+  const double sinkSmearingParameter, const int solverMethod,
+  const vector<complex<double> >& boundaryConditions, const int precondition,
+  const int maxIterations, const double tolerance, const int verbosity)
+{
+  // Computes the Wilson propagator given a specified mass, source site
+  // and set of smearing parameters
+
+  // Generate the dirac matrix
+  if (verbosity > 0)
+    cout << "  Generating Dirac matrix..." << flush;
+
+  LinearOperator* diracOperator;
+
+  // TODO: Preconditioned Wilson operator (odd/even)
+  // If we require preconditioning, create the preconditioned operator
+  diracOperator = new UnpreconditionedWilson(mass, boundaryConditions, this);
+
+  if (verbosity > 0)
+    cout << " Done!" << endl;
+
+  vector<MatrixXcd> propagator 
+    = this->computePropagator(diracOperator, site, nSmears, smearingParameter,
+			      sourceSmearingType, nSourceSmears,
+			      sourceSmearingParameter, sinkSmearingType,
+			      nSinkSmears, sinkSmearingParameter, solverMethod,
+			      maxIterations, tolerance, verbosity);
+
+  delete diracOperator;
+
+  return propagator;
+}
+
+
+
+vector<MatrixXcd>
+Lattice::computePropagator(LinearOperator* diracMatrix, int site[4],
 			   const int nSmears, const double smearingParameter,
+			   const int sourceSmearingType,
 			   const int nSourceSmears,
 			   const double sourceSmearingParameter,
+			   const int sinkSmearingType,
 			   const int nSinkSmears,
 			   const double sinkSmearingParameter,
 			   const int solverMethod,
+			   const int maxIterations,
+			   const double tolerance,
 			   const int verbosity)
 {
   // Computes the propagator vectors for the 12 spin-colour indices at
@@ -54,27 +98,18 @@ Lattice::computePropagator(const double mass, const double spacing, int site[4],
 
   // Declare a variable to hold our propagator
   vector<MatrixXcd> propagator(nSites, MatrixXcd::Zero(12, 12));
-
-  // Get the dirac matrix
-  if (verbosity > 0)
-    cout << "  Generating Dirac matrix..." << flush;
   
   vector<complex<double> > boundaryConditions(4, complex<double>(1.0, 0.0));
   boundaryConditions[0] = complex<double>(-1.0, 0.0);
 
   // Create the source and sink smearing operators
+  // TODO: If statements for different types of smearing/sources
   LinearOperator* sourceSmearingOperator 
     = new JacobiSmearing(nSourceSmears, sourceSmearingParameter,
 			 boundaryConditions, this);
   LinearOperator* sinkSmearingOperator 
     = new JacobiSmearing(nSinkSmears, sinkSmearingParameter,
 			 boundaryConditions, this);
-
-  if (verbosity > 0)
-    cout << " Done!" << endl;
-
-  LinearOperator* diracMatrix 
-    = new UnpreconditionedWilson(mass, boundaryConditions, this);
 
   // Loop through colour and spin indices and invert propagator
   for (int i = 0; i < 4; ++i) {
@@ -92,10 +127,11 @@ Lattice::computePropagator(const double mass, const double spacing, int site[4],
       VectorXcd solution(3 * this->nLinks_);
       
       if (solverMethod == 1)
-	solution = cg(diracMatrix, source, 1e-4, 1000, residual, iterations);
+	solution = cg(diracMatrix, source, tolerance, maxIterations,
+		      residual, iterations);
       else
-	solution = bicgstab(diracMatrix, source, 1e-4, 1000, residual,
-			    iterations);
+	solution = bicgstab(diracMatrix, source, tolerance, maxIterations,
+			    residual, iterations);
       
       // Smear the sink
       solution = sinkSmearingOperator->apply(solution);
@@ -113,7 +149,6 @@ Lattice::computePropagator(const double mass, const double spacing, int site[4],
     }
   }
 
-  delete diracMatrix;
   delete sourceSmearingOperator;
   delete sinkSmearingOperator;
 

@@ -40,8 +40,9 @@ to those above:
 * OpenMP (version 3), required for parallel updates, but not essential.
 
 pyQCD is capable of using CUDA-capable GPUs to accelerate the inversion of Dirac matrices to generate
-propagators. If you have a CUDA enabled GPU, and you want to use its capabilities, then you'll also need the
-following packages:
+propagators. (N.B.: This feature is currently unavailable in the HEAD of this repo. To use the CUDA-enabled
+version, please checkout revision c1b0894.) If you have a CUDA enabled GPU, and you want to use its capabilities,
+then you'll also need the following packages:
 
 * CUDA, version 4.2 or greater;
 * CUSP Sparse Matrix Library, available [here](http://cusplibrary.github.io/).

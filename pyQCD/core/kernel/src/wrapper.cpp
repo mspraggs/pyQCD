@@ -1,9 +1,11 @@
-#include <pylattice.hpp>
+#define BOOST_PYTHON_MAX_ARITY 20
+
 #include <boost/python.hpp>
 #include <boost/python/list.hpp>
 #include <boost/python/args.hpp>
 #include <boost/python/docstring_options.hpp>
 #include <iostream>
+#include <pylattice.hpp>
 
 namespace py = boost::python;
 
@@ -14,6 +16,15 @@ py::list listArg()
   py::list out;
   for (int i = 0; i < 4; ++i) 
     out.append(0);
+  return out;
+}
+
+py::list defaultBoundaryConditions()
+{
+  py::list out;
+  out.append(-1);
+  for (int i = 0; i < 3; ++i) 
+    out.append(1);
   return out;
 }
 
@@ -171,12 +182,16 @@ BOOST_PYTHON_MODULE(lattice)
     .def("get_av_wilson_loop", &pyLattice::computeAverageWilsonLoopP,
 	 (py::arg("r"), py::arg("t"), py::arg("n_smears") = 0,
 	  py::arg("smearing_param") = 1.0))
-    .def("get_propagator", &pyLattice::computePropagatorP,
-	 (py::arg("mass"), py::arg("spacing") = 1.0, py::arg("site") = listArg(),
+    .def("get_wilson_propagator", &pyLattice::computeWilsonPropagatorP,
+	 (py::arg("mass"), py::arg("site") = listArg(),
 	  py::arg("n_link_smears") = 0, py::arg("link_param") = 1.0,
-	  py::arg("n_src_smears") = 0, py::arg("src_param") = 1.0,
+	  py::arg("src_smear_type") = 0, py::arg("n_src_smears") = 0,
+	  py::arg("src_param") = 1.0, py::arg("sink_smear_type") = 0,
 	  py::arg("n_sink_smears") = 0, py::arg("sink_param") = 1.0,
-	  py::arg("solver_method") = 0, py::arg("verbosity") = 0))
+	  py::arg("solver_method") = 0,
+	  py::arg("boundary_conditions") = defaultBoundaryConditions(),
+	  py::arg("precondition") = 0, py::arg("max_iterations") = 1000,
+	  py::arg("tolerance") = 1, py::arg("verbosity") = 0))
     .def("get_av_link", &pyLattice::computeMeanLink)
     .def_pickle(lattice_pickle_suite())
     .def_readonly("num_cor", &pyLattice::nCorrelations)

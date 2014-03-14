@@ -352,10 +352,17 @@ BOOST_AUTO_TEST_CASE( propagator_test )
 
   // Now check the free space propagator
   int site[4] = {0, 0, 0, 0};
-  vector<MatrixXcd> propagators = lattice.computePropagator(0.4, 1.0, site,
-							    0, 1.0, 0, 1.0,
-							    0, 1.0, 1, 0);
 
+  // Create the boundary conditions
+  vector<complex<double> > boundaryConditions(4, complex<double>(1.0, 0.0));
+  boundaryConditions[0] = complex<double>(-1.0, 0.0);
+  vector<MatrixXcd> propagators
+    = lattice.computeWilsonPropagator(0.4, site,
+				      0, 1.0, 0, 0, 1.0,
+				      0, 0, 1.0, 1,
+				      boundaryConditions,
+				      0, 1000, 1e-8, 0);
+  
   BOOST_CHECK_EQUAL(propagators.size(), 512);
 #ifdef USE_CUDA
   // Cuda works in single precision, so tolerance will be lower

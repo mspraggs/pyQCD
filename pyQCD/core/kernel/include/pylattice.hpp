@@ -1,6 +1,8 @@
 #ifndef PYLATTICE_HPP
 #define PYLATTICE_HPP
 
+#define BOOST_PYTHON_MAX_ARITY 20
+
 #include <boost/python.hpp>
 #include <boost/python/list.hpp>
 #include <boost/python/tuple.hpp>
@@ -40,15 +42,21 @@ public:
   double computeAverageWilsonLoopP(const int r, const int t,
 				   const int nSmears = 0,
 				   const double smearingParameter = 1.0);
-  py::list computePropagatorP(const double mass, const double spacing,
-			      const py::list site, const int nSmears,
-			      const double smearingParameter,
-			      const int nSourceSmears,
-			      const double sourceSmearingParameter,
-			      const int nSinkSmears,
-			      const double sinkSmearingParameter,
-			      const int solverMethod,
-			      const int verbosity);
+  py::list computeWilsonPropagatorP(const double mass, const py::list site,
+				    const int nSmears,
+				    const double smearingParameter,
+				    const int sourceSmearingType,
+				    const int nSourceSmears,
+				    const double sourceSmearingParameter,
+				    const int sinkSmearingType,
+				    const int nSinkSmears,
+				    const double sinkSmearingParameter,
+				    const int solverMethod,
+				    const py::list boundaryConditions,
+				    const int precondition,
+				    const int maxIterations,
+				    const double tolerance,
+				    const int verbosity);
   void runThreads(const int nUpdates, const int remainder);
   py::list getLinkP(const py::list link);
   void setLinkP(const py::list link, const py::list matrix);

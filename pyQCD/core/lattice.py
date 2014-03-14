@@ -555,16 +555,22 @@ class Lattice(lattice.Lattice):
         
         return out
     
-    def get_propagator(self, mass,
-                       source_site = [0, 0, 0, 0],
-                       num_field_smears = 0,
-                       field_smearing_param = 1.0,
-                       num_source_smears = 0,
-                       source_smearing_param = 1.0,
-                       num_sink_smears = 0,
-                       sink_smearing_param = 1.0,
-                       solver_method = "bicgstab",
-                       verbosity = 0):
+    def get_wilson_propagator(self, mass,
+                              source_site=[0, 0, 0, 0],
+                              num_field_smears=0,
+                              field_smearing_param=1.0,
+                              source_smear_type="jacobi",
+                              num_source_smears=0,
+                              source_smearing_param=1.0,
+                              sink_smear_type="jacobi",
+                              num_sink_smears=0,
+                              sink_smearing_param=1.0,
+                              solver_method="bicgstab",
+                              boundary_conditions = [-1, 1, 1, 1],
+                              precondition=False,
+                              max_iterations=1000,
+                              tolerance=1e-8,
+                              verbosity=0):
         """Compute the Wilson propagator using the Wilson fermion action
                        
         Args:
@@ -575,10 +581,16 @@ class Lattice(lattice.Lattice):
             applied before doing the inversion
           field_smearing_param (float, optional): The stout field smearing
             parameter to use before doing the inversion
+          source_smear_type (str, optional): The type of smearing to apply
+            to the source. Currently "jacobi" is the only supported smearing
+            type.
           num_source_smears (int, optional): The number of Jacobi smears to apply
             to the source before inverting.
           source_smearing_param (float, optional): The Jacobi field smearing
             parameter to use before doing the inversion
+          sink_smear_type (str, optional): The type of smearing to apply
+            to the sink. Currently "jacobi" is the only supported smearing
+            type.
           num_sink_smears (int, optional): The number of Jacobi smears to apply
             to the sink before inverting.
           sink_smearing_param (float, optional): The Jacobi field smearing
@@ -586,6 +598,14 @@ class Lattice(lattice.Lattice):
           solver_method (str, optional): The algorithm to use when doing the
             inversion. Currently "conjugate_gradient" and "bicgstab" are
             available.
+          boundary_conditions (list, optional): The phase factors to apply to
+            the fermion fields at the boundaries of the lattice.
+          precondition (bool, optional): Determines whether the preconditioned
+            form of the Dirac operator is used.
+          max_iterations (int, optional): The maximum number of iterations the
+            solver will perform before giving up.
+          tolerance (float, optional): The maximum residual the solver will
+            allow before considering convergence to have been reached.
           verbosity (int, optional): Determines how much inversion is outputted
             during the inversion. Values greater than one produce output, whilst
             1 or 0 will produce no output.
@@ -608,18 +628,15 @@ class Lattice(lattice.Lattice):
         
         raw_propagator \
           = np.array(lattice.Lattice \
-                     .get_propagator(self,
-                                     mass,
-                                     1.0,
-                                     source_site,
-                                     num_field_smears,
-                                     field_smearing_param,
-                                     num_source_smears,
-                                     source_smearing_param,
-                                     num_sink_smears,
-                                     sink_smearing_param,
-                                     dicts.solver_methods[solver_method],
-                                     verbosity))
+                     .get_wilson_propagator(
+                         self, mass, source_site, num_field_smears,
+                         field_smearing_param,
+                         dicts.smearing_types[source_smear_type],
+                         num_source_smears, source_smearing_param,
+                         dicts.smearing_types[sink_smear_type], num_sink_smears,
+                         sink_smearing_param, dicts.solver_methods[solver_method],
+                         boundary_conditions, dicts.truefalse[precondition],
+                         max_iterations, tolerance, verbosity))
         
         prop = np.swapaxes(np.reshape(raw_propagator, (self.T, self.L, self.L,
                                                        self.L, 4, 3, 4, 3)), 5,

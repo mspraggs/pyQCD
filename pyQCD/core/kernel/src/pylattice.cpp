@@ -102,33 +102,38 @@ double pyLattice::computeAverageWilsonLoopP(const int r, const int t,
 
 
 
-py::list pyLattice::computePropagatorP(const double mass, const double spacing,
-				       const py::list site, const int nSmears,
-				       const double smearingParameter,
-				       const int nSourceSmears,
-				       const double sourceSmearingParameter,
-				       const int nSinkSmears,
-				       const double sinkSmearingParameter,
-				       const int solverMethod,
-				       const int verbosity)
+py::list pyLattice::computeWilsonPropagatorP(
+  const double mass, const py::list site,
+  const int nSmears, const double smearingParameter,
+  const int sourceSmearingType, const int nSourceSmears,
+  const double sourceSmearingParameter, const int sinkSmearingType,
+  const int nSinkSmears, const double sinkSmearingParameter,
+  const int solverMethod, const py::list boundaryConditions,
+  const int precondition, const int maxIterations,
+  const double tolerance, const int verbosity)
 {
   // Wrapper for the calculation of a propagator
   int tempSite[4] = {py::extract<int>(site[0]),
 		     py::extract<int>(site[1]),
 		     py::extract<int>(site[2]),
 		     py::extract<int>(site[3])};
-  // Release the GIL for the propagator inversion (not necessary but here anyway)
+  vector<complex<double> > tempBoundaryConditions(4, complex<double>(1.0, 0.0));
+
+  for (int i = 0; i < 4; ++i) {
+    tempBoundaryConditions[i] 
+      = py::extract<complex<double> >(boundaryConditions[i]);
+  }
+  // Release the GIL for the propagator inversion
   ScopedGILRelease* scope = new ScopedGILRelease;
   // Get the propagator
-  vector<MatrixXcd> prop = this->computePropagator(mass, spacing, tempSite,
-						   nSmears,
-						   smearingParameter,
-						   nSourceSmears,
-						   sourceSmearingParameter,
-						   nSinkSmears,
-						   sinkSmearingParameter,
-						   solverMethod,
-						   verbosity);
+  vector<MatrixXcd> prop 
+    = this->computeWilsonPropagator(mass, tempSite, nSmears, smearingParameter,
+				    sourceSmearingType, nSourceSmears,
+				    sourceSmearingParameter, sinkSmearingType,
+				    nSinkSmears, sinkSmearingParameter,
+				    solverMethod, tempBoundaryConditions,
+				    precondition, maxIterations, tolerance,
+				    verbosity);
   // Put GIL back in place
   delete scope;
   // This is where we'll store the propagator as a list

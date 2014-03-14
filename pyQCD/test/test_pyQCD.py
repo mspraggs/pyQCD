@@ -532,12 +532,12 @@ if lattice_exists:
                         assert wilson_loops.data[r, t] \
                           == lattice.get_av_wilson_loop(r, t, n, 0.5)
 
-        def test_get_propagator(self):
+        def test_get_wilson_propagator(self):
             
             lattice = Lattice(rand_seed=0, update_method="heatbath")
             
             propagator \
-              = lattice.get_propagator(0.4, solver_method="conjugate_gradient")
+              = lattice.get_wilson_propagator(0.4, solver_method="conjugate_gradient")
             
             expected_shape = (lattice.T, lattice.L, lattice.L, lattice.L, 4, 4, 3, 3)
             actual_shape = propagator.data.shape

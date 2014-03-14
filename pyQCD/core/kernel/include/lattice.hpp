@@ -101,15 +101,27 @@ public:
 
   VectorXcd makeSource(const int site[4], const int spin, const int colour,
 		       LinearOperator* smearingOperator);
-  vector<MatrixXcd> computePropagator(const double mass, const double spacing,
+  vector<MatrixXcd> computeWilsonPropagator(
+    const double mass, int site[4], const int nSmears,
+    const double smearingParameter, const int sourceSmearingType,
+    const int nSourceSmears, const double sourceSmearingParameter,
+    const int sinkSmearingType, const int nSinkSmears,
+    const double sinkSmearingParameter, const int solverMethod,
+    const vector<complex<double> >& boundaryConditions, const int precondition,
+    const int maxIterations, const double tolerance, const int verbosity);
+  vector<MatrixXcd> computePropagator(LinearOperator* diracMatrix,
 				      int site[4],
 				      const int nSmears,
 				      const double smearingParameter,
+				      const int sourceSmearingType,
 				      const int nSourceSmears,
 				      const double sourceSmearingParameter,
+				      const int sinkSmearingType,
 				      const int nSinkSmears,
 				      const double sinkSmearingParameter,
 				      const int solverMethod,
+				      const int maxIterations,
+				      const double tolerance,
 				      const int verbosity);
   
   int nCorrelations, spatialExtent, temporalExtent;
