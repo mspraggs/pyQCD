@@ -1,5 +1,6 @@
 *~
 *.pyc
+*.html
 CTestTestfile.cmake
 Testing/*
 pyQCD/core/kernel/CTestTestfile.cmake
@@ -15,7 +16,6 @@ build/*
 dist/*
 CMakeCache.txt
 CMakeFiles/*
-setup.py
 Makefile
 cmake_install.cmake
 push
@@ -23,3 +23,11 @@ install_manifest.txt
 docs/_build/*
 docs/_static/*
 docs/_templates/*
+pyQCDcache/*
+*.o
+/*.npz
+/*.zip
+/*.npy
+pyQCD/core/*.npz
+pyQCD/core/*.zip
+pyQCD/core/*.npy
