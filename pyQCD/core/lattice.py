@@ -643,9 +643,10 @@ class Lattice(lattice.Lattice):
                                                        6)
         
         out = propagator.Propagator(prop, self.L, self.T, self.beta, self.u0,
-                                    self.action, mass, source_site,
+                                    self.action, "wilson", mass, {}, source_site,
                                     num_field_smears, field_smearing_param,
-                                    num_source_smears, source_smearing_param,
+                                    source_smear_type, num_source_smears,
+                                    source_smearing_param, sink_smear_type,
                                     num_sink_smears, sink_smearing_param)
         
         return out

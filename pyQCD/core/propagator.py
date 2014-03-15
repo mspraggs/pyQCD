@@ -21,18 +21,24 @@ class Propagator(Observable):
       T (int): The temporal extent of the corresponding lattice
       beta (float): The inverse coupling
       u0 (float): The mean link/tadpole coefficient
-      action (str): The gauge action
+      gauge_action (str): The gauge action
+      fermion_action (str): The fermion action
       mass (float): The bare quark mass
+      action_parameters (dict): The fermion action parameters (if any)
       source_site (list): The source site to use when constructing the
         source for the inversion, of the form [t, x, y, z]
       num_field_smears (int): The number of stout field smears applied
         before doing the inversion
       field_smearing_param (float): The stout field smearing parameter
         used before doing the inversion
+      source_smearing_type (str): The type of smearing applied to the quark
+        source.
       num_source_smears (int): The number of Jacobi smears applied
         to the source before inverting.
       source_smearing_param (float): The Jacobi field smearing parameter
         used before doing the inversion
+      sink_smearing_type (str): The type of smearing applied to the quark
+        sink.
       num_sink_smears (int): The number of Jacobi smears applied
         to the sink before inverting.
       sink_smearing_param (float): The Jacobi field smearing parameter
@@ -46,18 +52,24 @@ class Propagator(Observable):
       T (int): The temporal extent of the corresponding lattice
       beta (float): The inverse coupling
       u0 (float): The mean link/tadpole coefficient
-      action (str): The gauge action
+      gauge_action (str): The gauge action
+      fermion_action (str): The fermion action
       mass (float): The bare quark mass
+      action_parameters (dict): The fermion action parameters (if any)
       source_site (list): The source site to use when constructing the
         source for the inversion, of the form [t, x, y, z]
       num_field_smears (int): The number of stout field smears applied
         before doing the inversion
       field_smearing_param (float): The stout field smearing parameter to
         use before doing the inversion
+      source_smearing_type (str): The type of smearing applied to the quark
+        source.
       num_source_smears (int): The number of Jacobi smears to apply
         to the source before inverting.
       source_smearing_param (float): The Jacobi field smearing parameter to
         use before doing the inversion
+      sink_smearing_type (str): The type of smearing applied to the quark
+        sink.
       num_sink_smears (int): The number of Jacobi smears to apply
         to the sink before inverting.
       sink_smearing_param (float): The Jacobi field smearing parameter to
@@ -84,15 +96,19 @@ class Propagator(Observable):
       lattice, using the get_propagator member function.
     """
     
-    members = ['L', 'T', 'beta', 'u0', 'action', 'mass',
+    members = ['L', 'T', 'beta', 'u0', 'gauge_action',
+               'fermion_action', 'mass', 'action_parameters',
                'source_site', 'num_field_smears',
-               'field_smearing_param', 'num_source_smears',
-               'source_smearing_param', 'num_sink_smears',
+               'field_smearing_param', 'source_smearing_type',
+               'num_source_smears', 'source_smearing_param',
+               'sink_smearing_type', 'num_sink_smears',
                'sink_smearing_param']
         
-    def __init__(self, propagator, L, T, beta, u0, action, mass, source_site,
-                 num_field_smears, field_smearing_param, num_source_smears,
-                 source_smearing_param, num_sink_smears, sink_smearing_param):
+    def __init__(self, propagator, L, T, beta, u0, gauge_action, fermion_action,
+                 mass, action_parameters, source_site,
+                 num_field_smears, field_smearing_param, source_smearing_type,
+                 num_source_smears, source_smearing_param, sink_smearing_type,
+                 num_sink_smears, sink_smearing_param):
         """Constructor for pyQCD.Propagator (see help(pyQCD.Propagator)))"""
         
         expected_shape = (T, L, L, L, 4, 4, 3, 3)
@@ -106,13 +122,17 @@ class Propagator(Observable):
         self.T = T
         self.beta = beta
         self.u0 = u0
-        self.action = action
+        self.gauge_action = gauge_action
+        self.fermion_action = fermion_action
         self.mass = mass
+        self.action_parameters = action_parameters
         self.source_site = source_site
         self.num_field_smears = num_field_smears
         self.field_smearing_param = field_smearing_param
+        self.source_smearing_type = source_smearing_type
         self.num_source_smears = num_source_smears
         self.source_smearing_param = source_smearing_param
+        self.sink_smearing_type = sink_smearing_type
         self.num_sink_smears = num_sink_smears
         self.sink_smearing_param = sink_smearing_param
         
@@ -327,7 +347,9 @@ class Propagator(Observable):
         "Gauge action: {}\n" \
         "Inverse coupling (beta): {}\n" \
         "Mean link (u0): {}\n" \
+        "Fermion action: {}\n" \
         "Bare quark mass (m): {}\n" \
+        "Fermion action parameters: {}\n" \
         "Inversion source site: {}\n" \
         "Number of stout field smears: {}\n" \
         "Stout smearing parameter: {}\n" \
@@ -335,10 +357,11 @@ class Propagator(Observable):
         "Source Jacobi smearing parameter: {}\n" \
         "Number of sink Jacobi smears: {}\n" \
         "Sink Jacobi smearing parameter: {}\n" \
-        .format(self.L, self.T, self.action, self.beta,
-                self.u0, self.mass, self.source_site,
-                self.num_field_smears, self.field_smearing_param,
-                self.num_source_smears, self.source_smearing_param,
-                self.num_sink_smears, self.sink_smearing_param)
+        .format(self.L, self.T, self.gauge_action, self.beta,
+                self.u0, self.fermion_action, self.mass, self.action_parameters,
+                self.source_site, self.num_field_smears,
+                self.field_smearing_param, self.num_source_smears,
+                self.source_smearing_param, self.num_sink_smears,
+                self.sink_smearing_param)
         
         return out
