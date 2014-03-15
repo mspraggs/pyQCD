@@ -19,17 +19,21 @@ class my_build_ext(build_ext.build_ext):
     def build_extension(self, ext):
         import shutil
         import os.path
-        import pyQCD.core.kernel.lattice
+        try:
+            import pyQCD.core.kernel.lattice
+            module_file = pyQCD.core.kernel.lattice.__file__
+            shutil.copyfile(module_file,
+                            self.get_ext_fullpath(ext.name))
+        except ImportError:
+            print("Notice: lattice.so binary missing. Installing analysis modules only.")
 
-        module_file = pyQCD.core.kernel.lattice.__file__
-
-        shutil.copyfile(module_file,
-                        self.get_ext_fullpath(ext.name))
+# Exclude the lattice.py and simulation.py files if lattice.so
+# hasn't been built.
 
 setup(
     name='pyQCD',
-    version='${PACKAGE_VERSION}',
-    packages=find_packages(),
+    version='',
+    packages=find_packages(exclude=["*test*"]),
     url='http://github.com/mspraggs/pyqcd/',
     license='Apache Software License',
     author='Matt Spraggs',
