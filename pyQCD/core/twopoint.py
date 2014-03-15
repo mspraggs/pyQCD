@@ -84,7 +84,7 @@ class TwoPoint(Observable):
         """Constructor for pyQCD.Simulation (see help(pyQCD.Simulation))"""
         self.L = L
         self.T = T
-        self.computed_correlators = []
+        self.data = {}
     
     def save(self, filename):
         """Saves the two-point function to a numpy zip archive
@@ -110,22 +110,10 @@ class TwoPoint(Observable):
         for member in TwoPoint.members:
             header_keys.append(member)
             header_values.append(getattr(self, member))
-                
-        header_keys.append("computed_correlators")
-        header_values.append(self.computed_correlators)
 
         header = dict(zip(header_keys, header_values))
-        
-        data_keys = []
-        data_values = []
-        
-        for key in self.computed_correlators:
-            data_keys.append(key)
-            data_values.append(getattr(self, key))
             
-        data = dict(zip(data_keys, data_values))
-            
-        np.savez(filename, header=header, **data)
+        np.savez(filename, header=header, data=self.data)
         
     @classmethod
     def load(cls, filename):
@@ -152,11 +140,7 @@ class TwoPoint(Observable):
         ret = TwoPoint(8, 4)
         ret.L = header['L']
         ret.T = header['T']
-        ret.computed_correlators = header['computed_correlators']
-        
-        for correlator in numpy_archive.keys():
-            if correlator != "header":
-                setattr(ret, correlator, numpy_archive[correlator])
+        ret.data = numpy_archive['data'].item()
         
         return ret
     
@@ -232,9 +216,7 @@ class TwoPoint(Observable):
                    4.66148785e-02])
         """
         
-        correlator_attributes \
-          = [self._get_correlator_parameters(name)
-             for name in self.computed_correlators]
+        correlator_attributes = self.data.keys()
         
         if masses != None:
             masses = tuple([round(mass, 4) for mass in masses])
@@ -249,17 +231,15 @@ class TwoPoint(Observable):
                 correlator_attributes \
                   = [attrib for attrib in correlator_attributes
                      if attrib[i] == param]
-                  
-        attribute_names = [self._get_correlator_name(*attribs)
-                           for attribs in correlator_attributes]
         
-        if len(attribute_names) == 1:
-            return getattr(self, attribute_names[0])
+        if len(correlator_attributes) == 1:
+            return self.data[correlator_attributes[0]]
         else:
-            attribute_values = [getattr(self, name) for name in attribute_names]
+            correlators = [self.data[attrib]
+                           for attrib in correlator_attributes]
            
-            return dict(zip(tuple(correlator_attributes),
-                            tuple(attribute_values)))
+            return dict(zip(correlator_attributes,
+                            tuple(correlators)))
     
     def add_correlator(self, data, label, masses=[], momentum=[0, 0, 0],
                        source_type=None, sink_type=None, projected=True,
@@ -299,6 +279,8 @@ class TwoPoint(Observable):
         """
         correlator_name = self._get_correlator_name(label, masses, momentum,
                                                     source_type, sink_type)
+        masses = tuple([round(m, 4) for m in masses])
+        correlator_key = (label, masses, tuple(momentum), source_type, sink_type)
         
         if projected:
             if len(data.shape) != 1 or data.shape[0] != self.T:
@@ -307,10 +289,7 @@ class TwoPoint(Observable):
                                  .format(self.T, data.shape))
             
             data = TwoPoint._fold(data) if fold else data
-            setattr(self, correlator_name, data)
-            
-            if not correlator_name in self.computed_correlators:
-                self.computed_correlators.append(correlator_name)
+            self.data[correlator_key] = data
             
         else:
             expected_shape = (self.T, self.L, self.L, self.L)
@@ -321,11 +300,8 @@ class TwoPoint(Observable):
             
             correlator = self._project_correlator(data, momentum)
             
-            if not correlator_name in self.computed_correlators:
-                self.computed_correlators.append(correlator_name)
-            
             correlator = TwoPoint._fold(correlator) if fold else correlator
-            setattr(self, correlator_name, correlator)
+            self.data[correlator_key] = correlator
             
     def load_chroma_mesonspec(self, filename, fold=False):
         """Loads the meson correlator(s) present in the supplied Chroma
@@ -1334,48 +1310,22 @@ class TwoPoint(Observable):
     def __add__(self, tp):
         """Addition operator overload"""
         
-        if type(tp) != type(self):
-            raise TypeError("Types {} and {} do not match"
-                            .format(type(self), type(tp)))
-        
-        for cm in self.members:
-            if getattr(self, cm) != getattr(tp, cm):
-                raise ValueError("Attribute {} differs between objects "
-                                 "({} and {})".format(cm,
-                                                      getattr(self, cm),
-                                                      getattr(tp, cm)))
-        
         out = TwoPoint(tp.T, tp.L)
         
-        comp_corr1 = self.computed_correlators
-        comp_corr2 = tp.computed_correlators
-        
-        for cc in comp_corr1:
-            setattr(out, cc, getattr(self, cc))
-            out.computed_correlators.append(cc)
-            
-        for cc in comp_corr2:
-            if hasattr(out, cc):
-                setattr(out, cc, getattr(out, cc) + getattr(tp, cc))
-            else:
-                setattr(out, cc, getattr(tp, cc))
-                out.computed_correlators.append(cc)
+        for key in self.data.keys():
+            out.data[key] = self.data[key] + tp.data[key]
                 
         return out
     
     def __div__(self, div):
         """Division operator overloading"""
         
-        if type(div) != int and type(div) != float:
-            raise TypeError("Expected an int or float divisor, got {}"
-                            .format(type(div)))
-        
         out = TwoPoint(self.T, self.L)
         
-        for cc in self.computed_correlators:
-            setattr(out, cc, getattr(self, cc) / div)
-        
-        out.computed_correlators = self.computed_correlators
+        new_correlators = [correlator / div
+                           for correlator in self.data.values()]
+            
+        out.data = dict(zip(self.data.keys(), new_correlators))
             
         return out
     
@@ -1384,11 +1334,10 @@ class TwoPoint(Observable):
         
         out = TwoPoint(self.T, self.L)
         
-        comp_corr1 = self.computed_correlators
-        out.computed_correlators = comp_corr1
-        
-        for cc in comp_corr1:
-            setattr(out, cc, -getattr(self, cc))
+        new_correlators = [-correlator
+                           for correlator in self.data.values()]
+            
+        out.data = dict(zip(self.data.keys(), new_correlators))
                 
         return out
     
@@ -1400,16 +1349,14 @@ class TwoPoint(Observable):
     def __pow__(self, exponent):
         """Power operator overloading"""
         
-        if type(exponent) != int and type(exponent) != float:
-            raise TypeError("Expected an int or float exponent, got {}"
-                            .format(type(exponent)))
-        
         out = TwoPoint(self.T, self.L)
         
-        for cc in self.computed_correlators:
-            setattr(out, cc, getattr(self, cc) ** exponent)
+        new_correlators = [correlator ** exponent
+                           for correlator in self.data.values()]
+            
+        out.data = dict(zip(self.data.keys(), new_correlators))
         
-        out.computed_correlators = self.computed_correlators
+        out.computed_correlators = self.data
             
         return out
                         
@@ -1423,12 +1370,9 @@ class TwoPoint(Observable):
           "Computed correlators:\n" \
           "- (label, masses, momentum, source, sink)\n".format(self.L, self.T)
         
-        if len(self.computed_correlators) > 0:
-            for correlator in self.computed_correlators:
-                correlator_parameters \
-                  = self._get_correlator_parameters(correlator)
-                  
-                out += "- {}\n".format(correlator_parameters)
+        if len(self.data.keys()) > 0:
+            for correlator in self.data.keys():                  
+                out += "- {}\n".format(correlator)
                 
         else:
             out += "None\n"

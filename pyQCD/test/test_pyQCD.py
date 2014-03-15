@@ -462,7 +462,7 @@ if lattice_exists:
             for i in xrange(100):
                 lattice.update()
             
-            # Test for gauge invariance - only valid for non-smeared gauge fields   
+            # Test for gauge invariance - only valid for non-smeared gauge fields
             wilson_loops \
               = [lattice.get_wilson_loop(site, r, t, dim)
                  for dim in range(1, 4)
@@ -926,10 +926,9 @@ class TestTwoPoint:
     def test_save(self):
         
         twopoint = TwoPoint(8, 4)
-        attribute_name = "pion_px0_py0_pz0"
+        attribute_key = ("pion", (), (0, 0, 0), None, None)
         correlator = npr.random(10)
-        setattr(twopoint, attribute_name, correlator)
-        twopoint.computed_correlators.append(attribute_name)
+        twopoint.data[attribute_key] = correlator
               
         twopoint.save("test_twopoint.npz")
         
@@ -937,19 +936,18 @@ class TestTwoPoint:
         
         test_twopoint = np.load("test_twopoint.npz")
         
-        assert attribute_name in test_twopoint.files
-        assert (test_twopoint[attribute_name] == correlator).all()
+        assert "data" in test_twopoint.files
+        assert (test_twopoint["data"].item()[attribute_key] == correlator).all()
         
-        assert test_twopoint["header"].item() == {'L': 4, 'T': 8,
-                                                  'computed_correlators':
-                                                  ['pion_px0_py0_pz0']}
+        assert test_twopoint["header"].item() == {'L': 4, 'T': 8}
         
     def test_load(self):
         
         twopoint = TwoPoint.load("test_twopoint.npz")
+        attribute_key = ("pion", (), (0, 0, 0), None, None)
         
-        assert twopoint.pion_px0_py0_pz0.shape == (10,)
-        assert len(twopoint.computed_correlators) == 1
+        assert twopoint.data[attribute_key].shape == (10,)
+        assert len(twopoint.data.keys()) == 1
         
         #os.unlink("test_twopoint.npz")
         
@@ -978,7 +976,8 @@ class TestTwoPoint:
         for i in xrange(10):
             label = random_variable_name()
             momentum = [npr.randint(4) for i in xrange(3)]
-            masses = [npr.random() for i in xrange(npr.randint(1, 5))]
+            masses = [round(npr.random(), 4)
+                      for i in xrange(npr.randint(1, 5))]
             source_type = source_sink_types[npr.randint(len(source_sink_types))]
             sink_type = source_sink_types[npr.randint(len(source_sink_types))]
             
@@ -992,8 +991,8 @@ class TestTwoPoint:
             attribute_name += "_{0}_{1}".format(source_type, sink_type)
             
             correlator = npr.random(8)
-            setattr(twopoint, attribute_name, correlator)
-            twopoint.computed_correlators.append(attribute_name)
+            twopoint.data[(label, tuple(masses), tuple(momentum), source_type,
+                           sink_type)] = correlator
         
             assert (twopoint.get_correlator(label,
                                             masses,
@@ -1019,11 +1018,11 @@ class TestTwoPoint:
         twopoint.add_correlator(correlator, label, [0.1, 0.1])
         twopoint.add_correlator(correlator, label, [0.1, 0.5, 0.2], [1, 1, 1])
         
-        assert (twopoint.dummy_name_px0_py0_pz0_None_None \
+        assert (twopoint.data[(label, (), (0, 0, 0), None, None)] \
                 == correlator).all()
-        assert (twopoint.dummy_name_px0_py0_pz0_M0p1_M0p1_None_None \
+        assert (twopoint.data[(label, (0.1, 0.1), (0, 0, 0), None, None)] \
                 == correlator).all()
-        assert (twopoint.dummy_name_px1_py1_pz1_M0p1_M0p5_M0p2_None_None \
+        assert (twopoint.data[(label, (0.1, 0.5, 0.2), (1, 1, 1), None, None)] \
                 == correlator).all()
         
         with pytest.raises(ValueError):
@@ -1040,13 +1039,15 @@ class TestTwoPoint:
         correlator = np.dot(np.reshape(raw_correlator, (8, 64)), prefactors).real
         twopoint.add_correlator(raw_correlator, label, [], [1, 0, 0],
                                 projected=False)
-        assert (twopoint.dummy_name_px1_py0_pz0_None_None == correlator).all()
+        assert (twopoint.data[(label, (), (1, 0, 0), None, None)]
+                == correlator).all()
         
         prefactors = np.exp(1j * np.pi / 2 * np.dot(sites, [1, 1, 0]))
         correlator = np.dot(np.reshape(raw_correlator, (8, 64)), prefactors).real
         twopoint.add_correlator(raw_correlator, label, [], [1, 1, 0],
                                 projected=False)
-        assert (twopoint.dummy_name_px1_py1_pz0_None_None == correlator).all()
+        assert (twopoint.data[(label, (), (1, 1, 0), None, None)]
+                == correlator).all()
         
         with pytest.raises(ValueError):
             twopoint.add_correlator(npr.random((4, 2, 2, 1)), label, [0.1, 0.1],
@@ -1061,7 +1062,7 @@ class TestTwoPoint:
         twopoint.load_chroma_mesonspec("{}/mesonspec_hh_6000_1.xml" \
                                        .format(data_dir))
                                        
-        assert len(twopoint.computed_correlators) == 8
+        assert len(twopoint.data.keys()) == 8
             
     def test_load_chroma_hadspec(self):
         
@@ -1070,7 +1071,7 @@ class TestTwoPoint:
         twopoint.load_chroma_hadspec("{}/hadspec.dat.xml" \
                                      .format(data_dir))
                                        
-        assert len(twopoint.computed_correlators) == 95
+        assert len(twopoint.data.keys()) == 95
             
     def test_load_chroma_hadspec_mesons(self):
         
@@ -1079,7 +1080,7 @@ class TestTwoPoint:
         twopoint.load_chroma_hadspec_mesons("{}/hadspec.dat.xml" \
                                             .format(data_dir))
                                        
-        assert len(twopoint.computed_correlators) == 64
+        assert len(twopoint.data.keys()) == 64
             
     def test_load_chroma_hadspec_baryons(self):
         
@@ -1088,7 +1089,7 @@ class TestTwoPoint:
         twopoint.load_chroma_hadspec_baryons("{}/hadspec.dat.xml" \
                                              .format(data_dir))
                                        
-        assert len(twopoint.computed_correlators) == 20
+        assert len(twopoint.data.keys()) == 20
             
     def test_load_chroma_hadspec_currents(self):
         
@@ -1097,7 +1098,7 @@ class TestTwoPoint:
         twopoint.load_chroma_hadspec_currents("{}/hadspec.dat.xml" \
                                               .format(data_dir))
                                        
-        assert len(twopoint.computed_correlators) == 11
+        assert len(twopoint.data.keys()) == 11
             
     def test_load_ukhadron_meson_binary(self):
         
@@ -1107,7 +1108,7 @@ class TestTwoPoint:
           .load_ukhadron_meson_binary("{}/meson_m_0.45_m_0.45_Z2.280.bin"
                                       .format(data_dir), "big")
                                        
-        assert len(twopoint.computed_correlators) == 256
+        assert len(twopoint.data.keys()) == 256
             
     def test_compute_meson_correlator(self):
         
@@ -1146,9 +1147,11 @@ class TestTwoPoint:
             correlator_name = "{}_px{}_py{}_pz{}_M{}_M{}_point_point" \
               .format(label, momenta[0], momenta[1], momenta[2], 0.4, 0.4) \
               .replace(".", "p")
+              
+            correlator_key = (label, (0.4, 0.4), tuple(momenta),
+                              "point", "point")
         
-            assert (np.abs(getattr(twopoint, correlator_name)
-                           - expected_correlator)
+            assert (np.abs(twopoint.data[correlator_key] - expected_correlator)
                     < np.abs(expected_correlator)).all()
             
         momenta = [[0, 0, 0], [1, 0, 0], [1, 1, 0], [1, 1, 1]]
@@ -1174,12 +1177,11 @@ class TestTwoPoint:
                                           label, momenta, average_momenta=True)
         
         for i, momentum in enumerate(momenta):
-            
-            correlator_name = "{}_px{}_py{}_pz{}_M{}_M{}_point_point" \
-              .format(label, momentum[0], momentum[1], momentum[2], 1.0, 1.0) \
-              .replace(".", "p")
+              
+            correlator_key = (label, (1.0, 1.0), tuple(momentum),
+                              "point", "point")
         
-            assert (np.abs(getattr(twopoint, correlator_name)
+            assert (np.abs(twopoint.data[correlator_key]
                            - expected_correlators[i])
                     < np.abs(expected_correlator[i])).all()
             
@@ -1346,25 +1348,22 @@ class TestTwoPoint:
         twopoint2.add_correlator(correlator4, "test", [1.0, 0.1], [1, 0, 0],
                                  "point", "point")
         
+        with pytest.raises(KeyError):
+            twopoint3 = twopoint1 - twopoint2
+        
+        twopoint1 = TwoPoint(16, 8)
+        twopoint2 = TwoPoint(16, 8)
+        
+        twopoint1.add_correlator(correlator1, "test", [0.1, 0.1], [0, 0, 0],
+                                 "point", "point")
+        twopoint2.add_correlator(correlator2, "test", [0.1, 0.1], [0, 0, 0],
+                                 "point", "point")
+        
         twopoint3 = twopoint1 - twopoint2
         
         expected_correlator = correlator1 - correlator2
         actual_correlator = twopoint3.get_correlator("test", [0.1, 0.1],
                                                      [0, 0, 0], "point",
-                                                     "point")
-        assert (np.abs(actual_correlator - expected_correlator)
-                < 1e-10 * np.abs(expected_correlator)).all()
-        
-        expected_correlator = correlator3
-        actual_correlator = twopoint3.get_correlator("test", [0.2, 0.5],
-                                                     [0, 0, 0], "point",
-                                                     "point")
-        assert (np.abs(actual_correlator - expected_correlator)
-                < 1e-10 * np.abs(expected_correlator)).all()
-        
-        expected_correlator = -correlator4
-        actual_correlator = twopoint3.get_correlator("test", [1.0, 0.1],
-                                                     [1, 0, 0], "point",
                                                      "point")
         assert (np.abs(actual_correlator - expected_correlator)
                 < 1e-10 * np.abs(expected_correlator)).all()
