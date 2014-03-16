@@ -28,6 +28,8 @@ class DataSet:
     Attributes:
       bootstraps_cached (bool): Indicates whether copies of the
         bootstrapped data have been cached on disk.
+      cache (dict): Contains the cached copies of the bootstrap and/or
+        jackknife samples.
       datatype (type): The python data type stored in the data set
       filename (str): The zip file name to save the data ot
       jackknifes_cached (bool): Indicates whether copies of the
