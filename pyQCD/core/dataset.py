@@ -63,6 +63,7 @@ class DataSet:
         self.filename = os.path.abspath(filename)
         self.jackknifes_cached = False
         self.bootstraps_cached = False
+        self.cache = {}
         
         try:
             zfile = zipfile.ZipFile(filename, 'w', storage_mode, True)
@@ -308,23 +309,39 @@ class DataSet:
         num_bins = self.num_data / binsize
         if self.num_data % binsize > 0:
             num_bins += 1
-        
-        if not os.path.isdir("pyQCDcache"):
-            os.makedirs("pyQCDcache")
             
-        for i in xrange(num_bootstraps):
+        try:            
+            for i in xrange(num_bootstraps):
             
-            bins = npr.randint(num_bins, size = num_bins).tolist()
+                bins = npr.randint(num_bins, size = num_bins).tolist()
             
-            new_datum = self._get_bin(binsize, bins[0])
-            for b in bins[1:]:
-                new_datum += self._get_bin(binsize, b)
+                new_datum = self._get_bin(binsize, bins[0])
+                for b in bins[1:]:
+                    new_datum += self._get_bin(binsize, b)
                 
-            new_datum /= len(bins)
+                new_datum /= len(bins)
             
-            bootstrap_filename = "pyQCDcache/{}_bootstrap_binsize{}_{}.npz" \
-              .format(self.datatype.__name__, binsize, i)
-            self._datum_save(bootstrap_filename, new_datum)
+                bootstrap_name = "{}_bootstrap_binsize{}_{}" \
+                  .format(self.datatype.__name__, binsize, i)
+                self.cache[bootstrap_name] = new_datum
+            
+        except MemoryError:
+            if not os.path.isdir("pyQCDcache"):
+                os.makedirs("pyQCDcache")
+            
+            for i in xrange(num_bootstraps):
+            
+                bins = npr.randint(num_bins, size = num_bins).tolist()
+            
+                new_datum = self._get_bin(binsize, bins[0])
+                for b in bins[1:]:
+                    new_datum += self._get_bin(binsize, b)
+                
+                new_datum /= len(bins)
+            
+                bootstrap_filename = "pyQCDcache/{}_bootstrap_binsize{}_{}.npz" \
+                  .format(self.datatype.__name__, binsize, i)
+                self._datum_save(bootstrap_filename, new_datum)
             
         self.bootstraps_cached = True
     
@@ -373,14 +390,8 @@ class DataSet:
                 self.generate_bootstrap_cache(num_bootstraps, binsize)
             
             for i in xrange(num_bins):
-            
-                bootstrap_filename = "pyQCDcache/{}_bootstrap_binsize{}_{}.npz" \
-                  .format(self.datatype.__name__, binsize, i)
-                try:
-                    bootstrap_datum = self._datum_load(bootstrap_filename)
-                except IOError:
-                    self.generate_bootstrap_cache(num_bootstraps, binsize)
-                    bootstrap_datum = self._datum_load(bootstrap_filename)
+                bootstrap_datum \
+                  = self._get_bootstrap_cache_datum(binsize, i, num_bootstraps)
             
                 measurement = func(bootstrap_datum, *args)
                 if measurement != None:
@@ -472,25 +483,42 @@ class DataSet:
         if self.num_data % binsize > 0:
             num_bins += 1
         
-        if not os.path.isdir("pyQCDcache"):
-            os.makedirs("pyQCDcache")
-            
-        data_sum = self._get_bin(binsize, 0)
-        for i in xrange(1, num_bins):
-            data_sum += self._get_bin(binsize, i)
+        try:
+            data_sum = self._get_bin(binsize, 0)
+            for i in xrange(1, num_bins):
+                data_sum += self._get_bin(binsize, i)
         
-        for i in xrange(num_bins):            
-            bins = [j for j in xrange(num_bins) if j != i]
+            for i in xrange(num_bins):            
+                bins = [j for j in xrange(num_bins) if j != i]
+                
+                new_datum \
+                  = (data_sum - self._get_bin(binsize, i)) / (num_bins - 1)
             
-            new_datum = (data_sum - self._get_bin(binsize, i)) / (num_bins - 1)
+                jackknife_name = "{}_jackknife_binsize{}_{}" \
+                  .format(self.datatype.__name__, binsize, i)
             
-            jackknife_filename = "pyQCDcache/{}_jackknife_binsize{}_{}.npz" \
-              .format(self.datatype.__name__, binsize, i)
+                self.cache[jackknife_name] = new_datum
             
-            self._datum_save(jackknife_filename, new_datum)
+        except MemoryError:
+            if not os.path.isdir("pyQCDcache"):
+                os.makedirs("pyQCDcache")
+            
+            data_sum = self._get_bin(binsize, 0)
+            for i in xrange(1, num_bins):
+                data_sum += self._get_bin(binsize, i)
+        
+            for i in xrange(num_bins):            
+                bins = [j for j in xrange(num_bins) if j != i]
+            
+                new_datum \
+                  = (data_sum - self._get_bin(binsize, i)) / (num_bins - 1)
+            
+                jackknife_filename = "pyQCDcache/{}_jackknife_binsize{}_{}.npz" \
+                  .format(self.datatype.__name__, binsize, i)
+            
+                self._datum_save(jackknife_filename, new_datum)
                     
         self.jackknifes_cached = True
-                    
     
     def jackknife(self, func, binsize=1, args=[], use_cache=True):
         """Performs a jackknifed measurement on the dataset using the
@@ -536,15 +564,9 @@ class DataSet:
                 self.generate_jackknife_cache(binsize)
             
             for i in xrange(num_bins):
-            
-                jackknife_filename = "pyQCDcache/{}_jackknife_binsize{}_{}.npz" \
-                  .format(self.datatype.__name__, binsize, i)
                 
-                try:
-                    jackknife_datum = self._datum_load(jackknife_filename)
-                except IOError:
-                    self.generate_jackknife_cache(binsize)
-                    jackknife_datum = self._datum_load(jackknife_filename)
+                jackknife_datum \
+                  = self._get_jackknife_cache_datum(binsize, i)
             
                 measurement = func(jackknife_datum, *args)
                 if measurement != None:
@@ -559,7 +581,8 @@ class DataSet:
             for i in xrange(num_bins):            
                 bins = [j for j in xrange(num_bins) if j != i]
             
-                new_datum = (data_sum - self._get_bin(binsize, i)) / (num_bins - 1)
+                new_datum \
+                  = (data_sum - self._get_bin(binsize, i)) / (num_bins - 1)
             
                 measurement = func(new_datum, *args)
                 if measurement != None:
@@ -836,6 +859,37 @@ class DataSet:
             from numpy import array
             with open(filename) as f:
                 return self.datatype(eval(f.read()))
+            
+    def _get_bootstrap_cache_datum(self, binsize, index, num_bootstraps):
+        """Loads a cached jackknife or bootstrap datum"""
+        
+        datum_name = "{}_bootstrap_binsize{}_{}".format(self.datatype.__name__,
+                                                        binsize, index)
+        
+        try:
+            return self.cache[datum_name]
+        except KeyError:
+            try:
+                return self._datum_load("pyQCDcache/{}.npz".format(datum_name))
+            except IOError:
+                self.generate_bootstrap_cache(num_bootstraps, binsize)
+                return self._get_bootstrap_cache_datum(binsize, index,
+                                                       num_bootstraps)
+            
+    def _get_jackknife_cache_datum(self, binsize, index):
+        """Loads a cached jackknife or jackknife datum"""
+        
+        datum_name = "{}_jackknife_binsize{}_{}".format(self.datatype.__name__,
+                                                        binsize, index)
+        
+        try:
+            return self.cache[datum_name]
+        except KeyError:
+            try:
+                return self._datum_load("pyQCDcache/{}.npz".format(datum_name))
+            except IOError:
+                self.generate_jackknife_cache(binsize)
+                return self._get_jackknife_cache_datum(binsize, index)
 
     def __getitem__(self, index):
         """Square brackets overload"""

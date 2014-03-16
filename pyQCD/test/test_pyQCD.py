@@ -1493,16 +1493,12 @@ class TestDataSet:
         
         dataset.generate_bootstrap_cache(10)
         
-        files = os.listdir("pyQCDcache")
-        
-        assert len(files) == 10
+        assert len(dataset.cache.keys()) == 10
         
         with pytest.raises(ValueError):
             dataset.generate_bootstrap_cache(10, -1)
             
         dataset.generate_bootstrap_cache(10, 3)
-        
-        shutil.rmtree("pyQCDcache")
         
     def test_bootstrap(self):
         
@@ -1528,8 +1524,6 @@ class TestDataSet:
         result = dataset.bootstrap(lambda x: x**2, 10, 3, use_cache=False)
             
         dataset.generate_bootstrap_cache(10, 3)
-        
-        shutil.rmtree("pyQCDcache")
             
     def test_jackknife_datum(self):
         
@@ -1559,15 +1553,12 @@ class TestDataSet:
         
         dataset.generate_jackknife_cache()
         
-        files = os.listdir("pyQCDcache")
-        assert len(files) == 100
+        assert len(dataset.cache.keys()) == 100
         
         with pytest.raises(ValueError):
             dataset.generate_jackknife_cache(-1)
             
         dataset.generate_jackknife_cache(3)
-        
-        shutil.rmtree("pyQCDcache")
         
     def test_jackknife(self):
         
@@ -1591,8 +1582,6 @@ class TestDataSet:
             result = dataset.jackknife(lambda x: x**2, 0)
             
         result = dataset.jackknife(lambda x: x**2, 3)
-        
-        shutil.rmtree("pyQCDcache")
             
     def test_load(self):
         
