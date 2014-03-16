@@ -410,8 +410,10 @@ class DataSet:
                 measurement = func(new_datum, *args)
                 if measurement != None:                
                     out.append(measurement)
-            
-        return DataSet._mean(out), DataSet._std(out)
+        try:
+            return np.mean(out, axis=0), np.std(out, axis=0)
+        except TypeError:
+            return DataSet._mean(out), DataSet._std(out)
     
     def jackknife_datum(self, index, binsize=1):
         """Computes a jackknifed datum.
@@ -587,8 +589,12 @@ class DataSet:
                 measurement = func(new_datum, *args)
                 if measurement != None:
                     out.append(measurement)
-            
-        return DataSet._mean(out), DataSet._std_jackknife(out)
+        
+        try:
+            return (np.mean(out, axis=0),
+                    np.sqrt(self.num_data - 1) * np.std(out, axis=0))
+        except TypeError:
+            return DataSet._mean(out), DataSet._std_jackknife(out)
     
     @classmethod
     def load(self, filename):
