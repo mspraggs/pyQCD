@@ -30,6 +30,7 @@ class DataSet:
         bootstrapped data have been cached on disk.
       cache (dict): Contains the cached copies of the bootstrap and/or
         jackknife samples.
+      data (list): The data itself.
       datatype (type): The python data type stored in the data set
       filename (str): The zip file name to save the data ot
       jackknifes_cached (bool): Indicates whether copies of the
@@ -66,6 +67,7 @@ class DataSet:
         self.jackknifes_cached = False
         self.bootstraps_cached = False
         self.cache = {}
+        self.data = []
         
         try:
             zfile = zipfile.ZipFile(filename, 'w', storage_mode, True)
@@ -118,6 +120,10 @@ class DataSet:
         
         filename = "{}{}.npz".format(self.datatype.__name__, self.num_data)
         self._datum_save(filename, datum)
+        try:
+            self.data.append(datum)
+        except MemoryError:
+            pass
                 
         with zipfile.ZipFile(self.filename, 'a', self.storage_mode,
                              self.large_file) as zfile:
@@ -162,16 +168,18 @@ class DataSet:
           Inverse coupling (beta): 5.5
           Mean link (u0): 1.0
         """
-        
-        filename = "{}{}.npz".format(self.datatype.__name__, index)
-        with zipfile.ZipFile(self.filename, 'r', self.storage_mode,
-                             self.large_file) as zfile:
-            zfile.extract(filename)
+        try:
+            return self.data[index]
+        except IndexError:
+            filename = "{}{}.npz".format(self.datatype.__name__, index)
+            with zipfile.ZipFile(self.filename, 'r', self.storage_mode,
+                                 self.large_file) as zfile:
+                zfile.extract(filename)
          
-        output = self._datum_load(filename)
-        os.unlink(filename)
+            output = self._datum_load(filename)
+            os.unlink(filename)
         
-        return output
+            return output
     
     def set_datum(self, index, datum):
         """Sets the specified datum to the specified value.
@@ -638,10 +646,17 @@ class DataSet:
         
         data = [int(fname[len(datatype.__name__):-4])
                 for fname in zfile.namelist()
-                if fname.startswith(datatype.__name__) and fname.find("jackknife") < 0]
+                if fname.startswith(datatype.__name__)
+                and fname.find("jackknife") < 0]
         
         if len(data) > 0:
             out.num_data = max(data) + 1
+            
+        try:
+            data = [out.get_datum(i) for i in xrange(out.num_data)]
+            out.data = data
+        except MemoryError:
+            pass
         
         return out
     
