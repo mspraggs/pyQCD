@@ -35,56 +35,6 @@ Lattice::Lattice(const int spatialExtent, const int temporalExtent,
 
   for (int i = 0; i < this->nLinks_; ++i)
     this->links_[i] = Matrix3cd::Identity();//this->makeRandomSu3();
-
-  // Loop through the columns of the propagator and add any non-zero entries to
-  // the propagatorColumns vector (maybe move the following to the utils file
-  // as a function, in case next-to nearest neighbours are ever needed).
-  
-  // First define some offsets
-  int offsets[8][4] = {{-1,0,0,0},{0,-1,0,0},{0,0,-1,0},{0,0,0,-1},
-		       {1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
-  
-  // Loop through all site indices and add all nearest-neighbour indices to
-  // the list
-#pragma omp parallel for
-  for (int i = 0; i < this->nLinks_; i += 4) {
-    
-    // Initialize the relevant site vector for the row index
-    int rowLink[5];
-    pyQCD::getLinkIndices(i, this->spatialExtent, this->temporalExtent, rowLink);
-    
-    
-    // Loop through the offsets
-    for (int j = 0; j < 8; ++j) {
-      // Get the coordinates for the column
-      int columnLink[5] = {0, 0, 0, 0, 0};
-      int boundaryCondition = 1;
-      
-      // Loop through the coordiates for the pair of sites and see if they're
-      // neighbours
-      int latticeSize[4] = {this->temporalExtent,
-			    this->spatialExtent,
-			    this->spatialExtent,
-			    this->spatialExtent};
-      for (int k = 0; k < 4; ++k) {
-	columnLink[k] = pyQCD::mod(rowLink[k] + offsets[j][k],
-				   latticeSize[k]);
-      }
-
-      // Check whether antiperiodic boundary conditions need to be applied
-      if (rowLink[0] + offsets[j][0] >= latticeSize[0] ||
-	  rowLink[0] + offsets[j][0] < 0)
-	// Apply antiperiodic boundary conditions
-	boundaryCondition = -1;
-
-      int columnIndex = pyQCD::getLinkIndex(columnLink, this->spatialExtent);
-      
-      this->propagatorColumns_[i / 4][j][0] = columnIndex;
-      this->propagatorColumns_[i / 4][j][1] = j;
-      this->propagatorColumns_[i / 4][j][2] = boundaryCondition;
-      
-    }
-  }
   
   // Generate a set of random SU3 matrices for use in the updates
   for (int i = 0; i < 200; ++i) {
