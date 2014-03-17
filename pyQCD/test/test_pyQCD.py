@@ -321,7 +321,8 @@ if lattice_exists:
             lattice = Lattice(rand_seed = 0, update_method = "staple_metropolis")
             lattice.update()
             
-            expected_config = np.load("{}/config_staple_metropolis_rs0.npy".format(data_dir))
+            expected_config = np.load("{}/config_staple_metropolis_rs0.npy"
+                                      .format(data_dir))
             actual_config = lattice.get_config().data
             
             assert (np.abs(expected_config - actual_config) < tolerance).all()
@@ -329,10 +330,11 @@ if lattice_exists:
             lattice = Lattice(rand_seed = 1, update_method = "staple_metropolis")
             lattice.update()
             
-            expected_config = np.load("{}/config_staple_metropolis_rs1.npy".format(data_dir))
+            expected_config = np.load("{}/config_staple_metropolis_rs1.npy"
+                                      .format(data_dir))
             actual_config = lattice.get_config().data
             
-            assert (np.abs(expected_config - actual_config) < tolerance).all()      
+            assert (np.abs(expected_config - actual_config) < tolerance).all()
 
         def test_next_config(self):
             
@@ -486,7 +488,8 @@ if lattice_exists:
             
             W1 = lattice.get_wilson_loop([0, 0, 0, 0, 0], 4, 4, 1)
             for n in xrange(10):
-                W2 = lattice.get_wilson_loop([0, 0, 0, 0, 0], 4, 4, 1, 0, 0.1 * n)
+                W2 = lattice.get_wilson_loop([0, 0, 0, 0, 0], 4, 4, 1, 0,
+                                             0.1 * n)
                 assert W1 == W2
 
         def test_get_av_plaquette(self):
@@ -494,22 +497,26 @@ if lattice_exists:
             lattice = Lattice(rand_seed=0)
             lattice.update()
             
-            assert np.abs(lattice.get_av_plaquette() - 0.6744055385048071) < 1e-12
+            assert np.abs(lattice.get_av_plaquette() - 0.6744055385048071) \
+              < 1e-12
             
             random_su3_transform(lattice)
             
-            assert np.abs(lattice.get_av_plaquette() - 0.6744055385048071) < 1e-12
+            assert np.abs(lattice.get_av_plaquette() - 0.6744055385048071) \
+              < 1e-12
 
         def test_get_av_rectangle(self):
             
             lattice = Lattice(rand_seed=0)
             lattice.update()
             
-            assert np.abs(lattice.get_av_rectangle() - 0.5093032901600738) < 1e-12
+            assert np.abs(lattice.get_av_rectangle() - 0.5093032901600738) \
+              < 1e-12
             
             random_su3_transform(lattice)
             
-            assert np.abs(lattice.get_av_rectangle() - 0.5093032901600738) < 1e-12
+            assert np.abs(lattice.get_av_rectangle() - 0.5093032901600738) \
+              < 1e-12
 
         def test_get_av_wilson_loop(self):
             
@@ -541,9 +548,11 @@ if lattice_exists:
             lattice = Lattice(rand_seed=0, update_method="heatbath")
             
             propagator \
-              = lattice.get_wilson_propagator(0.4, solver_method="conjugate_gradient")
+              = lattice.get_wilson_propagator(0.4,
+                                              solver_method="conjugate_gradient")
             
-            expected_shape = (lattice.T, lattice.L, lattice.L, lattice.L, 4, 4, 3, 3)
+            expected_shape = (lattice.T, lattice.L, lattice.L, lattice.L,
+                              4, 4, 3, 3)
             actual_shape = propagator.data.shape
             
             assert expected_shape == actual_shape
@@ -739,20 +748,20 @@ class TestPropagator:
         data = random_complex((2, 2, 2, 2, 4, 4, 3, 3))
         
         with pytest.raises(ValueError):
-            propagator = Propagator(data, 2, 4, 5.5, 1.0, 1.0, 1.0, "wilson", "wilson",
-                                    0.4, {}, [0, 0, 0, 0], 0, 1.0, "jacobi", 0,
-                                    1.0, "jacobi", 0, 1.0)
+            propagator = Propagator(data, 2, 4, 5.5, 1.0, 1.0, 1.0, "wilson",
+                                    "wilson", 0.4, {}, [0, 0, 0, 0], 0, 1.0,
+                                    "jacobi", 0, 1.0, "jacobi", 0, 1.0)
         
-        propagator = Propagator(data, 2, 2, 5.5, 1.0, 1.0, 1.0, "wilson", "wilson", 0.4,
-                                {}, [0, 0, 0, 0], 0, 1.0, "jacobi", 0, 1.0,
-                                "jacobi", 0, 1.0)
+        propagator = Propagator(data, 2, 2, 5.5, 1.0, 1.0, 1.0, "wilson",
+                                "wilson", 0.4, {}, [0, 0, 0, 0], 0, 1.0,
+                                "jacobi", 0, 1.0, "jacobi", 0, 1.0)
 
     def test_save(self):
         
         prop_data = random_complex((4, 2, 2, 2, 4, 4, 3, 3))
-        prop = Propagator(prop_data, 2, 4, 5.5, 1.0, 1.0, 1.0, "wilson", "wilson", 0.4,
-                          {}, [0, 0, 0, 0], 0, 1.0, "jacobi", 0, 1.0,
-                          "jacobi", 0, 1.0)
+        prop = Propagator(prop_data, 2, 4, 5.5, 1.0, 1.0, 1.0, "wilson",
+                          "wilson", 0.4, {}, [0, 0, 0, 0], 0, 1.0, "jacobi",
+                          0, 1.0, "jacobi", 0, 1.0)
         prop.save("test_prop.npz")
         
         assert os.path.exists("test_prop.npz")
@@ -790,9 +799,9 @@ class TestPropagator:
     def test_save_raw(self):
         
         prop_data = random_complex((4, 2, 2, 2, 4, 4, 3, 3))
-        prop = Propagator(prop_data, 2, 4, 5.5, 1.0, 1.0, 1.0, "wilson", "wilson", 0.4,
-                          {}, [0, 0, 0, 0], 0, 1.0, "jacobi", 0, 1.0,
-                          "jacobi", 0, 1.0)
+        prop = Propagator(prop_data, 2, 4, 5.5, 1.0, 1.0, 1.0, "wilson",
+                          "wilson", 0.4, {}, [0, 0, 0, 0], 0, 1.0, "jacobi",
+                          0, 1.0, "jacobi", 0, 1.0)
         prop.save_raw("test_prop.npy")
         
         assert os.path.exists("test_prop.npy")
@@ -806,9 +815,9 @@ class TestPropagator:
     def test_header(self):
         
         prop_data = random_complex((4, 2, 2, 2, 4, 4, 3, 3))
-        prop = Propagator(prop_data, 2, 4, 5.5, 1.0, 1.0, 1.0, "wilson", "wilson", 0.4,
-                          {}, [0, 0, 0, 0], 0, 1.0, "jacobi", 0, 1.0,
-                          "jacobi", 0, 1.0)
+        prop = Propagator(prop_data, 2, 4, 5.5, 1.0, 1.0, 1.0, "wilson",
+                          "wilson", 0.4, {}, [0, 0, 0, 0], 0, 1.0, "jacobi",
+                          0, 1.0, "jacobi", 0, 1.0)
         header = prop.header()
         
         assert header == {'L': 2, 'T': 4, 'beta': 5.5,
@@ -829,9 +838,9 @@ class TestPropagator:
     def test_conjugate(self):
         
         prop_data = random_complex((4, 2, 2, 2, 4, 4, 3, 3))
-        prop = Propagator(prop_data, 2, 4, 5.5, 1.0, 1.0, 1.0, "wilson", "wilson", 0.4,
-                          {}, [0, 0, 0, 0], 0, 1.0, "jacobi", 0, 1.0,
-                          "jacobi", 0, 1.0)
+        prop = Propagator(prop_data, 2, 4, 5.5, 1.0, 1.0, 1.0, "wilson",
+                          "wilson", 0.4, {}, [0, 0, 0, 0], 0, 1.0, "jacobi",
+                          0, 1.0, "jacobi", 0, 1.0)
         
         prop_conj = prop.conjugate()
         
@@ -840,9 +849,9 @@ class TestPropagator:
     def test_transpose_spin(self):
         
         prop_data = random_complex((4, 2, 2, 2, 4, 4, 3, 3))
-        prop = Propagator(prop_data, 2, 4, 5.5, 1.0, 1.0, 1.0, "wilson", "wilson", 0.4,
-                          {}, [0, 0, 0, 0], 0, 1.0, "jacobi", 0, 1.0,
-                          "jacobi", 0, 1.0)
+        prop = Propagator(prop_data, 2, 4, 5.5, 1.0, 1.0, 1.0, "wilson",
+                          "wilson", 0.4, {}, [0, 0, 0, 0], 0, 1.0, "jacobi",
+                          0, 1.0, "jacobi", 0, 1.0)
         
         prop_transpose = prop.transpose_spin()
         
@@ -851,9 +860,9 @@ class TestPropagator:
     def test_transpose_colour(self):
         
         prop_data = random_complex((4, 2, 2, 2, 4, 4, 3, 3))
-        prop = Propagator(prop_data, 2, 4, 5.5, 1.0, 1.0, 1.0, "wilson", "wilson", 0.4,
-                          {}, [0, 0, 0, 0], 0, 1.0, "jacobi", 0, 1.0,
-                          "jacobi", 0, 1.0)
+        prop = Propagator(prop_data, 2, 4, 5.5, 1.0, 1.0, 1.0, "wilson",
+                          "wilson", 0.4, {}, [0, 0, 0, 0], 0, 1.0, "jacobi",
+                          0, 1.0, "jacobi", 0, 1.0)
         
         prop_transpose = prop.transpose_colour()
         
@@ -863,9 +872,9 @@ class TestPropagator:
         
         prop_data = np.load("{}/propagator_tree_level_4c8_4000_no_smear.npy"
                             .format(data_dir))
-        prop = Propagator(prop_data, 4, 8, 5.5, 1.0, 1.0, 1.0, "wilson", "wilson", 0.4,
-                          {}, [0, 0, 0, 0], 0, 1.0, "jacobi", 0, 1.0,
-                          "jacobi", 0, 1.0)
+        prop = Propagator(prop_data, 4, 8, 5.5, 1.0, 1.0, 1.0, "wilson",
+                          "wilson", 0.4, {}, [0, 0, 0, 0], 0, 1.0, "jacobi",
+                          0, 1.0, "jacobi", 0, 1.0)
         
         prop_adjoint = prop.adjoint()
         
@@ -882,9 +891,9 @@ class TestPropagator:
     def test_multiply(self):
         
         prop_data = random_complex((4, 2, 2, 2, 4, 4, 3, 3))
-        prop = Propagator(prop_data, 2, 4, 5.5, 1.0, 1.0, 1.0, "wilson", "wilson", 0.4,
-                          {}, [0, 0, 0, 0], 0, 1.0, "jacobi", 0, 1.0,
-                          "jacobi", 0, 1.0)
+        prop = Propagator(prop_data, 2, 4, 5.5, 1.0, 1.0, 1.0, "wilson",
+                          "wilson", 0.4, {}, [0, 0, 0, 0], 0, 1.0, "jacobi",
+                          0, 1.0, "jacobi", 0, 1.0)
         
         with pytest.raises(ValueError):
             prop_multiplied = prop * []
@@ -912,9 +921,9 @@ class TestPropagator:
     def test_right_multiply(self):
         
         prop_data = random_complex((4, 2, 2, 2, 4, 4, 3, 3))
-        prop = Propagator(prop_data, 2, 4, 5.5, 1.0, 1.0, 1.0, "wilson", "wilson", 0.4,
-                          {}, [0, 0, 0, 0], 0, 1.0, "jacobi", 0, 1.0,
-                          "jacobi", 0, 1.0)
+        prop = Propagator(prop_data, 2, 4, 5.5, 1.0, 1.0, 1.0, "wilson",
+                          "wilson", 0.4, {}, [0, 0, 0, 0], 0, 1.0, "jacobi",
+                          0, 1.0, "jacobi", 0, 1.0)
         
         with pytest.raises(ValueError):
             prop_multiplied = prop * []
@@ -1152,8 +1161,9 @@ class TestTwoPoint:
           = np.load("{}/propagator_tree_level_4c8_4000_no_smear.npy"
                     .format(data_dir))
         
-        propagator = Propagator(propagator_data, 4, 8, 5.5, 1.0, 1.0, 1.0, "wilson", "wilson", 0.4, {},
-                                [0, 0, 0, 0], 0, 1.0, "jacobi", 0, 1.0, "jacobi", 0, 1.0)
+        propagator = Propagator(propagator_data, 4, 8, 5.5, 1.0, 1.0, 1.0,
+                                "wilson", "wilson", 0.4, {}, [0, 0, 0, 0],
+                                0, 1.0, "jacobi", 0, 1.0, "jacobi", 0, 1.0)
         
         momenta = [0, 0, 0]
         twopoint = TwoPoint(8, 4)
@@ -1185,8 +1195,9 @@ class TestTwoPoint:
           = np.load("{}/propagator_tree_level_8c16_10000_no_smear.npy"
                     .format(data_dir))
         
-        propagator = Propagator(propagator_data, 8, 16, 5.5, 1.0, 1.0, 1.0, "wilson", "wilson", 1.0, {},
-                                [0, 0, 0, 0], 0, 1.0, "jacobi", 0, 1.0, "jacobi", 0, 1.0)
+        propagator = Propagator(propagator_data, 8, 16, 5.5, 1.0, 1.0, 1.0,
+                                "wilson", "wilson", 1.0, {}, [0, 0, 0, 0],
+                                0, 1.0, "jacobi", 0, 1.0, "jacobi", 0, 1.0)
         
         expected_correlators \
           = np.load("{}/correlators_tree_level_8c16_10000.npy"
@@ -1690,8 +1701,8 @@ class TestWilsonLoops:
         wilslps = WilsonLoops(wilslp_data, 4, 8, 5.5, 1.0, 1.0, 1.0, "wilson", 0, 1.0)
         
         with pytest.raises(ValueError):
-            wilslps = WilsonLoops(wilslp_data.T, 4, 8, 5.5, 1.0, 1.0, 1.0, "wilson", 0,
-                                  1.0)
+            wilslps = WilsonLoops(wilslp_data.T, 4, 8, 5.5, 1.0, 1.0, 1.0,
+                                  "wilson", 0, 1.0)
             
     def test_lattice_spacing(self):
         
@@ -1699,7 +1710,8 @@ class TestWilsonLoops:
           = np.array([0.31695984599258381, 0.62152983253471605])
         
         wilslp_data = np.load("{}/wilslps_no_smear.npy".format(data_dir))
-        wilslps = WilsonLoops(wilslp_data, 4, 8, 5.5, 1.0, 1.0, 1.0, "wilson", 0, 1.0)
+        wilslps = WilsonLoops(wilslp_data, 4, 8, 5.5, 1.0, 1.0, 1.0,
+                              "wilson", 0, 1.0)
         
         actual_lattice_spacing = np.array(wilslps.lattice_spacing())
         
@@ -1714,7 +1726,8 @@ class TestWilsonLoops:
                                        1.9389738652985116])
         
         wilslp_data = np.load("{}/wilslps_no_smear.npy".format(data_dir))
-        wilslps = WilsonLoops(wilslp_data, 4, 8, 5.5, 1.0, 1.0, 1.0, "wilson", 0, 1.0)
+        wilslps = WilsonLoops(wilslp_data, 4, 8, 5.5, 1.0, 1.0, 1.0,
+                              "wilson", 0, 1.0)
         
         actual_potential = wilslps.pair_potential()
         
@@ -1727,8 +1740,8 @@ if lattice_exists:
         def test_init(self):
             
             simulation = Simulation(100, 10, 250)
-            simulation = Simulation(100, 10, 250, "heatbath", False, rand_seed=-1,
-                                    verbosity=0)
+            simulation = Simulation(100, 10, 250, "heatbath", False,
+                                    rand_seed=-1, verbosity=0)
         
         def test_create_lattice(self):
             
@@ -1777,7 +1790,8 @@ if lattice_exists:
             simulation = Simulation(5, 10, 100)
             simulation.create_lattice(4, 8, "wilson", 5.5)
             simulation.add_measurement(Lattice.get_config, Config, "configs.zip",
-                                       meas_message="Storing gauge configuration")
+                                       meas_message="Storing gauge configuration"
+                                       )
             simulation.run()
         
             simulation = Simulation(3, 10, 100)
