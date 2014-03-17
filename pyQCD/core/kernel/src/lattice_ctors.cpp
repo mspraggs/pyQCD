@@ -2,10 +2,10 @@
 #include <utils.hpp>
 
 Lattice::Lattice(const int spatialExtent, const int temporalExtent,
-		 const double beta, const double u0, const int action,
-		 const int nCorrelations, const int updateMethod,
-		 const int parallelFlag, const int chunkSize,
-		 const int randSeed)
+		 const double beta, const double ut, const double us,
+		 const double chi, const int action, const int nCorrelations,
+		 const int updateMethod, const int parallelFlag,
+		 const int chunkSize, const int randSeed)
 {
   // Default constructor. Assigns function arguments to member variables
   // and initializes links.
@@ -15,10 +15,9 @@ Lattice::Lattice(const int spatialExtent, const int temporalExtent,
   this->beta_ = beta;
   this->nCorrelations = nCorrelations;
   this->nUpdates_ = 0;
-  this->u0_ = u0;
-  this->us_ = u0;
-  this->ut_ = u0;
-  this->chi_ = 1.0;
+  this->us_ = us;
+  this->ut_ = ut;
+  this->chi_ = chi;
   this->action_ = action;
   this->updateMethod_ = updateMethod;
   this->parallelFlag_ = parallelFlag;
@@ -186,7 +185,9 @@ Lattice::Lattice(const Lattice& lattice)
   this->beta_ = lattice.beta_;
   this->nCorrelations = lattice.nCorrelations;
   this->nUpdates_ = lattice.nUpdates_;
-  this->u0_ = lattice.u0_;
+  this->us_ = lattice.us_;
+  this->ut_ = lattice.ut_;
+  this->chi_ = lattice.chi_;
   this->links_ = lattice.links_;
   this->randSu3s_ = lattice.randSu3s_;
   this->computeLocalAction = lattice.computeLocalAction;
@@ -212,7 +213,9 @@ Lattice& Lattice::operator=(const Lattice& lattice)
   this->beta_ = lattice.beta_;
   this->nCorrelations = lattice.nCorrelations;
   this->nUpdates_ = lattice.nUpdates_;
-  this->u0_ = lattice.u0_;
+  this->us_ = lattice.us_;
+  this->ut_ = lattice.ut_;
+  this->chi_ = lattice.chi_;
   this->links_ = lattice.links_;
   this->randSu3s_ = lattice.randSu3s_;
   this->computeLocalAction = lattice.computeLocalAction;

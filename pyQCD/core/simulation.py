@@ -103,7 +103,9 @@ class Simulation(object):
       Temporal extent: 8
       Gauge action: wilson
       Inverse coupling (beta): 5.5
-      Mean link (u0): 1.0
+      Mean temporal link (ut): 1.0
+      Mean spatial link (us): 1.0
+      Anisotropy factor (chi): 1.0
       Parallel sub-lattice size: 4
       .
       Get Config Measurement Settings
@@ -144,7 +146,8 @@ class Simulation(object):
         
         self.measurements = []
     
-    def create_lattice(self, L, T, action, beta, u0=1.0, block_size=None):
+    def create_lattice(self, L, T, action, beta, ut=1.0, us=1.0, chi=1.0,
+                       block_size=None):
         """Creates a Lattice instance to use in the simulation
         
         Args:
@@ -153,7 +156,11 @@ class Simulation(object):
           action (str): The gauge action to use in gauge field updates. For
             additional details see help(pyQCD.Lattice).
           beta (float): The inverse coupling to use in the gauge action.
-          u0 (float): The mean link/tadpole improvement parameter
+          ut (float, optional): The spatial mean link/tadpole improvement factor.
+          us (float, optional): The temporal mean link/tadpole improvement
+            factor.
+          chi (float): The anisotropy factor, equal to the spatial lattice
+            spacing divided by the temporal lattice spacing.
           block_size (int): The side length of the sub-lattices used to
             partition the lattice for parallel updates. If left as None, then
             this will be determined automatically.
@@ -169,9 +176,9 @@ class Simulation(object):
           >>> simulation.add_lattice(4, 8, "rectangle_improved", 4.26, 0.852)
         """
         
-        self.lattice = Lattice(L, T, beta, u0, action, self.measurement_spacing,
-                               self.update_method, self.run_parallel,
-                               block_size, self.rand_seed)
+        self.lattice = Lattice(L, T, beta, ut, us, chi, action,
+                               self.measurement_spacing, self.update_method,
+                               self.run_parallel, block_size, self.rand_seed)
     
     def load_ensemble(self, filename):
         """Loads a gauge configuration dataset to use in the simulation
@@ -334,7 +341,9 @@ class Simulation(object):
           Temporal extent: 8
           Gauge action: wilson
           Inverse coupling (beta): 5.5
-          Mean link (u0): 1.0
+          Mean temporal link (ut): 1.0
+          Mean spatial link (us): 1.0
+          Anisotropy factor (chi): 1.0
           Parallel sub-lattice size: 4
           .
           Get Config Measurement Settings
@@ -458,13 +467,16 @@ class Simulation(object):
           "Temporal extent: {}\n" \
           "Gauge action: {}\n" \
           "Inverse coupling (beta): {}\n" \
-          "Mean link (u0): {}\n" \
+          "Mean temporal link (ut): {}\n" \
+          "Mean spatial link (us): {}\n" \
+          "Anisotropy factor (chi): {}\n" \
           "Parallel sub-lattice size: {}\n" \
           "\n".format(self.num_configs, self.measurement_spacing,
                       self.num_warmup_updates, self.update_method,
                       self.run_parallel, self.rand_seed, self.lattice.L,
                       self.lattice.T, self.lattice.action, self.lattice.beta,
-                      self.lattice.u0, self.lattice.block_size)
+                      self.lattice.ut, self.lattice.us, self.lattice.chi,
+                      self.lattice.block_size)
         
         if len(self.measurements) > 0:
             for measurement in self.measurements:

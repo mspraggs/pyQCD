@@ -20,7 +20,10 @@ class Propagator(Observable):
       L (int): The spatial extent of the corresponding lattice
       T (int): The temporal extent of the corresponding lattice
       beta (float): The inverse coupling
-      u0 (float): The mean link/tadpole coefficient
+      ut (float): The spatial mean link/tadpole improvement factor.
+      us (float): The temporal mean link/tadpole improvement factor.
+      chi (float): The anisotropy factor, equal to the spatial lattice spacing
+        divided by the temporal lattice spacing.
       gauge_action (str): The gauge action
       fermion_action (str): The fermion action
       mass (float): The bare quark mass
@@ -51,7 +54,10 @@ class Propagator(Observable):
       L (int): The spatial extent of the corresponding lattice
       T (int): The temporal extent of the corresponding lattice
       beta (float): The inverse coupling
-      u0 (float): The mean link/tadpole coefficient
+      ut (float): The spatial mean link/tadpole improvement factor.
+      us (float): The temporal mean link/tadpole improvement factor.
+      chi (float): The anisotropy factor, equal to the spatial lattice spacing
+        divided by the temporal lattice spacing.
       gauge_action (str): The gauge action
       fermion_action (str): The fermion action
       mass (float): The bare quark mass
@@ -97,7 +103,7 @@ class Propagator(Observable):
       lattice, using the get_propagator member function.
     """
     
-    members = ['L', 'T', 'beta', 'u0', 'gauge_action',
+    members = ['L', 'T', 'beta', 'ut', 'us', 'chi', 'gauge_action',
                'fermion_action', 'mass', 'action_parameters',
                'source_site', 'num_field_smears',
                'field_smearing_param', 'source_smearing_type',
@@ -105,8 +111,8 @@ class Propagator(Observable):
                'sink_smearing_type', 'num_sink_smears',
                'sink_smearing_param']
         
-    def __init__(self, propagator, L, T, beta, u0, gauge_action, fermion_action,
-                 mass, action_parameters, source_site,
+    def __init__(self, propagator, L, T, beta, ut, us, chi, gauge_action,
+                 fermion_action, mass, action_parameters, source_site,
                  num_field_smears, field_smearing_param, source_smearing_type,
                  num_source_smears, source_smearing_param, sink_smearing_type,
                  num_sink_smears, sink_smearing_param):
@@ -122,7 +128,9 @@ class Propagator(Observable):
         self.L = L
         self.T = T
         self.beta = beta
-        self.u0 = u0
+        self.ut = ut
+        self.us = us
+        self.chi = chi
         self.gauge_action = gauge_action
         self.fermion_action = fermion_action
         self.mass = mass
@@ -347,7 +355,9 @@ class Propagator(Observable):
         "Temportal extent: {}\n" \
         "Gauge action: {}\n" \
         "Inverse coupling (beta): {}\n" \
-        "Mean link (u0): {}\n" \
+        "Mean temporal link (ut): {}\n" \
+        "Mean spatial link (us): {}\n" \
+        "Anisotropy factor (chi): {}\n" \
         "Fermion action: {}\n" \
         "Bare quark mass (m): {}\n" \
         "Fermion action parameters: {}\n" \
@@ -359,10 +369,9 @@ class Propagator(Observable):
         "Number of sink Jacobi smears: {}\n" \
         "Sink Jacobi smearing parameter: {}\n" \
         .format(self.L, self.T, self.gauge_action, self.beta,
-                self.u0, self.fermion_action, self.mass, self.action_parameters,
-                self.source_site, self.num_field_smears,
-                self.field_smearing_param, self.num_source_smears,
-                self.source_smearing_param, self.num_sink_smears,
-                self.sink_smearing_param)
+                self.ut, self.us, self.chi, self.fermion_action, self.mass,
+                self.action_parameters, self.field_smearing_param,
+                self.num_source_smears, self.source_smearing_param,
+                self.num_sink_smears, self.sink_smearing_param)
         
         return out

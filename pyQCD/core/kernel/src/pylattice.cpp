@@ -3,14 +3,16 @@
 pyLattice::pyLattice(const int spatialExtent,
 		     const int temporalExtent,
 		     const double beta,
-		     const double u0,
+		     const double ut,
+		     const double us,
+		     const double chi,
 		     const int action,
 		     const int nCorrelations,
 		     const int updateMethod,
 		     const int parallelFlag,
 		     const int chunkSize,
 		     const int randSeed) :
-  Lattice::Lattice(spatialExtent, temporalExtent, beta, u0, action,
+  Lattice::Lattice(spatialExtent, temporalExtent, beta, ut, us, chi, action,
 		   nCorrelations, updateMethod, parallelFlag, chunkSize,
 		   randSeed)
 {

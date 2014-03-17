@@ -18,7 +18,10 @@ class WilsonLoops(Observable):
       beta (float): The inverse coupling of the gauge action used
         to generate the configuration on which the Wilson loops are
         calculated
-      u0 (float): The mean link/tadpole improvement coefficient
+      ut (float): The mean temporal link/tadpole improvement coefficient
+      us (float): The mean spatial link/tadpole improvement coefficient
+      chi (float): The anisotropy factor, equal to the spatial lattice spacing
+        divided by the temporal lattice spacing.
       action (str): The gauge action. If WilsonLoops are derived from
         a Lattice object, then this will correspond to the action used
         by the Lattice object.
@@ -45,10 +48,10 @@ class WilsonLoops(Observable):
       >>> wilslps = lattice.get_wilson_loops(2, 0.4)
     """
     
-    members = ['L', 'T', 'beta', 'u0', 'action', 'num_field_smears',
+    members = ['L', 'T', 'beta', 'ut', 'us', 'chi', 'action', 'num_field_smears',
                'field_smearing_param']
     
-    def __init__(self, loops, L, T, beta, u0, action,
+    def __init__(self, loops, L, T, beta, ut, us, chi, action,
                  num_field_smears, field_smearing_param):
         """Constructor for pyQCD.WilsonLoops (see help(pyQCD.WilsonLoops))"""
         
@@ -62,7 +65,9 @@ class WilsonLoops(Observable):
         self.L = L
         self.T = T
         self.beta = beta
-        self.u0 = u0
+        self.ut = ut
+        self.us = us
+        self.chi = chi
         self.action = action
         self.num_field_smears = num_field_smears
         self.field_smearing_param = field_smearing_param
@@ -133,10 +138,13 @@ class WilsonLoops(Observable):
         "Temportal extent: {}\n" \
         "Gauge action: {}\n" \
         "Inverse coupling (beta): {}\n" \
-        "Mean link (u0): {}\n" \
+        "Mean temporal link (ut): {}\n" \
+        "Mean spatial link (us): {}\n" \
+        "Anisotropy factor (chi): {}\n" \
         "Number of stout field smears: {}\n" \
         "Stout smearing parameter: {}\n" \
         .format(self.L, self.T, self.action, self.beta,
-                self.u0, self.num_field_smears, self.field_smearing_param)
+                self.ut, self.us, self.chi, self.num_field_smears,
+                self.field_smearing_param)
         
         return out

@@ -21,7 +21,10 @@ class Lattice(lattice.Lattice):
       L (int): The spatial extent of the lattice
       T (int): The temporal extent of the lattice
       beta (float): The inverse coupling of the gauge action
-      u0 (float): The mean link/tadpole improvement factor.
+      ut (float): The spatial mean link/tadpole improvement factor.
+      us (float): The temporal mean link/tadpole improvement factor.
+      chi (float): The anisotropy factor, equal to the spatial lattice spacing
+        divided by the temporal lattice spacing.
       action (str): The gauge action to use when updating the lattice
         (see note 1).
       n_cor (int): The number of configurations between measurements
@@ -40,7 +43,10 @@ class Lattice(lattice.Lattice):
       L (int, optional): The spatial extent of the lattice
       T (int, optional): The temporal extent of the lattice
       beta (float, optional): The inverse coupling of the gauge action
-      u0 (float, optional): The mean link/tadpole improvement factor.
+      ut (float, optional): The spatial mean link/tadpole improvement factor.
+      us (float, optional): The temporal mean link/tadpole improvement factor.
+      chi (float): The anisotropy factor, equal to the spatial lattice spacing
+        divided by the temporal lattice spacing.
       action (str, optional): The gauge action to use when updating the lattice.
         Currently "wilson", "rectangle_improved" and
         "twisted_rectangle_improved" are supported (see note 1).
@@ -72,7 +78,7 @@ class Lattice(lattice.Lattice):
       
       >>> import pyQCD
       >>> lattice = pyQCD.Lattice(L=8, T=16, action="rectangle_improved"
-      ...           beta=4.26, u0=0.852)
+      ...           beta=4.26, ut=0.852, us=0.852)
         
     Notes:
       1. The "wilson" action is the well-known Wilson gauge action. The
@@ -95,9 +101,9 @@ class Lattice(lattice.Lattice):
          possible, being the most efficient algorithm.
     """
     
-    def __init__(self, L=4, T=8, beta=5.5, u0=1.0, action="wilson",
-                 n_cor=10, update_method="heatbath", parallel_updates=True,
-                 block_size=None, rand_seed=-1):
+    def __init__(self, L=4, T=8, beta=5.5, ut=1.0, us=1.0, chi=1.0,
+                 action="wilson", n_cor=10, update_method="heatbath",
+                 parallel_updates=True, block_size=None, rand_seed=-1):
         """Constructor for pyQCD.Lattice (see help(pyQCD.Lattice))"""
         if block_size == None:
             block_size = 3
@@ -110,14 +116,16 @@ class Lattice(lattice.Lattice):
                                      .format((T, L, L, L), block_size))
         
         self.beta = beta
-        self.u0 = u0
+        self.ut = ut
+        self.us = us
+        self.chi = chi
         self.action = action
         self.update_method = update_method
         self.parallel_updates = parallel_updates
         self.block_size = block_size
         self.rand_seed = rand_seed
         
-        lattice.Lattice.__init__(self, L, T, beta, u0,
+        lattice.Lattice.__init__(self, L, T, beta, ut, us, chi,
                                  dicts.gauge_actions[action], n_cor,
                                  dicts.update_methods[update_method],
                                  dicts.truefalse[parallel_updates], block_size,
@@ -191,7 +199,9 @@ class Lattice(lattice.Lattice):
           Temportal extent: 8
           Gauge action: wilson
           Inverse coupling (beta): 5.5
-          Mean link (u0): 1.0
+          Mean temporal link (ut): 1.0
+          Mean spatial link (us): 1.0
+          Anisotropy factor (chi): 1.0
         """
         r = xrange(self.L)
         t = xrange(self.T)
@@ -204,8 +214,8 @@ class Lattice(lattice.Lattice):
             links[t][x][y][z][mu] \
               = np.array(lattice.Lattice.get_link(self, [t, x, y, z, mu]))
             
-        out = config.Config(links, self.L, self.T, self.beta, self.u0,
-                            self.action)
+        out = config.Config(links, self.L, self.T, self.beta, self.ut,
+                            self.us, self.chi, self.action)
         
         return out
     
@@ -549,9 +559,9 @@ class Lattice(lattice.Lattice):
                                                        num_field_smears,
                                                        field_smearing_param)
                 
-        out = wilslps.WilsonLoops(loops, self.L, self.T, self.beta, self.u0,
-                                  self.action, num_field_smears,
-                                  field_smearing_param)
+        out = wilslps.WilsonLoops(loops, self.L, self.T, self.beta, self.ut,
+                                  self.us, self.chi, self.action,
+                                  num_field_smears, field_smearing_param)
         
         return out
     
@@ -619,8 +629,8 @@ class Lattice(lattice.Lattice):
           >>> import pyQCD
           >>> lattice = pyQCD.Lattice()
           >>> lattice.thermalize(100)
-          >>> prop = lattice.get_propagator(0.4, num_source_smears=2,
-          ...                               source_smearing_param=0.4)
+          >>> prop = lattice.get_wilson_propagator(0.4, num_source_smears=2,
+          ...                                      source_smearing_param=0.4)
         """
         
         if verbosity > 0:
@@ -642,12 +652,13 @@ class Lattice(lattice.Lattice):
                                                        self.L, 4, 3, 4, 3)), 5,
                                                        6)
         
-        out = propagator.Propagator(prop, self.L, self.T, self.beta, self.u0,
-                                    self.action, "wilson", mass, {}, source_site,
-                                    num_field_smears, field_smearing_param,
-                                    source_smear_type, num_source_smears,
-                                    source_smearing_param, sink_smear_type,
-                                    num_sink_smears, sink_smearing_param)
+        out = propagator.Propagator(prop, self.L, self.T, self.beta, self.ut,
+                                    self.us, self.chi, self.action, "wilson",
+                                    mass, {}, source_site, num_field_smears,
+                                    field_smearing_param, source_smear_type,
+                                    num_source_smears, source_smearing_param,
+                                    sink_smear_type, num_sink_smears,
+                                    sink_smearing_param)
         
         return out
     
@@ -679,15 +690,18 @@ class Lattice(lattice.Lattice):
         "Number of links: {}\n" \
         "Gauge action: {}\n" \
         "Inverse coupling (beta): {}\n" \
-        "Mean link (u0): {}\n" \
+        "Mean temporal link (ut): {}\n" \
+        "Mean spatial link (us): {}\n" \
+        "Anisotropy factor (chi): {}\n" \
         "Update method: {}\n" \
         "Measurement spacing: {}\n" \
         "Parallel updates: {}\n" \
         "Parallel update block size: {}\n" \
         "Random number seed: {}".format(self.L, self.T, self.L**3 * self.T,
                                         self.L**3 * self.T * 4, self.action,
-                                        self.beta, self.u0, self.update_method,
-                                        self.num_cor, self.parallel_updates,
-                                        self.block_size, self.rand_seed)
+                                        self.beta, self.ut, self.us, self.chi,
+                                        self.update_method, self.num_cor,
+                                        self.parallel_updates, self.block_size,
+                                        self.rand_seed)
         
         return out

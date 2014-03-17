@@ -15,14 +15,16 @@ public:
   exposedLattice(const int spatialExtent = 4,
 		 const int temporalExtent = 8,
 		 const double beta = 5.5,
-		 const double u0 = 1.0,
+		 const double ut = 1.0,
+		 const double us = 1.0,
+		 const double chi = 1.0,
 		 const int action = 0,
 		 const int nCorrelations = 50,
 		 const int updateMethod = 0,
 		 const int parallelFlag = 1,
 		 const int chunkSize = 4,
 		 const int randSeed = -1) :
-    Lattice::Lattice(spatialExtent, temporalExtent, beta, u0, action,
+    Lattice::Lattice(spatialExtent, temporalExtent, beta, ut, us, chi, action,
 		     nCorrelations, updateMethod, parallelFlag, chunkSize,
 		     randSeed)
   {
@@ -186,7 +188,7 @@ BOOST_AUTO_TEST_CASE( gluonic_measurements_test )
 		    twistedRectangleVal, 1e-11 * nSites);
 
   // Check the link smearing
-  exposedLattice nonRandomLattice(4, 8, 5.5, 1.0, 0, 10, 0, 0, 4, 0);
+  exposedLattice nonRandomLattice(4, 8, 5.5, 1.0, 1.0, 1.0, 0, 10, 0, 0, 4, 0);
   nonRandomLattice.update();
   nonRandomLattice.smearLinks(0, 1, 0.5);
 
@@ -263,7 +265,7 @@ BOOST_AUTO_TEST_CASE( update_test )
   int linkCoords[5] = {0, 0, 0, 0, 0};
 
   // Checking heatbath updates
-  exposedLattice lattice(4, 8, 5.5, 1.0, 0, 10, 0, 0, 4, 0);
+  exposedLattice lattice(4, 8, 5.5, 1.0, 1.0, 1.0, 0, 10, 0, 0, 4, 0);
 
   // First check they preserve unitarity - do a single update
   lattice.heatbath(0);
@@ -281,7 +283,7 @@ BOOST_AUTO_TEST_CASE( update_test )
 		    0.007102584781056853, 1e-11);
 
   // Now check the Metropolis updates
-  exposedLattice latticeMetropolis(4, 8, 5.5, 1.0, 0, 10, 1, 0, 4, 0);
+  exposedLattice latticeMetropolis(4, 8, 5.5, 1.0, 1.0, 1.0, 0, 10, 1, 0, 4, 0);
   // Do a single update
   latticeMetropolis.metropolis(0);
   // Check unitarity and expected plaquette value
@@ -314,7 +316,7 @@ BOOST_AUTO_TEST_CASE( update_test )
   BOOST_CHECK_CLOSE(double(numDecreases), 50.0, 10.0);
 
   // Now check the Metropolis update without staples
-  exposedLattice latticeNoStaples(4, 8, 5.5, 1.0, 0, 10, 1, 0, 4, 0);
+  exposedLattice latticeNoStaples(4, 8, 5.5, 1.0, 1.0, 1.0, 0, 10, 1, 0, 4, 0);
   // Do a single update
   latticeNoStaples.metropolisNoStaples(0);
   // Check unitarity and expected plaquette value
@@ -333,13 +335,13 @@ BOOST_AUTO_TEST_CASE( update_test )
 
   // Test thermalization using parallel and serial update methods
   // First try serial
-  exposedLattice serialLattice(8, 8, 5.5, 1.0, 0, 10, 0, 0, 4, -1);
+  exposedLattice serialLattice(8, 8, 5.5, 1.0, 1.0, 1.0, 0, 10, 0, 0, 4, -1);
   serialLattice.thermalize(50);
   BOOST_CHECK_CLOSE(serialLattice.computeAveragePlaquette(), 0.5, 2);
   // Now parallel
   // Need a new lattice here as copy contructor doesn't play nice with
   // parallel random number generator
-  exposedLattice parallelLattice(8, 8, 5.5, 1.0, 0, 10, 0, 1, 4, -1);
+  exposedLattice parallelLattice(8, 8, 5.5, 1.0, 1.0, 1.0, 0, 10, 0, 1, 4, -1);
   parallelLattice.thermalize(50);
   BOOST_CHECK_CLOSE(parallelLattice.computeAveragePlaquette(), 0.5, 2);
 }
@@ -348,7 +350,7 @@ BOOST_AUTO_TEST_CASE( propagator_test )
 {
 
   // Checking propagator generation
-  exposedLattice lattice(4, 8, 5.5, 1.0, 0, 10, 0, 0, 4, 0);
+  exposedLattice lattice(4, 8, 5.5, 1.0, 1.0, 1.0, 0, 10, 0, 0, 4, 0);
 
   // Now check the free space propagator
   int site[4] = {0, 0, 0, 0};

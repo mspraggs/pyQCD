@@ -42,10 +42,11 @@ BOOST_PYTHON_MODULE(lattice)
   docopt.enable_all();
   docopt.disable_cpp_signatures();
 
-  py::class_<pyLattice>("Lattice", py::init<int, int, double, double, int, int,
-					    int, int, int, int>
+  py::class_<pyLattice>("Lattice", py::init<int, int, double, double, double,
+					    double, int, int, int, int, int, int>
 			((py::arg("L")=4, py::arg("T")=8, py::arg("beta")=5.5,
-			  py::arg("u0")=1.0, py::arg("action")=0,
+			  py::arg("ut")=1.0, py::arg("us")=1.0,
+			  py::arg("chi")=1.0, py::arg("action")=0,
 			  py::arg("Ncor")=10, py::arg("update_method")=0,
 			  py::arg("parallel_flag")=1, py::arg("block_size")=4,
 			  py::arg("rand_seed")=-1)))

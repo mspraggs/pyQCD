@@ -155,7 +155,9 @@ class DataSet:
           Temportal extent: 8
           Gauge action: wilson
           Inverse coupling (beta): 5.5
-          Mean link (u0): 1.0
+          Mean temporal link (ut): 1.0
+          Mean spatial link (us): 1.0
+          Anisotropy factor (chi): 1.0
           
           Note that square brackets also achieve the same effect, e.g.:
           
@@ -166,7 +168,9 @@ class DataSet:
           Temportal extent: 8
           Gauge action: wilson
           Inverse coupling (beta): 5.5
-          Mean link (u0): 1.0
+          Mean temporal link (ut): 1.0
+          Mean spatial link (us): 1.0
+          Anisotropy factor (chi): 1.0
         """
         try:
             return self.data[index]

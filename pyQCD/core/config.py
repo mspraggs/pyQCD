@@ -20,8 +20,12 @@ class Config(Observable):
         the field configuration resides.
       beta (float): The inverse coupling used in the gauge action
         used to generate the field configuration.
-      u0 (float): The mean link/tadpole coefficient used in the
+      ut (float): The mean temporal link/tadpole coefficient used in the
         gauge action used to generate the field configuration.
+      us (float): The mean spatial link/tadpole coefficient used in the
+        gauge action used to generate the field configuration.
+      chi (float): The anisotropy factor, equal to the spatial lattice spacing
+        divided by the temporal lattice spacing.
       action (str): The gauge action used to generate the
         configuration.
       data (numpy.ndarray): The field configuration data in a
@@ -33,7 +37,10 @@ class Config(Observable):
       L (int): The spatial extent of the lattice
       T (int): The temporal extent of the lattice
       beta (float): The inverse coupling
-      u0 (float): The mean link/tadpole coefficient
+      ut (float): The mean temporal link/tadpole coefficient
+      us (float): The mean spatial link/tadpole coefficient
+      chi (float): The anisotropy factor, equal to the spatial lattice spacing
+        divided by the temporal lattice spacing
       action (str): The gauge action
       
     Returns:
@@ -53,15 +60,15 @@ class Config(Observable):
       >>> import pyQCD
       >>> import numpy
       >>> links = numpy.zeros((8, 4, 4, 4, 4, 3, 3))
-      >>> config = pyQCD.Config(links, 4, 8, 5.5, 1.0, "wilson")
+      >>> config = pyQCD.Config(links, 4, 8, 5.5, 1.0, 1.0, 1.0, "wilson")
       
       Note instead of wilson one could have rectangle_improved or
       twisted_rectangle_improved
     """
     
-    members = ['L', 'T', 'beta', 'u0', 'action']
+    members = ['L', 'T', 'beta', 'ut', 'us', 'chi', 'action']
     
-    def __init__(self, links, L, T, beta, u0, action):
+    def __init__(self, links, L, T, beta, ut, us, chi, action):
         """Constructor for pyQCD.Config (see help(pyQCD.Config)))"""
         # Validate the shape of the links array
         expected_shape = (T, L, L, L, 4, 3, 3)
@@ -73,7 +80,9 @@ class Config(Observable):
         self.L = L
         self.T = T
         self.beta = beta
-        self.u0 = u0
+        self.ut = ut
+        self.us = us
+        self.chi = chi
         self.action = action
         
         self.data = links
@@ -127,8 +136,11 @@ class Config(Observable):
         "Temportal extent: {}\n" \
         "Gauge action: {}\n" \
         "Inverse coupling (beta): {}\n" \
-        "Mean link (u0): {}".format(self.L, self.T, self.action, self.beta,
-                                    self.u0)
+        "Mean temporal link (ut): {}\n" \
+        "Mean spatial link (us): {}\n" \
+        "Anisotropy factor (chi): {}\n" \
+        .format(self.L, self.T, self.action, self.beta,
+                self.ut, self.us, self.chi)
         
         return out
 

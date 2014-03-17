@@ -214,7 +214,9 @@ if lattice_exists:
             assert config.L == lattice.L
             assert config.T == lattice.T
             assert config.beta == lattice.beta
-            assert config.u0 == lattice.u0
+            assert config.ut == lattice.ut
+            assert config.us == lattice.us
+            assert config.chi == lattice.chi
             assert config.action == lattice.action
             
             expected_shape = (lattice.T, lattice.L, lattice.L, lattice.L, 4, 3, 3)
@@ -239,15 +241,17 @@ if lattice_exists:
             for t, x, y, z, mu in links:
                 data[t][x][y][z] = make_random_su(3)
 
-            config = Config(data, lattice.L, lattice.T, lattice.beta, lattice.u0,
-                            lattice.action)
+            config = Config(data, lattice.L, lattice.T, lattice.beta, lattice.ut,
+                            lattice.us, lattice.chi, lattice.action)
             
             lattice.set_config(config)
             
             assert lattice.L == config.L
             assert lattice.T == config.T
             assert lattice.beta == config.beta
-            assert lattice.u0 == config.u0
+            assert lattice.ut == config.ut
+            assert lattice.us == config.us
+            assert lattice.chi == config.chi
             assert lattice.action == config.action
             
             for link in links:
