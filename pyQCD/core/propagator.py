@@ -89,8 +89,9 @@ class Propagator(Observable):
       >>> import pyQCD
       >>> import numpy
       >>> prop_data = numpy.zeros((8, 4, 4, 4, 4, 4, 3, 3))
-      >>> prop = pyQCD.Propagator(prop_data, 4, 8, 5.5, 1.0, "wilson", 0.4,
-      ...                         [0, 0, 0, 0], 0, 1.0, 0, 1.0, 0, 1.0)
+      >>> prop = pyQCD.Propagator(prop_data, 4, 8, 5.5, 1.0, 1.0, 1.0, "wilson",
+      ...                         "wilson", 0.4, {}, [0, 0, 0, 0], 0, 1.0,
+      ...                         "jacobi", 0, 1.0, "jacobi", 0, 1.0)
       
       Ordinarily, one would generate a Propagator object from a given
       lattice, using the get_propagator member function.
