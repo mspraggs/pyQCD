@@ -29,7 +29,7 @@ Lattice::Lattice(const int spatialExtent, const int temporalExtent,
       else if (i == 0 || j == 0)
 	this->anisotropyCoefficients_[i][j] = this->chi_;
       else
-	this->anisotropyCoefficients_[i][j] = 1 / this->chi_;
+	this->anisotropyCoefficients_[i][j] = 1.0 / this->chi_;
     }
   }
   
