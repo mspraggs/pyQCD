@@ -28,121 +28,8 @@ py::list defaultBoundaryConditions()
   return out;
 }
 
-// Class that inherits Lattice and provides python wrapper functions
 
-struct lattice_pickle_suite : py::pickle_suite
-{
-  static py::tuple getinitargs(const pyLattice& pylattice)
-  {
-    return py::make_tuple(pylattice.spatialExtent,
-			  pylattice.temporalExtent,
-			  pylattice.beta_,
-			  pylattice.u0_,
-			  pylattice.action_,
-			  pylattice.nCorrelations,
-			  pylattice.updateMethod_,
-			  pylattice.parallelFlag_);
-  }
-  
-  static py::tuple getstate(pyLattice& pylattice)
-  {
-    // Convert the links vector to a list for python compatability
-    py::list links;
-    for (int i = 0; i < pylattice.temporalExtent; i++) {
-      py::list temp1;
-      for (int j = 0; j < pylattice.spatialExtent; j++) {
-	py::list temp2;
-	for (int k = 0; k < pylattice.spatialExtent; k++) {
-	  py::list temp3;
-	  for (int l = 0; l < pylattice.spatialExtent; l++) {
-	    py::list temp4;
-	    for (int m = 0; m < 4; m++) {
-	      py::list tempList;
-	      tempList.append(i);
-	      tempList.append(j);
-	      tempList.append(k);
-	      tempList.append(l);
-	      tempList.append(m);
-	      temp4.append(pylattice.getLinkP(tempList));
-	    }
-	    temp3.append(temp4);
-	  }
-	  temp2.append(temp3);
-	}
-	temp1.append(temp2);
-      }
-      links.append(temp1);
-    }
-    
-    // Same for the randSU3s
-    py::list randSu3s;
-    int index = 0;
-    for (int i = 0; i < 20; i++) {
-      py::list tempList;
-      for (int j = 0; j < 20; j++) {
-	tempList.append(pylattice.getRandSu3(index));
-	index++;
-      }
-      randSu3s.append(tempList);
-    }
-    return py::make_tuple(links, randSu3s);
-  }
-  
-  static void setstate(pyLattice& pylattice, py::tuple state)
-  {
-    if (len(state) != 2) {
-      PyErr_SetObject(PyExc_ValueError,
-		      ("expected 2-item tuple in call to __setstate__; got %s"
-		       % state).ptr());
-      py::throw_error_already_set();
-    }
-    
-    GaugeField links;
-    GaugeField randSu3s;
-    py::list linkStates = py::extract<py::list>(state[0]);
-    py::list randSu3States = py::extract<py::list>(state[1]);
-
-    // Convert the compound list of links back to a vector...
-    for (int i = 0; i < pylattice.temporalExtent; i++) {
-      for (int j = 0; j < pylattice.spatialExtent; j++) {
-	for (int k = 0; k < pylattice.spatialExtent; k++) {
-	  for (int l = 0; l < pylattice.spatialExtent; l++) {
-	    for (int m = 0; m < 4; m++) {
-	      Matrix3cd tempMatrix;
-	      for (int n = 0; n < 3; n++) {
-		for (int o = 0; o < 3; o++) {
-		  tempMatrix(n, o) =
-		    py::extract<complex<double> >
-		    (linkStates[i][j][k][l][m][n][o]);
-		}
-	      }
-	      links.push_back(tempMatrix);
-	    }
-	  }
-	}
-      }
-    }
-    // And the same for the random SU3 matrices.
-    for (int i = 0; i < 20; i++) {
-      for (int j = 0; j < 20; j++) {
-	Matrix3cd tempMatrix;
-	for (int k = 0; k < 3; k++) {
-	  for (int l = 0; l < 3; l++) {
-	    tempMatrix(k, l) =
-	      py::extract<complex<double> >(randSu3States[i][j][k][l]);
-	  }
-	}
-	randSu3s.push_back(tempMatrix);
-      }
-    }
-    
-    pylattice.links_ = links;
-    pylattice.randSu3s_ = randSu3s;
-  }
-};
-
-
-  
+ 
 // Boost python wrapping of the class
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(pyLatticeWOverload,
 				       computeWilsonLoopP, 4, 5)
@@ -193,7 +80,6 @@ BOOST_PYTHON_MODULE(lattice)
 	  py::arg("precondition") = 0, py::arg("max_iterations") = 1000,
 	  py::arg("tolerance") = 1, py::arg("verbosity") = 0))
     .def("get_av_link", &pyLattice::computeMeanLink)
-    .def_pickle(lattice_pickle_suite())
     .def_readonly("num_cor", &pyLattice::nCorrelations)
     .def_readonly("L", &pyLattice::spatialExtent)
     .def_readonly("T", &pyLattice::temporalExtent);
