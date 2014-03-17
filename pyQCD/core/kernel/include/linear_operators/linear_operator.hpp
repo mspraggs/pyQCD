@@ -15,7 +15,7 @@ class LinearOperator
   // The base class from which all Dirac operators are derived
 public:
   LinearOperator() { };
-  ~LinearOperator() { };
+  virtual ~LinearOperator() { };
   
   // Applies the linear operator to a column vector using right multplication
   virtual VectorXcd apply(const VectorXcd& x)
