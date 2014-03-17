@@ -50,6 +50,8 @@ public:
   Matrix3cd& getLink(const int index) { return this->links_[index]; };
   void setLink(const int link[5], const Matrix3cd& matrix);
   double u0() const { return this->u0_; }
+  double us() const { return this->us_; }
+  double ut() const { return this->ut_; }
   double chi() const { return this->chi_; }
 
   GaugeField getSubLattice(const int startIndex, const int size);
@@ -129,8 +131,11 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 protected:
-  double beta_, u0_, chi_; // a_s / a_t = chi_
+  double beta_, u0_, us_, ut_, chi_; // a_s / a_t = chi_
   double anisotropyCoefficients_[4][4];
+  double plaquetteTadpoleCoefficients_[4][4];
+  double rectangleTadpoleCoefficients_[4][4];
+  double twistedRectangleTadpoleCoefficients_[4][4];
   int nUpdates_, action_, updateMethod_, parallelFlag_, nLinks_;
   double computeLocalWilsonAction(const int link[5]);
   double computeLocalRectangleAction(const int link[5]);

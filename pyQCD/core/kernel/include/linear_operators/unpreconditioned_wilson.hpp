@@ -40,6 +40,7 @@ private:
   // Nearest neighbour indices
   vector<vector<int> > nearestNeighbours_;
   vector<vector<complex<double> > > boundaryConditions_;
+  double tadpoleCoefficients_[4];
 };
 
 #endif

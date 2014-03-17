@@ -16,20 +16,49 @@ Lattice::Lattice(const int spatialExtent, const int temporalExtent,
   this->nCorrelations = nCorrelations;
   this->nUpdates_ = 0;
   this->u0_ = u0;
+  this->us_ = u0;
+  this->ut_ = u0;
   this->chi_ = 1.0;
   this->action_ = action;
   this->updateMethod_ = updateMethod;
   this->parallelFlag_ = parallelFlag;
 
-  // Set up anisotropy coefficients
+  // Set up anisotropy and tadpole coefficients
   for (int i = 0; i < 4; ++i) {
     for (int j = 0; j < 4; ++j) {
-      if (i == j)
+      if (i == j) {
 	this->anisotropyCoefficients_[i][j] = 1.0;
-      else if (i == 0 || j == 0)
+	this->plaquetteTadpoleCoefficients_[i][j] = 1.0;
+	this->rectangleTadpoleCoefficients_[i][j] = 1.0;
+	this->twistedRectangleTadpoleCoefficients_[i][j] = 1.0;
+      }
+      else if (i == 0) {
 	this->anisotropyCoefficients_[i][j] = this->chi_;
-      else
+	this->plaquetteTadpoleCoefficients_[i][j]
+	  = pow(this->us_, 2) * pow(this->ut_, 2);
+	this->rectangleTadpoleCoefficients_[i][j]
+	  = pow(this->us_, 2) * pow(this->ut_, 4);
+	this->twistedRectangleTadpoleCoefficients_[i][j]
+	  = pow(this->us_, 4) * pow(this->ut_, 4);
+      }
+      else if (j == 0) {
+	this->anisotropyCoefficients_[i][j] = this->chi_;
+	this->plaquetteTadpoleCoefficients_[i][j]
+	  = pow(this->us_, 2) * pow(this->ut_, 2);
+	this->rectangleTadpoleCoefficients_[i][j]
+	  = pow(this->us_, 4) * pow(this->ut_, 2);
+	this->twistedRectangleTadpoleCoefficients_[i][j]
+	  = pow(this->us_, 4) * pow(this->ut_, 4);
+      }
+      else {
 	this->anisotropyCoefficients_[i][j] = 1.0 / this->chi_;
+	this->plaquetteTadpoleCoefficients_[i][j]
+	  = pow(this->us_, 4);
+	this->rectangleTadpoleCoefficients_[i][j]
+	  = pow(this->us_, 6);
+	this->twistedRectangleTadpoleCoefficients_[i][j]
+	  = pow(this->us_, 8);
+      }
     }
   }
   

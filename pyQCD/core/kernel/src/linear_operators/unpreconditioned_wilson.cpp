@@ -25,6 +25,12 @@ UnpreconditionedWilson::UnpreconditionedWilson(
 					     * pyQCD::gamma5);
   }
 
+  // Initialise tadpole coefficients
+  this->tadpoleCoefficients_[0] = lattice->ut();
+  this->tadpoleCoefficients_[1] = lattice->us();
+  this->tadpoleCoefficients_[2] = lattice->us();
+  this->tadpoleCoefficients_[3] = lattice->us();
+
   int latticeShape[4] = {this->lattice_->temporalExtent,
 			 this->lattice_->spatialExtent,
 			 this->lattice_->spatialExtent,
@@ -121,14 +127,14 @@ VectorXcd UnpreconditionedWilson::apply(const VectorXcd& psi)
 	  * this->boundaryConditions_[etaSiteIndex][mu]
 	  * conj(this->lattice_->getLink(4 * siteBehindIndex + mu)(b, a))
 	  * psi(12 * siteBehindIndex + 3 * beta + b)
-	  / this->lattice_->u0();
+	  / this->tadpoleCoefficients_[mu % 4];
 	
 	eta(i)
 	  -= 0.5 * this->spinStructures_[mu + 4](alpha, beta)
 	  * this->boundaryConditions_[etaSiteIndex][mu + 4]
 	  * this->lattice_->getLink(4 * etaSiteIndex + mu)(a, b)
 	  * psi(12 * siteAheadIndex + 3 * beta + b)
-	  / this->lattice_->u0();
+	  / this->tadpoleCoefficients_[mu % 4];
       }
     }
   }
@@ -176,14 +182,14 @@ VectorXcd UnpreconditionedWilson::applyHermitian(const VectorXcd& psi)
 	  * this->boundaryConditions_[etaSiteIndex][mu]
 	  * conj(this->lattice_->getLink(4 * siteBehindIndex + mu)(b, a))
 	  * psi(12 * siteBehindIndex + 3 * beta + b)
-	  / this->lattice_->u0();
+	  / this->tadpoleCoefficients_[mu % 4];
 	
 	eta(i)
 	  -= 0.5 * this->hermitianSpinStructures_[mu + 4](alpha, beta)
 	  * this->boundaryConditions_[etaSiteIndex][mu + 4]
 	  * this->lattice_->getLink(4 * etaSiteIndex + mu)(a, b)
 	  * psi(12 * siteAheadIndex + 3 * beta + b)
-	  / this->lattice_->u0();
+	  / this->tadpoleCoefficients_[mu % 4];
       }
     }
   }

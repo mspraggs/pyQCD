@@ -39,6 +39,7 @@ private:
   vector<vector<complex<double> > > boundaryConditions_;
   int numSmears_;
   double smearingParameter_;
+  double tadpoleCoefficients_[4];
 };
 
 #endif

@@ -16,6 +16,12 @@ JacobiSmearing::JacobiSmearing(
   this->smearingParameter_ = smearingParameter;
   this->numSmears_ = numSmears;
 
+  // Initialise tadpole coefficients
+  this->tadpoleCoefficients_[0] = lattice->ut();
+  this->tadpoleCoefficients_[1] = lattice->us();
+  this->tadpoleCoefficients_[2] = lattice->us();
+  this->tadpoleCoefficients_[3] = lattice->us();
+
   int latticeShape[4] = {this->lattice_->temporalExtent,
 			 this->lattice_->spatialExtent,
 			 this->lattice_->spatialExtent,
@@ -128,14 +134,14 @@ VectorXcd JacobiSmearing::applyOnce(const VectorXcd& psi)
 	  * this->boundaryConditions_[etaSiteIndex][j]
 	  * conj(this->lattice_->getLink(4 * siteBehindIndex + j)(b, a))
 	  * psi(12 * siteBehindIndex + 3 * beta + b)
-	  / this->lattice_->u0();
+	  / this->tadpoleCoefficients_[i % 4];
 	
 	eta(i)
 	  -= 0.5 * this->identity_(alpha, beta)
 	  * this->boundaryConditions_[etaSiteIndex][j + 4]
 	  * this->lattice_->getLink(4 * etaSiteIndex + j)(a, b)
 	  * psi(12 * siteAheadIndex + 3 * beta + b)
-	  / this->lattice_->u0();
+	  / this->tadpoleCoefficients_[i % 4];
       }
     }
   }
