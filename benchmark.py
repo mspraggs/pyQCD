@@ -144,32 +144,32 @@ def benchmark_propagator_computation(L=4, T=8):
     lattice = pyQCD.Lattice(L=L, T=T)
     lattice.update()
     
-    display_benchmark(function=lattice.get_propagator,
-                      args=[0.4, [0, 0, 0, 0], 0, 1.0, 0, 1.0, 0, 1.0,
-                            "conjugate_gradient"])
+    display_benchmark(function=lattice.get_wilson_propagator,
+                      args=[0.4, [0, 0, 0, 0], 0, 1.0, "jacobi", 0, 1.0,
+                            "jacobi", 0, 1.0, "conjugate_gradient"])
     print("")
     
-    display_benchmark(function=lattice.get_propagator,
-                      args=[0.4, [0, 0, 0, 0], 0, 1.0, 0, 1.0, 0, 1.0,
-                            "bicgstab"])
+    display_benchmark(function=lattice.get_wilson_propagator,
+                      args=[0.4, [0, 0, 0, 0], 0, 1.0, "jacobi", 0, 1.0,
+                            "jacobi", 0, 1.0, "bicgstab"])
     print("")
     
-    for n in xrange(1, 3):    
-        display_benchmark(function=lattice.get_propagator,
-                          args=[0.4, [0, 0, 0, 0], n, 0.4, 0, 1.0, 0, 1.0,
-                                "bicgstab"])
+    for n in xrange(1, 3):
+        display_benchmark(function=lattice.get_wilson_propagator,
+                          args=[0.4, [0, 0, 0, 0], n, 1.0, "jacobi", 0, 1.0,
+                                "jacobi", 0, 1.0, "bicgstab"])
         print("")
     
-    for n in xrange(1, 3):    
-        display_benchmark(function=lattice.get_propagator,
-                          args=[0.4, [0, 0, 0, 0], 0, 1.0, n, 0.4, 0, 1.0,
-                                "bicgstab"])
+    for n in xrange(1, 3):
+        display_benchmark(function=lattice.get_wilson_propagator,
+                          args=[0.4, [0, 0, 0, 0], 0, 1.0, "jacobi", n, 1.0,
+                                "jacobi", 0, 1.0, "bicgstab"])
         print("")
     
-    for n in xrange(1, 3):    
-        display_benchmark(function=lattice.get_propagator,
-                          args=[0.4, [0, 0, 0, 0], 0, 1.0, 0, 1.0, n, 0.4,
-                                "bicgstab"])
+    for n in xrange(1, 3):
+        display_benchmark(function=lattice.get_wilson_propagator,
+                          args=[0.4, [0, 0, 0, 0], 0, 1.0, "jacobi", 0, 1.0,
+                                "jacobi", n, 1.0, "bicgstab"])
         print("")
         
 def benchmark_twopoint_computation():
