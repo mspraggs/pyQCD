@@ -314,7 +314,7 @@ double Lattice::computeRectangle(const int site[4], const int mu,
   product *= this->getLink(link5).adjoint();
   product *= this->getLink(link6).adjoint();
   
-  return product.trace().real() / 3.0;  
+  return product.trace().real() / 3.0;
 }
 
 

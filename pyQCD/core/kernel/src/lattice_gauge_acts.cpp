@@ -19,9 +19,13 @@ double Lattice::computeLocalWilsonAction(const int link[5])
   // For each plane, calculate the two plaquettes that share the given link
   for (int i = 0; i < 3; ++i) {
     int site[4] = {link[0], link[1], link[2], link[3]};
-    Psum += this->computePlaquette(site, link[4], planes[i]);
+    Psum
+      += this->computePlaquette(site, link[4], planes[i])
+       * this->anisotropyCoefficients_[planes[i]][link[4]];
     site[planes[i]] -= 1;
-    Psum += this->computePlaquette(site, link[4], planes[i]);
+    Psum
+      += this->computePlaquette(site, link[4], planes[i])
+       * this->anisotropyCoefficients_[planes[i]][link[4]];
   }
 
   return -this->beta_ * Psum;
@@ -51,21 +55,33 @@ double Lattice::computeLocalRectangleAction(const int link[5])
   for (int i = 0; i < 3; ++i) {
     int site[4] = {link[0], link[1], link[2], link[3]};
     // Add the six rectangles that contain the link
-    Rsum += this->computeRectangle(site, link[4], planes[i]);
+    Rsum
+      += this->computeRectangle(site, link[4], planes[i])
+       * this->anisotropyCoefficients_[planes[i]][link[4]];
     site[link[4]] -= 1;
-    Rsum += this->computeRectangle(site, link[4], planes[i]);
+    Rsum 
+      += this->computeRectangle(site, link[4], planes[i])
+       * this->anisotropyCoefficients_[planes[i]][link[4]];
 
     site[link[4]] += 1;
     site[planes[i]] -= 1;
-    Rsum += this->computeRectangle(site, link[4], planes[i]);
+    Rsum 
+      += this->computeRectangle(site, link[4], planes[i])
+      * this->anisotropyCoefficients_[planes[i]][link[4]];
     site[link[4]] -= 1;
-    Rsum += this->computeRectangle(site, link[4], planes[i]);
+    Rsum
+      += this->computeRectangle(site, link[4], planes[i])
+      * this->anisotropyCoefficients_[planes[i]][link[4]];
     
     site[link[4]] += 1;
     site[planes[i]] += 1;
-    Rsum += this->computeRectangle(site, planes[i], link[4]);
+    Rsum
+      += this->computeRectangle(site, planes[i], link[4])
+      * this->anisotropyCoefficients_[planes[i]][link[4]];
     site[planes[i]] -= 2;
-    Rsum += this->computeRectangle(site, planes[i], link[4]);
+    Rsum
+      += this->computeRectangle(site, planes[i], link[4])
+      * this->anisotropyCoefficients_[planes[i]][link[4]];
   }
   out += this->beta_ / (12 * pow(this->u0_, 2)) * Rsum;
   return out;
@@ -95,23 +111,37 @@ double Lattice::computeLocalTwistedRectangleAction(const int link[5])
   for (int i = 0; i < 3; ++i) {
     int site[4] = {link[0], link[1], link[2], link[3]};
     // Add the seven twisted rectangles that contain the link
-    Tsum += this->computeTwistedRectangle(site, link[4], planes[i]);
+    Tsum 
+      += this->computeTwistedRectangle(site, link[4], planes[i])
+      * this->anisotropyCoefficients_[planes[i]][link[4]];
     site[link[4]] -= 1;
-    Tsum += this->computeTwistedRectangle(site, link[4], planes[i]);
+    Tsum
+      += this->computeTwistedRectangle(site, link[4], planes[i])
+      * this->anisotropyCoefficients_[planes[i]][link[4]];
 
     site[link[4]] += 1;
     site[planes[i]] -= 1;
-    Tsum += this->computeTwistedRectangle(site, link[4], planes[i]);
+    Tsum
+      += this->computeTwistedRectangle(site, link[4], planes[i])
+      * this->anisotropyCoefficients_[planes[i]][link[4]];
     site[link[4]] -= 1;
-    Tsum += this->computeTwistedRectangle(site, link[4], planes[i]);
+    Tsum
+      += this->computeTwistedRectangle(site, link[4], planes[i])
+      * this->anisotropyCoefficients_[planes[i]][link[4]];
     
     site[link[4]] += 1;
     site[planes[i]] += 1;
-    Tsum += this->computeTwistedRectangle(site, planes[i], link[4]);
+    Tsum 
+      += this->computeTwistedRectangle(site, planes[i], link[4])
+      * this->anisotropyCoefficients_[planes[i]][link[4]];
     site[planes[i]] -= 1;
-    Tsum += this->computeTwistedRectangle(site, planes[i], link[4]);
+    Tsum
+      += this->computeTwistedRectangle(site, planes[i], link[4])
+      * this->anisotropyCoefficients_[planes[i]][link[4]];
     site[planes[i]] -= 1;
-    Tsum += this->computeTwistedRectangle(site, planes[i], link[4]);
+    Tsum
+      += this->computeTwistedRectangle(site, planes[i], link[4])
+      * this->anisotropyCoefficients_[planes[i]][link[4]];
   }
   out -= this->beta_ / (12 * pow(this->u0_, 4)) * Tsum;
   return out;
@@ -158,7 +188,7 @@ Matrix3cd Lattice::computeWilsonStaples(const int link[5])
     tempLink[4] = planes[i];
     tempMatrix *= this->getLink(tempLink).adjoint();
     // And add it to the output
-    out += tempMatrix;
+    out += tempMatrix * this->anisotropyCoefficients_[planes[i]][link[4]];
 
     // First link is U+_nu (x + mu - nu)
     tempLink[link[4]] += 1;
@@ -172,7 +202,7 @@ Matrix3cd Lattice::computeWilsonStaples(const int link[5])
     tempLink[4] = planes[i];
     tempMatrix *= this->getLink(tempLink);
     // And add it to the output
-    out += tempMatrix;
+    out += tempMatrix * this->anisotropyCoefficients_[planes[i]][link[4]];
   }
   return out;
 }
@@ -225,7 +255,8 @@ Matrix3cd Lattice::computeRectangleStaples(const int link[5])
     tempLink[4] = planes[i];
     tempMatrix *= this->getLink(tempLink).adjoint();
     // Add it to the output
-    rectangleStaples += tempMatrix;
+    rectangleStaples
+      += tempMatrix * this->anisotropyCoefficients_[planes[i]][link[4]];
     
     // Next is previous rectangle but translated by -1 in current plane
     // First link is U_mu (x + mu)
@@ -248,7 +279,8 @@ Matrix3cd Lattice::computeRectangleStaples(const int link[5])
     tempLink[4] = planes[i];
     tempMatrix *= this->getLink(tempLink);
     // Add it to the output
-    rectangleStaples += tempMatrix;
+    rectangleStaples
+      += tempMatrix * this->anisotropyCoefficients_[planes[i]][link[4]];
 
     // Next is previous two rectangles but translated by -1 in link axis
     // First link is U_nu (x + mu)
@@ -271,7 +303,8 @@ Matrix3cd Lattice::computeRectangleStaples(const int link[5])
     tempLink[4] = link[4];
     tempMatrix *= this->getLink(tempLink);
     // Add it to the output
-    rectangleStaples += tempMatrix;
+    rectangleStaples
+      += tempMatrix * this->anisotropyCoefficients_[planes[i]][link[4]];
 
     // Next is same rectangle but reflected in link axis
     // First link is U+_nu (x + mu - nu)
@@ -294,7 +327,8 @@ Matrix3cd Lattice::computeRectangleStaples(const int link[5])
     tempLink[planes[i]] += 1;
     tempMatrix *= this->getLink(tempLink);
     // Add it to the output
-    rectangleStaples += tempMatrix;
+    rectangleStaples
+      += tempMatrix * this->anisotropyCoefficients_[planes[i]][link[4]];
 
     // Next we do the rectangles rotated by 90 degrees
     // Link is U_nu (x + mu)
@@ -317,7 +351,8 @@ Matrix3cd Lattice::computeRectangleStaples(const int link[5])
     tempLink[planes[i]] -= 1;
     tempMatrix *= this->getLink(tempLink).adjoint();
     // Add to the sum
-    rectangleStaples += tempMatrix;
+    rectangleStaples
+      += tempMatrix * this->anisotropyCoefficients_[planes[i]][link[4]];
 
     // Next flip the previous rectangle across the link axis
     // Link is U+_nu (x + mu - nu)
@@ -339,7 +374,8 @@ Matrix3cd Lattice::computeRectangleStaples(const int link[5])
     tempLink[planes[i]] += 1;
     tempMatrix *= this->getLink(tempLink);
     // Add to the sum
-    rectangleStaples += tempMatrix;
+    rectangleStaples
+      += tempMatrix * this->anisotropyCoefficients_[planes[i]][link[4]];
   }
 
   return 5.0 / 3.0 * wilsonStaples 

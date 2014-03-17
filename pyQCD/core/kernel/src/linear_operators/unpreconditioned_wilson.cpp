@@ -100,7 +100,7 @@ VectorXcd UnpreconditionedWilson::apply(const VectorXcd& psi)
     int a = i % 3; // Colour index of the current row in eta
 
     // Now add the mass term
-    eta(i) = (4 + this->mass_) * psi(i);
+    eta(i) = (1 + 3 / this->lattice_->chi() + this->mass_) * psi(i);
 
     // Loop over the four gamma indices (mu) in the sum inside the Wilson action
     for (int mu = 0; mu < 4; ++mu) {
@@ -154,7 +154,8 @@ VectorXcd UnpreconditionedWilson::applyHermitian(const VectorXcd& psi)
     int a = i % 3; // Colour index of the current row in eta
 
     // Now add the mass term
-    eta(i) = (4 + this->mass_) * pyQCD::gamma5(alpha, alpha) * psi(i);
+    eta(i) = (1 + 3 / this->lattice_->chi() + this->mass_)
+      * pyQCD::gamma5(alpha, alpha) * psi(i);
 
     // Loop over the four gamma indices (mu) in the sum inside the Wilson action
     for (int mu = 0; mu < 4; ++mu) {

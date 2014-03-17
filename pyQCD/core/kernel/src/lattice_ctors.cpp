@@ -16,9 +16,22 @@ Lattice::Lattice(const int spatialExtent, const int temporalExtent,
   this->nCorrelations = nCorrelations;
   this->nUpdates_ = 0;
   this->u0_ = u0;
+  this->chi_ = 1.0;
   this->action_ = action;
   this->updateMethod_ = updateMethod;
   this->parallelFlag_ = parallelFlag;
+
+  // Set up anisotropy coefficients
+  for (int i = 0; i < 4; ++i) {
+    for (int j = 0; j < 4; ++j) {
+      if (i == j)
+	this->anisotropyCoefficients_[i][j] = 1.0;
+      else if (i == 0 || j == 0)
+	this->anisotropyCoefficients_[i][j] = this->chi_;
+      else
+	this->anisotropyCoefficients_[i][j] = 1 / this->chi_;
+    }
+  }
   
   if (randSeed > -1)
     this->rng.setSeed(randSeed);
