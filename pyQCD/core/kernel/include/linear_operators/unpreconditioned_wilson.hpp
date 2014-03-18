@@ -10,6 +10,7 @@
 #include <lattice.hpp>
 #include <utils.hpp>
 #include <linear_operators/linear_operator.hpp>
+#include <linear_operators/wilson_hopping_term.hpp>
 
 using namespace Eigen;
 using namespace std;
@@ -33,12 +34,11 @@ public:
 private:
   // Pointer to the lattice object containing the gauge links
   Lattice* lattice_;
+  WilsonHoppingTerm* hoppingMatrix_; // This operator does the derivative
   double mass_; // Mass of the Wilson fermion
   int operatorSize_; // Size of vectors on which the operator may operate
   // The 1 +/- gamma_mu matrices required by the operator
   vector<Matrix4cd, aligned_allocator<Matrix4cd> > spinStructures_;
-  // The spinStructes_ above multiplied by gamma_5 from the right
-  vector<Matrix4cd, aligned_allocator<Matrix4cd> > hermitianSpinStructures_;
   // Nearest neighbour indices
   vector<vector<int> > nearestNeighbours_;
   vector<vector<complex<double> > > boundaryConditions_;
