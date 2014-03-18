@@ -180,8 +180,9 @@ def benchmark_twopoint_computation():
     prop_data \
       = np.load("pyQCD/test/data/propagator_purgaug_4c8_4000_no_smear.npy")
       
-    prop = pyQCD.Propagator(prop_data, 4, 8, 5.5, 1.0, "wilson", 0.4,
-                            [0, 0, 0, 0], 0, 1.0, 0, 1.0, 0, 1.0)
+    prop = pyQCD.Propagator(prop_data, 4, 8, 5.5, 1.0, 1.0, 1.0, "wilson",
+                            "wilson", 0.4, {}, [0, 0, 0, 0], 0, 1.0, "jacobi",
+                            0, 1.0, "jacobi", 0, 1.0)
     
     twopoint = pyQCD.TwoPoint(8, 4)
     
