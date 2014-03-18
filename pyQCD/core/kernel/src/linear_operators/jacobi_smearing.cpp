@@ -5,16 +5,17 @@ JacobiSmearing::JacobiSmearing(
     const vector<complex<double> >& boundaryConditions,
     Lattice* lattice) : lattice_(lattice)
 {
-  // Class constructor - we set the pointer to the lattice, determine
-  // the nearest neighbours and create the identity for our spin
-  // structure
+  // Class constructor - we set the pointer to the lattice and determine
+  // the nearest neighbours
 
   this->operatorSize_ 
     = 12 * int(pow(lattice->spatialExtent, 3)) * lattice->temporalExtent;
 
-  this->identity_ = Matrix4cd::Identity();
   this->smearingParameter_ = smearingParameter;
   this->numSmears_ = numSmears;
+
+  this->hoppingMatrix_ = new WilsonHoppingTerm(boundaryConditions,
+					       Matrix4cd::Identity(), lattice);
 
   // Initialise tadpole coefficients
   this->tadpoleCoefficients_[0] = lattice->ut();
@@ -31,7 +32,8 @@ JacobiSmearing::JacobiSmearing(
 
 JacobiSmearing::~JacobiSmearing()
 {
-  // Empty destructor
+  // Delete the hopping matrix
+  delete this->hoppingMatrix_;
 }
 
 
@@ -65,43 +67,7 @@ VectorXcd JacobiSmearing::applyOnce(const VectorXcd& psi)
   if (psi.size() != this->operatorSize_)
     return eta;
 
-#pragma omp parallel for
-  for (int i = 0; i < this->operatorSize_; ++i) {
-    int etaSiteIndex = i / 12; // Site index of the current row in eta
-    int alpha = (i % 12) / 3; // Spin index of the current row in eta
-    int a = i % 3; // Colour index of the current row in eta
-
-    // Loop over the three spatial directions in the sum inside the
-    // smearing operator
-    for (int j = 1; j < 4; ++j) {
-      
-      // Now we determine the indices of the neighbouring links
-
-      int siteBehindIndex = this->nearestNeighbours_[etaSiteIndex][j];
-      int siteAheadIndex = this->nearestNeighbours_[etaSiteIndex][j + 4];
-
-      // Now loop over spin and colour indices for the portion of the row we're
-      // on
-
-      for (int k = 0; k < 12; ++k) {
-	int beta = k / 3; // Compute spin
-	int b = k % 3; // Compute colour
-	eta(i)
-	  -= 0.5 * this->identity_(alpha, beta)
-	  * this->boundaryConditions_[etaSiteIndex][j]
-	  * conj(this->lattice_->getLink(4 * siteBehindIndex + j)(b, a))
-	  * psi(12 * siteBehindIndex + 3 * beta + b)
-	  / this->tadpoleCoefficients_[i % 4];
-	
-	eta(i)
-	  -= 0.5 * this->identity_(alpha, beta)
-	  * this->boundaryConditions_[etaSiteIndex][j + 4]
-	  * this->lattice_->getLink(4 * etaSiteIndex + j)(a, b)
-	  * psi(12 * siteAheadIndex + 3 * beta + b)
-	  / this->tadpoleCoefficients_[i % 4];
-      }
-    }
-  }
+  eta = this->hoppingMatrix_->apply3d(eta);
 
   return eta;
 }
