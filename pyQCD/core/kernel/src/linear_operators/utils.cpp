@@ -112,7 +112,7 @@ namespace pyQCD
 	if (site[mu] + hopSize < 0 || site[mu] + hopSize >= latticeShape[mu])
 	  siteBoundaryConditions[mu + 4] = boundaryConditions[mu % 4];
       }
-      output.push_back(boundaryConditions);
+      output.push_back(siteBoundaryConditions);
     }
 
     return output;

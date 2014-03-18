@@ -34,7 +34,6 @@ UnpreconditionedWilson::UnpreconditionedWilson(
   this->nearestNeighbours_ = pyQCD::getNeighbourIndices(1, this->lattice_);
   this->boundaryConditions_ = pyQCD::getBoundaryConditions(1, boundaryConditions,
 							   this->lattice_);
-
 }
 
 
