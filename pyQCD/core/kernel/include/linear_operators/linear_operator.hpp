@@ -5,6 +5,8 @@
 
 #include <omp.h>
 
+#include <linear_operators/utils.hpp>
+
 using namespace Eigen;
 using namespace std;
 

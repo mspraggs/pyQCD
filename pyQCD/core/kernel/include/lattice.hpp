@@ -16,7 +16,7 @@
 #include <omp.h>
 
 #include <random.hpp>
-#include <linear_operators.hpp>
+#include <linear_operators/linear_operator.hpp>
 #include <solvers.hpp>
 
 using namespace Eigen;
@@ -25,6 +25,8 @@ using namespace boost;
 
 typedef vector<Matrix3cd, aligned_allocator<Matrix3cd> > GaugeField;
 typedef Triplet<complex<double> > Tlet;
+
+class LinearOperator;
 
 class Lattice
 {

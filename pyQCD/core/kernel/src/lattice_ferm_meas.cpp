@@ -1,5 +1,6 @@
 #include <lattice.hpp>
 #include <utils.hpp>
+#include <linear_operators.hpp>
 
 VectorXcd
 Lattice::makeSource(const int site[4], const int spin, const int colour,

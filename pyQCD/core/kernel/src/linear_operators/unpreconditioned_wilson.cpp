@@ -31,54 +31,10 @@ UnpreconditionedWilson::UnpreconditionedWilson(
   this->tadpoleCoefficients_[2] = lattice->us();
   this->tadpoleCoefficients_[3] = lattice->us();
 
-  int latticeShape[4] = {this->lattice_->temporalExtent,
-			 this->lattice_->spatialExtent,
-			 this->lattice_->spatialExtent,
-			 this->lattice_->spatialExtent};
+  this->nearestNeighbours_ = pyQCD::getNeighbourIndices(1, this->lattice_);
+  this->boundaryConditions_ = pyQCD::getBoundaryConditions(1, boundaryConditions,
+							   this->lattice_);
 
-  for (int i = 0; i < this->operatorSize_ / 12; ++i) {
-
-    vector<int> neighbours(8, 0);
-    vector<complex<double> > siteBoundaryConditions(8, complex<double>(1.0,
-								       0.0));
-
-    // Determine the coordinates of the site we're on
-    int site[5]; // The coordinates of the lattice site
-    pyQCD::getLinkIndices(4 * i, this->lattice_->spatialExtent,
-			  this->lattice_->temporalExtent, site);
-
-    int siteBehind[5]; // Site/link index for the site/link behind us
-    int siteAhead[5]; // Site/link index for the site/link in front of us
-
-    // Loop over the four gamma indices (mu) in the sum inside the Wilson action
-    for (int mu = 0; mu < 4; ++mu) {
-
-      // Determine whether we need to apply boundary conditions
-
-      copy(site, site + 5, siteBehind);
-      if (site[mu] - 1 < 0 || site[mu] - 1 >= latticeShape[mu])
-	siteBoundaryConditions[mu] = boundaryConditions[mu % 4];
-
-      if (site[mu] + 1 < 0 || site[mu] + 1 >= latticeShape[mu])
-	siteBoundaryConditions[mu + 4] = boundaryConditions[mu % 4];
-          
-      // Now we determine the indices of the neighbouring links
-
-      siteBehind[mu] = pyQCD::mod(siteBehind[mu] - 1, latticeShape[mu]);
-      int siteBehindIndex = pyQCD::getLinkIndex(siteBehind,
-						 latticeShape[1]) / 4;
-
-      copy(site, site + 5, siteAhead);
-      siteAhead[mu] = pyQCD::mod(siteAhead[mu] + 1, latticeShape[mu]);
-      int siteAheadIndex = pyQCD::getLinkIndex(siteAhead,
-						latticeShape[1]) / 4;
-
-      neighbours[mu] = siteBehindIndex;
-      neighbours[mu + 4] = siteAheadIndex;
-    }
-    this->boundaryConditions_.push_back(siteBoundaryConditions);
-    this->nearestNeighbours_.push_back(neighbours);
-  }
 }
 
 

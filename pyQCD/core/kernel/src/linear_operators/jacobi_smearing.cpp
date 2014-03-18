@@ -22,52 +22,9 @@ JacobiSmearing::JacobiSmearing(
   this->tadpoleCoefficients_[2] = lattice->us();
   this->tadpoleCoefficients_[3] = lattice->us();
 
-  int latticeShape[4] = {this->lattice_->temporalExtent,
-			 this->lattice_->spatialExtent,
-			 this->lattice_->spatialExtent,
-			 this->lattice_->spatialExtent};
-
-  for (int i = 0; i < this->operatorSize_ / 12; ++i) {
-
-    vector<int> neighbours(8, 0);
-    vector<complex<double> > siteBoundaryConditions(8, complex<double>(1.0,
-								       0.0));
-
-    // Determine the coordinates of the site we're on
-    int site[5]; // The coordinates of the lattice site/link
-    pyQCD::getLinkIndices(4 * i, this->lattice_->spatialExtent,
-			  this->lattice_->temporalExtent, site);
-
-    int siteBehind[5]; // Site/link index for the site/link behind us
-    int siteAhead[5]; // Site/link index for the site/link in front of us
-
-    // Loop over the three gamma indices (j) in the sum inside the Wilson action
-    for (int j = 0; j < 4; ++j) {
-          
-      // Now we determine the indices of the neighbouring links
-
-      copy(site, site + 5, siteBehind);
-      if (site[j] - 1 < 0 || site[j] - 1 >= latticeShape[j])
-	siteBoundaryConditions[j] = boundaryConditions[j % 4];
-
-      if (site[j] + 1 < 0 || site[j] + 1 >= latticeShape[j])
-	siteBoundaryConditions[j + 4] = boundaryConditions[j % 4];
-
-      siteBehind[j] = pyQCD::mod(siteBehind[j] - 1, latticeShape[j]);
-      int siteBehindIndex = pyQCD::getLinkIndex(siteBehind,
-						 latticeShape[1]) / 4;
-
-      copy(site, site + 5, siteAhead);
-      siteAhead[j] = pyQCD::mod(siteAhead[j] + 1, latticeShape[j]);
-      int siteAheadIndex = pyQCD::getLinkIndex(siteAhead,
-						latticeShape[1]) / 4;
-
-      neighbours[j] = siteBehindIndex;
-      neighbours[j + 4] = siteAheadIndex;
-    }
-    this->boundaryConditions_.push_back(siteBoundaryConditions);
-    this->nearestNeighbours_.push_back(neighbours);
-  }
+  this->nearestNeighbours_ = pyQCD::getNeighbourIndices(1, this->lattice_);
+  this->boundaryConditions_ = pyQCD::getBoundaryConditions(1, boundaryConditions,
+							   this->lattice_);
 }
 
 
