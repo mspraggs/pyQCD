@@ -1,5 +1,22 @@
 #include <linear_operators/unpreconditioned_wilson.hpp>
 
+VectorXcd UnpreconditionedWilson::multiplyGamma5(const VectorXcd& psi)
+{
+  VectorXcd eta = VectorXcd::Zero(this->operatorSize_);
+
+#pragma omp parallel for
+  for (int i = 0; i < this->operatorSize_ / 12; ++i)
+    for (int j = 0; j < 4; ++j)
+      for (int k = 0; k < 4; ++k)
+	for (int l = 0; l < 3; ++l)
+	  eta(12 * i + 3 * j + l)
+	    += pyQCD::gamma5(j, k) * psi(12 * i + 3 * k + l);
+
+  return eta;
+}
+
+
+
 UnpreconditionedWilson::UnpreconditionedWilson(
     const double mass, const vector<complex<double> >& boundaryConditions,
     Lattice* lattice) : lattice_(lattice)
@@ -102,72 +119,16 @@ VectorXcd UnpreconditionedWilson::apply(const VectorXcd& psi)
 
 VectorXcd UnpreconditionedWilson::applyHermitian(const VectorXcd& psi)
 {
-  // Right multiply a vector by the operator
-  VectorXcd eta = VectorXcd::Zero(this->operatorSize_); // The output vector
+  VectorXcd eta = this->apply(psi);
 
-  // If psi's the wrong size, get out of here before we segfault
-  if (psi.size() != this->operatorSize_)
-    return eta;
-
-#pragma omp parallel for
-  for (int i = 0; i < this->operatorSize_; ++i) {
-    int etaSiteIndex = i / 12; // Site index of the current row in 
-    int alpha = (i % 12) / 3; // Spin index of the current row in eta
-    int a = i % 3; // Colour index of the current row in eta
-
-    // Now add the mass term
-    eta(i) = (1 + 3 / this->lattice_->chi() + this->mass_)
-      * pyQCD::gamma5(alpha, alpha) * psi(i);
-
-    // Loop over the four gamma indices (mu) in the sum inside the Wilson action
-    for (int mu = 0; mu < 4; ++mu) {
-      
-      // Now we determine the indices of the neighbouring links
-
-      int siteBehindIndex = this->nearestNeighbours_[etaSiteIndex][mu];
-      int siteAheadIndex = this->nearestNeighbours_[etaSiteIndex][mu + 4];
-
-      // Now loop over spin and colour indices for the portion of the row we're
-      // on
-
-      for (int j = 0; j < 12; ++j) {
-	int beta = j / 3; // Compute spin
-	int b = j % 3; // Compute colour
-	eta(i)
-	  -= 0.5 * this->hermitianSpinStructures_[mu](alpha, beta)
-	  * this->boundaryConditions_[etaSiteIndex][mu]
-	  * conj(this->lattice_->getLink(4 * siteBehindIndex + mu)(b, a))
-	  * psi(12 * siteBehindIndex + 3 * beta + b)
-	  / this->tadpoleCoefficients_[mu % 4];
-	
-	eta(i)
-	  -= 0.5 * this->hermitianSpinStructures_[mu + 4](alpha, beta)
-	  * this->boundaryConditions_[etaSiteIndex][mu + 4]
-	  * this->lattice_->getLink(4 * etaSiteIndex + mu)(a, b)
-	  * psi(12 * siteAheadIndex + 3 * beta + b)
-	  / this->tadpoleCoefficients_[mu % 4];
-      }
-    }
-  }
-
-  return eta;
+  return this->multiplyGamma5(eta);
 }
 
 
 
 VectorXcd UnpreconditionedWilson::undoHermiticity(const VectorXcd& psi)
 {
-  VectorXcd eta = VectorXcd::Zero(this->operatorSize_);
-
-#pragma omp parallel for
-  for (int i = 0; i < this->operatorSize_ / 12; ++i)
-    for (int j = 0; j < 4; ++j)
-      for (int k = 0; k < 4; ++k)
-	for (int l = 0; l < 3; ++l)
-	  eta(12 * i + 3 * j + l)
-	    += pyQCD::gamma5(j, k) * psi(12 * i + 3 * k + l);
-
-  return eta;
+  return this->multiplyGamma5(psi);
 }
 
 

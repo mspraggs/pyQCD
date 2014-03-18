@@ -24,6 +24,8 @@ public:
 			 Lattice* lattice);
   ~UnpreconditionedWilson();
 
+  VectorXcd multiplyGamma5(const VectorXcd& psi);
+
   VectorXcd apply(const VectorXcd& psi);
   VectorXcd applyHermitian(const VectorXcd& psi);
   VectorXcd undoHermiticity(const VectorXcd& psi);
