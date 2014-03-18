@@ -1,22 +1,5 @@
 #include <linear_operators/unpreconditioned_wilson.hpp>
 
-VectorXcd UnpreconditionedWilson::multiplyGamma5(const VectorXcd& psi)
-{
-  VectorXcd eta = VectorXcd::Zero(this->operatorSize_);
-
-#pragma omp parallel for
-  for (int i = 0; i < this->operatorSize_ / 12; ++i)
-    for (int j = 0; j < 4; ++j)
-      for (int k = 0; k < 4; ++k)
-	for (int l = 0; l < 3; ++l)
-	  eta(12 * i + 3 * j + l)
-	    += pyQCD::gamma5(j, k) * psi(12 * i + 3 * k + l);
-
-  return eta;
-}
-
-
-
 UnpreconditionedWilson::UnpreconditionedWilson(
     const double mass, const vector<complex<double> >& boundaryConditions,
     Lattice* lattice) : lattice_(lattice)
@@ -121,14 +104,14 @@ VectorXcd UnpreconditionedWilson::applyHermitian(const VectorXcd& psi)
 {
   VectorXcd eta = this->apply(psi);
 
-  return this->multiplyGamma5(eta);
+  return pyQCD::multiplyGamma5(eta);
 }
 
 
 
 VectorXcd UnpreconditionedWilson::undoHermiticity(const VectorXcd& psi)
 {
-  return this->multiplyGamma5(psi);
+  return pyQCD::multiplyGamma5(psi);
 }
 
 

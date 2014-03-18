@@ -2,6 +2,23 @@
 
 namespace pyQCD
 {
+  VectorXcd multiplyGamma5(const vectorXcd& psi)
+  {
+    VectorXcd eta = VectorXcd::Zero(this->operatorSize_);
+
+#pragma omp parallel for
+    for (int i = 0; i < this->operatorSize_ / 12; ++i)
+      for (int j = 0; j < 4; ++j)
+	for (int k = 0; k < 4; ++k)
+	  for (int l = 0; l < 3; ++l)
+	    eta(12 * i + 3 * j + l)
+	      += gamma5(j, k) * psi(12 * i + 3 * k + l);
+
+    return eta;    
+  }
+
+
+
   vector<vector<int> > getNeighbourIndices(const int hopSize, Lattice* lattice)
   {
     // Gets the site indices for the sites a certain number of hops away
@@ -57,8 +74,8 @@ namespace pyQCD
 
 
   vector<vector<complex<double> > > getBoundaryConditions(
-    const int hopSize, const vector<complex<double> >& boundaryConditions,
-    Lattice* lattice)
+							  const int hopSize, const vector<complex<double> >& boundaryConditions,
+							  Lattice* lattice)
   {
     // Determines the boundary conditions for each hop
 
