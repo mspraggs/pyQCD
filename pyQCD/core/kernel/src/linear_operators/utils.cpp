@@ -2,12 +2,13 @@
 
 namespace pyQCD
 {
-  VectorXcd multiplyGamma5(const vectorXcd& psi)
+  VectorXcd multiplyGamma5(const VectorXcd& psi)
   {
-    VectorXcd eta = VectorXcd::Zero(this->operatorSize_);
+    int nRows = psi.size();
+    VectorXcd eta = VectorXcd::Zero(nRows);
 
 #pragma omp parallel for
-    for (int i = 0; i < this->operatorSize_ / 12; ++i)
+    for (int i = 0; i < nRows / 12; ++i)
       for (int j = 0; j < 4; ++j)
 	for (int k = 0; k < 4; ++k)
 	  for (int l = 0; l < 3; ++l)
