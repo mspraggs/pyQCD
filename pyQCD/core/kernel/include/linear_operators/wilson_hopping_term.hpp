@@ -16,7 +16,7 @@ using namespace std;
 
 class WilsonHoppingTerm : public LinearOperator
 {
-  // Basic unpreconditioned Wilson Dirac operator
+  // Basic unpreconditioned Wilson hopping term
 
 public:
   WilsonHoppingTerm(const vector<complex<double> >& boundaryConditions,
