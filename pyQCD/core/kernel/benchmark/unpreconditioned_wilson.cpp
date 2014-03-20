@@ -1,5 +1,9 @@
+#include <boost/timer/timer.hpp>
+
 #include <lattice.hpp>
 #include <linear_operators/unpreconditioned_wilson.hpp>
+
+const int nIterations = 100;
 
 int main(int argc, char** argv)
 {
@@ -11,6 +15,9 @@ int main(int argc, char** argv)
   VectorXcd psi(12 * 4 * 4 * 4 * 8);
   psi(0) = 1.0;
 
-  for (int i = 0; i < 100; ++i)
+  boost::timer::auto_cpu_timer t;
+  for (int i = 0; i < nIterations; ++i)
     VectorXcd eta = linop.apply(psi);
+
+  return 0;
 }

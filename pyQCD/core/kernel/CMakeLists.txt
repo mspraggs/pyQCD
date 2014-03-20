@@ -59,7 +59,7 @@ include_directories (${Boost_INCLUDE_DIRS}
 set (Boost_USE_STATIC_LIBS OFF)
 set (Boost_USE_MULTITHREADED ON)
 set (Boost_USE_STATIC_RUNTIME OFF)
-find_package (Boost COMPONENTS random python unit_test_framework)
+find_package (Boost COMPONENTS random python timer unit_test_framework system)
 
 set (CMAKE_SHARED_LIBRARY_PREFIX "")
 
@@ -104,6 +104,7 @@ foreach ( benchsourcefile ${benchmark_SRC} )
   string( REPLACE ".cpp" "" benchname ${benchsourcefile} )
   add_executable( ${benchname} $<TARGET_OBJECTS:shared_objects>
     ${benchsourcefile} )
+  target_link_libraries( ${benchname} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} )
 endforeach ( benchsourcefile ${benchmark_SRC} )
 
 IF(CMAKE_COMPILER_IS_GNUCXX)
