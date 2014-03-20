@@ -3,7 +3,7 @@
 #include <lattice.hpp>
 #include <linear_operators/unpreconditioned_wilson.hpp>
 
-const int nIterations = 100;
+const int nIterations = 1000;
 
 int main(int argc, char** argv)
 {
