@@ -18,10 +18,10 @@ WilsonHoppingTerm::WilsonHoppingTerm(
   }
 
   // Initialise tadpole coefficients
-  this->tadpoleCoefficients_[0] = lattice->ut();
-  this->tadpoleCoefficients_[1] = lattice->us();
-  this->tadpoleCoefficients_[2] = lattice->us();
-  this->tadpoleCoefficients_[3] = lattice->us();
+  this->tadpoleCoefficients_[0] = 0.5 / lattice->ut();
+  this->tadpoleCoefficients_[1] = 0.5 / lattice->us();
+  this->tadpoleCoefficients_[2] = 0.5 / lattice->us();
+  this->tadpoleCoefficients_[3] = 0.5 / lattice->us();
 
   this->nearestNeighbours_ = pyQCD::getNeighbourIndices(1, this->lattice_);
   this->boundaryConditions_ = pyQCD::getBoundaryConditions(1, boundaryConditions,
@@ -44,10 +44,10 @@ WilsonHoppingTerm::WilsonHoppingTerm(
     this->spinStructures_.push_back(spinStructures[i]);
 
   // Initialise tadpole coefficients
-  this->tadpoleCoefficients_[0] = lattice->ut();
-  this->tadpoleCoefficients_[1] = lattice->us();
-  this->tadpoleCoefficients_[2] = lattice->us();
-  this->tadpoleCoefficients_[3] = lattice->us();
+  this->tadpoleCoefficients_[0] = 0.5 / lattice->ut();
+  this->tadpoleCoefficients_[1] = 0.5 / lattice->us();
+  this->tadpoleCoefficients_[2] = 0.5 / lattice->us();
+  this->tadpoleCoefficients_[3] = 0.5 / lattice->us();
 
   this->nearestNeighbours_ = pyQCD::getNeighbourIndices(1, this->lattice_);
   this->boundaryConditions_ = pyQCD::getBoundaryConditions(1, boundaryConditions,
@@ -70,10 +70,10 @@ WilsonHoppingTerm::WilsonHoppingTerm(
     this->spinStructures_.push_back(spinStructure);
 
   // Initialise tadpole coefficients
-  this->tadpoleCoefficients_[0] = lattice->ut();
-  this->tadpoleCoefficients_[1] = lattice->us();
-  this->tadpoleCoefficients_[2] = lattice->us();
-  this->tadpoleCoefficients_[3] = lattice->us();
+  this->tadpoleCoefficients_[0] = 0.5 / lattice->ut();
+  this->tadpoleCoefficients_[1] = 0.5 / lattice->us();
+  this->tadpoleCoefficients_[2] = 0.5 / lattice->us();
+  this->tadpoleCoefficients_[3] = 0.5 / lattice->us();
 
   this->nearestNeighbours_ = pyQCD::getNeighbourIndices(1, this->lattice_);
   this->boundaryConditions_ = pyQCD::getBoundaryConditions(1, boundaryConditions,
@@ -119,18 +119,18 @@ VectorXcd WilsonHoppingTerm::apply3d(const VectorXcd& psi)
 	int beta = k / 3; // Compute spin
 	int b = k % 3; // Compute colour
 	eta(i)
-	  -= 0.5 * this->spinStructures_[j](alpha, beta)
+	  -= this->spinStructures_[j](alpha, beta)
 	  * this->boundaryConditions_[etaSiteIndex][j]
 	  * conj(this->lattice_->getLink(4 * siteBehindIndex + j)(b, a))
 	  * psi(12 * siteBehindIndex + 3 * beta + b)
-	  / this->tadpoleCoefficients_[j % 4];
+	  * this->tadpoleCoefficients_[j % 4];
 	
 	eta(i)
-	  -= 0.5 * this->spinStructures_[j + 4](alpha, beta)
+	  -= this->spinStructures_[j + 4](alpha, beta)
 	  * this->boundaryConditions_[etaSiteIndex][j + 4]
 	  * this->lattice_->getLink(4 * etaSiteIndex + j)(a, b)
 	  * psi(12 * siteAheadIndex + 3 * beta + b)
-	  / this->tadpoleCoefficients_[j % 4];
+	  * this->tadpoleCoefficients_[j % 4];
       }
     }
   }
@@ -194,7 +194,7 @@ VectorXcd WilsonHoppingTerm::apply(const VectorXcd& psi)
 	asm("#END SECOND MULT");
 
 	asm("#BEGIN SCALAR MULT");
-	tempComplexNumbers[0] *= 0.5 / this->tadpoleCoefficients_[mu % 4];
+	tempComplexNumbers[0] *= this->tadpoleCoefficients_[mu % 4];
 	asm("#END SCALAR MULT");
 	
 	asm("#BEGIN ETA SUBTRACT");
