@@ -69,6 +69,18 @@ namespace pyQCD
 
   double oneNorm(const Matrix3cd& matrix);
 
+  complex<double> complexMultiply(const complex<double>* a,
+				  const complex<double>* b);
+
+  complex<double> complexMultiply(const complex<double>* a,
+				  const complex<double>* b,
+				  const complex<double>* c);
+
+  complex<double> complexMultiply(const complex<double>* a,
+				  const complex<double>* b,
+				  const complex<double>* c,
+				  const complex<double>* d);
+
 #ifdef USE_CUDA
   void eigenToCusp(SparseMatrix<complex<double> >& eigenMatrix,
 		   const cusp::coo_matrix<int, cusp::complex<double>,

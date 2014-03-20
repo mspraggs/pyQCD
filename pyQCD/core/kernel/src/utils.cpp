@@ -233,6 +233,136 @@ namespace pyQCD
     return out;
   }
 
+  
+
+  complex<double> complexMultiply(const complex<double>* a,
+				  const complex<double>* b)
+  {
+    complex<double> out(0.0, 0.0);
+
+    // a0reg = [ a.real |  a.real ]
+    // a1reg = [ -a.imag | a.imag ]
+    __m128d ar __attribute__((aligned(16))) = {((double*)a)[0], ((double*)a)[0]};
+    __m128d ai __attribute__((aligned(16))) = {-((double*)a)[1],
+					        ((double*)a)[1]};
+    __m128d register a0reg = _mm_load_pd((double*) &ar);
+    __m128d register a1reg = _mm_load_pd((double*) &ai);
+
+    // b0reg = [ b.imag | b.real ]
+    // b1reg = [ b.real | b.imag ]
+    __m128d register b0reg, b1reg;
+    b0reg = _mm_load_pd((double*) b);
+    b1reg = _mm_shuffle_pd(b0reg, b0reg, _MM_SHUFFLE2(0, 1));
+    
+    b0reg = _mm_mul_pd(a0reg, b0reg);
+    b1reg = _mm_mul_pd(a1reg, b1reg);
+    b0reg = _mm_add_pd(b0reg, b1reg);
+    
+    _mm_store_pd((double*) &out, b0reg);
+
+    return out;
+  }
+
+  
+
+  complex<double> complexMultiply(const complex<double>* a,
+				  const complex<double>* b,
+				  const complex<double>* c)
+  {
+    complex<double> out(0.0, 0.0);
+
+    // a0reg = [ a.real |  a.real ]
+    // a1reg = [ -a.imag | a.imag ]
+    __m128d ar __attribute__((aligned(16))) = {((double*)a)[0], ((double*)a)[0]};
+    __m128d ai __attribute__((aligned(16))) = {-((double*)a)[1],
+					        ((double*)a)[1]};
+    __m128d register a0reg = _mm_load_pd((double*) &ar);
+    __m128d register a1reg = _mm_load_pd((double*) &ai);
+
+    // b0reg = [ b.real |  b.real ]
+    // b1reg = [ -b.imag | b.imag ]
+    __m128d br __attribute__((aligned(16))) = {((double*)b)[0], ((double*)b)[0]};
+    __m128d bi __attribute__((aligned(16))) = {-((double*)b)[1],
+					        ((double*)b)[1]};
+    __m128d register b0reg = _mm_load_pd((double*) &br);
+    __m128d register b1reg = _mm_load_pd((double*) &bi);
+
+    // c0reg = [ c.imag | c.real ]
+    // c1reg = [ c.real | c.imag ]
+    __m128d register c0reg = _mm_load_pd((double*) c);
+    __m128d register c1reg = _mm_shuffle_pd(c0reg, c0reg, _MM_SHUFFLE2(0, 1));
+    
+    c0reg = _mm_mul_pd(a0reg, c0reg);
+    c1reg = _mm_mul_pd(a1reg, c1reg);
+    c0reg = _mm_add_pd(c0reg, c1reg);
+    
+    c1reg = _mm_shuffle_pd(c0reg, c0reg, _MM_SHUFFLE2(0, 1));
+    c0reg = _mm_mul_pd(b0reg, c0reg);
+    c1reg = _mm_mul_pd(b1reg, c1reg);
+    c0reg = _mm_add_pd(c0reg, c1reg);
+    
+    _mm_store_pd((double*) &out, c0reg);
+
+    return out;
+  }
+
+  
+
+  complex<double> complexMultiply(const complex<double>* a,
+				  const complex<double>* b,
+				  const complex<double>* c,
+				  const complex<double>* d)
+  {
+    complex<double> out(0.0, 0.0);
+
+    // a0reg = [ a.real |  a.real ]
+    // a1reg = [ -a.imag | a.imag ]
+    __m128d ar __attribute__((aligned(16))) = {((double*)a)[0], ((double*)a)[0]};
+    __m128d ai __attribute__((aligned(16))) = {-((double*)a)[1],
+					        ((double*)a)[1]};
+    __m128d register a0reg = _mm_load_pd((double*) &ar);
+    __m128d register a1reg = _mm_load_pd((double*) &ai);
+
+    // b0reg = [ b.real |  b.real ]
+    // b1reg = [ -b.imag | b.imag ]
+    __m128d br __attribute__((aligned(16))) = {((double*)b)[0], ((double*)b)[0]};
+    __m128d bi __attribute__((aligned(16))) = {-((double*)b)[1],
+					        ((double*)b)[1]};
+    __m128d register b0reg = _mm_load_pd((double*) &br);
+    __m128d register b1reg = _mm_load_pd((double*) &bi);
+
+    // c0reg = [ c.real |  c.real ]
+    // c1reg = [ -c.imag | c.imag ]
+    __m128d cr __attribute__((aligned(16))) = {((double*)c)[0], ((double*)c)[0]};
+    __m128d ci __attribute__((aligned(16))) = {-((double*)c)[1],
+					        ((double*)c)[1]};
+    __m128d register c0reg = _mm_load_pd((double*) &cr);
+    __m128d register c1reg = _mm_load_pd((double*) &ci);
+
+    // d0reg = [ d.imag | d.real ]
+    // d1reg = [ d.real | d.imag ]
+    __m128d register d0reg = _mm_load_pd((double*) d);
+    __m128d register d1reg = _mm_shuffle_pd(d0reg, d0reg, _MM_SHUFFLE2(0, 1));
+    
+    d0reg = _mm_mul_pd(a0reg, d0reg);
+    d1reg = _mm_mul_pd(a1reg, d1reg);
+    d0reg = _mm_add_pd(d0reg, d1reg);
+    
+    d1reg = _mm_shuffle_pd(d0reg, d0reg, _MM_SHUFFLE2(0, 1));
+    d0reg = _mm_mul_pd(b0reg, d0reg);
+    d1reg = _mm_mul_pd(b1reg, d1reg);
+    d0reg = _mm_add_pd(d0reg, d1reg);
+    
+    d1reg = _mm_shuffle_pd(d0reg, d0reg, _MM_SHUFFLE2(0, 1));
+    d0reg = _mm_mul_pd(c0reg, d0reg);
+    d1reg = _mm_mul_pd(c1reg, d1reg);
+    d0reg = _mm_add_pd(d0reg, d1reg);
+    
+    _mm_store_pd((double*) &out, d0reg);
+
+    return out;
+  }
+
 #ifdef USE_CUDA
 
   void eigenToCusp(const SparseMatrix<complex<double> >& eigenMatrix,
