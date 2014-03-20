@@ -143,11 +143,11 @@ VectorXcd WilsonHoppingTerm::apply3d(const VectorXcd& psi)
 VectorXcd WilsonHoppingTerm::apply(const VectorXcd& psi)
 {
   // Right multiply a vector by the operator
-  VectorXcd eta = VectorXcd::Zero(this->operatorSize_); // The output vector
+  VectorXcd eta(this->operatorSize_); // The output vector
 
   // If psi's the wrong size, get out of here before we segfault
   if (psi.size() != this->operatorSize_)
-    return eta;
+    return VectorXcd::Zero(this->operatorSize_);
 
 #pragma omp parallel for
   for (int i = 0; i < this->operatorSize_; ++i) {
@@ -198,7 +198,7 @@ VectorXcd WilsonHoppingTerm::apply(const VectorXcd& psi)
 	asm("#END SCALAR MULT");
 	
 	asm("#BEGIN ETA SUBTRACT");
-	eta(i) -= tempComplexNumbers[0];
+	eta(i) = -tempComplexNumbers[0];
 	asm("#END ETA SUBTRACT");
       }
     }
