@@ -1,9 +1,11 @@
+#include <iostream>
+
 #include <boost/timer/timer.hpp>
 
 #include <lattice.hpp>
 #include <linear_operators/unpreconditioned_wilson.hpp>
 
-const int nIterations = 1000;
+const int nIterations = 10000;
 
 int main(int argc, char** argv)
 {
@@ -14,6 +16,9 @@ int main(int argc, char** argv)
 
   VectorXcd psi(12 * 4 * 4 * 4 * 8);
   psi(0) = 1.0;
+
+  std::cout << "Performing " << nIterations << " matrix-vector products."
+	    << std::endl;
 
   boost::timer::auto_cpu_timer t;
   for (int i = 0; i < nIterations; ++i)
