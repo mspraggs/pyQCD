@@ -188,10 +188,13 @@ VectorXcd WilsonHoppingTerm::apply(const VectorXcd& psi)
 	asm("#END FIRST MULT");
 	
 	asm("#BEGIN SECOND MULT");
-	tempComplexNumbers[0]
-	  += tempComplexNumbers[4] * tempComplexNumbers[5]
+	tempComplexNumbers[4] *= tempComplexNumbers[5]
 	  * tempComplexNumbers[6] * tempComplexNumbers[7];
 	asm("#END SECOND MULT");
+
+	asm("#BEGIN ADDITION");
+	tempComplexNumbers[0] += tempComplexNumbers[4];
+	asm("#END ADDITION");
 
 	asm("#BEGIN SCALAR MULT");
 	tempComplexNumbers[0] *= this->tadpoleCoefficients_[mu % 4];
