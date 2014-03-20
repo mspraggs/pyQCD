@@ -4,6 +4,7 @@ enable_testing()
 
 option (USE_CUDA "Compile to use CUDA GPU?" 1)
 
+set (BENCH_DIR ${PROJECT_BINARY_DIR}/benchmark)
 set (TEST_DIR ${PROJECT_BINARY_DIR}/test)
 set (SRC_DIR ${PROJECT_BINARY_DIR}/src)
 set (INC_DIR ${PROJECT_BINARY_DIR}/include)
@@ -25,6 +26,12 @@ file (GLOB
 file (GLOB
   test_SRC
   ${TEST_DIR}/*.cpp)
+
+file (GLOB
+  benchmark_SRC
+  RELATIVE
+  ${PROJECT_BINARY_DIR}
+  ${BENCH_DIR}/*.cpp)
 
 set (CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 set (EIGEN_INCLUDE_DIR ${CMAKE_MODULE_PATH}/FindEigen3.cmake)
@@ -92,6 +99,12 @@ else()
 endif()
 
 add_test(lattice test_lattice)
+
+foreach ( benchsourcefile ${benchmark_SRC} )
+  string( REPLACE ".cpp" "" benchname ${benchsourcefile} )
+  add_executable( ${benchname} $<TARGET_OBJECTS:shared_objects>
+    ${benchsourcefile} )
+endforeach ( benchsourcefile ${benchmark_SRC} )
 
 IF(CMAKE_COMPILER_IS_GNUCXX)
   ADD_DEFINITIONS("-O3 -ffast-math")
