@@ -118,19 +118,27 @@ VectorXcd WilsonHoppingTerm::apply3d(const VectorXcd& psi)
       for (int k = 0; k < 12; ++k) {
 	int beta = k / 3; // Compute spin
 	int b = k % 3; // Compute colour
-	eta(i)
-	  -= this->spinStructures_[j](alpha, beta)
-	  * this->boundaryConditions_[etaSiteIndex][j]
-	  * conj(this->lattice_->getLink(4 * siteBehindIndex + j)(b, a))
-	  * psi(12 * siteBehindIndex + 3 * beta + b)
-	  * this->tadpoleCoefficients_[j % 4];
+
+	complex<double> tempComplexNumbers[] __attribute__((aligned(16)))
+	  = {this->spinStructures_[j](alpha, beta),
+	     this->boundaryConditions_[etaSiteIndex][j],
+	     conj(this->lattice_->getLink(4 * siteBehindIndex + j)(b, a)),
+	     psi(12 * siteBehindIndex + k),
+	     this->spinStructures_[j + 4](alpha, beta),
+	     this->boundaryConditions_[etaSiteIndex][j + 4],
+	     this->lattice_->getLink(4 * etaSiteIndex + j)(a, b),
+	     psi(12 * siteAheadIndex + k)};
+
+	tempComplexNumbers[0] *= tempComplexNumbers[1]
+	  * tempComplexNumbers[2] * tempComplexNumbers[3];
 	
-	eta(i)
-	  -= this->spinStructures_[j + 4](alpha, beta)
-	  * this->boundaryConditions_[etaSiteIndex][j + 4]
-	  * this->lattice_->getLink(4 * etaSiteIndex + j)(a, b)
-	  * psi(12 * siteAheadIndex + 3 * beta + b)
-	  * this->tadpoleCoefficients_[j % 4];
+	tempComplexNumbers[4] *= tempComplexNumbers[5]
+	  * tempComplexNumbers[6] * tempComplexNumbers[7];
+
+	tempComplexNumbers[0] += tempComplexNumbers[4];
+	tempComplexNumbers[0] *= this->tadpoleCoefficients_[j % 4];
+	
+	eta(i) -= tempComplexNumbers[0];
       }
     }
   }
