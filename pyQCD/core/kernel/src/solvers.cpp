@@ -54,37 +54,37 @@ VectorXcd bicgstab(LinearOperator* linop, const VectorXcd& rhs,
   VectorXcd rhat = r;
   double rhatNorm = r.squaredNorm();
   
-  double rho = 1.0;
-  double alpha = 1.0;
-  double omega = 1.0;
+  complex<double> rho(1.0, 0.0);
+  complex<double> alpha(1.0, 0.0);
+  complex<double> omega(1.0, 0.0);
 
   VectorXcd p = VectorXcd::Zero(rhs.size());
   VectorXcd v = VectorXcd::Zero(rhs.size());
 
+  double residual = r.squaredNorm();
+
   for (int i = 0; i < maxIterations; ++i) {
-    double newRho = rhat.dot(r).real();
-    if (newRho == 0.0) {
-      totalIterations = -1;
-      finalResidual = -1;
+    complex<double> newRho = rhat.dot(r);
+    if (abs(newRho) == 0.0) {
+      totalIterations = i;
+      finalResidual = sqrt(residual / rhatNorm);
       break;
     }
-    double beta = newRho / rho * alpha / omega;
+    complex<double> beta = (newRho / rho) * (alpha / omega);
     
     p = r + beta * (p - omega * v);
     v = linop->apply(p);
 
-    alpha = newRho / rhat.dot(v).real();
+    alpha = newRho / rhat.dot(v);
     VectorXcd s = r - alpha * v;
     VectorXcd t = linop->apply(s);
 
-    omega = t.dot(s).real() / t.squaredNorm();
-    solution = solution + alpha * p + omega * s;
+    omega = t.dot(s) / t.squaredNorm();
+    solution += alpha * p + omega * s;
 
     r = s - omega * t;
 
-    double residual = r.squaredNorm();
-
-    //cout << "Res = " << sqrt(residual) << endl;
+    residual = r.squaredNorm();
     
     if (sqrt(residual / rhatNorm) < tolerance) {
       totalIterations = i + 1;
