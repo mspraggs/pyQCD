@@ -16,7 +16,7 @@ class LinearOperator
 {
   // The base class from which all Dirac operators are derived
 public:
-  LinearOperator() { };
+  LinearOperator() { nFlops_ = 0; };
   virtual ~LinearOperator() { };
   
   // Applies the linear operator to a column vector using right multplication
@@ -30,6 +30,11 @@ public:
   // undoHermiticity(applyHermitian(x)) = apply(x)
   virtual VectorXcd undoHermiticity(const VectorXcd& x)
   { return VectorXcd::Zero(x.size()); }
+
+  int getNumFlops() { return this->nFlops_; }
+
+private:
+  int nFlops_;
 };
 
 #endif

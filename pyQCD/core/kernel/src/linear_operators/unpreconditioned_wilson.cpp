@@ -2,7 +2,7 @@
 
 UnpreconditionedWilson::UnpreconditionedWilson(
     const double mass, const vector<complex<double> >& boundaryConditions,
-    Lattice* lattice) : lattice_(lattice)
+    Lattice* lattice) : LinearOperator::LinearOperator()
 {
   // Class constructor - we set the fermion mass, create a pointer to the 
   // lattice and compute the frequently used spin structures used within the
@@ -10,6 +10,7 @@ UnpreconditionedWilson::UnpreconditionedWilson(
   this->mass_ = mass;
   this->operatorSize_ 
     = 12 * int(pow(lattice->spatialExtent, 3)) * lattice->temporalExtent;
+  this->lattice_ = lattice;
 
   for (int i = 0; i < 4; ++i) {
     this->spinStructures_.push_back(Matrix4cd::Identity() - pyQCD::gammas[i]);

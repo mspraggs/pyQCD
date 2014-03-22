@@ -3,7 +3,7 @@
 JacobiSmearing::JacobiSmearing(
     const int numSmears, const double smearingParameter,
     const vector<complex<double> >& boundaryConditions,
-    Lattice* lattice) : lattice_(lattice)
+    Lattice* lattice) : LinearOperator::LinearOperator()
 {
   // Class constructor - we set the pointer to the lattice and determine
   // the nearest neighbours
@@ -13,6 +13,7 @@ JacobiSmearing::JacobiSmearing(
 
   this->smearingParameter_ = smearingParameter;
   this->numSmears_ = numSmears;
+  this->lattice_ = lattice;
 
   this->hoppingMatrix_ = new WilsonHoppingTerm(boundaryConditions,
 					       Matrix4cd::Identity(), lattice);
