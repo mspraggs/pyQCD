@@ -33,7 +33,7 @@ public:
 
   int getNumFlops() { return this->nFlops_; }
 
-private:
+protected:
   int nFlops_;
 };
 
