@@ -20,9 +20,26 @@ int main(int argc, char** argv)
   std::cout << "Performing " << nIterations << " matrix-vector products."
 	    << std::endl;
 
-  boost::timer::auto_cpu_timer t;
-  for (int i = 0; i < nIterations; ++i)
+  boost::timer::cpu_timer timer;
+  for (int i = 0; i < nIterations; ++i) {
     VectorXcd eta = linop.apply(psi);
+  }
+
+  boost::timer::cpu_times const elapsedTimes(timer.elapsed());
+  boost::timer::nanosecond_type const elapsed(elapsedTimes.system
+					      + elapsedTimes.user);
+  boost::timer::nanosecond_type const walltime(elapsedTimes.wall);
+
+  std::cout << "Total CPU time = " << elapsed / 1.0e9 << " s" << endl;
+  std::cout << "Time CPU per iteration = " << elapsed / 1.0e9 / nIterations
+	    << " s" << endl;
+  std::cout << "Walltime time = " << walltime / 1.0e9 << " s" << endl;
+  std::cout << "Walltime per iteration = " << walltime / 1.0e9 / nIterations
+	    << " s" << endl;
+  std::cout << "Performance: " << linop.getNumFlops()
+	    << " floating point operations; "
+	    << (double) linop.getNumFlops() / elapsed * 1000.0
+	    << " MFlops" << endl;
 
   return 0;
 }
