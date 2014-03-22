@@ -175,11 +175,11 @@ VectorXcd WilsonHoppingTerm::apply(const VectorXcd& psi)
 	  = {this->spinStructures_[mu](alpha, beta),
 	     this->boundaryConditions_[etaSiteIndex][mu],
 	     conj(this->lattice_->getLink(4 * siteBehindIndex + mu)(b, a)),
-	     psi(12 * siteBehindIndex + 3 * beta + b),
+	     psi(12 * siteBehindIndex + j),
 	     this->spinStructures_[mu + 4](alpha, beta),
 	     this->boundaryConditions_[etaSiteIndex][mu + 4],
 	     this->lattice_->getLink(4 * etaSiteIndex + mu)(a, b),
-	     psi(12 * siteAheadIndex + 3 * beta + b)};
+	     psi(12 * siteAheadIndex + j)};
 	asm("#END TRANSFER");
 
 	asm("#BEGIN FIRST MULT");
