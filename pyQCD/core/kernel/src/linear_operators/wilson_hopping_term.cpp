@@ -129,20 +129,24 @@ VectorXcd WilsonHoppingTerm::apply3d(const VectorXcd& psi)
 	     this->boundaryConditions_[etaSiteIndex][j + 4],
 	     this->lattice_->getLink(4 * etaSiteIndex + j)(a, b),
 	     psi(12 * siteAheadIndex + k)};
-
+	// 4 * 6 = 24 flops
 	tempComplexNumbers[0] *= tempComplexNumbers[1]
 	  * tempComplexNumbers[2] * tempComplexNumbers[3];
-	
+	// 4 * 6 = 24 flops
 	tempComplexNumbers[4] *= tempComplexNumbers[5]
 	  * tempComplexNumbers[6] * tempComplexNumbers[7];
-
-	tempComplexNumbers[0] += tempComplexNumbers[4];
-	tempComplexNumbers[0] *= this->tadpoleCoefficients_[j % 4];
 	
-	eta(i) -= tempComplexNumbers[0];
+	tempComplexNumbers[0] += tempComplexNumbers[4]; // 2 flops
+	tempComplexNumbers[0] *= this->tadpoleCoefficients_[j % 4]; // 2 flops
+	
+	eta(i) -= tempComplexNumbers[0]; // 2 flops
+
+	// Total flops inside this loop = 2 * 24 + 2 + 2 + 2 = 54 flops
       }
     }
   }
+
+  this->nFlops_ += this->operatorSize_ * 3 * 12 * 54;
 
   return eta;
 }
@@ -203,6 +207,8 @@ VectorXcd WilsonHoppingTerm::apply(const VectorXcd& psi)
     }
   }
 
+  this->nFlops_ += this->operatorSize_ * 4 * 12 * 54;
+
   return eta;
 }
 
@@ -211,6 +217,8 @@ VectorXcd WilsonHoppingTerm::apply(const VectorXcd& psi)
 VectorXcd WilsonHoppingTerm::applyHermitian(const VectorXcd& psi)
 {
   VectorXcd eta = this->apply(psi);
+
+  this->nFlops_ += 4 * this->operatorSize_ * 8;
 
   return pyQCD::multiplyGamma5(eta);
 }

@@ -56,8 +56,14 @@ VectorXcd UnpreconditionedWilson::apply(const VectorXcd& psi)
   for (int i = 0; i < this->operatorSize_; ++i)
     eta(i) = (1 + 3 / this->lattice_->chi() + this->mass_) * psi(i);
 
+  this->nFlops_ += 6 * this->operatorSize_;
+
+  int nHoppingFlopsOld = this->hoppingMatrix_->getNumFlops();
+
   // Apply the derivative component
   eta += this->hoppingMatrix_->apply(psi);
+
+  this->nFlops_ += this->hoppingMatrix_->getNumFlops() - nHoppingFlopsOld;
 
   return eta;
 }

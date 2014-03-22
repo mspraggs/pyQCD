@@ -68,7 +68,11 @@ VectorXcd JacobiSmearing::applyOnce(const VectorXcd& psi)
   if (psi.size() != this->operatorSize_)
     return eta;
 
+  int nHoppingFlopsOld = this->hoppingMatrix_->getNumFlops();
+
   eta = this->hoppingMatrix_->apply3d(eta);
+
+  this->nFlops_ += this->hoppingMatrix_->getNumFlops() - nHoppingFlopsOld;
 
   return eta;
 }
