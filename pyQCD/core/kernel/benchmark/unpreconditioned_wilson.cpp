@@ -33,7 +33,7 @@ int main(int argc, char** argv)
   std::cout << "Total CPU time = " << elapsed / 1.0e9 << " s" << endl;
   std::cout << "Time CPU per iteration = " << elapsed / 1.0e9 / nIterations
 	    << " s" << endl;
-  std::cout << "Walltime time = " << walltime / 1.0e9 << " s" << endl;
+  std::cout << "Walltime = " << walltime / 1.0e9 << " s" << endl;
   std::cout << "Walltime per iteration = " << walltime / 1.0e9 / nIterations
 	    << " s" << endl;
   std::cout << "Performance: " << linop.getNumFlops()
