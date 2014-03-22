@@ -26,7 +26,7 @@ VectorXcd cg(LinearOperator* linop, const VectorXcd& lhs,
 
     if (sqrt(newRes) < tolerance) {
       totalIterations = i + 1;
-      finalResidual = newRes;
+      finalResidual = sqrt(newRes);
       break; 
     }
     
