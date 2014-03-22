@@ -1,8 +1,6 @@
 #ifndef UTILS_HPP
 #define UTILS_HPP
 
-#include <xmmintrin.h>
-
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 #include <complex>
@@ -68,18 +66,6 @@ namespace pyQCD
 		       double coefficients[4], const int index);
 
   double oneNorm(const Matrix3cd& matrix);
-
-  complex<double> complexMultiply(const complex<double>* a,
-				  const complex<double>* b);
-
-  complex<double> complexMultiply(const complex<double>* a,
-				  const complex<double>* b,
-				  const complex<double>* c);
-
-  complex<double> complexMultiply(const complex<double>* a,
-				  const complex<double>* b,
-				  const complex<double>* c,
-				  const complex<double>* d);
 
 #ifdef USE_CUDA
   void eigenToCusp(SparseMatrix<complex<double> >& eigenMatrix,
