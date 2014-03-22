@@ -31,10 +31,10 @@ public:
   virtual VectorXcd undoHermiticity(const VectorXcd& x)
   { return VectorXcd::Zero(x.size()); }
 
-  int getNumFlops() { return this->nFlops_; }
+  unsigned long long getNumFlops() { return this->nFlops_; }
 
 protected:
-  int nFlops_;
+  unsigned long long nFlops_;
 };
 
 #endif
