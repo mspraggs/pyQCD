@@ -169,7 +169,6 @@ VectorXcd WilsonHoppingTerm::apply(const VectorXcd& psi)
       for (int j = 0; j < 12; ++j) {
 	int beta = j / 3; // Compute spin
 	int b = j % 3; // Compute colour
-	asm("#BEGIN TRANSFER");
 
 	complex<double> tempComplexNumbers[] __attribute__((aligned(16)))
 	  = {this->spinStructures_[mu](alpha, beta),
@@ -180,29 +179,17 @@ VectorXcd WilsonHoppingTerm::apply(const VectorXcd& psi)
 	     this->boundaryConditions_[etaSiteIndex][mu + 4],
 	     this->lattice_->getLink(4 * etaSiteIndex + mu)(a, b),
 	     psi(12 * siteAheadIndex + j)};
-	asm("#END TRANSFER");
-
-	asm("#BEGIN FIRST MULT");
+	
 	tempComplexNumbers[0] *= tempComplexNumbers[1]
 	  * tempComplexNumbers[2] * tempComplexNumbers[3];
-	asm("#END FIRST MULT");
 	
-	asm("#BEGIN SECOND MULT");
 	tempComplexNumbers[4] *= tempComplexNumbers[5]
 	  * tempComplexNumbers[6] * tempComplexNumbers[7];
-	asm("#END SECOND MULT");
 
-	asm("#BEGIN ADDITION");
 	tempComplexNumbers[0] += tempComplexNumbers[4];
-	asm("#END ADDITION");
-
-	asm("#BEGIN SCALAR MULT");
 	tempComplexNumbers[0] *= this->tadpoleCoefficients_[mu % 4];
-	asm("#END SCALAR MULT");
 	
-	asm("#BEGIN ETA SUBTRACT");
 	eta(i) -= tempComplexNumbers[0];
-	asm("#END ETA SUBTRACT");
       }
     }
   }
