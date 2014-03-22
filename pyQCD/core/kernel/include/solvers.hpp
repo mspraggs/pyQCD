@@ -12,11 +12,9 @@ using namespace Eigen;
 using namespace std;
 
 VectorXcd cg(LinearOperator* linop, const VectorXcd& rhs,
-	     const double tolerance, const int maxIterations,
-	     double& finalResidual, int& totalIterations);
+	     double& tolerance, int& maxIterations);
 
 VectorXcd bicgstab(LinearOperator* linop, const VectorXcd& rhs,
-		   const double tolerance, const int maxIterations,
-		   double& finalResidual, int& totalIterations);
+		   double& tolerance, int& maxIterations);
 
 #endif

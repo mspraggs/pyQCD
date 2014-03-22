@@ -120,19 +120,17 @@ Lattice::computePropagator(LinearOperator* diracMatrix, int site[4],
 	     << " and colour " << j << "..." << endl;
       // Create the source vector
       VectorXcd source = this->makeSource(site, i, j, sourceSmearingOperator);
-      
+
       // Do the inversion
-      double residual = 0.0;
-      int iterations = 0;
+      double residual = tolerance;
+      int iterations = maxIterations;
       
       VectorXcd solution(3 * this->nLinks_);
       
       if (solverMethod == 1)
-	solution = cg(diracMatrix, source, tolerance, maxIterations,
-		      residual, iterations);
+	solution = cg(diracMatrix, source, residual, iterations);
       else
-	solution = bicgstab(diracMatrix, source, tolerance, maxIterations,
-			    residual, iterations);
+	solution = bicgstab(diracMatrix, source, residual, iterations);
       
       // Smear the sink
       solution = sinkSmearingOperator->apply(solution);
@@ -144,7 +142,7 @@ Lattice::computePropagator(LinearOperator* diracMatrix, int site[4],
 	}
       }
       if (verbosity > 0)
-	cout << "  -> Inversion reached tolerance of "
+	cout << "  -> Solver finished with residual of "
 	     << residual << " in " << iterations
 	     << " iterations." << endl;
     }

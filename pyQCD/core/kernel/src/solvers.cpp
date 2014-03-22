@@ -1,8 +1,7 @@
 #include <solvers.hpp>
 
 VectorXcd cg(LinearOperator* linop, const VectorXcd& rhs,
-	     const double tolerance, const int maxIterations,
-	     double& finalResidual, int& totalIterations)
+	     double& tolerance, int& maxIterations)
 {
   // Perform the conjugate gradient algorithm to solve
   // linop * solution = rhs for solution
@@ -25,8 +24,8 @@ VectorXcd cg(LinearOperator* linop, const VectorXcd& rhs,
     //cout << sqrt(newRes) << endl;
 
     if (sqrt(newRes) < tolerance) {
-      totalIterations = i + 1;
-      finalResidual = sqrt(newRes);
+      maxIterations = i + 1;
+      tolerance = sqrt(newRes);
       break; 
     }
     
@@ -41,8 +40,7 @@ VectorXcd cg(LinearOperator* linop, const VectorXcd& rhs,
 
 
 VectorXcd bicgstab(LinearOperator* linop, const VectorXcd& rhs,
-		   const double tolerance, const int maxIterations,
-		   double& finalResidual, int& totalIterations)
+		   double& tolerance, int& maxIterations)
 {
   // Perform the biconjugate gradient stabilized algorithm to
   // solve linop * solution = rhs for solution
@@ -66,8 +64,8 @@ VectorXcd bicgstab(LinearOperator* linop, const VectorXcd& rhs,
   for (int i = 0; i < maxIterations; ++i) {
     complex<double> newRho = rhat.dot(r);
     if (abs(newRho) == 0.0) {
-      totalIterations = i;
-      finalResidual = sqrt(residual / rhatNorm);
+      maxIterations = i;
+      tolerance = sqrt(residual / rhatNorm);
       break;
     }
     complex<double> beta = (newRho / rho) * (alpha / omega);
@@ -87,8 +85,8 @@ VectorXcd bicgstab(LinearOperator* linop, const VectorXcd& rhs,
     residual = r.squaredNorm();
     
     if (sqrt(residual / rhatNorm) < tolerance) {
-      totalIterations = i + 1;
-      finalResidual = sqrt(residual / rhatNorm);
+      maxIterations = i + 1;
+      tolerance = sqrt(residual / rhatNorm);
       break;
     }
 
