@@ -124,13 +124,14 @@ Lattice::computePropagator(LinearOperator* diracMatrix, int site[4],
       // Do the inversion
       double residual = tolerance;
       int iterations = maxIterations;
+      double flopRate = 0.0;
       
       VectorXcd solution(3 * this->nLinks_);
       
       if (solverMethod == 1)
-	solution = cg(diracMatrix, source, residual, iterations);
+	solution = cg(diracMatrix, source, residual, iterations, flopRate);
       else
-	solution = bicgstab(diracMatrix, source, residual, iterations);
+	solution = bicgstab(diracMatrix, source, residual, iterations, flopRate);
       
       // Smear the sink
       solution = sinkSmearingOperator->apply(solution);
@@ -141,10 +142,11 @@ Lattice::computePropagator(LinearOperator* diracMatrix, int site[4],
 	  propagator[k](l, j + 3 * i) = solution(12 * k + l);
 	}
       }
-      if (verbosity > 0)
+      if (verbosity > 0) {
 	cout << "  -> Solver finished with residual of "
-	     << residual << " in " << iterations
-	     << " iterations." << endl;
+	     << residual << " in " << iterations << " iterations." << endl;
+	cout << "     Performance: " << flopRate << " Mflops" << endl;
+      }
     }
   }
 
