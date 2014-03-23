@@ -137,7 +137,7 @@ VectorXcd WilsonHoppingTerm::apply3d(const VectorXcd& psi)
 	  * tempComplexNumbers[6] * tempComplexNumbers[7];
 	
 	tempComplexNumbers[0] += tempComplexNumbers[4]; // 2 flops
-	tempComplexNumbers[0] *= this->tadpoleCoefficients_[j % 4]; // 2 flops
+	tempComplexNumbers[0] *= this->tadpoleCoefficients_[j]; // 2 flops
 	
 	eta(i) -= tempComplexNumbers[0]; // 2 flops
 
@@ -200,7 +200,7 @@ VectorXcd WilsonHoppingTerm::apply(const VectorXcd& psi)
 	  * tempComplexNumbers[6] * tempComplexNumbers[7];
 
 	tempComplexNumbers[0] += tempComplexNumbers[4];
-	tempComplexNumbers[0] *= this->tadpoleCoefficients_[mu % 4];
+	tempComplexNumbers[0] *= this->tadpoleCoefficients_[mu];
 	
 	eta(i) -= tempComplexNumbers[0];
       }
