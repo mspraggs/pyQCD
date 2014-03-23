@@ -114,10 +114,6 @@ class DataSet:
           ...     data.add_datum(lattice.get_config())
         """
         
-        if type(datum) != self.datatype:
-            raise TypeError("Supplied data type {} does not match the required "
-                            "data type {}".format(type(datum), self.datatype))
-        
         filename = "{}{}.npz".format(self.datatype.__name__, self.num_data)
         self._datum_save(filename, datum)
         try:
@@ -316,10 +312,6 @@ class DataSet:
           >>> data.generate_bootstrap_cache(100, 10)
         """
         
-        if binsize < 1:
-            raise ValueError("Supplied bin size {} is less than 1"
-                             .format(binsize))
-        
         num_bins = self.num_data / binsize
         if self.num_data % binsize > 0:
             num_bins += 1
@@ -389,10 +381,6 @@ class DataSet:
           >>> effmass = data.bootstrap(pyQCD.TwoPoint.compute_effmass, 100)
         """
         
-        if binsize < 1:
-            raise ValueError("Supplied bin size {} is less than 1"
-                             .format(binsize))
-        
         num_bins = self.num_data / binsize
         if self.num_data % binsize > 0:
             num_bins += 1
@@ -455,15 +443,6 @@ class DataSet:
           >>> jackknife0 = correlators.jackknife_datum(0)
         """
         
-        if binsize < 1:
-            raise ValueError("Supplied bin size {} is less than 1"
-                             .format(binsize))
-        
-        if index >= self.num_data:
-            raise ValueError("Supplied index {} is greater than the number of "
-                             "data {}"
-                             .format(index, self.num_data))
-        
         num_bins = self.num_data / binsize
         if self.num_data % binsize > 0:
             num_bins += 1
@@ -490,10 +469,6 @@ class DataSet:
           >>> correlators = pyQCD.DataSet.load("correlators.zip")
           >>> correlators.generate_jackknife_cache()
         """
-        
-        if binsize < 1:
-            raise ValueError("Supplied bin size {} is less than 1"
-                             .format(binsize))
         
         num_bins = self.num_data / binsize
         if self.num_data % binsize > 0:
@@ -564,10 +539,6 @@ class DataSet:
           >>> data = pyQCD.DataSet.load("correlators.zip")
           >>> effmass = data.jackknife(pyQCD.TwoPoint.compute_effmass)
         """
-        
-        if binsize < 1:
-            raise ValueError("Supplied bin size {} is less than 1"
-                             .format(binsize))
         
         num_bins = self.num_data / binsize
         if self.num_data % binsize > 0:
@@ -684,149 +655,77 @@ class DataSet:
     def _add_measurements(a, b):
         """Adds two measurements (used for dictionaries etc)"""
         
-        if type(a) == tuple:
-            a = list(a)
-        if type(b) == tuple:
-            b = list(b)
-        
-        if hasattr(a, "__add__") and hasattr(b, "__add__") \
-          and type(a) != list and type(b) != list:
-            return a.__add__(b)
-        
-        if type(a) == list and type(b) == list:
-            return [DataSet._add_measurements(x, y) for x, y in zip(a, b)]
-        elif type(a) == dict and type(b) == dict:
-            return DataSet._add_measurements(a, b.values())
-        elif type(a) == dict and type(b) == list:
-            return dict(zip(a.keys(), DataSet._add_measurements(a.values(), b)))
-        elif type(a) == list and type(b) == dict:
-            return DataSet._add_measurements(b, a)
-        elif (type(a) == int or type(a) == float or type(a) == np.float64 \
-          or type(a) == np.ndarray) \
-          and (type(b) == int or type(b) == float or type(b) == np.float64 \
-          or type(b) == np.ndarray):
-            return a + b
-        else:
-            raise TypeError("Supplied types {} and {} cannot be summed"
-                            .format(type(a), type(b)))
+        try:
+            return [x + y for x, y in zip(a, b)]
+        except TypeError:
+            return dict(zip(a.keys(),
+                            tuple([x + y for x, y in zip(a.values(),
+                                                         b.values())])))
 
     @staticmethod
     def _sub_measurements(a, b):
         """Adds two measurements (used for dictionaries etc)"""
         
-        if hasattr(a, "__sub__") and hasattr(b, "__sub__"):
-            return a.__sub__(b)
-        
-        if type(a) == tuple:
-            a = list(a)
-        if type(b) == tuple:
-            b = list(b)
-        
-        if type(a) == list and type(b) == list:
-            return [DataSet._sub_measurements(x, y) for x, y in zip(a, b)]
-        elif type(a) == dict and type(b) == dict:
-            return DataSet._sub_measurements(a, b.values())
-        elif type(a) == dict and type(b) == list:
-            return dict(zip(a.keys(), DataSet._sub_measurements(a.values(), b)))
-        elif type(a) == list and type(b) == dict:
-            return dict(zip(b.keys(), DataSet._sub_measurements(a, b.values())))
-        elif (type(a) == int or type(a) == float or type(a) == np.float64 \
-          or type(a) == np.ndarray) \
-          and (type(b) == int or type(b) == float or type(b) == np.float64 \
-          or type(b) == np.ndarray):
-            return a - b
-        else:
-            raise TypeError("Supplied types {} and {} cannot be summed"
-                            .format(type(a), type(b)))
+        try:
+            return [x - y for x, y in zip(a, b)]
+        except TypeError:
+            return dict(zip(a.keys(),
+                            tuple([x - y for x, y in zip(a.values(),
+                                                         b.values())])))
 
     @staticmethod
     def _mul_measurements(a, b):
         """Adds two measurements (used for dictionaries etc)"""
         
-        if type(a) == tuple:
-            a = list(a)
-        if type(b) == tuple:
-            b = list(b)
-        
-        if hasattr(a, "__mul__") and hasattr(b, "__mul__") \
-          and type(a) != list and type(b) != list:
-            return a.__mul__(b)
-        
-        if type(a) == list and type(b) == list:
-            return [DataSet._mul_measurements(x, y) for x, y in zip(a, b)]
-        elif type(a) == dict and type(b) == dict:
-            return DataSet._mul_measurements(a, b.values())
-        elif type(a) == dict and type(b) == list:
-            return dict(zip(a.keys(), DataSet._mul_measurements(a.values(), b)))
-        elif type(a) == list and type(b) == dict:
-            return DataSet._mul_measurements(b, a)
-        elif (type(a) == int or type(a) == float or type(a) == np.float64 \
-          or type(a) == np.ndarray) \
-          and (type(b) == int or type(b) == float or type(b) == np.float64 \
-          or type(b) == np.ndarray):
-            return a * b
-        else:
-            raise TypeError("Supplied types {} and {} cannot be summed"
-                            .format(type(a), type(b)))
+        try:
+            return [x * y for x, y in zip(a, b)]
+        except TypeError:
+            return dict(zip(a.keys(),
+                            tuple([x * y for x, y in zip(a.values(),
+                                                         b.values())])))
             
     @staticmethod
     def _div_measurements(a, div):
         """Divides a measurement by a scalar value"""
         
-        if type(div) != float and type(div) != int:
-            raise TypeError("Unsupported divisor of type {}".format(type(div)))
-        
-        if hasattr(a, "__div__"):
-            return a.__div__(div)
-        
-        if type(a) == list or type(a) == tuple:
-            return [DataSet._div_measurements(x, div) for x in a]
-        
-        if type(a) == dict:
-            return dict(zip(a.keys(), DataSet._div_measurements(a.values(),
-                                                                div)))
-        
-        if type(a) == float or type(a) == int or type(a) == np.float64 \
-          or type(a) == np.ndarray:
-            return a / div
+        try:
+            return [x / div for x in a]
+        except TypeError:
+            return dict(zip(a.keys(),
+                            tuple([x / div for x in a.values()])))
             
     @staticmethod
     def _sqrt_measurements(a):
         """Divides a measurement by a scalar value"""
         
-        if type(a) == list or type(a) == tuple:
-            return [DataSet._sqrt_measurements(x) for x in a]
-        
-        if type(a) == dict:
-            return dict(zip(a.keys(), DataSet._sqrt_measurements(a.values())))
-        
-        if type(a) == float or type(a) == int or type(a) == np.float64 \
-          or type(a) == np.ndarray:
-            return np.sqrt(a)
+        try:
+            return [np.sqrt(x) for x in a]
+        except TypeError:
+            return dict(zip(a.keys(),
+                            tuple([np.sqrt(x) for x in a.values()])))
         
     @staticmethod
     def _mean(data):
         """Calculates the mean of the supplied list of measurements"""
         
-        if type(data) == list:
+        try:
+            return np.mean(data, axis=0)
+        except TypeError:
             out = data[0]
             
             for datum in data[1:]:
                 out = DataSet._add_measurements(out, datum)
                 
-            out = DataSet._div_measurements(out, len(data))
-            
-            return out
-        
-        if type(data) == np.ndarray:
-            return np.mean(data, axis=0)
+            return DataSet._div_measurements(out, len(data))
 
     @staticmethod
     def _std(data):
         """Calculates the standard deviation of the supplied list of
         measurements"""
         
-        if type(data) == list:
+        try:
+            return np.std(data, axis=0)
+        except TypeError:
             mean = DataSet._mean(data)
             
             diff = DataSet._sub_measurements(data[0], mean)
@@ -836,19 +735,18 @@ class DataSet:
                 diff = DataSet._sub_measurements(datum, mean)
                 square = DataSet._mul_measurements(diff, diff)
                 out = DataSet._add_measurements(out, square)
-                
-            return DataSet._sqrt_measurements(DataSet \
-                                              ._div_measurements(out, len(data)))
         
-        if type(data) == np.ndarray:
-            return np.std(data, axis=0)
+            return DataSet._sqrt_measurements(DataSet
+                                              ._div_measurements(out, len(data)))
 
     @staticmethod
     def _std_jackknife(data):
         """Calculates the standard deviation of the supplied list of
         measurements for the case of the jackknife"""
         
-        if type(data) == list:
+        try:
+            np.sqrt(self.num_data - 1) * np.std(out, axis=0)
+        except TypeError:
             mean = DataSet._mean(data)
             
             diff = DataSet._sub_measurements(data[0], mean)
@@ -860,11 +758,9 @@ class DataSet:
                 out = DataSet._add_measurements(out, square)
                 
             div = float(len(data)) / (len(data) - 1)
-                
-            return DataSet._sqrt_measurements(DataSet._div_measurements(out, div))
         
-        if type(data) == np.ndarray:
-            return np.sqrt(data.shape[0] - 1) * np.std(data, axis=0)
+            return DataSet._sqrt_measurements(DataSet._div_measurements(out,
+                                                                        div))
         
     @staticmethod
     def _datum_save(filename, datum):
