@@ -28,7 +28,7 @@ VectorXcd cg(LinearOperator* linop, const VectorXcd& rhs,
 
     if (sqrt(newRes) < tolerance) {
       maxIterations = i + 1;
-      tolerance = sqrt(newRes);
+      oldRes = newRes;
       break; 
     }
     
@@ -36,6 +36,8 @@ VectorXcd cg(LinearOperator* linop, const VectorXcd& rhs,
     p = r + beta * p; // 8 * N flops
     oldRes = newRes;
   }
+
+  tolerance = sqrt(newRes);
 
   boost::timer::cpu_times const elapsedTimes(timer.elapsed());
   boost::timer::nanosecond_type const elapsed(elapsedTimes.system
@@ -107,10 +109,11 @@ VectorXcd bicgstab(LinearOperator* linop, const VectorXcd& rhs,
     
     if (sqrt(residual / r0Norm) < tolerance) {
       maxIterations = i + 1;
-      tolerance = sqrt(residual / r0Norm);
       break;
     }
   }
+
+  tolerance = sqrt(residual / r0Norm);  
 
   boost::timer::cpu_times const elapsedTimes(timer.elapsed());
   boost::timer::nanosecond_type const elapsed(elapsedTimes.system
