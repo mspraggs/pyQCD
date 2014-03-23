@@ -34,4 +34,32 @@ namespace pyQCD
 
     return matrixOut;
   }
+
+
+
+  py::list convertVectorToList(const VectorXcd& vector)
+  {
+    int nRows = vector.size();
+    
+    py::list listOut;
+    
+    for (int i = 0; i < nRows; ++i) {
+      listOut.append(vector(i));
+    }
+    return listOut;
+  }
+
+
+
+  VectorXcd convertListToVector(const py::list list)
+  {
+    int nRows = py::len(list);
+    
+    VectorXcd vectorOut(nRows);
+
+    for (int i = 0; i < nRows; ++i)
+	vectorOut(i) = py::extract<complex<double> >(list[i]);
+
+    return vectorOut;
+  }
 }

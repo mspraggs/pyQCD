@@ -14,6 +14,8 @@ namespace pyQCD
 {
   py::list convertMatrixToList(const MatrixXcd& matrix);
   MatrixXcd convertListToMatrix(const py::list list);
+  py::list convertVectorToList(const VectorXcd& vector);
+  VectorXcd convertListToVector(const py::list list);
 }
 
 #endif
