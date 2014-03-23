@@ -239,12 +239,6 @@ class Lattice(lattice.Lattice):
           >>> lattice = pyQCD.Lattice()
           >>> lattice.set_config(config)
         """
-        expected_shape = (self.T, self.L, self.L, self.L, 4, 3, 3)
-        
-        if configuration.data.shape != expected_shape:
-            raise ValueError("Shape of field configuration, {}, does not "
-                             "match the current lattice shape, {}"
-                             .format(configuration.data.shape, expected_shape))
         
         r = xrange(self.L)
         t = xrange(self.T)
