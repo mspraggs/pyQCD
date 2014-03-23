@@ -70,7 +70,8 @@ class Config(Observable):
     
     def __init__(self, links, L, T, beta, ut, us, chi, action):
         """Constructor for pyQCD.Config (see help(pyQCD.Config)))"""
-        # Validate the shape of the links array
+        # Validate the shape of the links array to save ourselves
+        # some bother later on
         expected_shape = (T, L, L, L, 4, 3, 3)
         if links.shape != expected_shape:
             raise ValueError("Shape of specified links array, {}, does not "
