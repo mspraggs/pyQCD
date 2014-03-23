@@ -37,7 +37,7 @@ VectorXcd cg(LinearOperator* linop, const VectorXcd& rhs,
     oldRes = newRes;
   }
 
-  tolerance = sqrt(newRes);
+  tolerance = sqrt(oldRes);
 
   boost::timer::cpu_times const elapsedTimes(timer.elapsed());
   boost::timer::nanosecond_type const elapsed(elapsedTimes.system
