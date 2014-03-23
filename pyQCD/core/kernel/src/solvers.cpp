@@ -63,10 +63,10 @@ VectorXcd bicgstab(LinearOperator* linop, const VectorXcd& rhs,
   // Use the normal for of the linear operator as there's no requirement
   // for the linop to be hermitian
   unsigned long long initialFlops = linop->getNumFlops();
-
+  
   VectorXcd r = rhs - linop->apply(solution); // 2 * N flops
-  VectorXcd rhat = r;
-  double rhatNorm = r.squaredNorm(); // 6 * N + 2 * (N - 1) = 8 * N - 2 flops
+  VectorXcd r0 = r;
+  double r0Norm = r0.squaredNorm(); // 6 * N + 2 * (N - 1) = 8 * N - 2 flops
   
   complex<double> rho(1.0, 0.0);
   complex<double> alpha(1.0, 0.0);
@@ -74,40 +74,42 @@ VectorXcd bicgstab(LinearOperator* linop, const VectorXcd& rhs,
 
   VectorXcd p = VectorXcd::Zero(rhs.size());
   VectorXcd v = VectorXcd::Zero(rhs.size());
+  VectorXcd s = VectorXcd::Zero(rhs.size());
+  VectorXcd t = VectorXcd::Zero(rhs.size());
 
   double residual = r.squaredNorm(); // 6 * N + 2 * (N - 1) = 8 * N - 2 flops
 
   for (int i = 0; i < maxIterations; ++i) {
     // 6 * N + 2 * (N - 1) = 8 * N - 2 flops
-    complex<double> newRho = rhat.dot(r);
-    if (abs(newRho) == 0.0) {
+    complex<double> rhoOld = rho;
+    rho = r.dot(r0);
+
+    if (abs(rho) == 0.0) {
       maxIterations = i;
-      tolerance = sqrt(residual / rhatNorm);
+      tolerance = sqrt(residual / r0Norm);
       break;
     }
-    complex<double> beta = (newRho / rho) * (alpha / omega); // 24 flops
+    complex<double> beta = (rho / rhoOld) * (alpha / omega); // 24 flops
     
     p = r + beta * (p - omega * v); // N * 16
     v = linop->apply(p);
 
-    alpha = newRho / rhat.dot(v); // 6 + 8 * N - 2 = 4 + 8 * N flops
-    VectorXcd s = r - alpha * v; // 8 * N flops
-    VectorXcd t = linop->apply(s);
+    alpha = rho / r0.dot(v); // 6 + 8 * N - 2 = 4 + 8 * N flops
+    s = r - alpha * v; // 8 * N flops
+    t = linop->apply(s);
 
     omega = t.dot(s) / t.squaredNorm(); // 6 + 16 * N - 4 = 16 * N + 2 flops
     solution += alpha * p + omega * s; // 14 * N flops
 
-    r = s - omega * t; // 8 * N flops
-
     residual = r.squaredNorm(); // 8 * N - 2 flops
+
+    r = s - omega * t; // 8 * N flops
     
-    if (sqrt(residual / rhatNorm) < tolerance) {
+    if (sqrt(residual / r0Norm) < tolerance) {
       maxIterations = i + 1;
-      tolerance = sqrt(residual / rhatNorm);
+      tolerance = sqrt(residual / r0Norm);
       break;
     }
-
-    rho = newRho;
   }
 
   boost::timer::cpu_times const elapsedTimes(timer.elapsed());
