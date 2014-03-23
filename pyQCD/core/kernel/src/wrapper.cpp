@@ -80,6 +80,10 @@ BOOST_PYTHON_MODULE(lattice)
 	  py::arg("boundary_conditions") = defaultBoundaryConditions(),
 	  py::arg("precondition") = 0, py::arg("max_iterations") = 1000,
 	  py::arg("tolerance") = 1, py::arg("verbosity") = 0))
+    .def("apply_wilson_dirac", &pyLattice::applyWilsonDiracOperator,
+	 (py::arg("psi"), py::arg("mass"),
+	  py::arg("boundary_conditions") = defaultBoundaryConditions(),
+	  py::arg("precondition") = 0))
     .def("get_av_link", &pyLattice::computeMeanLink)
     .def_readonly("num_cor", &pyLattice::nCorrelations)
     .def_readonly("L", &pyLattice::spatialExtent)

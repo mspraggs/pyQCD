@@ -11,6 +11,7 @@
 #include "lattice.hpp"
 #include "gil.hpp"
 #include "pyutils.hpp"
+#include "linear_operators.hpp"
 #include <string>
 
 namespace py = boost::python;
@@ -59,6 +60,9 @@ public:
 				    const int maxIterations,
 				    const double tolerance,
 				    const int verbosity);
+  py::list applyWilsonDiracOperator(py::list psi, const double mass,
+				    py::list boundaryConditions,
+				    const int precondition);
   void runThreads(const int nUpdates, const int remainder);
   py::list getLinkP(const py::list link);
   void setLinkP(const py::list link, const py::list matrix);
