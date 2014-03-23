@@ -575,7 +575,7 @@ class Lattice(lattice.Lattice):
                               sink_smear_type="jacobi",
                               num_sink_smears=0,
                               sink_smearing_param=1.0,
-                              solver_method="bicgstab",
+                              solver_method="conjugate_gradient",
                               boundary_conditions = [-1, 1, 1, 1],
                               precondition=False,
                               max_iterations=1000,
