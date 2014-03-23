@@ -130,13 +130,6 @@ class Observable(object):
         if type(ob) != type(self):
             raise TypeError("Types {} and {} do not match"
                             .format(type(self), type(ob)))
-        
-        for member in self.members:
-            if getattr(self, member) != getattr(ob, member):
-                raise ValueError("Attribute {} differs between objects "
-                                 "({} and {})".format(member,
-                                                      getattr(self, member),
-                                                      getattr(ob, member)))
             
         new_data = self.data + ob.data
         
@@ -144,10 +137,6 @@ class Observable(object):
     
     def __div__(self, div):
         """Division operator overload"""
-        
-        if type(div) != int and type(div) != float:
-            raise TypeError("Expected an int or float divisor, got {}"
-                            .format(type(div)))
         
         new_data = self.data / div
         
@@ -167,10 +156,6 @@ class Observable(object):
     
     def __pow__(self, exponent):
         """Power operator overload"""
-        
-        if type(div) != int and type(div) != float:
-            raise TypeError("Expected an int or float exponent, got {}"
-                            .format(type(exponent)))
         
         new_data = self.data ** exponent
         
