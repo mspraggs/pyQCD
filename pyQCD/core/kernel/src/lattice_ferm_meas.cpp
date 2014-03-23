@@ -145,7 +145,7 @@ Lattice::computePropagator(LinearOperator* diracMatrix, int site[4],
       if (verbosity > 0) {
 	cout << "  -> Solver finished with residual of "
 	     << residual << " in " << iterations << " iterations." << endl;
-	cout << "     Performance: " << flopRate << " Mflops" << endl;
+	cout << "     Performance: " << flopRate << " Mflops / thread" << endl;
       }
     }
   }
