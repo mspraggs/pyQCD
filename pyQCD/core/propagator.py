@@ -304,14 +304,13 @@ class Propagator(Observable):
             
             return Propagator(out, **properties)
         except ValueError:
-            try:
-                # Then assume matrix is a colour matrix
-                out = np.tensordot(self.data, matrix, (7, 0))
+            # Then assume matrix is a colour matrix
+            out = np.tensordot(self.data, matrix, (7, 0))
             
-                return Propagator(out, **properties)
-            except ValueError:
-                # Then assume it's just a scalar
-                return Propagator(self.data * matrix, **properties)            
+            return Propagator(out, **properties)
+        except IndexError:
+            # Then assume it's just a scalar
+            return Propagator(self.data * matrix, **properties)            
         
     def __rmul__(self, matrix):
         
@@ -325,14 +324,13 @@ class Propagator(Observable):
                 
             return Propagator(out, **properties)
         except ValueError:
-            try:
-                # Then assume it's a colour matrix
-                out = np.tensordot(matrix, self.data, (1, 6))
-                out = np.transpose(out, (1, 2, 3, 4, 5, 6, 0, 7))
+            # Then assume it's a colour matrix
+            out = np.tensordot(matrix, self.data, (1, 6))
+            out = np.transpose(out, (1, 2, 3, 4, 5, 6, 0, 7))
             
-                return Propagator(out, **properties)
-            except ValueError:
-                return Propagator(self.data * matrix, **properties)
+            return Propagator(out, **properties)
+        except IndexError:
+            return Propagator(self.data * matrix, **properties)
         
     def __str__(self):
         
