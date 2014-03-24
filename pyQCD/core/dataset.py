@@ -770,7 +770,7 @@ class DataSet:
         try:
             datum.save(filename)
         except AttributeError:
-            with open(filenaem) as f:
+            with open(filename, 'w') as f:
                 f.write(datum.__repr__())
                 
     def _datum_load(self, filename):
