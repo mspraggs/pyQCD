@@ -114,6 +114,10 @@ class DataSet:
           ...     data.add_datum(lattice.get_config())
         """
         
+        if type(datum) != self.datatype:
+            raise TypeError("Supplied data type {} does not match the required "
+                            "data type {}".format(type(datum), self.datatype))
+        
         filename = "{}{}.npz".format(self.datatype.__name__, self.num_data)
         self._datum_save(filename, datum)
         try:

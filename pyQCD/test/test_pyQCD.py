@@ -1432,6 +1432,9 @@ class TestDataSet:
                                     False)
             
         assert len(zfile.namelist()) == 101
+
+        with pytest.raises(TypeError):
+            dataset.add_datum({})
         
         for i in xrange(100):
             assert zfile.namelist().count("floatWrapper{}.npz".format(i)) == 1
