@@ -124,6 +124,7 @@ class Lattice(lattice.Lattice):
         self.parallel_updates = parallel_updates
         self.block_size = block_size
         self.rand_seed = rand_seed
+        self.shape = (T, L, L, L)
         
         lattice.Lattice.__init__(self, L, T, beta, ut, us, chi,
                                  dicts.gauge_actions[action], n_cor,
