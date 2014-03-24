@@ -208,30 +208,8 @@ class Simulation(object):
           >>> simulation.load_ensemble("my_configs.zip")
         """
         
-        if not hasattr(self, "lattice"):
-            raise AttributeError("A lattice must be defined before an ensemble "
-                                 "may be loaded.")
-        
-        ensemble = DataSet.load(filename)
-        
-        if ensemble.num_data != self.num_configs:
-            raise AttributeError("Number of configutations in ensemble ({}) "
-                                 "does not match the required number of "
-                                 "simulation configurations ({})."
-                                 .format(ensemble.num_data, self.num_configs))
-        elif self.lattice.L != ensemble.get_datum(0).L:
-            raise AttributeError("Ensemble spatial extent ({}) does not match "
-                                 "the specified lattice spatial extent ({})."
-                                 .format(ensemble.get_datum(0).L,
-                                         self.lattice.L))
-        elif self.lattice.T != ensemble.get_datum(0).T:
-            raise AttributeError("Ensemble temporal extent ({}) does not match "
-                                 "the specified lattice temporal extent ({})."
-                                 .format(ensemble.get_datum(0).T,
-                                         self.lattice.T))
-        else:
-            self.ensemble = ensemble
-            self.use_ensemble = True
+        self.ensemble = DataSet.load(filename)
+        self.use_ensemble = True
             
     def add_measurement(self, meas_function, meas_type, meas_file, kwargs={},
                         meas_message=None):
