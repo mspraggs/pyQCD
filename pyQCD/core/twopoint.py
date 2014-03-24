@@ -793,12 +793,12 @@ class TwoPoint(Observable):
         
         try:
             source_interpolator = const.Gammas[source_interpolator]
-        except KeyError:
+        except TypeError:
             pass
         
         try:
             sink_interpolator = const.Gammas[sink_interpolator]
-        except KeyError:
+        except TypeError:
             pass
             
         if type(momenta[0]) != list and type(momenta[0]) != tuple:
