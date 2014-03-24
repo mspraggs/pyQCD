@@ -283,7 +283,10 @@ class TwoPoint(Observable):
         correlator_key = (label, masses, tuple(momentum), source_type, sink_type)
         
         if projected:
-            if len(data.shape) != 1 or data.shape[0] != self.T:
+            # Reject correlators that don't match the shape that TwoPoint
+            # is supposed (and save ourselves hassle later complicated
+            # exceptions and so on)
+            if data.shape != (self.T,):
                 raise ValueError("Expected a correlator with shape "
                                  "({},), recieved {}"
                                  .format(self.T, data.shape))
@@ -292,6 +295,7 @@ class TwoPoint(Observable):
             self.data[correlator_key] = data
             
         else:
+            # Again, save ourself the bother later
             expected_shape = (self.T, self.L, self.L, self.L)
             if data.shape != expected_shape:
                 raise ValueError("Expected a correlator with shape "
@@ -329,23 +333,6 @@ class TwoPoint(Observable):
         
         xmlfile = ET.parse(filename)
         xmlroot = xmlfile.getroot()
-        
-        lattice_shape \
-          = [int(x) for x in
-             xmlroot.find("ProgramInfo/Setgeom/latt_size").text.split()]
-        
-        if not (lattice_shape[0] == lattice_shape[1] == lattice_shape[2]):
-            raise ValueError("Chroma lattice shape has differing spatial "
-                             "extents.")
-        
-        # Assume lattice_shape[3] is the time extent
-        if lattice_shape[0] != self.L or lattice_shape[3] != self.T:
-            expected_shape = (self.T, self.L, self.L, self.L)
-            actual_shape = (lattice_shape[3], lattice_shape[0],
-                            lattice_shape[1], lattice_shape[2])
-            raise ValueError("Expected lattice shape, {}, does not match "
-                             "received lattice shape, {}"
-                             .format(expected_shape, actual_shape))
         
         interpolators = xmlroot.findall("Wilson_hadron_measurements/elem")
         
@@ -447,23 +434,6 @@ class TwoPoint(Observable):
         xmlfile = ET.parse(filename)
         xmlroot = xmlfile.getroot()
         
-        lattice_shape \
-          = [int(x) for x in
-             xmlroot.find("ProgramInfo/Setgeom/latt_size").text.split()]
-        
-        if not (lattice_shape[0] == lattice_shape[1] == lattice_shape[2]):
-            raise ValueError("Chroma lattice shape has differing spatial "
-                             "extents.")
-        
-        # Assume lattice_shape[3] is the time extent
-        if lattice_shape[0] != self.L or lattice_shape[3] != self.T:
-            expected_shape = (self.T, self.L, self.L, self.L)
-            actual_shape = (lattice_shape[3], lattice_shape[0],
-                            lattice_shape[1], lattice_shape[2])
-            raise ValueError("Expected lattice shape, {}, does not match "
-                             "received lattice shape, {}"
-                             .format(expected_shape, actual_shape))
-        
         propagator_pairs = xmlroot.findall("Wilson_hadron_measurements/elem")
         
         for propagator_pair in propagator_pairs:            
@@ -544,23 +514,6 @@ class TwoPoint(Observable):
         
         xmlfile = ET.parse(filename)
         xmlroot = xmlfile.getroot()
-        
-        lattice_shape \
-          = [int(x) for x in
-             xmlroot.find("ProgramInfo/Setgeom/latt_size").text.split()]
-        
-        if not (lattice_shape[0] == lattice_shape[1] == lattice_shape[2]):
-            raise ValueError("Chroma lattice shape has differing spatial "
-                             "extents.")
-        
-        # Assume lattice_shape[3] is the time extent
-        if lattice_shape[0] != self.L or lattice_shape[3] != self.T:
-            expected_shape = (self.T, self.L, self.L, self.L)
-            actual_shape = (lattice_shape[3], lattice_shape[0],
-                            lattice_shape[1], lattice_shape[2])
-            raise ValueError("Expected lattice shape, {}, does not match "
-                             "received lattice shape, {}"
-                             .format(expected_shape, actual_shape))
         
         propagator_pairs = xmlroot.findall("Wilson_hadron_measurements/elem")
         
@@ -649,23 +602,6 @@ class TwoPoint(Observable):
         
         xmlfile = ET.parse(filename)
         xmlroot = xmlfile.getroot()
-        
-        lattice_shape \
-          = [int(x) for x in
-             xmlroot.find("ProgramInfo/Setgeom/latt_size").text.split()]
-        
-        if not (lattice_shape[0] == lattice_shape[1] == lattice_shape[2]):
-            raise ValueError("Chroma lattice shape has differing spatial "
-                             "extents.")
-        
-        # Assume lattice_shape[3] is the time extent
-        if lattice_shape[0] != self.L or lattice_shape[3] != self.T:
-            expected_shape = (self.T, self.L, self.L, self.L)
-            actual_shape = (lattice_shape[3], lattice_shape[0],
-                            lattice_shape[1], lattice_shape[2])
-            raise ValueError("Expected lattice shape, {}, does not match "
-                             "received lattice shape, {}"
-                             .format(expected_shape, actual_shape))
         
         propagator_pairs = xmlroot.findall("Wilson_hadron_measurements/elem")
         
@@ -854,11 +790,16 @@ class TwoPoint(Observable):
           >>> twopoint.compute_meson_correlator(prop, prop, "g5", "g5"
           ...                                   "pseudoscalar")
         """
-          
-        if type(source_interpolator) == str:
+        
+        try:
             source_interpolator = const.Gammas[source_interpolator]
-        if type(sink_interpolator) == str:
+        except KeyError:
+            pass
+        
+        try:
             sink_interpolator = const.Gammas[sink_interpolator]
+        except KeyError:
+            pass
             
         if type(momenta[0]) != list and type(momenta[0]) != tuple:
             momenta = [momenta]
@@ -1036,10 +977,6 @@ class TwoPoint(Observable):
         
         correlator = self.get_correlator(label, masses, momentum, source_type,
                                          sink_type)
-        
-        if type(correlator) == dict:
-            raise NameError("Correlator specifiers returned more than one "
-                            "correlator.")
                 
         if correlator_std == None:
             correlator_std = np.ones(self.T)
@@ -1300,10 +1237,6 @@ class TwoPoint(Observable):
         
         correlator = self.get_correlator(label, masses, momentum, source_type,
                                          sink_type)
-        
-        if type(correlator) == dict:
-            raise NameError("Correlator specifiers returned more than one "
-                            "correlator.")
         
         return np.log(np.abs(correlator / np.roll(correlator, -1)))
     
