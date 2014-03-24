@@ -114,6 +114,9 @@ class DataSet:
           ...     data.add_datum(lattice.get_config())
         """
         
+        # I know this violates the EAFP principle here, but given adding files
+        # to the archive is a pretty irreversible process, we need to block
+        # an action that could be costly
         if type(datum) != self.datatype:
             raise TypeError("Supplied data type {} does not match the required "
                             "data type {}".format(type(datum), self.datatype))
