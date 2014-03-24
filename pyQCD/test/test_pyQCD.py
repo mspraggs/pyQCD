@@ -575,7 +575,25 @@ if lattice_exists:
             actual_propagator = propagator.data
         
             assert (np.abs(expected_propagator - actual_propagator)
-                    < tolerance).all()        
+                    < tolerance).all()
+            
+        def test_apply_wilson_dirac(self):
+            
+            lattice = Lattice()
+            
+            psi = np.zeros([8, 4, 4, 4, 4, 3])
+            psi[0, 0, 0, 0, 0, 0] = 1.0
+            
+            eta = lattice.apply_wilson_dirac(psi, 0.4)
+            
+            assert len(eta[eta.nonzero()]) == 17
+            
+            expected_eta = np.array([4.4+0.j, -0.5+0.j, 0.0+0.5j, -0.5+0.j,
+                                     0.0-0.5j, -0.5+0.j, -0.5+0.j, -0.5+0.j,
+                                     0.5+0.j, -0.5+0.j, 0.0+0.5j, -0.5+0.j,
+                                     0.0-0.5j, -0.5+0.j, 0.5+0.j,  0.5+0.j, 0.5+0.j])
+            
+            assert (eta[eta.nonzero()] == expected_eta).all()
     
         def test_get_av_link(self):
             
