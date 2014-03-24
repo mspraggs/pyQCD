@@ -679,7 +679,24 @@ class Lattice(lattice.Lattice):
           >>> import numpy as np
           >>> psi = np.zeros((lattice.T, lattice.L, lattice.L, lattice.L, 4, 3))
           >>> psi[0, 0, 0, 0, 0, 0] = 1.0
-          >>> eta = lattice.apply_wilson_dirac(psi)          
+          >>> eta = lattice.apply_wilson_dirac(psi, 0.4)
+          
+          Create a lattice, then use the Dirac operator to create a scipy
+          LinearOperator, which can be used to do inversions using the scipy
+          sparse solvers.
+          
+          >>> import pyQCD
+          >>> lattice = pyQCD.Lattice()
+          >>> import numpy as np
+          >>> import scipy.sparse.linalg as spla
+          >>> N = 12 * lattice.T * lattice.L**3
+          >>> matvec = lambda psi: \
+          ...   lattice.apply_wilson_dirac(psi, 0.4).flatten(), 
+          >>> wilson_dirac = spla.LinearOperator((N, N), matvec,
+          ...                                    dtype=np.complex)
+          >>> eta = np.zeros(N)
+          >>> eta[0] = 1.0
+          >>> psi = spla.gmres(wilson_dirac, eta)          
         """
         
         psi = psi.flatten()
