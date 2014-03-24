@@ -656,53 +656,53 @@ class DataSet:
         """Adds two measurements (used for dictionaries etc)"""
         
         try:
-            return [x + y for x, y in zip(a, b)]
-        except TypeError:
             return dict(zip(a.keys(),
                             tuple([x + y for x, y in zip(a.values(),
                                                          b.values())])))
+        except AttributeError:
+            return [x + y for x, y in zip(a, b)]
 
     @staticmethod
     def _sub_measurements(a, b):
         """Adds two measurements (used for dictionaries etc)"""
         
         try:
-            return [x - y for x, y in zip(a, b)]
-        except TypeError:
             return dict(zip(a.keys(),
                             tuple([x - y for x, y in zip(a.values(),
                                                          b.values())])))
+        except AttributeError:
+            return [x - y for x, y in zip(a, b)]
 
     @staticmethod
     def _mul_measurements(a, b):
         """Adds two measurements (used for dictionaries etc)"""
         
         try:
-            return [x * y for x, y in zip(a, b)]
-        except TypeError:
             return dict(zip(a.keys(),
                             tuple([x * y for x, y in zip(a.values(),
                                                          b.values())])))
+        except AttributeError:
+            return [x * y for x, y in zip(a, b)]
             
     @staticmethod
     def _div_measurements(a, div):
         """Divides a measurement by a scalar value"""
         
         try:
-            return [x / div for x in a]
-        except TypeError:
             return dict(zip(a.keys(),
                             tuple([x / div for x in a.values()])))
+        except AttributeError:
+            return [x / div for x in a]
             
     @staticmethod
     def _sqrt_measurements(a):
         """Divides a measurement by a scalar value"""
         
         try:
-            return [np.sqrt(x) for x in a]
-        except TypeError:
             return dict(zip(a.keys(),
                             tuple([np.sqrt(x) for x in a.values()])))
+        except AttributeError:
+            return [np.sqrt(x) for x in a]
         
     @staticmethod
     def _mean(data):
