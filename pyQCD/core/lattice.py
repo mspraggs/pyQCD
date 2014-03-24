@@ -226,10 +226,6 @@ class Lattice(lattice.Lattice):
           configuration (Config): The pyQCD.Config object containing
             the gauge field configuration to use.
             
-        Raises:
-          ValueError: Shape of field configuration does not match the
-            current lattice shape.
-            
         Examples:
           Load a gauge field configuration from disk and load it into
           the current lattice object.

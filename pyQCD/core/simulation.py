@@ -185,12 +185,6 @@ class Simulation(object):
         
         Args:
           filename (str): The name of the file containing the ensemble
-        
-        Raises:
-          AttributeError: If the number of configurations in the ensemble
-            do not match the number of configurations in the simulation, or
-            if the lattice extents in the ensemble do not match those of the
-            lattice object in the simulation.
             
         Examples:
           Create a simulation to measure on 100 configurations, with each

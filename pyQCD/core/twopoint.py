@@ -317,10 +317,6 @@ class TwoPoint(Observable):
           fold (bool, optional): Determines whether the correlator is folded
             about it's mid-point.
             
-        Raises:
-          ValueError: If lattice shape does not match twopoint spatial
-            and temporal extents
-            
         Examples:
           Create a TwoPoint object to hold correlators for a 48^3 x 96
           lattice, then load some correlators computed by Chroma's
@@ -389,10 +385,6 @@ class TwoPoint(Observable):
           fold (bool, optional): Determines whether the correlator is folded
             about it's mid-point.
             
-        Raises:
-          ValueError: If lattice shape does not match twopoint spatial
-            and temporal extents
-            
         Examples:
           Create a TwoPoint object to hold correlators for a 48^3 x 96
           lattice, then load some correlators computed by Chroma's
@@ -416,10 +408,6 @@ class TwoPoint(Observable):
             are contained.
           fold (bool, optional): Determines whether the correlator is folded
             about it's mid-point.
-            
-        Raises:
-          ValueError: If lattice shape does not match twopoint spatial
-            and temporal extents
             
         Examples:
           Create a TwoPoint object to hold correlators for a 48^3 x 96
@@ -497,10 +485,6 @@ class TwoPoint(Observable):
             are contained.
           fold (bool, optional): Determines whether the correlator is folded
             about it's mid-point.
-            
-        Raises:
-          ValueError: If lattice shape does not match twopoint spatial
-            and temporal extents
             
         Examples:
           Create a TwoPoint object to hold correlators for a 48^3 x 96
@@ -585,10 +569,6 @@ class TwoPoint(Observable):
             are contained.
           fold (bool, optional): Determines whether the correlator is folded
             about it's mid-point.
-            
-        Raises:
-          ValueError: If lattice shape does not match twopoint spatial
-            and temporal extents
             
         Examples:
           Create a TwoPoint object to hold correlators for a 48^3 x 96
@@ -932,10 +912,6 @@ class TwoPoint(Observable):
         Returns:
           list: The fitted parameters for the fit function.
             
-        Raises:
-          NameError: An error occurs if the correlator parameters do not
-            specify a unique correlator.
-            
         Examples:
           Load a correlator from disk and fit a simple exponential to it.
           Because there is only one correlator in the loaded TwoPoint
@@ -1033,10 +1009,6 @@ class TwoPoint(Observable):
         Returns:
           float: The fitted ground state energy.
           
-        Raises:
-          NameError: An error occurs if the correlator parameters do not
-            specify a unique correlator.
-          
         Examples:
           This function works in a very similar way to fit_correlator
           function, except the fitting function and the postprocessing
@@ -1102,10 +1074,6 @@ class TwoPoint(Observable):
         Returns:
           float: The fitted ground state energy squared.
           
-        Raises:
-          NameError: An error occurs if the correlator parameters do not
-            specify a unique correlator.
-          
         Examples:
           This function works in a very similar way to fit_correlator
           and compute_energy functions, except the fitting function and
@@ -1153,10 +1121,6 @@ class TwoPoint(Observable):
           
           The positions of the values in this array correspond directly
           to the positions in the momenta variable.
-          
-        Raises:
-          NameError: An error occurs if the correlator parameters do not
-            specify a unique correlator.
             
         Examples:
           This function works in a similar way to the compute_energy
@@ -1217,10 +1181,6 @@ class TwoPoint(Observable):
             
         Returns:
           numpy.ndarray: The effective mass.
-          
-        Raises:
-          NameError: An error occurs if the correlator parameters do not
-            specify a unique correlator.
             
         Examples:
           Load a TwoPoint object containing a single correlator and

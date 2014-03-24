@@ -437,9 +437,6 @@ class DataSet:
           An object of type specified in the DataSet.datatype variable; the
           jackknifed datum.
           
-        Raises:
-          ValueError: Supplied index is greated than the number of data
-          
         Examples:
           Load a set of correlators and compute the jackknifed datum
           corresponding the removal of the correlator for the first
