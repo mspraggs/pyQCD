@@ -119,7 +119,8 @@ class Propagator(Observable):
         """Constructor for pyQCD.Propagator (see help(pyQCD.Propagator)))"""
         
         expected_shape = (T, L, L, L, 4, 4, 3, 3)
-        
+        # Save ourselves some trouble later and make sure the shape of the
+        # propagator is correct
         if propagator.shape != expected_shape:
             raise ValueError("Shape of specified propagator array, {}, does not "
                              "match the specified lattice extents, {}"
@@ -294,57 +295,44 @@ class Propagator(Observable):
         
     def __mul__(self, matrix):
         
-        if type(matrix) != np.matrixlib.defmatrix.matrix \
-          and type(matrix) != float and type(matrix) != int:
-            raise ValueError("Error: Propagator cannot be multiplied by type "
-                             "{}".format(type(matrix)))
+        properties = self.header()
         
-        properties = dict(zip(Propagator.members,
-                              [getattr(self, m) for m in Propagator.members]))
-        
-        if type(matrix) == np.matrixlib.defmatrix.matrix:
-            if matrix.shape == (4, 4): # Multiply by a spin matrix
-                out = np.tensordot(self.data, matrix, (5, 0))
-                out = np.transpose(out, (0, 1, 2, 3, 4, 7, 5, 6))
+        try:
+            # First assume matrix is a spin matrix
+            out = np.tensordot(self.data, matrix, (5, 0))
+            out = np.transpose(out, (0, 1, 2, 3, 4, 7, 5, 6))
             
-                return Propagator(out, **properties)
-        
-            elif matrix.shape == (3, 3): # Multiply by a colour matrix
+            return Propagator(out, **properties)
+        except ValueError:
+            try:
+                # Then assume matrix is a colour matrix
                 out = np.tensordot(self.data, matrix, (7, 0))
             
                 return Propagator(out, **properties)
-        
-        elif type(matrix) == float or type(matrix) == int:
-            out = self.data * matrix
-            return Propagator(out, **properties)
-            
+            except ValueError:
+                # Then assume it's just a scalar
+                return Propagator(self.data * matrix, **properties)            
         
     def __rmul__(self, matrix):
-        
-        if type(matrix) != np.matrixlib.defmatrix.matrix \
-          and type(matrix) != float and type(matrix) != int:
-            raise ValueError("Error: Propagator cannot multiply by type "
-                             "{}".format(type(matrix)))
         
         properties = dict(zip(Propagator.members,
                               [getattr(self, m) for m in Propagator.members]))
         
-        if type(matrix) == np.matrixlib.defmatrix.matrix:
-            if matrix.shape == (4, 4):
-                out = np.tensordot(matrix, self.data, (1, 4))
-                out = np.transpose(out, (1, 2, 3, 4, 0, 5, 6, 7))
+        try:
+            # First assume that matrix is a spin matrix
+            out = np.tensordot(matrix, self.data, (1, 4))
+            out = np.transpose(out, (1, 2, 3, 4, 0, 5, 6, 7))
                 
-                return Propagator(out, **properties)
-        
-            elif matrix.shape == (3, 3):
+            return Propagator(out, **properties)
+        except ValueError:
+            try:
+                # Then assume it's a colour matrix
                 out = np.tensordot(matrix, self.data, (1, 6))
                 out = np.transpose(out, (1, 2, 3, 4, 5, 6, 0, 7))
             
                 return Propagator(out, **properties)
-        
-        elif type(matrix) == float or type(matrix) == int:
-            out = self.data * matrix
-            return Propagator(out, **properties)
+            except ValueError:
+                return Propagator(self.data * matrix, **properties)
         
     def __str__(self):
         
