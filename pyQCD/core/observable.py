@@ -171,3 +171,6 @@ class Observable(object):
                                                  getattr(self, member)))
         
         return "".join(string_list)
+    
+    def __repr__(self):
+        return self.data.__repr__()
