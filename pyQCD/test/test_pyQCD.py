@@ -1435,9 +1435,6 @@ class TestDataSet:
         
         for i in xrange(100):
             assert zfile.namelist().count("floatWrapper{}.npz".format(i)) == 1
-        
-        with pytest.raises(TypeError):
-            dataset.add_datum({})
             
         zfile.close()
             
@@ -1534,9 +1531,6 @@ class TestDataSet:
         bootstrap_mean, bootstrap_std = dataset.bootstrap(lambda x: x**2, 100,
                                                           use_cache=False)
         assert np.abs(bootstrap_mean - data_mean**2) < 0.1 * data_mean**2
-        
-        with pytest.raises(ValueError):
-            result = dataset.bootstrap(lambda x: x**2, 10, -1)
             
         result = dataset.bootstrap(lambda x: x**2, 10, 3, use_cache=False)
             
@@ -1553,8 +1547,7 @@ class TestDataSet:
         
         assert dataset.jackknife_datum(0) == rand_floats[1:].mean()
         
-        with pytest.raises(ValueError):
-            dataset.jackknife_datum(0, -1)
+        with pytest.raises(KeyError):
             dataset.jackknife_datum(100)
             
         jackknife_result = dataset.jackknife_datum(0, 3)
@@ -1571,9 +1564,6 @@ class TestDataSet:
         dataset.generate_jackknife_cache()
         
         assert len(dataset.cache.keys()) == 100
-        
-        with pytest.raises(ValueError):
-            dataset.generate_jackknife_cache(-1)
             
         dataset.generate_jackknife_cache(3)
         
@@ -1595,7 +1585,7 @@ class TestDataSet:
                                                           use_cache=False) 
         assert np.abs(jackknife_mean - data_mean**2) < 0.001 * data_mean**2
         
-        with pytest.raises(ValueError):
+        with pytest.raises(ZeroDivisionError):
             result = dataset.jackknife(lambda x: x**2, 0)
             
         result = dataset.jackknife(lambda x: x**2, 3)
@@ -1618,14 +1608,8 @@ class TestDataSet:
           == (a + b).tolist()
           
         a_dict = dict(zip(range(10), a.tolist()))
-        assert DataSet._add_measurements(a_dict, tuple(b.tolist())) \
-          == dict(zip(a_dict.keys(), (a + b).tolist()))
-          
         b_dict = dict(zip(range(10), b.tolist()))
-        assert DataSet._add_measurements(tuple(a.tolist()), b_dict) \
-          == dict(zip(b_dict.keys(), (a + b).tolist()))
-          
-        b_dict = dict(zip(range(10), b.tolist()))
+        
         assert DataSet._add_measurements(a_dict, b_dict) \
           == dict(zip(b_dict.keys(), (a + b).tolist()))
         
@@ -1634,16 +1618,7 @@ class TestDataSet:
           == (a - b).tolist()
         assert DataSet._sub_measurements(tuple(a.tolist()), tuple(b.tolist())) \
           == (a - b).tolist()
-          
-        a_dict = dict(zip(range(10), a.tolist()))
-        assert DataSet._sub_measurements(a_dict, tuple(b.tolist())) \
-          == dict(zip(a_dict.keys(), (a - b).tolist()))
-          
-        b_dict = dict(zip(range(10), b.tolist()))
-        assert DataSet._sub_measurements(tuple(a.tolist()), b_dict) \
-          == dict(zip(b_dict.keys(), (a - b).tolist()))
-          
-        b_dict = dict(zip(range(10), b.tolist()))
+        
         assert DataSet._sub_measurements(a_dict, b_dict) \
           == dict(zip(b_dict.keys(), (a - b).tolist()))
         
@@ -1652,16 +1627,7 @@ class TestDataSet:
           == (a * b).tolist()
         assert DataSet._mul_measurements(tuple(a.tolist()), tuple(b.tolist())) \
           == (a * b).tolist()
-          
-        a_dict = dict(zip(range(10), a.tolist()))
-        assert DataSet._mul_measurements(a_dict, tuple(b.tolist())) \
-          == dict(zip(a_dict.keys(), (a * b).tolist()))
-          
-        b_dict = dict(zip(range(10), b.tolist()))
-        assert DataSet._mul_measurements(tuple(a.tolist()), b_dict) \
-          == dict(zip(b_dict.keys(), (a * b).tolist()))
-          
-        b_dict = dict(zip(range(10), b.tolist()))
+        
         assert DataSet._mul_measurements(a_dict, b_dict) \
           == dict(zip(b_dict.keys(), (a * b).tolist()))
         
@@ -1671,8 +1637,7 @@ class TestDataSet:
           == (a / div).tolist()
         assert DataSet._div_measurements(tuple(a.tolist()), div) \
           == (a / div).tolist()
-          
-        a_dict = dict(zip(range(10), a.tolist()))
+        
         assert DataSet._div_measurements(a_dict, div) \
           == dict(zip(a_dict.keys(), (a / div).tolist()))
           
@@ -1681,8 +1646,7 @@ class TestDataSet:
           == np.sqrt(a).tolist()
         assert DataSet._sqrt_measurements(tuple(a.tolist())) \
           == np.sqrt(a).tolist()
-          
-        a_dict = dict(zip(range(10), a.tolist()))
+        
         assert DataSet._sqrt_measurements(a_dict) \
           == dict(zip(a_dict.keys(), np.sqrt(a).tolist()))
             
