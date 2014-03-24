@@ -2,9 +2,41 @@ import os
 import cPickle
 import zipfile
 import warnings
+import multiprocessing as mp
+from itertools import izip
 
 import numpy as np
 import numpy.random as npr
+
+# Following functions taken from Stack Overflow answer by
+# klaus se at http://stackoverflow.com/questions/3288595/ \
+# multiprocessing-using-pool-map-on-a-function-defined-in-a-class
+def spawn(f):
+    def fun(q_in,q_out):
+        while True:
+            i,x = q_in.get()
+            if i is None:
+                break
+            q_out.put((i,f(x)))
+    return fun
+
+def parmap(f, X, nprocs = mp.cpu_count()):
+    q_in   = mp.Queue(1)
+    q_out  = mp.Queue()
+
+    proc = [mp.Process(target=spawn(f),args=(q_in,q_out))
+            for _ in range(nprocs)]
+    for p in proc:
+        p.daemon = True
+        p.start()
+
+    sent = [q_in.put((i,x)) for i,x in enumerate(X)]
+    [q_in.put((None,None)) for _ in range(nprocs)]
+    res = [q_out.get() for _ in range(len(sent))]
+
+    [p.join() for p in proc]
+
+    return [x for i,x in sorted(res)]
 
 class DataSet:
     """Data set container holding data of the specified type.
@@ -358,7 +390,8 @@ class DataSet:
             
         self.bootstraps_cached = True
     
-    def bootstrap(self, func, num_bootstraps, binsize=1, args=[], use_cache=True):
+    def bootstrap(self, func, num_bootstraps, binsize=1, args=[], use_cache=True,
+                  use_parallel=False):
         """Performs a bootstraped measurement on the dataset using the
         supplied function
         
@@ -373,6 +406,8 @@ class DataSet:
             supplied function
           use_cache (bool, optional): Determines whether to use any cached
             bootstrap data. If no cached data exists, it is created.
+          use_parallel (bool, optional): Determines whether to parallelize the
+            bootstrap or not.
             
         Returns:
           tuple: The bootstrapped central value and standard deviation.
@@ -393,32 +428,41 @@ class DataSet:
             num_bins += 1
             
         out = []
+        
+        def process_function_with_cache(bin_index):
+            bootstrap_datum = self._get_bootstrap_cache_datum(binsize,
+                                                              bin_index,
+                                                              num_bootstraps)
+            measurement = func(bootstrap_datum, *args)
+            return measurement
+        
+        def process_function_without_cache(bin_index):
+            bins = npr.randint(num_bins, size=num_bins).tolist()
+            
+            new_datum = self._get_bin(binsize, bins[0])
+            for b in bins[1:]:
+                new_datum += self._get_bin(binsize, b)
+                
+            new_datum /= len(bins)
+            
+            measurement = func(new_datum, *args)
+            
+            return measurement
             
         if use_cache:            
             if not self.bootstraps_cached:
                 self.generate_bootstrap_cache(num_bootstraps, binsize)
             
-            for i in xrange(num_bins):
-                bootstrap_datum \
-                  = self._get_bootstrap_cache_datum(binsize, i, num_bootstraps)
+            if use_parallel:
+                out = parmap(process_function_with_cache, xrange(num_bins))
+            else:
+                out = map(process_function_with_cache, xrange(num_bins))
+        else:
+            if use_parallel:
+                out = parmap(process_function_without_cache, xrange(num_bins))
+            else:
+                out = map(process_function_without_cache, xrange(num_bins))
             
-                measurement = func(bootstrap_datum, *args)
-                if measurement != None:
-                    out.append(measurement)
-            
-        else:        
-            for i in xrange(num_bootstraps):
-            
-                bins = npr.randint(num_bins, size = num_bins).tolist()
-            
-                new_datum = self._get_bin(binsize, bins[0])
-                for b in bins[1:]:
-                    new_datum += self._get_bin(binsize, b)
-                
-                new_datum /= len(bins)
-                measurement = func(new_datum, *args)
-                if measurement != None:                
-                    out.append(measurement)
         try:
             return np.mean(out, axis=0), np.std(out, axis=0)
         except TypeError:
@@ -515,7 +559,8 @@ class DataSet:
                     
         self.jackknifes_cached = True
     
-    def jackknife(self, func, binsize=1, args=[], use_cache=True):
+    def jackknife(self, func, binsize=1, args=[], use_cache=True,
+                  use_parallel=False):
         """Performs a jackknifed measurement on the dataset using the
         supplied function.
         
@@ -529,6 +574,8 @@ class DataSet:
             supplied function
           use_cache (bool, optional): Determines whether to use any cached
             jackknife data. If no cached data exists, it is created.
+          use_parallel (bool, optional): Determines whether to parallelize the
+            jackknife or not.
             
         Returns:
           tuple: The jackknifed central value and standard deviation.
@@ -548,20 +595,21 @@ class DataSet:
         if self.num_data % binsize > 0:
             num_bins += 1
             
-        out = []
             
-        if use_cache:            
+        if use_cache:
+            
+            def process_function_with_cache(bin_index):
+                jackknife_datum = self._get_jackknife_cache_datum(binsize,
+                                                                  bin_index)
+                return func(jackknife_datum, *args)
+        
             if not self.jackknifes_cached:
                 self.generate_jackknife_cache(binsize)
-            
-            for i in xrange(num_bins):
                 
-                jackknife_datum \
-                  = self._get_jackknife_cache_datum(binsize, i)
-            
-                measurement = func(jackknife_datum, *args)
-                if measurement != None:
-                    out.append(measurement)
+            if use_parallel:
+                out = parmap(process_function_with_cache, xrange(num_bins))
+            else:
+                out = map(process_function_with_cache, xrange(num_bins))
             
         else:
         
@@ -569,15 +617,17 @@ class DataSet:
             for i in xrange(1, num_bins):
                 data_sum += self._get_bin(binsize, i)
         
-            for i in xrange(num_bins):            
-                bins = [j for j in xrange(num_bins) if j != i]
-            
+            def process_function_without_cache(bin_index):
                 new_datum \
-                  = (data_sum - self._get_bin(binsize, i)) / (num_bins - 1)
-            
-                measurement = func(new_datum, *args)
-                if measurement != None:
-                    out.append(measurement)
+                  = (data_sum - self._get_bin(binsize, bin_index)) \
+                  / (num_bins - 1)
+                  
+                return func(new_datum, *args)
+        
+            if use_parallel:
+                out = parmap(process_function_without_cache, xrange(num_bins))
+            else:
+                out = map(process_function_without_cache, xrange(num_bins))
         
         try:
             return (np.mean(out, axis=0),
