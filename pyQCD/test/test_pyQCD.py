@@ -594,6 +594,43 @@ if lattice_exists:
                                      0.0-0.5j, -0.5+0.j, 0.5+0.j,  0.5+0.j, 0.5+0.j])
             
             assert (eta[eta.nonzero()] == expected_eta).all()
+            
+        def test_apply_jacobi_smearing(self):
+            
+            lattice = Lattice()
+            
+            psi = np.zeros([8, 4, 4, 4, 4, 3])
+            psi[0, 0, 0, 0, 0, 0] = 1.0
+            
+            eta = lattice.apply_jacobi_smearing(psi, 4, 0.4)
+            
+            expected_eta = np.array([1.3936+0.j, -0.3280+0.j, 0.1696+0.j,
+                                     -0.3280+0.j, -0.3280+0.j, 0.1696+0.j,
+                                     -0.0480+0.j, 0.1696+0.j, 0.1696+0.j,
+                                     -0.0480+0.j, 0.0384+0.j, -0.0480+0.j,
+                                     -0.3280+0.j, 0.1696+0.j, -0.0480+0.j,
+                                     0.1696+0.j, -0.3280+0.j,  0.1696+0.j,
+                                     -0.0480+0.j, 0.1696+0.j, 0.1696+0.j,
+                                     -0.0480+0.j,  0.0384+0.j, -0.0480+0.j,
+                                     -0.0480+0.j, 0.0384+0.j, 0.0384+0.j,
+                                     0.1696+0.j, -0.0480+0.j, 0.0384+0.j,
+                                     -0.0480+0.j, 0.1696+0.j, -0.0480+0.j,
+                                     0.0384+0.j, -0.0480+0.j, -0.0480+0.j,
+                                     0.0384+0.j,  0.0384+0.j, 0.0384+0.j,
+                                     -0.0480+0.j, 0.0384+0.j, 0.0384+0.j,
+                                     -0.3280+0.j, 0.1696+0.j, -0.0480+0.j,
+                                     0.1696+0.j, 0.1696+0.j, -0.0480+0.j,
+                                     0.0384+0.j, -0.0480+0.j, -0.0480+0.j,
+                                     0.0384+0.j, 0.0384+0.j, 0.1696+0.j,
+                                     -0.0480+0.j, 0.0384+0.j, -0.0480+0.j])
+            
+            assert len(eta[eta.nonzero()]) == 57
+            assert (np.abs(eta[eta.nonzero()] - expected_eta)
+                    < 1e-10 * np.ones(expected_eta.shape)).all()
+            
+            eta = lattice.apply_jacobi_smearing(psi, 4, 0.0)
+            
+            assert (eta == psi).all()
     
         def test_get_av_link(self):
             

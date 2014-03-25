@@ -63,6 +63,9 @@ public:
   py::list applyWilsonDiracOperator(py::list psi, const double mass,
 				    py::list boundaryConditions,
 				    const int precondition);
+  py::list applyJacobiSmearingOperator(py::list psi, const int numSmears,
+				       const double smearingParameter,
+				       py::list boundaryConditions);
   void runThreads(const int nUpdates, const int remainder);
   py::list getLinkP(const py::list link);
   void setLinkP(const py::list link, const py::list matrix);

@@ -716,6 +716,50 @@ class Lattice(lattice.Lattice):
         
         return eta
     
+    def apply_jacobi_smearing(self, psi, num_smears, smearing_param,
+                              boundary_conditions=[-1, 1, 1, 1]):
+        """Applies the Jacobi smearing operator to the specified lattice spinor
+                           
+        Args:
+          psi (numpy.ndarray): The spinor to which the Dirac operator is
+            applied. Must have shape (T, L, L, L, 4, 3).
+          num_smears (int): The number of Jacobi smears to apply to the supplied
+            spinor.
+          smearing_param (float): The Jacobi smearing parameter.
+          boundary_conditions (list, optional): The phase factors to apply to
+            the fermion fields at the boundaries of the lattice.
+            
+        Returns:
+          numpy.ndarray: The spinor field resulting from the operator application
+          
+        Examples:
+          Create a lattice and a spinor, then apply the smearing operator to the
+          spinor.
+          
+          >>> import pyQCD
+          >>> lattice = pyQCD.Lattice()
+          >>> lattice.thermalize(100)
+          >>> import numpy as np
+          >>> psi = np.zeros((lattice.T, lattice.L, lattice.L, lattice.L, 4, 3))
+          >>> psi[0, 0, 0, 0, 0, 0] = 1.0
+          >>> eta = lattice.apply_wilson_dirac(psi, 0.4)
+        """
+        
+        psi = psi.flatten()
+        
+        try:
+            psi = psi.tolist()
+        except AttributeError:
+            pass
+        
+        eta = lattice.Lattice.apply_jacobi_smearing(self, psi, num_smears,
+                                                    smearing_param)
+        
+        eta = np.array(eta)
+        eta = eta.reshape((self.T, self.L, self.L, self.L, 4, 3))
+        
+        return eta
+    
     def get_av_link(self):
         """Computes the mean of the real part of the trace of each link matrix
         

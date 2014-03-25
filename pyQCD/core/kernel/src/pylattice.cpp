@@ -186,6 +186,40 @@ py::list pyLattice::applyWilsonDiracOperator(py::list psi, const double mass,
 
 
 
+py::list pyLattice::applyJacobiSmearingOperator(py::list psi,
+						const int numSmears,
+						const double smearingParameter,
+						py::list boundaryConditions)
+{
+  // Apply the Wilson Dirac operator to the supplied vector/spinor
+
+  VectorXcd vectorPsi = pyQCD::convertListToVector(psi);
+
+  vector<complex<double> > tempBoundaryConditions(4, complex<double>(1.0, 0.0));
+
+  for (int i = 0; i < 4; ++i)
+    tempBoundaryConditions[i] 
+      = py::extract<complex<double> >(boundaryConditions[i]);
+
+  LinearOperator* linop;
+
+  // Release the GIL to apply the propagator
+  ScopedGILRelease* scope = new ScopedGILRelease;
+
+  linop = new JacobiSmearing(numSmears, smearingParameter,
+			     tempBoundaryConditions, this);
+
+  VectorXcd vectorEta = linop->apply(vectorPsi);
+
+  delete linop;
+  // Put the GIL back in place
+  delete scope;
+
+  return pyQCD::convertVectorToList(vectorEta);
+}
+
+
+
 void pyLattice::runThreads(const int nUpdates, const int remainder)
 {
   // Need to overload this and release the GIL

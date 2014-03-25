@@ -84,6 +84,9 @@ BOOST_PYTHON_MODULE(lattice)
 	 (py::arg("psi"), py::arg("mass"),
 	  py::arg("boundary_conditions") = defaultBoundaryConditions(),
 	  py::arg("precondition") = 0))
+    .def("apply_jacobi_smearing", &pyLattice::applyJacobiSmearingOperator,
+	 (py::arg("psi"), py::arg("num_smears"), py::arg("smearing_parameter"),
+	  py::arg("boundary_conditions") = defaultBoundaryConditions()))
     .def("get_av_link", &pyLattice::computeMeanLink)
     .def_readonly("num_cor", &pyLattice::nCorrelations)
     .def_readonly("L", &pyLattice::spatialExtent)
