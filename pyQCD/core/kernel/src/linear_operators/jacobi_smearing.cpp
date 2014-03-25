@@ -46,7 +46,7 @@ VectorXcd JacobiSmearing::apply(const VectorXcd& psi)
   VectorXcd eta = psi; // The output
 
   // Temporary vector to use in the sum
-  VectorXcd tempTerm = VectorXcd::Zero(psi.size());
+  VectorXcd tempTerm = psi;
 
   for (int i = 0; i < this->numSmears_; ++i) {
     tempTerm = this->smearingParameter_ * this->applyOnce(tempTerm);
@@ -70,7 +70,7 @@ VectorXcd JacobiSmearing::applyOnce(const VectorXcd& psi)
 
   unsigned long long nHoppingFlopsOld = this->hoppingMatrix_->getNumFlops();
 
-  eta = this->hoppingMatrix_->apply3d(eta);
+  eta = this->hoppingMatrix_->apply3d(psi);
 
   this->nFlops_ += this->hoppingMatrix_->getNumFlops() - nHoppingFlopsOld;
 
