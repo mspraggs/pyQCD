@@ -21,4 +21,7 @@ VectorXcd cg(LinearOperator* linop, const VectorXcd& rhs,
 VectorXcd bicgstab(LinearOperator* linop, const VectorXcd& rhs,
 		   double& tolerance, int& maxIterations, double& flopRate);
 
+VectorXcd gmres(LinearOperator* linop, const VectorXcd& rhs,
+		   double& tolerance, int& maxIterations, double& flopRate);
+
 #endif

@@ -152,4 +152,46 @@ VectorXcd bicgstab(LinearOperator* linop, const VectorXcd& rhs,
   flopRate = ((double) totalFlops) / elapsed * 1000.0;
 
   return solution;
+VectorXcd gmres(LinearOperator* linop, const VectorXcd& rhs,
+		double& tolerance, int& maxIterations, double& flopRate)
+{
+  // Here we do the restarted generalized minimal residual method
+
+  VectorXcd solution = VectorXcd::Zero(rhs.size());
+
+  boost::timer::cpu_timer timer;
+  unsigned long long initialFlops = linop->getNumFlops();
+
+  VectorXcd r = rhs - linop->apply(solution); // 2 * N flops
+  double rNorm = r.norm();
+  double r0Norm = rNorm;
+  int restartFrequency = 20;
+
+  VectorXcd e1 = VectorXcd::Zero(rhs.size());
+  e1(0) = 1.0;
+
+  for (int i = 0; i < maxIterations; ++i) {
+    
+    MatrixXcd V;
+    MatrixXcd H;
+
+    arnoldi(V, H, linop, r, restartFrequency);
+
+    JacobiSVD<MatrixXcd> leastSquaresSolver(H);
+    
+    VectorXcd y = leastSquaresSolver.solve(rNorm * e1);
+
+    solution += H * y;
+
+    r = rhs - linop->apply(solution);
+    rNorm = r.norm();
+
+    if (sqrt(r0Norm / r0Norm) < tolerance) {
+      maxIterations = i + 1;
+      tolerance = sqrt(r0Norm / r0Norm);
+      break;
+    }
+  }
+
+  return solution;
 }
