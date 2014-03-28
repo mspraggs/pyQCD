@@ -8,8 +8,8 @@ void arnoldi(MatrixXcd& V, MatrixXcd& H, LinearOperator* linop,
 
   double beta = rhs.norm();
 
-  V = MatrixXcd::Zero(rhs.size(), numIterations);
-  H = MatrixXcd::Zero(numIterations, numIterations);
+  V = MatrixXcd::Zero(rhs.size(), numIterations + 1);
+  H = MatrixXcd::Zero(numIterations + 1, numIterations);
   V.col(0) = rhs / beta;
 
   for (int i = 1; i < numIterations; ++i) {
@@ -170,7 +170,7 @@ VectorXcd gmres(LinearOperator* linop, const VectorXcd& rhs,
   double r0Norm = rNorm;
   int restartFrequency = 20;
 
-  VectorXcd e1 = VectorXcd::Zero(restartFrequency);
+  VectorXcd e1 = VectorXcd::Zero(restartFrequency + 1);
   e1(0) = 1.0;
 
   for (int i = 0; i < maxIterations; ++i) {
@@ -184,14 +184,14 @@ VectorXcd gmres(LinearOperator* linop, const VectorXcd& rhs,
     
     VectorXcd y = leastSquaresSolver.solve(rNorm * e1);
 
-    solution += V * y;
+    solution += V.leftCols(restartFrequency) * y;
 
     r = rhs - linop->apply(solution);
     rNorm = r.norm();
 
-    if (sqrt(r0Norm / r0Norm) < tolerance) {
+    if (sqrt(rNorm / r0Norm) < tolerance) {
       maxIterations = i + 1;
-      tolerance = sqrt(r0Norm / r0Norm);
+      tolerance = sqrt(rNorm / r0Norm);
       break;
     }
   }
