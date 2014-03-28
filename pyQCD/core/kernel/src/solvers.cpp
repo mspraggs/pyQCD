@@ -71,7 +71,8 @@ VectorXcd cg(LinearOperator* linop, const VectorXcd& rhs,
 					      + elapsedTimes.user);
 
   unsigned long long totalFlops
-    = linop->getNumFlops() - initialFlops + 42 * rhs.size() + 3;
+    = linop->getNumFlops() - initialFlops
+    + maxIterations * (32 * rhs.size() + 5) + 10 * rhs.size() - 2;
 
   flopRate = (double) totalFlops / elapsed * 1000.0;
 
@@ -147,11 +148,13 @@ VectorXcd bicgstab(LinearOperator* linop, const VectorXcd& rhs,
 					      + elapsedTimes.user);
 
   long long totalFlops = linop->getNumFlops() - initialFlops
-    + 96 * rhs.size() + 22;
+    + maxIterations * (78 * rhs.size() + 26) + 18 * rhs.size() - 4;
 
   flopRate = ((double) totalFlops) / elapsed * 1000.0;
 
   return solution;
+};
+
 VectorXcd gmres(LinearOperator* linop, const VectorXcd& rhs,
 		double& tolerance, int& maxIterations, double& flopRate)
 {
