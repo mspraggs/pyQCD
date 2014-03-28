@@ -127,12 +127,22 @@ Lattice::computePropagator(LinearOperator* diracMatrix, int site[4],
       double flopRate = 0.0;
       
       VectorXcd solution(3 * this->nLinks_);
-      
-      if (solverMethod == 1)
-	solution = cg(diracMatrix, source, residual, iterations, flopRate);
-      else
+
+      switch (solverMethod) {
+      case 0:
 	solution = bicgstab(diracMatrix, source, residual, iterations, flopRate);
-      
+	break;
+      case 1:
+	solution = cg(diracMatrix, source, residual, iterations, flopRate);
+	break;
+      case 2:
+	solution = gmres(diracMatrix, source, residual, iterations, flopRate);
+	break;
+      default:
+	solution = cg(diracMatrix, source, residual, iterations, flopRate);
+	break;	
+      }
+
       // Smear the sink
       solution = sinkSmearingOperator->apply(solution);
       
