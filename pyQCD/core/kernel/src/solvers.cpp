@@ -170,7 +170,7 @@ VectorXcd gmres(LinearOperator* linop, const VectorXcd& rhs,
   double r0Norm = rNorm;
   int restartFrequency = 20;
 
-  VectorXcd e1 = VectorXcd::Zero(rhs.size());
+  VectorXcd e1 = VectorXcd::Zero(restartFrequency);
   e1(0) = 1.0;
 
   for (int i = 0; i < maxIterations; ++i) {
@@ -180,11 +180,11 @@ VectorXcd gmres(LinearOperator* linop, const VectorXcd& rhs,
 
     arnoldi(V, H, linop, r, restartFrequency);
 
-    JacobiSVD<MatrixXcd> leastSquaresSolver(H);
+    JacobiSVD<MatrixXcd> leastSquaresSolver(H, ComputeThinU | ComputeThinV);
     
     VectorXcd y = leastSquaresSolver.solve(rNorm * e1);
 
-    solution += H * y;
+    solution += V * y;
 
     r = rhs - linop->apply(solution);
     rNorm = r.norm();
