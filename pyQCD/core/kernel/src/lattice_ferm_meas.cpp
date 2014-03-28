@@ -136,7 +136,7 @@ Lattice::computePropagator(LinearOperator* diracMatrix, int site[4],
 	solution = cg(diracMatrix, source, residual, iterations, flopRate);
 	break;
       case 2:
-	solution = gmres(diracMatrix, source, residual, iterations, flopRate);
+	solution = cg(diracMatrix, source, residual, iterations, flopRate);
 	break;
       default:
 	solution = cg(diracMatrix, source, residual, iterations, flopRate);
