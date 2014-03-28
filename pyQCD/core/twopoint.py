@@ -648,7 +648,9 @@ class TwoPoint(Observable):
                                     [0, 0, 0], source_type, sink_type, True,
                                     fold)
                 
-    def load_ukhadron_meson_binary(self, filename, byteorder, fold=False):
+    def load_ukhadron_meson_binary(self, filename, byteorder, quark_masses,
+                                   source_type=None, sink_type=None,
+                                   fold=False):
         """Loads the correlators contained in the specified UKHADRON binary
         file. The correlators are labelled using the CHROMA convention for
         particle interpolators (see pyQCD.mesons). Note that information
@@ -662,6 +664,12 @@ class TwoPoint(Observable):
               "little" or "big". For data created from simulations on an intel
               machine, this is likely to be "little". For data created on one
               of the IBM Bluegene machines, this is likely to be "big".
+            quark_masses (list): The masses of the quarks forming the meson that
+              the correlators represent.
+            source_type (str, optional): The type of source used when computing
+              the two-point function.
+            sink_type (str, optional): The type of sink used when computing
+              the two-point function.
             fold (bool, optional): Determines whether the correlators should
               be folded prior to being imported.
               
@@ -675,12 +683,6 @@ class TwoPoint(Observable):
           ...     .load_ukhadron_meson_binary("meson_m_0.45_m_0.45_Z2.280.bin",
           ...                                 "big")
         """
-        
-        param_mask = r'meson_m_(\d*\.\d*)_m_(\d*\.\d*)_(\w+)\.\d+\.bin'
-        correlator_params = re.findall(param_mask, filename)[0]
-        
-        quark_masses = (eval(correlator_params[0]), eval(correlator_params[1]))
-        source_type = sink_type = correlator_params[2]
         
         if sys.byteorder == byteorder:
             switch_endianness = lambda x: x
