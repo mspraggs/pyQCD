@@ -713,7 +713,8 @@ class TwoPoint(Observable):
                         
             for mu in xrange(Nmu):
                 for nu in xrange(Nnu):
-                    label = "{}_{}".format(const.mesons[mu], const.mesons[nu])
+                    label = "{}_{}".format(const.interpolators[mu],
+                                           const.interpolators[nu])
                     self.add_correlator(correlators[mu, nu], label, quark_masses,
                                         [px, py, pz], source_type, sink_type,
                                         True, fold)
