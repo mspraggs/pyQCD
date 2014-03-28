@@ -1,5 +1,32 @@
 #include <solvers.hpp>
 
+void arnoldi(MatrixXcd& V, MatrixXcd& H, LinearOperator* linop,
+	     const VectorXcd& rhs, const int numIterations)
+{
+  // Runs the Arnoldi relation to find an orthonormal basis of the Krylov
+  // subspace K(A, b)
+
+  double beta = rhs.norm();
+
+  V = MatrixXcd::Zero(rhs.size(), numIterations);
+  H = MatrixXcd::Zero(numIterations, numIterations);
+  V.col(0) = rhs / beta;
+
+  for (int i = 1; i < numIterations; ++i) {
+    VectorXcd q = linop->apply(V.col(i - 1));
+
+    // Here we're basically doing Gram-Schmidt to make q orthogonal to all
+    // V(0), V(1), ... , V(i-1)
+    for (int j = 0; j < i; ++j) {
+      H(j, i - 1) = q.dot(V.col(j));
+      q -= H(j, i - 1) * V.col(j);
+    }
+
+    H(i, i - 1) = q.norm();
+    V.col(i) = q / H(i, i - 1);
+  }
+}
+
 VectorXcd cg(LinearOperator* linop, const VectorXcd& rhs,
 	     double& tolerance, int& maxIterations, double& flopRate)
 {

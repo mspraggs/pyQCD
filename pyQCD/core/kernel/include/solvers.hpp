@@ -12,6 +12,9 @@
 using namespace Eigen;
 using namespace std;
 
+void arnoldi(MatrixXcd& V, MatrixXcd& H, LinearOperator* linop,
+	     const VectorXcd& rhs, const int numIterations);
+
 VectorXcd cg(LinearOperator* linop, const VectorXcd& rhs,
 	     double& tolerance, int& maxIterations, double& flopRate);
 
