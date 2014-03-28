@@ -8,7 +8,8 @@ gauge_actions = {'wilson': 0,
                  'twisted_rectangle_improved': 2}
 
 solver_methods = {'bicgstab': 0,
-                  'conjugate_gradient': 1}
+                  'conjugate_gradient': 1,
+                  'gmres': 2}
     
 smearing_types = {'jacobi': 0}
 
