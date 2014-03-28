@@ -166,6 +166,42 @@ class DataSet:
         
         os.unlink(filename)
         self.num_data += 1
+        
+    def import_data(self, conversion_function, first_index, last_index,
+                    index_step=1, args=[]):
+        """Imports a series of data from an external source. Each datum
+        in the external dataset should be denoted by an integer index
+        in some way.
+                    
+        Args:
+          conversion_function (func): The function applied to the external
+            data in order to import a particular datum. This must accept an
+            integer as its first argument and return an object of the type
+            specified in the DataSet constructor.
+          first_index (int): The index for the first datum in the external
+            data set.
+          last_index (int): The index of the last datum in the external data
+            set
+          index_step (int, optional): The change in the external datum index
+            between consecutive data.
+          args (list, optional): The arguments required by the conversion
+            function
+            
+        Examples:
+          Say we have a set of 100 correlators from an external simulation, all
+          with filenames of the form hl_pseudoscalar_X.bin, where X is an
+          integer ranging from 1 to 100. Say we've devised a function
+          import_datum that reads these files and converts them to pyQCD
+          TwoPoint functions, then the import_data function would work like
+          this:
+          
+          >>> import pyQCD
+          >>> data = pyQCD.DataSet(pyQCD.TwoPoint, "hl_ps_correlators.zip")
+          >>> data.import_data(conversion_function, 1, 100)
+          """
+        
+        for i in xrange(first_index, last_index + index_step, index_step):
+            self.add_datum(conversion_function(i, *args))
     
     def get_datum(self, index):
         """Retrieves the specified datum from the zip archive
