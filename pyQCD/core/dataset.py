@@ -861,7 +861,7 @@ class DataSet:
             datum.save(filename)
         except AttributeError:
             with open(filename, 'w') as f:
-                f.write(datum.__repr__())
+                cPickle.dump(datum, f)
                 
     def _datum_load(self, filename):
         """Loads the datum from disk into the appropriate type"""
@@ -869,9 +869,8 @@ class DataSet:
         try:
             return self.datatype.load(filename)
         except AttributeError:
-            from numpy import array
             with open(filename) as f:
-                return self.datatype(eval(f.read()))
+                return cPickle.load(f)
             
     def _get_bootstrap_cache_datum(self, binsize, index, num_bootstraps):
         """Loads a cached jackknife or bootstrap datum"""
