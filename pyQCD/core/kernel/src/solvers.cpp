@@ -12,7 +12,7 @@ void arnoldi(MatrixXcd& V, MatrixXcd& H, LinearOperator* linop,
   H = MatrixXcd::Zero(numIterations + 1, numIterations);
   V.col(0) = rhs / beta;
 
-  for (int i = 1; i < numIterations; ++i) {
+  for (int i = 1; i < numIterations + 1; ++i) {
     VectorXcd q = linop->apply(V.col(i - 1));
 
     // Here we're basically doing Gram-Schmidt to make q orthogonal to all
