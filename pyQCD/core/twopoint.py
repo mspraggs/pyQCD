@@ -836,8 +836,8 @@ class TwoPoint(Observable):
                                       average_momenta=True,
                                       fold=False):
         """Computes and stores all 256 meson correlators within the
-        current TwoPoint object. CHROMA naming conventions are used for the
-        16 gamma matrix combinations.
+        current TwoPoint object. Labels akin to those in pyQCD.interpolators
+        are used to denote the 16 gamma matrix combinations.
         
         Args:
           propagator1 (Propagator): The first propagator to use in calculating
@@ -868,8 +868,8 @@ class TwoPoint(Observable):
           >>> twopoint.compute_all_meson_correlators(prop, prop)
         """
         
-        for Gamma1 in const.mesons:
-            for Gamma2 in const.mesons:
+        for Gamma1 in const.interpolators:
+            for Gamma2 in const.interpolators:
                 self.compute_meson_correlator(propagator1, propagator2,
                                               Gamma1, Gamma2,
                                               "{}_{}".format(Gamma1, Gamma2),
