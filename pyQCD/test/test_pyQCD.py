@@ -1203,7 +1203,7 @@ class TestTwoPoint:
         
         twopoint \
           .load_ukhadron_meson_binary("{}/meson_m_0.45_m_0.45_Z2.280.bin"
-                                      .format(data_dir), "big")
+                                      .format(data_dir), "big", (0.1, 0.1))
                                        
         assert len(twopoint.data.keys()) == 256
         
