@@ -659,20 +659,20 @@ class TwoPoint(Observable):
         will fail.
         
         Args:
-            filename (str): The name of the file containing the data
-            byteorder (str): The endianness of the binary file. Can either be
-              "little" or "big". For data created from simulations on an intel
-              machine, this is likely to be "little". For data created on one
-              of the IBM Bluegene machines, this is likely to be "big".
-            quark_masses (list): The masses of the quarks forming the meson that
-              the correlators represent.
-            source_type (str, optional): The type of source used when computing
-              the two-point function.
-            sink_type (str, optional): The type of sink used when computing
-              the two-point function.
-            fold (bool, optional): Determines whether the correlators should
-              be folded prior to being imported.
-              
+          filename (str): The name of the file containing the data
+          byteorder (str): The endianness of the binary file. Can either be
+            "little" or "big". For data created from simulations on an intel
+            machine, this is likely to be "little". For data created on one
+            of the IBM Bluegene machines, this is likely to be "big".
+          quark_masses (list): The masses of the quarks forming the meson that
+            the correlators represent.
+          source_type (str, optional): The type of source used when computing
+            the two-point function.
+          sink_type (str, optional): The type of sink used when computing
+            the two-point function.
+          fold (bool, optional): Determines whether the correlators should
+            be folded prior to being imported.
+        
         Examples:
           Create a twopoint object and import the data contained in
           meson_m_0.45_m_0.45_Z2.280.bin
