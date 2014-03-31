@@ -1188,6 +1188,14 @@ class TestTwoPoint:
                                               .format(data_dir))
                                        
         assert len(twopoint.data.keys()) == 11
+        
+    def test_load_chroma_mres(self):
+        
+        twopoint = TwoPoint(32, 16)
+        
+        twopoint.load_chroma_mres("{}/hadspec.out.xml".format(data_dir))
+        
+        assert len(twopoint.data.keys()) == 10
             
     def test_load_ukhadron_meson_binary(self):
         
@@ -1198,6 +1206,14 @@ class TestTwoPoint:
                                       .format(data_dir), "big")
                                        
         assert len(twopoint.data.keys()) == 256
+        
+    def test_load_ukhadron_mres(self):
+        
+        twopoint = TwoPoint(32, 16)
+        
+        twopoint.load_ukhadron_mres("{}/mres_data.xml".format(data_dir), 0.1)
+        
+        assert len(twopoint.data.keys()) == 2
             
     def test_compute_meson_correlator(self):
         
