@@ -117,7 +117,7 @@ Lattice::computePropagator(LinearOperator* diracMatrix, int site[4],
     for(int j = 0; j < 3; ++j) {
       if (verbosity > 0)
 	cout << "  Inverting for spin " << i
-	     << " and colour " << j << "..." << endl;
+	     << " and colour " << j << "..." << flush;
       // Create the source vector
       VectorXcd source = this->makeSource(site, i, j, sourceSmearingOperator);
 
@@ -153,6 +153,7 @@ Lattice::computePropagator(LinearOperator* diracMatrix, int site[4],
 	}
       }
       if (verbosity > 0) {
+	cout << " Done!" << endl;
 	cout << "  -> Solver finished with residual of "
 	     << residual << " in " << iterations << " iterations." << endl;
 	cout << "  -> CPU time: " << time << " seconds" << endl;
