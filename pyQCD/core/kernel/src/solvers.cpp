@@ -33,12 +33,13 @@ VectorXcd cg(LinearOperator* linop, const VectorXcd& rhs,
   // Perform the conjugate gradient algorithm to solve
   // linop * solution = rhs for solution
   VectorXcd solution = VectorXcd::Zero(rhs.size());
+  VectorXcd rhsGamma5 = linop->undoHermiticity(rhs);
 
   boost::timer::cpu_timer timer;
   unsigned long long initialFlops = linop->getNumFlops();
 
   // Use the Hermitian form of the linear operator as that's what CG requires
-  VectorXcd r = rhs - linop->applyHermitian(solution); // 2 * N flops
+  VectorXcd r = rhsGamma5 - linop->applyHermitian(solution); // 2 * N flops
   VectorXcd p = r;
 
   double oldRes = r.squaredNorm(); // 6 * N + 2 * (N - 1) = 8 * N - 2 flops
@@ -76,7 +77,7 @@ VectorXcd cg(LinearOperator* linop, const VectorXcd& rhs,
 
   flopRate = (double) totalFlops / elapsed * 1000.0;
 
-  return linop->undoHermiticity(solution);
+  return solution;
 }
 
 
