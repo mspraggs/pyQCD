@@ -73,7 +73,8 @@ VectorXcd cg(LinearOperator* linop, const VectorXcd& rhs,
 
   unsigned long long totalFlops
     = linop->getNumFlops() - initialFlops
-    + maxIterations * (32 * rhs.size() + 5) + 10 * rhs.size() - 2;
+    + maxIterations * (32 * rhsGamma5.size() + 5)
+    + 10 * rhsGamma5.size() - 2;
 
   flopRate = (double) totalFlops / elapsed * 1000.0;
 
