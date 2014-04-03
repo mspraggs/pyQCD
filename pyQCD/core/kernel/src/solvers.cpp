@@ -179,10 +179,8 @@ VectorXcd gmres(LinearOperator* linop, const VectorXcd& rhs,
     MatrixXcd H;
 
     arnoldi(V, H, linop, r, restartFrequency);
-
-    JacobiSVD<MatrixXcd> leastSquaresSolver(H, ComputeThinU | ComputeThinV);
     
-    VectorXcd y = leastSquaresSolver.solve(rNorm * e1);
+    VectorXcd y = H.jacobiSvd(ComputeThinU | ComputeThinV).solve(rNorm * e1);
 
     solution += V.leftCols(restartFrequency) * y;
 
