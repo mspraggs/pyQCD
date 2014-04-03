@@ -189,7 +189,7 @@ VectorXcd gmres(LinearOperator* linop, const VectorXcd& rhs,
     r = rhs - linop->apply(solution);
     rNorm = r.norm();
 
-    if (sqrt(rNorm / r0Norm) < tolerance) {
+    if (rNorm / r0Norm < tolerance) {
       maxIterations = i + 1;
       tolerance = sqrt(rNorm / r0Norm);
       break;
