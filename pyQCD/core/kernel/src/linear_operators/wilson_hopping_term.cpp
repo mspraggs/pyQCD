@@ -225,7 +225,7 @@ VectorXcd WilsonHoppingTerm::applyHermitian(const VectorXcd& psi)
 
 
 
-VectorXcd WilsonHoppingTerm::undoHermiticity(const VectorXcd& psi)
+VectorXcd WilsonHoppingTerm::makeHermitian(const VectorXcd& psi)
 {
   return pyQCD::multiplyGamma5(psi);
 }

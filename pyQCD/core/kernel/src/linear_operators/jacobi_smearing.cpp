@@ -87,7 +87,7 @@ VectorXcd JacobiSmearing::applyHermitian(const VectorXcd& psi)
 
 
 
-VectorXcd JacobiSmearing::undoHermiticity(const VectorXcd& psi)
+VectorXcd JacobiSmearing::makeHermitian(const VectorXcd& psi)
 {
   // Undo Hermticity in applyHermtian (there is none, so retur psi)
   return psi;

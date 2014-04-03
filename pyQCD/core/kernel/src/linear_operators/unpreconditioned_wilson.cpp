@@ -79,7 +79,7 @@ VectorXcd UnpreconditionedWilson::applyHermitian(const VectorXcd& psi)
 
 
 
-VectorXcd UnpreconditionedWilson::undoHermiticity(const VectorXcd& psi)
+VectorXcd UnpreconditionedWilson::makeHermitian(const VectorXcd& psi)
 {
   return pyQCD::multiplyGamma5(psi);
 }

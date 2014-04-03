@@ -29,7 +29,7 @@ public:
 
   VectorXcd apply(const VectorXcd& psi);
   VectorXcd applyHermitian(const VectorXcd& psi);
-  VectorXcd undoHermiticity(const VectorXcd& psi);
+  VectorXcd makeHermitian(const VectorXcd& psi);
 
 private:
   // Pointer to the lattice object containing the gauge links

@@ -24,11 +24,15 @@ public:
   { return VectorXcd::Zero(x.size()); }
   // Applies a hermition form of the the linear operator to a column vector
   // using right multiplication
+  // e.g. we might want to invert g5 * D in the equation
+  // g5 * D * psi = g5 * eta
+  // This function does the g5 * D part, or some other Hermitian form
   virtual VectorXcd applyHermitian(const VectorXcd& x)
   { return VectorXcd::Zero(x.size()); }
-  // Undoes the hermiticity operation applied by applyHermitian. Note that
-  // undoHermiticity(applyHermitian(x)) = apply(x)
-  virtual VectorXcd undoHermiticity(const VectorXcd& x)
+  // Used to make the source used in any inversions correspond to the 
+  // possible hermiticity of the operator
+  // In the langauge above, this would create the RHS, such as g5 * eta
+  virtual VectorXcd makeHermitian(const VectorXcd& x)
   { return VectorXcd::Zero(x.size()); }
 
   unsigned long long getNumFlops() { return this->nFlops_; }
