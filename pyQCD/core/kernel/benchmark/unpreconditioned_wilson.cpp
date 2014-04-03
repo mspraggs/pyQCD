@@ -9,6 +9,12 @@ const int nIterations = 10000;
 
 int main(int argc, char** argv)
 {
+  int nIterations = 10000;
+
+  if (argc > 1) {
+    nIterations = atoi(argv[1]);
+  }
+
   Lattice lattice(4, 8, 5.5, 1.0, 1.0, 1.0, 0, 10, 0, 1, 4, -1);
 
   vector<complex<double> > boundaryConditions(4, complex<double>(1.0, 0.0));
