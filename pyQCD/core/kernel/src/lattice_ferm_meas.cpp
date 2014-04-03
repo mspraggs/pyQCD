@@ -124,22 +124,22 @@ Lattice::computePropagator(LinearOperator* diracMatrix, int site[4],
       // Do the inversion
       double residual = tolerance;
       int iterations = maxIterations;
-      double flopRate = 0.0;
+      double time = 0.0;
       
       VectorXcd solution(3 * this->nLinks_);
 
       switch (solverMethod) {
       case 0:
-	solution = bicgstab(diracMatrix, source, residual, iterations, flopRate);
+	solution = bicgstab(diracMatrix, source, residual, iterations, time);
 	break;
       case 1:
-	solution = cg(diracMatrix, source, residual, iterations, flopRate);
+	solution = cg(diracMatrix, source, residual, iterations, time);
 	break;
       case 2:
-	solution = gmres(diracMatrix, source, residual, iterations, flopRate);
+	solution = gmres(diracMatrix, source, residual, iterations, time);
 	break;
       default:
-	solution = cg(diracMatrix, source, residual, iterations, flopRate);
+	solution = cg(diracMatrix, source, residual, iterations, time);
 	break;	
       }
 
@@ -155,7 +155,7 @@ Lattice::computePropagator(LinearOperator* diracMatrix, int site[4],
       if (verbosity > 0) {
 	cout << "  -> Solver finished with residual of "
 	     << residual << " in " << iterations << " iterations." << endl;
-	cout << "     Performance: " << flopRate << " Mflops / thread" << endl;
+	cout << "  -> CPU time: " << time << " seconds" << endl;
       }
     }
   }

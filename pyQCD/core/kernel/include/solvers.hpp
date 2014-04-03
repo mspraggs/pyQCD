@@ -16,12 +16,12 @@ void arnoldi(MatrixXcd& V, MatrixXcd& H, LinearOperator* linop,
 	     const VectorXcd& rhs, const int numIterations);
 
 VectorXcd cg(LinearOperator* linop, const VectorXcd& rhs,
-	     double& tolerance, int& maxIterations, double& flopRate);
+	     double& tolerance, int& maxIterations, double& time);
 
 VectorXcd bicgstab(LinearOperator* linop, const VectorXcd& rhs,
-		   double& tolerance, int& maxIterations, double& flopRate);
+		   double& tolerance, int& maxIterations, double& time);
 
 VectorXcd gmres(LinearOperator* linop, const VectorXcd& rhs,
-		   double& tolerance, int& maxIterations, double& flopRate);
+		   double& tolerance, int& maxIterations, double& time);
 
 #endif

@@ -28,7 +28,7 @@ void arnoldi(MatrixXcd& V, MatrixXcd& H, LinearOperator* linop,
 }
 
 VectorXcd cg(LinearOperator* linop, const VectorXcd& rhs,
-	     double& tolerance, int& maxIterations, double& flopRate)
+	     double& tolerance, int& maxIterations, double& time)
 {
   // Perform the conjugate gradient algorithm to solve
   // linop * solution = rhs for solution
@@ -36,7 +36,6 @@ VectorXcd cg(LinearOperator* linop, const VectorXcd& rhs,
   VectorXcd rhsHermitian = linop->makeHermitian(rhs);
 
   boost::timer::cpu_timer timer;
-  unsigned long long initialFlops = linop->getNumFlops();
 
   // Use the Hermitian form of the linear operator as that's what CG requires
   VectorXcd r = rhsHermitian - linop->applyHermitian(solution); // 2 * N flops
@@ -69,12 +68,7 @@ VectorXcd cg(LinearOperator* linop, const VectorXcd& rhs,
   boost::timer::nanosecond_type const elapsed(elapsedTimes.system
 					      + elapsedTimes.user);
 
-  unsigned long long totalFlops
-    = linop->getNumFlops() - initialFlops
-    + maxIterations * (32 * rhsHermitian.size() + 5)
-    + 10 * rhsHermitian.size() - 2;
-
-  flopRate = (double) totalFlops / elapsed * 1000.0;
+  time = elapsed / 1.0e9;
 
   return solution;
 }
@@ -82,7 +76,7 @@ VectorXcd cg(LinearOperator* linop, const VectorXcd& rhs,
 
 
 VectorXcd bicgstab(LinearOperator* linop, const VectorXcd& rhs,
-		   double& tolerance, int& maxIterations, double& flopRate)
+		   double& tolerance, int& maxIterations, double& time)
 {
   // Perform the biconjugate gradient stabilized algorithm to
   // solve linop * solution = rhs for solution
@@ -92,7 +86,6 @@ VectorXcd bicgstab(LinearOperator* linop, const VectorXcd& rhs,
   
   // Use the normal for of the linear operator as there's no requirement
   // for the linop to be hermitian
-  unsigned long long initialFlops = linop->getNumFlops();
   
   VectorXcd r = rhs - linop->apply(solution); // 2 * N flops
   VectorXcd r0 = r;
@@ -147,23 +140,19 @@ VectorXcd bicgstab(LinearOperator* linop, const VectorXcd& rhs,
   boost::timer::nanosecond_type const elapsed(elapsedTimes.system
 					      + elapsedTimes.user);
 
-  long long totalFlops = linop->getNumFlops() - initialFlops
-    + maxIterations * (78 * rhs.size() + 26) + 18 * rhs.size() - 4;
-
-  flopRate = ((double) totalFlops) / elapsed * 1000.0;
+  time = elapsed / 1.0e9;
 
   return solution;
 };
 
 VectorXcd gmres(LinearOperator* linop, const VectorXcd& rhs,
-		double& tolerance, int& maxIterations, double& flopRate)
+		double& tolerance, int& maxIterations, double& time)
 {
   // Here we do the restarted generalized minimal residual method
 
   VectorXcd solution = VectorXcd::Zero(rhs.size());
 
   boost::timer::cpu_timer timer;
-  unsigned long long initialFlops = linop->getNumFlops();
 
   VectorXcd r = rhs - linop->apply(solution); // 2 * N flops
   double rNorm = r.norm();
@@ -193,6 +182,12 @@ VectorXcd gmres(LinearOperator* linop, const VectorXcd& rhs,
       break;
     }
   }
+
+  boost::timer::cpu_times const elapsedTimes(timer.elapsed());
+  boost::timer::nanosecond_type const elapsed(elapsedTimes.system
+					      + elapsedTimes.user);
+
+  time = elapsed / 1.0e9;
 
   return solution;
 }
