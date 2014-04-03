@@ -52,8 +52,6 @@ VectorXcd cg(LinearOperator* linop, const VectorXcd& rhs,
 
     double newRes = r.squaredNorm();
 
-    //cout << sqrt(newRes) << endl;
-
     if (sqrt(newRes) < tolerance) {
       maxIterations = i + 1;
       oldRes = newRes;
