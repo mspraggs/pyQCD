@@ -39,7 +39,7 @@ int main(int argc, char** argv)
   std::cout << "Performance: " << linop.getNumFlops()
 	    << " floating point operations; "
 	    << (double) linop.getNumFlops() / elapsed * 1000.0
-	    << " MFlops" << endl;
+	    << " MFlops / thread" << endl;
 
   return 0;
 }
