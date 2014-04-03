@@ -47,8 +47,8 @@ VectorXcd cg(LinearOperator* linop, const VectorXcd& rhs,
   for (int i = 0; i < maxIterations; ++i) {
     VectorXcd linopP = linop->applyHermitian(p);
     complex<double> alpha = oldRes / p.dot(linopP); // 4 + 8 * N flops
-    solution = solution + alpha * p; // 8 * N flops
-    r = r - alpha * linopP; // 8 * N flops
+    solution += alpha * p; // 8 * N flops
+    r -= alpha * linopP; // 8 * N flops
 
     double newRes = r.squaredNorm();
 
