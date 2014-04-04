@@ -219,7 +219,7 @@ class TwoPoint(Observable):
         correlator_attributes = self.data.keys()
         
         if masses != None:
-            masses = tuple([round(mass, 4) for mass in masses])
+            masses = tuple([round(mass, 8) for mass in masses])
             
         if momentum != None:
             momentum = tuple(momentum)
@@ -279,7 +279,7 @@ class TwoPoint(Observable):
         """
         correlator_name = self._get_correlator_name(label, masses, momentum,
                                                     source_type, sink_type)
-        masses = tuple([round(m, 4) for m in masses])
+        masses = tuple([round(m, 8) for m in masses])
         correlator_key = (label, masses, tuple(momentum), source_type, sink_type)
         
         if projected:
@@ -1411,7 +1411,7 @@ class TwoPoint(Observable):
         """Generates the member name of the correlator"""
         
         momentum_string = "_px{0}_py{1}_pz{2}".format(*lattice_momentum)
-        mass_string = "".join(["_M{0}".format(round(mass, 4)).replace(".", "p")
+        mass_string = "".join(["_M{0}".format(round(mass, 8)).replace(".", "p")
                                for mass in quark_masses])
         source_sink_string = "_{0}_{1}".format(source_type, sink_type)
         
