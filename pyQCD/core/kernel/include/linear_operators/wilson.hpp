@@ -15,15 +15,15 @@
 using namespace Eigen;
 using namespace std;
 
-class UnpreconditionedWilson : public LinearOperator
+class Wilson : public LinearOperator
 {
   // Basic unpreconditioned Wilson Dirac operator
 
 public:
-  UnpreconditionedWilson(const double mass,
+  Wilson(const double mass,
 			 const vector<complex<double> >& boundaryConditions,
 			 Lattice* lattice);
-  ~UnpreconditionedWilson();
+  ~Wilson();
 
   VectorXcd apply(const VectorXcd& psi);
   VectorXcd applyHermitian(const VectorXcd& psi);

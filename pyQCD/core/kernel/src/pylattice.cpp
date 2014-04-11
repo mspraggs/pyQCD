@@ -173,7 +173,7 @@ py::list pyLattice::applyWilsonDiracOperator(py::list psi, const double mass,
   ScopedGILRelease* scope = new ScopedGILRelease;
 
   // TODO: Case for precondition = 1
-  linop = new UnpreconditionedWilson(mass, tempBoundaryConditions, this);
+  linop = new Wilson(mass, tempBoundaryConditions, this);
 
   VectorXcd vectorEta = linop->apply(vectorPsi);
 

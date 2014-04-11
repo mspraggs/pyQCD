@@ -49,7 +49,7 @@ Lattice::computeWilsonPropagator(
 
   // TODO: Preconditioned Wilson operator (odd/even)
   // If we require preconditioning, create the preconditioned operator
-  diracOperator = new UnpreconditionedWilson(mass, boundaryConditions, this);
+  diracOperator = new Wilson(mass, boundaryConditions, this);
 
   if (verbosity > 0)
     cout << " Done!" << endl;

@@ -1,6 +1,6 @@
-#include <linear_operators/unpreconditioned_wilson.hpp>
+#include <linear_operators/wilson.hpp>
 
-UnpreconditionedWilson::UnpreconditionedWilson(
+Wilson::Wilson(
     const double mass, const vector<complex<double> >& boundaryConditions,
     Lattice* lattice) : LinearOperator::LinearOperator()
 {
@@ -17,7 +17,7 @@ UnpreconditionedWilson::UnpreconditionedWilson(
 
 
 
-UnpreconditionedWilson::~UnpreconditionedWilson()
+Wilson::~Wilson()
 {
   // Just the hopping matrix to destroy
   delete this->hoppingMatrix_;
@@ -25,7 +25,7 @@ UnpreconditionedWilson::~UnpreconditionedWilson()
 
 
 
-VectorXcd UnpreconditionedWilson::apply(const VectorXcd& psi)
+VectorXcd Wilson::apply(const VectorXcd& psi)
 {
   // Right multiply a vector by the operator
   VectorXcd eta = VectorXcd::Zero(this->operatorSize_); // The output vector
@@ -50,7 +50,7 @@ VectorXcd UnpreconditionedWilson::apply(const VectorXcd& psi)
 
 
 
-VectorXcd UnpreconditionedWilson::applyHermitian(const VectorXcd& psi)
+VectorXcd Wilson::applyHermitian(const VectorXcd& psi)
 {
   VectorXcd eta = this->apply(psi);
 
@@ -59,7 +59,7 @@ VectorXcd UnpreconditionedWilson::applyHermitian(const VectorXcd& psi)
 
 
 
-VectorXcd UnpreconditionedWilson::makeHermitian(const VectorXcd& psi)
+VectorXcd Wilson::makeHermitian(const VectorXcd& psi)
 {
   return pyQCD::multiplyGamma5(psi);
 }
