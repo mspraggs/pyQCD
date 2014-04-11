@@ -83,9 +83,9 @@ void HoppingTerm::init(Lattice* lattice,
   this->links_.resize(lattice->nLinks());
 
   for (int i = 0; i < this->lattice_->temporalExtent; ++i) {
-    for (int j = 0; i < this->lattice_->spatialExtent; ++j) {      
-      for (int k = 0; i < this->lattice_->spatialExtent; ++k) {	
-	for (int l = 0; i < this->lattice_->spatialExtent; ++l) {
+    for (int j = 0; j < this->lattice_->spatialExtent; ++j) {      
+      for (int k = 0; k < this->lattice_->spatialExtent; ++k) {	
+	for (int l = 0; l < this->lattice_->spatialExtent; ++l) {
 	  for (int m = 0; m < 4; ++m) {
 	    int link[5] = {i, j, k, l, m};
 	    int hoppingLink[5] = {i, j, k, l, m};

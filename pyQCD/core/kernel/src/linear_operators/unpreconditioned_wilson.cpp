@@ -20,7 +20,7 @@ UnpreconditionedWilson::UnpreconditionedWilson(
     this->spinStructures_.push_back(Matrix4cd::Identity() + pyQCD::gammas[i]);
   }
 
-  this->hoppingMatrix_ = new WilsonHoppingTerm(boundaryConditions, lattice);
+  this->hoppingMatrix_ = new HoppingTerm(boundaryConditions, lattice, 1);
 
   // Initialise tadpole coefficients
   this->tadpoleCoefficients_[0] = lattice->ut();
@@ -61,7 +61,7 @@ VectorXcd UnpreconditionedWilson::apply(const VectorXcd& psi)
   unsigned long long nHoppingFlopsOld = this->hoppingMatrix_->getNumFlops();
 
   // Apply the derivative component
-  eta += this->hoppingMatrix_->apply(psi);
+  eta += 0.5 * this->hoppingMatrix_->apply(psi);
 
   this->nFlops_ += this->hoppingMatrix_->getNumFlops() - nHoppingFlopsOld;
 

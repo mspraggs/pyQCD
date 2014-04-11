@@ -10,7 +10,7 @@
 #include <lattice.hpp>
 #include <utils.hpp>
 #include <linear_operators/linear_operator.hpp>
-#include <linear_operators/wilson_hopping_term.hpp>
+#include <linear_operators/hopping_term.hpp>
 
 using namespace Eigen;
 using namespace std;
@@ -33,7 +33,7 @@ public:
 private:
   // Pointer to the lattice object containing the gauge links
   Lattice* lattice_;
-  WilsonHoppingTerm* hoppingMatrix_; // This operator applies the derivative
+  HoppingTerm* hoppingMatrix_; // This operator applies the derivative
   int operatorSize_; // Size of vectors on which the operator may operate
   vector<vector<int> > nearestNeighbours_;
   vector<vector<complex<double> > > boundaryConditions_;

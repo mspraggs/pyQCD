@@ -15,8 +15,9 @@ JacobiSmearing::JacobiSmearing(
   this->numSmears_ = numSmears;
   this->lattice_ = lattice;
 
-  this->hoppingMatrix_ = new WilsonHoppingTerm(boundaryConditions,
-					       Matrix4cd::Identity(), lattice);
+  this->hoppingMatrix_ = new HoppingTerm(boundaryConditions,
+					 Matrix4cd::Identity(),
+					 lattice, 1);
 
   // Initialise tadpole coefficients
   this->tadpoleCoefficients_[0] = lattice->ut();
