@@ -53,7 +53,7 @@ public:
   Matrix3cd& getLink(const vector<int> link);
   Matrix3cd& getLink(const int index) { return this->links_[index]; };
   void setLink(const int link[5], const Matrix3cd& matrix);
-  double u0() const { return this->u0_; }
+
   double us() const { return this->us_; }
   double ut() const { return this->ut_; }
   double chi() const { return this->chi_; }
@@ -135,7 +135,7 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 protected:
-  double beta_, u0_, us_, ut_, chi_; // a_s / a_t = chi_
+  double beta_, us_, ut_, chi_; // a_s / a_t = chi_
   double anisotropyCoefficients_[4][4];
   double plaquetteTadpoleCoefficients_[4][4];
   double rectangleTadpoleCoefficients_[4][4];
