@@ -51,8 +51,13 @@ namespace pyQCD
 
   int mod(int number, const int divisor);
   int sgn(const int x);
+  void getSiteCoords(int n, const int spaceSize, const int timeSize,
+		     int site[4]);
+  int getSiteIndex(const int site[4], const int size);
+  int getSiteIndex(const int n0, const int n1, const int n2, const int n3,
+		   const int size);
   void getLinkCoords(int n, const int spaceSize, const int timeSize,
-		      int link[5]);
+		     int link[5]);
   int getLinkIndex(const int link[5], const int size);
   int getLinkIndex(const int n0, const int n1, const int n2, const int n3,
 		   const int n4, const int size);

@@ -88,6 +88,38 @@ namespace pyQCD
 
 
 
+  void getSiteCoords(int n, const int spaceSize, const int timeSize,
+		     int site[4])
+  {
+    site[3] = mod(n, spaceSize);
+    n /= spaceSize;
+    site[2] = mod(n, spaceSize);
+    n /= spaceSize;
+    site[1] = mod(n, spaceSize);
+    n /= spaceSize;
+    site[0] = mod(n, timeSize);
+  }
+
+
+
+  int getSiteIndex(const int site[4], const int size)
+  {
+    return site[3] + size 
+      * (site[2] + size
+	 * (site[1] + size
+	    * site[0]));
+  }
+
+
+
+  int getSiteIndex(const int n0, const int n1, const int n2, const int n3,
+		   const int size)
+  {
+    return n3 + size * (n2 + size * (n1 + size * n0));
+  }
+
+
+
   void getLinkCoords(int n, const int spaceSize, const int timeSize,
 		      int link[5])
   {
