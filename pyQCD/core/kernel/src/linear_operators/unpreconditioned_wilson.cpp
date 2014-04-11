@@ -34,9 +34,7 @@ VectorXcd UnpreconditionedWilson::apply(const VectorXcd& psi)
   if (psi.size() != this->operatorSize_)
     return eta;
 
-#pragma omp parallel for
-  for (int i = 0; i < this->operatorSize_; ++i)
-    eta(i) = (1 + 3 / this->lattice_->chi() + this->mass_) * psi(i);
+  eta = (1 + 3 / this->lattice_->chi() + this->mass_) * psi;
 
   this->nFlops_ += 6 * this->operatorSize_;
 
