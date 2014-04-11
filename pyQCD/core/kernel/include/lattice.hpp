@@ -58,6 +58,9 @@ public:
   double ut() const { return this->ut_; }
   double chi() const { return this->chi_; }
 
+  int nLinks() const { return this->nLinks_; }
+  int nSites() const { return this->nLinks_ / 4; }
+
   GaugeField getSubLattice(const int startIndex, const int size);
 
   void metropolis(const int link);
