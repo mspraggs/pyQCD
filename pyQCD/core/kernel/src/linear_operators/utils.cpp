@@ -40,12 +40,12 @@ namespace pyQCD
       vector<int> neighbours(8, 0);
 
       // Determine the coordinates of the site we're on
-      int site[5]; // The coordinates of the lattice site
-      getLinkCoords(4 * i, lattice->spatialExtent,
-		     lattice->temporalExtent, site);
+      int site[4]; // The coordinates of the lattice site
+      getSiteCoords(i, lattice->spatialExtent,
+		    lattice->temporalExtent, site);
 
-      int siteBehind[5]; // Site/link index for the site/link behind us
-      int siteAhead[5]; // Site/link index for the site/link in front of us
+      int siteBehind[4]; // Site/link index for the site/link behind us
+      int siteAhead[4]; // Site/link index for the site/link in front of us
 
       // Loop over the four gamma indices (mu) in the sum inside the Wilson
       // action
@@ -53,15 +53,15 @@ namespace pyQCD
           
 	// Now we determine the indices of the neighbouring links
 
-	copy(site, site + 5, siteBehind);
+	copy(site, site + 4, siteBehind);
 	siteBehind[mu] = pyQCD::mod(siteBehind[mu] - hopSize, latticeShape[mu]);
-	int siteBehindIndex = pyQCD::getLinkIndex(siteBehind,
-						  latticeShape[1]) / 4;
+	int siteBehindIndex = pyQCD::getSiteIndex(siteBehind,
+						  latticeShape[1]);
 
-	copy(site, site + 5, siteAhead);
+	copy(site, site + 4, siteAhead);
 	siteAhead[mu] = pyQCD::mod(siteAhead[mu] + hopSize, latticeShape[mu]);
-	int siteAheadIndex = pyQCD::getLinkIndex(siteAhead,
-						 latticeShape[1]) / 4;
+	int siteAheadIndex = pyQCD::getSiteIndex(siteAhead,
+						 latticeShape[1]);
 
 	neighbours[mu] = siteBehindIndex;
 	neighbours[mu + 4] = siteAheadIndex;
@@ -75,8 +75,8 @@ namespace pyQCD
 
 
   vector<vector<complex<double> > > getBoundaryConditions(
-							  const int hopSize, const vector<complex<double> >& boundaryConditions,
-							  Lattice* lattice)
+    const int hopSize, const vector<complex<double> >& boundaryConditions,
+    Lattice* lattice)
   {
     // Determines the boundary conditions for each hop
 
@@ -96,9 +96,9 @@ namespace pyQCD
 	siteBoundaryConditions(8, complex<double>(1.0, 0.0));
 
       // Determine the coordinates of the site we're on
-      int site[5]; // The coordinates of the lattice site
-      getLinkCoords(4 * i, lattice->spatialExtent,
-		     lattice->temporalExtent, site);
+      int site[4]; // The coordinates of the lattice site
+      getSiteCoords(i, lattice->spatialExtent,
+		    lattice->temporalExtent, site);
 
       // Loop over the four gamma indices (mu) in the sum inside the Wilson
       // action
