@@ -37,12 +37,7 @@ private:
   HoppingTerm* hoppingMatrix_; // This operator does the derivative
   double mass_; // Mass of the Wilson fermion
   int operatorSize_; // Size of vectors on which the operator may operate
-  // The 1 +/- gamma_mu matrices required by the operator
-  vector<Matrix4cd, aligned_allocator<Matrix4cd> > spinStructures_;
-  // Nearest neighbour indices
-  vector<vector<int> > nearestNeighbours_;
   vector<vector<complex<double> > > boundaryConditions_;
-  double tadpoleCoefficients_[4];
 };
 
 #endif

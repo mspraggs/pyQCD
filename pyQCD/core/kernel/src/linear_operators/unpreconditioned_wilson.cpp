@@ -12,25 +12,7 @@ UnpreconditionedWilson::UnpreconditionedWilson(
     = 12 * int(pow(lattice->spatialExtent, 3)) * lattice->temporalExtent;
   this->lattice_ = lattice;
 
-  for (int i = 0; i < 4; ++i) {
-    this->spinStructures_.push_back(Matrix4cd::Identity() - pyQCD::gammas[i]);
-  }
-
-  for (int i = 0; i < 4; ++i) {
-    this->spinStructures_.push_back(Matrix4cd::Identity() + pyQCD::gammas[i]);
-  }
-
   this->hoppingMatrix_ = new HoppingTerm(boundaryConditions, lattice, 1);
-
-  // Initialise tadpole coefficients
-  this->tadpoleCoefficients_[0] = lattice->ut();
-  this->tadpoleCoefficients_[1] = lattice->us();
-  this->tadpoleCoefficients_[2] = lattice->us();
-  this->tadpoleCoefficients_[3] = lattice->us();
-
-  this->nearestNeighbours_ = pyQCD::getNeighbourIndices(1, this->lattice_);
-  this->boundaryConditions_ = pyQCD::getBoundaryConditions(1, boundaryConditions,
-							   this->lattice_);
 }
 
 
