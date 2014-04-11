@@ -120,6 +120,26 @@ namespace pyQCD
 
 
 
+  int shiftSiteIndex(const int index, const int latticeShape[4],
+		     const int direction, const int numHops)
+  {
+    int directionComponent = (int) pow(lattice_shape[3], 3 - direction);
+
+    int directionQuotient = index / directionComponent;
+
+    int oldComponent 
+      = mod(directionQuotient, latticeShape[direction])
+      * directionComponent;
+
+    int newComponent 
+      = mod(directionQuotient + numHops, latticeShape[direction])
+      * directionComponent;
+
+    return index - oldComponent + newComponent
+  }
+
+
+
   void getLinkCoords(int n, const int spaceSize, const int timeSize,
 		     int link[5])
   {

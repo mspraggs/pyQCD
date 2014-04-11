@@ -56,6 +56,8 @@ namespace pyQCD
   int getSiteIndex(const int site[4], const int size);
   int getSiteIndex(const int n0, const int n1, const int n2, const int n3,
 		   const int size);
+  int shiftSiteIndex(const int index, const int latticeShape[4],
+		     const int direction, const int numHops);
   void getLinkCoords(int n, const int spaceSize, const int timeSize,
 		     int link[5]);
   int getLinkIndex(const int link[5], const int size);
