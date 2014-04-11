@@ -121,14 +121,16 @@ namespace pyQCD
 
 
   void getLinkCoords(int n, const int spaceSize, const int timeSize,
-		      int link[5])
+		     int link[5])
   {
     link[4] = mod(n, 4);
     n /= 4;
-    for (int i = 0; i < 3; ++i) {
-      link[3 - i] = mod(n, spaceSize);
-      n /= spaceSize;
-    }
+    link[3] = mod(n, spaceSize);
+    n /= spaceSize;
+    link[2] = mod(n, spaceSize);
+    n /= spaceSize;
+    link[1] = mod(n, spaceSize);
+    n /= spaceSize;
     link[0] = mod(n, timeSize);
   }
 
