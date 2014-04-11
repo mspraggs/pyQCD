@@ -631,7 +631,6 @@ class DataSet:
         if self.num_data % binsize > 0:
             num_bins += 1
             
-            
         if use_cache:
             
             def process_function_with_cache(bin_index):
