@@ -1,5 +1,5 @@
-#ifndef UNPRECONDITIONED_WILSON_HPP
-#define UNPRECONDITIONED_WILSON_HPP
+#ifndef WILSON_HPP
+#define WILSON_HPP
 
 #include <Eigen/Dense>
 
