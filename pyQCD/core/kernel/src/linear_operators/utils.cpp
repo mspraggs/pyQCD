@@ -41,7 +41,7 @@ namespace pyQCD
 
       // Determine the coordinates of the site we're on
       int site[5]; // The coordinates of the lattice site
-      getLinkIndices(4 * i, lattice->spatialExtent,
+      getLinkCoords(4 * i, lattice->spatialExtent,
 		     lattice->temporalExtent, site);
 
       int siteBehind[5]; // Site/link index for the site/link behind us
@@ -97,7 +97,7 @@ namespace pyQCD
 
       // Determine the coordinates of the site we're on
       int site[5]; // The coordinates of the lattice site
-      getLinkIndices(4 * i, lattice->spatialExtent,
+      getLinkCoords(4 * i, lattice->spatialExtent,
 		     lattice->temporalExtent, site);
 
       // Loop over the four gamma indices (mu) in the sum inside the Wilson

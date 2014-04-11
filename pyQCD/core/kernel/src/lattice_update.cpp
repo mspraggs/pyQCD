@@ -7,7 +7,7 @@ void Lattice::metropolis(const int link)
   // algorithm
   // Convert the link index to the lattice coordinates
   int linkCoords[5];
-  pyQCD::getLinkIndices(link, this->spatialExtent, this->temporalExtent,
+  pyQCD::getLinkCoords(link, this->spatialExtent, this->temporalExtent,
 			linkCoords);
   // Get the staples
   Matrix3cd staples = (this->*computeStaples)(linkCoords);
@@ -38,7 +38,7 @@ void Lattice::metropolisNoStaples(const int link)
   // algorithm
   // Convert the link index to the lattice coordinates
   int linkCoords[5];
-  pyQCD::getLinkIndices(link, this->spatialExtent, this->temporalExtent,
+  pyQCD::getLinkCoords(link, this->spatialExtent, this->temporalExtent,
 			linkCoords);
   // Record the old action contribution
   double oldAction = (this->*computeLocalAction)(linkCoords);
@@ -67,7 +67,7 @@ void Lattice::heatbath(const int link)
   // Update a single link using heatbath in Gattringer and Lang
   // Convert the link index to the lattice coordinates
   int linkCoords[5];
-  pyQCD::getLinkIndices(link, this->spatialExtent, this->temporalExtent,
+  pyQCD::getLinkCoords(link, this->spatialExtent, this->temporalExtent,
 			linkCoords);
   // Calculate the staples matrix A
   Matrix3cd staples = (this->*computeStaples)(linkCoords);
