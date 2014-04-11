@@ -123,7 +123,7 @@ namespace pyQCD
   int shiftSiteIndex(const int index, const int latticeShape[4],
 		     const int direction, const int numHops)
   {
-    int directionComponent = (int) pow(lattice_shape[3], 3 - direction);
+    int directionComponent = (int) pow(latticeShape[3], 3 - direction);
 
     int directionQuotient = index / directionComponent;
 
@@ -135,7 +135,7 @@ namespace pyQCD
       = mod(directionQuotient + numHops, latticeShape[direction])
       * directionComponent;
 
-    return index - oldComponent + newComponent
+    return index - oldComponent + newComponent;
   }
 
 
