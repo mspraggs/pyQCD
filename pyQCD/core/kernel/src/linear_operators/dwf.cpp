@@ -32,34 +32,43 @@ DWF::~DWF()
 
 
 
-vector<VectorXcd> DWF::apply(const vector<VectorXcd>& psi)
+VectorXcd DWF::apply(const VectorXcd& psi)
 {
   // Right multiply a vector by the operator
 
+  int size4d = this->operatorSize_ / this->Ls_;
+
   // The output vector
-  vector<VectorXcd> eta \
-    = vector<VectorXcd>(this->Ls_, VectorXcd::Zero(this->operatorSize_));
+  VectorXcd eta = VectorXcd::Zero(this->operatorSize_);
 
   // If psi's the wrong size, get out of here before we segfault
-  if (psi.size() != this->Ls_ || psi[0].size() != this->operatorSize_)
+  if (psi.size() != this->operatorSize_)
     return eta;
 
   unsigned long long nKernelFlopsOld = this->kernel_->getNumFlops();
 
   for (int i = 0; i < this->Ls_; ++i) {
-    eta[i] = this->kernel_->apply(psi[i]);
+    eta.segment(i * size4d, size4d)
+      = this->kernel_->apply(psi.segment(i * size4d, size4d));
 
     if (i == 0) {
-      eta[i] -= pyQCD::multiplyPminus(psi[1]);
-      eta[i] += this->mass_ * pyQCD::multiplyPplus(psi[this->Ls_ - 1]);
+      eta.segment(i * size4d, size4d)
+	-= pyQCD::multiplyPminus(psi.segment(size4d, size4d));
+      eta.segment(i * size4d, size4d) 
+	+= this->mass_
+	* pyQCD::multiplyPplus(psi.segment((this->Ls_ - 1) * size4d, size4d));
     }
     else if (i == this->Ls_ - 1) {
-      eta[i] -= pyQCD::multiplyPplus(psi[this->Ls_ - 2]);
-      eta[i] += this->mass_ * pyQCD::multiplyPminus(psi[0]);
+      eta.segment(i * size4d, size4d)
+	-= pyQCD::multiplyPplus(psi.segment((this->Ls_ - 2) * size4d, size4d));
+      eta.segment(i * size4d, size4d)
+	+= this->mass_ * pyQCD::multiplyPminus(psi.segment(0, size4d));
     }
     else {
-      eta[i] -= pyQCD::multiplyPminus(psi[i + 1]);
-      eta[i] -= pyQCD::multiplyPplus(psi[i - 1]);
+      eta.segment(i * size4d, size4d)
+	-= pyQCD::multiplyPminus(psi.segment((i + 1) * size4d, size4d));
+      eta.segment(i * size4d, size4d)
+	-= pyQCD::multiplyPplus(psi.segment((i - 1) * size4d, size4d));
     }
   }
 
@@ -70,42 +79,54 @@ vector<VectorXcd> DWF::apply(const vector<VectorXcd>& psi)
 
 
 
-vector<VectorXcd> DWF::applyHermitian(const vector<VectorXcd>& psi)
+VectorXcd DWF::applyHermitian(const VectorXcd& psi)
 {
   return this->makeHermitian(this->apply(psi));
 }
 
 
 
-vector<VectorXcd> DWF::makeHermitian(const vector<VectorXcd>& psi)
+VectorXcd DWF::makeHermitian(const VectorXcd& psi)
 {
   // Right multiply a vector by the operator daggered
+
+  int size4d = this->operatorSize_ / this->Ls_;
+
   // The output vector
-  vector<VectorXcd> eta \
-    = vector<VectorXcd>(this->Ls_, VectorXcd::Zero(this->operatorSize_));
+  VectorXcd eta = VectorXcd::Zero(this->operatorSize_);
 
   // If psi's the wrong size, get out of here before we segfault
-  if (psi.size() != this->Ls_ || psi[0].size() != this->operatorSize_)
+  if (psi.size() != this->operatorSize_)
     return eta;
 
   unsigned long long nKernelFlopsOld = this->kernel_->getNumFlops();
 
   for (int i = 0; i < this->Ls_; ++i) {
-    eta[i] = pyQCD::multiplyGamma5(psi[i]);
-    eta[i] = this->kernel_->apply(eta[i]);
-    eta[i] = pyQCD::multiplyGamma5(psi[i]);
+    eta.segment(i * size4d, size4d)
+      = pyQCD::multiplyGamma5(psi.segment(i * size4d, size4d));
+    eta.segment(i * size4d, size4d)
+      = this->kernel_->apply(eta.segment(i * size4d, size4d));
+    eta.segment(i * size4d, size4d)
+      = pyQCD::multiplyGamma5(eta.segment(i * size4d, size4d));
 
     if (i == 0) {
-      eta[i] -= pyQCD::multiplyPplus(psi[1]);
-      eta[i] += this->mass_ * pyQCD::multiplyPminus(psi[this->Ls_ - 1]);
+      eta.segment(i * size4d, size4d)
+	-= pyQCD::multiplyPplus(psi.segment(size4d, size4d));
+      eta.segment(i * size4d, size4d) 
+	+= this->mass_
+	* pyQCD::multiplyPminus(psi.segment((this->Ls_ - 1) * size4d, size4d));
     }
     else if (i == this->Ls_ - 1) {
-      eta[i] -= pyQCD::multiplyPminus(psi[this->Ls_ - 2]);
-      eta[i] += this->mass_ * pyQCD::multiplyPplus(psi[0]);
+      eta.segment(i * size4d, size4d)
+	-= pyQCD::multiplyPminus(psi.segment((this->Ls_ - 2) * size4d, size4d));
+      eta.segment(i * size4d, size4d)
+	+= this->mass_ * pyQCD::multiplyPplus(psi.segment(0, size4d));
     }
     else {
-      eta[i] -= pyQCD::multiplyPplus(psi[i + 1]);
-      eta[i] -= pyQCD::multiplyPminus(psi[i - 1]);
+      eta.segment(i * size4d, size4d)
+	-= pyQCD::multiplyPplus(psi.segment((i + 1) * size4d, size4d));
+      eta.segment(i * size4d, size4d)
+	-= pyQCD::multiplyPminus(psi.segment((i - 1) * size4d, size4d));
     }
   }
 

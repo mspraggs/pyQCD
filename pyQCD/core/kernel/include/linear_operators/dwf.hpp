@@ -28,9 +28,9 @@ public:
       Lattice* lattice);
   ~DWF();
 
-  vector<VectorXcd> apply(const vector<VectorXcd>& psi);
-  vector<VectorXcd> applyHermitian(const vector<VectorXcd>& psi);
-  vector<VectorXcd> makeHermitian(const vector<VectorXcd>& psi);
+  VectorXcd apply(const VectorXcd& psi);
+  VectorXcd applyHermitian(const VectorXcd& psi);
+  VectorXcd makeHermitian(const VectorXcd& psi);
 
 private:
   // Pointer to the lattice object containing the gauge links

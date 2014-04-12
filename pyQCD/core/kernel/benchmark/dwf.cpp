@@ -20,15 +20,15 @@ int main(int argc, char** argv)
   vector<complex<double> > boundaryConditions(4, complex<double>(1.0, 0.0));
   DWF linop(0.4, 1.8, 4, pyQCD::wilson, boundaryConditions, &lattice);
 
-  vector<VectorXcd> psi(4, VectorXcd::Zero(12 * 4 * 4 * 4 * 8));
-  psi[0](0) = 1.0;
+  VectorXcd psi = VectorXcd::Zero(4 * 12 * 4 * 4 * 4 * 8);
+  psi(0) = 1.0;
 
   std::cout << "Performing " << nIterations << " matrix-vector products."
 	    << std::endl;
 
   boost::timer::cpu_timer timer;
   for (int i = 0; i < nIterations; ++i) {
-    vector<VectorXcd> eta = linop.apply(psi);
+    VectorXcd eta = linop.apply(psi);
   }
 
   boost::timer::cpu_times const elapsedTimes(timer.elapsed());

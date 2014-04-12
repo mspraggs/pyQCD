@@ -276,12 +276,7 @@ py::list pyLattice::applyDWFDiracOperator(py::list psi, const double mass,
 {
   // Apply the Wilson Dirac operator to the supplied vector/spinor
 
-  vector<VectorXcd> vectorPsi(Ls, VectorXcd::Zero(len(psi[0])));
-
-  for (int i = 0; i < Ls; ++i) {
-    py::list psiSlice = py::extract<py::list>(psi[i]);
-    vectorPsi[i] = pyQCD::convertListToVector(psiSlice);
-  }
+  VectorXcd vectorPsi = pyQCD::convertListToVector(psi);
 
   vector<complex<double> > tempBoundaryConditions(4, complex<double>(1.0, 0.0));
 
@@ -295,17 +290,12 @@ py::list pyLattice::applyDWFDiracOperator(py::list psi, const double mass,
   // TODO: Case for precondition = 1
   DWF linop(mass, M5, Ls, kernelType, tempBoundaryConditions, this);
 
-  vector<VectorXcd> vectorEta = linop.apply(vectorPsi);
+  VectorXcd vectorEta = linop.apply(vectorPsi);
 
   // Put the GIL back in place
   delete scope;
 
-  py::list eta;
-
-  for (int i = 0; i < Ls; ++i)
-    eta.append(pyQCD::convertVectorToList(vectorEta[i]));
-
-  return eta;
+  return pyQCD::convertVectorToList(vectorEta); 
 }
 
 
