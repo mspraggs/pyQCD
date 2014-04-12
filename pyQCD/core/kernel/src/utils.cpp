@@ -51,6 +51,9 @@ namespace pyQCD
   
   const Matrix4cd gammas[6] = {gamma0, gamma1, gamma2, gamma3, gamma4, gamma5};
 
+  const Matrix4cd Pplus = 0.5 * (Matrix4cd::Identity() + gamma5);
+  const Matrix4cd Pminus = 0.5 * (Matrix4cd::Identity() - gamma5);
+
 
 
   mt19937 generator(time(0));

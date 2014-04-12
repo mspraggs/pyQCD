@@ -67,6 +67,9 @@ namespace pyQCD
   extern const Matrix4cd gamma5;
   extern const Matrix4cd gammas[6];
 
+  extern const Matrix4cd Pplus;
+  extern const Matrix4cd Pminus;
+
   extern mt19937 generator;
   extern uniform_real<> uniformFloat;
   extern uniform_int<> uniformInt;
