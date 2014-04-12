@@ -41,7 +41,7 @@ VectorXcd Wilson::apply(const VectorXcd& psi)
   unsigned long long nHoppingFlopsOld = this->hoppingMatrix_->getNumFlops();
 
   // Apply the derivative component
-  eta += 0.5 * this->hoppingMatrix_->apply(psi);
+  eta -= 0.5 * this->hoppingMatrix_->apply(psi);
 
   this->nFlops_ += this->hoppingMatrix_->getNumFlops() - nHoppingFlopsOld;
 

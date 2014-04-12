@@ -157,7 +157,7 @@ VectorXcd HoppingTerm::apply3d(const VectorXcd& psi)
 	tempComplexNumbers[0] += tempComplexNumbers[4]; // 2 flops
 	tempComplexNumbers[0] *= this->tadpoleCoefficients_[j]; // 2 flops
 	
-	eta(i) -= tempComplexNumbers[0]; // 2 flops
+	eta(i) += tempComplexNumbers[0]; // 2 flops
 
 	// Total flops inside this loop = 2 * 24 + 2 + 2 + 2 = 54 flops
       }
@@ -220,7 +220,7 @@ VectorXcd HoppingTerm::apply(const VectorXcd& psi)
 	tempComplexNumbers[0] += tempComplexNumbers[4];
 	tempComplexNumbers[0] *= this->tadpoleCoefficients_[mu];
 	
-	eta(i) -= tempComplexNumbers[0];
+	eta(i) += tempComplexNumbers[0];
       }
     }
   }

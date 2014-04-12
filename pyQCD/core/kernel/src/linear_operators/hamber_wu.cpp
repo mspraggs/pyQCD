@@ -62,8 +62,8 @@ VectorXcd HamberWu::apply(const VectorXcd& psi)
     = this->nextNearestNeighbour_->getNumFlops();
 
   // Apply the derivative component
-  eta += 2.0 / 3.0 * this->nearestNeighbour_->apply(psi);
-  eta -= 1.0 / 12.0 * this->nextNearestNeighbour_->apply(psi);
+  eta -= 2.0 / 3.0 * this->nearestNeighbour_->apply(psi);
+  eta += 1.0 / 12.0 * this->nextNearestNeighbour_->apply(psi);
 
   this->nFlops_ += this->nearestNeighbour_->getNumFlops() - nearestFlopsOld;
   this->nFlops_
