@@ -653,6 +653,103 @@ class Lattice(lattice.Lattice):
         
         return out
     
+    def get_hamberwu_propagator(self, mass,
+                                source_site=[0, 0, 0, 0],
+                                num_field_smears=0,
+                                field_smearing_param=1.0,
+                                source_smear_type="jacobi",
+                                num_source_smears=0,
+                                source_smearing_param=1.0,
+                                sink_smear_type="jacobi",
+                                num_sink_smears=0,
+                                sink_smearing_param=1.0,
+                                solver_method="conjugate_gradient",
+                                boundary_conditions = [-1, 1, 1, 1],
+                                precondition=False,
+                                max_iterations=1000,
+                                tolerance=1e-8,
+                                verbosity=0):
+        """Compute the Hamber-Wu propagator using the Hamber-Wu fermion action
+                       
+        Args:
+          mass (float): The bare quark mass
+          source_site (list, optional): The source site to use when doing the
+            inversion
+          num_field_smears (int, optional): The number of stout field smears
+            applied before doing the inversion
+          field_smearing_param (float, optional): The stout field smearing
+            parameter to use before doing the inversion
+          source_smear_type (str, optional): The type of smearing to apply
+            to the source. Currently "jacobi" is the only supported smearing
+            type.
+          num_source_smears (int, optional): The number of Jacobi smears to apply
+            to the source before inverting.
+          source_smearing_param (float, optional): The Jacobi field smearing
+            parameter to use before doing the inversion
+          sink_smear_type (str, optional): The type of smearing to apply
+            to the sink. Currently "jacobi" is the only supported smearing
+            type.
+          num_sink_smears (int, optional): The number of Jacobi smears to apply
+            to the sink before inverting.
+          sink_smearing_param (float, optional): The Jacobi field smearing
+            parameter to use before doing the inversion
+          solver_method (str, optional): The algorithm to use when doing the
+            inversion. Currently "conjugate_gradient" and "bicgstab" are
+            available.
+          boundary_conditions (list, optional): The phase factors to apply to
+            the fermion fields at the boundaries of the lattice.
+          precondition (bool, optional): Determines whether the preconditioned
+            form of the Dirac operator is used.
+          max_iterations (int, optional): The maximum number of iterations the
+            solver will perform before giving up.
+          tolerance (float, optional): The maximum residual the solver will
+            allow before considering convergence to have been reached.
+          verbosity (int, optional): Determines how much inversion is outputted
+            during the inversion. Values greater than one produce output, whilst
+            1 or 0 will produce no output.
+            
+        Returns:
+          Propagator: The propagator encapsulated in a Propagator object
+          
+        Examples:
+          Create a lattice, thermalize it, and invert on a smeared source.
+          
+          >>> import pyQCD
+          >>> lattice = pyQCD.Lattice()
+          >>> lattice.thermalize(100)
+          >>> prop = lattice.get_hamberwu_propagator(0.4, num_source_smears=2,
+          ...                                      source_smearing_param=0.4)
+        """
+        
+        if verbosity > 0:
+            verbosity -= 1
+        
+        raw_propagator \
+          = np.array(lattice.Lattice \
+                     .get_hamberwu_propagator(
+                         self, mass, source_site, num_field_smears,
+                         field_smearing_param,
+                         dicts.smearing_types[source_smear_type],
+                         num_source_smears, source_smearing_param,
+                         dicts.smearing_types[sink_smear_type], num_sink_smears,
+                         sink_smearing_param, dicts.solver_methods[solver_method],
+                         boundary_conditions, dicts.truefalse[precondition],
+                         max_iterations, tolerance, verbosity))
+        
+        prop = np.swapaxes(np.reshape(raw_propagator, (self.T, self.L, self.L,
+                                                       self.L, 4, 3, 4, 3)), 5,
+                                                       6)
+        
+        out = propagator.Propagator(prop, self.L, self.T, self.beta, self.ut,
+                                    self.us, self.chi, self.action, "hamber-wu",
+                                    mass, {}, source_site, num_field_smears,
+                                    field_smearing_param, source_smear_type,
+                                    num_source_smears, source_smearing_param,
+                                    sink_smear_type, num_sink_smears,
+                                    sink_smearing_param)
+        
+        return out
+    
     def apply_wilson_dirac(self, psi, mass, boundary_conditions=[-1, 1, 1, 1],
                            precondition=False):
         """Applies the Wilson dirac operator to the specified lattice spinor
@@ -710,6 +807,69 @@ class Lattice(lattice.Lattice):
         eta = lattice.Lattice.apply_wilson_dirac(self, psi, mass,
                                                  boundary_conditions,
                                                  dicts.truefalse[precondition])
+        
+        eta = np.array(eta)
+        eta = eta.reshape((self.T, self.L, self.L, self.L, 4, 3))
+        
+        return eta
+    
+    def apply_hamberwu_dirac(self, psi, mass, boundary_conditions=[-1, 1, 1, 1],
+                             precondition=False):
+        """Applies the Hamber-Wu dirac operator to the specified lattice spinor
+                           
+        Args:
+          psi (numpy.ndarray): The spinor to which the Dirac operator is
+            applied. Must have shape (T, L, L, L, 4, 3).
+          mass (float): The bare mass of the quark that the Dirac operator
+            represents.
+          boundary_conditions (list, optional): The phase factors to apply to
+            the fermion fields at the boundaries of the lattice.
+          precondition (bool, optional): Specifies whether the preconditioned
+            form of the Dirac operator is applied to the spinor.
+            
+        Returns:
+          numpy.ndarray: The spinor field resulting from the operator application
+          
+        Examples:
+          Create a lattice and a spinor, then apply the Dirac operator to the
+          spinor.
+          
+          >>> import pyQCD
+          >>> lattice = pyQCD.Lattice()
+          >>> lattice.thermalize(100)
+          >>> import numpy as np
+          >>> psi = np.zeros((lattice.T, lattice.L, lattice.L, lattice.L, 4, 3))
+          >>> psi[0, 0, 0, 0, 0, 0] = 1.0
+          >>> eta = lattice.apply_hamberwu_dirac(psi, 0.4)
+          
+          Create a lattice, then use the Dirac operator to create a scipy
+          LinearOperator, which can be used to do inversions using the scipy
+          sparse solvers.
+          
+          >>> import pyQCD
+          >>> lattice = pyQCD.Lattice()
+          >>> import numpy as np
+          >>> import scipy.sparse.linalg as spla
+          >>> N = 12 * lattice.T * lattice.L**3
+          >>> matvec = lambda psi: \
+          ...   lattice.apply_hamberwu_dirac(psi, 0.4).flatten(), 
+          >>> wilson_dirac = spla.LinearOperator((N, N), matvec,
+          ...                                    dtype=np.complex)
+          >>> eta = np.zeros(N)
+          >>> eta[0] = 1.0
+          >>> psi = spla.gmres(wilson_dirac, eta)          
+        """
+        
+        psi = psi.flatten()
+        
+        try:
+            psi = psi.tolist()
+        except AttributeError:
+            pass
+        
+        eta = lattice.Lattice.apply_hamberwu_dirac(self, psi, mass,
+                                                   boundary_conditions,
+                                                   dicts.truefalse[precondition])
         
         eta = np.array(eta)
         eta = eta.reshape((self.T, self.L, self.L, self.L, 4, 3))
