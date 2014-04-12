@@ -41,7 +41,7 @@ vector<VectorXcd> DWF::apply(const vector<VectorXcd>& psi)
     = vector<VectorXcd>(this->Ls_, VectorXcd::Zero(this->operatorSize_));
 
   // If psi's the wrong size, get out of here before we segfault
-  if (psi.size() != this->operatorSize_)
+  if (psi.size() != this->Ls_ || psi[0].size() != this->operatorSize_)
     return eta;
 
   unsigned long long nKernelFlopsOld = this->kernel_->getNumFlops();
@@ -85,7 +85,7 @@ vector<VectorXcd> DWF::makeHermitian(const vector<VectorXcd>& psi)
     = vector<VectorXcd>(this->Ls_, VectorXcd::Zero(this->operatorSize_));
 
   // If psi's the wrong size, get out of here before we segfault
-  if (psi.size() != this->operatorSize_)
+  if (psi.size() != this->Ls_ || psi[0].size() != this->operatorSize_)
     return eta;
 
   unsigned long long nKernelFlopsOld = this->kernel_->getNumFlops();
