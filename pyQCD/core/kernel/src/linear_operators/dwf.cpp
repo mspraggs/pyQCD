@@ -49,7 +49,8 @@ VectorXcd DWF::apply(const VectorXcd& psi)
 
   for (int i = 0; i < this->Ls_; ++i) {
     eta.segment(i * size4d, size4d)
-      = this->kernel_->apply(psi.segment(i * size4d, size4d));
+      = this->kernel_->apply(psi.segment(i * size4d, size4d))
+      + psi.segment(i * size4d, size4d);
 
     if (i == 0) {
       eta.segment(i * size4d, size4d)
@@ -105,7 +106,8 @@ VectorXcd DWF::makeHermitian(const VectorXcd& psi)
     eta.segment(i * size4d, size4d)
       = pyQCD::multiplyGamma5(psi.segment(i * size4d, size4d));
     eta.segment(i * size4d, size4d)
-      = this->kernel_->apply(eta.segment(i * size4d, size4d));
+      = this->kernel_->apply(eta.segment(i * size4d, size4d))
+      + eta.segment(i * size4d, size4d);
     eta.segment(i * size4d, size4d)
       = pyQCD::multiplyGamma5(eta.segment(i * size4d, size4d));
 
