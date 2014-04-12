@@ -913,12 +913,12 @@ class Lattice(lattice.Lattice):
           >>> eta = lattice.apply_dwf_dirac(psi, 0.4, 1.8, 4)     
         """
         
+        psi = psi.flatten()
+        
         try:
             psi = psi.tolist()
         except AttributeError:
             pass
-        
-        psi = psi.flatten()
         
         eta = lattice.Lattice.apply_dwf_dirac(self, psi, mass, M5, Ls,
                                               dicts.fermion_actions[kernel],
