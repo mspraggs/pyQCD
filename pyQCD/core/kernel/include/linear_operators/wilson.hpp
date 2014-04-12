@@ -21,8 +21,8 @@ class Wilson : public LinearOperator
 
 public:
   Wilson(const double mass,
-			 const vector<complex<double> >& boundaryConditions,
-			 Lattice* lattice);
+	 const vector<complex<double> >& boundaryConditions,
+	 Lattice* lattice);
   ~Wilson();
 
   VectorXcd apply(const VectorXcd& psi);
