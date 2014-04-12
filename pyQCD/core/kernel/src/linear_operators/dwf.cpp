@@ -11,7 +11,7 @@ DWF::DWF(
   this->mass_ = mass;
   this->Ls_ = Ls;
   this->operatorSize_ 
-    = 12 * int(pow(lattice->spatialExtent, 3)) * lattice->temporalExtent;
+    = 12 * Ls * int(pow(lattice->spatialExtent, 3)) * lattice->temporalExtent;
   this->lattice_ = lattice;
 
   if (kernelType == pyQCD::wilson)
