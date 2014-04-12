@@ -46,10 +46,8 @@ BOOST_PYTHON_MODULE(lattice)
 					    double, int, int, int, int, int, int>
 			((py::arg("L")=4, py::arg("T")=8, py::arg("beta")=5.5,
 			  py::arg("ut")=1.0, py::arg("us")=1.0,
-			  py::arg("chi")=1.0,
-			  py::arg("action")=pyQCD::wilsonPlaquette,
-			  py::arg("Ncor")=10,
-			  py::arg("update_method")=pyQCD::heatbath,
+			  py::arg("chi")=1.0, py::arg("action")=0,
+			  py::arg("Ncor")=10, py::arg("update_method")=0,
 			  py::arg("parallel_flag")=1, py::arg("block_size")=4,
 			  py::arg("rand_seed")=-1)))
     .def(py::init<pyLattice&>())
@@ -75,20 +73,20 @@ BOOST_PYTHON_MODULE(lattice)
     .def("get_wilson_propagator", &pyLattice::computeWilsonPropagatorP,
 	 (py::arg("mass"), py::arg("site") = listArg(),
 	  py::arg("n_link_smears") = 0, py::arg("link_param") = 1.0,
-	  py::arg("src_smear_type") = pyQCD::jacobi, py::arg("n_src_smears") = 0,
-	  py::arg("src_param") = 1.0, py::arg("sink_smear_type") = pyQCD::jacobi,
+	  py::arg("src_smear_type") = 0, py::arg("n_src_smears") = 0,
+	  py::arg("src_param") = 1.0, py::arg("sink_smear_type") = 0,
 	  py::arg("n_sink_smears") = 0, py::arg("sink_param") = 1.0,
-	  py::arg("solver_method") = pyQCD::cg,
+	  py::arg("solver_method") = 1,
 	  py::arg("boundary_conditions") = defaultBoundaryConditions(),
 	  py::arg("precondition") = 0, py::arg("max_iterations") = 1000,
 	  py::arg("tolerance") = 1, py::arg("verbosity") = 0))
     .def("get_hamberwu_propagator", &pyLattice::computeHamberWuPropagatorP,
 	 (py::arg("mass"), py::arg("site") = listArg(),
 	  py::arg("n_link_smears") = 0, py::arg("link_param") = 1.0,
-	  py::arg("src_smear_type") = pyQCD::jacobi, py::arg("n_src_smears") = 0,
-	  py::arg("src_param") = 1.0, py::arg("sink_smear_type") = pyQCD::jacobi,
+	  py::arg("src_smear_type") = 0, py::arg("n_src_smears") = 0,
+	  py::arg("src_param") = 1.0, py::arg("sink_smear_type") = 0,
 	  py::arg("n_sink_smears") = 0, py::arg("sink_param") = 1.0,
-	  py::arg("solver_method") = pyQCD::cg,
+	  py::arg("solver_method") = 1,
 	  py::arg("boundary_conditions") = defaultBoundaryConditions(),
 	  py::arg("precondition") = 0, py::arg("max_iterations") = 1000,
 	  py::arg("tolerance") = 1, py::arg("verbosity") = 0))
@@ -102,7 +100,7 @@ BOOST_PYTHON_MODULE(lattice)
 	  py::arg("precondition") = 0))
     .def("apply_dwf_dirac", &pyLattice::applyDWFDiracOperator,
 	 (py::arg("psi"), py::arg("mass"), py::arg("M5"), py::arg("Ls"),
-	  py::arg("kernel") = pyQCD::wilson,
+	  py::arg("kernel") = 0,
 	  py::arg("boundary_conditions") = defaultBoundaryConditions(),
 	  py::arg("precondition") = 0))
     .def("apply_jacobi_smearing", &pyLattice::applyJacobiSmearingOperator,
