@@ -25,9 +25,35 @@ using namespace std;
 
 namespace pyQCD
 {
+  enum updateMethod_t {
+    heatbath,
+    stapleMetropolis,
+    metropolis
+  };
+
+  enum gaugeAction_t {
+    wilsonPlaquette,
+    rectangleImproved,
+    twistedRectangleImproved
+  };
+
+  enum fermionAction_t {
+    wilson,
+    hamberWu
+  };
+
+  enum solverMethod_t {
+    bicgstab,
+    cg,
+    gmres
+  };
+
+  enum smearingType_t {
+    jacobi
+  };
+
   extern const complex<double> i;
   extern const double pi;
-
 
   extern const Matrix2cd sigma0;
   extern const Matrix2cd sigma1;

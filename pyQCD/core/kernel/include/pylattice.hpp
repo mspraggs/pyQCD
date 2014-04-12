@@ -26,9 +26,9 @@ public:
 	    const double ut = 1.0,
 	    const double us = 1.0,
 	    const double chi = 1.0,
-	    const int action = 0,
+	    const int action = pyQCD::wilsonPlaquette,
 	    const int nCorrelations = 50,
-	    const int updateMethod = 0,
+	    const int updateMethod = pyQCD::heatbath,
 	    const int parallelFlag = 1,
 	    const int chunkSize = 4,
 	    const int randSeed = -1);

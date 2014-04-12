@@ -85,15 +85,15 @@ Lattice::Lattice(const int spatialExtent, const int temporalExtent,
   }
   
   // Set the action to point to the correct function
-  if (action == 0) {
+  if (action == pyQCD::wilsonPlaquette) {
     this->computeLocalAction = &Lattice::computeLocalWilsonAction;
     this->computeStaples = &Lattice::computeWilsonStaples;
   }
-  else if (action == 1) {
+  else if (action == pyQCD::rectangleImproved) {
     this->computeLocalAction = &Lattice::computeLocalRectangleAction;
     this->computeStaples = &Lattice::computeRectangleStaples;
   }
-  else if (action == 2) {
+  else if (action == pyQCD::twistedRectangleImproved) {
     this->computeLocalAction = &Lattice::computeLocalTwistedRectangleAction;
     this->computeStaples = &Lattice::computeTwistedRectangleStaples;
     cout << "Warning! Heatbath updates are not implemented for twisted"
@@ -106,8 +106,8 @@ Lattice::Lattice(const int spatialExtent, const int temporalExtent,
   }
   
   // Set the update method to point to the correct function
-  if (updateMethod == 0) {
-    if (action != 2) {
+  if (updateMethod == pyQCD::heatbath) {
+    if (action != pyQCD::twistedRectangleImproved) {
       this->updateFunction_ = &Lattice::heatbath;
     }
     else {
@@ -116,8 +116,8 @@ Lattice::Lattice(const int spatialExtent, const int temporalExtent,
       this->updateFunction_ = &Lattice::metropolisNoStaples;
     }
   }
-  else if (updateMethod == 1) {
-    if (action != 2) {
+  else if (updateMethod == pyQCD::stapleMetropolis) {
+    if (action != pyQCD::twistedRectangleImproved) {
       this->updateFunction_ = &Lattice::metropolis;
     }
     else {
@@ -126,12 +126,12 @@ Lattice::Lattice(const int spatialExtent, const int temporalExtent,
       this->updateFunction_ = &Lattice::metropolisNoStaples;
     }
   }
-  else if (updateMethod == 2) {
+  else if (updateMethod == pyQCD::metropolis) {
     this->updateFunction_ = &Lattice::metropolisNoStaples;
   }
   else {
     cout << "Warning! Specified update method does not exist!" << endl;
-    if (action != 2) {
+    if (action != pyQCD::twistedRectangleImproved) {
       this->updateFunction_ = &Lattice::heatbath;
     }
     else {
