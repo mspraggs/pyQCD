@@ -268,6 +268,48 @@ py::list pyLattice::applyHamberWuDiracOperator(py::list psi, const double mass,
 
 
 
+py::list pyLattice::applyDWFDiracOperator(py::list psi, const double mass,
+					  const double M5, const int Ls,
+					  const int kernelType,
+					  py::list boundaryConditions,
+					  const int precondition)
+{
+  // Apply the Wilson Dirac operator to the supplied vector/spinor
+
+  vector<VectorXcd> vectorPsi(Ls, VectorXcd::Zero(len(psi[0])));
+
+  for (int i = 0; i < Ls; ++i) {
+    py::list psiSlice = py::extract<py::list>(psi[i]);
+    vectorPsi[i] = pyQCD::convertListToVector(psiSlice);
+  }
+
+  vector<complex<double> > tempBoundaryConditions(4, complex<double>(1.0, 0.0));
+
+  for (int i = 0; i < 4; ++i)
+    tempBoundaryConditions[i] 
+      = py::extract<complex<double> >(boundaryConditions[i]);
+
+  // Release the GIL to apply the linear operator
+  ScopedGILRelease* scope = new ScopedGILRelease;
+
+  // TODO: Case for precondition = 1
+  DWF linop(mass, M5, Ls, kernelType, tempBoundaryConditions, this);
+
+  vector<VectorXcd> vectorEta = linop.apply(vectorPsi);
+
+  // Put the GIL back in place
+  delete scope;
+
+  py::list eta;
+
+  for (int i = 0; i < Ls; ++i)
+    eta.append(pyQCD::convertVectorToList(vectorEta[i]));
+
+  return eta;
+}
+
+
+
 py::list pyLattice::applyJacobiSmearingOperator(py::list psi,
 						const int numSmears,
 						const double smearingParameter,

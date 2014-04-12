@@ -81,6 +81,11 @@ public:
   py::list applyHamberWuDiracOperator(py::list psi, const double mass,
 				      py::list boundaryConditions,
 				      const int precondition);
+  py::list applyDWFDiracOperator(py::list psi, const double mass,
+				 const double M5, const int Ls,
+				 const int kernelType,
+				 py::list boundaryConditions,
+				 const int precondition);
   py::list applyJacobiSmearingOperator(py::list psi, const int numSmears,
 				       const double smearingParameter,
 				       py::list boundaryConditions);

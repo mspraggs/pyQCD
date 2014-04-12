@@ -100,6 +100,11 @@ BOOST_PYTHON_MODULE(lattice)
 	 (py::arg("psi"), py::arg("mass"),
 	  py::arg("boundary_conditions") = defaultBoundaryConditions(),
 	  py::arg("precondition") = 0))
+    .def("apply_dwf_dirac", &pyLattice::applyDWFDiracOperator,
+	 (py::arg("psi"), py::arg("mass"), py::arg("M5"), py::arg("Ls"),
+	  py::arg("kernel") = pyQCD::wilson,
+	  py::arg("boundary_conditions") = defaultBoundaryConditions(),
+	  py::arg("precondition") = 0))
     .def("apply_jacobi_smearing", &pyLattice::applyJacobiSmearingOperator,
 	 (py::arg("psi"), py::arg("num_smears"), py::arg("smearing_parameter"),
 	  py::arg("boundary_conditions") = defaultBoundaryConditions()))
