@@ -60,9 +60,27 @@ public:
 				    const int maxIterations,
 				    const double tolerance,
 				    const int verbosity);
+  py::list computeHamberWuPropagatorP(const double mass, const py::list site,
+				      const int nSmears,
+				      const double smearingParameter,
+				      const int sourceSmearingType,
+				      const int nSourceSmears,
+				      const double sourceSmearingParameter,
+				      const int sinkSmearingType,
+				      const int nSinkSmears,
+				      const double sinkSmearingParameter,
+				      const int solverMethod,
+				      const py::list boundaryConditions,
+				      const int precondition,
+				      const int maxIterations,
+				      const double tolerance,
+				      const int verbosity);
   py::list applyWilsonDiracOperator(py::list psi, const double mass,
 				    py::list boundaryConditions,
 				    const int precondition);
+  py::list applyHamberWuDiracOperator(py::list psi, const double mass,
+				      py::list boundaryConditions,
+				      const int precondition);
   py::list applyJacobiSmearingOperator(py::list psi, const int numSmears,
 				       const double smearingParameter,
 				       py::list boundaryConditions);

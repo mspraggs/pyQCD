@@ -69,6 +69,44 @@ Lattice::computeWilsonPropagator(
 
 
 vector<MatrixXcd>
+Lattice::computeHamberWuPropagator(
+  const double mass, int site[4], const int nSmears,
+  const double smearingParameter, const int sourceSmearingType,
+  const int nSourceSmears, const double sourceSmearingParameter,
+  const int sinkSmearingType, const int nSinkSmears,
+  const double sinkSmearingParameter, const int solverMethod,
+  const vector<complex<double> >& boundaryConditions, const int precondition,
+  const int maxIterations, const double tolerance, const int verbosity)
+{
+  // Computes the Wilson propagator given a specified mass, source site
+  // and set of smearing parameters
+
+  // Generate the dirac matrix
+  if (verbosity > 0)
+    cout << "  Generating Dirac matrix..." << flush;
+
+  LinearOperator* diracOperator;
+
+  diracOperator = new HamberWu(mass, boundaryConditions, this);
+
+  if (verbosity > 0)
+    cout << " Done!" << endl;
+
+  vector<MatrixXcd> propagator 
+    = this->computePropagator(diracOperator, site, nSmears, smearingParameter,
+			      sourceSmearingType, nSourceSmears,
+			      sourceSmearingParameter, sinkSmearingType,
+			      nSinkSmears, sinkSmearingParameter, solverMethod,
+			      maxIterations, tolerance, verbosity);
+
+  delete diracOperator;
+
+  return propagator;
+}
+
+
+
+vector<MatrixXcd>
 Lattice::computePropagator(LinearOperator* diracMatrix, int site[4],
 			   const int nSmears, const double smearingParameter,
 			   const int sourceSmearingType,

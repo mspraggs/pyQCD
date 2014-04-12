@@ -80,7 +80,21 @@ BOOST_PYTHON_MODULE(lattice)
 	  py::arg("boundary_conditions") = defaultBoundaryConditions(),
 	  py::arg("precondition") = 0, py::arg("max_iterations") = 1000,
 	  py::arg("tolerance") = 1, py::arg("verbosity") = 0))
+    .def("get_hamberwu_propagator", &pyLattice::computeHamberWuPropagatorP,
+	 (py::arg("mass"), py::arg("site") = listArg(),
+	  py::arg("n_link_smears") = 0, py::arg("link_param") = 1.0,
+	  py::arg("src_smear_type") = 0, py::arg("n_src_smears") = 0,
+	  py::arg("src_param") = 1.0, py::arg("sink_smear_type") = 0,
+	  py::arg("n_sink_smears") = 0, py::arg("sink_param") = 1.0,
+	  py::arg("solver_method") = 0,
+	  py::arg("boundary_conditions") = defaultBoundaryConditions(),
+	  py::arg("precondition") = 0, py::arg("max_iterations") = 1000,
+	  py::arg("tolerance") = 1, py::arg("verbosity") = 0))
     .def("apply_wilson_dirac", &pyLattice::applyWilsonDiracOperator,
+	 (py::arg("psi"), py::arg("mass"),
+	  py::arg("boundary_conditions") = defaultBoundaryConditions(),
+	  py::arg("precondition") = 0))
+    .def("apply_hamberwu_dirac", &pyLattice::applyHamberWuDiracOperator,
 	 (py::arg("psi"), py::arg("mass"),
 	  py::arg("boundary_conditions") = defaultBoundaryConditions(),
 	  py::arg("precondition") = 0))

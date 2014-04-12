@@ -153,6 +153,88 @@ py::list pyLattice::computeWilsonPropagatorP(
 
 
 
+py::list pyLattice::computeHamberWuPropagatorP(
+  const double mass, const py::list site,
+  const int nSmears, const double smearingParameter,
+  const int sourceSmearingType, const int nSourceSmears,
+  const double sourceSmearingParameter, const int sinkSmearingType,
+  const int nSinkSmears, const double sinkSmearingParameter,
+  const int solverMethod, const py::list boundaryConditions,
+  const int precondition, const int maxIterations,
+  const double tolerance, const int verbosity)
+{
+  // Wrapper for the calculation of a propagator
+  int tempSite[4] = {py::extract<int>(site[0]),
+		     py::extract<int>(site[1]),
+		     py::extract<int>(site[2]),
+		     py::extract<int>(site[3])};
+  vector<complex<double> > tempBoundaryConditions(4, complex<double>(1.0, 0.0));
+
+  for (int i = 0; i < 4; ++i) {
+    tempBoundaryConditions[i] 
+      = py::extract<complex<double> >(boundaryConditions[i]);
+  }
+  // Release the GIL for the propagator inversion
+  ScopedGILRelease* scope = new ScopedGILRelease;
+  // Get the propagator
+  vector<MatrixXcd> prop 
+    = this->computeHamberWuPropagator(mass, tempSite, nSmears, smearingParameter,
+				      sourceSmearingType, nSourceSmears,
+				      sourceSmearingParameter, sinkSmearingType,
+				      nSinkSmears, sinkSmearingParameter,
+				      solverMethod, tempBoundaryConditions,
+				      precondition, maxIterations, tolerance,
+				      verbosity);
+  // Put GIL back in place
+  delete scope;
+  // This is where we'll store the propagator as a list
+  py::list pythonPropagator;
+  // Loop through the raw propagator and add it to the python list
+  for (int i = 0; i < this->nLinks_ / 4; ++i) {
+    // Maybe the following could be put in it's own function? Seems to be
+    // something that frequently needs to be done
+    py::list matrixList = pyQCD::convertMatrixToList(prop[i]);
+    pythonPropagator.append(matrixList);
+  }
+
+  return pythonPropagator;
+}
+
+
+
+py::list pyLattice::applyHamberWuDiracOperator(py::list psi, const double mass,
+					       py::list boundaryConditions,
+					       const int precondition)
+{
+  // Apply the Wilson Dirac operator to the supplied vector/spinor
+
+  VectorXcd vectorPsi = pyQCD::convertListToVector(psi);
+
+  vector<complex<double> > tempBoundaryConditions(4, complex<double>(1.0, 0.0));
+
+  for (int i = 0; i < 4; ++i)
+    tempBoundaryConditions[i] 
+      = py::extract<complex<double> >(boundaryConditions[i]);
+
+  LinearOperator* linop;
+
+  // Release the GIL to apply the propagator
+  ScopedGILRelease* scope = new ScopedGILRelease;
+
+  // TODO: Case for precondition = 1
+  linop = new HamberWu(mass, tempBoundaryConditions, this);
+
+  VectorXcd vectorEta = linop->apply(vectorPsi);
+
+  delete linop;
+  // Put the GIL back in place
+  delete scope;
+
+  return pyQCD::convertVectorToList(vectorEta);
+}
+
+
+
 py::list pyLattice::applyWilsonDiracOperator(py::list psi, const double mass,
 					     py::list boundaryConditions,
 					     const int precondition)
