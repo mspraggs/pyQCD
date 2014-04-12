@@ -20,7 +20,7 @@ int main(int argc, char** argv)
   vector<complex<double> > boundaryConditions(4, complex<double>(1.0, 0.0));
   Wilson linop(0.4, boundaryConditions, &lattice);
 
-  VectorXcd psi(12 * 4 * 4 * 4 * 8);
+  VectorXcd psi = VectorXcd::Zero(12 * 4 * 4 * 4 * 8);
   psi(0) = 1.0;
 
   std::cout << "Performing " << nIterations << " matrix-vector products."
