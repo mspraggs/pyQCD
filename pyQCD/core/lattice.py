@@ -876,6 +876,61 @@ class Lattice(lattice.Lattice):
         
         return eta
     
+    def apply_dwf_dirac(self, psi, mass, M5, Ls, kernel="wilson",
+                        boundary_conditions=[-1, 1, 1, 1], precondition=False):
+        """Applies a generic DWF dirac operator to the specified 5D lattice
+        spinor
+                           
+        Args:
+          psi (numpy.ndarray): The spinor to which the Dirac operator is
+            applied. Must have shape (T, L, L, L, 4, 3).
+          mass (float): The bare mass of the quark that the Dirac operator
+            represents.
+          M5 (float): The domain wall height to use.
+          Ls (int): The extent of the fifth dimension.
+          kernel (str, optional): The four dimensional kernel to use. Only
+            kernels with a single quark mass parameter are permissible here.
+          boundary_conditions (list, optional): The phase factors to apply to
+            the fermion fields at the boundaries of the lattice.
+          precondition (bool, optional): Specifies whether the preconditioned
+            form of the Dirac operator is applied to the spinor.
+            
+        Returns:
+          numpy.ndarray: The 5D spinor field resulting from the operator
+          application
+          
+        Examples:
+          Create a lattice and a spinor, then apply the Dirac operator to the
+          spinor.
+          
+          >>> import pyQCD
+          >>> lattice = pyQCD.Lattice()
+          >>> lattice.thermalize(100)
+          >>> import numpy as np
+          >>> psi = np.zeros((4, lattice.T, lattice.L, lattice.L, lattice.L,
+          ...                 4, 3))
+          >>> psi[0, 0, 0, 0, 0, 0, 0] = 1.0
+          >>> eta = lattice.apply_dwf_dirac(psi, 0.4, 1.8, 4)     
+        """
+        
+        N = psi.size / Ls
+        psi = psi.reshape((Ls, N))
+        
+        try:
+            psi = psi.tolist()
+        except AttributeError:
+            pass
+        
+        eta = lattice.Lattice.apply_hamberwu_dirac(self, psi, mass, M5, Ls,
+                                                   dicts.fermion_actions[kernel],
+                                                   boundary_conditions,
+                                                   dicts.truefalse[precondition])
+        
+        eta = np.array(eta)
+        eta = eta.reshape((Ls, self.T, self.L, self.L, self.L, 4, 3))
+        
+        return eta
+    
     def apply_jacobi_smearing(self, psi, num_smears, smearing_param,
                               boundary_conditions=[-1, 1, 1, 1]):
         """Applies the Jacobi smearing operator to the specified lattice spinor
