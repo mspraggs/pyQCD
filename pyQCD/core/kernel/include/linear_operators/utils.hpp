@@ -14,6 +14,8 @@ class Lattice;
 namespace pyQCD
 {
   VectorXcd multiplyGamma5(const VectorXcd& psi);
+  VectorXcd multiplyPplus(const VectorXcd& psi);
+  VectorXcd multiplyPminus(const VectorXcd& psi);
 
   vector<vector<int> > getNeighbourIndices(const int hopSize, Lattice* lattice);
 

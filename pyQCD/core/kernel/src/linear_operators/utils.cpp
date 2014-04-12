@@ -20,6 +20,42 @@ namespace pyQCD
 
 
 
+  VectorXcd multiplyPplus(const VectorXcd& psi)
+  {
+    int nRows = psi.size();
+    VectorXcd eta = VectorXcd::Zero(nRows);
+
+#pragma omp parallel for
+    for (int i = 0; i < nRows / 12; ++i)
+      for (int j = 0; j < 4; ++j)
+	for (int k = 0; k < 4; ++k)
+	  for (int l = 0; l < 3; ++l)
+	    eta(12 * i + 3 * j + l)
+	      += Pplus(j, k) * psi(12 * i + 3 * k + l);
+
+    return eta;    
+  }
+
+
+
+  VectorXcd multiplyPminus(const VectorXcd& psi)
+  {
+    int nRows = psi.size();
+    VectorXcd eta = VectorXcd::Zero(nRows);
+
+#pragma omp parallel for
+    for (int i = 0; i < nRows / 12; ++i)
+      for (int j = 0; j < 4; ++j)
+	for (int k = 0; k < 4; ++k)
+	  for (int l = 0; l < 3; ++l)
+	    eta(12 * i + 3 * j + l)
+	      += Pminus(j, k) * psi(12 * i + 3 * k + l);
+
+    return eta;    
+  }
+
+
+
   vector<vector<int> > getNeighbourIndices(const int hopSize, Lattice* lattice)
   {
     // Gets the site indices for the sites a certain number of hops away
