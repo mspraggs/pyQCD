@@ -921,10 +921,10 @@ class Lattice(lattice.Lattice):
         except AttributeError:
             pass
         
-        eta = lattice.Lattice.apply_hamberwu_dirac(self, psi, mass, M5, Ls,
-                                                   dicts.fermion_actions[kernel],
-                                                   boundary_conditions,
-                                                   dicts.truefalse[precondition])
+        eta = lattice.Lattice.apply_dwf_dirac(self, psi, mass, M5, Ls,
+                                              dicts.fermion_actions[kernel],
+                                              boundary_conditions,
+                                              dicts.truefalse[precondition])
         
         eta = np.array(eta)
         eta = eta.reshape((Ls, self.T, self.L, self.L, self.L, 4, 3))
