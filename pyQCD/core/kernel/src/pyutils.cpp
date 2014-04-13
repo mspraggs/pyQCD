@@ -11,10 +11,20 @@ namespace pyQCD
 
     boundaryConditions = vector<complex<double> >(4, complex<double>(1.0, 0.0));
     
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < 4; ++i)
       boundaryConditions[i] 
 	= py::extract<complex<double> >(pyBoundaryConditions[i]);
-    }
+  }
+
+  vector<complex<double> > convertBoundaryConditions(
+    const py::list& boundaryConditions)
+  {
+    out = vector<complex<double> >(4, complex<double>(1.0, 0.0));
+    
+    for (int i = 0; i < 4; ++i)
+      out[i] = py::extract<complex<double> >(boundaryConditions[i]);
+
+    return out
   }
   
   py::list convertMatrixToList(const MatrixXcd& matrix)
