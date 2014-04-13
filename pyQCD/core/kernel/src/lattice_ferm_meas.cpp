@@ -167,13 +167,13 @@ Lattice::computePropagator(LinearOperator* diracMatrix, int site[4],
       VectorXcd solution(3 * this->nLinks_);
 
       switch (solverMethod) {
-      case 0:
+      case pyQCD::bicgstab:
 	solution = bicgstab(diracMatrix, source, residual, iterations, time);
 	break;
-      case 1:
+      case pyQCD::cg:
 	solution = cg(diracMatrix, source, residual, iterations, time);
 	break;
-      case 2:
+      case pyQCD::gmres:
 	solution = gmres(diracMatrix, source, residual, iterations, time);
 	break;
       default:
