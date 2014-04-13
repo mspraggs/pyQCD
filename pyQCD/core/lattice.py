@@ -750,6 +750,189 @@ class Lattice(lattice.Lattice):
         
         return out
     
+    def invert_wilson_dirac(self, eta, mass, boundary_conditions=[-1, 1, 1, 1],
+                            solver_method="conjugate_gradient",
+                            precondition=False, max_iterations=1000,
+                            tolerance=1e-8, verbosity=0):
+        """Inverts the Wilson Dirac operator on the specified lattice spinor
+                            
+        Args:
+          eta (numpy.ndarray): The source on which to invert the Dirac operator.
+            Must have shape (T, L, L, L, 4, 3).
+          mass (float): The bare mass of the quark that the Dirac operator
+            represents.
+          boundary_conditions (list, optional): The phase factors to apply to
+            the fermion fields at the boundaries of the lattice.
+          solver_method (str, optional): The method to use to invert the
+            Dirac operator.
+          precondition (bool, optional): Determines whether preconditioning
+            should be used when performing the inversion.
+          max_iterations (int, optional): The maximum number of iterations
+            the solver will perform before giving up.
+          tolerance (float, optional): The maximum residual the solver will
+            allow before considering convergence to have been reached.
+          verbosity (int, optional): Determines how much inversion is outputted
+            during the inversion. Values greater than one produce output, whilst
+            1 or 0 will produce no output.
+        
+        Returns:
+          numpy.ndarray: The spinor resulting from the inversion.
+          
+        Examples:
+          Here we create a lattice and a source, then invert a Wilson Dirac
+          operator on it.
+          
+          >>> import pyQCD
+          >>> lat = pyQCD.Lattice()
+          >>> import numpy as np
+          >>> eta = np.zeros(lat.shape + (4, 3), dtype=np.complex)
+          >>> eta[0, 0, 0, 0, 0] = 1.0
+          >>> psi = lat.invert_wilson_dirac(eta, 0.4)
+        """
+        
+        eta = eta.flatten()
+        
+        try:
+            eta = eta.tolist()
+        except AttributeError:
+            pass
+        
+        psi = lattice.Lattice \
+          .invert_wilson_dirac(self, eta, mass, boundary_conditions,
+                               dicts.solver_methods[solver_method],
+                               dicts.truefalse[precondition],
+                               max_iterations, tolerance, verbosity)
+        
+        psi = np.array(psi)
+        psi = psi.reshape((self.T, self.L, self.L, self.L, 4, 3))
+        
+        return psi
+    
+    def invert_hamberwu_dirac(self, eta, mass, boundary_conditions=[-1, 1, 1, 1],
+                              solver_method="conjugate_gradient",
+                              precondition=False, max_iterations=1000,
+                              tolerance=1e-8, verbosity=0):
+        """Inverts the Hamber-Wu Dirac operator on the specified lattice spinor
+                            
+        Args:
+          eta (numpy.ndarray): The source on which to invert the Dirac operator.
+            Must have shape (T, L, L, L, 4, 3).
+          mass (float): The bare mass of the quark that the Dirac operator
+            represents.
+          boundary_conditions (list, optional): The phase factors to apply to
+            the fermion fields at the boundaries of the lattice.
+          solver_method (str, optional): The method to use to invert the
+            Dirac operator.
+          precondition (bool, optional): Determines whether preconditioning
+            should be used when performing the inversion.
+          max_iterations (int, optional): The maximum number of iterations
+            the solver will perform before giving up.
+          tolerance (float, optional): The maximum residual the solver will
+            allow before considering convergence to have been reached.
+          verbosity (int, optional): Determines how much inversion is outputted
+            during the inversion. Values greater than one produce output, whilst
+            1 or 0 will produce no output.
+        
+        Returns:
+          numpy.ndarray: The spinor resulting from the inversion.
+          
+        Examples:
+          Here we create a lattice and a source, then invert a Hamber-Wu Dirac
+          operator on it.
+          
+          >>> import pyQCD
+          >>> lat = pyQCD.Lattice()
+          >>> import numpy as np
+          >>> eta = np.zeros(lat.shape + (4, 3), dtype=np.complex)
+          >>> eta[0, 0, 0, 0, 0] = 1.0
+          >>> psi = lat.invert_hamberwu_dirac(eta, 0.4)
+        """
+        
+        eta = eta.flatten()
+        
+        try:
+            eta = eta.tolist()
+        except AttributeError:
+            pass
+        
+        psi = lattice.Lattice\
+          .invert_hamberwu_dirac(self, eta, mass, boundary_conditions,
+                                 dicts.solver_methods[solver_method],
+                                 dicts.truefalse[precondition],
+                                 max_iterations, tolerance, verbosity)
+        
+        psi = np.array(psi)
+        psi = psi.reshape((self.T, self.L, self.L, self.L, 4, 3))
+        
+        return psi
+    
+    def invert_dwf_dirac(self, eta, mass, M5, Ls, kernel="wilson",
+                         boundary_conditions=[-1, 1, 1, 1],
+                         solver_method="conjugate_gradient",
+                         precondition=False, max_iterations=1000,
+                         tolerance=1e-8, verbosity=0):
+        """Inverts the domain wall Dirac operator on the specified lattice spinor
+        
+        The domain wall (Shamir) operator is generalised and can use any existing
+        four dimensional action that accepts a single mass parameter.
+                            
+        Args:
+          eta (numpy.ndarray): The source on which to invert the Dirac operator.
+            Must have shape (T, L, L, L, 4, 3).
+          mass (float): The bare mass of the quark that the Dirac operator
+            represents.
+          M5 (float): The domain wall height.
+          Ls (int): The extent of the fifth dimension.
+          kernel (str, optional): The four dimensional kernel to use. Currently
+            "wilson" and "hamber-wu" are supported.
+          boundary_conditions (list, optional): The phase factors to apply to
+            the fermion fields at the boundaries of the lattice.
+          solver_method (str, optional): The method to use to invert the
+            Dirac operator.
+          precondition (bool, optional): Determines whether preconditioning
+            should be used when performing the inversion.
+          max_iterations (int, optional): The maximum number of iterations
+            the solver will perform before giving up.
+          tolerance (float, optional): The maximum residual the solver will
+            allow before considering convergence to have been reached.
+          verbosity (int, optional): Determines how much inversion is outputted
+            during the inversion. Values greater than one produce output, whilst
+            1 or 0 will produce no output.
+        
+        Returns:
+          numpy.ndarray: The spinor resulting from the inversion.
+          
+        Examples:
+          Here we create a lattice and a source, then invert a Hamber-Wu Dirac
+          operator on it.
+          
+          >>> import pyQCD
+          >>> lat = pyQCD.Lattice()
+          >>> import numpy as np
+          >>> eta = np.zeros(lat.shape + (4, 3), dtype=np.complex)
+          >>> eta[0, 0, 0, 0, 0] = 1.0
+          >>> psi = lat.invert_hamberwu_dirac(eta, 0.4)
+        """
+        
+        eta = eta.flatten()
+        
+        try:
+            eta = eta.tolist()
+        except AttributeError:
+            pass
+        
+        psi = lattice.Lattice \
+          .invert_dwf_dirac(self, eta, mass, M5, Ls,
+                            dicts.fermion_actions[kernel], boundary_conditions,
+                            dicts.solver_methods[solver_method],
+                            dicts.truefalse[precondition], max_iterations,
+                            tolerance, verbosity)
+        
+        psi = np.array(psi)
+        psi = psi.reshape((Ls, self.T, self.L, self.L, self.L, 4, 3))
+        
+        return psi
+    
     def apply_wilson_dirac(self, psi, mass, boundary_conditions=[-1, 1, 1, 1],
                            precondition=False):
         """Applies the Wilson dirac operator to the specified lattice spinor
