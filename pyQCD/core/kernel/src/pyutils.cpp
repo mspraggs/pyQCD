@@ -2,6 +2,21 @@
 
 namespace pyQCD
 {
+  void propagatorPrep(int site[4], vector<complex<double> >& boundaryConditions,
+		      const py::list& pySite,
+		      const py::list& pyBoundaryConditions)
+  { 
+    for (int i = 0; i < 4; ++i)
+      site[i] = py::extract<int>(pySite[i]);
+
+    boundaryConditions = vector<complex<double> >(4, complex<double>(1.0, 0.0));
+    
+    for (int i = 0; i < 4; ++i) {
+      boundaryConditions[i] 
+	= py::extract<complex<double> >(pyBoundaryConditions[i]);
+    }
+  }
+  
   py::list convertMatrixToList(const MatrixXcd& matrix)
   {
     int nRows = matrix.rows();
@@ -61,5 +76,20 @@ namespace pyQCD
 	vectorOut(i) = py::extract<complex<double> >(list[i]);
 
     return vectorOut;
+  }
+
+  py::list propagatorToList(vector<MatrixXcd>& prop)
+  {
+    // This is where we'll store the propagator as a list
+    py::list pythonPropagator;
+    
+    int nSites = prop.size();
+    // Loop through the raw propagator and add it to the python list
+    for (int i = 0; i < nSites; ++i) {
+      py::list matrixList = convertMatrixToList(prop[i]);
+      pythonPropagator.append(matrixList);
+    }
+
+    return pythonPropagator;
   }
 }
