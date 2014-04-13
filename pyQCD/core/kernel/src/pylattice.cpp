@@ -236,30 +236,6 @@ py::list pyLattice::applyDWFDiracOperator(py::list psi, const double mass,
 
   VectorXcd vectorPsi = pyQCD::convertListToVector(psi);
 
-  // Release the GIL to apply the propagator
-  ScopedGILRelease* scope = new ScopedGILRelease;
-
-  // TODO: Case for precondition = 1
-  HamberWu linop(mass, tempBoundaryConditions, this);
-  VectorXcd vectorEta = linop.apply(vectorPsi);
-  // Put the GIL back in place
-  delete scope;
-
-  return pyQCD::convertVectorToList(vectorEta);
-}
-
-
-
-py::list pyLattice::applyDWFDiracOperator(py::list psi, const double mass,
-					  const double M5, const int Ls,
-					  const int kernelType,
-					  py::list boundaryConditions,
-					  const int precondition)
-{
-  // Apply the Wilson Dirac operator to the supplied vector/spinor
-
-  VectorXcd vectorPsi = pyQCD::convertListToVector(psi);
-
   vector<complex<double> > tempBoundaryConditions
     = pyQCD::convertBoundaryConditions(boundaryConditions);
 
