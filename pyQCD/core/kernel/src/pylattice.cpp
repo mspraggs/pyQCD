@@ -115,16 +115,12 @@ py::list pyLattice::computeWilsonPropagatorP(
   const double tolerance, const int verbosity)
 {
   // Wrapper for the calculation of a propagator
-  int tempSite[4] = {py::extract<int>(site[0]),
-		     py::extract<int>(site[1]),
-		     py::extract<int>(site[2]),
-		     py::extract<int>(site[3])};
-  vector<complex<double> > tempBoundaryConditions(4, complex<double>(1.0, 0.0));
+  int tempSite[4];
+  vector<complex<double> > tempBoundaryConditions;
 
-  for (int i = 0; i < 4; ++i) {
-    tempBoundaryConditions[i] 
-      = py::extract<complex<double> >(boundaryConditions[i]);
-  }
+  pyQCD::propagatorPrep(tempSite, tempBoundaryConditions, site,
+			boundaryConditions);
+
   // Release the GIL for the propagator inversion
   ScopedGILRelease* scope = new ScopedGILRelease;
   // Get the propagator
@@ -138,17 +134,8 @@ py::list pyLattice::computeWilsonPropagatorP(
 				    verbosity);
   // Put GIL back in place
   delete scope;
-  // This is where we'll store the propagator as a list
-  py::list pythonPropagator;
-  // Loop through the raw propagator and add it to the python list
-  for (int i = 0; i < this->nLinks_ / 4; ++i) {
-    // Maybe the following could be put in it's own function? Seems to be
-    // something that frequently needs to be done
-    py::list matrixList = pyQCD::convertMatrixToList(prop[i]);
-    pythonPropagator.append(matrixList);
-  }
 
-  return pythonPropagator;
+  return pyQCD::propagatorToList(prop);
 }
 
 
@@ -164,16 +151,11 @@ py::list pyLattice::computeHamberWuPropagatorP(
   const double tolerance, const int verbosity)
 {
   // Wrapper for the calculation of a propagator
-  int tempSite[4] = {py::extract<int>(site[0]),
-		     py::extract<int>(site[1]),
-		     py::extract<int>(site[2]),
-		     py::extract<int>(site[3])};
-  vector<complex<double> > tempBoundaryConditions(4, complex<double>(1.0, 0.0));
+  int tempSite[4];
+  vector<complex<double> > tempBoundaryConditions;
 
-  for (int i = 0; i < 4; ++i) {
-    tempBoundaryConditions[i] 
-      = py::extract<complex<double> >(boundaryConditions[i]);
-  }
+  pyQCD::propagatorPrep(tempSite, tempBoundaryConditions, site,
+			boundaryConditions);
   // Release the GIL for the propagator inversion
   ScopedGILRelease* scope = new ScopedGILRelease;
   // Get the propagator
@@ -187,17 +169,8 @@ py::list pyLattice::computeHamberWuPropagatorP(
 				      verbosity);
   // Put GIL back in place
   delete scope;
-  // This is where we'll store the propagator as a list
-  py::list pythonPropagator;
-  // Loop through the raw propagator and add it to the python list
-  for (int i = 0; i < this->nLinks_ / 4; ++i) {
-    // Maybe the following could be put in it's own function? Seems to be
-    // something that frequently needs to be done
-    py::list matrixList = pyQCD::convertMatrixToList(prop[i]);
-    pythonPropagator.append(matrixList);
-  }
 
-  return pythonPropagator;
+  return pyQCD::propagatorToList(prop);
 }
 
 

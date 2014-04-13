@@ -22,7 +22,7 @@ namespace pyQCD
   MatrixXcd convertListToMatrix(const py::list list);
   py::list convertVectorToList(const VectorXcd& vector);
   VectorXcd convertListToVector(const py::list list);
-  py::list propagatorToList(vector<VectorXcd>& propagator);
+  py::list propagatorToList(vector<MatrixXcd>& propagator);
 }
 
 #endif
