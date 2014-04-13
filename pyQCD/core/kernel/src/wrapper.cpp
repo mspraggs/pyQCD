@@ -91,19 +91,19 @@ BOOST_PYTHON_MODULE(lattice)
 	  py::arg("precondition") = 0, py::arg("max_iterations") = 1000,
 	  py::arg("tolerance") = 1, py::arg("verbosity") = 0))
     .def("invert_wilson_dirac", &pyLattice::computeHamberWuPropagatorP,
-	 (py::arg("mass"),
+	 (py::arg("eta"), py::arg("mass"),
 	  py::arg("boundary_conditions") = defaultBoundaryConditions(),
 	  py::arg("solver_method") = 1, py::arg("precondition") = 0,
 	  py::arg("max_iterations") = 1000, py::arg("tolerance") = 1,
 	  py::arg("verbosity") = 0))
     .def("invert_hamberwu_dirac", &pyLattice::computeHamberWuPropagatorP,
-	 (py::arg("mass"),
+	 (py::arg("eta"), py::arg("mass"),
 	  py::arg("boundary_conditions") = defaultBoundaryConditions(),
 	  py::arg("solver_method") = 1, py::arg("precondition") = 0,
 	  py::arg("max_iterations") = 1000, py::arg("tolerance") = 1,
 	  py::arg("verbosity") = 0))
     .def("invert_hamberwu_dirac", &pyLattice::computeHamberWuPropagatorP,
-	 (py::arg("mass"), py::arg("M5"), py::arg("Ls"),
+	 (py::arg("eta"), py::arg("mass"), py::arg("M5"), py::arg("Ls"),
 	  py::arg("kernel") = 0,
 	  py::arg("boundary_conditions") = defaultBoundaryConditions(),
 	  py::arg("solver_method") = 1, py::arg("precondition") = 0,
