@@ -183,11 +183,8 @@ py::list pyLattice::applyWilsonDiracOperator(py::list psi, const double mass,
 
   VectorXcd vectorPsi = pyQCD::convertListToVector(psi);
 
-  vector<complex<double> > tempBoundaryConditions(4, complex<double>(1.0, 0.0));
-
-  for (int i = 0; i < 4; ++i)
-    tempBoundaryConditions[i] 
-      = py::extract<complex<double> >(boundaryConditions[i]);
+  vector<complex<double> > tempBoundaryConditions
+    = pyQCD::convertBoundaryConditions(boundaryConditions);
 
   LinearOperator* linop;
 
@@ -216,11 +213,8 @@ py::list pyLattice::applyHamberWuDiracOperator(py::list psi, const double mass,
 
   VectorXcd vectorPsi = pyQCD::convertListToVector(psi);
 
-  vector<complex<double> > tempBoundaryConditions(4, complex<double>(1.0, 0.0));
-
-  for (int i = 0; i < 4; ++i)
-    tempBoundaryConditions[i] 
-      = py::extract<complex<double> >(boundaryConditions[i]);
+  vector<complex<double> > tempBoundaryConditions
+    = pyQCD::convertBoundaryConditions(boundaryConditions);
 
   LinearOperator* linop;
 
