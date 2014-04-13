@@ -21,7 +21,7 @@ namespace pyQCD
     for (int i = 0; i < 4; ++i)
       out[i] = py::extract<complex<double> >(boundaryConditions[i]);
 
-    return out
+    return out;
   }
   
   py::list convertMatrixToList(const MatrixXcd& matrix)
