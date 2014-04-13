@@ -327,7 +327,6 @@ VectorXcd Lattice::invertDiracOperator(const VectorXcd& eta,
     break;	
   }
   if (verbosity > 0) {
-    cout << " Done!" << endl;
     cout << "  -> Solver finished with residual of "
 	 << residual << " in " << iterations << " iterations." << endl;
     cout << "  -> CPU time: " << time << " seconds" << endl;
