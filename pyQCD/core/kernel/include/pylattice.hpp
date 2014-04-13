@@ -75,6 +75,29 @@ public:
 				      const int maxIterations,
 				      const double tolerance,
 				      const int verbosity);
+  py::list invertWilsonDiracOperatorP(const py::list eta, const double mass,
+				      const py::list boundaryConditions,
+				      const int solverMethod,
+				      const int precondition,
+				      const int maxIterations,
+				      const double tolerance,
+				      const int verbosity);
+  py::list invertHamberWuDiracOperatorP(const py::list eta, const double mass,
+					const py::list boundaryConditions,
+					const int solverMethod,
+					const int precondition,
+					const int maxIterations,
+					const double tolerance,
+					const int verbosity);
+  py::list invertDWFDiracOperatorP(const py::list eta, const double mass,
+				   const double M5, const int Ls,
+				   const int kernelType,
+				   const py::list boundaryConditions,
+				   const int solverMethod,
+				   const int precondition,
+				   const int maxIterations,
+				   const double tolerance,
+				   const int verbosity);
   py::list applyWilsonDiracOperator(py::list psi, const double mass,
 				    py::list boundaryConditions,
 				    const int precondition);

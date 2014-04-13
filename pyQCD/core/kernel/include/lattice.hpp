@@ -142,6 +142,29 @@ public:
 				      const int maxIterations,
 				      const double tolerance,
 				      const int verbosity);
+
+  VectorXcd invertWilsonDiracOperator(
+    const VectorXcd& eta, const double mass,
+    const vector<complex<double> >& boundaryConditions, const int solverMethod,
+    const int precondition, const int maxIterations, const double tolerance,
+    const int verbosity);
+  VectorXcd invertHamberWuDiracOperator(
+    const VectorXcd& eta, const double mass,
+    const vector<complex<double> >& boundaryConditions, const int solverMethod,
+    const int precondition, const int maxIterations, const double tolerance,
+    const int verbosity);
+  VectorXcd invertDWFDiracOperator(
+    const VectorXcd& eta, const double mass, const double M5, const double Ls,
+    const int kernelType, const vector<complex<double> >& boundaryConditions,
+    const int solverMethod, const int precondition, const int maxIterations,
+    const double tolerance, const int verbosity);
+  VectorXcd invertDiracOperator(const VectorXcd& eta,
+				LinearOperator* diracMatrix,
+				const int solverMethod,
+				const int precondition,
+				const int maxIterations,
+				const double tolerance,
+				const int verbosity);
   
   int nCorrelations, spatialExtent, temporalExtent;
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW

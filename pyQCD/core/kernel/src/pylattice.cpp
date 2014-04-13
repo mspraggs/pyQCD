@@ -175,6 +175,103 @@ py::list pyLattice::computeHamberWuPropagatorP(
 
 
 
+py::list pyLattice::invertWilsonDiracOperatorP(const py::list eta,
+					       const double mass,
+					       const py::list boundaryConditions,
+					       const int solverMethod,
+					       const int precondition,
+					       const int maxIterations,
+					       const double tolerance,
+					       const int verbosity)
+{
+  // Invert the Wilson Dirac operator on the specified source
+
+  VectorXcd vectorEta = pyQCD::convertListToVector(eta);
+  vector<complex<double> > tempBoundaryConditions
+    = pyQCD::convertBoundaryConditions(boundaryConditions);
+
+  // Release the GIL
+  ScopedGILRelease* scope = new ScopedGILRelease;
+
+  VectorXcd vectorPsi = this->invertWilsonDiracOperator(vectorEta, mass,
+							tempBoundaryConditions,
+							solverMethod,
+							precondition,
+							maxIterations,
+							tolerance,
+							verbosity);
+
+  delete scope;
+
+  return pyQCD::convertVectorToList(vectorPsi);
+}
+
+
+
+py::list pyLattice::invertHamberWuDiracOperatorP(
+  const py::list eta, const double mass, const py::list boundaryConditions,
+  const int solverMethod, const int precondition, const int maxIterations,
+  const double tolerance, const int verbosity)
+{
+  // Invert the Hamber-Wu Dirac operator on the specified source
+
+  VectorXcd vectorEta = pyQCD::convertListToVector(eta);
+  vector<complex<double> > tempBoundaryConditions
+    = pyQCD::convertBoundaryConditions(boundaryConditions);
+
+  // Release the GIL
+  ScopedGILRelease* scope = new ScopedGILRelease;
+
+  VectorXcd vectorPsi = this->invertHamberWuDiracOperator(vectorEta, mass,
+							  tempBoundaryConditions,
+							  solverMethod,
+							  precondition,
+							  maxIterations,
+							  tolerance,
+							  verbosity);
+
+  delete scope;
+
+  return pyQCD::convertVectorToList(vectorPsi);
+}
+
+
+
+py::list pyLattice::invertDWFDiracOperatorP(const py::list eta,
+					    const double mass, const double M5,
+					    const int Ls, const int kernelType,
+					    const py::list boundaryConditions,
+					    const int solverMethod,
+					    const int precondition,
+					    const int maxIterations,
+					    const double tolerance,
+					    const int verbosity)
+{
+  // Invert the Hamber-Wu Dirac operator on the specified source
+
+  VectorXcd vectorEta = pyQCD::convertListToVector(eta);
+  vector<complex<double> > tempBoundaryConditions
+    = pyQCD::convertBoundaryConditions(boundaryConditions);
+
+  // Release the GIL
+  ScopedGILRelease* scope = new ScopedGILRelease;
+
+  VectorXcd vectorPsi = this->invertDWFDiracOperator(vectorEta, mass, M5, Ls,
+						     kernelType,
+						     tempBoundaryConditions,
+						     solverMethod,
+						     precondition,
+						     maxIterations,
+						     tolerance,
+						     verbosity);
+
+  delete scope;
+
+  return pyQCD::convertVectorToList(vectorPsi);
+}
+
+
+
 py::list pyLattice::applyWilsonDiracOperator(py::list psi, const double mass,
 					     py::list boundaryConditions,
 					     const int precondition)

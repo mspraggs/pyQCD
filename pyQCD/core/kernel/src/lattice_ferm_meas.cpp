@@ -208,3 +208,130 @@ Lattice::computePropagator(LinearOperator* diracMatrix, int site[4],
 
   return propagator;
 }
+
+
+
+VectorXcd Lattice::invertWilsonDiracOperator(
+  const VectorXcd& eta, const double mass,
+  const vector<complex<double> >& boundaryConditions, const int solverMethod,
+  const int precondition, const int maxIterations, const double tolerance,
+  const int verbosity)
+{
+  // Generate a Wilson Dirac matrix and invert it on a source
+
+  // Generate the dirac matrix
+  if (verbosity > 0)
+    cout << "  Generating Dirac matrix..." << flush;
+
+  LinearOperator* diracOperator = new Wilson(mass, boundaryConditions, this);
+
+  if (verbosity > 0)
+    cout << " Done!" << endl;
+
+  VectorXcd psi = invertDiracOperator(eta, diracOperator, solverMethod,
+				      precondition, maxIterations, tolerance,
+				      verbosity);
+
+  delete diracOperator;
+
+  return psi;
+}
+
+
+
+VectorXcd Lattice::invertHamberWuDiracOperator(
+  const VectorXcd& eta, const double mass,
+  const vector<complex<double> >& boundaryConditions, const int solverMethod,
+  const int precondition, const int maxIterations, const double tolerance,
+  const int verbosity)
+{
+  // Generate a Wilson Dirac matrix and invert it on a source
+
+  // Generate the dirac matrix
+  if (verbosity > 0)
+    cout << "  Generating Dirac matrix..." << flush;
+
+  LinearOperator* diracOperator = new HamberWu(mass, boundaryConditions, this);
+
+  if (verbosity > 0)
+    cout << " Done!" << endl;
+
+  VectorXcd psi = invertDiracOperator(eta, diracOperator, solverMethod,
+				      precondition, maxIterations, tolerance,
+				      verbosity);
+
+  delete diracOperator;
+
+  return psi;
+}
+
+
+
+VectorXcd Lattice::invertDWFDiracOperator(
+  const VectorXcd& eta, const double mass, const double M5, const double Ls, 
+  const int kernelType, const vector<complex<double> >& boundaryConditions,
+  const int solverMethod, const int precondition, const int maxIterations,
+  const double tolerance, const int verbosity)
+{
+  // Generate a Wilson Dirac matrix and invert it on a source
+
+  // Generate the dirac matrix
+  if (verbosity > 0)
+    cout << "  Generating Dirac matrix..." << flush;
+
+  LinearOperator* diracOperator = new DWF(mass, M5, Ls, kernelType,
+					  boundaryConditions, this);
+
+  if (verbosity > 0)
+    cout << " Done!" << endl;
+
+  VectorXcd psi = invertDiracOperator(eta, diracOperator, solverMethod,
+				      precondition, maxIterations, tolerance,
+				      verbosity);
+
+  delete diracOperator;
+
+  return psi;
+}
+
+
+
+VectorXcd Lattice::invertDiracOperator(const VectorXcd& eta,
+				       LinearOperator* diracMatrix,
+				       const int solverMethod,
+				       const int precondition,
+				       const int maxIterations,
+				       const double tolerance,
+				       const int verbosity)
+{
+  // Inverts the supplied Dirac operator on the supplied source.
+
+  VectorXcd psi = VectorXcd::Zero(eta.size());
+
+  int iterations = maxIterations;
+  double residual = tolerance;
+  double time = 0.0;
+
+  switch (solverMethod) {
+  case pyQCD::bicgstab:
+    psi = bicgstab(diracMatrix, eta, residual, iterations, time);
+    break;
+  case pyQCD::cg:
+    psi = cg(diracMatrix, eta, residual, iterations, time);
+    break;
+  case pyQCD::gmres:
+    psi = gmres(diracMatrix, eta, residual, iterations, time);
+    break;
+  default:
+    psi = cg(diracMatrix, eta, residual, iterations, time);
+    break;	
+  }
+  if (verbosity > 0) {
+    cout << " Done!" << endl;
+    cout << "  -> Solver finished with residual of "
+	 << residual << " in " << iterations << " iterations." << endl;
+    cout << "  -> CPU time: " << time << " seconds" << endl;
+  }
+
+  return psi;
+}
