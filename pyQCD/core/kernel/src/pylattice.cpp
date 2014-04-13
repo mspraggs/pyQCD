@@ -186,17 +186,13 @@ py::list pyLattice::applyWilsonDiracOperator(py::list psi, const double mass,
   vector<complex<double> > tempBoundaryConditions
     = pyQCD::convertBoundaryConditions(boundaryConditions);
 
-  LinearOperator* linop;
-
   // Release the GIL to apply the propagator
   ScopedGILRelease* scope = new ScopedGILRelease;
 
   // TODO: Case for precondition = 1
-  linop = new Wilson(mass, tempBoundaryConditions, this);
+  Wilson linop(mass, tempBoundaryConditions, this);
+  VectorXcd vectorEta = linop.apply(vectorPsi);
 
-  VectorXcd vectorEta = linop->apply(vectorPsi);
-
-  delete linop;
   // Put the GIL back in place
   delete scope;
 
@@ -216,17 +212,12 @@ py::list pyLattice::applyHamberWuDiracOperator(py::list psi, const double mass,
   vector<complex<double> > tempBoundaryConditions
     = pyQCD::convertBoundaryConditions(boundaryConditions);
 
-  LinearOperator* linop;
-
   // Release the GIL to apply the propagator
   ScopedGILRelease* scope = new ScopedGILRelease;
 
   // TODO: Case for precondition = 1
-  linop = new HamberWu(mass, tempBoundaryConditions, this);
-
-  VectorXcd vectorEta = linop->apply(vectorPsi);
-
-  delete linop;
+  HamberWu linop(mass, tempBoundaryConditions, this);
+  VectorXcd vectorEta = linop.apply(vectorPsi);
   // Put the GIL back in place
   delete scope;
 
@@ -245,18 +236,38 @@ py::list pyLattice::applyDWFDiracOperator(py::list psi, const double mass,
 
   VectorXcd vectorPsi = pyQCD::convertListToVector(psi);
 
-  vector<complex<double> > tempBoundaryConditions(4, complex<double>(1.0, 0.0));
+  // Release the GIL to apply the propagator
+  ScopedGILRelease* scope = new ScopedGILRelease;
 
-  for (int i = 0; i < 4; ++i)
-    tempBoundaryConditions[i] 
-      = py::extract<complex<double> >(boundaryConditions[i]);
+  // TODO: Case for precondition = 1
+  HamberWu linop(mass, tempBoundaryConditions, this);
+  VectorXcd vectorEta = linop.apply(vectorPsi);
+  // Put the GIL back in place
+  delete scope;
+
+  return pyQCD::convertVectorToList(vectorEta);
+}
+
+
+
+py::list pyLattice::applyDWFDiracOperator(py::list psi, const double mass,
+					  const double M5, const int Ls,
+					  const int kernelType,
+					  py::list boundaryConditions,
+					  const int precondition)
+{
+  // Apply the Wilson Dirac operator to the supplied vector/spinor
+
+  VectorXcd vectorPsi = pyQCD::convertListToVector(psi);
+
+  vector<complex<double> > tempBoundaryConditions
+    = pyQCD::convertBoundaryConditions(boundaryConditions);
 
   // Release the GIL to apply the linear operator
   ScopedGILRelease* scope = new ScopedGILRelease;
 
   // TODO: Case for precondition = 1
   DWF linop(mass, M5, Ls, kernelType, tempBoundaryConditions, this);
-
   VectorXcd vectorEta = linop.apply(vectorPsi);
 
   // Put the GIL back in place
@@ -276,23 +287,15 @@ py::list pyLattice::applyJacobiSmearingOperator(py::list psi,
 
   VectorXcd vectorPsi = pyQCD::convertListToVector(psi);
 
-  vector<complex<double> > tempBoundaryConditions(4, complex<double>(1.0, 0.0));
-
-  for (int i = 0; i < 4; ++i)
-    tempBoundaryConditions[i] 
-      = py::extract<complex<double> >(boundaryConditions[i]);
-
-  LinearOperator* linop;
+  vector<complex<double> > tempBoundaryConditions
+    = pyQCD::convertBoundaryConditions(boundaryConditions);
 
   // Release the GIL to apply the propagator
   ScopedGILRelease* scope = new ScopedGILRelease;
 
-  linop = new JacobiSmearing(numSmears, smearingParameter,
-			     tempBoundaryConditions, this);
-
-  VectorXcd vectorEta = linop->apply(vectorPsi);
-
-  delete linop;
+  JacobiSmearing linop(numSmears, smearingParameter,
+		       tempBoundaryConditions, this);
+  VectorXcd vectorEta = linop.apply(vectorPsi);
   // Put the GIL back in place
   delete scope;
 
