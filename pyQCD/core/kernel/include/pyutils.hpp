@@ -17,6 +17,8 @@ namespace pyQCD
   void propagatorPrep(int site[4], vector<complex<double> >& boundaryConditions,
 		      const py::list& pySite,
 		      const py::list& pyBoundaryConditions);
+  vector<complex<double> > convertBoundaryConditions(
+    const py::list& boundaryConditions);
 
   py::list convertMatrixToList(const MatrixXcd& matrix);
   MatrixXcd convertListToMatrix(const py::list list);
