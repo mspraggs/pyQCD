@@ -18,6 +18,10 @@ except NameError:
     lattice_exists = False
         
 data_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data')
+
+def create_fullpath(fname):
+    
+    return "{}/{}".format(data_dir, fname)
         
 def random_complex(shape):
     
@@ -120,12 +124,11 @@ if lattice_exists:
         
         for link in links:
             determinant = spla.det(lattice.get_link(link))
-            assert np.abs(determinant - 1.0) < 1e-12
+            assert np.allclose(determinant, 1.0)
         
             UUdagger = np.dot(lattice.get_link(link),
                               np.conj(lattice.get_link(link).T))
-            assert (np.abs(UUdagger - np.identity(3))
-                    < 1e-12 * np.ones((3, 3))).all()
+            assert np.allclose(UUdagger, np.identity(3))
         
 class floatWrapper(float):
     
@@ -239,7 +242,7 @@ if lattice_exists:
             links = make_links(lattice.T, lattice.L)
             
             for t, x, y, z, mu in links:
-                data[t][x][y][z] = make_random_su(3)
+                data[t, x, y, z] = make_random_su(3)
 
             config = Config(data, lattice.L, lattice.T, lattice.beta, lattice.ut,
                             lattice.us, lattice.chi, lattice.action)
@@ -279,62 +282,25 @@ if lattice_exists:
             os.unlink("test_config.npz")
             
         def test_update(self):
-            
-            lattice = Lattice(rand_seed = 0, update_method = "heatbath")
-            tolerance = 1e-14 * np.ones((lattice.T, lattice.L, lattice.L,
-                                         lattice.L, 4, 3, 3))
-            lattice.update()
-            
-            expected_config = np.load("{}/config_heatbath_rs0.npy"
-                                      .format(data_dir))
-            actual_config = lattice.get_config().data
-            
-            assert (np.abs(expected_config - actual_config) < tolerance).all()
-            
-            lattice = Lattice(rand_seed = 1, update_method = "heatbath")
-            lattice.update()
-            
-            expected_config = np.load("{}/config_heatbath_rs1.npy"
-                                      .format(data_dir))
-            actual_config = lattice.get_config().data
-            
-            assert (np.abs(expected_config - actual_config) < tolerance).all()
-            
-            lattice = Lattice(rand_seed = 0, update_method = "metropolis")
-            lattice.update()
-            
-            expected_config = np.load("{}/config_metropolis_rs0.npy"
-                                      .format(data_dir))
-            actual_config = lattice.get_config().data
-            
-            assert (np.abs(expected_config - actual_config) < tolerance).all()
-            
-            lattice = Lattice(rand_seed = 1, update_method = "metropolis")
-            lattice.update()
-            
-            expected_config = np.load("{}/config_metropolis_rs1.npy"
-                                      .format(data_dir))
-            actual_config = lattice.get_config().data
-            
-            assert (np.abs(expected_config - actual_config) < tolerance).all()
-            
-            lattice = Lattice(rand_seed = 0, update_method = "staple_metropolis")
-            lattice.update()
-            
-            expected_config = np.load("{}/config_staple_metropolis_rs0.npy"
-                                      .format(data_dir))
-            actual_config = lattice.get_config().data
-            
-            assert (np.abs(expected_config - actual_config) < tolerance).all()
-            
-            lattice = Lattice(rand_seed = 1, update_method = "staple_metropolis")
-            lattice.update()
-            
-            expected_config = np.load("{}/config_staple_metropolis_rs1.npy"
-                                      .format(data_dir))
-            actual_config = lattice.get_config().data
-            
-            assert (np.abs(expected_config - actual_config) < tolerance).all()
+    
+            # Generate some configs and save the raw data
+            for gauge_action in dicts.gauge_actions.keys():
+                for update_method in dicts.update_methods.keys():
+                    for rand_seed in [0, 1, 2]:
+                
+                        filename = "config_{}_{}_{}" \
+                          .format(gauge_action,
+                                  update_method,
+                                  rand_seed)
+                
+                        lattice = Lattice(rand_seed=rand_seed,
+                                          action=gauge_action,
+                                          update_method=update_method)
+                        lattice.update()
+                        
+                        config_data = np.load(create_fullpath(filename))
+                        
+                        assert np.allclose(lattice.get_config().data, config_data)
 
         def test_next_config(self):
             
@@ -359,7 +325,7 @@ if lattice_exists:
             
             lattice.thermalize(200)
             
-            assert np.abs(lattice.get_av_plaquette() - 0.5) < 0.1
+            assert np.allclose(lattice.get_av_plaquette(), 0.5, atol=0.1)
 
         def test_get_plaquette(self):
             
@@ -388,7 +354,7 @@ if lattice_exists:
                                       for site in sites]
 
             for P1, P2 in zip(plaquettes, transformed_plaquettes):
-                assert np.abs(P1 - P2) < 5e-15
+                assert np.allclose(P1, P2)
 
         def test_get_rectangle(self):
                 
@@ -417,7 +383,7 @@ if lattice_exists:
                                       for site in sites]
 
             for R1, R2 in zip(rectangles, transformed_rectangles):
-                assert np.abs(R1 - R2) < 5e-15
+                assert np.allclose(R1, R2)
 
         def test_get_twist_rect(self):
         
@@ -446,7 +412,7 @@ if lattice_exists:
                                             for site in sites]
 
             for T1, T2 in zip(twist_rectangles, transformed_twist_rectangles):
-                assert np.abs(T1 - T2) < 5e-15
+                assert np.allclose(T1, T2)
 
         def test_get_wilson_loop(self):
         
@@ -462,8 +428,7 @@ if lattice_exists:
                     for dim in range(1, 4):
                         for n in range(3):
                             assert lattice.get_wilson_loop(site, r, t,
-                                                           dim, n, 0.5) \
-                              == 1.0
+                                                           dim, n, 0.5) == 1.0
                 
             for i in xrange(100):
                 lattice.update()
@@ -484,9 +449,10 @@ if lattice_exists:
                  for site in sites]
 
             for W1, W2 in zip(wilson_loops, transformed_wilson_loops):
-                assert np.abs(W1 - W2) < 5e-15
+                assert np.allclose(W1, W2)
             
-            W1 = lattice.get_wilson_loop([0, 0, 0, 0, 0], 4, 4, 1)
+            # Test to make sure no smearing is applied.
+            W1 = lattice.get_wilson_loop([0, 0, 0, 0], 4, 4, 1)
             for n in xrange(10):
                 W2 = lattice.get_wilson_loop([0, 0, 0, 0, 0], 4, 4, 1, 0,
                                              0.1 * n)
@@ -494,29 +460,25 @@ if lattice_exists:
 
         def test_get_av_plaquette(self):
             
-            lattice = Lattice(rand_seed=0)
+            lattice = Lattice(rand_seed=0, update_method="heatbath")
             lattice.update()
             
-            assert np.abs(lattice.get_av_plaquette() - 0.6744055385048071) \
-              < 1e-12
+            assert np.allclose(lattice.get_av_plaquette(), 0.6744055385048071)
             
             random_su3_transform(lattice)
             
-            assert np.abs(lattice.get_av_plaquette() - 0.6744055385048071) \
-              < 1e-12
+            assert np.allclose(lattice.get_av_plaquette(), 0.6744055385048071)
 
         def test_get_av_rectangle(self):
             
-            lattice = Lattice(rand_seed=0)
+            lattice = Lattice(rand_seed=0, update_method="heatbath")
             lattice.update()
             
-            assert np.abs(lattice.get_av_rectangle() - 0.5093032901600738) \
-              < 1e-12
+            assert np.allclose(lattice.get_av_rectangle(), 0.5093032901600738)
             
             random_su3_transform(lattice)
             
-            assert np.abs(lattice.get_av_rectangle() - 0.5093032901600738) \
-              < 1e-12
+            assert np.allclose(lattice.get_av_rectangle(), 0.5093032901600738)
 
         def test_get_av_wilson_loop(self):
             
@@ -524,13 +486,13 @@ if lattice_exists:
             lattice.update()
             
             W = lattice.get_av_wilson_loop(4, 4)
-            assert np.abs(W - 0.2883925516552541) < 1e-12
+            assert np.allclose(W, 0.2883925516552541)
 
             random_su3_transform(lattice)
             
             W = lattice.get_av_wilson_loop(4, 4)
-            assert np.abs(W - 0.2883925516552541) < 1e-12
-
+            assert np.allclose(W, 0.2883925516552541)
+            
         def test_get_wilson_loops(self):
             
             lattice = Lattice()
@@ -545,98 +507,225 @@ if lattice_exists:
 
         def test_get_wilson_propagator(self):
             
-            lattice = Lattice(rand_seed=0, update_method="heatbath")
+            lattice = Lattice()
+            config_data \
+              = np.load(create_fullpath("config_wilson_heatbath_0.npy"))
+            config = Config(config_data, 4, 8, 5.5, 1.0, 1.0, 1.0,
+                            "wilson")
+            lattice.set_config(config)
             
-            propagator \
-              = lattice.get_wilson_propagator(0.4,
-                                              solver_method="conjugate_gradient")
+            smearing_combinations \
+              = [(1, 0, 0), (0, 1, 0), (0, 0, 1)]
+              
+            func = Lattice.get_wilson_propagator
+                
+            for solver_method in dicts.solver_methods.keys():
+                for smearing_type in dicts.smearing_types.keys():
+                    for n_link_s, n_source_s, n_sink_s in smearing_combinations:
+                        
+                        prop = func(lattice, 0.4,
+                                    num_field_smears=n_link_s,
+                                    field_smearing_param=0.4,
+                                    source_smear_type=smearing_type,
+                                    num_source_smears=n_source_s,
+                                    source_smearing_param=0.4,
+                                    sink_smear_type=smearing_type,
+                                    num_sink_smears=n_sink_s,
+                                    sink_smearing_param=0.4,
+                                    solver_method=solver_method)
+                    
+                        filename = "prop_wilson_{}_{}_{}_{}_{}.npy" \
+                          .format(solver_method, smearing_type, n_link_s,
+                                  n_source_s, n_sink_s)
+                        
+                        actual_prop = np.load(create_fullpath(filename))
+                        
+                        assert np.allclose(actual_prop, prop.data)
+
+        def test_get_hamberwu_propagator(self):
             
-            expected_shape = (lattice.T, lattice.L, lattice.L, lattice.L,
-                              4, 4, 3, 3)
-            actual_shape = propagator.data.shape
+            lattice = Lattice()
+            config_data \
+              = np.load(create_fullpath("config_wilson_heatbath_0.npy"))
+            config = Config(config_data, 4, 8, 5.5, 1.0, 1.0, 1.0,
+                                  "wilson")
+            lattice.set_config(config)
             
-            assert expected_shape == actual_shape
+            smearing_combinations \
+              = [(1, 0, 0), (0, 1, 0), (0, 0, 1)]
+              
+            func = Lattice.get_hamberwu_propagator
+                
+            for solver_method in dicts.solver_methods.keys():
+                for smearing_type in dicts.smearing_types.keys():
+                    for n_link_s, n_source_s, n_sink_s in smearing_combinations:
+                        
+                        prop = func(lattice, 0.4,
+                                    num_field_smears=n_link_s,
+                                    field_smearing_param=0.4,
+                                    source_smear_type=smearing_type,
+                                    num_source_smears=n_source_s,
+                                    source_smearing_param=0.4,
+                                    sink_smear_type=smearing_type,
+                                    num_sink_smears=n_sink_s,
+                                    sink_smearing_param=0.4,
+                                    solver_method=solver_method)
+                    
+                        filename = "prop_hamber-wu_{}_{}_{}_{}_{}.npy" \
+                          .format(solver_method, smearing_type, n_link_s,
+                                  n_source_s, n_sink_s)
+                        
+                        actual_prop = np.load(create_fullpath(filename))
+                        
+                        assert np.allclose(actual_prop, prop.data)
+                        
+        def test_invert_wilson_dirac(self):
             
-            tolerance = 1e-12 * np.ones(expected_shape)
+            lattice = Lattice()
+            config_data \
+              = np.load(create_fullpath("config_wilson_heatbath_0.npy"))
+            config = Config(config_data, 4, 8, 5.5, 1.0, 1.0, 1.0,
+                                  "wilson")
+            lattice.set_config(config)
             
-            expected_propagator \
-              = np.load("{}/propagator_tree_level_4c8_4000_no_smear.npy"
-                        .format(data_dir))
-            actual_propagator = propagator.data
+            psi = np.zeros([8, 4, 4, 4, 4, 3])
+            psi[0, 0, 0, 0, 0, 0] = 1.0
             
-            assert (np.abs(expected_propagator - actual_propagator)
-                    < tolerance).all()
+            for solver_method in dicts.solver_methods.keys():
+                
+                eta = lattice.invert_wilson_dirac(psi, 0.4,
+                                                  solver_method=solver_method)
             
-            lattice.update()
+                filename = "spinor_wilson_{}.npy" \
+                  .format(solver_method)
+                
+                expected_eta = np.load(create_fullpath(filename))
+                
+                assert np.allclose(eta, expected_eta)
+                        
+        def test_invert_hamberwu_dirac(self):
             
-            expected_propagator \
-              = np.load("{}/propagator_tree_level_4c8_4000_no_smear.npy"
-                        .format(data_dir))
-            actual_propagator = propagator.data
-        
-            assert (np.abs(expected_propagator - actual_propagator)
-                    < tolerance).all()
+            lattice = Lattice()
+            config_data \
+              = np.load(create_fullpath("config_wilson_heatbath_0.npy"))
+            config = Config(config_data, 4, 8, 5.5, 1.0, 1.0, 1.0,
+                                  "wilson")
+            lattice.set_config(config)
+            
+            psi = np.zeros([8, 4, 4, 4, 4, 3])
+            psi[0, 0, 0, 0, 0, 0] = 1.0
+            
+            for solver_method in dicts.solver_methods.keys():
+                
+                eta = lattice.invert_hamberwu_dirac(psi, 0.4,
+                                                    solver_method=solver_method)
+            
+                filename = "spinor_hamber-wu_{}.npy" \
+                  .format(solver_method)
+                
+                expected_eta = np.load(create_fullpath(filename))
+                
+                assert np.allclose(eta, expected_eta)
+                        
+        def test_invert_dwf_dirac(self):
+            
+            lattice = Lattice()
+            config_data \
+              = np.load(create_fullpath("config_wilson_heatbath_0.npy"))
+            config = Config(config_data, 4, 8, 5.5, 1.0, 1.0, 1.0,
+                                  "wilson")
+            lattice.set_config(config)
+            
+            psi = np.zeros([4, 8, 4, 4, 4, 4, 3])
+            psi[0, 0, 0, 0, 0, 0, 0] = 1.0
+            
+            for fermion_action in dicts.fermion_actions.keys():
+                
+                eta = lattice.invert_dwf_dirac(psi, 0.4, 1.6, 4,
+                                               kernel = fermion_action)
+            
+                filename = "spinor_dwf_{}_conjugate_gradient.npy" \
+                  .format(fermion_action)
+                
+                expected_eta = np.load(create_fullpath(filename))
+                
+                assert np.allclose(eta, expected_eta)
             
         def test_apply_wilson_dirac(self):
             
             lattice = Lattice()
+            config_data \
+              = np.load(create_fullpath("config_wilson_heatbath_0.npy"))
+            config = Config(config_data, 4, 8, 5.5, 1.0, 1.0, 1.0,
+                            "wilson")
+            lattice.set_config(config)
             
             psi = np.zeros([8, 4, 4, 4, 4, 3])
             psi[0, 0, 0, 0, 0, 0] = 1.0
             
             eta = lattice.apply_wilson_dirac(psi, 0.4)
+            expected_eta = np.load(create_fullpath("Dpsi_wilson.npy"))
             
-            assert len(eta[eta.nonzero()]) == 17
+            assert np.allclose(eta, expected_eta)
             
-            expected_eta = np.array([4.4+0.j, -0.5+0.j, 0.0+0.5j, -0.5+0.j,
-                                     0.0-0.5j, -0.5+0.j, -0.5+0.j, -0.5+0.j,
-                                     0.5+0.j, -0.5+0.j, 0.0+0.5j, -0.5+0.j,
-                                     0.0-0.5j, -0.5+0.j, 0.5+0.j,  0.5+0.j, 0.5+0.j])
-            
-            assert (eta[eta.nonzero()] == expected_eta).all()
-            
-        def test_apply_jacobi_smearing(self):
+        def test_apply_hamberwu_dirac(self):
             
             lattice = Lattice()
+            config_data \
+              = np.load(create_fullpath("config_wilson_heatbath_0.npy"))
+            config = Config(config_data, 4, 8, 5.5, 1.0, 1.0, 1.0,
+                            "wilson")
+            lattice.set_config(config)
             
             psi = np.zeros([8, 4, 4, 4, 4, 3])
             psi[0, 0, 0, 0, 0, 0] = 1.0
             
-            eta = lattice.apply_jacobi_smearing(psi, 4, 0.4)
+            eta = lattice.apply_hamberwu_dirac(psi, 0.4)
+            expected_eta = np.load(create_fullpath("Dpsi_hamber-wu.npy"))
             
-            expected_eta = np.array([1.3936+0.j, -0.3280+0.j, 0.1696+0.j,
-                                     -0.3280+0.j, -0.3280+0.j, 0.1696+0.j,
-                                     -0.0480+0.j, 0.1696+0.j, 0.1696+0.j,
-                                     -0.0480+0.j, 0.0384+0.j, -0.0480+0.j,
-                                     -0.3280+0.j, 0.1696+0.j, -0.0480+0.j,
-                                     0.1696+0.j, -0.3280+0.j,  0.1696+0.j,
-                                     -0.0480+0.j, 0.1696+0.j, 0.1696+0.j,
-                                     -0.0480+0.j,  0.0384+0.j, -0.0480+0.j,
-                                     -0.0480+0.j, 0.0384+0.j, 0.0384+0.j,
-                                     0.1696+0.j, -0.0480+0.j, 0.0384+0.j,
-                                     -0.0480+0.j, 0.1696+0.j, -0.0480+0.j,
-                                     0.0384+0.j, -0.0480+0.j, -0.0480+0.j,
-                                     0.0384+0.j,  0.0384+0.j, 0.0384+0.j,
-                                     -0.0480+0.j, 0.0384+0.j, 0.0384+0.j,
-                                     -0.3280+0.j, 0.1696+0.j, -0.0480+0.j,
-                                     0.1696+0.j, 0.1696+0.j, -0.0480+0.j,
-                                     0.0384+0.j, -0.0480+0.j, -0.0480+0.j,
-                                     0.0384+0.j, 0.0384+0.j, 0.1696+0.j,
-                                     -0.0480+0.j, 0.0384+0.j, -0.0480+0.j])
+            assert np.allclose(eta, expected_eta)
             
-            assert len(eta[eta.nonzero()]) == 57
-            assert (np.abs(eta[eta.nonzero()] - expected_eta)
-                    < 1e-10 * np.ones(expected_eta.shape)).all()
+        def test_apply_dwf_dirac(self):
             
-            eta = lattice.apply_jacobi_smearing(psi, 4, 0.0)
+            lattice = Lattice()
+            config_data \
+              = np.load(create_fullpath("config_wilson_heatbath_0.npy"))
+            config = Config(config_data, 4, 8, 5.5, 1.0, 1.0, 1.0,
+                            "wilson")
+            lattice.set_config(config)
             
-            assert (eta == psi).all()
+            psi = np.zeros([4, 8, 4, 4, 4, 4, 3])
+            psi[0, 0, 0, 0, 0, 0, 0] = 1.0
+            
+            for fermion_action in dicts.fermion_actions.keys():
+                eta = lattice.apply_dwf_dirac(psi, 0.4, 1.6, 4, fermion_action)
+                expected_eta \
+                  = np.load(create_fullpath("Dpsi_dwf_{}.npy".format(fermion_action)))
+            
+                assert np.allclose(eta, expected_eta)
+            
+        def test_apply_jacobi_smearing(self):
+            
+            lattice = Lattice()
+            config_data \
+              = np.load(create_fullpath("config_wilson_heatbath_0.npy"))
+            config = Config(config_data, 4, 8, 5.5, 1.0, 1.0, 1.0,
+                            "wilson")
+            lattice.set_config(config)
+            
+            psi = np.zeros([8, 4, 4, 4, 4, 3])
+            psi[0, 0, 0, 0, 0, 0] = 1.0
+            
+            eta = lattice.apply_jacobi_smearing(psi, 1, 0.5)
+            expected_eta = np.load(create_fullpath("smeared_source_jacobi.npy"))
+            
+            assert np.allclose(eta, expected_eta)
     
         def test_get_av_link(self):
             
             lattice = Lattice()
 
-            assert lattice.get_av_link() - 1.0 < 1e-10
+            assert np.allclose(lattice.get_av_link(), 1.0)
 
 class TestObservable:
     
