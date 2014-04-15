@@ -1885,23 +1885,23 @@ if lattice_exists:
             simulation.create_lattice(4, 8, "wilson", 5.5)
             
             with pytest.raises(AttributeError):
-                simulation.load_ensemble("{}/4c8_ensemble.zip".format(data_dir))
+                simulation.load_ensemble(create_fullpath("4c8_ensemble.zip"))
                 
             simulation = Simulation(3, 10, 100)
             simulation.create_lattice(8, 8, "wilson", 5.5)
             
             with pytest.raises(AttributeError):
-                simulation.load_ensemble("{}/4c8_ensemble.zip".format(data_dir))
+                simulation.load_ensemble(create_fullpath("4c8_ensemble.zip"))
                 
             simulation = Simulation(3, 10, 100)
             simulation.create_lattice(4, 16, "wilson", 5.5)
             
             with pytest.raises(AttributeError):
-                simulation.load_ensemble("{}/4c8_ensemble.zip".format(data_dir))
+                simulation.load_ensemble(create_fullpath("4c8_ensemble.zip"))
                 
             simulation = Simulation(3, 10, 100)
             simulation.create_lattice(4, 8, "wilson", 5.5)
-            simulation.load_ensemble("{}/4c8_ensemble.zip".format(data_dir))
+            simulation.load_ensemble(create_fullpath("4c8_ensemble.zip"))
         
         def test_add_measurement(self):
         
@@ -1916,12 +1916,11 @@ if lattice_exists:
             simulation = Simulation(5, 10, 100)
             simulation.create_lattice(4, 8, "wilson", 5.5)
             simulation.add_measurement(Lattice.get_config, Config, "configs.zip",
-                                       meas_message="Storing gauge configuration"
-                                       )
+                                       meas_message="Storing gauge configuration")
             simulation.run()
         
             simulation = Simulation(3, 10, 100)
             simulation.create_lattice(4, 8, "wilson", 5.5)
-            simulation.load_ensemble("{}/4c8_ensemble.zip".format(data_dir))
+            simulation.load_ensemble(create_fullpath("4c8_ensemble.zip"))
             simulation.add_measurement(Lattice.get_config, Config, "configs.zip")
             simulation.run()
