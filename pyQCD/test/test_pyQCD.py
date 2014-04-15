@@ -1159,15 +1159,6 @@ class TestTwoPoint:
             source_type = source_sink_types[npr.randint(len(source_sink_types))]
             sink_type = source_sink_types[npr.randint(len(source_sink_types))]
             
-            attribute_name \
-              = "{0}_px{1}_py{2}_pz{3}".format(label, *momentum)
-              
-            for mass in masses:
-                attribute_name \
-                  += "_M{0}".format(round(mass, 4)).replace(".", "p")
-                
-            attribute_name += "_{0}_{1}".format(source_type, sink_type)
-            
             correlator = npr.random(8)
             twopoint.data[(label, tuple(masses), tuple(momentum), source_type,
                            sink_type)] = correlator
@@ -1237,8 +1228,8 @@ class TestTwoPoint:
         
         twopoint = TwoPoint(32, 16)
         
-        twopoint.load_chroma_mesonspec("{}/mesonspec_hh_6000_1.xml" \
-                                       .format(data_dir))
+        twopoint \
+          .load_chroma_mesonspec(create_fullpath("mesonspec_hh_6000_1.xml"))
                                        
         assert len(twopoint.data.keys()) == 8
             
@@ -1246,35 +1237,31 @@ class TestTwoPoint:
         
         twopoint = TwoPoint(8, 4)
         
-        twopoint.load_chroma_hadspec("{}/hadspec.dat.xml" \
-                                     .format(data_dir))
+        twopoint.load_chroma_hadspec(create_fullpath("hadspec.dat.xml"))
                                        
         assert len(twopoint.data.keys()) == 95
             
     def test_load_chroma_hadspec_mesons(self):
         
         twopoint = TwoPoint(8, 4)
-        
-        twopoint.load_chroma_hadspec_mesons("{}/hadspec.dat.xml" \
-                                            .format(data_dir))
+        filename = create_fullpath("hadspec.dat.xml")
+        twopoint.load_chroma_hadspec_currents(filename)
                                        
         assert len(twopoint.data.keys()) == 64
             
     def test_load_chroma_hadspec_baryons(self):
         
         twopoint = TwoPoint(8, 4)
-        
-        twopoint.load_chroma_hadspec_baryons("{}/hadspec.dat.xml" \
-                                             .format(data_dir))
+        filename = create_fullpath("hadspec.dat.xml")
+        twopoint.load_chroma_hadspec_currents(filename)
                                        
         assert len(twopoint.data.keys()) == 20
             
     def test_load_chroma_hadspec_currents(self):
         
         twopoint = TwoPoint(8, 4)
-        
-        twopoint.load_chroma_hadspec_currents("{}/hadspec.dat.xml" \
-                                              .format(data_dir))
+        filename = create_fullpath("hadspec.dat.xml")
+        twopoint.load_chroma_hadspec_currents(filename)
                                        
         assert len(twopoint.data.keys()) == 11
         
@@ -1282,7 +1269,7 @@ class TestTwoPoint:
         
         twopoint = TwoPoint(32, 16)
         
-        twopoint.load_chroma_mres("{}/hadspec.out.xml".format(data_dir))
+        twopoint.load_chroma_mres(create_fullpath("hadspec.out.xml"))
         
         assert len(twopoint.data.keys()) == 10
             
@@ -1290,9 +1277,9 @@ class TestTwoPoint:
         
         twopoint = TwoPoint(32, 16)
         
+        filename = create_fullpath("meson_m_0.45_m_0.45_Z2.280.bin")        
         twopoint \
-          .load_ukhadron_meson_binary("{}/meson_m_0.45_m_0.45_Z2.280.bin"
-                                      .format(data_dir), "big", (0.1, 0.1))
+          .load_ukhadron_meson_binary(filename, "big", (0.1, 0.1))
                                        
         assert len(twopoint.data.keys()) == 256
         
@@ -1308,18 +1295,18 @@ class TestTwoPoint:
         
         tolerance = 1e-6
         
-        expected_correlator = np.array([0.7499591307765168,
-                                        0.0475944363680059,
-                                        0.013851732183308966,
-                                        0.007241421784254808,
-                                        0.0057323242970728815,
-                                        0.00724142178425481,
-                                        0.013851732183308969,
-                                        0.047594436368005914])
+        expected_correlator = np.array([7.37116795e-01,
+                                        2.22850450e-02,
+                                        1.21447706e-03,
+                                        6.72126426e-05,
+                                        7.87223375e-06,
+                                        7.73382888e-05,
+                                        1.32329206e-03,
+                                        2.35567921e-02])
         
-        propagator_data \
-          = np.load("{}/propagator_tree_level_4c8_4000_no_smear.npy"
-                    .format(data_dir))
+        filename \
+          = create_fullpath("prop_wilson_conjugate_gradient_jacobi_0_0_0.npy")
+        propagator_data = np.load(filename)
         
         propagator = Propagator(propagator_data, 4, 8, 5.5, 1.0, 1.0, 1.0,
                                 "wilson", "wilson", 0.4, {}, [0, 0, 0, 0],
@@ -1346,22 +1333,21 @@ class TestTwoPoint:
             correlator_key = (label, (0.4, 0.4), tuple(momenta),
                               "point", "point")
         
-            assert (np.abs(twopoint.data[correlator_key] - expected_correlator)
-                    < np.abs(expected_correlator)).all()
+            assert np.allclose(twopoint.data[correlator_key],
+                               expected_correlator)
             
         momenta = [[0, 0, 0], [1, 0, 0], [1, 1, 0], [1, 1, 1]]
-        
-        propagator_data \
-          = np.load("{}/propagator_tree_level_8c16_10000_no_smear.npy"
-                    .format(data_dir))
+        filename \
+          = create_fullpath("prop_free_8c16_m1.0_no_smear.npy")
+        propagator_data = np.load(filename)
         
         propagator = Propagator(propagator_data, 8, 16, 5.5, 1.0, 1.0, 1.0,
                                 "wilson", "wilson", 1.0, {}, [0, 0, 0, 0],
                                 0, 1.0, "jacobi", 0, 1.0, "jacobi", 0, 1.0)
         
-        expected_correlators \
-          = np.load("{}/correlators_tree_level_8c16_10000.npy"
-                    .format(data_dir))
+        filename \
+          = create_fullpath("correlators_free_8c16_m1.0.npy")
+        expected_correlators = np.load(filename)
         
         twopoint = TwoPoint(16, 8)
         source_interpolator = gamma5
@@ -1377,9 +1363,8 @@ class TestTwoPoint:
             correlator_key = (label, (1.0, 1.0), tuple(momentum),
                               "point", "point")
         
-            assert (np.abs(twopoint.data[correlator_key]
-                           - expected_correlators[i])
-                    < np.abs(expected_correlator[i])).all()
+            assert np.allclose(twopoint.data[correlator_key],
+                               expected_correlators[i])
             
     def test_fit_correlator(self):
         
@@ -1399,19 +1384,17 @@ class TestTwoPoint:
         fit_result = twopoint.fit_correlator(fit_function, range(twopoint.T),
                                              [500, 1])
         fit_result = np.array(fit_result)
-        assert (np.abs(fit_result - expected_result)
-                < 1e-6 * np.abs(expected_result)).all()
+        assert np.allclose(fit_result, expected_result)
         
         fit_result = twopoint.fit_correlator(fit_function, [0, twopoint.T],
                                              [500, 1])
         fit_result = np.array(fit_result)
-        assert (np.abs(fit_result - expected_result)
-                < 1e-6 * np.abs(expected_result)).all()
+        assert np.allclose(fit_result, expected_result)
         
         fit_result = twopoint.fit_correlator(fit_function, range(twopoint.T),
                                              [500, 1], np.ones(twopoint.T),
                                              lambda x: x[1]**2)
-        assert np.abs(fit_result - mass**2) < 1e-6 * mass**2
+        assert np.allclose(fit_result, mass**2)
             
     def test_compute_energy(self):
         
@@ -1427,7 +1410,7 @@ class TestTwoPoint:
                                 "point", "point")
         
         fitted_mass = twopoint.compute_energy(range(twopoint.T), [500, 1])
-        assert np.abs(fitted_mass - mass) < 1e-6 * mass
+        assert np.allclose(fitted_mass, mass)
             
     def test_compute_square_energy(self):
         
@@ -1443,7 +1426,7 @@ class TestTwoPoint:
                                 "point", "point")
         
         fitted_mass = twopoint.compute_square_energy(range(twopoint.T), [500, 1])
-        assert np.abs(fitted_mass - mass**2) < 1e-6 * mass**2
+        assert np.allclose(fitted_mass, mass**2)
         
     def test_compute_c_square(self):
         
@@ -1469,8 +1452,7 @@ class TestTwoPoint:
         actual_result = twopoint.compute_c_square(3 * [range(16)], [500, 1],
                                                   [[1, 0, 0], [1, 1, 0]])
         
-        assert (np.abs(actual_result - expected_result)
-                < 1e-6 * np.abs(expected_result)).all()
+        assert np.allclose(actual_result, expected_result)
         
     def test_compute_effmass(self):
         
@@ -1485,8 +1467,7 @@ class TestTwoPoint:
         actual_effmass = twopoint.compute_effmass("test", [0.1, 0.1], [0, 0, 0],
                                                   "point", "point")
         
-        assert (np.abs(actual_effmass - expected_effmass)
-                < 1e-6 * np.abs(expected_effmass)).all()
+        assert np.allclose(actual_effmass, expected_effmass)
         
     def test_div(self):
         
@@ -1504,8 +1485,7 @@ class TestTwoPoint:
         actual_correlator = twopoint_div.get_correlator("test", [0.1, 0.1],
                                                         [0, 0, 0], "point",
                                                         "point")
-        assert (np.abs(actual_correlator - expected_correlator)
-                < 1e-10 * np.abs(expected_correlator)).all()
+        assert np.allclose(actual_correlator, expected_correlator)
         
     def test_neg(self):
         
@@ -1522,8 +1502,7 @@ class TestTwoPoint:
         actual_correlator = twopoint_neg.get_correlator("test", [0.1, 0.1],
                                                         [0, 0, 0], "point",
                                                         "point")
-        assert (np.abs(actual_correlator - expected_correlator)
-                < 1e-10 * np.abs(expected_correlator)).all()
+        assert np.allclose(actual_correlator, expected_correlator)
         
     def test_sub(self):
         
@@ -1561,8 +1540,7 @@ class TestTwoPoint:
         actual_correlator = twopoint3.get_correlator("test", [0.1, 0.1],
                                                      [0, 0, 0], "point",
                                                      "point")
-        assert (np.abs(actual_correlator - expected_correlator)
-                < 1e-10 * np.abs(expected_correlator)).all()
+        assert np.allclose(actual_correlator, expected_correlator)
 
 class TestDataSet:
     
