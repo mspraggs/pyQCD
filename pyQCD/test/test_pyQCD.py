@@ -1666,16 +1666,29 @@ class TestDataSet:
             
         data_mean = rand_floats.mean()
         
-        bootstrap_mean, bootstrap_std = dataset.bootstrap(lambda x: x**2, 100)
-        assert np.abs(bootstrap_mean - data_mean**2) < 0.1 * data_mean**2
+        rtol = 0.1
         
         bootstrap_mean, bootstrap_std = dataset.bootstrap(lambda x: x**2, 100,
                                                           use_cache=False)
-        assert np.abs(bootstrap_mean - data_mean**2) < 0.1 * data_mean**2
+        assert np.allclose(bootstrap_mean, data_mean**2, rtol)
+        
+        bootstrap_mean, bootstrap_std = dataset.bootstrap(lambda x: x**2, 100,
+                                                          use_cache=False,
+                                                          use_parallel=True)
+        assert np.allclose(bootstrap_mean, data_mean**2, rtol)
+        
+        bootstrap_mean, bootstrap_std = dataset.bootstrap(lambda x: x**2, 100)
+        assert np.allclose(bootstrap_mean, data_mean**2, rtol)
+        
+        bootstrap_mean_2, bootstrap_std_2 = dataset.bootstrap(lambda x: x**2, 100,
+                                                              use_cache=True,
+                                                              use_parallel=True)
+        assert bootstrap_mean == bootstrap_mean_2
+        assert bootstrap_std == bootstrap_std_2
             
-        result = dataset.bootstrap(lambda x: x**2, 10, 3, use_cache=False)
-            
-        dataset.generate_bootstrap_cache(10, 3)
+        bootstrap_mean, bootstrap_std = dataset.bootstrap(lambda x: x**2, 10, 3,
+                                                          use_cache=False)
+        assert np.allclose(bootstrap_mean, data_mean**2, rtol)
             
     def test_jackknife_datum(self):
         
@@ -1719,17 +1732,27 @@ class TestDataSet:
             
         data_mean = rand_floats.mean()
         
+        rtol = 0.001
+        
         jackknife_mean, jackknife_std = dataset.jackknife(lambda x: x**2)        
-        assert np.abs(jackknife_mean - data_mean**2) < 0.001 * data_mean**2
+        assert np.allclose(jackknife_mean, data_mean**2, rtol)
+        old_mean = jackknife_mean
         
         jackknife_mean, jackknife_std = dataset.jackknife(lambda x: x**2,
-                                                          use_cache=False) 
-        assert np.abs(jackknife_mean - data_mean**2) < 0.001 * data_mean**2
+                                                          use_cache=False)
+        assert np.allclose(jackknife_mean, data_mean**2, rtol)
+        assert old_mean == jackknife_mean
+        
+        jackknife_mean, jackknife_std = dataset.jackknife(lambda x: x**2,
+                                                          use_parallel=True)
+        assert np.allclose(jackknife_mean, data_mean**2, rtol)
+        assert old_mean == jackknife_mean
         
         with pytest.raises(ZeroDivisionError):
             result = dataset.jackknife(lambda x: x**2, 0)
             
         result = dataset.jackknife(lambda x: x**2, 3)
+        assert np.allclose(result[0], data_mean**2, rtol)
             
     def test_load(self):
         
