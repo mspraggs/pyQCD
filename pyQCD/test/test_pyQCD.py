@@ -1752,7 +1752,7 @@ class TestDataSet:
             result = dataset.jackknife(lambda x: x**2, 0)
             
         result = dataset.jackknife(lambda x: x**2, 3)
-        assert np.allclose(result[0], data_mean**2, rtol)
+        assert np.allclose(result[0], data_mean**2, 0.1)
             
     def test_load(self):
         
