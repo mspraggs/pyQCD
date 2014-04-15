@@ -288,7 +288,7 @@ if lattice_exists:
                 for update_method in dicts.update_methods.keys():
                     for rand_seed in [0, 1, 2]:
                 
-                        filename = "config_{}_{}_{}" \
+                        filename = "config_{}_{}_{}.npy" \
                           .format(gauge_action,
                                   update_method,
                                   rand_seed)
