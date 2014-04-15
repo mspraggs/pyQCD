@@ -1245,7 +1245,7 @@ class TestTwoPoint:
         
         twopoint = TwoPoint(8, 4)
         filename = create_fullpath("hadspec.dat.xml")
-        twopoint.load_chroma_hadspec_currents(filename)
+        twopoint.load_chroma_hadspec_mesons(filename)
                                        
         assert len(twopoint.data.keys()) == 64
             
@@ -1253,7 +1253,7 @@ class TestTwoPoint:
         
         twopoint = TwoPoint(8, 4)
         filename = create_fullpath("hadspec.dat.xml")
-        twopoint.load_chroma_hadspec_currents(filename)
+        twopoint.load_chroma_hadspec_baryons(filename)
                                        
         assert len(twopoint.data.keys()) == 20
             
