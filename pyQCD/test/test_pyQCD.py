@@ -1876,28 +1876,6 @@ if lattice_exists:
             simulation.create_lattice(4, 8, "wilson", 5.5, 1.0, 4)
             
         def test_load_ensemble(self):
-            
-            simulation = Simulation(100, 10, 250)
-            
-            with pytest.raises(AttributeError):
-                simulation.load_ensemble("dummy")
-                
-            simulation.create_lattice(4, 8, "wilson", 5.5)
-            
-            with pytest.raises(AttributeError):
-                simulation.load_ensemble(create_fullpath("4c8_ensemble.zip"))
-                
-            simulation = Simulation(3, 10, 100)
-            simulation.create_lattice(8, 8, "wilson", 5.5)
-            
-            with pytest.raises(AttributeError):
-                simulation.load_ensemble(create_fullpath("4c8_ensemble.zip"))
-                
-            simulation = Simulation(3, 10, 100)
-            simulation.create_lattice(4, 16, "wilson", 5.5)
-            
-            with pytest.raises(AttributeError):
-                simulation.load_ensemble(create_fullpath("4c8_ensemble.zip"))
                 
             simulation = Simulation(3, 10, 100)
             simulation.create_lattice(4, 8, "wilson", 5.5)
