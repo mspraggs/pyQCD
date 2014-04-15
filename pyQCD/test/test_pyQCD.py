@@ -1837,14 +1837,13 @@ class TestWilsonLoops:
         expected_lattice_spacing \
           = np.array([0.31695984599258381, 0.62152983253471605])
         
-        wilslp_data = np.load("{}/wilslps_no_smear.npy".format(data_dir))
+        wilslp_data = np.load(create_fullpath("wilslps_no_smear.npy"))
         wilslps = WilsonLoops(wilslp_data, 4, 8, 5.5, 1.0, 1.0, 1.0,
                               "wilson", 0, 1.0)
         
         actual_lattice_spacing = np.array(wilslps.lattice_spacing())
         
-        assert (np.abs(actual_lattice_spacing - expected_lattice_spacing)
-                < 1e-10 * np.abs(expected_lattice_spacing)).all()
+        assert np.allclose(actual_lattice_spacing, expected_lattice_spacing)
         
     def test_pair_potential(self):
         
@@ -1853,14 +1852,13 @@ class TestWilsonLoops:
                                        1.2964758874025355,
                                        1.9389738652985116])
         
-        wilslp_data = np.load("{}/wilslps_no_smear.npy".format(data_dir))
+        wilslp_data = np.load(create_fullpath("wilslps_no_smear.npy"))
         wilslps = WilsonLoops(wilslp_data, 4, 8, 5.5, 1.0, 1.0, 1.0,
                               "wilson", 0, 1.0)
         
         actual_potential = wilslps.pair_potential()
         
-        assert (np.abs(actual_potential - expected_potential)
-                < 1e-10 * np.abs(expected_potential)).all()
+        assert np.allclose(actual_potential, expected_potential)
     
 if lattice_exists:
     class TestSimulation:
