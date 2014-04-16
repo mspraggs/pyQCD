@@ -89,16 +89,16 @@ void HoppingTerm::init(Lattice* lattice,
 	  for (int m = 0; m < 4; ++m) {
 	    int link[5] = {i, j, k, l, m};
 	    int hoppingLink[5] = {i, j, k, l, m};
-	    this->links_[pyQCD::getLinkIndex(link,
-					     this->lattice_->spatialExtent)]
-	      = Matrix3cd::Identity();
+	    Matrix3cd tempMatrix = Matrix3cd::Identity();
 
 	    for (int n = 0; n < nHops; ++n) {
+	      tempMatrix = tempMatrix * this->lattice_->getLink(hoppingLink);
 	      hoppingLink[m]++;
-	      this->links_[pyQCD::getLinkIndex(link,
-					       this->lattice_->spatialExtent)]
-		*= this->lattice_->getLink(hoppingLink);
 	    }
+
+	    this->links_[pyQCD::getLinkIndex(link,
+					     this->lattice_->spatialExtent)]
+	      = tempMatrix;
 	  }
 	}
       }
