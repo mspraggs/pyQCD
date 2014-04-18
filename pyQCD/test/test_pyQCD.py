@@ -518,29 +518,28 @@ if lattice_exists:
               = [(0, 0, 0), (1, 0, 0), (0, 1, 0), (0, 0, 1)]
               
             func = Lattice.get_wilson_propagator
-                
-            for solver_method in dicts.solver_methods.keys():
-                for smearing_type in dicts.smearing_types.keys():
-                    for n_link_s, n_source_s, n_sink_s in smearing_combinations:
+            
+            for smearing_type in dicts.smearing_types.keys():
+                for n_link_s, n_source_s, n_sink_s in smearing_combinations:
                         
-                        prop = func(lattice, 0.4,
-                                    num_field_smears=n_link_s,
-                                    field_smearing_param=0.4,
-                                    source_smear_type=smearing_type,
-                                    num_source_smears=n_source_s,
-                                    source_smearing_param=0.4,
-                                    sink_smear_type=smearing_type,
-                                    num_sink_smears=n_sink_s,
-                                    sink_smearing_param=0.4,
-                                    solver_method=solver_method)
+                    prop = func(lattice, 0.4,
+                                num_field_smears=n_link_s,
+                                field_smearing_param=0.4,
+                                source_smear_type=smearing_type,
+                                num_source_smears=n_source_s,
+                                source_smearing_param=0.4,
+                                sink_smear_type=smearing_type,
+                                num_sink_smears=n_sink_s,
+                                sink_smearing_param=0.4)
                     
-                        filename = "prop_wilson_{}_{}_{}_{}_{}.npy" \
-                          .format(solver_method, smearing_type, n_link_s,
-                                  n_source_s, n_sink_s)
+                    filename \
+                      = "prop_wilson_conjugate_gradient_{}_{}_{}_{}.npy" \
+                      .format(smearing_type, n_link_s,
+                              n_source_s, n_sink_s)
                         
-                        actual_prop = np.load(create_fullpath(filename))
+                    actual_prop = np.load(create_fullpath(filename))
                         
-                        assert np.allclose(actual_prop, prop.data)
+                    assert np.allclose(actual_prop, prop.data)
 
         def test_get_hamberwu_propagator(self):
             
@@ -555,29 +554,28 @@ if lattice_exists:
               = [(0, 0, 0), (1, 0, 0), (0, 1, 0), (0, 0, 1)]
               
             func = Lattice.get_hamberwu_propagator
-                
-            for solver_method in dicts.solver_methods.keys():
-                for smearing_type in dicts.smearing_types.keys():
-                    for n_link_s, n_source_s, n_sink_s in smearing_combinations:
-                        
-                        prop = func(lattice, 0.4,
-                                    num_field_smears=n_link_s,
-                                    field_smearing_param=0.4,
-                                    source_smear_type=smearing_type,
-                                    num_source_smears=n_source_s,
-                                    source_smearing_param=0.4,
-                                    sink_smear_type=smearing_type,
-                                    num_sink_smears=n_sink_s,
-                                    sink_smearing_param=0.4,
-                                    solver_method=solver_method)
+            
+            for smearing_type in dicts.smearing_types.keys():
+                for n_link_s, n_source_s, n_sink_s in smearing_combinations:
                     
-                        filename = "prop_hamber-wu_{}_{}_{}_{}_{}.npy" \
-                          .format(solver_method, smearing_type, n_link_s,
-                                  n_source_s, n_sink_s)
+                    prop = func(lattice, 0.4,
+                                num_field_smears=n_link_s,
+                                field_smearing_param=0.4,
+                                source_smear_type=smearing_type,
+                                num_source_smears=n_source_s,
+                                source_smearing_param=0.4,
+                                sink_smear_type=smearing_type,
+                                num_sink_smears=n_sink_s,
+                                sink_smearing_param=0.4)
+                
+                    filename \
+                      = "prop_hamber-wu_conjugate_gradient_{}_{}_{}_{}.npy" \
+                      .format(smearing_type, n_link_s,
+                              n_source_s, n_sink_s)
                         
-                        actual_prop = np.load(create_fullpath(filename))
+                    actual_prop = np.load(create_fullpath(filename))
                         
-                        assert np.allclose(actual_prop, prop.data)
+                    assert np.allclose(actual_prop, prop.data)
                         
         def test_invert_wilson_dirac(self):
             
