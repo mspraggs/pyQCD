@@ -515,7 +515,7 @@ if lattice_exists:
             lattice.set_config(config)
             
             smearing_combinations \
-              = [(1, 0, 0), (0, 1, 0), (0, 0, 1)]
+              = [(0, 0, 0), (1, 0, 0), (0, 1, 0), (0, 0, 1)]
               
             func = Lattice.get_wilson_propagator
                 
@@ -552,7 +552,7 @@ if lattice_exists:
             lattice.set_config(config)
             
             smearing_combinations \
-              = [(1, 0, 0), (0, 1, 0), (0, 0, 1)]
+              = [(0, 0, 0), (1, 0, 0), (0, 1, 0), (0, 0, 1)]
               
             func = Lattice.get_hamberwu_propagator
                 
