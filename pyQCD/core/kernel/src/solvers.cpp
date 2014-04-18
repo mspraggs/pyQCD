@@ -178,10 +178,10 @@ VectorXcd gmres(LinearOperator* linop, const VectorXcd& rhs,
 
     if (rNorm / r0Norm < tolerance) {
       maxIterations = i + 1;
-      tolerance = sqrt(rNorm / r0Norm);
       break;
     }
   }
+  tolerance = rNorm / r0Norm;
 
   boost::timer::cpu_times const elapsedTimes(timer.elapsed());
   boost::timer::nanosecond_type const elapsed(elapsedTimes.system
