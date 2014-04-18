@@ -105,7 +105,7 @@ VectorXcd bicgstab(LinearOperator* linop, const VectorXcd& rhs,
   for (int i = 0; i < maxIterations; ++i) {
     // 6 * N + 2 * (N - 1) = 8 * N - 2 flops
     complex<double> rhoOld = rho;
-    rho = r.dot(r0);
+    rho = r0.dot(r);
 
     if (abs(rho) == 0.0) {
       maxIterations = i;
