@@ -61,7 +61,7 @@ set (Boost_USE_MULTITHREADED ON)
 set (Boost_USE_STATIC_RUNTIME OFF)
 find_package (Boost COMPONENTS random python timer unit_test_framework system)
 
-set (CMAKE_SHARED_LIBRARY_PREFIX "")
+#set (CMAKE_SHARED_LIBRARY_PREFIX "")
 
 if (CUDA_FOUND AND USE_CUDA)
   message ("Compiling for CUDA GPUs")
@@ -79,7 +79,13 @@ endif()
 
 add_library(shared_objects OBJECT ${shared_SRC})
 
+add_library(pyQCD SHARED $<TARGET_OBJECTS:shared_objects>)
+target_link_libraries(pyQCD ${Boost_LIBRARIES})
+add_library(pyQCDstatic STATIC $<TARGET_OBJECTS:shared_objects>)
+target_link_libraries(pyQCDstatic ${Boost_LIBRARIES})
+
 add_library (lattice SHARED $<TARGET_OBJECTS:shared_objects> ${lattice_SRC})
+set_target_properties(lattice PROPERTIES PREFIX "")
 
 if (CUDA_FOUND AND USE_CUDA AND CUSP_INCLUDE_DIR)
   target_link_libraries (lattice ${Boost_LIBRARIES} ${PYTHON_LIBRARIES}
