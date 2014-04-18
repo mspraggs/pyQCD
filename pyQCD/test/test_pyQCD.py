@@ -509,7 +509,7 @@ if lattice_exists:
             
             lattice = Lattice()
             config_data \
-              = np.load(create_fullpath("config_wilson_heatbath_0.npy"))
+              = np.load(create_fullpath("chroma_config.npy"))
             config = Config(config_data, 4, 8, 5.5, 1.0, 1.0, 1.0,
                             "wilson")
             lattice.set_config(config)
@@ -546,7 +546,7 @@ if lattice_exists:
             
             lattice = Lattice()
             config_data \
-              = np.load(create_fullpath("config_wilson_heatbath_0.npy"))
+              = np.load(create_fullpath("chroma_config.npy"))
             config = Config(config_data, 4, 8, 5.5, 1.0, 1.0, 1.0,
                                   "wilson")
             lattice.set_config(config)
@@ -583,7 +583,7 @@ if lattice_exists:
             
             lattice = Lattice()
             config_data \
-              = np.load(create_fullpath("config_wilson_heatbath_0.npy"))
+              = np.load(create_fullpath("chroma_config.npy"))
             config = Config(config_data, 4, 8, 5.5, 1.0, 1.0, 1.0,
                                   "wilson")
             lattice.set_config(config)
@@ -607,7 +607,7 @@ if lattice_exists:
             
             lattice = Lattice()
             config_data \
-              = np.load(create_fullpath("config_wilson_heatbath_0.npy"))
+              = np.load(create_fullpath("chroma_config.npy"))
             config = Config(config_data, 4, 8, 5.5, 1.0, 1.0, 1.0,
                                   "wilson")
             lattice.set_config(config)
@@ -631,7 +631,7 @@ if lattice_exists:
             
             lattice = Lattice()
             config_data \
-              = np.load(create_fullpath("config_wilson_heatbath_0.npy"))
+              = np.load(create_fullpath("chroma_config.npy"))
             config = Config(config_data, 4, 8, 5.5, 1.0, 1.0, 1.0,
                                   "wilson")
             lattice.set_config(config)
@@ -655,7 +655,7 @@ if lattice_exists:
             
             lattice = Lattice()
             config_data \
-              = np.load(create_fullpath("config_wilson_heatbath_0.npy"))
+              = np.load(create_fullpath("chroma_config.npy"))
             config = Config(config_data, 4, 8, 5.5, 1.0, 1.0, 1.0,
                             "wilson")
             lattice.set_config(config)
@@ -672,7 +672,7 @@ if lattice_exists:
             
             lattice = Lattice()
             config_data \
-              = np.load(create_fullpath("config_wilson_heatbath_0.npy"))
+              = np.load(create_fullpath("chroma_config.npy"))
             config = Config(config_data, 4, 8, 5.5, 1.0, 1.0, 1.0,
                             "wilson")
             lattice.set_config(config)
@@ -689,7 +689,7 @@ if lattice_exists:
             
             lattice = Lattice()
             config_data \
-              = np.load(create_fullpath("config_wilson_heatbath_0.npy"))
+              = np.load(create_fullpath("chroma_config.npy"))
             config = Config(config_data, 4, 8, 5.5, 1.0, 1.0, 1.0,
                             "wilson")
             lattice.set_config(config)
@@ -708,7 +708,7 @@ if lattice_exists:
             
             lattice = Lattice()
             config_data \
-              = np.load(create_fullpath("config_wilson_heatbath_0.npy"))
+              = np.load(create_fullpath("chroma_config.npy"))
             config = Config(config_data, 4, 8, 5.5, 1.0, 1.0, 1.0,
                             "wilson")
             lattice.set_config(config)
