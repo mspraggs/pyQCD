@@ -922,7 +922,7 @@ class TestPropagator:
                                               'mass': 0.4,
                                               'action_parameters': {},
                                               'boundary_conditions':
-                                              [-1, 1, 1, 1]
+                                              [-1, 1, 1, 1],
                                               'source_site': [0, 0, 0, 0],
                                               'num_field_smears': 0,
                                               'field_smearing_param': 1.0,
