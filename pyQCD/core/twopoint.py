@@ -889,23 +889,27 @@ class TwoPoint(Observable):
                                                       source_interpolator,
                                                       sink_interpolator)
         
-        if propagator1.num_source_smears == 0 \
-          and propagator2.num_source_smears == 0:
-            source_type = "point"
-        elif propagator1.num_source_smears > 0 \
-          and propagator2.num_source_smears > 0:
-            source_type = "shell"
+        if propagator1.num_source_smears == 0:
+            if propagator2.num_source_smears == 0:
+                source_type = "point_point"
+            else:
+                source_type = "point_shell"
         else:
-            source_type = None
-            
-        if propagator1.num_sink_smears == 0 \
-          and propagator2.num_sink_smears == 0:
-            sink_type = "point"
-        elif propagator1.num_sink_smears > 0 \
-          and propagator2.num_sink_smears > 0:
-            sink_type = "shell"
+            if propagator2.num_source_smears == 0:
+                source_type = "shell_point"
+            else:
+                source_type = "shell_shell"
+        
+        if propagator1.num_sink_smears == 0:
+            if propagator2.num_sink_smears == 0:
+                sink_type = "point_point"
+            else:
+                sink_type = "point_shell"
         else:
-            sink_type = None
+            if propagator2.num_sink_smears == 0:
+                sink_type = "shell_point"
+            else:
+                sink_type = "shell_shell"
         
         # Now go through all momenta and compute the
         # correlators
