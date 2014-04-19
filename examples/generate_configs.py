@@ -1,9 +1,9 @@
-import pyQCD
-
 """
 Here we generate a 4c8 ensemble with 100 configurations, using the Symanzik
 rectangle-improved gauge action.
 """
+
+import pyQCD
 
 if __name__ == "__main__":
     
