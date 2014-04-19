@@ -1334,7 +1334,7 @@ class TestTwoPoint:
               .replace(".", "p")
               
             correlator_key = (label, (0.4, 0.4), tuple(momenta),
-                              "point", "point")
+                              "point_point", "point_point")
         
             assert np.allclose(twopoint.data[correlator_key],
                                expected_correlator)
