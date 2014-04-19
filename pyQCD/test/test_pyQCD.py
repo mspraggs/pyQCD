@@ -1328,10 +1328,6 @@ class TestTwoPoint:
                                               sink_interpolator,
                                               label, momenta,
                                               average_momenta=True)
-        
-            correlator_name = "{}_px{}_py{}_pz{}_M{}_M{}_point_point" \
-              .format(label, momenta[0], momenta[1], momenta[2], 0.4, 0.4) \
-              .replace(".", "p")
               
             correlator_key = (label, (0.4, 0.4), tuple(momenta),
                               "point_point", "point_point")
