@@ -1361,7 +1361,7 @@ class TestTwoPoint:
         for i, momentum in enumerate(momenta):
               
             correlator_key = (label, (1.0, 1.0), tuple(momentum),
-                              "point", "point")
+                              "point_point", "point_point")
         
             assert np.allclose(twopoint.data[correlator_key],
                                expected_correlators[i])
