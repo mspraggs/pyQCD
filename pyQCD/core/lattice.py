@@ -645,11 +645,11 @@ class Lattice(lattice.Lattice):
         
         out = propagator.Propagator(prop, self.L, self.T, self.beta, self.ut,
                                     self.us, self.chi, self.action, "wilson",
-                                    mass, {}, source_site, num_field_smears,
-                                    field_smearing_param, source_smear_type,
-                                    num_source_smears, source_smearing_param,
-                                    sink_smear_type, num_sink_smears,
-                                    sink_smearing_param)
+                                    mass, {}, boundary_conditions, source_site,
+                                    num_field_smears, field_smearing_param,
+                                    source_smear_type, num_source_smears,
+                                    source_smearing_param, sink_smear_type,
+                                    num_sink_smears, sink_smearing_param)
         
         return out
     
@@ -742,11 +742,11 @@ class Lattice(lattice.Lattice):
         
         out = propagator.Propagator(prop, self.L, self.T, self.beta, self.ut,
                                     self.us, self.chi, self.action, "hamber-wu",
-                                    mass, {}, source_site, num_field_smears,
-                                    field_smearing_param, source_smear_type,
-                                    num_source_smears, source_smearing_param,
-                                    sink_smear_type, num_sink_smears,
-                                    sink_smearing_param)
+                                    mass, {}, boundary_conditions, source_site,
+                                    num_field_smears, field_smearing_param,
+                                    source_smear_type, num_source_smears,
+                                    source_smearing_param, sink_smear_type,
+                                    num_sink_smears, sink_smearing_param)
         
         return out
     

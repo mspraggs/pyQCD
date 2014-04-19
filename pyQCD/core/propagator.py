@@ -28,6 +28,8 @@ class Propagator(Observable):
       fermion_action (str): The fermion action
       mass (float): The bare quark mass
       action_parameters (dict): The fermion action parameters (if any)
+      boundary_conditions (list): The fermionic boundary conditions used
+        when computing the propagator.
       source_site (list): The source site to use when constructing the
         source for the inversion, of the form [t, x, y, z]
       num_field_smears (int): The number of stout field smears applied
@@ -62,6 +64,8 @@ class Propagator(Observable):
       fermion_action (str): The fermion action
       mass (float): The bare quark mass
       action_parameters (dict): The fermion action parameters (if any)
+      boundary_conditions (list): The fermionic boundary conditions used
+        when computing the propagator.
       source_site (list): The source site to use when constructing the
         source for the inversion, of the form [t, x, y, z]
       num_field_smears (int): The number of stout field smears applied
@@ -96,8 +100,8 @@ class Propagator(Observable):
       >>> import numpy
       >>> prop_data = numpy.zeros((8, 4, 4, 4, 4, 4, 3, 3))
       >>> prop = pyQCD.Propagator(prop_data, 4, 8, 5.5, 1.0, 1.0, 1.0, "wilson",
-      ...                         "wilson", 0.4, {}, [0, 0, 0, 0], 0, 1.0,
-      ...                         "jacobi", 0, 1.0, "jacobi", 0, 1.0)
+      ...                         "wilson", 0.4, {}, [-1, 1, 1, 1], [0, 0, 0, 0],
+      ...                         0, 1.0, "jacobi", 0, 1.0, "jacobi", 0, 1.0)
       
       Ordinarily, one would generate a Propagator object from a given
       lattice, using the get_propagator member function.
@@ -105,17 +109,17 @@ class Propagator(Observable):
     
     members = ['L', 'T', 'beta', 'ut', 'us', 'chi', 'gauge_action',
                'fermion_action', 'mass', 'action_parameters',
-               'source_site', 'num_field_smears',
+               'boundary_conditions', 'source_site', 'num_field_smears',
                'field_smearing_param', 'source_smearing_type',
                'num_source_smears', 'source_smearing_param',
                'sink_smearing_type', 'num_sink_smears',
                'sink_smearing_param']
         
     def __init__(self, propagator, L, T, beta, ut, us, chi, gauge_action,
-                 fermion_action, mass, action_parameters, source_site,
-                 num_field_smears, field_smearing_param, source_smearing_type,
-                 num_source_smears, source_smearing_param, sink_smearing_type,
-                 num_sink_smears, sink_smearing_param):
+                 fermion_action, mass, action_parameters, boundary_conditions,
+                 source_site, num_field_smears, field_smearing_param,
+                 source_smearing_type, num_source_smears, source_smearing_param,
+                 sink_smearing_type, num_sink_smears, sink_smearing_param):
         """Constructor for pyQCD.Propagator (see help(pyQCD.Propagator)))"""
         
         expected_shape = (T, L, L, L, 4, 4, 3, 3)
@@ -135,6 +139,7 @@ class Propagator(Observable):
         self.gauge_action = gauge_action
         self.fermion_action = fermion_action
         self.mass = mass
+        self.boundary_conditions = boundary_conditions
         self.action_parameters = action_parameters
         self.source_site = source_site
         self.num_field_smears = num_field_smears
@@ -347,6 +352,7 @@ class Propagator(Observable):
         "Fermion action: {}\n" \
         "Bare quark mass (m): {}\n" \
         "Fermion action parameters: {}\n" \
+        "Boundary conditions: {}\n" \
         "Inversion source site: {}\n" \
         "Number of stout field smears: {}\n" \
         "Stout smearing parameter: {}\n" \
@@ -356,8 +362,9 @@ class Propagator(Observable):
         "Sink Jacobi smearing parameter: {}\n" \
         .format(self.L, self.T, self.gauge_action, self.beta,
                 self.ut, self.us, self.chi, self.fermion_action, self.mass,
-                self.action_parameters, self.field_smearing_param,
-                self.num_source_smears, self.source_smearing_param,
-                self.num_sink_smears, self.sink_smearing_param)
+                self.action_parameters, self.boundary_conditions,
+                self.field_smearing_param, self.num_source_smears,
+                self.source_smearing_param, self.num_sink_smears,
+                self.sink_smearing_param)
         
         return out
