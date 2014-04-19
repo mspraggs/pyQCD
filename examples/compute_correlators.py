@@ -1,3 +1,5 @@
+import copy
+
 import pyQCD
 
 """
@@ -15,7 +17,7 @@ def smear_propagator(lattice, prop, n_smears, smearing_param):
     """Smear the supplied propagator at the sink, and set the smearing parameters
     in the propagator to those characterising the smearing"""
 
-    new_prop = prop
+    new_prop = copy.deepcopy(prop)
     
     for alpha in xrange(4):
         for a in xrange(3):
