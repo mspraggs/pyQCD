@@ -1270,8 +1270,10 @@ class TwoPoint(Observable):
     
     def compute_effmass(self, label=None, masses=None, momentum=None,
                        source_type=None, sink_type=None):
-        """Computes the effective mass for the specified correlator
-        by computing log(C(t) / C(t + 1))
+        """Computes the effective mass for the specified correlator by first
+        trying to solve the ratio of the correlators on neighbouring time slices
+        (see eq 6.57 in Gattringer and Lang). If this fails, then the function
+        falls back to computing log(C(t) / C(t + 1)).
         
         Args:
           label (str, optional): The label of the correlator to be fitted.
@@ -1303,7 +1305,30 @@ class TwoPoint(Observable):
         correlator = self.get_correlator(label, masses, momentum, source_type,
                                          sink_type)
         
-        return np.log(np.abs(correlator / np.roll(correlator, -1)))
+        try:
+            if masses == None:
+                masses = (0.5, 0.5)
+                
+            if self._detect_cosh(correlator):
+                solve_function \
+                  = lambda m, t: np.cosh(m * (t - self.T / 2)) \
+                  / np.cosh(m * (t + 1 - self.T / 2))
+            else:
+                solve_function \
+                  = lambda m, t: np.sinh(m * (t - self.T / 2)) \
+                  / np.sinh(m * (t + 1 - self.T / 2))
+          
+            ratios = correlator / np.roll(correlator, -1)
+            effmass = np.zeros(self.T)
+            
+            for t in xrange(self.T):
+                function = lambda m: solve_function(m, t) - ratios[t]
+                effmass[t] = spop.newton(function, sum(masses), maxiter=1000)
+                
+            return effmass
+        
+        except RuntimeError:        
+            return np.log(np.abs(correlator / np.roll(correlator, -1)))
     
     def __add__(self, tp):
         """Addition operator overload"""
