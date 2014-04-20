@@ -46,7 +46,7 @@ public:
   { return VectorXcd::Zero(x.size()); }
   virtual VectorXcd backSubstitute(const VectorXcd& x)
   { return VectorXcd::Zero(x.size()); }
-  virtual VectorXcd applySsor(const VectorXcd& x)
+  VectorXcd applySsor(const VectorXcd& x)
   {
     VectorXcd v = this->backSubstitute(x);
     return v + this->forwardSubstitute(x - this->applyDiagonal(v));
