@@ -41,6 +41,9 @@ public:
   VectorXcd applyHermitian(const VectorXcd& psi);
   VectorXcd makeHermitian(const VectorXcd& psi);
 
+  complex<double> lowerRowDot(const VectorXcd& psi, const int row);
+  complex<double> upperRowDot(const VectorXcd& psi, const int row);
+
 private:
   // Pointer to the lattice object containing the gauge links
   Lattice* lattice_;
@@ -51,6 +54,8 @@ private:
   vector<Matrix4cd, aligned_allocator<Matrix4cd> > spinStructures_;
   // Nearest neighbour indices
   vector<vector<int> > nearestNeighbours_;
+  vector<vector<complex<double> > > lowerCoefficients_;
+  vector<vector<complex<double> > > upperCoefficients_;
   vector<vector<complex<double> > > boundaryConditions_;
   double tadpoleCoefficients_[4];
 };

@@ -79,6 +79,22 @@ void HoppingTerm::init(Lattice* lattice,
 							   boundaryConditions,
 							   this->lattice_);
 
+  this->lowerCoefficients_.resize(lattice->nSites());
+  this->upperCoefficients_.resize(lattice->nSites());
+
+  // Set up the coefficients for the U and L matrices. We basically have a binary
+  // indicator of whether the given matrix position is in U or L
+  for (int i = 0; i < lattice->nSites(); ++i) {
+    this->lowerCoefficients_[i].resize(8);
+    this->upperCoefficients_[i].resize(8);
+    for (int j = 0; j < 8; ++j) {
+      if (this->nearestNeighbours_[i][j] < i)
+	this->lowerCoefficients_[i][j] = complex<double>(1.0, 0.0);
+      else if (this->nearestNeighbours_[i][j] > i)
+	this->upperCoefficients_[i][j] = complex<double>(1.0, 0.0);
+    }
+  }
+
   // Now set up the links for hopping
   this->links_.resize(lattice->nLinks());
 
@@ -249,3 +265,107 @@ VectorXcd HoppingTerm::makeHermitian(const VectorXcd& psi)
 }
 
 
+
+complex<double> HoppingTerm::lowerRowDot(const VectorXcd& psi, const int row)
+{
+  // Do the inner product of the supplied vector with the specified row
+  // of the lower half of the linear operator
+
+  complex<double> out(0.0, 0.0);
+
+  if (row >= this->operatorSize_ || row < 0 || psi.size() != this->operatorSize_)
+    return out;
+
+  int etaSiteIndex = row / 12;
+  int alpha = (row % 12) / 3; // Compute spin index
+  int a = row % 3; // Compute colour index
+
+  for (int mu = 0; mu < 4; ++mu) {
+    // Get the indices of the neighbours for this direction
+    int siteBehindIndex = this->nearestNeighbours_[etaSiteIndex][mu];
+    int siteAheadIndex = this->nearestNeighbours_[etaSiteIndex][mu + 4];
+
+    for (int i = 0; i < 12; ++i) {
+      int beta = i / 3;
+      int b = i % 3;
+
+      complex<double> tempComplexNumbers[] __attribute__((aligned(16)))
+	= {this->spinStructures_[mu](alpha, beta),
+	   this->boundaryConditions_[etaSiteIndex][mu],
+	   conj(this->links_[4 * siteBehindIndex + mu](b, a)),
+	   psi(12 * siteBehindIndex + i),
+	   this->lowerCoefficients_[siteBehindIndex][mu],
+	   this->spinStructures_[mu + 4](alpha, beta),
+	   this->boundaryConditions_[etaSiteIndex][mu + 4],
+	   this->links_[4 * etaSiteIndex + mu](a, b),
+	   psi(12 * siteAheadIndex + i),
+	   this->lowerCoefficients_[siteBehindIndex][mu + 4]};
+	
+      tempComplexNumbers[0]
+	*= tempComplexNumbers[1] * tempComplexNumbers[2]
+	* tempComplexNumbers[3] * tempComplexNumbers[4];
+	
+      tempComplexNumbers[5]
+	*= tempComplexNumbers[6] * tempComplexNumbers[7]
+	* tempComplexNumbers[8] * tempComplexNumbers[9];
+      
+      tempComplexNumbers[0] += tempComplexNumbers[5];
+      tempComplexNumbers[0] *= this->tadpoleCoefficients_[mu];
+
+      out += tempComplexNumbers[0];
+    }
+  }
+}
+
+
+
+complex<double> HoppingTerm::upperRowDot(const VectorXcd& psi, const int row)
+{
+  // Do the inner product of the supplied vector with the specified row
+  // of the upper half of the linear operator
+
+  complex<double> out(0.0, 0.0);
+
+  if (row >= this->operatorSize_ || row < 0 || psi.size() != this->operatorSize_)
+    return out;
+
+  int etaSiteIndex = row / 12;
+  int alpha = (row % 12) / 3; // Compute spin index
+  int a = row % 3; // Compute colour index
+
+  for (int mu = 0; mu < 4; ++mu) {
+    // Get the indices of the neighbours for this direction
+    int siteBehindIndex = this->nearestNeighbours_[etaSiteIndex][mu];
+    int siteAheadIndex = this->nearestNeighbours_[etaSiteIndex][mu + 4];
+
+    for (int i = 0; i < 12; ++i) {
+      int beta = i / 3;
+      int b = i % 3;
+
+      complex<double> tempComplexNumbers[] __attribute__((aligned(16)))
+	= {this->spinStructures_[mu](alpha, beta),
+	   this->boundaryConditions_[etaSiteIndex][mu],
+	   conj(this->links_[4 * siteBehindIndex + mu](b, a)),
+	   psi(12 * siteBehindIndex + i),
+	   this->upperCoefficients_[siteBehindIndex][mu],
+	   this->spinStructures_[mu + 4](alpha, beta),
+	   this->boundaryConditions_[etaSiteIndex][mu + 4],
+	   this->links_[4 * etaSiteIndex + mu](a, b),
+	   psi(12 * siteAheadIndex + i),
+	   this->upperCoefficients_[siteBehindIndex][mu + 4]};
+	
+      tempComplexNumbers[0]
+	*= tempComplexNumbers[1] * tempComplexNumbers[2]
+	* tempComplexNumbers[3] * tempComplexNumbers[4];
+	
+      tempComplexNumbers[5]
+	*= tempComplexNumbers[6] * tempComplexNumbers[7]
+	* tempComplexNumbers[8] * tempComplexNumbers[9];
+      
+      tempComplexNumbers[0] += tempComplexNumbers[5];
+      tempComplexNumbers[0] *= this->tadpoleCoefficients_[mu];
+
+      out += tempComplexNumbers[0];
+    }
+  }  
+}
