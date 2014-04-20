@@ -10,7 +10,7 @@ VectorXcd LinearOperator::forwardSubstitute(const VectorXcd& b)
     return x;
 
   // First get the diagonal elements
-  VectorXcd diagonal = this->applyDiagonal(VectorXcd::One(this->operatorSize_));
+  VectorXcd diagonal = this->applyDiagonal(VectorXcd::Ones(this->operatorSize_));
 
   for (int i = 0; i < this->operatorSize_; ++i) {
     x[i] = b[i];
@@ -33,7 +33,7 @@ VectorXcd LinearOperator::backSubstitute(const VectorXcd& b)
     return x;
 
   // First get the diagonal elements
-  VectorXcd diagonal = this->applyDiagonal(VectorXcd::One(this->operatorSize_));
+  VectorXcd diagonal = this->applyDiagonal(VectorXcd::Ones(this->operatorSize_));
 
   for (int i = this->operatorSize_ - 1; i >= 0; --i) {
     x[i] = b[i];
