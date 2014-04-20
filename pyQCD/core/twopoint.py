@@ -1478,32 +1478,21 @@ class TwoPoint(Observable):
         
         return label, tuple(masses), tuple(momentum), source_type, sink_type
 
-    @staticmethod
-    def _get_all_momenta(p):
+    def _get_all_momenta(self, p):
         """Generates all possible equivalent lattice momenta
         
         :param p: The lattice momentum to find equivalent momenta of
         :type p: :class:`list` with three elements
         :returns: :class:`list` containing the equivalent momenta
         """
-        temp_list = []
-        out = []
-        p_rev = p[::-1]
         
-        for i in xrange(3):
-            temp_list.append([p[(j + i) % 3] for j in xrange(3)])
-            temp_list.append([-p[(j + i) % 3] for j in xrange(3)])
-            temp_list.append([p_rev[(j + i) % 3] for j in xrange(3)])
-            temp_list.append([-p_rev[(j + i) % 3] for j in xrange(3)])
-            
-        # Remove duplicates
-        for p2 in temp_list:
-            if not p2 in out:
-                out.append(p2)
-            
-        out.sort()
-            
-        return out
+        p2 = p[0]**2 + p[1]**2 + p[2]**2
+        
+        return [(px % self.L, py % self.L, pz % self.L)
+                for px in xrange(-self.L / 2, self.L / 2)
+                for py in xrange(-self.L / 2, self.L / 2)
+                for pz in xrange(-self.L / 2, self.L / 2)
+                if px**2 + py**2 + pz**2 == p2]
     
     @staticmethod
     def _chi_squared(b, t, Ct, err, fit_function, b_est=None, b_est_err=None):
