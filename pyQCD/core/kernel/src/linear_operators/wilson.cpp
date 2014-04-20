@@ -77,3 +77,10 @@ complex<double> Wilson::upperRowDot(const VectorXcd& psi, const int row)
 {
   return -this->hoppingMatrix_->upperRowDot(psi, row);
 }
+
+
+
+VectorXcd Wilson::applyDiagonal(const VectorXcd& psi)
+{
+  return (1 + 3 / this->lattice_->chi() + this->mass_) * psi;
+}
