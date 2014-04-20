@@ -38,7 +38,6 @@ private:
   LinearOperator* kernel_; // The 4D kernel
   double mass_; // Mass of the Wilson fermion
   int Ls_;
-  int operatorSize_; // Size of vectors on which the operator may operate
   vector<vector<complex<double> > > boundaryConditions_;
 };
 

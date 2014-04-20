@@ -35,7 +35,6 @@ private:
   HoppingTerm* nearestNeighbour_; // Our Wilson hopping piece
   HoppingTerm* nextNearestNeighbour_; // Our Hamber-Wu hopping piece
   double mass_; // Mass of the HamberWu fermion
-  int operatorSize_; // Size of vectors on which the operator may operate
   vector<vector<complex<double> > > boundaryConditions_;
 };
 

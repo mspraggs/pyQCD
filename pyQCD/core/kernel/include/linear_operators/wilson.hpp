@@ -34,7 +34,6 @@ private:
   Lattice* lattice_;
   HoppingTerm* hoppingMatrix_; // This operator does the derivative
   double mass_; // Mass of the Wilson fermion
-  int operatorSize_; // Size of vectors on which the operator may operate
   vector<vector<complex<double> > > boundaryConditions_;
 };
 

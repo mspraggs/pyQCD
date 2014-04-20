@@ -56,6 +56,7 @@ public:
 
 protected:
   unsigned long long nFlops_;
+  int operatorSize_; // Size of vectors on which the operator may operate
 };
 
 #endif
