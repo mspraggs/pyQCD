@@ -42,10 +42,8 @@ public:
   { return complex<double>(0.0, 0.0); }
   virtual VectorXcd applyDiagonal(const VectorXcd& x)
   { return VectorXcd::Zero(x.size()); }
-  virtual VectorXcd forwardSubstitute(const VectorXcd& x)
-  { return VectorXcd::Zero(x.size()); }
-  virtual VectorXcd backSubstitute(const VectorXcd& x)
-  { return VectorXcd::Zero(x.size()); }
+  VectorXcd forwardSubstitute(const VectorXcd& b)
+  VectorXcd backSubstitute(const VectorXcd& b);
   VectorXcd applySsor(const VectorXcd& x)
   {
     VectorXcd v = this->backSubstitute(x);
