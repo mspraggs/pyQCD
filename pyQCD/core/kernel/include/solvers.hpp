@@ -12,6 +12,8 @@
 using namespace Eigen;
 using namespace std;
 
+class LinearOperator;
+
 void arnoldi(MatrixXcd& V, MatrixXcd& H, LinearOperator* linop,
 	     const VectorXcd& rhs, const int numIterations);
 
