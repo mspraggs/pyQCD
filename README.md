@@ -1,11 +1,31 @@
 pyQCD
 =====
-pyQCD provides a Python package for running coarse lattice QCD simulations on desktop and workstation computers.
+pyQCD provides a Python package for running small-scale lattice simulations on desktop and workstation
+computers, as well as tools for analyzing the results.
 
-pyQCD may not be as powerful or as fully-featured as the likes of Chroma or UKHADRON, but through simplicity it
-is more transparent and perfect for basic desktop simulations. By interfacing with Python and numpy, it
-facilitates the analysis of results. Most importantly, it is well documented, so it shouldn't take long to
-learn
+Features
+--------
+pyQCD brings an object-orientated approach to lattice simulations and analysis. Simulation features:
+
+* Base Lattice object written in C++ and compiled using boost::python provides a flexible and fast API.
+* Full parallelisation of CPU-intensive code using OpenMP.
+* Support for multiple gauge actions, including Wilson and Symanzik rectangle-improved.
+* Support for stout smearing gauge fields prior to measurements.
+* Wilson loop computation capability.
+* Convenience functions for saving and loading gauge fields in numpy zip format.
+* Wilson and Hamber-Wu 4D fermionic actions.
+* Fermionic measurement API provides extensibility through functions for applying Dirac operators and inverting on single quark sources.
+* Propagator generation functions for all 4D fermionic actions, with support for jacobi smearing of sinks and sources.
+* Flexible domain wall action that can utilise any existing 4D kernel accepting a single mass parameter.
+* Complete integration with numpy ndarray type, facilitating the use of numpy and scipy linear algebra packages.
+
+Analysis features:
+
+* Fully-fledged DataSet class, providing parallelised bootstrap and jackknife resampling functions.
+* Resampling routines allow for extensibility by accepting user-created measurement functions.
+* TwoPoint correlator wrapper class provides core fitting and Propagator contraction routines.
+* TwoPoint class fully capable of importing correlator data from Chroma and UKhadron.
+* WilsonLoops class facilitates computation of static quark pair potential and lattice spacing via the Sommer scale.
 
 ***Please note that this software is very much still in alpha stage and is not yet mature, so backwards
 compatability is not yet guaranteed for newer versions. If something's broken, have a look at the function
@@ -113,9 +133,12 @@ possible to to provide a string command line argument to filter certain benchmar
 
 Quick Start
 -----------
+Several examples are included in the examples/ directory in the repository root. I'd encourage newcomers
+to look there for ideas on how to use pyQCD. I'd also strongly encourage the use of IPython when exploring
+the package (http://ipython.org/).
 
-The package is designed to be highly object-orientated. Simulations are performed using the Simulation class.
-The settings for an individual simulation may be specified individually. For example:
+Simulations are performed using the Simulation class. The settings for an individual simulation may be
+specified individually. For example:
 
     import pyQCD
     
