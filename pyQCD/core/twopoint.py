@@ -890,6 +890,8 @@ class TwoPoint(Observable):
                                                       source_interpolator,
                                                       sink_interpolator)
         
+        mom_correlator = np.fft.fftn(spatial_correlator, axes=(1, 2, 3))
+        
         if propagator1.num_source_smears == 0:
             if propagator2.num_source_smears == 0:
                 source_type = "point_point"
@@ -917,18 +919,23 @@ class TwoPoint(Observable):
         for momentum in momenta:
             if average_momenta:
                 equiv_momenta = self._get_all_momenta(momentum)
-                equiv_correlators = np.zeros((len(equiv_momenta), self.T))
-                
-                for i, equiv_momentum in enumerate(equiv_momenta):
-                    equiv_correlators[i] \
-                      = self._project_correlator(spatial_correlator,
-                                                 equiv_momentum)
+                # Put the equivalent momenta into a form so that we can filter
+                # the relevant part of the mom space correlator out
+                equiv_momenta = np.array(equiv_momenta)
+                equiv_momenta = (equiv_momenta[:, 0],
+                                 equiv_momenta[:, 1],
+                                 equiv_momenta[:, 2])
+                equiv_correlators \
+                  = np.transpose(mom_correlator, (1, 2, 3, 0))[equiv_momenta]
                     
                 correlator = np.mean(equiv_correlators, axis=0)
                 
             else:
-                correlator = self._project_correlator(spatial_correlator,
-                                                      momentum)
+                momentum = tuple([i % self.L for i in momentum])
+                correlator = mom_correlator[:,
+                                            momentum[0],
+                                            momentum[1],
+                                            momentum[2]]
             
             self.add_correlator(correlator, label,
                                 [propagator1.mass, propagator2.mass],
