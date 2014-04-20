@@ -37,9 +37,9 @@ public:
 
   // These functions are used when doing SSOR preconditioning
   virtual complex<double> lowerRowSum(const int row)
-  { return complex<double>(0.0, 0.0) }
+  { return complex<double>(0.0, 0.0); }
   virtual complex<double> upperRowSum(const int row)
-  { return complex<double>(0.0, 0.0) }
+  { return complex<double>(0.0, 0.0); }
   virtual VectorXcd applyDiagonal(const VectorXcd& x)
   { return VectorXcd::Zero(x.size()); }
   virtual VectorXcd forwardSubstitute(const VectorXcd& x)
