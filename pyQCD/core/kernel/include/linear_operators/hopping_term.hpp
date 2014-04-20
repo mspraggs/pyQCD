@@ -49,7 +49,6 @@ private:
   Lattice* lattice_;
   // The actual links we'll work with within the operator
   GaugeField links_;
-  int operatorSize_; // Size of vectors on which the operator may operate
   // The spin matrices required by the operator
   vector<Matrix4cd, aligned_allocator<Matrix4cd> > spinStructures_;
   // Nearest neighbour indices
