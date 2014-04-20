@@ -16,7 +16,8 @@ try:
     from simulation import Simulation
 except ImportError:
     pass
-    
+
+from dicts import *    
 from observable import Observable
 from propagator import Propagator
 from config import Config
