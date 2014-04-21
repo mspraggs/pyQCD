@@ -88,10 +88,18 @@ void HoppingTerm::init(Lattice* lattice,
     this->lowerCoefficients_[i].resize(8);
     this->upperCoefficients_[i].resize(8);
     for (int j = 0; j < 8; ++j) {
-      if (this->nearestNeighbours_[i][j] < i)
+      if (this->nearestNeighbours_[i][j] < i) {
 	this->lowerCoefficients_[i][j] = complex<double>(1.0, 0.0);
-      else if (this->nearestNeighbours_[i][j] > i)
-	this->upperCoefficients_[i][j] = complex<double>(1.0, 0.0);
+	this->upperCoefficients_[i][j] = complex<double>(0.0, 0.0);
+      }
+      else if (this->nearestNeighbours_[i][j] > i) {
+	this->lowerCoefficients_[i][j] = complex<double>(0.0, 0.0);
+	this->upperCoefficients_[i][j] = complex<double>(1.0, 0.0);	
+      }
+      else {
+	this->lowerCoefficients_[i][j] = complex<double>(0.0, 0.0);
+	this->upperCoefficients_[i][j] = complex<double>(0.0, 0.0);	
+      }
     }
   }
 
@@ -294,12 +302,12 @@ complex<double> HoppingTerm::lowerRowDot(const VectorXcd& psi, const int row)
 	   this->boundaryConditions_[etaSiteIndex][mu],
 	   conj(this->links_[4 * siteBehindIndex + mu](b, a)),
 	   psi(12 * siteBehindIndex + i),
-	   this->lowerCoefficients_[siteBehindIndex][mu],
+	   this->lowerCoefficients_[etaSiteIndex][mu],
 	   this->spinStructures_[mu + 4](alpha, beta),
 	   this->boundaryConditions_[etaSiteIndex][mu + 4],
 	   this->links_[4 * etaSiteIndex + mu](a, b),
 	   psi(12 * siteAheadIndex + i),
-	   this->lowerCoefficients_[siteBehindIndex][mu + 4]};
+	   this->lowerCoefficients_[etaSiteIndex][mu + 4]};
 	
       tempComplexNumbers[0]
 	*= tempComplexNumbers[1] * tempComplexNumbers[2]
@@ -315,6 +323,8 @@ complex<double> HoppingTerm::lowerRowDot(const VectorXcd& psi, const int row)
       out += tempComplexNumbers[0];
     }
   }
+
+  return out;
 }
 
 
@@ -347,12 +357,12 @@ complex<double> HoppingTerm::upperRowDot(const VectorXcd& psi, const int row)
 	   this->boundaryConditions_[etaSiteIndex][mu],
 	   conj(this->links_[4 * siteBehindIndex + mu](b, a)),
 	   psi(12 * siteBehindIndex + i),
-	   this->upperCoefficients_[siteBehindIndex][mu],
+	   this->upperCoefficients_[etaSiteIndex][mu],
 	   this->spinStructures_[mu + 4](alpha, beta),
 	   this->boundaryConditions_[etaSiteIndex][mu + 4],
 	   this->links_[4 * etaSiteIndex + mu](a, b),
 	   psi(12 * siteAheadIndex + i),
-	   this->upperCoefficients_[siteBehindIndex][mu + 4]};
+	   this->upperCoefficients_[etaSiteIndex][mu + 4]};
 	
       tempComplexNumbers[0]
 	*= tempComplexNumbers[1] * tempComplexNumbers[2]
@@ -367,5 +377,7 @@ complex<double> HoppingTerm::upperRowDot(const VectorXcd& psi, const int row)
 
       out += tempComplexNumbers[0];
     }
-  }  
+  }
+
+  return out;
 }
