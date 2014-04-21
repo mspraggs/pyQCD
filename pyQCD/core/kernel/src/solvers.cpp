@@ -28,7 +28,8 @@ void arnoldi(MatrixXcd& V, MatrixXcd& H, LinearOperator* linop,
 }
 
 VectorXcd cg(LinearOperator* linop, const VectorXcd& rhs,
-	     double& tolerance, int& maxIterations, double& time)
+	     double& tolerance, int& maxIterations, double& time,
+	     const int precondition)
 {
   // Perform the conjugate gradient algorithm to solve
   // linop * solution = rhs for solution
@@ -76,7 +77,8 @@ VectorXcd cg(LinearOperator* linop, const VectorXcd& rhs,
 
 
 VectorXcd bicgstab(LinearOperator* linop, const VectorXcd& rhs,
-		   double& tolerance, int& maxIterations, double& time)
+		   double& tolerance, int& maxIterations, double& time,
+		   const int precondition)
 {
   // Perform the biconjugate gradient stabilized algorithm to
   // solve linop * solution = rhs for solution
@@ -146,7 +148,8 @@ VectorXcd bicgstab(LinearOperator* linop, const VectorXcd& rhs,
 };
 
 VectorXcd gmres(LinearOperator* linop, const VectorXcd& rhs,
-		double& tolerance, int& maxIterations, double& time)
+		double& tolerance, int& maxIterations, double& time,
+		const int precondition)
 {
   // Here we do the restarted generalized minimal residual method
 

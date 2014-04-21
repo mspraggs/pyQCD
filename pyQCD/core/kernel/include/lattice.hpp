@@ -139,6 +139,7 @@ public:
 				      const int nSinkSmears,
 				      const double sinkSmearingParameter,
 				      const int solverMethod,
+				      const int precondition,
 				      const int maxIterations,
 				      const double tolerance,
 				      const int verbosity);

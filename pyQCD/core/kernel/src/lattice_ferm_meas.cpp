@@ -59,7 +59,7 @@ Lattice::computeWilsonPropagator(
 			      sourceSmearingType, nSourceSmears,
 			      sourceSmearingParameter, sinkSmearingType,
 			      nSinkSmears, sinkSmearingParameter, solverMethod,
-			      maxIterations, tolerance, verbosity);
+			      precondition, maxIterations, tolerance, verbosity);
 
   delete diracOperator;
 
@@ -97,7 +97,7 @@ Lattice::computeHamberWuPropagator(
 			      sourceSmearingType, nSourceSmears,
 			      sourceSmearingParameter, sinkSmearingType,
 			      nSinkSmears, sinkSmearingParameter, solverMethod,
-			      maxIterations, tolerance, verbosity);
+			      precondition, maxIterations, tolerance, verbosity);
 
   delete diracOperator;
 
@@ -116,6 +116,7 @@ Lattice::computePropagator(LinearOperator* diracMatrix, int site[4],
 			   const int nSinkSmears,
 			   const double sinkSmearingParameter,
 			   const int solverMethod,
+			   const int precondition,
 			   const int maxIterations,
 			   const double tolerance,
 			   const int verbosity)
@@ -168,16 +169,20 @@ Lattice::computePropagator(LinearOperator* diracMatrix, int site[4],
 
       switch (solverMethod) {
       case pyQCD::bicgstab:
-	solution = bicgstab(diracMatrix, source, residual, iterations, time);
+	solution = bicgstab(diracMatrix, source, residual, iterations, time,
+			    precondition);
 	break;
       case pyQCD::cg:
-	solution = cg(diracMatrix, source, residual, iterations, time);
+	solution = cg(diracMatrix, source, residual, iterations, time,
+		      precondition);
 	break;
       case pyQCD::gmres:
-	solution = gmres(diracMatrix, source, residual, iterations, time);
+	solution = gmres(diracMatrix, source, residual, iterations, time,
+			 precondition);
 	break;
       default:
-	solution = cg(diracMatrix, source, residual, iterations, time);
+	solution = cg(diracMatrix, source, residual, iterations, time,
+		      precondition);
 	break;	
       }
 
@@ -314,16 +319,16 @@ VectorXcd Lattice::invertDiracOperator(const VectorXcd& eta,
 
   switch (solverMethod) {
   case pyQCD::bicgstab:
-    psi = bicgstab(diracMatrix, eta, residual, iterations, time);
+    psi = bicgstab(diracMatrix, eta, residual, iterations, time, precondition);
     break;
   case pyQCD::cg:
-    psi = cg(diracMatrix, eta, residual, iterations, time);
+    psi = cg(diracMatrix, eta, residual, iterations, time, precondition);
     break;
   case pyQCD::gmres:
-    psi = gmres(diracMatrix, eta, residual, iterations, time);
+    psi = gmres(diracMatrix, eta, residual, iterations, time, precondition);
     break;
   default:
-    psi = cg(diracMatrix, eta, residual, iterations, time);
+    psi = cg(diracMatrix, eta, residual, iterations, time, precondition);
     break;	
   }
   if (verbosity > 0) {
