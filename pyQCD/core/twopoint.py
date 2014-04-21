@@ -978,17 +978,31 @@ class TwoPoint(Observable):
           >>> twopoint.compute_all_meson_correlators(prop, prop)
         """
         
+        # Unfortunately there's a bit of hacking around needed here because
+        # we can't share around the current object among processes, and the
+        # function supplied to parmap should return a list of results.
+        
         interpolators = [(Gamma1, Gamma2)
                          for Gamma1 in const.interpolators
                          for Gamma2 in const.interpolators]
         
         def parallel_function(Gammas):
-            self.compute_meson_correlator(propagator1, propagator2,
+            # Construct a twopoint object for each process, then extract
+            # and return the correlator and labels after the computation
+            twop = TwoPoint(self.T, self.L)
+            twop.compute_meson_correlator(propagator1, propagator2,
                                           Gammas[0], Gammas[1],
                                           "{}_{}".format(Gammas[0], Gammas[1]),
                                           momenta, average_momenta, fold)
             
-        parmap(parallel_function, interpolators)
+            return twop.data.items()[0]
+        
+        # Run the parallel map to get the results
+        results = parmap(parallel_function, interpolators)
+        
+        # Now we add the correlators to the current object
+        for key, value in results:
+            self.add_correlator(value, *key)
             
     def fit_correlator(self, fit_function, fit_range, initial_parameters,
                        correlator_std=None, postprocess_function=None,
