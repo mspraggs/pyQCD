@@ -87,14 +87,24 @@ void HoppingTerm::init(Lattice* lattice,
       for (int k = 0; k < this->lattice_->spatialExtent; ++k) {	
 	for (int l = 0; l < this->lattice_->spatialExtent; ++l) {
 
-	  if ((i + j + k + l) % 2 == 0)
+	  if ((i + j + k + l) % 2 == 0) {
 	    this->evenIndices_
 	      .push_back(pyQCD::getSiteIndex(i, j, k, l,
 					     this->lattice_->spatialExtent));
-	  else
+	    this->evenNeighbours_
+	      .push_back(this->nearestNeighbours_
+			 [pyQCD.getSiteIndex(i, j, k, l,
+					     this->lattice_->spatialExtent)]);
+	  }
+	  else {
 	    this->oddIndices_
 	      .push_back(pyQCD::getSiteIndex(i, j, k, l,
 					     this->lattice_->spatialExtent));
+	    this->oddNeighbours_
+	      .push_back(this->nearestNeighbours_
+			 [pyQCD.getSiteIndex(i, j, k, l,
+					     this->lattice_->spatialExtent)]);
+	  }
 
 	  for (int m = 0; m < 4; ++m) {
 	    int link[5] = {i, j, k, l, m};
