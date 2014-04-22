@@ -63,8 +63,10 @@ VectorXcd LinearOperator::makeEvenOddSource(const VectorXcd& x)
   if (x.size() != this->operatorSize_)
     return y;
 
+  int N = this->operatorSize_ / 2;
+
   y = this->makeEvenOdd(x);
-  y -= this->applyOddEven(this->applyEvenEvenInv(x));
+  y.tail(N) -= this->applyOddEven(this->applyEvenEvenInv(x.head(N)));
 
   return y;
 }
@@ -81,7 +83,9 @@ VectorXcd LinearOperator::makeEvenOddSolution(const VectorXcd& x)
   if (x.size() != this->operatorSize_)
     return y;
 
-  y -= this->applyEvenEvenInv(this->applyEvenOdd(x));
+  int N = this->operatorSize_ / 2;
+
+  y.head(N) -= this->applyEvenEvenInv(this->applyEvenOdd(x.tail(N)));
 
   return this->removeEvenOdd(y);
 }
