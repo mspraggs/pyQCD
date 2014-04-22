@@ -7,7 +7,7 @@ VectorXcd LinearOperator::makeEvenOdd(const VectorXcd& x)
 
   VectorXcd y = VectorXcd::Zero(this->operatorSize_);
 
-  if (x.size() == this->operatorSize_)
+  if (x.size() != this->operatorSize_)
     return y;
 
   int nSites = this->operatorSize_ / 12;
@@ -34,7 +34,7 @@ VectorXcd LinearOperator::removeEvenOdd(const VectorXcd& x)
 
   VectorXcd y = VectorXcd::Zero(this->operatorSize_);
 
-  if (x.size() == this->operatorSize_)
+  if (x.size() != this->operatorSize_)
     return y;
 
   int nSites = this->operatorSize_ / 12;
