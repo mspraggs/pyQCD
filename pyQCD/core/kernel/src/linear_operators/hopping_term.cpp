@@ -93,8 +93,8 @@ void HoppingTerm::init(Lattice* lattice,
 					     this->lattice_->spatialExtent));
 	    this->evenNeighbours_
 	      .push_back(this->nearestNeighbours_
-			 [pyQCD.getSiteIndex(i, j, k, l,
-					     this->lattice_->spatialExtent)]);
+			 [pyQCD::getSiteIndex(i, j, k, l,
+					      this->lattice_->spatialExtent)]);
 	  }
 	  else {
 	    this->oddIndices_
@@ -102,8 +102,8 @@ void HoppingTerm::init(Lattice* lattice,
 					     this->lattice_->spatialExtent));
 	    this->oddNeighbours_
 	      .push_back(this->nearestNeighbours_
-			 [pyQCD.getSiteIndex(i, j, k, l,
-					     this->lattice_->spatialExtent)]);
+			 [pyQCD::getSiteIndex(i, j, k, l,
+					      this->lattice_->spatialExtent)]);
 	  }
 
 	  for (int m = 0; m < 4; ++m) {
