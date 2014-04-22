@@ -29,10 +29,6 @@ public:
   VectorXcd applyHermitian(const VectorXcd& psi);
   VectorXcd makeHermitian(const VectorXcd& psi);
 
-  complex<double> lowerRowDot(const VectorXcd& psi, const int row);
-  complex<double> upperRowDot(const VectorXcd& psi, const int row);
-  VectorXcd applyDiagonal(const VectorXcd& psi);
-
 private:
   // Pointer to the lattice object containing the gauge links
   Lattice* lattice_;

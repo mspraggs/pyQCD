@@ -65,22 +65,3 @@ VectorXcd Wilson::makeHermitian(const VectorXcd& psi)
 }
 
 
-
-complex<double> Wilson::lowerRowDot(const VectorXcd& psi, const int row)
-{
-  return -0.5 * this->hoppingMatrix_->lowerRowDot(psi, row);
-}
-
-
-
-complex<double> Wilson::upperRowDot(const VectorXcd& psi, const int row)
-{
-  return -0.5 * this->hoppingMatrix_->upperRowDot(psi, row);
-}
-
-
-
-VectorXcd Wilson::applyDiagonal(const VectorXcd& psi)
-{
-  return (1 + 3 / this->lattice_->chi() + this->mass_) * psi;
-}
