@@ -279,6 +279,7 @@ VectorXcd HoppingTerm::applyEvenOdd(const VectorXcd& psi)
   if (psi.size() != this->operatorSize_ / 2)
     return eta;
 
+#pragma omp parallel for
   for (int i = 0; i < this->operatorSize_ / 2; ++i) {
     int etaSiteIndex = i / 12; // Site index of the current row in 
     int alpha = (i % 12) / 3; // Spin index of the current row in eta
@@ -337,6 +338,7 @@ VectorXcd HoppingTerm::applyOddEven(const VectorXcd& psi)
   if (psi.size() != this->operatorSize_ / 2)
     return eta;
 
+#pragma omp parallel for
   for (int i = 0; i < this->operatorSize_ / 2; ++i) {
     int etaSiteIndex = i / 12; // Site index of the current row in 
     int alpha = (i % 12) / 3; // Spin index of the current row in eta
