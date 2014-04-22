@@ -45,13 +45,13 @@ public:
 
   // Even-odd apply functions
   virtual VectorXcd applyEvenEvenInv(const VectorXcd& x)
-  { return VectorXcd::Zeros(x.size()); }
+  { return VectorXcd::Zero(x.size()); }
   virtual VectorXcd applyOddOdd(const VectorXcd& x)
-  { return VectorXcd::Zeros(x.size()); }
+  { return VectorXcd::Zero(x.size()); }
   virtual VectorXcd applyEvenOdd(const VectorXcd& x)
-  { return VectorXcd::Zeros(x.size()); }
+  { return VectorXcd::Zero(x.size()); }
   virtual VectorXcd applyOddEven(const VectorXcd& x)
-  { return VectorXcd::Zeros(x.size()); }
+  { return VectorXcd::Zero(x.size()); }
   VectorXcd evenOddMatvec(const VectorXcd& x)
   {
     return this->applyOddOdd(x)
