@@ -79,13 +79,23 @@ void HoppingTerm::init(Lattice* lattice,
 							   boundaryConditions,
 							   this->lattice_);
 
-  // Now set up the links for hopping
+  // Now set up the links for hopping and the even and odd indices
   this->links_.resize(lattice->nLinks());
 
   for (int i = 0; i < this->lattice_->temporalExtent; ++i) {
     for (int j = 0; j < this->lattice_->spatialExtent; ++j) {      
       for (int k = 0; k < this->lattice_->spatialExtent; ++k) {	
 	for (int l = 0; l < this->lattice_->spatialExtent; ++l) {
+
+	  if ((i + j + k + l) % 2 == 0)
+	    this->evenIndices_
+	      .push_back(pyQCD::getSiteIndex(i, j, k, l,
+					     this->lattice_->spatialExtent));
+	  else
+	    this->oddIndices_
+	      .push_back(pyQCD::getSiteIndex(i, j, k, l,
+					     this->lattice_->spatialExtent));
+
 	  for (int m = 0; m < 4; ++m) {
 	    int link[5] = {i, j, k, l, m};
 	    int hoppingLink[5] = {i, j, k, l, m};
