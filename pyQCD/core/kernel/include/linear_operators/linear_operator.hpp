@@ -54,13 +54,13 @@ public:
   { return VectorXcd::Zero(x.size()); }
   virtual VectorXcd applyOddEven(const VectorXcd& x)
   { return VectorXcd::Zero(x.size()); }
-  VectorXcd evenOddMatvec(const VectorXcd& x)
+  VectorXcd applyPreconditioned(const VectorXcd& x)
   {
     return this->applyOddOdd(x)
       - this->applyOddEven(this->applyEvenEvenInv(this->applyEvenOdd(x)));
   }
-  VectorXcd evenOddMatvecHermitian(const VectorXcd& x)
-  { return this->makeHermitian(this->evenOddMatvec(x)); }
+  VectorXcd applyPreconditionedHermitian(const VectorXcd& x)
+  { return this->makeHermitian(this->applyPreconditioned(x)); }
 
 protected:
   unsigned long long nFlops_;
