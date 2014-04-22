@@ -51,3 +51,37 @@ VectorXcd LinearOperator::removeEvenOdd(const VectorXcd& x)
 
   return y;
 }
+
+
+
+VectorXcd LinearOperator::makeEvenOddSource(const VectorXcd& x)
+{
+  // Create the source required to an even-odd inversion
+
+  VectorXcd y = VectorXcd::Zero(this->operatorSize_);
+
+  if (x.size() != this->operatorSize_)
+    return y;
+
+  y = this->makeEvenOdd(x);
+  y -= this->applyOddEven(this->applyEvenEvenInv(x));
+
+  return y;
+}
+
+
+
+VectorXcd LinearOperator::makeEvenOddSolution(const VectorXcd& x)
+{
+  // Create the standard lexicographic solution from the solution to
+  // the even-odd-preconditioned equation.
+
+  VectorXcd y = x;
+
+  if (x.size() != this->operatorSize_)
+    return y;
+
+  y -= this->applyEvenEvenInv(this->applyEvenOdd(x));
+
+  return this->removeEvenOdd(y);
+}
