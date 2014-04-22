@@ -43,6 +43,23 @@ public:
   VectorXcd makeEvenOddSource(const VectorXcd& x);
   VectorXcd makeEvenOddSolution(const VectorXcd& x);
 
+  // Even-odd apply functions
+  virtual VectorXcd applyEvenEvenInv(const VectorXcd& x)
+  { return VectorXcd::Zeros(x.size()); }
+  virtual VectorXcd applyOddOdd(const VectorXcd& x)
+  { return VectorXcd::Zeros(x.size()); }
+  virtual VectorXcd applyEvenOdd(const VectorXcd& x)
+  { return VectorXcd::Zeros(x.size()); }
+  virtual VectorXcd applyOddEven(const VectorXcd& x)
+  { return VectorXcd::Zeros(x.size()); }
+  VectorXcd evenOddMatvec(const VectorXcd& x)
+  {
+    return this->applyOddOdd(x)
+      - this->applyEvenOdd(this->applyEvenEvenInv(this->applyEvenOdd(x)));
+  }
+  VectorXcd evenOddMatvecHermitian(const VectorXcd& x)
+  { return this->makeHermitian(this->evenOddMatvec(x)); }
+
 protected:
   unsigned long long nFlops_;
   int operatorSize_; // Size of vectors on which the operator may operate
