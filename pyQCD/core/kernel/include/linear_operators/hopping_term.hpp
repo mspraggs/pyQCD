@@ -53,8 +53,6 @@ private:
   vector<Matrix4cd, aligned_allocator<Matrix4cd> > spinStructures_;
   // Nearest neighbour indices
   vector<vector<int> > nearestNeighbours_;
-  vector<vector<complex<double> > > lowerCoefficients_;
-  vector<vector<complex<double> > > upperCoefficients_;
   vector<vector<complex<double> > > boundaryConditions_;
   double tadpoleCoefficients_[4];
 };
