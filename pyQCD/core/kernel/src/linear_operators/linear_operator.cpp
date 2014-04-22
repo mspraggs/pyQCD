@@ -20,7 +20,7 @@ VectorXcd LinearOperator::makeEvenOdd(const VectorXcd& x)
 #pragma omp parallel for
   for (int i = nSites / 2; i < nSites; ++i)
     for (int j = 0; j < 12; ++j)
-      y(12 * i + j) = x(12 * this->oddIndices_[i] + j);
+      y(12 * i + j) = x(12 * this->oddIndices_[i - nSites / 2] + j);
   
   return y;
 }
