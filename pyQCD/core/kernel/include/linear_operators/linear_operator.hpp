@@ -36,6 +36,8 @@ public:
   { return VectorXcd::Zero(x.size()); }
 
   unsigned long long getNumFlops() { return this->nFlops_; }
+  vector<int>& getEvenIndices() { return this->evenIndices_; }
+  vector<int>& getOddIndices() { return this->oddIndices_; }
 
   // Functions to set things up for the even-odd preconditioning
   VectorXcd makeEvenOdd(const VectorXcd& x);

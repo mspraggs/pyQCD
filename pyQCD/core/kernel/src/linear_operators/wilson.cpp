@@ -13,6 +13,9 @@ Wilson::Wilson(
   this->lattice_ = lattice;
 
   this->hoppingMatrix_ = new HoppingTerm(boundaryConditions, lattice, 1);
+
+  this->evenIndices_ = this->hoppingMatrix_->getEvenIndices();
+  this->oddIndices_ = this->hoppingMatrix_->getOddIndices();
 }
 
 
