@@ -66,6 +66,8 @@ protected:
 
   vector<int> evenIndices_;
   vector<int> oddIndices_;
+  vector<vector<int> > evenNeighbours_;
+  vector<vector<int> > oddNeighbours_;
 };
 
 #endif
