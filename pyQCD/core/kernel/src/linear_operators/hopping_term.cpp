@@ -267,3 +267,119 @@ VectorXcd HoppingTerm::makeHermitian(const VectorXcd& psi)
 {
   return pyQCD::multiplyGamma5(psi);
 }
+
+
+
+VectorXcd HoppingTerm::applyEvenOdd(const VectorXcd& psi)
+{
+  // Apply the even-odd matrix to the lower half of psi
+
+  VectorXcd eta = VectorXcd::Zero(this->operatorSize_);
+
+  if (psi.size() != this->operatorSize_)
+    return eta;
+
+  for (int i = 0; i < this->operatorSize_ / 2; ++i) {
+    int etaSiteIndex = i / 12; // Site index of the current row in 
+    int alpha = (i % 12) / 3; // Spin index of the current row in eta
+    int a = i % 3; // Colour index of the current row in eta
+
+    // Loop over the four gamma indices (mu) in the sum inside the Wilson action
+    for (int mu = 0; mu < 4; ++mu) {
+      
+      // Now we determine the indices of the neighbouring links
+
+      int siteBehindIndex = this->evenNeighbours_[etaSiteIndex][mu];
+      int siteAheadIndex = this->evenNeighbours_[etaSiteIndex][mu + 4];
+
+      // Now loop over spin and colour indices for the portion of the row we're
+      // on
+
+      for (int j = 0; j < 12; ++j) {
+	int beta = j / 3; // Compute spin
+	int b = j % 3; // Compute colour
+
+	complex<double> tempComplexNumbers[] __attribute__((aligned(16)))
+	  = {this->spinStructures_[mu](alpha, beta),
+	     this->boundaryConditions_[this->evenIndices_[etaSiteIndex]][mu],
+	     conj(this->links_[4 * siteBehindIndex + mu](b, a)),
+	     psi(this->operatorSize_ / 2 + 12 * (siteBehindIndex / 2) + j),
+	     this->spinStructures_[mu + 4](alpha, beta),
+	     this->boundaryConditions_[this->evenIndices_[etaSiteIndex]][mu + 4],
+	     this->links_[4 * this->evenIndices_[etaSiteIndex] + mu](a, b),
+	     psi(this->operatorSize_ / 2 + 12 * (siteAheadIndex / 2) + j)};
+	
+	tempComplexNumbers[0] *= tempComplexNumbers[1]
+	  * tempComplexNumbers[2] * tempComplexNumbers[3];
+	
+	tempComplexNumbers[4] *= tempComplexNumbers[5]
+	  * tempComplexNumbers[6] * tempComplexNumbers[7];
+
+	tempComplexNumbers[0] += tempComplexNumbers[4];
+	tempComplexNumbers[0] *= this->tadpoleCoefficients_[mu];
+	
+	eta(i) += tempComplexNumbers[0];
+      }
+    }
+  }
+
+  return eta;
+}
+
+
+
+VectorXcd HoppingTerm::applyOddEven(const VectorXcd& psi)
+{
+  // Apply the even-odd matrix to the lower half of psi
+
+  VectorXcd eta = VectorXcd::Zero(this->operatorSize_);
+
+  if (psi.size() != this->operatorSize_)
+    return eta;
+
+  for (int i = 0; i < this->operatorSize_ / 2; ++i) {
+    int etaSiteIndex = i / 12; // Site index of the current row in 
+    int alpha = (i % 12) / 3; // Spin index of the current row in eta
+    int a = i % 3; // Colour index of the current row in eta
+
+    // Loop over the four gamma indices (mu) in the sum inside the Wilson action
+    for (int mu = 0; mu < 4; ++mu) {
+      
+      // Now we determine the indices of the neighbouring links
+
+      int siteBehindIndex = this->oddNeighbours_[etaSiteIndex][mu];
+      int siteAheadIndex = this->oddNeighbours_[etaSiteIndex][mu + 4];
+
+      // Now loop over spin and colour indices for the portion of the row we're
+      // on
+
+      for (int j = 0; j < 12; ++j) {
+	int beta = j / 3; // Compute spin
+	int b = j % 3; // Compute colour
+
+	complex<double> tempComplexNumbers[] __attribute__((aligned(16)))
+	  = {this->spinStructures_[mu](alpha, beta),
+	     this->boundaryConditions_[this->oddIndices_[etaSiteIndex]][mu],
+	     conj(this->links_[4 * siteBehindIndex + mu](b, a)),
+	     psi(12 * (siteBehindIndex / 2) + j),
+	     this->spinStructures_[mu + 4](alpha, beta),
+	     this->boundaryConditions_[this->oddIndices_[etaSiteIndex]][mu + 4],
+	     this->links_[4 * this->oddIndices_[etaSiteIndex] + mu](a, b),
+	     psi(12 * (siteAheadIndex / 2) + j)};
+	
+	tempComplexNumbers[0] *= tempComplexNumbers[1]
+	  * tempComplexNumbers[2] * tempComplexNumbers[3];
+	
+	tempComplexNumbers[4] *= tempComplexNumbers[5]
+	  * tempComplexNumbers[6] * tempComplexNumbers[7];
+
+	tempComplexNumbers[0] += tempComplexNumbers[4];
+	tempComplexNumbers[0] *= this->tadpoleCoefficients_[mu];
+	
+	eta(i + this->operatorSize_ / 2) += tempComplexNumbers[0];
+      }
+    }
+  }
+
+  return eta;
+}
