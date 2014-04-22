@@ -1093,8 +1093,8 @@ class TwoPoint(Observable):
         t = np.arange(self.T)
         
         x = t[fit_range]
-        y = correlator[fit_range]
-        err = correlator_std[fit_range]
+        y = correlator[fit_range].real
+        err = correlator_std[fit_range].real
         
         b, result = spop.leastsq(fit_function, initial_parameters,
                                  args=(x, y, err))
