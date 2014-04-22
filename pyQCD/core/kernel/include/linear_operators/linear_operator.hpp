@@ -57,7 +57,7 @@ public:
   VectorXcd evenOddMatvec(const VectorXcd& x)
   {
     return this->applyOddOdd(x)
-      - this->applyEvenOdd(this->applyEvenEvenInv(this->applyEvenOdd(x)));
+      - this->applyOddEven(this->applyEvenEvenInv(this->applyEvenOdd(x)));
   }
   VectorXcd evenOddMatvecHermitian(const VectorXcd& x)
   { return this->makeHermitian(this->evenOddMatvec(x)); }
