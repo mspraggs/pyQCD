@@ -37,9 +37,18 @@ public:
 
   unsigned long long getNumFlops() { return this->nFlops_; }
 
+  // Functions to set things up for the even-odd preconditioning
+  VectorXcd makeEvenOdd(const VectorXcd& x);
+  VectorXcd removeEvenOdd(const VectorXcd& x);
+  VectorXcd makeEvenOddSource(const VectorXcd& x);
+  VectorXcd makeEvenOddSolution(const VectorXcd& x);
+
 protected:
   unsigned long long nFlops_;
   int operatorSize_; // Size of vectors on which the operator may operate
+
+  vector<vector<int> > evenIndices_;
+  vector<vector<int> > oddIndices_;
 };
 
 #endif
