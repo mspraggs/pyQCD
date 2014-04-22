@@ -87,12 +87,12 @@ VectorXcd Wilson::applyOddOdd(const VectorXcd& psi)
 
 VectorXcd Wilson::applyEvenOdd(const VectorXcd& psi)
 {
-  return this->hoppingMatrix_->applyEvenOdd(psi);
+  return -0.5 * this->hoppingMatrix_->applyEvenOdd(psi);
 }
 
 
 
 VectorXcd Wilson::applyOddEven(const VectorXcd& psi)
 {
-  return this->hoppingMatrix_->applyOddEven(psi);
+  return -0.5 * this->hoppingMatrix_->applyOddEven(psi);
 }
