@@ -72,17 +72,7 @@ VectorXcd Wilson::makeHermitian(const VectorXcd& psi)
 VectorXcd Wilson::applyEvenEvenInv(const VectorXcd& psi)
 {
   // Invert the even diagonal piece
-
-  VectorXcd eta = VectorXcd::Zero(this->operatorSize_);
-
-  if (psi.size() != this->operatorSize_)
-    return eta;
-
-  eta.head(this->operatorSize_ / 2)
-    = psi.head(this->operatorSize_ / 2) 
-    / (1 + 3 / this->lattice_->chi() + this->mass_);
-
-  return eta;
+  return psi / (1 + 3 / this->lattice_->chi() + this->mass_);
 }
 
 
@@ -90,17 +80,7 @@ VectorXcd Wilson::applyEvenEvenInv(const VectorXcd& psi)
 VectorXcd Wilson::applyOddOdd(const VectorXcd& psi)
 {
   // Invert the even diagonal piece
-
-  VectorXcd eta = VectorXcd::Zero(this->operatorSize_);
-
-  if (psi.size() != this->operatorSize_)
-    return eta;
-
-  eta.tail(this->operatorSize_ / 2)
-    = (1 + 3 / this->lattice_->chi() + this->mass_)
-    * psi.tail(this->operatorSize_ / 2);
-
-  return eta;
+  return (1 + 3 / this->lattice_->chi() + this->mass_) * psi;
 }
 
 

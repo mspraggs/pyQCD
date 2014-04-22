@@ -274,9 +274,9 @@ VectorXcd HoppingTerm::applyEvenOdd(const VectorXcd& psi)
 {
   // Apply the even-odd matrix to the lower half of psi
 
-  VectorXcd eta = VectorXcd::Zero(this->operatorSize_);
+  VectorXcd eta = VectorXcd::Zero(this->operatorSize_ / 2);
 
-  if (psi.size() != this->operatorSize_)
+  if (psi.size() != this->operatorSize_ / 2)
     return eta;
 
   for (int i = 0; i < this->operatorSize_ / 2; ++i) {
@@ -303,11 +303,11 @@ VectorXcd HoppingTerm::applyEvenOdd(const VectorXcd& psi)
 	  = {this->spinStructures_[mu](alpha, beta),
 	     this->boundaryConditions_[this->evenIndices_[etaSiteIndex]][mu],
 	     conj(this->links_[4 * siteBehindIndex + mu](b, a)),
-	     psi(this->operatorSize_ / 2 + 12 * (siteBehindIndex / 2) + j),
+	     psi(12 * (siteBehindIndex / 2) + j),
 	     this->spinStructures_[mu + 4](alpha, beta),
 	     this->boundaryConditions_[this->evenIndices_[etaSiteIndex]][mu + 4],
 	     this->links_[4 * this->evenIndices_[etaSiteIndex] + mu](a, b),
-	     psi(this->operatorSize_ / 2 + 12 * (siteAheadIndex / 2) + j)};
+	     psi(12 * (siteAheadIndex / 2) + j)};
 	
 	tempComplexNumbers[0] *= tempComplexNumbers[1]
 	  * tempComplexNumbers[2] * tempComplexNumbers[3];
@@ -332,9 +332,9 @@ VectorXcd HoppingTerm::applyOddEven(const VectorXcd& psi)
 {
   // Apply the even-odd matrix to the lower half of psi
 
-  VectorXcd eta = VectorXcd::Zero(this->operatorSize_);
+  VectorXcd eta = VectorXcd::Zero(this->operatorSize_ / 2);
 
-  if (psi.size() != this->operatorSize_)
+  if (psi.size() != this->operatorSize_ / 2)
     return eta;
 
   for (int i = 0; i < this->operatorSize_ / 2; ++i) {
@@ -376,7 +376,7 @@ VectorXcd HoppingTerm::applyOddEven(const VectorXcd& psi)
 	tempComplexNumbers[0] += tempComplexNumbers[4];
 	tempComplexNumbers[0] *= this->tadpoleCoefficients_[mu];
 	
-	eta(i + this->operatorSize_ / 2) += tempComplexNumbers[0];
+	eta(i) += tempComplexNumbers[0];
       }
     }
   }
