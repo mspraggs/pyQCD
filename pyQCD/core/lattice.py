@@ -1039,7 +1039,7 @@ class Lattice(lattice.Lattice):
           M5 (float): The domain wall height.
           Ls (int): The extent of the fifth dimension.
           kernel (str, optional): The four dimensional kernel to use. Currently
-            "wilson" and "hamber-wu" are supported.
+            "wilson", "hamber-wu" and "naik" are supported.
           boundary_conditions (list, optional): The phase factors to apply to
             the fermion fields at the boundaries of the lattice.
           solver_method (str, optional): The method to use to invert the

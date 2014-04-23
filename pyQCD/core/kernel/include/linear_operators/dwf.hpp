@@ -12,6 +12,7 @@
 #include <linear_operators/linear_operator.hpp>
 #include <linear_operators/wilson.hpp>
 #include <linear_operators/hamber_wu.hpp>
+#include <linear_operators/naik.hpp>
 
 using namespace Eigen;
 using namespace std;

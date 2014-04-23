@@ -39,7 +39,8 @@ namespace pyQCD
 
   enum fermionAction_t {
     wilson,
-    hamberWu
+    hamberWu,
+    naik
   };
 
   enum solverMethod_t {

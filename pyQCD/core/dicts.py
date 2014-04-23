@@ -8,7 +8,8 @@ gauge_actions = {'wilson': 0,
                  'twisted_rectangle_improved': 2}
 
 fermion_actions = {'wilson': 0,
-                   'hamber-wu': 1}
+                   'hamber-wu': 1,
+                   'naik': 2}
 
 solver_methods = {'bicgstab': 0,
                   'conjugate_gradient': 1,

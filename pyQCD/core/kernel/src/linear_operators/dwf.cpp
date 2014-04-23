@@ -18,6 +18,8 @@ DWF::DWF(
     this->kernel_ = new Wilson(-M5, boundaryConditions, lattice);
   else if (kernelType == pyQCD::hamberWu)
     this->kernel_ = new HamberWu(-M5, boundaryConditions, lattice);
+  else if (kernelType == pyQCD::naik)
+    this->kernel_ = new Naik(-M5, boundaryConditions, lattice);
   else
     this->kernel_ = new Wilson(-M5, boundaryConditions, lattice);    
 }
