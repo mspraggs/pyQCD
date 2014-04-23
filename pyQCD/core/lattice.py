@@ -1058,15 +1058,15 @@ class Lattice(lattice.Lattice):
           numpy.ndarray: The spinor resulting from the inversion.
           
         Examples:
-          Here we create a lattice and a source, then invert a Hamber-Wu Dirac
+          Here we create a lattice and a source, then invert a DWF Dirac
           operator on it.
           
           >>> import pyQCD
           >>> lat = pyQCD.Lattice()
           >>> import numpy as np
-          >>> eta = np.zeros(lat.shape + (4, 3), dtype=np.complex)
-          >>> eta[0, 0, 0, 0, 0] = 1.0
-          >>> psi = lat.invert_hamberwu_dirac(eta, 0.4)
+          >>> eta = np.zeros((4,) + lat.shape + (4, 3), dtype=np.complex)
+          >>> eta[0, 0, 0, 0, 0, 0] = 1.0
+          >>> psi = lat.invert_dwf_dirac(eta, 0.4, 1.8, 4)
         """
         
         eta = eta.flatten()
