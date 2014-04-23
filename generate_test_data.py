@@ -27,7 +27,7 @@ def generate_configs():
                 np.save(create_fullpath(filename),
                         lattice.get_config().data)
                 
-def generate_props():
+def generate_props(fermion_action=None, smearing_type=None):
     
     smearing_combinations \
       = [(0, 0, 0), (1, 0, 0), (0, 1, 0), (0, 0, 1)]
@@ -38,41 +38,49 @@ def generate_props():
     lattice.set_config(config)
     
     function_dict = {"wilson": pyQCD.Lattice.get_wilson_propagator,
-                     "hamber-wu": pyQCD.Lattice.get_hamberwu_propagator}
+                     "hamber-wu": pyQCD.Lattice.get_hamberwu_propagator,
+                     "naik": pyQCD.Lattice.get_naik_propagator}
+        
+    if fermion_action == None:
+        fermion_actions = pyQCD.dicts.fermion_actions.keys()
+    else:
+        fermion_actions = [fermion_action]
+        
+    if smearing_type == None:
+        smearing_types = pyQCD.dicts.smearing_types.keys()
+    else:
+        smearing_types = [smearing_type]
     
     # Generate some props based on one of the configs generated
-    for fermion_action in pyQCD.dicts.fermion_actions.keys():
-        for solver_method in pyQCD.dicts.solver_methods.keys():
-            for smearing_type in pyQCD.dicts.smearing_types.keys():
-                for n_link_s, n_source_s, n_sink_s in smearing_combinations:
-                    
-                    print("Generating propagator for fermion action {}, "
-                          "solver method {}, smearing type {}, {} link "
-                          "smears, {} source smears and {} sink smears"
-                          .format(fermion_action, solver_method, smearing_type,
-                                  n_link_s, n_source_s, n_sink_s))
-                    
-                    func = function_dict[fermion_action]
-                    prop = func(lattice, 0.4,
-                                num_field_smears=n_link_s,
-                                field_smearing_param=0.4,
-                                source_smear_type=smearing_type,
-                                num_source_smears=n_source_s,
-                                source_smearing_param=0.4,
-                                sink_smear_type=smearing_type,
-                                num_sink_smears=n_sink_s,
-                                sink_smearing_param=0.4,
-                                solver_method=solver_method,
-                                verbosity=2)
-                    
-                    filename = "prop_{}_{}_{}_{}_{}_{}" \
-                      .format(fermion_action, solver_method,
-                              smearing_type, n_link_s, n_source_s,
-                              n_sink_s)
-                    
-                    np.save(create_fullpath(filename), prop.data)
+    for fermion_action in fermion_actions:
+        for smearing_type in smearing_types:
+            for n_link_s, n_source_s, n_sink_s in smearing_combinations:
                 
-def generate_spinors():
+                print("Generating propagator for fermion action {}, "
+                  "solver method conjugate_gradient, smearing type {}, "
+                  "{} link smears, {} source smears and {} sink smears"
+                  .format(fermion_action, smearing_type,
+                          n_link_s, n_source_s, n_sink_s))
+                
+                func = function_dict[fermion_action]
+                prop = func(lattice, 0.4,
+                            num_field_smears=n_link_s,
+                            field_smearing_param=0.4,
+                            source_smear_type=smearing_type,
+                            num_source_smears=n_source_s,
+                            source_smearing_param=0.4,
+                            sink_smear_type=smearing_type,
+                            num_sink_smears=n_sink_s,
+                            sink_smearing_param=0.4,
+                            verbosity=2)
+                
+                filename = "prop_{}_conjugate_gradient_{}_{}_{}_{}" \
+                  .format(fermion_action, smearing_type, n_link_s, n_source_s,
+                          n_sink_s)
+                
+                np.save(create_fullpath(filename), prop.data)
+            
+def generate_spinors(fermion_action=None, solver_method=None):
     
     config_data = np.load(create_fullpath("chroma_config.npy"))
     config = pyQCD.Config(config_data, 4, 8, 5.5, 1.0, 1.0, 1.0, "wilson")
@@ -80,17 +88,28 @@ def generate_spinors():
     lattice.set_config(config)
     
     function_dict = {"wilson": pyQCD.Lattice.invert_wilson_dirac,
-                     "hamber-wu": pyQCD.Lattice.invert_hamberwu_dirac}
+                     "hamber-wu": pyQCD.Lattice.invert_hamberwu_dirac,
+                     "naik": pyQCD.Lattice.invert_naik_dirac}
         
     psi = np.zeros((8, 4, 4, 4, 4, 3), dtype=np.complex)
     psi[0, 0, 0, 0, 0, 0] = 1.0
     
     psi5d = np.zeros((4, 8, 4, 4, 4, 4, 3), dtype=np.complex)
     psi5d[0] = psi
+        
+    if fermion_action == None:
+        fermion_actions = pyQCD.dicts.fermion_actions.keys()
+    else:
+        fermion_actions = [fermion_action]
+        
+    if solver_method == None:
+        solver_methods = pyQCD.dicts.solver_methods.keys()
+    else:
+        solver_methods = [solver_method]
     
     # Generate some props based on one of the configs generated
-    for fermion_action in pyQCD.dicts.fermion_actions.keys():
-        for solver_method in pyQCD.dicts.solver_methods.keys():
+    for fermion_action in fermion_actions:
+        for solver_method in solver_methods:
                 
             print("Generating spinor for fermion action {} and "
                   "solver method {}"
@@ -123,6 +142,7 @@ def generate_Dpsis():
     
     function_dict = {"wilson": pyQCD.Lattice.apply_wilson_dirac,
                      "hamber-wu": pyQCD.Lattice.apply_hamberwu_dirac,
+                     "naik": pyQCD.Lattice.apply_naik_dirac,
                      "jacobi": pyQCD.Lattice.apply_jacobi_smearing}
         
     psi = np.zeros((8, 4, 4, 4, 4, 3), dtype=np.complex)
