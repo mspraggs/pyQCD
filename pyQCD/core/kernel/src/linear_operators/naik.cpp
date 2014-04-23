@@ -31,6 +31,9 @@ Naik::Naik(
   this->nextNextNearestNeighbour_ = new HoppingTerm(boundaryConditions,
 						    naikSpinStructures,
 						    lattice, 3);
+
+  this->evenIndices_ = this->nearestNeighbour_->getEvenIndices();
+  this->oddIndices_ = this->nearestNeighbour_->getOddIndices();
 }
 
 
@@ -86,6 +89,38 @@ VectorXcd Naik::applyHermitian(const VectorXcd& psi)
 VectorXcd Naik::makeHermitian(const VectorXcd& psi)
 {
   return pyQCD::multiplyGamma5(psi);
+}
+
+
+
+VectorXcd Naik::applyEvenEvenInv(const VectorXcd& psi)
+{
+  // Invert the even diagonal piece
+  return psi / (1 + 3 / this->lattice_->chi() + this->mass_);
+}
+
+
+
+VectorXcd Naik::applyOddOdd(const VectorXcd& psi)
+{
+  // Invert the even diagonal piece
+  return (1 + 3 / this->lattice_->chi() + this->mass_) * psi;
+}
+
+
+
+VectorXcd Naik::applyEvenOdd(const VectorXcd& psi)
+{
+  return 2.0 / 81.0 * this->nextNextNearestNeighbour_->applyEvenOdd(psi)
+    - 2.0 / 3.0 * this->nearestNeighbour_->applyEvenOdd(psi);
+}
+
+
+
+VectorXcd Naik::applyOddEven(const VectorXcd& psi)
+{
+  return 2.0 / 81.0 * this->nextNextNearestNeighbour_->applyOddEven(psi)
+    - 2.0 / 3.0 * this->nearestNeighbour_->applyOddEven(psi);
 }
 
 
