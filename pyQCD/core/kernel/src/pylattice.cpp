@@ -272,6 +272,35 @@ py::list pyLattice::invertHamberWuDiracOperatorP(
 
 
 
+py::list pyLattice::invertNaikDiracOperatorP(
+  const py::list eta, const double mass, const py::list boundaryConditions,
+  const int solverMethod, const int precondition, const int maxIterations,
+  const double tolerance, const int verbosity)
+{
+  // Invert the Hamber-Wu Dirac operator on the specified source
+
+  VectorXcd vectorEta = pyQCD::convertListToVector(eta);
+  vector<complex<double> > tempBoundaryConditions
+    = pyQCD::convertBoundaryConditions(boundaryConditions);
+
+  // Release the GIL
+  ScopedGILRelease* scope = new ScopedGILRelease;
+
+  VectorXcd vectorPsi = this->invertNaikDiracOperator(vectorEta, mass,
+							  tempBoundaryConditions,
+							  solverMethod,
+							  precondition,
+							  maxIterations,
+							  tolerance,
+							  verbosity);
+
+  delete scope;
+
+  return pyQCD::convertVectorToList(vectorPsi);
+}
+
+
+
 py::list pyLattice::invertDWFDiracOperatorP(const py::list eta,
 					    const double mass, const double M5,
 					    const int Ls, const int kernelType,

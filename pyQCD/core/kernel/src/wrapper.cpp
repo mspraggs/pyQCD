@@ -112,6 +112,12 @@ BOOST_PYTHON_MODULE(lattice)
 	  py::arg("solver_method") = 1, py::arg("precondition") = 0,
 	  py::arg("max_iterations") = 1000, py::arg("tolerance") = 1,
 	  py::arg("verbosity") = 0))
+    .def("invert_naik_dirac", &pyLattice::invertNaikDiracOperatorP,
+	 (py::arg("eta"), py::arg("mass"),
+	  py::arg("boundary_conditions") = defaultBoundaryConditions(),
+	  py::arg("solver_method") = 1, py::arg("precondition") = 0,
+	  py::arg("max_iterations") = 1000, py::arg("tolerance") = 1,
+	  py::arg("verbosity") = 0))
     .def("invert_dwf_dirac", &pyLattice::invertDWFDiracOperatorP,
 	 (py::arg("eta"), py::arg("mass"), py::arg("M5"), py::arg("Ls"),
 	  py::arg("kernel") = 0,

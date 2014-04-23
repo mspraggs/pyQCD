@@ -310,6 +310,34 @@ VectorXcd Lattice::invertHamberWuDiracOperator(
 
 
 
+VectorXcd Lattice::invertNaikDiracOperator(
+  const VectorXcd& eta, const double mass,
+  const vector<complex<double> >& boundaryConditions, const int solverMethod,
+  const int precondition, const int maxIterations, const double tolerance,
+  const int verbosity)
+{
+  // Generate a Wilson Dirac matrix and invert it on a source
+
+  // Generate the dirac matrix
+  if (verbosity > 0)
+    cout << "  Generating Dirac matrix..." << flush;
+
+  LinearOperator* diracOperator = new Naik(mass, boundaryConditions, this);
+
+  if (verbosity > 0)
+    cout << " Done!" << endl;
+
+  VectorXcd psi = invertDiracOperator(eta, diracOperator, solverMethod,
+				      precondition, maxIterations, tolerance,
+				      verbosity);
+
+  delete diracOperator;
+
+  return psi;
+}
+
+
+
 VectorXcd Lattice::invertDWFDiracOperator(
   const VectorXcd& eta, const double mass, const double M5, const double Ls, 
   const int kernelType, const vector<complex<double> >& boundaryConditions,
