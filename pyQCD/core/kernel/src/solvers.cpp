@@ -1,7 +1,8 @@
 #include <solvers.hpp>
 
 void arnoldi(MatrixXcd& V, MatrixXcd& H, LinearOperator* linop,
-	     const VectorXcd& rhs, const int numIterations)
+	     const VectorXcd& rhs, const int numIterations,
+	     const int precondition)
 {
   // Runs the Arnoldi relation to find an orthonormal basis of the Krylov
   // subspace K(A, b)
@@ -13,7 +14,11 @@ void arnoldi(MatrixXcd& V, MatrixXcd& H, LinearOperator* linop,
   V.col(0) = rhs / beta;
 
   for (int i = 1; i < numIterations + 1; ++i) {
-    VectorXcd q = linop->apply(V.col(i - 1));
+    VectorXcd q;
+    if (precondition == 1)
+      q = linop->applyPreconditioned(V.col(i - 1));
+    else
+      q = linop->apply(V.col(i - 1));
 
     // Here we're basically doing Gram-Schmidt to make q orthogonal to all
     // V(0), V(1), ... , V(i-1)
@@ -209,9 +214,25 @@ VectorXcd gmres(LinearOperator* linop, const VectorXcd& rhs,
 
   VectorXcd solution = VectorXcd::Zero(rhs.size());
 
+  int precondition = 1;
+  int N = rhs.size() / 2;
+
+  VectorXcd rhsOdd;
+  VectorXcd oddSolution;
+
+  if (precondition == 1) {
+    VectorXcd rhsEvenOdd = linop->makeEvenOddSource(rhs);
+    rhsOdd = rhsEvenOdd.tail(N);
+    solution.head(N) = linop->applyEvenEvenInv(rhsEvenOdd.head(N));
+    oddSolution = VectorXcd::Zero(N);
+  }
+
   boost::timer::cpu_timer timer;
 
-  VectorXcd r = rhs - linop->apply(solution); // 2 * N flops
+  VectorXcd r 
+    = (precondition == 1)
+    ? rhsOdd - linop->applyPreconditioned(oddSolution)
+    : rhs - linop->apply(solution); // 2 * N flops
   double rNorm = r.norm();
   double r0Norm = rNorm;
   int restartFrequency = 20;
@@ -224,13 +245,18 @@ VectorXcd gmres(LinearOperator* linop, const VectorXcd& rhs,
     MatrixXcd V;
     MatrixXcd H;
 
-    arnoldi(V, H, linop, r, restartFrequency);
+    arnoldi(V, H, linop, r, restartFrequency, precondition);
     
     VectorXcd y = H.jacobiSvd(ComputeThinU | ComputeThinV).solve(rNorm * e1);
 
-    solution += V.leftCols(restartFrequency) * y;
+    if (precondition == 1)
+      oddSolution += V.leftCols(restartFrequency) * y;
+    else
+      solution += V.leftCols(restartFrequency) * y;
 
-    r = rhs - linop->apply(solution);
+    r = (precondition == 1)
+      ? rhsOdd - linop->applyPreconditioned(oddSolution)
+      : rhs - linop->apply(solution);
     rNorm = r.norm();
 
     if (rNorm / r0Norm < tolerance) {
@@ -245,6 +271,11 @@ VectorXcd gmres(LinearOperator* linop, const VectorXcd& rhs,
 					      + elapsedTimes.user);
 
   time = elapsed / 1.0e9;
+
+  if (precondition == 1) {
+    solution.tail(N) = oddSolution;
+    solution = linop->makeEvenOddSolution(solution);
+  }
 
   return solution;
 }
