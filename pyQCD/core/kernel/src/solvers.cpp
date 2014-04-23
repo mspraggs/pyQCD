@@ -97,10 +97,12 @@ VectorXcd cg(LinearOperator* linop, const VectorXcd& rhs,
 
   time = elapsed / 1.0e9;
 
-  if (precondition == 1)
+  if (precondition == 1) {
     solution.tail(N) = oddSolution;
+    solution = linop->makeEvenOddSolution(solution);
+  }
 
-  return linop->makeEvenOddSolution(solution);
+  return solution;
 }
 
 
@@ -112,12 +114,29 @@ VectorXcd bicgstab(LinearOperator* linop, const VectorXcd& rhs,
   // solve linop * solution = rhs for solution
   VectorXcd solution = VectorXcd::Zero(rhs.size());
 
+  int precondition = 1;
+
+  int N = (precondition == 1) ? rhs.size() / 2 : rhs.size();
+
+  VectorXcd rhsOdd;
+  VectorXcd oddSolution;
+
+  if (precondition == 1) {
+    VectorXcd rhsEvenOdd = linop->makeEvenOddSource(rhs);
+    rhsOdd = rhsEvenOdd.tail(N);
+    solution.head(N) = linop->applyEvenEvenInv(rhsEvenOdd.head(N));
+    oddSolution = VectorXcd::Zero(N);
+  }
+
   boost::timer::cpu_timer timer;
   
   // Use the normal for of the linear operator as there's no requirement
   // for the linop to be hermitian
   
-  VectorXcd r = rhs - linop->apply(solution); // 2 * N flops
+  VectorXcd r 
+    = (precondition == 1)
+    ? rhsOdd - linop->applyPreconditioned(oddSolution)
+    : rhs - linop->apply(solution); // 2 * N flops
   VectorXcd r0 = r;
   double r0Norm = r0.squaredNorm(); // 6 * N + 2 * (N - 1) = 8 * N - 2 flops
   
@@ -125,10 +144,10 @@ VectorXcd bicgstab(LinearOperator* linop, const VectorXcd& rhs,
   complex<double> alpha(1.0, 0.0);
   complex<double> omega(1.0, 0.0);
 
-  VectorXcd p = VectorXcd::Zero(rhs.size());
-  VectorXcd v = VectorXcd::Zero(rhs.size());
-  VectorXcd s = VectorXcd::Zero(rhs.size());
-  VectorXcd t = VectorXcd::Zero(rhs.size());
+  VectorXcd p = VectorXcd::Zero(N);
+  VectorXcd v = VectorXcd::Zero(N);
+  VectorXcd s = VectorXcd::Zero(N);
+  VectorXcd t = VectorXcd::Zero(N);
 
   double residual = r.squaredNorm(); // 6 * N + 2 * (N - 1) = 8 * N - 2 flops
 
@@ -145,14 +164,17 @@ VectorXcd bicgstab(LinearOperator* linop, const VectorXcd& rhs,
     complex<double> beta = (rho / rhoOld) * (alpha / omega); // 24 flops
     
     p = r + beta * (p - omega * v); // N * 16
-    v = linop->apply(p);
+    v = (precondition == 1) ? linop->applyPreconditioned(p) : linop->apply(p);
 
     alpha = rho / r0.dot(v); // 6 + 8 * N - 2 = 4 + 8 * N flops
     s = r - alpha * v; // 8 * N flops
-    t = linop->apply(s);
+    t = (precondition == 1) ? linop->applyPreconditioned(s) : linop->apply(s);
 
     omega = t.dot(s) / t.squaredNorm(); // 6 + 16 * N - 4 = 16 * N + 2 flops
-    solution += alpha * p + omega * s; // 14 * N flops
+    if (precondition == 1)
+      oddSolution += alpha * p + omega * s; // 14 * N flops
+    else
+      solution += alpha * p + omega * s; // 14 * N flops
 
     residual = r.squaredNorm(); // 8 * N - 2 flops
 
@@ -171,6 +193,11 @@ VectorXcd bicgstab(LinearOperator* linop, const VectorXcd& rhs,
 					      + elapsedTimes.user);
 
   time = elapsed / 1.0e9;
+
+  if (precondition == 1) {
+    solution.tail(N) = oddSolution;
+    solution = linop->makeEvenOddSolution(solution);
+  }
 
   return solution;
 };
