@@ -126,6 +126,9 @@ public:
   py::list applyHamberWuDiracOperator(py::list psi, const double mass,
 				      py::list boundaryConditions,
 				      const int precondition);
+  py::list applyNaikDiracOperator(py::list psi, const double mass,
+				  py::list boundaryConditions,
+				  const int precondition);
   py::list applyDWFDiracOperator(py::list psi, const double mass,
 				 const double M5, const int Ls,
 				 const int kernelType,

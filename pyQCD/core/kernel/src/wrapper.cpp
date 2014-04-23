@@ -133,6 +133,10 @@ BOOST_PYTHON_MODULE(lattice)
 	 (py::arg("psi"), py::arg("mass"),
 	  py::arg("boundary_conditions") = defaultBoundaryConditions(),
 	  py::arg("precondition") = 0))
+    .def("apply_naik_dirac", &pyLattice::applyNaikDiracOperator,
+	 (py::arg("psi"), py::arg("mass"),
+	  py::arg("boundary_conditions") = defaultBoundaryConditions(),
+	  py::arg("precondition") = 0))
     .def("apply_dwf_dirac", &pyLattice::applyDWFDiracOperator,
 	 (py::arg("psi"), py::arg("mass"), py::arg("M5"), py::arg("Ls"),
 	  py::arg("kernel") = 0,
