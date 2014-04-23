@@ -576,6 +576,42 @@ if lattice_exists:
                     actual_prop = np.load(create_fullpath(filename))
                         
                     assert np.allclose(actual_prop, prop.data)
+
+        def test_get_naik_propagator(self):
+            
+            lattice = Lattice()
+            config_data \
+              = np.load(create_fullpath("chroma_config.npy"))
+            config = Config(config_data, 4, 8, 5.5, 1.0, 1.0, 1.0,
+                                  "wilson")
+            lattice.set_config(config)
+            
+            smearing_combinations \
+              = [(0, 0, 0), (1, 0, 0), (0, 1, 0), (0, 0, 1)]
+              
+            func = Lattice.get_naik_propagator
+            
+            for smearing_type in dicts.smearing_types.keys():
+                for n_link_s, n_source_s, n_sink_s in smearing_combinations:
+                    
+                    prop = func(lattice, 0.4,
+                                num_field_smears=n_link_s,
+                                field_smearing_param=0.4,
+                                source_smear_type=smearing_type,
+                                num_source_smears=n_source_s,
+                                source_smearing_param=0.4,
+                                sink_smear_type=smearing_type,
+                                num_sink_smears=n_sink_s,
+                                sink_smearing_param=0.4)
+                
+                    filename \
+                      = "prop_naik_conjugate_gradient_{}_{}_{}_{}.npy" \
+                      .format(smearing_type, n_link_s,
+                              n_source_s, n_sink_s)
+                        
+                    actual_prop = np.load(create_fullpath(filename))
+                        
+                    assert np.allclose(actual_prop, prop.data)
                         
         def test_invert_wilson_dirac(self):
             
@@ -619,6 +655,30 @@ if lattice_exists:
                                                     solver_method=solver_method)
             
                 filename = "spinor_hamber-wu_{}.npy" \
+                  .format(solver_method)
+                
+                expected_eta = np.load(create_fullpath(filename))
+                
+                assert np.allclose(eta, expected_eta)
+                        
+        def test_invert_naik_dirac(self):
+            
+            lattice = Lattice()
+            config_data \
+              = np.load(create_fullpath("chroma_config.npy"))
+            config = Config(config_data, 4, 8, 5.5, 1.0, 1.0, 1.0,
+                                  "wilson")
+            lattice.set_config(config)
+            
+            psi = np.zeros([8, 4, 4, 4, 4, 3])
+            psi[0, 0, 0, 0, 0, 0] = 1.0
+            
+            for solver_method in dicts.solver_methods.keys():
+                
+                eta = lattice.invert_naik_dirac(psi, 0.4,
+                                                solver_method=solver_method)
+            
+                filename = "spinor_naik_{}.npy" \
                   .format(solver_method)
                 
                 expected_eta = np.load(create_fullpath(filename))
@@ -680,6 +740,23 @@ if lattice_exists:
             
             eta = lattice.apply_hamberwu_dirac(psi, 0.4)
             expected_eta = np.load(create_fullpath("Dpsi_hamber-wu.npy"))
+            
+            assert np.allclose(eta, expected_eta)
+            
+        def test_apply_naik_dirac(self):
+            
+            lattice = Lattice()
+            config_data \
+              = np.load(create_fullpath("chroma_config.npy"))
+            config = Config(config_data, 4, 8, 5.5, 1.0, 1.0, 1.0,
+                            "wilson")
+            lattice.set_config(config)
+            
+            psi = np.zeros([8, 4, 4, 4, 4, 3])
+            psi[0, 0, 0, 0, 0, 0] = 1.0
+            
+            eta = lattice.apply_naik_dirac(psi, 0.4)
+            expected_eta = np.load(create_fullpath("Dpsi_naik.npy"))
             
             assert np.allclose(eta, expected_eta)
             
