@@ -32,21 +32,48 @@ VectorXcd cg(LinearOperator* linop, const VectorXcd& rhs,
 {
   // Perform the conjugate gradient algorithm to solve
   // linop * solution = rhs for solution
+
+  int precondition = 1;
+
+  int N = rhs.size() / 2;
+
+  VectorXcd rhsHermitian;
+  VectorXcd rhsOdd;
+  VectorXcd oddSolution;
   VectorXcd solution = VectorXcd::Zero(rhs.size());
-  VectorXcd rhsHermitian = linop->makeHermitian(rhs);
+
+  if (precondition == 1) {
+    rhsHermitian = linop->makeEvenOddSource(rhs);
+    rhsOdd = linop->makeHermitian(rhsHermitian.tail(N));
+    solution.head(N) = linop->applyEvenEvenInv(rhsHermitian.head(N));
+    oddSolution = VectorXcd::Zero(N);
+  }
+  else {
+    rhsHermitian = linop->makeHermitian(rhs);
+  }
+        
 
   boost::timer::cpu_timer timer;
 
   // Use the Hermitian form of the linear operator as that's what CG requires
-  VectorXcd r = rhsHermitian - linop->applyHermitian(solution); // 2 * N flops
+  VectorXcd r 
+    = (precondition == 1)
+    ? rhsOdd - linop->applyPreconditionedHermitian(oddSolution)
+    : rhsHermitian - linop->applyHermitian(solution); // 2 * N flops
   VectorXcd p = r;
 
   double oldRes = r.squaredNorm(); // 6 * N + 2 * (N - 1) = 8 * N - 2 flops
 
   for (int i = 0; i < maxIterations; ++i) {
-    VectorXcd linopP = linop->applyHermitian(p);
+    VectorXcd linopP
+      = (precondition == 1)
+      ? linop->applyPreconditionedHermitian(p)
+      : linop->applyHermitian(p);
     complex<double> alpha = oldRes / p.dot(linopP); // 4 + 8 * N flops
-    solution += alpha * p; // 8 * N flops
+    if (precondition == 1)
+      oddSolution += alpha * p; // 8 * N flops
+    else
+      solution += alpha * p;
     r -= alpha * linopP; // 8 * N flops
 
     double newRes = r.squaredNorm();
@@ -70,7 +97,10 @@ VectorXcd cg(LinearOperator* linop, const VectorXcd& rhs,
 
   time = elapsed / 1.0e9;
 
-  return solution;
+  if (precondition == 1)
+    solution.tail(N) = oddSolution;
+
+  return linop->makeEvenOddSolution(solution);
 }
 
 
