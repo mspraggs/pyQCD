@@ -175,6 +175,41 @@ py::list pyLattice::computeHamberWuPropagatorP(
 
 
 
+py::list pyLattice::computeNaikPropagatorP(
+  const double mass, const py::list site,
+  const int nSmears, const double smearingParameter,
+  const int sourceSmearingType, const int nSourceSmears,
+  const double sourceSmearingParameter, const int sinkSmearingType,
+  const int nSinkSmears, const double sinkSmearingParameter,
+  const int solverMethod, const py::list boundaryConditions,
+  const int precondition, const int maxIterations,
+  const double tolerance, const int verbosity)
+{
+  // Wrapper for the calculation of a propagator
+  int tempSite[4];
+  vector<complex<double> > tempBoundaryConditions;
+
+  pyQCD::propagatorPrep(tempSite, tempBoundaryConditions, site,
+			boundaryConditions);
+  // Release the GIL for the propagator inversion
+  ScopedGILRelease* scope = new ScopedGILRelease;
+  // Get the propagator
+  vector<MatrixXcd> prop 
+    = this->computeNaikPropagator(mass, tempSite, nSmears, smearingParameter,
+				  sourceSmearingType, nSourceSmears,
+				  sourceSmearingParameter, sinkSmearingType,
+				  nSinkSmears, sinkSmearingParameter,
+				  solverMethod, tempBoundaryConditions,
+				  precondition, maxIterations, tolerance,
+				  verbosity);
+  // Put GIL back in place
+  delete scope;
+
+  return pyQCD::propagatorToList(prop);
+}
+
+
+
 py::list pyLattice::invertWilsonDiracOperatorP(const py::list eta,
 					       const double mass,
 					       const py::list boundaryConditions,
