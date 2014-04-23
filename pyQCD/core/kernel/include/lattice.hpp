@@ -141,6 +141,7 @@ public:
 				      const int solverMethod,
 				      const int maxIterations,
 				      const double tolerance,
+				      const int precondition,
 				      const int verbosity);
 
   VectorXcd invertWilsonDiracOperator(

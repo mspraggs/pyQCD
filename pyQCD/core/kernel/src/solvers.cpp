@@ -33,12 +33,11 @@ void arnoldi(MatrixXcd& V, MatrixXcd& H, LinearOperator* linop,
 }
 
 VectorXcd cg(LinearOperator* linop, const VectorXcd& rhs,
-	     double& tolerance, int& maxIterations, double& time)
+	     double& tolerance, int& maxIterations, double& time,
+	     const int precondition)
 {
   // Perform the conjugate gradient algorithm to solve
   // linop * solution = rhs for solution
-
-  int precondition = 1;
 
   int N = rhs.size() / 2;
 
@@ -113,13 +112,12 @@ VectorXcd cg(LinearOperator* linop, const VectorXcd& rhs,
 
 
 VectorXcd bicgstab(LinearOperator* linop, const VectorXcd& rhs,
-		   double& tolerance, int& maxIterations, double& time)
+		   double& tolerance, int& maxIterations, double& time,
+		   const int precondition)
 {
   // Perform the biconjugate gradient stabilized algorithm to
   // solve linop * solution = rhs for solution
   VectorXcd solution = VectorXcd::Zero(rhs.size());
-
-  int precondition = 1;
 
   int N = (precondition == 1) ? rhs.size() / 2 : rhs.size();
 
@@ -208,13 +206,13 @@ VectorXcd bicgstab(LinearOperator* linop, const VectorXcd& rhs,
 };
 
 VectorXcd gmres(LinearOperator* linop, const VectorXcd& rhs,
-		double& tolerance, int& maxIterations, double& time)
+		double& tolerance, int& maxIterations, double& time,
+		const int precondition)
 {
   // Here we do the restarted generalized minimal residual method
 
   VectorXcd solution = VectorXcd::Zero(rhs.size());
 
-  int precondition = 1;
   int N = rhs.size() / 2;
 
   VectorXcd rhsOdd;
