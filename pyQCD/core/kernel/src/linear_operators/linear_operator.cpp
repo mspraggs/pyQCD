@@ -12,6 +12,10 @@ VectorXcd LinearOperator::makeEvenOdd(const VectorXcd& x)
 
   int nSites = this->operatorSize_ / 12;
 
+  if (this->evenIndices_.size() != nSites / 2
+      || this->oddIndices_.size() != nSites / 2)
+    return y;
+
 #pragma omp parallel for
   for (int i = 0; i < nSites / 2; ++i)
     for (int j = 0; j < 12; ++j)
@@ -38,6 +42,10 @@ VectorXcd LinearOperator::removeEvenOdd(const VectorXcd& x)
     return y;
 
   int nSites = this->operatorSize_ / 12;
+
+  if (this->evenIndices_.size() != nSites / 2
+      || this->oddIndices_.size() != nSites / 2)
+    return y;
 
 #pragma omp parallel for
   for (int i = 0; i < nSites / 2; ++i)
