@@ -7,7 +7,7 @@ Features
 --------
 pyQCD brings an object-orientated approach to lattice simulations and analysis. Simulation features:
 
-* Base Lattice object written in C++ and compiled using boost::python provides a flexible and fast API.
+* Base Lattice object written in C++ and compiled using Boost.Python provides a flexible and fast API.
 * Full parallelisation of CPU-intensive code using OpenMP.
 * Wilson, Hamber-Wu and Naik 4D Wilson-like fermionic actions.
 * Fermionic measurement API provides extensibility through functions for applying Dirac operators and inverting on single quark sources.
