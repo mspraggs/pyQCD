@@ -53,36 +53,36 @@ class Propagator(Observable):
       propagator (numpy.ndarray): The propagator data, with shape
         (T, L, L, L, 4, 4, 3, 3), the last four indices in the shape
         corresponding to spin and colour
-      L (int): The spatial extent of the corresponding lattice
-      T (int): The temporal extent of the corresponding lattice
-      beta (float): The inverse coupling
-      ut (float): The spatial mean link/tadpole improvement factor.
-      us (float): The temporal mean link/tadpole improvement factor.
-      chi (float): The anisotropy factor, equal to the spatial lattice spacing
-        divided by the temporal lattice spacing.
-      gauge_action (str): The gauge action
-      fermion_action (str): The fermion action
       mass (float): The bare quark mass
-      action_parameters (dict): The fermion action parameters (if any)
-      boundary_conditions (list): The fermionic boundary conditions used
-        when computing the propagator.
-      source_site (list): The source site to use when constructing the
+      L (int, optional): The spatial extent of the corresponding lattice
+      T (int, optional): The temporal extent of the corresponding lattice
+      beta (float, optional): The inverse coupling
+      ut (float, optional): The spatial mean link/tadpole improvement factor.
+      us (float, optional): The temporal mean link/tadpole improvement factor.
+      chi (float, optional): The anisotropy factor, equal to the spatial lattice
+        spacing divided by the temporal lattice spacing.
+      gauge_action (str, optional): The gauge action
+      fermion_action (str, optional): The fermion action
+      action_parameters (dict, optional): The fermion action parameters (if any)
+      boundary_conditions (list, optional): The fermionic boundary conditions
+        used when computing the propagator.
+      source_site (list, optional): The source site to use when constructing the
         source for the inversion, of the form [t, x, y, z]
-      num_field_smears (int): The number of stout field smears applied
+      num_field_smears (int, optional): The number of stout field smears applied
         before doing the inversion
-      field_smearing_param (float): The stout field smearing parameter to
-        use before doing the inversion
-      source_smearing_type (str): The type of smearing applied to the quark
-        source.
-      num_source_smears (int): The number of Jacobi smears to apply
+      field_smearing_param (float, optional): The stout field smearing parameter
+        to use before doing the inversion
+      source_smearing_type (str, optional): The type of smearing applied to the
+        quark source.
+      num_source_smears (int, optional): The number of Jacobi smears to apply
         to the source before inverting.
-      source_smearing_param (float): The Jacobi field smearing parameter to
-        use before doing the inversion
-      sink_smearing_type (str): The type of smearing applied to the quark
-        sink.
-      num_sink_smears (int): The number of Jacobi smears to apply
+      source_smearing_param (float, optional): The Jacobi field smearing
+        parameter to use before doing the inversion
+      sink_smearing_type (str, optional): The type of smearing applied to the
+        quark sink.
+      num_sink_smears (int, optional): The number of Jacobi smears to apply
         to the sink before inverting.
-      sink_smearing_param (float): The Jacobi field smearing parameter to
+      sink_smearing_param (float, optional): The Jacobi field smearing parameter to
         use before doing the inversion
         
     Returns:
@@ -115,12 +115,21 @@ class Propagator(Observable):
                'sink_smearing_type', 'num_sink_smears',
                'sink_smearing_param']
         
-    def __init__(self, propagator, L, T, beta, ut, us, chi, gauge_action,
-                 fermion_action, mass, action_parameters, boundary_conditions,
-                 source_site, num_field_smears, field_smearing_param,
-                 source_smearing_type, num_source_smears, source_smearing_param,
-                 sink_smearing_type, num_sink_smears, sink_smearing_param):
+    def __init__(self, propagator, mass, L=None, T=None, beta=None, ut=1.0,
+                 us=1.0, chi=1.0, gauge_action=None, fermion_action=None,
+                 action_parameters=None, boundary_conditions=[-1, 1, 1, 1],
+                 source_site=[0, 0, 0, 0], num_field_smears=0,
+                 field_smearing_param=1.0, source_smearing_type=None,
+                 num_source_smears=0, source_smearing_param=1.0,
+                 sink_smearing_type=None, num_sink_smears=0,
+                 sink_smearing_param=1.0):
         """Constructor for pyQCD.Propagator (see help(pyQCD.Propagator)))"""
+        
+        # Infer the shape of the lattice from the supplied data
+        if L == None:
+            L = propagator.shape[1]
+        if T == None:
+            T = propagator.shape[0]
         
         expected_shape = (T, L, L, L, 4, 4, 3, 3)
         # Save ourselves some trouble later and make sure the shape of the

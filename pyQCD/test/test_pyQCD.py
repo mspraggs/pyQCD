@@ -967,20 +967,20 @@ class TestPropagator:
         data = random_complex((2, 2, 2, 2, 4, 4, 3, 3))
         
         with pytest.raises(ValueError):
-            propagator = Propagator(data, 2, 4, 5.5, 1.0, 1.0, 1.0, "wilson",
-                                    "wilson", 0.4, {}, [-1, 1, 1, 1],
+            propagator = Propagator(data, 0.4, 2, 4, 5.5, 1.0, 1.0, 1.0,
+                                    "wilson", "wilson", {}, [-1, 1, 1, 1],
                                     [0, 0, 0, 0], 0, 1.0,
                                     "jacobi", 0, 1.0, "jacobi", 0, 1.0)
         
-        propagator = Propagator(data, 2, 2, 5.5, 1.0, 1.0, 1.0, "wilson",
-                                "wilson", 0.4, {}, [-1, 1, 1, 1], [0, 0, 0, 0],
+        propagator = Propagator(data, 0.4, 2, 2, 5.5, 1.0, 1.0, 1.0, "wilson",
+                                "wilson", {}, [-1, 1, 1, 1], [0, 0, 0, 0],
                                 0, 1.0, "jacobi", 0, 1.0, "jacobi", 0, 1.0)
 
     def test_save(self):
         
         prop_data = random_complex((4, 2, 2, 2, 4, 4, 3, 3))
-        prop = Propagator(prop_data, 2, 4, 5.5, 1.0, 1.0, 1.0, "wilson",
-                          "wilson", 0.4, {}, [-1, 1, 1, 1], [0, 0, 0, 0],
+        prop = Propagator(prop_data, 0.4, 2, 4, 5.5, 1.0, 1.0, 1.0, "wilson",
+                          "wilson", {}, [-1, 1, 1, 1], [0, 0, 0, 0],
                           0, 1.0, "jacobi", 0, 1.0, "jacobi", 0, 1.0)
         prop.save("test_prop.npz")
         
@@ -1021,8 +1021,8 @@ class TestPropagator:
     def test_save_raw(self):
         
         prop_data = random_complex((4, 2, 2, 2, 4, 4, 3, 3))
-        prop = Propagator(prop_data, 2, 4, 5.5, 1.0, 1.0, 1.0, "wilson",
-                          "wilson", 0.4, {}, [-1, 1, 1, 1], [0, 0, 0, 0],
+        prop = Propagator(prop_data, 0.4, 2, 4, 5.5, 1.0, 1.0, 1.0, "wilson",
+                          "wilson", {}, [-1, 1, 1, 1], [0, 0, 0, 0],
                           0, 1.0, "jacobi", 0, 1.0, "jacobi", 0, 1.0)
         prop.save_raw("test_prop.npy")
         
@@ -1037,8 +1037,8 @@ class TestPropagator:
     def test_header(self):
         
         prop_data = random_complex((4, 2, 2, 2, 4, 4, 3, 3))
-        prop = Propagator(prop_data, 2, 4, 5.5, 1.0, 1.0, 1.0, "wilson",
-                          "wilson", 0.4, {}, [-1, 1, 1, 1], [0, 0, 0, 0],
+        prop = Propagator(prop_data, 0.4, 2, 4, 5.5, 1.0, 1.0, 1.0, "wilson",
+                          "wilson", {}, [-1, 1, 1, 1], [0, 0, 0, 0],
                           0, 1.0, "jacobi", 0, 1.0, "jacobi", 0, 1.0)
         header = prop.header()
         
@@ -1061,8 +1061,8 @@ class TestPropagator:
     def test_conjugate(self):
         
         prop_data = random_complex((4, 2, 2, 2, 4, 4, 3, 3))
-        prop = Propagator(prop_data, 2, 4, 5.5, 1.0, 1.0, 1.0, "wilson",
-                          "wilson", 0.4, {}, [-1, 1, 1, 1], [0, 0, 0, 0],
+        prop = Propagator(prop_data, 0.4, 2, 4, 5.5, 1.0, 1.0, 1.0, "wilson",
+                          "wilson", {}, [-1, 1, 1, 1], [0, 0, 0, 0],
                           0, 1.0, "jacobi", 0, 1.0, "jacobi", 0, 1.0)
         
         prop_conj = prop.conjugate()
@@ -1072,8 +1072,11 @@ class TestPropagator:
     def test_transpose_spin(self):
         
         prop_data = random_complex((4, 2, 2, 2, 4, 4, 3, 3))
-        prop = Propagator(prop_data, 2, 4, 5.5, 1.0, 1.0, 1.0, "wilson",
-                          "wilson", 0.4, {}, [-1, 1, 1, 1], [0, 0, 0, 0],
+        prop = Propagator(prop_data, 0.4, 2, 4, 5.5, 1.0, 1.0, 1.0, "wilson",
+                          "wilson", {}, [-1, 1, 1, 1], [0, 0, 0, 0],
+                          0, 1.0, "jacobi", 0, 1.0, "jacobi", 0, 1.0)
+        prop = Propagator(prop_data, 0.4, 2, 4, 5.5, 1.0, 1.0, 1.0, "wilson",
+                          "wilson", {}, [-1, 1, 1, 1], [0, 0, 0, 0],
                           0, 1.0, "jacobi", 0, 1.0, "jacobi", 0, 1.0)
         
         prop_transpose = prop.transpose_spin()
@@ -1083,8 +1086,8 @@ class TestPropagator:
     def test_transpose_colour(self):
         
         prop_data = random_complex((4, 2, 2, 2, 4, 4, 3, 3))
-        prop = Propagator(prop_data, 2, 4, 5.5, 1.0, 1.0, 1.0, "wilson",
-                          "wilson", 0.4, {}, [-1, 1, 1, 1], [0, 0, 0, 0],
+        prop = Propagator(prop_data, 0.4, 2, 4, 5.5, 1.0, 1.0, 1.0, "wilson",
+                          "wilson", {}, [-1, 1, 1, 1], [0, 0, 0, 0],
                           0, 1.0, "jacobi", 0, 1.0, "jacobi", 0, 1.0)
         
         prop_transpose = prop.transpose_colour()
@@ -1095,8 +1098,8 @@ class TestPropagator:
         
         prop_data = np.load("{}/propagator_tree_level_4c8_4000_no_smear.npy"
                             .format(data_dir))
-        prop = Propagator(prop_data, 4, 8, 5.5, 1.0, 1.0, 1.0, "wilson",
-                          "wilson", 0.4, {}, [-1, 1, 1, 1], [0, 0, 0, 0],
+        prop = Propagator(prop_data, 0.4, 4, 8, 5.5, 1.0, 1.0, 1.0, "wilson",
+                          "wilson", {}, [-1, 1, 1, 1], [0, 0, 0, 0],
                           0, 1.0, "jacobi", 0, 1.0, "jacobi", 0, 1.0)
         
         prop_adjoint = prop.adjoint()
@@ -1114,8 +1117,8 @@ class TestPropagator:
     def test_multiply(self):
         
         prop_data = random_complex((4, 2, 2, 2, 4, 4, 3, 3))
-        prop = Propagator(prop_data, 2, 4, 5.5, 1.0, 1.0, 1.0, "wilson",
-                          "wilson", 0.4, {}, [-1, 1, 1, 1], [0, 0, 0, 0],
+        prop = Propagator(prop_data, 0.4, 2, 4, 5.5, 1.0, 1.0, 1.0, "wilson",
+                          "wilson", {}, [-1, 1, 1, 1], [0, 0, 0, 0],
                           0, 1.0, "jacobi", 0, 1.0, "jacobi", 0, 1.0)
         
         with pytest.raises(ValueError):
@@ -1144,8 +1147,8 @@ class TestPropagator:
     def test_right_multiply(self):
         
         prop_data = random_complex((4, 2, 2, 2, 4, 4, 3, 3))
-        prop = Propagator(prop_data, 2, 4, 5.5, 1.0, 1.0, 1.0, "wilson",
-                          "wilson", 0.4, {}, [-1, 1, 1, 1], [0, 0, 0, 0],
+        prop = Propagator(prop_data, 0.4, 2, 4, 5.5, 1.0, 1.0, 1.0, "wilson",
+                          "wilson", {}, [-1, 1, 1, 1], [0, 0, 0, 0],
                           0, 1.0, "jacobi", 0, 1.0, "jacobi", 0, 1.0)
         
         with pytest.raises(ValueError):
@@ -1387,8 +1390,8 @@ class TestTwoPoint:
           = create_fullpath("prop_wilson_conjugate_gradient_jacobi_0_0_0.npy")
         propagator_data = np.load(filename)
         
-        propagator = Propagator(propagator_data, 4, 8, 5.5, 1.0, 1.0, 1.0,
-                                "wilson", "wilson", 0.4, {}, [-1, 1, 1, 1],
+        propagator = Propagator(propagator_data, 0.4, 4, 8, 5.5, 1.0, 1.0, 1.0,
+                                "wilson", "wilson", {}, [-1, 1, 1, 1],
                                 [0, 0, 0, 0], 0, 1.0, "jacobi",
                                 0, 1.0, "jacobi", 0, 1.0)
         
@@ -1417,8 +1420,8 @@ class TestTwoPoint:
           = create_fullpath("prop_free_8c16_m1.0_no_smear.npy")
         propagator_data = np.load(filename)
         
-        propagator = Propagator(propagator_data, 8, 16, 5.5, 1.0, 1.0, 1.0,
-                                "wilson", "wilson", 1.0, {}, [-1, 1, 1, 1],
+        propagator = Propagator(propagator_data, 1.0, 8, 16, 5.5, 1.0, 1.0,
+                                1.0, "wilson", "wilson", {}, [-1, 1, 1, 1],
                                 [0, 0, 0, 0], 0, 1.0, "jacobi",
                                 0, 1.0, "jacobi", 0, 1.0)
         
