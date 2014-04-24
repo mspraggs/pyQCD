@@ -9,15 +9,15 @@ pyQCD brings an object-orientated approach to lattice simulations and analysis. 
 
 * Base Lattice object written in C++ and compiled using boost::python provides a flexible and fast API.
 * Full parallelisation of CPU-intensive code using OpenMP.
+* Wilson, Hamber-Wu and Naik 4D Wilson-like fermionic actions.
+* Fermionic measurement API provides extensibility through functions for applying Dirac operators and inverting on single quark sources.
+* Propagator generation functions for all 4D fermionic actions, with support for Jacobi smearing of sinks and sources.
+* Flexible domain wall action that can utilise any existing 4D kernel accepting a single mass parameter.
+* Complete integration with numpy ndarray type, facilitating the use of numpy and scipy linear algebra packages.
 * Support for multiple gauge actions, including Wilson and Symanzik rectangle-improved.
 * Support for stout smearing gauge fields prior to measurements.
 * Wilson loop computation capability.
 * Convenience functions for saving and loading gauge fields in numpy zip format.
-* Wilson, Hamber-Wu and Naik 4D Wilson-like fermionic actions.
-* Fermionic measurement API provides extensibility through functions for applying Dirac operators and inverting on single quark sources.
-* Propagator generation functions for all 4D fermionic actions, with support for jacobi smearing of sinks and sources.
-* Flexible domain wall action that can utilise any existing 4D kernel accepting a single mass parameter.
-* Complete integration with numpy ndarray type, facilitating the use of numpy and scipy linear algebra packages.
 
 Analysis features:
 
