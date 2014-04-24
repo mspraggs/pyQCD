@@ -944,7 +944,7 @@ class TwoPoint(Observable):
     def compute_all_meson_correlators(self, propagator1, propagator2,
                                       momenta = [0, 0, 0],
                                       average_momenta=True,
-                                      fold=False):
+                                      fold=False, num_procs=1):
         """Computes and stores all 256 meson correlators within the
         current TwoPoint object. Labels akin to those in pyQCD.interpolators
         are used to denote the 16 gamma matrix combinations.
@@ -965,6 +965,8 @@ class TwoPoint(Observable):
             be taken).
           fold (bool, optional): Determines whether the correlator is folded
             about it's mid-point.
+          num_procs (int, optional): The number of processors to use when
+            performing the function (i.e. the degree of parallelisation).
             
         Examples:
           Create and thermalize a lattice, generate some propagators and use
@@ -998,7 +1000,7 @@ class TwoPoint(Observable):
             return twop.data.items()[0]
         
         # Run the parallel map to get the results
-        results = parmap(parallel_function, interpolators)
+        results = parmap(parallel_function, interpolators, num_procs)
         
         # Now we add the correlators to the current object
         for key, value in results:
