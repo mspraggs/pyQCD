@@ -13,7 +13,7 @@ pyQCD brings an object-orientated approach to lattice simulations and analysis. 
 * Support for stout smearing gauge fields prior to measurements.
 * Wilson loop computation capability.
 * Convenience functions for saving and loading gauge fields in numpy zip format.
-* Wilson and Hamber-Wu 4D fermionic actions.
+* Wilson, Hamber-Wu and Naik 4D Wilson-like fermionic actions.
 * Fermionic measurement API provides extensibility through functions for applying Dirac operators and inverting on single quark sources.
 * Propagator generation functions for all 4D fermionic actions, with support for jacobi smearing of sinks and sources.
 * Flexible domain wall action that can utilise any existing 4D kernel accepting a single mass parameter.
