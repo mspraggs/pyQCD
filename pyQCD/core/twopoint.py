@@ -1329,7 +1329,7 @@ class TwoPoint(Observable):
         """
         
         correlator = self.get_correlator(label, masses, momentum, source_type,
-                                         sink_type)
+                                         sink_type).real
         
         try:
             if masses == None:
