@@ -65,8 +65,8 @@ VectorXcd Naik::apply(const VectorXcd& psi)
     = this->nextNextNearestNeighbour_->getNumFlops();
 
   // Apply the derivative component
-  eta -= 2.0 / 3.0 * this->nearestNeighbour_->apply(psi);
-  eta += 2.0 / 81.0 * this->nextNextNearestNeighbour_->apply(psi);
+  eta -= 9.0 / 16.0 * this->nearestNeighbour_->apply(psi);
+  eta += 1.0 / 16.0 * this->nextNextNearestNeighbour_->apply(psi);
 
   this->nFlops_ += this->nearestNeighbour_->getNumFlops() - nearestFlopsOld;
   this->nFlops_
@@ -111,16 +111,16 @@ VectorXcd Naik::applyOddOdd(const VectorXcd& psi)
 
 VectorXcd Naik::applyEvenOdd(const VectorXcd& psi)
 {
-  return 2.0 / 81.0 * this->nextNextNearestNeighbour_->applyEvenOdd(psi)
-    - 2.0 / 3.0 * this->nearestNeighbour_->applyEvenOdd(psi);
+  return 1.0 / 16.0 * this->nextNextNearestNeighbour_->applyEvenOdd(psi)
+    - 9.0 / 16.0 * this->nearestNeighbour_->applyEvenOdd(psi);
 }
 
 
 
 VectorXcd Naik::applyOddEven(const VectorXcd& psi)
 {
-  return 2.0 / 81.0 * this->nextNextNearestNeighbour_->applyOddEven(psi)
-    - 2.0 / 3.0 * this->nearestNeighbour_->applyOddEven(psi);
+  return 1.0 / 16.0 * this->nextNextNearestNeighbour_->applyOddEven(psi)
+    - 9.0 / 16.0 * this->nearestNeighbour_->applyOddEven(psi);
 }
 
 
