@@ -756,7 +756,7 @@ class TwoPoint(Observable):
             Nnu = struct.unpack('i', switch_endianness(header_string[32:36]))[0]
             T = struct.unpack('i', switch_endianness(header_string[36:40]))[0]
     
-            correlators = np.zeros((Nmu, Nnu, T))
+            correlators = np.zeros((Nmu, Nnu, T), dtype=np.complex)
     
             for t in xrange(T):
                 for mu in xrange(Nmu):
@@ -765,6 +765,8 @@ class TwoPoint(Observable):
                         correlators[mu, nu, t] \
                           = struct.unpack('d', double_string)[0]
                         double_string = binary_file.read(8)
+                        correlators[mu, nu, t] \
+                          += 1j * struct.unpack('d', double_string)[0]
                         
             for mu in xrange(Nmu):
                 for nu in xrange(Nnu):
