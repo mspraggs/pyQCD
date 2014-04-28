@@ -143,10 +143,10 @@ namespace pyQCD
 	// Now we determine the indices of the neighbouring links
 
 	if (site[mu] - hopSize < 0 || site[mu] - hopSize >= latticeShape[mu])
-	  siteBoundaryConditions[mu] = boundaryConditions[mu % 4];
+	  siteBoundaryConditions[mu] = boundaryConditions[mu];
 
 	if (site[mu] + hopSize < 0 || site[mu] + hopSize >= latticeShape[mu])
-	  siteBoundaryConditions[mu + 4] = boundaryConditions[mu % 4];
+	  siteBoundaryConditions[mu + 4] = boundaryConditions[mu];
       }
       output.push_back(siteBoundaryConditions);
     }
