@@ -8,6 +8,8 @@ typedef cusp::complex<float> Complex;
 typedef cusp::linear_operator<cusp::complex<float>, cusp::device_memory> super;
 typedef cusp::array1d<Complex, cusp::device_memory> VectorTypeDev;
 typedef cusp::array1d<Complex, cusp::host_memory> VectorTypeHost;
+typedef cusp::array2d<Complex, cusp::device_memory> PropagatorTypeDev;
+typedef cusp::array2d<Complex, cusp::host_memory> PropagatorTypeHost;
 
 void createGammas(Complex* gammas);
 void diagonalSpinMatrices(Complex* matrices, Complex factor);
