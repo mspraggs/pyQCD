@@ -34,6 +34,10 @@ public:
   void applyPreconditioned(Complex* y, const Complex* x) const;
   void applyPreconditionedHermitian(Complex* y, const Complex* x) const;
 
+  int L() const { return this->L; }
+  int T() const { return this->T; }
+  Complex* links() const { return this->links_; }
+
 protected:
   int N;
   int L;
