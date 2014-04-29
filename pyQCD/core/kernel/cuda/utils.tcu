@@ -151,7 +151,7 @@ void setGridAndBlockSize(int& dimBlock, int& dimGrid, int numThreads)
   dimGrid = numThreads / dimBlock;
 
   while (dimBlock * dimGrid < numThreads)
-    dimBlock++;
+    dimGrid++;
 }
 
 int mod(const int a, const int b)
