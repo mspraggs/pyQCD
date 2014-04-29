@@ -31,7 +31,7 @@ LinearOperator::~LinearOperator()
 
 
 
-void LinearOperator::operator()(const VectorType& x, VectorType& y) const
+void LinearOperator::operator()(const VectorTypeDev& x, VectorTypeDev& y) const
 {
   const Complex* x_ptr = thrust::raw_pointer_cast(&x[0]);
   Complex* y_ptr = thrust::raw_pointer_cast(&y[0]);

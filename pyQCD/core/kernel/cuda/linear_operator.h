@@ -15,7 +15,7 @@ public:
   virtual ~LinearOperator();
 
   // The CUSP linear operator application function
-  void operator()(const VectorType& x, VectorType& y) const;
+  void operator()(const VectorTypeDev& x, VectorTypeDev& y) const;
 
   //Applies the linear operator to a column vector using right multiplication
   virtual void apply(Complex* y, const Complex* x) const { };
