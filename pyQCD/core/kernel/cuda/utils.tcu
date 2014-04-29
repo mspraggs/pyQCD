@@ -147,7 +147,11 @@ void generateBoundaryConditions(Complex* siteBoundaryConditions,
 
 void setGridAndBlockSize(int& dimBlock, int& dimGrid, int numThreads)
 {
-  dimBlock = 1024;
+  int device;
+  cudaGetDevice(&device);
+  cudaDeviceProp prop;
+  cudaGetDeviceProperties(&prop, device);
+  dimBlock = prop.maxThreadsPerBlock;
   dimGrid = numThreads / dimBlock;
 
   while (dimBlock * dimGrid < numThreads)
