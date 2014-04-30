@@ -14,7 +14,7 @@
 void makeSource(VectorTypeDev& eta, const int site[4], const int spin,
 		const int colour, const LinearOperator* smearingOperator);
 
-void invertDiracOperator(const VectorTypeHost& psi, const VectorTypeHost& eta,
+void invertDiracOperator(VectorTypeHost& psi, const VectorTypeHost& eta,
 			 LinearOperator* diracMatrix, const int solverMethod,
 			 const int precondition, const int maxIterations,
 			 const double tolerance, const int verbosity);
