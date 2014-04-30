@@ -10,9 +10,8 @@ class JacobiSmearing : public LinearOperator
 {
 public:
   JacobiSmearing(const int nSmears, const double smearingParameter,
-		 const int L, const int T, const bool precondition,
-		 const Complex* boundaryConditions, Complex* links,
-		 const bool copyLinks);
+		 const int L, const int T, const Complex* boundaryConditions,
+		 Complex* links, const bool copyLinks);
   ~JacobiSmearing();
 
   void applyOnce(Complex* y, const Complex* x) const;
