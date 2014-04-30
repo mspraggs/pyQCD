@@ -1,4 +1,4 @@
-#include <wilson.h>
+#include <jacobi_smearing.h>
 
 JacobiSmearing::JacobiSmearing(const int nSmears, const double smearingParameter,
 			       const int L, const int T,

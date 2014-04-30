@@ -7,7 +7,7 @@ DWF::DWF(const float mass, const float M5, const int Ls,
   : LinearOperator(L, T, precondition, hermitian, links, true)
 {
   this->mass_ = mass;
-  this->L_s_ = Ls;
+  this->Ls_ = Ls;
   this->M5_ = M5;
   this->N = 12 * L * L * L * T * Ls;
   this->num_rows = this->N;
@@ -48,18 +48,18 @@ void DWF::apply(Complex* y, const Complex* x) const
 
   setGridAndBlockSize(dimBlock, dimGrid, n);
 
-  for (int i = 0; i < this->L_s_; ++i) {
+  for (int i = 0; i < this->Ls_; ++i) {
     this->kernel_->apply(y + i * n, x + i * n);
     saxpyDev<<<dimGrid,dimBlock>>>(y + i * n, x + i * n, 1.0, n);
     
     if (i == 0) {
       applyPminus<<<dimGrid,dimBlock>>>(z, x + n, this->L_, this->T_);
       saxpyDev<<<dimGrid,dimBlock>>>(y + i * n, z, -1.0, n);
-      applyPplus<<<dimGrid,dimBlock>>>(z, x + n * (this->L_s_ - 1), this->L_, this->T_);
+      applyPplus<<<dimGrid,dimBlock>>>(z, x + n * (this->Ls_ - 1), this->L_, this->T_);
       saxpyDev<<<dimGrid,dimBlock>>>(y + i * n, z, this->mass_, n);
     }
-    else if (i == this->L_s_ - 1) {
-      applyPplus<<<dimGrid,dimBlock>>>(z, x + n * (this->L_s_ - 2), this->L_, this->T_);
+    else if (i == this->Ls_ - 1) {
+      applyPplus<<<dimGrid,dimBlock>>>(z, x + n * (this->Ls_ - 2), this->L_, this->T_);
       saxpyDev<<<dimGrid,dimBlock>>>(y + i * n, z, -1.0, n);
       applyPminus<<<dimGrid,dimBlock>>>(z, x, this->L_, this->T_);
       saxpyDev<<<dimGrid,dimBlock>>>(y + i * n, z, this->mass_, n);
@@ -106,7 +106,7 @@ void DWF::makeHermitian(Complex* y, const Complex* x) const
 
   setGridAndBlockSize(dimBlock, dimGrid, n);
 
-  for (int i = 0; i < this->L_s_; ++i) {
+  for (int i = 0; i < this->Ls_; ++i) {
     Complex* y_ptr = y + i * n; // The current 4D slices we're working on
     const Complex* x_ptr = x + i * n;
     assignDev<<<dimGrid, dimBlock>>>(xi, x_ptr, n);
@@ -121,11 +121,11 @@ void DWF::makeHermitian(Complex* y, const Complex* x) const
 
       applyPplus<<<dimGrid,dimBlock>>>(z, x + n, this->L_, this->T_);
       saxpyDev<<<dimGrid,dimBlock>>>(y_ptr, z, -1.0, n);
-      applyPminus<<<dimGrid,dimBlock>>>(z, x + n * (this->L_s_ - 1),
+      applyPminus<<<dimGrid,dimBlock>>>(z, x + n * (this->Ls_ - 1),
 					this->L_, this->T_);
       saxpyDev<<<dimGrid,dimBlock>>>(y_ptr, z, this->mass_, n);
     }
-    else if (i == this->L_s_ - 1) {
+    else if (i == this->Ls_ - 1) {
       applyPminus<<<dimGrid,dimBlock>>>(z, xim1, this->L_, this->T_);
       saxpyDev<<<dimGrid,dimBlock>>>(y_ptr, z, -1.0, n);
       applyPplus<<<dimGrid,dimBlock>>>(z, x0, this->L_, this->T_);
