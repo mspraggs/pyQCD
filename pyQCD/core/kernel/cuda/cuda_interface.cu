@@ -35,7 +35,7 @@ void invertDiracOperator(const VectorTypeHost& psi, const VectorTypeHost& eta,
     etaDev = eta;
   }
   
-  psiDev = VectorTypeDev(diracMatrix->num_rows, 0);
+  cusp::blas::fill(psiDev, Complex(0.0, 0.0));
 
   cusp::default_monitor<Complex> monitor(etaDev, maxIterations, 0, tolerance);
 
