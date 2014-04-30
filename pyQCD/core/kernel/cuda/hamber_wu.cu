@@ -94,19 +94,19 @@ void HamberWu::apply(Complex* y, const Complex* x) const
   setGridAndBlockSize(dimBlock, dimGrid, this->N);
 
   diagonalKernel<<<dimGrid,dimBlock>>>(y, x, 4 + this->mass_,
-				       this->L, this->T);
+				       this->L_, this->T_);
   
   hoppingKernel<1><<<dimGrid,dimBlock>>>(y, x, this->links_, 
 					 this->spinStructures_,
 					 this->neighbourIndices_,
 					 this->boundaryConditions_,
-					 -2.0 / 3.0, this->L, this->T);
+					 -2.0 / 3.0, this->L_, this->T_);
   
   hoppingKernel<2><<<dimGrid,dimBlock>>>(y, x, this->links_, 
 					 this->hamberWuSpinStructures_,
 					 this->nextNeighbourIndices_,
 					 this->hamberWuBoundaryConditions_,
-					 1.0 / 12.0, this->L, this->T);
+					 1.0 / 12.0, this->L_, this->T_);
 }
 
 
@@ -117,7 +117,7 @@ void HamberWu::applyHermitian(Complex* y, const Complex* x) const
   int dimBlock;
   int dimGrid;
   setGridAndBlockSize(dimBlock, dimGrid, this->N);
-  applyGamma5<<<dimGrid,dimBlock>>>(y, y, this->L, this->T);
+  applyGamma5<<<dimGrid,dimBlock>>>(y, y, this->L_, this->T_);
 }
 
 
@@ -127,5 +127,5 @@ void HamberWu::makeHermitian(Complex* y, const Complex* x) const
   int dimBlock;
   int dimGrid;
   setGridAndBlockSize(dimBlock, dimGrid, this->N / 12);
-  applyGamma5<<<dimGrid,dimBlock>>>(y, x, this->L, this->T);
+  applyGamma5<<<dimGrid,dimBlock>>>(y, x, this->L_, this->T_);
 }

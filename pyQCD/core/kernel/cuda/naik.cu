@@ -93,19 +93,19 @@ void Naik::apply(Complex* y, const Complex* x) const
   setGridAndBlockSize(dimBlock, dimGrid, this->N);
 
   diagonalKernel<<<dimGrid,dimBlock>>>(y, x, 4 + this->mass_,
-				       this->L, this->T);
+				       this->L_, this->T_);
   
   hoppingKernel<1><<<dimGrid,dimBlock>>>(y, x, this->links_, 
 					 this->spinStructures_,
 					 this->neighbourIndices_,
 					 this->boundaryConditions_,
-					 -9.0 / 16.0, this->L, this->T);
+					 -9.0 / 16.0, this->L_, this->T_);
   
   hoppingKernel<3><<<dimGrid,dimBlock>>>(y, x, this->links_, 
 					 this->naikSpinStructures_,
 					 this->nextNextNeighbourIndices_,
 					 this->naikBoundaryConditions_,
-					 1.0 / 16.0, this->L, this->T);
+					 1.0 / 16.0, this->L_, this->T_);
 }
 
 
@@ -116,7 +116,7 @@ void Naik::applyHermitian(Complex* y, const Complex* x) const
   int dimBlock;
   int dimGrid;
   setGridAndBlockSize(dimBlock, dimGrid, this->N);
-  applyGamma5<<<dimGrid,dimBlock>>>(y, y, this->L, this->T);
+  applyGamma5<<<dimGrid,dimBlock>>>(y, y, this->L_, this->T_);
 }
 
 
@@ -126,5 +126,5 @@ void Naik::makeHermitian(Complex* y, const Complex* x) const
   int dimBlock;
   int dimGrid;
   setGridAndBlockSize(dimBlock, dimGrid, this->N);
-  applyGamma5<<<dimGrid,dimBlock>>>(y, x, this->L, this->T);
+  applyGamma5<<<dimGrid,dimBlock>>>(y, x, this->L_, this->T_);
 }

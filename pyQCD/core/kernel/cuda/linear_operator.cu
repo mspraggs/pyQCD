@@ -6,8 +6,8 @@ LinearOperator::LinearOperator(const int L, const int T, const int precondition,
   : super(12 * L * L * L * T, 12 * L * L * L * T)
 {
   this->N = 12 * L * L * L * T;
-  this->L = L;
-  this->T = T;
+  this->L_ = L;
+  this->T_ = T;
 
   this->precondition_ = precondition;
   this->hermitian_ = hermitian;
