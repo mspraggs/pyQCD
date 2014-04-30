@@ -21,7 +21,6 @@ void invertDiracOperator(const VectorTypeHost& psi, const VectorTypeHost& eta,
 
 void computePropagator(PropagatorTypeHost& result,
 		       const LinearOperator* diracMatrix, const int site[4],
-		       const Complex* gaugeLinks,
 		       const int sourceSmearingType, const int nSourceSmears,
 		       const float sourceSmearingParameter,
 		       const int sinkSmearingType, const int nSinkSmears,
