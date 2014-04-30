@@ -195,7 +195,7 @@ void assignDev(Complex* y, const Complex x, const int N)
   int index = blockDim.x * blockIdx.x + threadIdx.x;
 
   if (index < N) {
-    y[index] = x[index];
+    y[index] = x;
   }
 }
 
