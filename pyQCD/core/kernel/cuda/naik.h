@@ -4,6 +4,8 @@
 #include <utils.h>
 #include <kernels.h>
 
+#include <linear_operator.h>
+
 class Naik : public LinearOperator
 {
 public:
