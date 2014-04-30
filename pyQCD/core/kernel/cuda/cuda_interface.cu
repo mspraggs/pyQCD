@@ -19,6 +19,34 @@ void makeSource(VectorTypeDev& eta, const int site[4], const int spin,
 
 
 
+void invertWilsonDiracOperator(VectorTypeHost& psi, const VectorTypeHost& eta,
+			       const double mass,
+			       const Complex boundaryConditions[4],
+			       const int solverMethod, const int precondition,
+			       const int maxIterations, const double tolerance,
+			       const int verbosity, const Complex* gaugeField,
+			       const int L, const int T)
+{
+  if (verbosity > 0)
+    std::cout << "  Generating Dirac matrix..." << std::flush;
+
+  bool hermitian = solverMethod == 1;
+
+  LinearOperator* diracOperator = new Wilson(mass, L, T, precondtion, hermitian,
+					     boundaryConditions, gaugeField,
+					     true);
+
+  if (verbosity > 0)
+    std::cout << " Done!" << std::endl;
+
+  invertDiracOperator(psi, eta, diracOperator, solverMethod, precondition,
+		      maxIterations, tolerance, verbosity);
+
+  delete diracOperator;
+}
+
+
+
 void invertDiracOperator(VectorTypeHost& psi, const VectorTypeHost& eta,
 			 LinearOperator* diracMatrix, const int solverMethod,
 			 const int precondition, const int maxIterations,
