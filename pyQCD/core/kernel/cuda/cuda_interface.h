@@ -20,7 +20,7 @@ void invertWilsonDiracOperator(VectorTypeHost& psi, const VectorTypeHost& eta,
 			       const int solverMethod, const int precondition,
 			       const int maxIterations, const double tolerance,
 			       const int verbosity, const Complex* gaugeField,
-			       const int L, const int T)
+			       const int L, const int T);
 
 void invertDiracOperator(VectorTypeHost& psi, const VectorTypeHost& eta,
 			 LinearOperator* diracMatrix, const int solverMethod,
