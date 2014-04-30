@@ -34,6 +34,9 @@ void saxpyDev(Complex* y, const Complex* x, const Complex a, const int N);
 __global__
 void assignDev(Complex* y, const Complex* x, const int N);
 
+__global__
+void assignDev(Complex* y, const Complex x, const int N);
+
 __device__
 int shiftSiteIndex(const int index, const int direction, const int numHops,
 		   const int L, const int T);
