@@ -24,7 +24,7 @@ void invertWilsonDiracOperator(VectorTypeHost& psi, const VectorTypeHost& eta,
 			       const Complex boundaryConditions[4],
 			       const int solverMethod, const int precondition,
 			       const int maxIterations, const double tolerance,
-			       const int verbosity, const Complex* gaugeField,
+			       const int verbosity, Complex* gaugeField,
 			       const int L, const int T)
 {
   if (verbosity > 0)
@@ -32,7 +32,7 @@ void invertWilsonDiracOperator(VectorTypeHost& psi, const VectorTypeHost& eta,
 
   bool hermitian = solverMethod == 1;
 
-  LinearOperator* diracOperator = new Wilson(mass, L, T, precondition, hermitian,
+  LinearOperator* diracOperator = new Wilson(mass, L, T, preconditionB, hermitian,
 					     boundaryConditions, gaugeField,
 					     true);
 
@@ -74,7 +74,7 @@ void invertDiracOperator(VectorTypeHost& psi, const VectorTypeHost& eta,
   case 1:
     cusp::krylov::cg(diracMatrix, psiDev, etaDev, monitor);
     break;
-  case default:
+  default:
     cusp::krylov::cg(diracMatrix, psiDev, etaDev, monitor);
     break;    
   }
