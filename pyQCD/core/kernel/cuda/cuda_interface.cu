@@ -69,13 +69,13 @@ void invertDiracOperator(VectorTypeHost& psi, const VectorTypeHost& eta,
   // Now do the inversion
   switch (solverMethod) {
   case 0:
-    cusp::krylov::bicgstab(diracMatrix, psiDev, etaDev, monitor);
+    cusp::krylov::bicgstab(*diracMatrix, psiDev, etaDev, monitor);
     break;
   case 1:
-    cusp::krylov::cg(diracMatrix, psiDev, etaDev, monitor);
+    cusp::krylov::cg(*diracMatrix, psiDev, etaDev, monitor);
     break;
   default:
-    cusp::krylov::cg(diracMatrix, psiDev, etaDev, monitor);
+    cusp::krylov::cg(*diracMatrix, psiDev, etaDev, monitor);
     break;    
   }
   if (verbosity > 0) {
@@ -141,13 +141,13 @@ void computePropagator(PropagatorTypeHost& result,
       // Now do the inversion
       switch (solverMethod) {
       case 0:
-	cusp::krylov::bicgstab(diracMatrix, psi, eta, monitor);
+	cusp::krylov::bicgstab(*diracMatrix, psi, eta, monitor);
 	break;
       case 1:
-	cusp::krylov::cg(diracMatrix, psi, eta, monitor);
+	cusp::krylov::cg(*diracMatrix, psi, eta, monitor);
 	break;
       default:
-	cusp::krylov::cg(diracMatrix, psi, eta, monitor);
+	cusp::krylov::cg(*diracMatrix, psi, eta, monitor);
 	break;    
       }
 
