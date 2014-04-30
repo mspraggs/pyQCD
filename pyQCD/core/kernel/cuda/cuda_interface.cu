@@ -8,7 +8,6 @@ void makeSource(VectorTypeDev& eta, const int site[4], const int spin,
   int L = smearingOperator->L();
   int T = smearingOperator->T();
 
-  int N = 12 * L * L * L * T;
   int spatialIndex = site[3] + L * (site[2] + L * (site[1] + L * site[0]));
   int index = colour + 3 * (spin + 4 * spatialIndex);
   eta[index] = 1.0;

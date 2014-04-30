@@ -79,7 +79,6 @@ void DWF::apply(Complex* y, const Complex* x) const
 
 void DWF::applyHermitian(Complex* y, const Complex* x) const
 {
-  Complex* z;
   this->apply(y, x);
   this->makeHermitian(y, y);
 }

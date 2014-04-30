@@ -96,8 +96,8 @@ void JacobiSmearing::apply(Complex* y, const Complex* x) const
 
   for (int i = 0; i < this->nSmears_; ++i) {
     this->applyOnce(w, z);
-    saxpyDev<<<dimGrid,dimBlock>>>(y, w, 1.0, this->L_, this->T_);
-    assignDev<<<dimGrid,dimBlock>>>(z, w);
+    saxpyDev<<<dimGrid,dimBlock>>>(y, w, 1.0, this->N);
+    assignDev<<<dimGrid,dimBlock>>>(z, w, this->N);
   }
 
   cudaFree(z);
