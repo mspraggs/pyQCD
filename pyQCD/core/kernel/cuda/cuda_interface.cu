@@ -139,4 +139,7 @@ void computePropagator(PropagatorTypeHost& result,
       cusp::copy(psi, propagatorColumn);
     }
   }
+
+  delete sourceSmearingOperator;
+  delete sinkSmearingOperator;
 }
