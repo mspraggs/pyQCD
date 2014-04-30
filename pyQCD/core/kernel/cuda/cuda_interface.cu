@@ -146,7 +146,7 @@ void computePropagator(PropagatorTypeHost& result,
       case 1:
 	cusp::krylov::cg(diracMatrix, psi, eta, monitor);
 	break;
-      case default:
+      default:
 	cusp::krylov::cg(diracMatrix, psi, eta, monitor);
 	break;    
       }
@@ -161,7 +161,7 @@ void computePropagator(PropagatorTypeHost& result,
       (*sinkSmearingOperator)(psi, eta);
 
       VectorTypeHost::column_view propagatorColumn
-	= propagator.column(3 * i + j);
+	= result.column(3 * i + j);
 
       cusp::copy(psi, propagatorColumn);
     }
