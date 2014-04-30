@@ -32,7 +32,7 @@ void invertWilsonDiracOperator(VectorTypeHost& psi, const VectorTypeHost& eta,
 
   bool hermitian = solverMethod == 1;
 
-  LinearOperator* diracOperator = new Wilson(mass, L, T, precondtion, hermitian,
+  LinearOperator* diracOperator = new Wilson(mass, L, T, precondition, hermitian,
 					     boundaryConditions, gaugeField,
 					     true);
 
@@ -53,6 +53,7 @@ void invertDiracOperator(VectorTypeHost& psi, const VectorTypeHost& eta,
 			 const double tolerance, const int verbosity)
 {
   VectorTypeDev psiDev = eta; // Put the source here temporarily
+  VectorTypeDev etaDev = eta;
 
   if (solverMethod == 1) {
     // To save memory, we use the solution to hold the source while
@@ -60,25 +61,21 @@ void invertDiracOperator(VectorTypeHost& psi, const VectorTypeHost& eta,
     Complex* eta_ptr = thrust::raw_pointer_cast(&etaDev[0]);
     Complex* psi_ptr = thrust::raw_pointer_cast(&psiDev[0]);
     diracMatrix->makeHermitian(eta_ptr, psi_ptr);
+    cusp::blas::fill(psiDev, Complex(0.0, 0.0));
   }
-  else {
-    etaDev = eta;
-  }
-  
-  cusp::blas::fill(psiDev, Complex(0.0, 0.0));
 
   cusp::default_monitor<Complex> monitor(etaDev, maxIterations, 0, tolerance);
 
   // Now do the inversion
   switch (solverMethod) {
   case 0:
-    cusp::krylov::bicgstab(diracOperator, psiDev, etaDev, monitor);
+    cusp::krylov::bicgstab(diracMatrix, psiDev, etaDev, monitor);
     break;
   case 1:
-    cusp::krylov::cg(diracOperator, psiDev, etaDev, monitor);
+    cusp::krylov::cg(diracMatrix, psiDev, etaDev, monitor);
     break;
   case default:
-    cusp::krylov::cg(diracOperator, psiDev, etaDev, monitor);
+    cusp::krylov::cg(diracMatrix, psiDev, etaDev, monitor);
     break;    
   }
   if (verbosity > 0) {
@@ -144,13 +141,13 @@ void computePropagator(PropagatorTypeHost& result,
       // Now do the inversion
       switch (solverMethod) {
       case 0:
-	cusp::krylov::bicgstab(diracOperator, psi, eta, monitor);
+	cusp::krylov::bicgstab(diracMatrix, psi, eta, monitor);
 	break;
       case 1:
-	cusp::krylov::cg(diracOperator, psi, eta, monitor);
+	cusp::krylov::cg(diracMatrix, psi, eta, monitor);
 	break;
       case default:
-	cusp::krylov::cg(diracOperator, psi, eta, monitor);
+	cusp::krylov::cg(diracMatrix, psi, eta, monitor);
 	break;    
       }
 
