@@ -32,7 +32,7 @@ void invertWilsonDiracOperator(VectorTypeHost& psi, const VectorTypeHost& eta,
 
   bool hermitian = solverMethod == 1;
 
-  LinearOperator* diracOperator = new Wilson(mass, L, T, preconditionB, hermitian,
+  LinearOperator* diracOperator = new Wilson(mass, L, T, precondition, hermitian,
 					     boundaryConditions, gaugeField,
 					     true);
 
