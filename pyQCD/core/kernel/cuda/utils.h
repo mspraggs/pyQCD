@@ -2,6 +2,7 @@
 #define CUDA_UTILS_H
 
 #include <cusp/blas.h>
+#include <cusp/copy.h>
 #include <cusp/complex.h>
 #include <cusp/linear_operator.h>
 
