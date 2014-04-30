@@ -160,7 +160,7 @@ void computePropagator(PropagatorTypeHost& result,
       cusp::copy(psi, eta); // Copy the solution to the source before sink smearing
       (*sinkSmearingOperator)(psi, eta);
 
-      VectorTypeHost::column_view propagatorColumn
+      PropagatorTypeHost::column_view propagatorColumn
 	= result.column(3 * i + j);
 
       cusp::copy(psi, propagatorColumn);
