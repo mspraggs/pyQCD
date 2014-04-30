@@ -1,4 +1,4 @@
-#include <naik.cu>
+#include <naik.h>
 
 Naik::Naik(const float mass, const int L, const int T,
 	   const bool precondition, const bool hermitian,
