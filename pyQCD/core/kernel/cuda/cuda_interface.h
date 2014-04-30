@@ -7,6 +7,7 @@
 
 #include <utils.h>
 #include <wilson.h>
+#include <jacobi_smearing.h>
 #include <hamber_wu.h>
 #include <naik.h>
 #include <dwf.h>
