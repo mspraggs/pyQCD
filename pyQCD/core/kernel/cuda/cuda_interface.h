@@ -11,6 +11,9 @@
 #include <naik.h>
 #include <dwf.h>
 
+void makeSource(VectorTypeDev& eta, const int site[4], const int spin,
+		const int colour, const LinearOperator* smearingOperator);
+
 void invertDiracOperator(const VectorTypeHost& psi, const VectorTypeHost& eta,
 			 LinearOperator* diracMatrix, const int solverMethod,
 			 const int precondition, const int maxIterations,

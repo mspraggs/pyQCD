@@ -1,5 +1,22 @@
 #include <cuda_interface.h>
 
+void makeSource(VectorTypeDev& eta, const int site[4], const int spin,
+		const int colour, const LinearOperator* smearingOperator)
+{
+  cusp::blas::fill(eta, Complex(0.0, 0.0));
+  
+  int L = smearingOperator->L();
+  int T = smearingOperator->T();
+
+  int N = 12 * L * L * L * T;
+  int spatialIndex = site[3] + L * (site[2] + L * (site[1] + L * site[0]));
+  int index = colour + 3 * (spin + 4 * spatialIndex);
+  eta[index] = 1.0;
+
+  VectorTypeDev chi = eta;
+  (*smearingOperator)(eta, chi);
+}
+
 void invertDiracOperator(const VectorTypeHost& psi, const VectorTypeHost& eta,
 			 LinearOperator* diracMatrix, const int solverMethod,
 			 const int precondition, const int maxIterations,
