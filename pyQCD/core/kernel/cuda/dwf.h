@@ -1,10 +1,13 @@
 #ifndef CUDA_DWF_H
 #define CUDA_DWF_H
 
-#include <linear_operator.h>
-
 #include <utils.h>
 #include <kernels.h>
+
+#include <linear_operator.h>
+#include <wilson.h>
+#include <hamber_wu.h>
+#include <naik.h>
 
 class DWF : public LinearOperator
 {
