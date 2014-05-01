@@ -292,7 +292,7 @@ namespace pyQCD
 
 #ifdef USE_CUDA
 
-  void cudaFormatGaugeField(Complex* cuspField, const GaugeField& eigenField)
+  void eigenToCusp(Complex* cuspField, const GaugeField& eigenField)
   {
     int nLinks = eigenField.size();
 

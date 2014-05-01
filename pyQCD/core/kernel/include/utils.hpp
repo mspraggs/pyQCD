@@ -109,7 +109,7 @@ namespace pyQCD
   double oneNorm(const Matrix3cd& matrix);
 
 #ifdef USE_CUDA
-  void cudaFormatGaugeField(Complex* cuspField, const GaugeField& eigenField);
+  void eigenToCusp(Complex* cuspField, const GaugeField& eigenField);
   
   extern void invertWilsonDiracOperator(VectorTypeHost& psi,
 					const VectorTypeHost& eta,
