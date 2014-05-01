@@ -110,6 +110,10 @@ namespace pyQCD
 
 #ifdef USE_CUDA
   void eigenToCusp(Complex* cuspField, const GaugeField& eigenField);
+
+  VectorXcd cuspToEigen(const VectorTypeHost& psiCusp);
+
+  VectorTypeHost eigenToCusp(const VectorXcd& psiEigen);
   
   extern void invertWilsonDiracOperator(VectorTypeHost& psi,
 					const VectorTypeHost& eta,
