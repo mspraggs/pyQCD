@@ -328,6 +328,13 @@ namespace pyQCD
     return complex<double>(z.real(), z.imag());
   }
 
+
+
+  Complex eigenToCusp(const complex<double> z)
+  {
+    return Complex(z.real(), z.imag());
+  }
+
   
 
   VectorXcd cuspToEigen(const VectorTypeHost& psiCusp)

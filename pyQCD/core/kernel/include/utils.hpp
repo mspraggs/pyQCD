@@ -116,6 +116,8 @@ namespace pyQCD
   VectorXcd cuspToEigen(const VectorTypeHost& psiCusp);
   
   complex<double> cuspToEigen(const Complex z);
+  
+  Complex eigenToCusp(const complex<double> z);
 
   VectorTypeHost eigenToCusp(const VectorXcd& psiEigen);
   
