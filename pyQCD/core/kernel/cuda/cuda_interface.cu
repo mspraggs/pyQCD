@@ -33,12 +33,12 @@ namespace pyQCD
 
     bool hermitian = solverMethod == 1;
 
-    LinearOperator* diracOperator = new Wilson(mass, L, T, precondition, hermitian,
-					       boundaryConditions, gaugeField,
-					       true);
+    LinearOperator* diracOperator = new Wilson(mass, L, T, precondition,
+					       hermitian, boundaryConditions,
+					       gaugeField, true);
 
     if (verbosity > 0)
-      std::cout << " Done!" << std::endl;
+      std::cout << "  Done!" << std::endl;
 
     invertDiracOperator(psi, eta, diracOperator, solverMethod, precondition,
 			maxIterations, tolerance, verbosity);
@@ -108,13 +108,13 @@ namespace pyQCD
 
     LinearOperator* sourceSmearingOperator
       = new JacobiSmearing(nSourceSmears, sourceSmearingParameter,
-			   diracMatrix->L(), diracMatrix->T(), boundaryConditions,
-			   diracMatrix->links(), false);
+			   diracMatrix->L(), diracMatrix->T(),
+			   boundaryConditions, diracMatrix->links(), false);
 
     LinearOperator* sinkSmearingOperator
       = new JacobiSmearing(nSinkSmears, sinkSmearingParameter,
-			   diracMatrix->L(), diracMatrix->T(), boundaryConditions,
-			   diracMatrix->links(), false);
+			   diracMatrix->L(), diracMatrix->T(),
+			   boundaryConditions, diracMatrix->links(), false);
 
     VectorTypeDev eta(diracMatrix->num_rows, Complex(0.0, 0.0));
     VectorTypeDev psi(diracMatrix->num_rows, Complex(0.0, 0.0));
@@ -157,8 +157,8 @@ namespace pyQCD
 		    << monitor.residual_norm() << " in "
 		    << monitor.iteration_count() << " iterations." << std::endl;
 	}
-      
-	cusp::copy(psi, eta); // Copy the solution to the source before sink smearing
+	// Copy the solution to the source before sink smearing
+	cusp::copy(psi, eta);
 	(*sinkSmearingOperator)(psi, eta);
 
 	PropagatorTypeHost::column_view propagatorColumn
