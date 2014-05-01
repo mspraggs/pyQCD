@@ -16,6 +16,8 @@
 #include <cusp/print.h>
 
 typedef cusp::complex<float> Complex;
+typedef cusp::array2d<Complex, cusp::host_memory> PropagatorTypeHost;
+typedef cusp::array1d<Complex, cusp::host_memory> VectorTypeHost;
 
 #endif
 
