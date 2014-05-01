@@ -21,7 +21,7 @@ typedef cusp::array1d<Complex, cusp::host_memory> VectorTypeHost;
 
 #endif
 
-typedef vector<Matrix3cd, aligned_allocator<Matrix3cd> > GaugeField;
+typedef std::vector<Matrix3cd, aligned_allocator<Matrix3cd> > GaugeField;
 
 using namespace boost;
 using namespace Eigen;
