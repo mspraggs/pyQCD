@@ -306,6 +306,21 @@ namespace pyQCD
     }
   }
 
+
+
+  vector<MatrixXcd> cuspToEigen(const PropagatorTypeHost& propCusp)
+  {
+    int numSites = propCusp.num_rows / 12;
+    vector<MatrixXcd> propEigen(numSites, VectorXcd::Zero(12, 12));
+
+    for (int i = 0; i < numSites; ++i)
+      for (int j = 0; j < 12; ++j)
+	for (int k = 0; k < 12; ++k)
+	  propEigen[i](j, k) = propCusp(12 * i + j, k);
+
+    return propEigen;
+  }
+
   
 
   VectorXcd cuspToEigen(const VectorTypeHost& psiCusp)

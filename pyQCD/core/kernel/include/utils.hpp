@@ -110,6 +110,8 @@ namespace pyQCD
 
 #ifdef USE_CUDA
   void eigenToCusp(Complex* cuspField, const GaugeField& eigenField);
+  
+  vector<MatrixXcd> cuspToEigen(const PropagatorTypeHost& propCusp);
 
   VectorXcd cuspToEigen(const VectorTypeHost& psiCusp);
 
