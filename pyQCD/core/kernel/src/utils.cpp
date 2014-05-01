@@ -292,6 +292,20 @@ namespace pyQCD
 
 #ifdef USE_CUDA
 
+  void cudaFormatGaugeField(Complex* cuspField, const GaugeField& eigenField)
+  {
+    int nLinks = eigenField.size();
+
+    for (int i = 0; i < nLinks; ++i) {
+      for (int j = 0; j < 3; ++j) {
+	for (int k = 0; k < 3; ++k) {
+	  cuspField[9 * i + 3 * j + k]
+	    = eigenField[i](j, k);
+	}
+      }
+    }
+  }
+
   void eigenToCusp(const SparseMatrix<complex<double> >& eigenMatrix,
 		   complexHybridHost& cuspMatrix)
   {

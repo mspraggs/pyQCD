@@ -107,6 +107,8 @@ namespace pyQCD
   double oneNorm(const Matrix3cd& matrix);
 
 #ifdef USE_CUDA
+  void cudaFormatGaugeField(Complex* cuspField, const GaugeField& eigenField);
+
   void eigenToCusp(SparseMatrix<complex<double> >& eigenMatrix,
 		   const cusp::coo_matrix<int, cusp::complex<double>,
 		   hostMem>& cuspMatrix);
