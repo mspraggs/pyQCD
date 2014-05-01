@@ -1,23 +1,25 @@
 #ifndef UTILS_HPP
 #define UTILS_HPP
 
+#include <complex>
+#include <vector>
+
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
-#include <complex>
 #include <boost/random.hpp>
 
 #ifdef USE_CUDA
 
-#include <cusp/coo_matrix.h>
+#include <iostream>
+
 #include <cusp/complex.h>
 #include <cusp/print.h>
 
-#include <iostream>
-
-typedef cusp::host_memory hostMem;
-typedef cusp::coo_matrix<int, cusp::complex<float>, hostMem> complexHybridHost;
+typedef cusp::complex<float> Complex;
 
 #endif
+
+typedef vector<Matrix3cd, aligned_allocator<Matrix3cd> > GaugeField;
 
 using namespace boost;
 using namespace Eigen;

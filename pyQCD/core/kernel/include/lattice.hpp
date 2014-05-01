@@ -24,9 +24,6 @@ using namespace Eigen;
 using namespace std;
 using namespace boost;
 
-typedef vector<Matrix3cd, aligned_allocator<Matrix3cd> > GaugeField;
-typedef Triplet<complex<double> > Tlet;
-
 class LinearOperator;
 
 class Lattice
