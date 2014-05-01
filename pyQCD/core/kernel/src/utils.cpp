@@ -299,8 +299,7 @@ namespace pyQCD
     for (int i = 0; i < nLinks; ++i) {
       for (int j = 0; j < 3; ++j) {
 	for (int k = 0; k < 3; ++k) {
-	  cuspField[9 * i + 3 * j + k]
-	    = eigenField[i](j, k);
+	  cuspField[9 * i + 3 * j + k] = eigenToCusp(eigenField[i](j, k));
 	}
       }
     }
@@ -316,7 +315,7 @@ namespace pyQCD
     for (int i = 0; i < numSites; ++i)
       for (int j = 0; j < 12; ++j)
 	for (int k = 0; k < 12; ++k)
-	  propEigen[i](j, k) = propCusp(12 * i + j, k);
+	  propEigen[i](j, k) = cuspToEigen(propCusp(12 * i + j, k));
 
     return propEigen;
   }
@@ -343,7 +342,7 @@ namespace pyQCD
     VectorXcd psiEigen = VectorXcd::Zero(length);
 
     for (int i = 0; i < length; ++i)
-      psiEigen[i] = psiCusp[i];
+      psiEigen[i] = cuspToEigen(psiCusp[i]);
 
     return psiEigen;
   }
@@ -356,7 +355,7 @@ namespace pyQCD
     VectorTypeHost psiCusp(length, 0.0);
 
     for (int i = 0; i < length; ++i)
-      psiCusp[i] = psiEigen[i];
+      psiCusp[i] = eigenToCusp(psiEigen[i]);
 
     return psiEigen;
   }
