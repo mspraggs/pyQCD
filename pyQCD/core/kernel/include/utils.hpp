@@ -108,40 +108,6 @@ namespace pyQCD
 
 #ifdef USE_CUDA
   void cudaFormatGaugeField(Complex* cuspField, const GaugeField& eigenField);
-
-  void eigenToCusp(SparseMatrix<complex<double> >& eigenMatrix,
-		   const cusp::coo_matrix<int, cusp::complex<double>,
-		   hostMem>& cuspMatrix);
-  void cudaBiCGstab(const SparseMatrix<complex<double> >& eigenDirac,
-		    const SparseMatrix<complex<double> >& eigenSourceSmear,
-		    const SparseMatrix<complex<double> >& eigenSinkSmear,
-		    const int spatialIndex, vector<MatrixXcd>& propagator,
-		    const int verbosity);
-  void cudaCG(const SparseMatrix<complex<double> >& eigenDiracDiracAdjoint,
-	      const SparseMatrix<complex<double> >& eigenDiracAdjoint,
-	      const SparseMatrix<complex<double> >& eigenSourceSmear,
-	      const SparseMatrix<complex<double> >& eigenSinkSmear,
-	      const int spatialIndex, vector<MatrixXcd>& propagator,
-	      const int verbosity);
-
-  namespace cuda
-  {
-    extern void bicgstab(const complexHybridHost& hostDirac,
-			 const complexHybridHost& hostSourceSmear,
-			 const complexHybridHost& hostSinkSmear,
-			 const int spatialIndex,
-			 cusp::array2d<cusp::complex<float>, hostMem>&
-			 propagator,
-			 const int verbosity);
-
-    extern void cg(const complexHybridHost& hostDiracDiracAdjoint,
-		   const complexHybridHost& hostDiracAdjoint,
-		   const complexHybridHost& hostSourceSmear,
-		   const complexHybridHost& hostSinkSmear,
-		   const int spatialIndex,
-		   cusp::array2d<cusp::complex<float>, hostMem>& propagator,
-		   const int verbosity);
-  }
 #endif
 
 }
