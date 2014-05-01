@@ -8,6 +8,7 @@ set (BENCH_DIR ${PROJECT_BINARY_DIR}/benchmark)
 set (TEST_DIR ${PROJECT_BINARY_DIR}/test)
 set (SRC_DIR ${PROJECT_BINARY_DIR}/src)
 set (INC_DIR ${PROJECT_BINARY_DIR}/include)
+set (CUDA_INC_DIR ${PROJECT_BINARY_DIR}/cuda)
 
 file (GLOB
   shared_SRC
@@ -22,6 +23,10 @@ file (GLOB
   ${SRC_DIR}/pylattice.cpp
   ${SRC_DIR}/pyutils.cpp
   ${SRC_DIR}/wrapper.cpp)
+
+file (GLOB
+  cuda_SRC
+  ${CUDA_INC_DIR}/*.cu)
 
 file (GLOB
   test_SRC
@@ -54,7 +59,8 @@ include_directories (${Boost_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIR}
   ${PYTHON_INCLUDE_PATH}
   ${INC_DIR}
-  ${CUSP_INCLUDE_DIR})
+  ${CUSP_INCLUDE_DIR}
+  ${CUDA_INC_DIR})
 
 set (Boost_USE_STATIC_LIBS OFF)
 set (Boost_USE_MULTITHREADED ON)
@@ -72,7 +78,7 @@ if (CUDA_FOUND AND USE_CUDA)
   else()
     add_definitions(-DUSE_CUDA)
     set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};-Xcompiler '-fPIC';-O3)
-    cuda_add_library(cudainverters src/cuda_utils.cu)
+    cuda_add_library(cudainverters ${cuda_SRC})
     link_directories(${PROJECT_BINARY_DIR})
   endif()
 endif()
