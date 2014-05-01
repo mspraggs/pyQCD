@@ -338,7 +338,7 @@ namespace pyQCD
 
   VectorXcd cuspToEigen(const VectorTypeHost& psiCusp)
   {
-    int length = psiHost.size();
+    int length = psiCusp.size();
     VectorXcd psiEigen = VectorXcd::Zero(length);
 
     for (int i = 0; i < length; ++i)
