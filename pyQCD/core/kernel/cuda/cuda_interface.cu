@@ -233,7 +233,7 @@ namespace pyQCD
 		     gaugeField, true);
 
     if (verbosity > 0)
-      std::cout << " Done!" << endl;
+      std::cout << " Done!" << std::endl;
 
     computePropagator(propagator, diracOperator, site, sourceSmearingType,
 		      nSourceSmears, sourceSmearingParameter, sinkSmearingType,
