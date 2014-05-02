@@ -1,10 +1,10 @@
 #include <naik.h>
 
-Naik::Naik(const float mass, const int L, const int T,
+CudaNaik::CudaNaik(const float mass, const int L, const int T,
 	   const bool precondition, const bool hermitian,
 	   const Complex* boundaryConditions, Complex* links,
 	   const bool copyLinks = true)
-  : LinearOperator(L, T, precondition, hermitian, links, copyLinks)
+  : CudaLinearOperator(L, T, precondition, hermitian, links, copyLinks)
 {
   this->mass_ = mass;
 
@@ -73,7 +73,7 @@ Naik::Naik(const float mass, const int L, const int T,
 
 
 
-Naik::~Naik()
+CudaNaik::~CudaNaik()
 {
   cudaFree(this->neighbourIndices_);
   cudaFree(this->spinStructures_);
@@ -85,7 +85,7 @@ Naik::~Naik()
 
 
 
-void Naik::apply(Complex* y, const Complex* x) const
+void CudaNaik::apply(Complex* y, const Complex* x) const
 {  
   int dimBlock;
   int dimGrid;
@@ -110,7 +110,7 @@ void Naik::apply(Complex* y, const Complex* x) const
 
 
 
-void Naik::applyHermitian(Complex* y, const Complex* x) const
+void CudaNaik::applyHermitian(Complex* y, const Complex* x) const
 {
   this->apply(y, x);
   int dimBlock;
@@ -121,7 +121,7 @@ void Naik::applyHermitian(Complex* y, const Complex* x) const
 
 
 
-void Naik::makeHermitian(Complex* y, const Complex* x) const
+void CudaNaik::makeHermitian(Complex* y, const Complex* x) const
 {
   int dimBlock;
   int dimGrid;

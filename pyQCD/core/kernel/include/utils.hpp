@@ -11,14 +11,7 @@
 #ifdef USE_CUDA
 
 #include <iostream>
-
-#include <cusp/complex.h>
-#include <cusp/array2d.h>
-#include <cusp/array1d.h>
-
-typedef cusp::complex<float> Complex;
-typedef cusp::array2d<Complex, cusp::host_memory> PropagatorTypeHost;
-typedef cusp::array1d<Complex, cusp::host_memory> VectorTypeHost;
+#include <cuda_exposed.h>
 
 #endif
 
@@ -123,18 +116,6 @@ namespace pyQCD
   Complex eigenToCusp(const complex<double> z);
 
   VectorTypeHost eigenToCusp(const VectorXcd& psiEigen);
-  
-  extern void invertWilsonDiracOperator(VectorTypeHost& psi,
-					const VectorTypeHost& eta,
-					const double mass,
-					const Complex boundaryConditions[4],
-					const int solverMethod,
-					const int precondition,
-					const int maxIterations,
-					const double tolerance,
-					const int verbosity,
-					const Complex* gaugeField,
-					const int L, const int T);
 #endif
 
 }

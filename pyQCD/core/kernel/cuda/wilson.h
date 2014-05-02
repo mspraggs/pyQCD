@@ -6,13 +6,13 @@
 #include <utils.h>
 #include <kernels.h>
 
-class Wilson : public LinearOperator
+class CudaWilson : public CudaLinearOperator
 {
 public:
-  Wilson(const float mass, const int L, const int T, const bool precondition,
+  CudaWilson(const float mass, const int L, const int T, const bool precondition,
 	 const bool hermitian, const Complex* boundaryConditions,
 	 Complex* links, const bool copyLinks);
-  ~Wilson();
+  ~CudaWilson();
 
   void apply(Complex* y, const Complex* x) const;
   void applyHermitian(Complex* y, const Complex* x) const;

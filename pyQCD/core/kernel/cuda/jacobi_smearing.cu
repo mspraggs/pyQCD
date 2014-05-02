@@ -1,10 +1,10 @@
 #include <jacobi_smearing.h>
 
-JacobiSmearing::JacobiSmearing(const int nSmears, const double smearingParameter,
+CudaJacobiSmearing::CudaJacobiSmearing(const int nSmears, const double smearingParameter,
 			       const int L, const int T,
 			       const Complex boundaryConditions[4],
 			       Complex* links, const bool copyLinks)
-  : LinearOperator(L, T, false, false, links, copyLinks)
+  : CudaLinearOperator(L, T, false, false, links, copyLinks)
 {
   this->nSmears_ = nSmears;
   this->smearingParameter_ = smearingParameter;
@@ -50,7 +50,7 @@ JacobiSmearing::JacobiSmearing(const int nSmears, const double smearingParameter
 
 
 
-JacobiSmearing::~JacobiSmearing()
+CudaJacobiSmearing::~CudaJacobiSmearing()
 {
   cudaFree(this->neighbourIndices_);
   cudaFree(this->spinStructures_);
@@ -59,7 +59,7 @@ JacobiSmearing::~JacobiSmearing()
 
 
 
-void JacobiSmearing::applyOnce(Complex* y, const Complex* x) const
+void CudaJacobiSmearing::applyOnce(Complex* y, const Complex* x) const
 {  
   int dimBlock;
   int dimGrid;
@@ -79,7 +79,7 @@ void JacobiSmearing::applyOnce(Complex* y, const Complex* x) const
 
 
 
-void JacobiSmearing::apply(Complex* y, const Complex* x) const
+void CudaJacobiSmearing::apply(Complex* y, const Complex* x) const
 {
   int dimBlock;
   int dimGrid;
