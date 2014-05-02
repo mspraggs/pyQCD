@@ -153,7 +153,7 @@ namespace pyQCD
 		       gaugeField, true);
 
     if (verbosity > 0)
-      std::cout << " Done!" << endl;
+      std::cout << " Done!" << std::endl;
 
     computePropagator(propagator, diracOperator, site, sourceSmearingType,
 		      nSourceSmears, sourceSmearingParameter, sinkSmearingType,
@@ -166,7 +166,7 @@ namespace pyQCD
 
 
   extern "C"
-  void computeHamberWuPropagator(PropagatorTypeHost& propagator
+  void computeHamberWuPropagator(PropagatorTypeHost& propagator,
 				 const double mass, int site[4],
 				 const int sourceSmearingType,
 				 const int nSourceSmears,
@@ -192,7 +192,7 @@ namespace pyQCD
 			 gaugeField, true);
 
     if (verbosity > 0)
-      std::cout << " Done!" << endl;
+      std::cout << " Done!" << std::endl;
 
     computePropagator(propagator, diracOperator, site, sourceSmearingType,
 		      nSourceSmears, sourceSmearingParameter, sinkSmearingType,
