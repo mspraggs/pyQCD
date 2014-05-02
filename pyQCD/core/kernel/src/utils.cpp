@@ -307,6 +307,14 @@ namespace pyQCD
 
 
 
+  void eigenToCusp(Complex* cuspBCs, const vector<complex<double> >& eigenBCs)
+  {
+    for (int i = 0; i < 4; ++i)
+      cuspBCs[i] = eigenToCusp(eigenBCs[i]);
+  }
+
+
+
   vector<MatrixXcd> cuspToEigen(const PropagatorTypeHost& propCusp)
   {
     int numSites = propCusp.num_rows / 12;
