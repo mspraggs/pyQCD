@@ -108,7 +108,7 @@ namespace pyQCD
 
     CudaLinearOperator* diracOperator
       = new CudaDWF(mass, M5, Ls, kernelType, L, T, precondition,
-		    hermitian, boundaryConditions, gaugeField, true);
+		    hermitian, boundaryConditions, gaugeField);
     
     if (verbosity > 0)
       std::cout << "  Done!" << std::endl;
