@@ -15,7 +15,7 @@
 namespace pyQCD
 {
   void makeSource(VectorTypeDev& eta, const int site[4], const int spin,
-		  const int colour, const LinearOperator* smearingOperator);
+		  const int colour, const CudaLinearOperator* smearingOperator);
    
   void invertDiracOperator(VectorTypeHost& psi, const VectorTypeHost& eta,
 			   CudaLinearOperator* diracMatrix, const int solverMethod,
