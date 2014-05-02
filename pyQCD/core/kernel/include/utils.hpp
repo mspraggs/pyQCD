@@ -13,7 +13,8 @@
 #include <iostream>
 
 #include <cusp/complex.h>
-#include <cusp/print.h>
+#include <cusp/array2d.h>
+#include <cusp/array1d.h>
 
 typedef cusp::complex<float> Complex;
 typedef cusp::array2d<Complex, cusp::host_memory> PropagatorTypeHost;

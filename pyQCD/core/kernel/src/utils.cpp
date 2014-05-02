@@ -357,7 +357,7 @@ namespace pyQCD
     for (int i = 0; i < length; ++i)
       psiCusp[i] = eigenToCusp(psiEigen[i]);
 
-    return psiEigen;
+    return psiCusp;
   }
 #endif
 }
