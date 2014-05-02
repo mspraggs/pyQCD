@@ -340,7 +340,7 @@ namespace pyQCD
       for (int j = 0; j < 3; ++j) {
 	if (verbosity > 0)
 	  std::cout << "  Inverting for spin " << i
-		    << " and colour " << j << "..." << std::flush;
+		    << " and colour " << j << "..." << std::endl;
       
 	makeSource(eta, site, i, j, sourceSmearingOperator);
 
