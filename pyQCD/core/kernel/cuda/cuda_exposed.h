@@ -23,6 +23,39 @@ extern "C"
 				   const int verbosity,
 				   const Complex* gaugeField,
 				   const int L, const int T);
+  
+    void invertHamberWuDiracOperator(VectorTypeHost& psi,
+				     const VectorTypeHost& eta,
+				     const double mass,
+				     const Complex boundaryConditions[4],
+				     const int solverMethod,
+				     const int precondition,
+				     const int maxIterations,
+				     const double tolerance,
+				     const int verbosity,
+				     const Complex* gaugeField,
+				     const int L, const int T);
+  
+    void invertNaikDiracOperator(VectorTypeHost& psi,
+				 const VectorTypeHost& eta,
+				 const double mass,
+				 const Complex boundaryConditions[4],
+				 const int solverMethod,
+				 const int precondition,
+				 const int maxIterations,
+				 const double tolerance,
+				 const int verbosity,
+				 const Complex* gaugeField,
+				 const int L, const int T);
+
+  void invertDWFDiracOperator(VectorTypeHost& psi, const VectorTypeHost& eta,
+			      const double mass, const double M5, const int Ls,
+			      const int kernelType,
+			      const Complex boundaryConditions[4],
+			      const int solverMethod, const int precondition,
+			      const int maxIterations, const double tolerance,
+			      const int verbosity, Complex* gaugeField,
+			      const int L, const int T);
   }
 }
 #endif

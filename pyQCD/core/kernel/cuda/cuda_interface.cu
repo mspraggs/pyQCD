@@ -31,6 +31,96 @@ namespace pyQCD
 
 
 
+  extern "C"
+  void invertHamberWuDiracOperator(VectorTypeHost& psi, const VectorTypeHost& eta,
+				   const double mass,
+				   const Complex boundaryConditions[4],
+				   const int solverMethod, const int precondition,
+				   const int maxIterations, const double tolerance,
+				   const int verbosity, Complex* gaugeField,
+				   const int L, const int T)
+  {
+    if (verbosity > 0)
+      std::cout << "  Generating Dirac matrix..." << std::flush;
+
+    bool hermitian = solverMethod == 1;
+
+    CudaLinearOperator* diracOperator
+      = new CudaHamberWu(mass, L, T, precondition,
+			 hermitian, boundaryConditions,
+			 gaugeField, true);
+
+    if (verbosity > 0)
+      std::cout << "  Done!" << std::endl;
+
+    invertDiracOperator(psi, eta, diracOperator, solverMethod, precondition,
+			maxIterations, tolerance, verbosity);
+
+    delete diracOperator;
+  }
+
+
+
+  extern "C"
+  void invertNaikDiracOperator(VectorTypeHost& psi, const VectorTypeHost& eta,
+			       const double mass,
+			       const Complex boundaryConditions[4],
+			       const int solverMethod, const int precondition,
+			       const int maxIterations, const double tolerance,
+			       const int verbosity, Complex* gaugeField,
+			       const int L, const int T)
+  {
+    if (verbosity > 0)
+      std::cout << "  Generating Dirac matrix..." << std::flush;
+
+    bool hermitian = solverMethod == 1;
+
+    CudaLinearOperator* diracOperator
+      = new CudaNaik(mass, L, T, precondition,
+		     hermitian, boundaryConditions,
+		     gaugeField, true);
+    
+    if (verbosity > 0)
+      std::cout << "  Done!" << std::endl;
+
+    invertDiracOperator(psi, eta, diracOperator, solverMethod, precondition,
+			maxIterations, tolerance, verbosity);
+
+    delete diracOperator;
+  }
+
+
+
+  extern "C"
+  void invertDWFDiracOperator(VectorTypeHost& psi, const VectorTypeHost& eta,
+			      const double mass, const double M5, const int Ls,
+			      const int kernelType,
+			      const Complex boundaryConditions[4],
+			      const int solverMethod, const int precondition,
+			      const int maxIterations, const double tolerance,
+			      const int verbosity, Complex* gaugeField,
+			      const int L, const int T)
+  {
+    if (verbosity > 0)
+      std::cout << "  Generating Dirac matrix..." << std::flush;
+
+    bool hermitian = solverMethod == 1;
+
+    CudaLinearOperator* diracOperator
+      = new CudaDWF(mass, M5, Ls, kernelType, L, T, precondition,
+		    hermitian, boundaryConditions, gaugeField, true);
+    
+    if (verbosity > 0)
+      std::cout << "  Done!" << std::endl;
+
+    invertDiracOperator(psi, eta, diracOperator, solverMethod, precondition,
+			maxIterations, tolerance, verbosity);
+
+    delete diracOperator;
+  }
+
+
+
   void makeSource(VectorTypeDev& eta, const int site[4], const int spin,
 		  const int colour, const CudaLinearOperator* smearingOperator)
   {
