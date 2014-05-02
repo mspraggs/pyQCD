@@ -1,4 +1,3 @@
-#include <jacobi_smearing.h>
 
 CudaJacobiSmearing::CudaJacobiSmearing(const int nSmears, const double smearingParameter,
 			       const int L, const int T,

@@ -27,4 +27,6 @@ private:
   Complex* boundaryConditions_;
 };
 
+#include <jacobi_smearing.tcu>
+
 #endif
