@@ -20,7 +20,6 @@ CudaHamberWu::CudaHamberWu(const float mass, const int L, const int T,
   generateNeighbours(hostIndices, 2, L, T);
   cudaMemcpy(this->nextNeighbourIndices_, hostIndices, size,
 	     cudaMemcpyHostToDevice);
-  std::cout << hostIndices[1] << std::endl;
   free(hostIndices);
 
   // Now generate the spin structures needed. There are eight, one for each
