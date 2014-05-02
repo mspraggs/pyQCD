@@ -1,4 +1,3 @@
-#include <linear_operator.h>
 
 CudaLinearOperator::CudaLinearOperator(const int L, const int T, const int precondition,
 			       const int hermitian, Complex* links,

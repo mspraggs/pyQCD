@@ -31,4 +31,6 @@ private:
   Complex* hamberWuBoundaryConditions_;
 };
 
+#include <hamber_wu.tcu>
+
 #endif

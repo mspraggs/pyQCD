@@ -27,4 +27,6 @@ private:
   Complex* boundaryConditions_;
 };
 
+#include <wilson.tcu>
+
 #endif

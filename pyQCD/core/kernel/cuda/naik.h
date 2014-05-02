@@ -31,4 +31,6 @@ private:
   Complex* naikBoundaryConditions_;
 };
 
+#include <naik.tcu>
+
 #endif
