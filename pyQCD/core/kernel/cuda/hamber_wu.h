@@ -6,13 +6,13 @@
 #include <utils.h>
 #include <kernels.h>
 
-class HamberWu : public LinearOperator
+class CudaHamberWu : public CudaLinearOperator
 {
 public:
-  HamberWu(const float mass, const int L, const int T, const bool precondition,
+  CudaHamberWu(const float mass, const int L, const int T, const bool precondition,
 	   const bool hermitian, const Complex* boundaryConditions,
 	   Complex* links, const bool copyLinks);
-  ~HamberWu();
+  ~CudaHamberWu();
 
   void apply(Complex* y, const Complex* x) const;
   void applyHermitian(Complex* y, const Complex* x) const;

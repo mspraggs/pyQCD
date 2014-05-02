@@ -6,13 +6,13 @@
 
 #include <linear_operator.h>
 
-class Naik : public LinearOperator
+class CudaNaik : public CudaLinearOperator
 {
 public:
-  Naik(const float mass, const int L, const int T, const bool precondition,
+  CudaNaik(const float mass, const int L, const int T, const bool precondition,
        const bool hermitian, const Complex* boundaryConditions,
        Complex* links, const bool copyLinks);
-  ~Naik();
+  ~CudaNaik();
 
   void apply(Complex* y, const Complex* x) const;
   void applyHermitian(Complex* y, const Complex* x) const;

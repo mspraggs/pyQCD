@@ -1,10 +1,10 @@
 #include <hamber_wu.h>
 
-HamberWu::HamberWu(const float mass, const int L, const int T,
+CudaHamberWu::CudaHamberWu(const float mass, const int L, const int T,
 		   const bool precondition, const bool hermitian,
 		   const Complex* boundaryConditions, Complex* links,
 		   const bool copyLinks = true)
-  : LinearOperator(L, T, precondition, hermitian, links, copyLinks)
+  : CudaLinearOperator(L, T, precondition, hermitian, links, copyLinks)
 {
   this->mass_ = mass;
 
@@ -74,7 +74,7 @@ HamberWu::HamberWu(const float mass, const int L, const int T,
 
 
 
-HamberWu::~HamberWu()
+CudaHamberWu::~CudaHamberWu()
 {
   cudaFree(this->neighbourIndices_);
   cudaFree(this->spinStructures_);
@@ -86,7 +86,7 @@ HamberWu::~HamberWu()
 
 
 
-void HamberWu::apply(Complex* y, const Complex* x) const
+void CudaHamberWu::apply(Complex* y, const Complex* x) const
 {  
   int dimBlock;
   int dimGrid;
@@ -111,7 +111,7 @@ void HamberWu::apply(Complex* y, const Complex* x) const
 
 
 
-void HamberWu::applyHermitian(Complex* y, const Complex* x) const
+void CudaHamberWu::applyHermitian(Complex* y, const Complex* x) const
 {
   this->apply(y, x);
   int dimBlock;
@@ -122,7 +122,7 @@ void HamberWu::applyHermitian(Complex* y, const Complex* x) const
 
 
 
-void HamberWu::makeHermitian(Complex* y, const Complex* x) const
+void CudaHamberWu::makeHermitian(Complex* y, const Complex* x) const
 {
   int dimBlock;
   int dimGrid;

@@ -1,10 +1,10 @@
 #include <wilson.h>
 
-Wilson::Wilson(const float mass, const int L, const int T,
+CudaWilson::CudaWilson(const float mass, const int L, const int T,
 	       const bool precondition, const bool hermitian,
 	       const Complex boundaryConditions[4], Complex* links,
 	       const bool copyLinks)
-  : LinearOperator(L, T, precondition, hermitian, links, copyLinks)
+  : CudaLinearOperator(L, T, precondition, hermitian, links, copyLinks)
 {
   this->mass_ = mass;
 
@@ -51,7 +51,7 @@ Wilson::Wilson(const float mass, const int L, const int T,
 
 
 
-Wilson::~Wilson()
+CudaWilson::~CudaWilson()
 {
   cudaFree(this->neighbourIndices_);
   cudaFree(this->spinStructures_);
@@ -60,7 +60,7 @@ Wilson::~Wilson()
 
 
 
-void Wilson::apply(Complex* y, const Complex* x) const
+void CudaWilson::apply(Complex* y, const Complex* x) const
 {  
   int dimBlock;
   int dimGrid;
@@ -79,7 +79,7 @@ void Wilson::apply(Complex* y, const Complex* x) const
 
 
 
-void Wilson::applyHermitian(Complex* y, const Complex* x) const
+void CudaWilson::applyHermitian(Complex* y, const Complex* x) const
 {
   this->apply(y, x);
   int dimBlock;
@@ -90,7 +90,7 @@ void Wilson::applyHermitian(Complex* y, const Complex* x) const
 
 
 
-void Wilson::makeHermitian(Complex* y, const Complex* x) const
+void CudaWilson::makeHermitian(Complex* y, const Complex* x) const
 {
   int dimBlock;
   int dimGrid;

@@ -1,6 +1,6 @@
 #include <linear_operator.h>
 
-LinearOperator::LinearOperator(const int L, const int T, const int precondition,
+CudaLinearOperator::CudaLinearOperator(const int L, const int T, const int precondition,
 			       const int hermitian, Complex* links,
 			       const bool copyLinks)
   : super(12 * L * L * L * T, 12 * L * L * L * T)
@@ -24,14 +24,14 @@ LinearOperator::LinearOperator(const int L, const int T, const int precondition,
 
 
 
-LinearOperator::~LinearOperator()
+CudaLinearOperator::~CudaLinearOperator()
 {
   cudaFree(this->links_);
 }
 
 
 
-void LinearOperator::operator()(const VectorTypeDev& x, VectorTypeDev& y) const
+void CudaLinearOperator::operator()(const VectorTypeDev& x, VectorTypeDev& y) const
 {
   const Complex* x_ptr = thrust::raw_pointer_cast(&x[0]);
   Complex* y_ptr = thrust::raw_pointer_cast(&y[0]);

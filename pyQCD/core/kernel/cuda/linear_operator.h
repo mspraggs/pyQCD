@@ -6,13 +6,13 @@
 #include <utils.h>
 #include <kernels.h>
 
-class LinearOperator : public cusp::linear_operator<Complex, cusp::device_memory>
+class CudaLinearOperator : public cusp::linear_operator<Complex, cusp::device_memory>
 {
 public:
-  LinearOperator(const int L, const int T, const int precondition,
+  CudaLinearOperator(const int L, const int T, const int precondition,
 		 const int hermitian, Complex* links,
 		 const bool copyLinks);
-  virtual ~LinearOperator();
+  virtual ~CudaLinearOperator();
 
   // The CUSP linear operator application function
   void operator()(const VectorTypeDev& x, VectorTypeDev& y) const;

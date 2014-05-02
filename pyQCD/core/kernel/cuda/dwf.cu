@@ -1,10 +1,10 @@
 #include <dwf.h>
 
-DWF::DWF(const float mass, const float M5, const int Ls,
+CudaDWF::CudaDWF(const float mass, const float M5, const int Ls,
 	 const int kernelType, const int L, const int T,
 	 const bool precondition, const bool hermitian,
 	 const Complex boundaryConditions[4], Complex* links)
-  : LinearOperator(L, T, precondition, hermitian, links, true)
+  : CudaLinearOperator(L, T, precondition, hermitian, links, true)
 {
   this->mass_ = mass;
   this->Ls_ = Ls;
@@ -14,29 +14,29 @@ DWF::DWF(const float mass, const float M5, const int Ls,
   this->num_cols = this->N;
 
   if (kernelType == 0)
-    this->kernel_ = new Wilson(-M5, L, T, false, false, boundaryConditions,
+    this->kernel_ = new CudaWilson(-M5, L, T, false, false, boundaryConditions,
 			       this->links_, false);
   else if (kernelType == 1)
-    this->kernel_ = new HamberWu(-M5, L, T, false, false, boundaryConditions,
+    this->kernel_ = new CudaHamberWu(-M5, L, T, false, false, boundaryConditions,
 				 this->links_, false);
   else if (kernelType == 2)
-    this->kernel_ = new Naik(-M5, L, T, false, false, boundaryConditions,
+    this->kernel_ = new CudaNaik(-M5, L, T, false, false, boundaryConditions,
 			     this->links_, false);
   else
-    this->kernel_ = new Wilson(-M5, L, T, false, false, boundaryConditions,
+    this->kernel_ = new CudaWilson(-M5, L, T, false, false, boundaryConditions,
 			       this->links_, false);
 }
 
 
 
-DWF::~DWF()
+CudaDWF::~CudaDWF()
 {
   delete this->kernel_;
 }
 
 
 
-void DWF::apply(Complex* y, const Complex* x) const
+void CudaDWF::apply(Complex* y, const Complex* x) const
 {  
   int dimBlock;
   int dimGrid;
@@ -77,7 +77,7 @@ void DWF::apply(Complex* y, const Complex* x) const
 
 
 
-void DWF::applyHermitian(Complex* y, const Complex* x) const
+void CudaDWF::applyHermitian(Complex* y, const Complex* x) const
 {
   this->apply(y, x);
   this->makeHermitian(y, y);
@@ -85,7 +85,7 @@ void DWF::applyHermitian(Complex* y, const Complex* x) const
 
 
 
-void DWF::makeHermitian(Complex* y, const Complex* x) const
+void CudaDWF::makeHermitian(Complex* y, const Complex* x) const
 {
   int dimBlock;
   int dimGrid;

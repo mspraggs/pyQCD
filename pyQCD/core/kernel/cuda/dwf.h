@@ -1,5 +1,5 @@
-#ifndef CUDA_DWF_H
-#define CUDA_DWF_H
+#ifndef CUDA_CudaDWF_H
+#define CUDA_CudaDWF_H
 
 #include <utils.h>
 #include <kernels.h>
@@ -9,13 +9,13 @@
 #include <hamber_wu.h>
 #include <naik.h>
 
-class DWF : public LinearOperator
+class CudaDWF : public CudaLinearOperator
 {
 public:
-  DWF(const float mass, const float M5, const int Ls, const int kernelType,
+  CudaDWF(const float mass, const float M5, const int Ls, const int kernelType,
       const int L, const int T, const bool precondition, const bool hermitian,
       const Complex boundaryConditions[4], Complex* links);
-  ~DWF();
+  ~CudaDWF();
 
   void apply(Complex* y, const Complex* x) const;
   void applyHermitian(Complex* y, const Complex* x) const;
@@ -26,7 +26,7 @@ private:
   float M5_;
   int Ls_;
 
-  LinearOperator* kernel_;
+  CudaLinearOperator* kernel_;
 };
 
 #endif

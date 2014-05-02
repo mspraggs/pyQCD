@@ -6,13 +6,13 @@
 #include <utils.h>
 #include <kernels.h>
 
-class JacobiSmearing : public LinearOperator
+class CudaJacobiSmearing : public CudaLinearOperator
 {
 public:
-  JacobiSmearing(const int nSmears, const double smearingParameter,
+  CudaJacobiSmearing(const int nSmears, const double smearingParameter,
 		 const int L, const int T, const Complex* boundaryConditions,
 		 Complex* links, const bool copyLinks);
-  ~JacobiSmearing();
+  ~CudaJacobiSmearing();
 
   void applyOnce(Complex* y, const Complex* x) const;
   void apply(Complex* y, const Complex* x) const;
