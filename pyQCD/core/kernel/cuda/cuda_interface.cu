@@ -138,7 +138,7 @@ namespace pyQCD
 			       const int precondition,
 			       const int maxIterations,
 			       const double tolerance,
-			       const int verbosity
+			       const int verbosity,
 			       Complex* gaugeField,
 			       const int L, const int T)
   {
@@ -167,13 +167,19 @@ namespace pyQCD
 
   extern "C"
   void computeHamberWuPropagator(PropagatorTypeHost& propagator
-    const double mass, int site[4], const int sourceSmearingType,
-    const int nSourceSmears, const double sourceSmearingParameter,
-    const int sinkSmearingType, const int nSinkSmears,
-    const double sinkSmearingParameter, const int solverMethod,
-    const Complex boundaryConditions[4], const int precondition,
-    const int maxIterations, const double tolerance, const int verbosity
-    Complex* gaugeField, const int L, const int T)
+				 const double mass, int site[4],
+				 const int sourceSmearingType,
+				 const int nSourceSmears,
+				 const double sourceSmearingParameter,
+				 const int sinkSmearingType,
+				 const int nSinkSmears,
+				 const double sinkSmearingParameter,
+				 const int solverMethod,
+				 const Complex boundaryConditions[4],
+				 const int precondition,
+				 const int maxIterations, const double tolerance,
+				 const int verbosity,
+				 Complex* gaugeField, const int L, const int T)
   {
     
     if (verbosity > 0)
@@ -212,7 +218,7 @@ namespace pyQCD
 			     const int precondition,
 			     const int maxIterations,
 			     const double tolerance,
-			     const int verbosity
+			     const int verbosity,
 			     Complex* gaugeField,
 			     const int L, const int T)
   {
