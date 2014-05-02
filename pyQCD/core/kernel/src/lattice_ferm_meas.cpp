@@ -264,20 +264,21 @@ VectorXcd Lattice::invertWilsonDiracOperator(
 
 #ifdef USE_CUDA
 
-  VectorTypeHost etaCusp = eigenToCusp(eta);
+  VectorTypeHost etaCusp = pyQCD::eigenToCusp(eta);
+  VectorTypeHost psiCusp(12 * this->nLinks_, 0.0);
 
   Complex* gaugeField = new Complex[9 * this->nLinks_];
-  eigenToCusp(gaugeField, this->links_);
+  pyQCD::eigenToCusp(gaugeField, this->links_);
 
   Complex cuspBoundaryConditions[4];
-  eigenToCusp(cuspBoundaryConditions, boundaryConditions);
+  pyQCD::eigenToCusp(cuspBoundaryConditions, boundaryConditions);
 
-  invertWilsonDiracOperator(psiCusp, etaCusp, mass, cuspBoundaryConditions,
-			    solverMethod, precondition, maxIterations,
-			    tolerance, verbosity, gaugeField,
-			    this->spatialExtent, this->temporalExtent);
+  pyQCD::invertWilsonDiracOperator(psiCusp, etaCusp, mass, cuspBoundaryConditions,
+				   solverMethod, precondition, maxIterations,
+				   tolerance, verbosity, gaugeField,
+				   this->spatialExtent, this->temporalExtent);
 
-  psi = cuspToEigen(psiCusp);
+  VectorXcd psi = pyQCD::cuspToEigen(psiCusp);
 
 #else
 
