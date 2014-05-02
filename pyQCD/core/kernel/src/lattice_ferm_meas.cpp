@@ -262,6 +262,25 @@ VectorXcd Lattice::invertWilsonDiracOperator(
 {
   // Generate a Wilson Dirac matrix and invert it on a source
 
+#ifdef USE_CUDA
+
+  VectorTypeHost etaCusp = eigenToCusp(eta);
+
+  Complex* gaugeField = new Complex[9 * this->nLinks_];
+  eigenToCusp(gaugeField, this->links_);
+
+  Complex cuspBoundaryConditions[4];
+  eigenToCusp(cuspBoundaryConditions, boundaryConditions);
+
+  invertWilsonDiracOperator(psiCusp, etaCusp, mass, cuspBoundaryConditions,
+			    solverMethod, precondition, maxIterations,
+			    tolerance, verbosity, gaugeField,
+			    this->spatialExtent, this->temporalExtent);
+
+  psi = cuspToEigen(psiCusp);
+
+#else
+
   // Generate the dirac matrix
   if (verbosity > 0)
     cout << "  Generating Dirac matrix..." << flush;
@@ -276,6 +295,8 @@ VectorXcd Lattice::invertWilsonDiracOperator(
 				      verbosity);
 
   delete diracOperator;
+
+#endif
 
   return psi;
 }
