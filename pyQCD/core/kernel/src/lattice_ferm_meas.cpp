@@ -40,6 +40,29 @@ Lattice::computeWilsonPropagator(
 {
   // Computes the Wilson propagator given a specified mass, source site
   // and set of smearing parameters
+  
+#ifdef USE_CUDA
+
+  PropagatorTypeHost propCusp(12 * this->nSites, 12, 0.0);
+
+  Complex* gaugeField = new Complex[9 * this->nLinks_];
+  pyQCD::eigenToCusp(gaugeField, this->links_);
+
+  Complex cuspBoundaryConditions[4];
+  pyQCD::eigenToCusp(cuspBoundaryConditions, boundaryConditions);
+
+  pyQCD::computeWilsonPropagator(propCusp, site, sourceSmearingType,
+				 nSourceSmears, sourceSmearingParameter,
+				 sinkSmearingType, nSinkSmears,
+				 sinkSmearingParameter, solverMethod,
+				 cuspBoundaryConditions, precondition,
+				 maxIterations, tolerance, verbosity,
+				 gaugeField, this->spatialExtent,
+				 this->temporalExtent);
+
+  vector<MatrixXcd> propagator = cuspToEigen(propCusp);
+
+#else
 
   // Generate the dirac matrix
   if (verbosity > 0)
@@ -63,6 +86,8 @@ Lattice::computeWilsonPropagator(
 
   delete diracOperator;
 
+#endif
+
   return propagator;
 }
 
@@ -80,6 +105,29 @@ Lattice::computeHamberWuPropagator(
 {
   // Computes the Wilson propagator given a specified mass, source site
   // and set of smearing parameters
+  
+#ifdef USE_CUDA
+
+  PropagatorTypeHost propCusp(12 * this->nSites, 12, 0.0);
+
+  Complex* gaugeField = new Complex[9 * this->nLinks_];
+  pyQCD::eigenToCusp(gaugeField, this->links_);
+
+  Complex cuspBoundaryConditions[4];
+  pyQCD::eigenToCusp(cuspBoundaryConditions, boundaryConditions);
+
+  pyQCD::computeHamberWuPropagator(propCusp, site, sourceSmearingType,
+				   nSourceSmears, sourceSmearingParameter,
+				   sinkSmearingType, nSinkSmears,
+				   sinkSmearingParameter, solverMethod,
+				   cuspBoundaryConditions, precondition,
+				   maxIterations, tolerance, verbosity,
+				   gaugeField, this->spatialExtent,
+				   this->temporalExtent);
+
+  vector<MatrixXcd> propagator = cuspToEigen(propCusp);
+
+#else
 
   // Generate the dirac matrix
   if (verbosity > 0)
@@ -101,6 +149,8 @@ Lattice::computeHamberWuPropagator(
 
   delete diracOperator;
 
+#endif
+
   return propagator;
 }
 
@@ -118,6 +168,29 @@ Lattice::computeNaikPropagator(
 {
   // Computes the Wilson propagator given a specified mass, source site
   // and set of smearing parameters
+  
+#ifdef USE_CUDA
+
+  PropagatorTypeHost propCusp(12 * this->nSites, 12, 0.0);
+
+  Complex* gaugeField = new Complex[9 * this->nLinks_];
+  pyQCD::eigenToCusp(gaugeField, this->links_);
+
+  Complex cuspBoundaryConditions[4];
+  pyQCD::eigenToCusp(cuspBoundaryConditions, boundaryConditions);
+
+  pyQCD::computeNaikPropagator(propCusp, site, sourceSmearingType,
+			       nSourceSmears, sourceSmearingParameter,
+			       sinkSmearingType, nSinkSmears,
+			       sinkSmearingParameter, solverMethod,
+			       cuspBoundaryConditions, precondition,
+			       maxIterations, tolerance, verbosity,
+			       gaugeField, this->spatialExtent,
+			       this->temporalExtent);
+
+  vector<MatrixXcd> propagator = cuspToEigen(propCusp);
+
+#else
 
   // Generate the dirac matrix
   if (verbosity > 0)
@@ -138,6 +211,8 @@ Lattice::computeNaikPropagator(
 			      maxIterations, tolerance, precondition, verbosity);
 
   delete diracOperator;
+
+#endif
 
   return propagator;
 }

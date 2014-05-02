@@ -17,8 +17,8 @@ namespace pyQCD
     bool hermitian = solverMethod == 1;
 
     CudaLinearOperator* diracOperator = new CudaWilson(mass, L, T, precondition,
-					       hermitian, boundaryConditions,
-					       gaugeField, true);
+						       hermitian, boundaryConditions,
+						       gaugeField, true);
 
     if (verbosity > 0)
       std::cout << "  Done!" << std::endl;
@@ -124,6 +124,122 @@ namespace pyQCD
 
 
 
+  vector<MatrixXcd> computeWilsonPropagator(const double mass, int site[4],
+					    const int sourceSmearingType,
+					    const int nSourceSmears,
+					    const double sourceSmearingParameter,
+					    const int sinkSmearingType,
+					    const int nSinkSmears,
+					    const double sinkSmearingParameter,
+					    const int solverMethod,
+					    const Complex boundaryConditions[4],
+					    const int precondition,
+					    const int maxIterations,
+					    const double tolerance,
+					    const int verbosity
+					    Complex* gaugeField,
+					    const int L, const int T)
+  {
+    
+    if (verbosity > 0)
+      std::cout << "  Generating Dirac matrix..." << std::flush;
+
+    PropagatorTypeHost propagator;
+
+    bool hermitian = solverMethod == 1;
+
+    CudaLinearOperator* diracOperator
+      = new CudaWilson(mass, L, T, precondition, hermitian, boundaryConditions,
+		       gaugeField, true);
+
+    if (verbosity > 0)
+      std::cout << " Done!" << endl;
+
+    computePropagator(propagator, diracOperator, site, sourceSmearingType,
+		      nSourceSmears, sourceSmearingParameter, sinkSmearingType,
+		      nSinkSmears, sinkSmearingParameter, solverMethod,
+		      maxIterations, tolerance, precondition, verbosity);
+
+    delete diracOperator;
+  }
+
+
+
+  vector<MatrixXcd> computeHamberWuPropagator(
+    const double mass, int site[4], const int sourceSmearingType,
+    const int nSourceSmears, const double sourceSmearingParameter,
+    const int sinkSmearingType, const int nSinkSmears,
+    const double sinkSmearingParameter, const int solverMethod,
+    const Complex boundaryConditions[4], const int precondition,
+    const int maxIterations, const double tolerance, const int verbosity
+    Complex* gaugeField, const int L, const int T)
+  {
+    
+    if (verbosity > 0)
+      std::cout << "  Generating Dirac matrix..." << std::flush;
+
+    PropagatorTypeHost propagator;
+
+    bool hermitian = solverMethod == 1;
+
+    CudaLinearOperator* diracOperator
+      = new CudaHamberWu(mass, L, T, precondition, hermitian, boundaryConditions,
+			 gaugeField, true);
+
+    if (verbosity > 0)
+      std::cout << " Done!" << endl;
+
+    computePropagator(propagator, diracOperator, site, sourceSmearingType,
+		      nSourceSmears, sourceSmearingParameter, sinkSmearingType,
+		      nSinkSmears, sinkSmearingParameter, solverMethod,
+		      maxIterations, tolerance, precondition, verbosity);
+
+    delete diracOperator;
+  }
+
+
+
+  vector<MatrixXcd> computeNaikPropagator(const double mass, int site[4],
+					  const int sourceSmearingType,
+					  const int nSourceSmears,
+					  const double sourceSmearingParameter,
+					  const int sinkSmearingType,
+					  const int nSinkSmears,
+					  const double sinkSmearingParameter,
+					  const int solverMethod,
+					  const Complex boundaryConditions[4],
+					  const int precondition,
+					  const int maxIterations,
+					  const double tolerance,
+					  const int verbosity
+					  Complex* gaugeField,
+					  const int L, const int T)
+  {
+    
+    if (verbosity > 0)
+      std::cout << "  Generating Dirac matrix..." << std::flush;
+
+    PropagatorTypeHost propagator;
+
+    bool hermitian = solverMethod == 1;
+
+    CudaLinearOperator* diracOperator
+      = new CudaNaik(mass, L, T, precondition, hermitian, boundaryConditions,
+		     gaugeField, true);
+
+    if (verbosity > 0)
+      std::cout << " Done!" << endl;
+
+    computePropagator(propagator, diracOperator, site, sourceSmearingType,
+		      nSourceSmears, sourceSmearingParameter, sinkSmearingType,
+		      nSinkSmears, sinkSmearingParameter, solverMethod,
+		      maxIterations, tolerance, precondition, verbosity);
+
+    delete diracOperator;
+  }
+
+
+
   void makeSource(VectorTypeDev& eta, const int site[4], const int spin,
 		  const int colour, const CudaLinearOperator* smearingOperator)
   {
@@ -187,7 +303,8 @@ namespace pyQCD
 
 
   void computePropagator(PropagatorTypeHost& result,
-			 const CudaLinearOperator* diracMatrix, const int site[4],
+			 const CudaLinearOperator* diracMatrix,
+			 const int site[4],
 			 const int sourceSmearingType, const int nSourceSmears,
 			 const float sourceSmearingParameter,
 			 const int sinkSmearingType, const int nSinkSmears,
@@ -203,13 +320,13 @@ namespace pyQCD
 
     CudaLinearOperator* sourceSmearingOperator
       = new CudaJacobiSmearing(nSourceSmears, sourceSmearingParameter,
-			   diracMatrix->L(), diracMatrix->T(),
-			   boundaryConditions, diracMatrix->links(), false);
+			       diracMatrix->L(), diracMatrix->T(),
+			       boundaryConditions, diracMatrix->links(), false);
 
     CudaLinearOperator* sinkSmearingOperator
       = new CudaJacobiSmearing(nSinkSmears, sinkSmearingParameter,
-			   diracMatrix->L(), diracMatrix->T(),
-			   boundaryConditions, diracMatrix->links(), false);
+			       diracMatrix->L(), diracMatrix->T(),
+			       boundaryConditions, diracMatrix->links(), false);
 
     VectorTypeDev eta(diracMatrix->num_rows, Complex(0.0, 0.0));
     VectorTypeDev psi(diracMatrix->num_rows, Complex(0.0, 0.0));
