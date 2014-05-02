@@ -56,6 +56,57 @@ extern "C"
 			      const int maxIterations, const double tolerance,
 			      const int verbosity, Complex* gaugeField,
 			      const int L, const int T);
-  }
+
+  void computeWilsonPropagator(PropagatorTypeHost& propagator,
+			       const double mass, int site[4],
+			       const int sourceSmearingType,
+			       const int nSourceSmears,
+			       const double sourceSmearingParameter,
+			       const int sinkSmearingType,
+			       const int nSinkSmears,
+			       const double sinkSmearingParameter,
+			       const int solverMethod,
+			       const Complex boundaryConditions[4],
+			       const int precondition,
+			       const int maxIterations,
+			       const double tolerance,
+			       const int verbosity
+			       Complex* gaugeField,
+			       const int L, const int T);
+
+  void computeHamberWuPropagator(PropagatorTypeHost& propagator,
+				 const double mass, int site[4],
+				 const int sourceSmearingType,
+				 const int nSourceSmears,
+				 const double sourceSmearingParameter,
+				 const int sinkSmearingType,
+				 const int nSinkSmears,
+				 const double sinkSmearingParameter,
+				 const int solverMethod,
+				 const Complex boundaryConditions[4],
+				 const int precondition,
+				 const int maxIterations,
+				 const double tolerance,
+				 const int verbosity
+				 Complex* gaugeField,
+				 const int L, const int T);
+
+  void computeNaikPropagator(PropagatorTypeHost& propagator,
+			     const double mass, int site[4],
+			     const int sourceSmearingType,
+			     const int nSourceSmears,
+			     const double sourceSmearingParameter,
+			     const int sinkSmearingType,
+			     const int nSinkSmears,
+			     const double sinkSmearingParameter,
+			     const int solverMethod,
+			     const Complex boundaryConditions[4],
+			     const int precondition,
+			     const int maxIterations,
+			     const double tolerance,
+			     const int verbosity
+			     Complex* gaugeField,
+			     const int L, const int T);
+    }
 }
 #endif

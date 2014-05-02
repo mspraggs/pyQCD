@@ -124,27 +124,27 @@ namespace pyQCD
 
 
 
-  vector<MatrixXcd> computeWilsonPropagator(const double mass, int site[4],
-					    const int sourceSmearingType,
-					    const int nSourceSmears,
-					    const double sourceSmearingParameter,
-					    const int sinkSmearingType,
-					    const int nSinkSmears,
-					    const double sinkSmearingParameter,
-					    const int solverMethod,
-					    const Complex boundaryConditions[4],
-					    const int precondition,
-					    const int maxIterations,
-					    const double tolerance,
-					    const int verbosity
-					    Complex* gaugeField,
-					    const int L, const int T)
+  extern "C"
+  void computeWilsonPropagator(PropagatorTypeHost& propagator,
+			       const double mass, int site[4],
+			       const int sourceSmearingType,
+			       const int nSourceSmears,
+			       const double sourceSmearingParameter,
+			       const int sinkSmearingType,
+			       const int nSinkSmears,
+			       const double sinkSmearingParameter,
+			       const int solverMethod,
+			       const Complex boundaryConditions[4],
+			       const int precondition,
+			       const int maxIterations,
+			       const double tolerance,
+			       const int verbosity
+			       Complex* gaugeField,
+			       const int L, const int T)
   {
     
     if (verbosity > 0)
       std::cout << "  Generating Dirac matrix..." << std::flush;
-
-    PropagatorTypeHost propagator;
 
     bool hermitian = solverMethod == 1;
 
@@ -165,7 +165,8 @@ namespace pyQCD
 
 
 
-  vector<MatrixXcd> computeHamberWuPropagator(
+  extern "C"
+  void computeHamberWuPropagator(PropagatorTypeHost& propagator
     const double mass, int site[4], const int sourceSmearingType,
     const int nSourceSmears, const double sourceSmearingParameter,
     const int sinkSmearingType, const int nSinkSmears,
@@ -177,8 +178,6 @@ namespace pyQCD
     
     if (verbosity > 0)
       std::cout << "  Generating Dirac matrix..." << std::flush;
-
-    PropagatorTypeHost propagator;
 
     bool hermitian = solverMethod == 1;
 
@@ -199,27 +198,27 @@ namespace pyQCD
 
 
 
-  vector<MatrixXcd> computeNaikPropagator(const double mass, int site[4],
-					  const int sourceSmearingType,
-					  const int nSourceSmears,
-					  const double sourceSmearingParameter,
-					  const int sinkSmearingType,
-					  const int nSinkSmears,
-					  const double sinkSmearingParameter,
-					  const int solverMethod,
-					  const Complex boundaryConditions[4],
-					  const int precondition,
-					  const int maxIterations,
-					  const double tolerance,
-					  const int verbosity
-					  Complex* gaugeField,
-					  const int L, const int T)
+  extern "C"
+  void computeNaikPropagator(PropagatorTypeHost& propagator,
+			     const double mass, int site[4],
+			     const int sourceSmearingType,
+			     const int nSourceSmears,
+			     const double sourceSmearingParameter,
+			     const int sinkSmearingType,
+			     const int nSinkSmears,
+			     const double sinkSmearingParameter,
+			     const int solverMethod,
+			     const Complex boundaryConditions[4],
+			     const int precondition,
+			     const int maxIterations,
+			     const double tolerance,
+			     const int verbosity
+			     Complex* gaugeField,
+			     const int L, const int T)
   {
     
     if (verbosity > 0)
       std::cout << "  Generating Dirac matrix..." << std::flush;
-
-    PropagatorTypeHost propagator;
 
     bool hermitian = solverMethod == 1;
 

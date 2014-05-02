@@ -43,7 +43,7 @@ Lattice::computeWilsonPropagator(
   
 #ifdef USE_CUDA
 
-  PropagatorTypeHost propCusp(12 * this->nSites, 12, 0.0);
+  PropagatorTypeHost propCusp(12 * this->nSites(), 12, 0.0);
 
   Complex* gaugeField = new Complex[9 * this->nLinks_];
   pyQCD::eigenToCusp(gaugeField, this->links_);
@@ -108,7 +108,7 @@ Lattice::computeHamberWuPropagator(
   
 #ifdef USE_CUDA
 
-  PropagatorTypeHost propCusp(12 * this->nSites, 12, 0.0);
+  PropagatorTypeHost propCusp(12 * this->nSites(), 12, 0.0);
 
   Complex* gaugeField = new Complex[9 * this->nLinks_];
   pyQCD::eigenToCusp(gaugeField, this->links_);
@@ -171,7 +171,7 @@ Lattice::computeNaikPropagator(
   
 #ifdef USE_CUDA
 
-  PropagatorTypeHost propCusp(12 * this->nSites, 12, 0.0);
+  PropagatorTypeHost propCusp(12 * this->nSites(), 12, 0.0);
 
   Complex* gaugeField = new Complex[9 * this->nLinks_];
   pyQCD::eigenToCusp(gaugeField, this->links_);
