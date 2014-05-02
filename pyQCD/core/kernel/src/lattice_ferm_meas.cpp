@@ -51,7 +51,7 @@ Lattice::computeWilsonPropagator(
   Complex cuspBoundaryConditions[4];
   pyQCD::eigenToCusp(cuspBoundaryConditions, boundaryConditions);
 
-  pyQCD::computeWilsonPropagator(propCusp, site, sourceSmearingType,
+  pyQCD::computeWilsonPropagator(propCusp, mass, site, sourceSmearingType,
 				 nSourceSmears, sourceSmearingParameter,
 				 sinkSmearingType, nSinkSmears,
 				 sinkSmearingParameter, solverMethod,
@@ -116,7 +116,7 @@ Lattice::computeHamberWuPropagator(
   Complex cuspBoundaryConditions[4];
   pyQCD::eigenToCusp(cuspBoundaryConditions, boundaryConditions);
 
-  pyQCD::computeHamberWuPropagator(propCusp, site, sourceSmearingType,
+  pyQCD::computeHamberWuPropagator(propCusp, mass, site, sourceSmearingType,
 				   nSourceSmears, sourceSmearingParameter,
 				   sinkSmearingType, nSinkSmears,
 				   sinkSmearingParameter, solverMethod,
@@ -179,7 +179,7 @@ Lattice::computeNaikPropagator(
   Complex cuspBoundaryConditions[4];
   pyQCD::eigenToCusp(cuspBoundaryConditions, boundaryConditions);
 
-  pyQCD::computeNaikPropagator(propCusp, site, sourceSmearingType,
+  pyQCD::computeNaikPropagator(propCusp, mass, site, sourceSmearingType,
 			       nSourceSmears, sourceSmearingParameter,
 			       sinkSmearingType, nSinkSmears,
 			       sinkSmearingParameter, solverMethod,
