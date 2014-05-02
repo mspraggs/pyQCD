@@ -2,8 +2,37 @@
 
 namespace pyQCD
 {
+  extern "C"
+  void invertWilsonDiracOperator(VectorTypeHost& psi, const VectorTypeHost& eta,
+				 const double mass,
+				 const Complex boundaryConditions[4],
+				 const int solverMethod, const int precondition,
+				 const int maxIterations, const double tolerance,
+				 const int verbosity, Complex* gaugeField,
+				 const int L, const int T)
+  {
+    if (verbosity > 0)
+      std::cout << "  Generating Dirac matrix..." << std::flush;
+
+    bool hermitian = solverMethod == 1;
+
+    CudaLinearOperator* diracOperator = new CudaWilson(mass, L, T, precondition,
+					       hermitian, boundaryConditions,
+					       gaugeField, true);
+
+    if (verbosity > 0)
+      std::cout << "  Done!" << std::endl;
+
+    invertDiracOperator(psi, eta, diracOperator, solverMethod, precondition,
+			maxIterations, tolerance, verbosity);
+
+    delete diracOperator;
+  }
+
+
+
   void makeSource(VectorTypeDev& eta, const int site[4], const int spin,
-		  const int colour, const LinearOperator* smearingOperator)
+		  const int colour, const CudaLinearOperator* smearingOperator)
   {
     cusp::blas::fill(eta, Complex(0.0, 0.0));
   
@@ -20,36 +49,8 @@ namespace pyQCD
 
 
 
-  void invertWilsonDiracOperator(VectorTypeHost& psi, const VectorTypeHost& eta,
-				 const double mass,
-				 const Complex boundaryConditions[4],
-				 const int solverMethod, const int precondition,
-				 const int maxIterations, const double tolerance,
-				 const int verbosity, Complex* gaugeField,
-				 const int L, const int T)
-  {
-    if (verbosity > 0)
-      std::cout << "  Generating Dirac matrix..." << std::flush;
-
-    bool hermitian = solverMethod == 1;
-
-    LinearOperator* diracOperator = new Wilson(mass, L, T, precondition,
-					       hermitian, boundaryConditions,
-					       gaugeField, true);
-
-    if (verbosity > 0)
-      std::cout << "  Done!" << std::endl;
-
-    invertDiracOperator(psi, eta, diracOperator, solverMethod, precondition,
-			maxIterations, tolerance, verbosity);
-
-    delete diracOperator;
-  }
-
-
-
   void invertDiracOperator(VectorTypeHost& psi, const VectorTypeHost& eta,
-			   LinearOperator* diracMatrix, const int solverMethod,
+			   CudaLinearOperator* diracMatrix, const int solverMethod,
 			   const int precondition, const int maxIterations,
 			   const double tolerance, const int verbosity)
   {
@@ -92,7 +93,7 @@ namespace pyQCD
 
 
   void computePropagator(PropagatorTypeHost& result,
-			 const LinearOperator* diracMatrix, const int site[4],
+			 const CudaLinearOperator* diracMatrix, const int site[4],
 			 const int sourceSmearingType, const int nSourceSmears,
 			 const float sourceSmearingParameter,
 			 const int sinkSmearingType, const int nSinkSmears,
@@ -106,13 +107,13 @@ namespace pyQCD
 				     Complex(1.0, 0.0),
 				     Complex(1.0, 0.0)};
 
-    LinearOperator* sourceSmearingOperator
-      = new JacobiSmearing(nSourceSmears, sourceSmearingParameter,
+    CudaLinearOperator* sourceSmearingOperator
+      = new CudaJacobiSmearing(nSourceSmears, sourceSmearingParameter,
 			   diracMatrix->L(), diracMatrix->T(),
 			   boundaryConditions, diracMatrix->links(), false);
 
-    LinearOperator* sinkSmearingOperator
-      = new JacobiSmearing(nSinkSmears, sinkSmearingParameter,
+    CudaLinearOperator* sinkSmearingOperator
+      = new CudaJacobiSmearing(nSinkSmears, sinkSmearingParameter,
 			   diracMatrix->L(), diracMatrix->T(),
 			   boundaryConditions, diracMatrix->links(), false);
 
