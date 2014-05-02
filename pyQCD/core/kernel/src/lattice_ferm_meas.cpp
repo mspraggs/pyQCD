@@ -60,7 +60,7 @@ Lattice::computeWilsonPropagator(
 				 gaugeField, this->spatialExtent,
 				 this->temporalExtent);
 
-  vector<MatrixXcd> propagator = cuspToEigen(propCusp);
+  vector<MatrixXcd> propagator = pyQCD::cuspToEigen(propCusp);
 
 #else
 
@@ -125,7 +125,7 @@ Lattice::computeHamberWuPropagator(
 				   gaugeField, this->spatialExtent,
 				   this->temporalExtent);
 
-  vector<MatrixXcd> propagator = cuspToEigen(propCusp);
+  vector<MatrixXcd> propagator = pyQCD::cuspToEigen(propCusp);
 
 #else
 
@@ -188,7 +188,7 @@ Lattice::computeNaikPropagator(
 			       gaugeField, this->spatialExtent,
 			       this->temporalExtent);
 
-  vector<MatrixXcd> propagator = cuspToEigen(propCusp);
+  vector<MatrixXcd> propagator = pyQCD::cuspToEigen(propCusp);
 
 #else
 
