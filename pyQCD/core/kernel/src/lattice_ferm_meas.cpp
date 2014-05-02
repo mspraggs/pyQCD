@@ -273,7 +273,8 @@ VectorXcd Lattice::invertWilsonDiracOperator(
   Complex cuspBoundaryConditions[4];
   pyQCD::eigenToCusp(cuspBoundaryConditions, boundaryConditions);
 
-  pyQCD::invertWilsonDiracOperator(psiCusp, etaCusp, mass, cuspBoundaryConditions,
+  pyQCD::invertWilsonDiracOperator(psiCusp, etaCusp, mass,
+				   cuspBoundaryConditions,
 				   solverMethod, precondition, maxIterations,
 				   tolerance, verbosity, gaugeField,
 				   this->spatialExtent, this->temporalExtent);

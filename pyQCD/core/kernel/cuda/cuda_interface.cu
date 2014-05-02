@@ -32,11 +32,14 @@ namespace pyQCD
 
 
   extern "C"
-  void invertHamberWuDiracOperator(VectorTypeHost& psi, const VectorTypeHost& eta,
+  void invertHamberWuDiracOperator(VectorTypeHost& psi,
+				   const VectorTypeHost& eta,
 				   const double mass,
 				   const Complex boundaryConditions[4],
-				   const int solverMethod, const int precondition,
-				   const int maxIterations, const double tolerance,
+				   const int solverMethod,
+				   const int precondition,
+				   const int maxIterations,
+				   const double tolerance,
 				   const int verbosity, Complex* gaugeField,
 				   const int L, const int T)
   {
@@ -140,7 +143,8 @@ namespace pyQCD
 
 
   void invertDiracOperator(VectorTypeHost& psi, const VectorTypeHost& eta,
-			   CudaLinearOperator* diracMatrix, const int solverMethod,
+			   CudaLinearOperator* diracMatrix,
+			   const int solverMethod,
 			   const int precondition, const int maxIterations,
 			   const double tolerance, const int verbosity)
   {
