@@ -278,6 +278,8 @@ VectorXcd Lattice::invertWilsonDiracOperator(
 				   tolerance, verbosity, gaugeField,
 				   this->spatialExtent, this->temporalExtent);
 
+  delete[] gaugeField;
+
   VectorXcd psi = pyQCD::cuspToEigen(psiCusp);
 
 #else
@@ -328,6 +330,8 @@ VectorXcd Lattice::invertHamberWuDiracOperator(
 				     solverMethod, precondition, maxIterations,
 				     tolerance, verbosity, gaugeField,
 				     this->spatialExtent, this->temporalExtent);
+
+  delete[] gaugeField;
   
   VectorXcd psi = pyQCD::cuspToEigen(psiCusp);
 
@@ -379,6 +383,8 @@ VectorXcd Lattice::invertNaikDiracOperator(
 				 solverMethod, precondition, maxIterations,
 				 tolerance, verbosity, gaugeField,
 				 this->spatialExtent, this->temporalExtent);
+
+  delete[] gaugeField;
   
   VectorXcd psi = pyQCD::cuspToEigen(psiCusp);
 
@@ -430,6 +436,8 @@ VectorXcd Lattice::invertDWFDiracOperator(
 				 solverMethod, precondition, maxIterations,
 				 tolerance, verbosity, gaugeField,
 				 this->spatialExtent, this->temporalExtent);
+
+  delete[] gaugeField;
   
   VectorXcd psi = pyQCD::cuspToEigen(psiCusp);
 
