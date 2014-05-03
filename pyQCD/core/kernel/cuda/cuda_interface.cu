@@ -50,7 +50,7 @@ namespace pyQCD
       diracOperator = new CudaDWF(floatParams[0], floatParams[1],
 				  intParams[0], intParams[1], L, T,
 				  precondition, hermitian, boundaryConditions,
-				  links, copyLinks);
+				  links);
       break;
     }
   }
