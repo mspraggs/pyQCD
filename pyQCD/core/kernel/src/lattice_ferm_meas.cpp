@@ -252,7 +252,7 @@ VectorXcd Lattice::invertDiracOperator(
 			     this->temporalExtent,
 			     gaugeField);
 
-  psi = cuspToEigen(psiCusp);
+  psi = pyQCD::cuspToEigen(psiCusp);
 
   delete[] cuspIntParams;
   delete[] cuspFloatParams;
