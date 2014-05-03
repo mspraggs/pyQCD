@@ -1,7 +1,7 @@
 
 CudaNaik::CudaNaik(const float mass, const int L, const int T,
 	   const bool precondition, const bool hermitian,
-	   const Complex* boundaryConditions, const Complex* links,
+	   const Complex* boundaryConditions, Complex* links,
 	   const bool copyLinks = true)
   : CudaLinearOperator(L, T, precondition, hermitian, links, copyLinks)
 {

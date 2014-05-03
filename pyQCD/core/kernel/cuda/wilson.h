@@ -11,7 +11,7 @@ class CudaWilson : public CudaLinearOperator
 public:
   CudaWilson(const float mass, const int L, const int T, const bool precondition,
 	     const bool hermitian, const Complex* boundaryConditions,
-	     const Complex* links, const bool copyLinks);
+	     Complex* links, const bool copyLinks);
   ~CudaWilson();
 
   void apply(Complex* y, const Complex* x) const;

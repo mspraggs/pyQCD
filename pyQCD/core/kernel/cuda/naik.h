@@ -11,7 +11,7 @@ class CudaNaik : public CudaLinearOperator
 public:
   CudaNaik(const float mass, const int L, const int T, const bool precondition,
        const bool hermitian, const Complex* boundaryConditions,
-       const Complex* links, const bool copyLinks);
+       Complex* links, const bool copyLinks);
   ~CudaNaik();
 
   void apply(Complex* y, const Complex* x) const;
