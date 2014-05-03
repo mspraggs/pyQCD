@@ -298,10 +298,6 @@ namespace pyQCD
 			  Complex* cudaComplexParams,
 			  const vector<complex<double> > complexParams)
   {
-    cudaIntParams = new int[intParams.size()];
-    cudaFloatParams = new float[floatParams.size()];
-    cudaComplexParams = new Complex[complexParams.size()];
-
     for (int i = 0; i < intParams.size(); ++i)
       cudaIntParams[i] = intParams[i];
 

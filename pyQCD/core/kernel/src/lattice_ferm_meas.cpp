@@ -91,6 +91,41 @@ Lattice::computePropagator(const int action, const vector<int>& intParams,
 
   // Declare a variable to hold our propagator
   vector<MatrixXcd> propagator(nSites, MatrixXcd::Zero(12, 12));
+
+#ifdef USE_CUDA
+
+  Complex* gaugeField = new Complex[9 * this->nLinks_];
+  eigenToCusp(gaugeField, this->links_);
+
+  int* cudaIntParams = new int[intParams.size()];
+  float* cudaFloatParams = new float[floatParams.size()];
+  Complex* cudaComplexParams = new Complex[complexParams.size()];
+  Complex cuspBoundaryConditions[4];
+  
+  pyQCD::convertLinopParams(cudaIntParams, intParams,
+			    cudaFloatParams, floatParams,
+			    cudaComplexParams, complexParams);
+
+  pyQCD::eigenToCusp(cuspBoundaryConditions, boundaryConditions);
+
+  PropagatorTypeHost cuspProp(12 * nSites, 12, 0.0);
+
+  pyQCD::computePropagator(cuspProp, action, cudaIntParams, cudaFloatParams,
+			   cudaComplexParams, cudaBoundaryConditions,
+			   site, sourceSmearingType, nSourceSmears,
+			   sourceSmearingParameter, sinkSmearingType,
+			   nSinkSmears, sinkSmearingParameter, solverMethod,
+			   maxIterations, tolerance, precondition, verbosity,
+			   this->spatialExtent, this->temporalExtent,
+			   gaugeField);
+
+  delete[] cudaIntParams;
+  delete[] cudaFloatParams;
+  delete[] cudaComplexParams;
+
+  propagator = cuspToEigen(cuspProp);
+
+#else
   
   vector<complex<double> >
     smearingBoundaryConditions(4, complex<double>(1.0, 0.0));
@@ -165,6 +200,8 @@ Lattice::computePropagator(const int action, const vector<int>& intParams,
   delete sourceSmearingOperator;
   delete sinkSmearingOperator;
   delete diracMatrix;
+
+#endif
 
   // Restore the non-smeared gauge field
   if (nSmears > 0)
