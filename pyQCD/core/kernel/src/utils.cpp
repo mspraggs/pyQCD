@@ -292,6 +292,28 @@ namespace pyQCD
 
 #ifdef USE_CUDA
 
+  void convertLinopParams(int* cudaIntParams, const vector<int> intParams,
+			  float* cudaFloatParams,
+			  const vector<float> floatParams,
+			  Complex* cudaComplexParams,
+			  const vector<complex<double> > complexParams)
+  {
+    cudaIntParams = new int[intParams.size()];
+    cudaFloatParams = new float[floatParams.size()];
+    cudaComplexParams = new Complex[complexParams.size()];
+
+    for (int i = 0; i < intParams.size(); ++i)
+      cudaIntParams[i] = intParams[i];
+
+    for (int i = 0; i < floatParams.size(); ++i)
+      cudaFloatParams[i] = floatParams[i];
+
+    for (int i = 0; i < complexParams.size(); ++i)
+      cudaComplexParams[i] = eigenToCusp(complexParams[i]);
+  }
+
+
+
   void eigenToCusp(Complex* cuspField, const GaugeField& eigenField)
   {
     int nLinks = eigenField.size();

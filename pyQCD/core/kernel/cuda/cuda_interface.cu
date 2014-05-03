@@ -263,15 +263,60 @@ namespace pyQCD
 
 
 
-  void invertDiracOperator(VectorTypeHost& psi, const VectorTypeHost& eta,
-			   CudaLinearOperator* diracMatrix,
-			   const int solverMethod,
+  void diracOperatorFactory(CudaLinearOperator* diracOperator, const int action,
+			    const int* intParams, const float* floatParams,
+			    const Complex* complexParams,
+			    const Complex* boundaryConditions,
+			    const int L, const int T, const bool precondition,
+			    const bool hermitian, const Complex* links,
+			    const bool copyLinks)
+  {
+    // Generates the specified Dirac operator with the specified paramaters
+
+    switch (action) {
+    case 0:
+      diracOperator = new CudaWilson(floatParams[0], L, T, precondition,
+				     hermitian, boundaryConditions, links,
+				     copyLinks);
+      break;
+    case 1:
+      diracOperator = new CudaHamberWu(floatParams[0], L, T, precondition,
+				       hermitian, boundaryConditions, links,
+				       copyLinks);
+      break;
+    case 2:
+      diracOperator = new CudaNaik(floatParams[0], L, T, precondition,
+				   hermitian, boundaryConditions, links,
+				   copyLinks);
+      break;
+    case 3:
+      diracOperator = new CudaDWF(floatParams[0], floatParams[1],
+				  intParams[0], intParams[1], L, T,
+				  precondition, hermitian, boundaryConditions,
+				  links, copyLinks);
+      break;
+    }
+  }
+
+
+  extern "C"
+  void invertDiracOperator(VectorTypeHost& psi, const int action,
+			   const int* intParams, const float* floatParams,
+			   const Complex* complexParams,
+			   const Complex* boundaryConditions,
+			   const VectorTypeHost& eta, const int solverMethod,
 			   const int precondition, const int maxIterations,
-			   const double tolerance, const int verbosity)
+			   const double tolerance, const int verbosity,
+			   const int L, const int T, const Complex* gaugeField)
   {
     VectorTypeDev psiDev = eta; // Put the source here temporarily
     VectorTypeDev etaDev = eta;
 
+    CudaLinearOperator* diracMatrix;
+    diracOperatorFactory(diracMatrix, action, intParams, floatParams,
+			 complexParams, boundaryConditions, L, T, precondition,
+			 solverMethod == 1, gaugeField, true);
+    
     if (solverMethod == 1) {
       // To save memory, we use the solution to hold the source while
       // we make it hermitian (to prevent data race)
@@ -306,32 +351,42 @@ namespace pyQCD
   }
 
 
-
+  
+  extern "C"
   void computePropagator(PropagatorTypeHost& result,
-			 const CudaLinearOperator* diracMatrix,
-			 const int site[4],
+			 const int action, const int* intParams,
+			 const int* floatParams, const Complex* complexParams,
+			 const Complex* boundaryConditions, const int site[4],
 			 const int sourceSmearingType, const int nSourceSmears,
 			 const float sourceSmearingParameter,
 			 const int sinkSmearingType, const int nSinkSmears,
 			 const float sinkSmearingParameter,
 			 const int solverMethod, const int maxIterations,
 			 const float tolerance, const int precondition,
-			 const int verbosity)
+			 const int verbosity, const int L, const int T,
+			 const Complex* gaugeField)
   {
-    Complex boundaryConditions[4] = {Complex(-1.0, 0.0),
-				     Complex(1.0, 0.0),
-				     Complex(1.0, 0.0),
-				     Complex(1.0, 0.0)};
+    Complex tempBoundaryConditions[4] = {Complex(-1.0, 0.0),
+					 Complex(1.0, 0.0),
+					 Complex(1.0, 0.0),
+					 Complex(1.0, 0.0)};
+
+    CudaLinearOperator* diracMatrix;
+    diracOperatorFactory(diracMatrix, action, intParams, floatParams,
+			 complexParams, boundaryConditions, L, T, precondition,
+			 solverMethod == 1, gaugeField, true);
 
     CudaLinearOperator* sourceSmearingOperator
       = new CudaJacobiSmearing(nSourceSmears, sourceSmearingParameter,
 			       diracMatrix->L(), diracMatrix->T(),
-			       boundaryConditions, diracMatrix->links(), false);
+			       tempBoundaryConditions, diracMatrix->links(),
+			       false);
 
     CudaLinearOperator* sinkSmearingOperator
       = new CudaJacobiSmearing(nSinkSmears, sinkSmearingParameter,
 			       diracMatrix->L(), diracMatrix->T(),
-			       boundaryConditions, diracMatrix->links(), false);
+			       tempBoundaryConditions, diracMatrix->links(),
+			       false);
 
     VectorTypeDev eta(diracMatrix->num_rows, Complex(0.0, 0.0));
     VectorTypeDev psi(diracMatrix->num_rows, Complex(0.0, 0.0));
@@ -387,5 +442,6 @@ namespace pyQCD
 
     delete sourceSmearingOperator;
     delete sinkSmearingOperator;
+    delete diracMatrix;
   }
 }
