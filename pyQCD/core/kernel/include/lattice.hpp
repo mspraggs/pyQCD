@@ -146,13 +146,13 @@ public:
     const int kernelType, const vector<complex<double> >& boundaryConditions,
     const int solverMethod, const int precondition, const int maxIterations,
     const double tolerance, const int verbosity);
-  VectorXcd invertDiracOperator(const VectorXcd& eta,
-				LinearOperator* diracMatrix,
-				const int solverMethod,
-				const int precondition,
-				const int maxIterations,
-				const double tolerance,
-				const int verbosity);
+  VectorXcd invertDiracOperator(
+    const int action, const vector<int>& intParams,
+    const vector<double>& floatParams,
+    const vector<complex<double> >& complexParams,
+    const vector<complex<double> >& boundaryConditions, const VectorXcd& eta,
+    const int solverMethod, const int precondition, const int maxIterations,
+    const double tolerance, const int verbosity);
   
   int nCorrelations, spatialExtent, temporalExtent;
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW

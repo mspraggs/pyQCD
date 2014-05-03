@@ -242,16 +242,19 @@ py::list pyLattice::invertWilsonDiracOperatorP(const py::list eta,
   vector<complex<double> > tempBoundaryConditions
     = pyQCD::convertBoundaryConditions(boundaryConditions);
 
+  vector<int> intParams;
+  vector<double> floatParams;
+  floatParams.push_back(mass);
+  vector<complex<double> > complexParams;
+
   // Release the GIL
   ScopedGILRelease* scope = new ScopedGILRelease;
 
-  VectorXcd vectorPsi = this->invertWilsonDiracOperator(vectorEta, mass,
-							tempBoundaryConditions,
-							solverMethod,
-							precondition,
-							maxIterations,
-							tolerance,
-							verbosity);
+  VectorXcd vectorPsi
+    = this->invertDiracOperator(pyQCD::wilson, intParams, floatParams,
+				complexParams, tempBoundaryConditions,
+				vectorEta, solverMethod, precondition,
+				maxIterations, tolerance, verbosity);
 
   delete scope;
 
@@ -271,16 +274,19 @@ py::list pyLattice::invertHamberWuDiracOperatorP(
   vector<complex<double> > tempBoundaryConditions
     = pyQCD::convertBoundaryConditions(boundaryConditions);
 
+  vector<int> intParams;
+  vector<double> floatParams;
+  floatParams.push_back(mass);
+  vector<complex<double> > complexParams;
+
   // Release the GIL
   ScopedGILRelease* scope = new ScopedGILRelease;
 
-  VectorXcd vectorPsi = this->invertHamberWuDiracOperator(vectorEta, mass,
-							  tempBoundaryConditions,
-							  solverMethod,
-							  precondition,
-							  maxIterations,
-							  tolerance,
-							  verbosity);
+  VectorXcd vectorPsi
+    = this->invertDiracOperator(pyQCD::hamberWu, intParams, floatParams,
+				complexParams, tempBoundaryConditions,
+				vectorEta, solverMethod, precondition,
+				maxIterations, tolerance, verbosity);
 
   delete scope;
 
@@ -300,17 +306,20 @@ py::list pyLattice::invertNaikDiracOperatorP(
   vector<complex<double> > tempBoundaryConditions
     = pyQCD::convertBoundaryConditions(boundaryConditions);
 
+  vector<int> intParams;
+  vector<double> floatParams;
+  floatParams.push_back(mass);
+  vector<complex<double> > complexParams;
+
   // Release the GIL
   ScopedGILRelease* scope = new ScopedGILRelease;
 
-  VectorXcd vectorPsi = this->invertNaikDiracOperator(vectorEta, mass,
-							  tempBoundaryConditions,
-							  solverMethod,
-							  precondition,
-							  maxIterations,
-							  tolerance,
-							  verbosity);
-
+  VectorXcd vectorPsi
+    = this->invertDiracOperator(pyQCD::naik, intParams, floatParams,
+				complexParams, tempBoundaryConditions,
+				vectorEta, solverMethod, precondition,
+				maxIterations, tolerance, verbosity);
+  
   delete scope;
 
   return pyQCD::convertVectorToList(vectorPsi);
@@ -334,18 +343,23 @@ py::list pyLattice::invertDWFDiracOperatorP(const py::list eta,
   vector<complex<double> > tempBoundaryConditions
     = pyQCD::convertBoundaryConditions(boundaryConditions);
 
+  vector<int> intParams;
+  intParams.push_back(Ls);
+  intParams.push_back(kernelType);
+  vector<double> floatParams;
+  floatParams.push_back(mass);
+  floatParams.push_back(M5);
+  vector<complex<double> > complexParams;
+
   // Release the GIL
   ScopedGILRelease* scope = new ScopedGILRelease;
 
-  VectorXcd vectorPsi = this->invertDWFDiracOperator(vectorEta, mass, M5, Ls,
-						     kernelType,
-						     tempBoundaryConditions,
-						     solverMethod,
-						     precondition,
-						     maxIterations,
-						     tolerance,
-						     verbosity);
-
+  VectorXcd vectorPsi
+    = this->invertDiracOperator(pyQCD::dwf, intParams, floatParams,
+				complexParams, tempBoundaryConditions,
+				vectorEta, solverMethod, precondition,
+				maxIterations, tolerance, verbosity);
+  
   delete scope;
 
   return pyQCD::convertVectorToList(vectorPsi);

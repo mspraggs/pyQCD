@@ -175,226 +175,13 @@ Lattice::computePropagator(const int action, const vector<int>& intParams,
 
 
 
-VectorXcd Lattice::invertWilsonDiracOperator(
-  const VectorXcd& eta, const double mass,
-  const vector<complex<double> >& boundaryConditions, const int solverMethod,
-  const int precondition, const int maxIterations, const double tolerance,
-  const int verbosity)
-{
-  // Generate a Wilson Dirac matrix and invert it on a source
-
-#ifdef USE_CUDA
-
-  VectorTypeHost etaCusp = pyQCD::eigenToCusp(eta);
-  VectorTypeHost psiCusp(12 * this->nLinks_, 0.0);
-
-  Complex* gaugeField = new Complex[9 * this->nLinks_];
-  pyQCD::eigenToCusp(gaugeField, this->links_);
-
-  Complex cuspBoundaryConditions[4];
-  pyQCD::eigenToCusp(cuspBoundaryConditions, boundaryConditions);
-
-  pyQCD::invertWilsonDiracOperator(psiCusp, etaCusp, mass,
-				   cuspBoundaryConditions,
-				   solverMethod, precondition, maxIterations,
-				   tolerance, verbosity, gaugeField,
-				   this->spatialExtent, this->temporalExtent);
-
-  delete[] gaugeField;
-
-  VectorXcd psi = pyQCD::cuspToEigen(psiCusp);
-
-#else
-
-  // Generate the dirac matrix
-  if (verbosity > 0)
-    cout << "  Generating Dirac matrix..." << flush;
-
-  LinearOperator* diracOperator = new Wilson(mass, boundaryConditions, this);
-
-  if (verbosity > 0)
-    cout << " Done!" << endl;
-
-  VectorXcd psi = invertDiracOperator(eta, diracOperator, solverMethod,
-				      precondition, maxIterations, tolerance,
-				      verbosity);
-
-  delete diracOperator;
-
-#endif
-
-  return psi;
-}
-
-
-
-VectorXcd Lattice::invertHamberWuDiracOperator(
-  const VectorXcd& eta, const double mass,
-  const vector<complex<double> >& boundaryConditions, const int solverMethod,
-  const int precondition, const int maxIterations, const double tolerance,
-  const int verbosity)
-{
-  // Generate a Hamber Wu Dirac matrix and invert it on a source
-
-#ifdef USE_CUDA
-
-  VectorTypeHost etaCusp = pyQCD::eigenToCusp(eta);
-  VectorTypeHost psiCusp(12 * this->nLinks_, 0.0);
-
-  Complex* gaugeField = new Complex[9 * this->nLinks_];
-  pyQCD::eigenToCusp(gaugeField, this->links_);
-
-  Complex cuspBoundaryConditions[4];
-  pyQCD::eigenToCusp(cuspBoundaryConditions, boundaryConditions);
-
-  pyQCD::invertHamberWuDiracOperator(psiCusp, etaCusp, mass,
-				     cuspBoundaryConditions,
-				     solverMethod, precondition, maxIterations,
-				     tolerance, verbosity, gaugeField,
-				     this->spatialExtent, this->temporalExtent);
-
-  delete[] gaugeField;
-  
-  VectorXcd psi = pyQCD::cuspToEigen(psiCusp);
-
-#else
-
-  // Generate the dirac matrix
-  if (verbosity > 0)
-    cout << "  Generating Dirac matrix..." << flush;
-
-  LinearOperator* diracOperator = new HamberWu(mass, boundaryConditions, this);
-
-  if (verbosity > 0)
-    cout << " Done!" << endl;
-
-  VectorXcd psi = invertDiracOperator(eta, diracOperator, solverMethod,
-				      precondition, maxIterations, tolerance,
-				      verbosity);
-
-  delete diracOperator;
-
-#endif
-
-  return psi;
-}
-
-
-
-VectorXcd Lattice::invertNaikDiracOperator(
-  const VectorXcd& eta, const double mass,
-  const vector<complex<double> >& boundaryConditions, const int solverMethod,
-  const int precondition, const int maxIterations, const double tolerance,
-  const int verbosity)
-{
-  // Generate a Wilson Dirac matrix and invert it on a source
-
-#ifdef USE_CUDA
-
-  VectorTypeHost etaCusp = pyQCD::eigenToCusp(eta);
-  VectorTypeHost psiCusp(12 * this->nLinks_, 0.0);
-
-  Complex* gaugeField = new Complex[9 * this->nLinks_];
-  pyQCD::eigenToCusp(gaugeField, this->links_);
-
-  Complex cuspBoundaryConditions[4];
-  pyQCD::eigenToCusp(cuspBoundaryConditions, boundaryConditions);
-
-  pyQCD::invertNaikDiracOperator(psiCusp, etaCusp, mass,
-				 cuspBoundaryConditions,
-				 solverMethod, precondition, maxIterations,
-				 tolerance, verbosity, gaugeField,
-				 this->spatialExtent, this->temporalExtent);
-
-  delete[] gaugeField;
-  
-  VectorXcd psi = pyQCD::cuspToEigen(psiCusp);
-
-#else
-
-  // Generate the dirac matrix
-  if (verbosity > 0)
-    cout << "  Generating Dirac matrix..." << flush;
-
-  LinearOperator* diracOperator = new Naik(mass, boundaryConditions, this);
-
-  if (verbosity > 0)
-    cout << " Done!" << endl;
-
-  VectorXcd psi = invertDiracOperator(eta, diracOperator, solverMethod,
-				      precondition, maxIterations, tolerance,
-				      verbosity);
-
-  delete diracOperator;
-
-#endif
-
-  return psi;
-}
-
-
-
-VectorXcd Lattice::invertDWFDiracOperator(
-  const VectorXcd& eta, const double mass, const double M5, const double Ls, 
-  const int kernelType, const vector<complex<double> >& boundaryConditions,
+VectorXcd Lattice::invertDiracOperator(
+  const int action, const vector<int>& intParams,
+  const vector<double>& floatParams,
+  const vector<complex<double> >& complexParams,
+  const vector<complex<double> >& boundaryConditions, const VectorXcd& eta,
   const int solverMethod, const int precondition, const int maxIterations,
   const double tolerance, const int verbosity)
-{
-  // Generate a Wilson Dirac matrix and invert it on a source
-
-#ifdef USE_CUDA
-
-  VectorTypeHost etaCusp = pyQCD::eigenToCusp(eta);
-  VectorTypeHost psiCusp(12 * this->nLinks_, 0.0);
-
-  Complex* gaugeField = new Complex[9 * this->nLinks_];
-  pyQCD::eigenToCusp(gaugeField, this->links_);
-
-  Complex cuspBoundaryConditions[4];
-  pyQCD::eigenToCusp(cuspBoundaryConditions, boundaryConditions);
-
-  pyQCD::invertDWFDiracOperator(psiCusp, etaCusp, mass, M5, Ls, kernelType,
-				 cuspBoundaryConditions,
-				 solverMethod, precondition, maxIterations,
-				 tolerance, verbosity, gaugeField,
-				 this->spatialExtent, this->temporalExtent);
-
-  delete[] gaugeField;
-  
-  VectorXcd psi = pyQCD::cuspToEigen(psiCusp);
-
-#else
-
-  // Generate the dirac matrix
-  if (verbosity > 0)
-    cout << "  Generating Dirac matrix..." << flush;
-
-  LinearOperator* diracOperator = new DWF(mass, M5, Ls, kernelType,
-					  boundaryConditions, this);
-
-  if (verbosity > 0)
-    cout << " Done!" << endl;
-
-  VectorXcd psi = invertDiracOperator(eta, diracOperator, solverMethod,
-				      precondition, maxIterations, tolerance,
-				      verbosity);
-
-  delete diracOperator;
-
-#endif
-
-  return psi;
-}
-
-
-
-VectorXcd Lattice::invertDiracOperator(const VectorXcd& eta,
-				       LinearOperator* diracMatrix,
-				       const int solverMethod,
-				       const int precondition,
-				       const int maxIterations,
-				       const double tolerance,
-				       const int verbosity)
 {
   // Inverts the supplied Dirac operator on the supplied source.
 
@@ -403,6 +190,10 @@ VectorXcd Lattice::invertDiracOperator(const VectorXcd& eta,
   int iterations = maxIterations;
   double residual = tolerance;
   double time = 0.0;
+
+  LinearOperator* diracMatrix;
+  this->diracOperatorFactory(diracMatrix, action, intParams, floatParams,
+			     complexParams, boundaryConditions);
 
   switch (solverMethod) {
   case pyQCD::bicgstab:
@@ -424,6 +215,8 @@ VectorXcd Lattice::invertDiracOperator(const VectorXcd& eta,
 	 << residual << " in " << iterations << " iterations." << endl;
     cout << "  -> CPU time: " << time << " seconds" << endl;
   }
+
+  delete diracMatrix;
 
   return psi;
 }
