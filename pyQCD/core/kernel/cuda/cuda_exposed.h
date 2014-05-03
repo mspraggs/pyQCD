@@ -24,7 +24,8 @@ extern "C"
   
     void computePropagator(PropagatorTypeHost& result,
 			   const int action, const int* intParams,
-			   const int* floatParams, const Complex* complexParams,
+			   const float* floatParams,
+			   const Complex* complexParams,
 			   const Complex* boundaryConditions, const int site[4],
 			   const int sourceSmearingType, const int nSourceSmears,
 			   const float sourceSmearingParameter,
