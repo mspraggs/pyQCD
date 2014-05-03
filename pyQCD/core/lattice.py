@@ -184,7 +184,7 @@ class Lattice(lattice.Lattice):
         """Returns the current field configuration.
         
         Returns:
-          Config: The current gauge field configuration
+          numpy.ndarray: The current gauge field configuration
           
         Examples:
           Create a lattice, thermalize it, then retrieve the current
@@ -193,16 +193,7 @@ class Lattice(lattice.Lattice):
           >>> import pyQCD
           >>> lattice = pyQCD.Lattice()
           >>> lattice.thermalize(100)
-          >>> lattice.get_config()
-          Field Configuration Object
-          --------------------------
-          Spatial extent: 4
-          Temportal extent: 8
-          Gauge action: wilson
-          Inverse coupling (beta): 5.5
-          Mean temporal link (ut): 1.0
-          Mean spatial link (us): 1.0
-          Anisotropy factor (chi): 1.0
+          >>> config = lattice.get_config()
         """
         r = xrange(self.L)
         t = xrange(self.T)
@@ -214,25 +205,24 @@ class Lattice(lattice.Lattice):
         for t, x, y, z, mu in sites:
             links[t][x][y][z][mu] \
               = np.array(lattice.Lattice.get_link(self, [t, x, y, z, mu]))
-            
-        out = config.Config(links, self.L, self.T, self.beta, self.ut,
-                            self.us, self.chi, self.action)
         
-        return out
+        return links
     
     def set_config(self, configuration):
         """Sets the current field configuration
         
         Args:
-          configuration (Config): The pyQCD.Config object containing
-            the gauge field configuration to use.
+          configuration (numpy.ndarray): A numpy.ndarray object containing
+            the gauge field configuration to use. Should have shape
+            (T, L, L, L, 4, 3, 3)
             
         Examples:
           Load a gauge field configuration from disk and load it into
           the current lattice object.
           
+          >>> import numpy as np
           >>> import pyQCD
-          >>> config = pyQCD.Config.load("myconfig.npz")
+          >>> config = np.load("myconfig.npy")
           >>> lattice = pyQCD.Lattice()
           >>> lattice.set_config(config)
         """
@@ -249,14 +239,14 @@ class Lattice(lattice.Lattice):
             lattice.Lattice.set_link(self, [t, x, y, z, mu], link_matrix)
     
     def save_config(self, filename):
-        """Saves the current field configuration to a numpy zip file
+        """Saves the current field configuration to a numpy binary file
         
         Args:
           filename (str): The file to save the configuration to.
           
         Examples:
           Create a lattice, thermalize and save the resulting config
-          to myconfig.npz.
+          to myconfig.npy.
           
           >>> import pyQCD
           >>> lattice = pyQCD.Lattice()
@@ -265,25 +255,25 @@ class Lattice(lattice.Lattice):
         """
         
         configuration = self.get_config()
-        configuration.save(filename)
+        np.save(filename, configuration)
         
     def load_config(self, filename):
-        """Loads the configuration in the specified file
+        """Loads the configuration in the specified numpy binary file
         
         Args:
           filename (str): The filename of the field configuration
-            (as a numpy zipped archive).
+            (as a numpy binary file).
             
         Examples:
-          Create a lattice and load the configuration in myconfig.npz
+          Create a lattice and load the configuration in myconfig.npy
           from disk into it.
           
           >>> import pyQCD
           >>> lattice = pyQCD.Lattice()
-          >>> lattice.load_config("myconfig.npz")
+          >>> lattice.load_config("myconfig.npy")
         """
         
-        configuration = config.Config.load(filename)
+        configuration = np.load(filename)
         self.set_config(configuration)
         
     def update(self):
@@ -498,9 +488,10 @@ class Lattice(lattice.Lattice):
         Args:
           r (int): The spatial extent of the Wilson loop
           t (int): The temporal extent of the Wilson loop
-          num_smears (int, optional): The number of stout gauge field smears to perform
-            before computing the Wilson loops
-          smearing_param (float, optional): The stout gauge field smearing parameter
+          num_smears (int, optional): The number of stout gauge field smears to
+            perform before computing the Wilson loops
+          smearing_param (float, optional): The stout gauge field smearing
+            parameter
         
         Returns:
           float: The value of the average Wilson loop
@@ -612,7 +603,7 @@ class Lattice(lattice.Lattice):
             1 or 0 will produce no output.
             
         Returns:
-          Propagator: The propagator encapsulated in a Propagator object
+          numpy.ndarray: The propagator as a numpy ndarray
           
         Examples:
           Create a lattice, thermalize it, and invert on a smeared source.
@@ -635,7 +626,8 @@ class Lattice(lattice.Lattice):
                          dicts.smearing_types[source_smear_type],
                          num_source_smears, source_smearing_param,
                          dicts.smearing_types[sink_smear_type], num_sink_smears,
-                         sink_smearing_param, dicts.solver_methods[solver_method],
+                         sink_smearing_param,
+                         dicts.solver_methods[solver_method],
                          boundary_conditions, dicts.truefalse[precondition],
                          max_iterations, tolerance, verbosity))
         
@@ -643,16 +635,7 @@ class Lattice(lattice.Lattice):
                                                        self.L, 4, 3, 4, 3)), 5,
                                                        6)
         
-        out = propagator.Propagator(prop, mass, self.L, self.T, self.beta,
-                                    self.ut, self.us, self.chi, self.action,
-                                    "wilson", {}, boundary_conditions,
-                                    source_site, num_field_smears,
-                                    field_smearing_param, source_smear_type,
-                                    num_source_smears, source_smearing_param,
-                                    sink_smear_type, num_sink_smears,
-                                    sink_smearing_param)
-        
-        return out
+        return prop
     
     def get_hamberwu_propagator(self, mass,
                                 source_site=[0, 0, 0, 0],
@@ -710,7 +693,7 @@ class Lattice(lattice.Lattice):
             1 or 0 will produce no output.
             
         Returns:
-          Propagator: The propagator encapsulated in a Propagator object
+          numpy.ndarray: The propagator as a numpy ndarray
           
         Examples:
           Create a lattice, thermalize it, and invert on a smeared source.
@@ -733,7 +716,8 @@ class Lattice(lattice.Lattice):
                          dicts.smearing_types[source_smear_type],
                          num_source_smears, source_smearing_param,
                          dicts.smearing_types[sink_smear_type], num_sink_smears,
-                         sink_smearing_param, dicts.solver_methods[solver_method],
+                         sink_smearing_param,
+                         dicts.solver_methods[solver_method],
                          boundary_conditions, dicts.truefalse[precondition],
                          max_iterations, tolerance, verbosity))
         
@@ -741,16 +725,7 @@ class Lattice(lattice.Lattice):
                                                        self.L, 4, 3, 4, 3)), 5,
                                                        6)
         
-        out = propagator.Propagator(prop, mass, self.L, self.T, self.beta,
-                                    self.ut, self.us, self.chi, self.action,
-                                    "hamber-wu", {}, boundary_conditions,
-                                    source_site, num_field_smears,
-                                    field_smearing_param, source_smear_type,
-                                    num_source_smears, source_smearing_param,
-                                    sink_smear_type, num_sink_smears,
-                                    sink_smearing_param)
-        
-        return out
+        return prop
     
     def get_naik_propagator(self, mass,
                             source_site=[0, 0, 0, 0],
@@ -808,7 +783,7 @@ class Lattice(lattice.Lattice):
             1 or 0 will produce no output.
             
         Returns:
-          Propagator: The propagator encapsulated in a Propagator object
+          numpy.ndarray: The propagator as a numpy ndarray
           
         Examples:
           Create a lattice, thermalize it, and invert on a smeared source.
@@ -831,7 +806,8 @@ class Lattice(lattice.Lattice):
                          dicts.smearing_types[source_smear_type],
                          num_source_smears, source_smearing_param,
                          dicts.smearing_types[sink_smear_type], num_sink_smears,
-                         sink_smearing_param, dicts.solver_methods[solver_method],
+                         sink_smearing_param,
+                         dicts.solver_methods[solver_method],
                          boundary_conditions, dicts.truefalse[precondition],
                          max_iterations, tolerance, verbosity))
         
@@ -839,16 +815,7 @@ class Lattice(lattice.Lattice):
                                                        self.L, 4, 3, 4, 3)), 5,
                                                        6)
         
-        out = propagator.Propagator(prop, mass, self.L, self.T, self.beta,
-                                    self.ut, self.us, self.chi, self.action,
-                                    "naik", {}, boundary_conditions,
-                                    source_site, num_field_smears,
-                                    field_smearing_param, source_smear_type,
-                                    num_source_smears, source_smearing_param,
-                                    sink_smear_type, num_sink_smears,
-                                    sink_smearing_param)
-        
-        return out
+        return prop
     
     def invert_wilson_dirac(self, eta, mass, boundary_conditions=[-1, 1, 1, 1],
                             solver_method="conjugate_gradient",
@@ -1235,8 +1202,8 @@ class Lattice(lattice.Lattice):
           numpy.ndarray: The spinor field resulting from the operator application
           
         Examples:
-          Create a lattice and a spinor, then apply the Naik Dirac operator to the
-          spinor.
+          Create a lattice and a spinor, then apply the Naik Dirac operator to
+          the spinor.
           
           >>> import pyQCD
           >>> lattice = pyQCD.Lattice()
