@@ -20,9 +20,9 @@ testing binary, though this is somewhat deprecated in favour of testing the code
 
 Code Locations
 --------------
-Code is divided into three directories: include, src and benchmark, containing (surprise, surprise)
-header files, source files and code for benchmarking various functions. Contents of the header
-directory:
+Code is divided into four directories: include, src, cuda and benchmark, containing (surprise,
+surprise) header files, source files, GPU code and code for benchmarking various functions. Contents
+of the header directory:
 
 * gil.hpp - class to aid in scoping the release of Python's global interpreter lock.
 * lattice.hpp - contains the core C++ implementation of the Lattice object.
@@ -49,6 +49,25 @@ function:
 * lattice_glue_meas.cpp - gluonic measurements, including Wilson loop and plaquette functions.
 * lattice_update.cpp - algorithms to update the gauge field.
 * lattice_utils.cpp - utililty functions relating to an instance of the lattice object.
+
+The cuda directory contains code that implements GPU versions of the code in the linear_operators
+directory, along with the factory, propagator and single inversion code in lattice_ferm_meas.cpp.
+The contents of this directory are as follows (headers and source files are lumped together):
+
+* base.h - includes cusp files and typedefs required by both the cuda code and the CPU code.
+* cuda_exposed.h - contains function prototypes to be included by the CPU code.
+* cuda_interface.h - contains re-implementations of the code in lattice_ferm_meas.cpp.
+* kernels.h - contains the global and device code for a generalised hopping term and a diagonal term.
+* utils.h - contains some utility functions to handle things like creating spin structures and computing neighbour indices.
+
+The remaining files correspond to those found in the linear_operators directory. There are a couple
+of idiosyncrasies concerning these files. The first is that, perhaps through my own ignorance, is that
+cuda seems to not be able to link separate object files. Hence the implementations are stored in *.tcu
+files that are included in the header files, so compiling cuda_interface.cu compiles all the code in
+this directory. The second is that, again perhaps through my own ignorance, nvcc seems to mangle 
+function names differently to g++, meaning that linking to the cuda library doesn't seem to work
+unless the functions to be linked to do not have their names mangled. Hence these functions are
+currently prepended with extern "C".
 
 Conventions
 -----------

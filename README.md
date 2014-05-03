@@ -9,6 +9,7 @@ pyQCD brings an object-orientated approach to lattice simulations and analysis. 
 
 * Base Lattice object written in C++ and compiled using Boost.Python provides a flexible and fast API.
 * Full parallelisation of CPU-intensive code using OpenMP.
+* Capable of using CUDA enabled GPUs to accelerate inversion of Dirac matrices.
 * Wilson, Hamber-Wu and Naik 4D Wilson-like fermionic actions.
 * Fermionic measurement API provides extensibility through functions for applying Dirac operators and inverting on single quark sources.
 * Propagator generation functions for all 4D fermionic actions, with support for Jacobi smearing of sinks and sources.
@@ -60,12 +61,12 @@ to those above:
 * OpenMP (version 3), required for parallel updates, but not essential.
 
 pyQCD is capable of using CUDA-capable GPUs to accelerate the inversion of Dirac matrices to generate
-propagators. (N.B.: This feature is currently unavailable in the HEAD of this repo. To use the CUDA-enabled
-version, please checkout revision c1b0894.) If you have a CUDA enabled GPU, and you want to use its capabilities,
-then you'll also need the following packages:
+propagators. Note that preconditioning, tadpole improvement and anisotropic lattices are currently not
+implemented in the cuda linear operator kernels. If you have a CUDA enabled GPU, and you want to use its
+capabilities, then you'll also need the following packages:
 
 * CUDA, version 4.2 or greater;
-* CUSP Sparse Matrix Library, available [here](http://cusplibrary.github.io/).
+* CUSP Sparse Matrix Library, available [here](http://cusplibrary.github.io/), using commit 6cde5ee.
 
 Once these are installed, the package can be built using cmake. On Unix-like OSes, this is straightforward:
 
