@@ -243,7 +243,7 @@ VectorXcd Lattice::invertDiracOperator(
 
   VectorTypeHost psiCusp(eta.size(), 0.0);
   VectorTypeHost etaCusp(eta.size(), 0.0);
-  eigenToCusp(etaCusp, eta);
+  pyQCD::eigenToCusp(etaCusp, eta);
 
   pyQCD::invertDiracOperator(psiCusp, action, cuspIntParams, cuspFloatParams,
 			     cuspComplexParams, cuspBoundaryConditions,
