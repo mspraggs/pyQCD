@@ -125,27 +125,6 @@ public:
     const int nSinkSmears, const double sinkSmearingParameter,
     const int solverMethod, const int maxIterations, const double tolerance,
     const int precondition, const int verbosity);
-
-  VectorXcd invertWilsonDiracOperator(
-    const VectorXcd& eta, const double mass,
-    const vector<complex<double> >& boundaryConditions, const int solverMethod,
-    const int precondition, const int maxIterations, const double tolerance,
-    const int verbosity);
-  VectorXcd invertHamberWuDiracOperator(
-    const VectorXcd& eta, const double mass,
-    const vector<complex<double> >& boundaryConditions, const int solverMethod,
-    const int precondition, const int maxIterations, const double tolerance,
-    const int verbosity);
-  VectorXcd invertNaikDiracOperator(
-    const VectorXcd& eta, const double mass,
-    const vector<complex<double> >& boundaryConditions, const int solverMethod,
-    const int precondition, const int maxIterations, const double tolerance,
-    const int verbosity);
-  VectorXcd invertDWFDiracOperator(
-    const VectorXcd& eta, const double mass, const double M5, const double Ls,
-    const int kernelType, const vector<complex<double> >& boundaryConditions,
-    const int solverMethod, const int precondition, const int maxIterations,
-    const double tolerance, const int verbosity);
   VectorXcd invertDiracOperator(
     const int action, const vector<int>& intParams,
     const vector<double>& floatParams,
