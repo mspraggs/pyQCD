@@ -25,7 +25,7 @@ namespace pyQCD
 			    const Complex* complexParams,
 			    const Complex* boundaryConditions,
 			    const int L, const int T, const bool precondition,
-			    const bool hermitian, const Complex* links,
+			    const bool hermitian, Complex* links,
 			    const bool copyLinks)
   {
     // Generates the specified Dirac operator with the specified paramaters
@@ -64,7 +64,7 @@ namespace pyQCD
 			   const VectorTypeHost& eta, const int solverMethod,
 			   const int precondition, const int maxIterations,
 			   const double tolerance, const int verbosity,
-			   const int L, const int T, const Complex* gaugeField)
+			   const int L, const int T, Complex* gaugeField)
   {
     VectorTypeDev psiDev = eta; // Put the source here temporarily
     VectorTypeDev etaDev = eta;
@@ -121,7 +121,7 @@ namespace pyQCD
 			 const int solverMethod, const int maxIterations,
 			 const float tolerance, const int precondition,
 			 const int verbosity, const int L, const int T,
-			 const Complex* gaugeField)
+			 Complex* gaugeField)
   {
     Complex tempBoundaryConditions[4] = {Complex(-1.0, 0.0),
 					 Complex(1.0, 0.0),

@@ -22,7 +22,7 @@ namespace pyQCD
 			    const Complex* complexParams,
 			    const Complex* boundaryConditions,
 			    const int L, const int T, const bool precondition,
-			    const bool hermitian, const Complex* links,
+			    const bool hermitian, Complex* links,
 			    const bool copyLinks);
 }
 #endif
