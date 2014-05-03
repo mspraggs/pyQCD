@@ -104,6 +104,12 @@ namespace pyQCD
   double oneNorm(const Matrix3cd& matrix);
 
 #ifdef USE_CUDA
+  void convertLinopParams(int* cudaIntParams, const vector<int> intParams,
+			  float* cudaFloatParams,
+			  const vector<float> floatParams,
+			  Complex* cudaComplexParams,
+			  const vector<complex<double> > complexParams);
+
   void eigenToCusp(Complex* cuspField, const GaugeField& eigenField);
 
   void eigenToCusp(Complex* cuspBCs, const vector<complex<double> >& eigenBCs);
