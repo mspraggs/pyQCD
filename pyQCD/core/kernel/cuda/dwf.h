@@ -14,7 +14,7 @@ class CudaDWF : public CudaLinearOperator
 public:
   CudaDWF(const float mass, const float M5, const int Ls, const int kernelType,
       const int L, const int T, const bool precondition, const bool hermitian,
-      const Complex boundaryConditions[4], Complex* links);
+      const Complex boundaryConditions[4], const Complex* links);
   ~CudaDWF();
 
   void apply(Complex* y, const Complex* x) const;

@@ -11,7 +11,7 @@ class CudaHamberWu : public CudaLinearOperator
 public:
   CudaHamberWu(const float mass, const int L, const int T, const bool precondition,
 	   const bool hermitian, const Complex* boundaryConditions,
-	   Complex* links, const bool copyLinks);
+	   const Complex* links, const bool copyLinks);
   ~CudaHamberWu();
 
   void apply(Complex* y, const Complex* x) const;
