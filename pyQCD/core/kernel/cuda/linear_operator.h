@@ -10,8 +10,8 @@ class CudaLinearOperator : public cusp::linear_operator<Complex, cusp::device_me
 {
 public:
   CudaLinearOperator(const int L, const int T, const int precondition,
-		     const int hermitian, const, Complex* links,
-		     const bool copyLinks);
+		 const int hermitian, Complex* links,
+		 const bool copyLinks);
   virtual ~CudaLinearOperator();
 
   // The CUSP linear operator application function
