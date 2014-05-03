@@ -122,6 +122,7 @@ Lattice::computePropagator(const int action, const vector<int>& intParams,
   delete[] cuspIntParams;
   delete[] cuspFloatParams;
   delete[] cuspComplexParams;
+  delete[] gaugeField;
 
   propagator = pyQCD::cuspToEigen(cuspProp);
 
@@ -223,6 +224,42 @@ VectorXcd Lattice::invertDiracOperator(
   // Inverts the supplied Dirac operator on the supplied source.
 
   VectorXcd psi = VectorXcd::Zero(eta.size());
+
+#ifdef USE_CUDA
+
+  Complex* gaugeField = new Complex[9 * this->nLinks_];
+  pyQCD::eigenToCusp(gaugeField, this->links_);
+
+  int* cuspIntParams = new int[intParams.size()];
+  float* cuspFloatParams = new float[floatParams.size()];
+  Complex* cuspComplexParams = new Complex[complexParams.size()];
+  Complex cuspBoundaryConditions[4];
+  
+  pyQCD::convertLinopParams(cuspIntParams, intParams,
+			    cuspFloatParams, floatParams,
+			    cuspComplexParams, complexParams);
+
+  pyQCD::eigenToCusp(cuspBoundaryConditions, boundaryConditions);
+
+  VectorTypeHost psiCusp(eta.size(), 0.0);
+  VectorTypeHost etaCusp(eta.size(), 0.0);
+  eigenToCusp(etaCusp, eta);
+
+  pyQCD::invertDiracOperator(psiCusp, action, cuspIntParams, cuspFloatParams,
+			     cuspComplexParams, cuspBoundaryConditions,
+			     etaCusp, solverMethod, precondition, maxIterations,
+			     tolerance, verbosity, this->spatialExtent,
+			     this->temporalExtent,
+			     gaugeField);
+
+  psi = cuspToEigen(psiCusp);
+
+  delete[] cuspIntParams;
+  delete[] cuspFloatParams;
+  delete[] cuspComplexParams;
+  delete[] gaugeField;
+			     
+#else
 
   int iterations = maxIterations;
   double residual = tolerance;
