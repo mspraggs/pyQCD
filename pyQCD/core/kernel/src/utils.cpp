@@ -294,7 +294,7 @@ namespace pyQCD
 
   void convertLinopParams(int* cudaIntParams, const vector<int> intParams,
 			  float* cudaFloatParams,
-			  const vector<float> floatParams,
+			  const vector<double> floatParams,
 			  Complex* cudaComplexParams,
 			  const vector<complex<double> > complexParams)
   {
