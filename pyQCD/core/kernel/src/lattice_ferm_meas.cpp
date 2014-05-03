@@ -292,5 +292,7 @@ VectorXcd Lattice::invertDiracOperator(
 
   delete diracMatrix;
 
+#endif
+
   return psi;
 }
