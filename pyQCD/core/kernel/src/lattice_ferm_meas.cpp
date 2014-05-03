@@ -95,7 +95,7 @@ Lattice::computePropagator(const int action, const vector<int>& intParams,
 #ifdef USE_CUDA
 
   Complex* gaugeField = new Complex[9 * this->nLinks_];
-  eigenToCusp(gaugeField, this->links_);
+  pyQCD::eigenToCusp(gaugeField, this->links_);
 
   int* cudaIntParams = new int[intParams.size()];
   float* cudaFloatParams = new float[floatParams.size()];
@@ -123,7 +123,7 @@ Lattice::computePropagator(const int action, const vector<int>& intParams,
   delete[] cudaFloatParams;
   delete[] cudaComplexParams;
 
-  propagator = cuspToEigen(cuspProp);
+  propagator = pyQCD::cuspToEigen(cuspProp);
 
 #else
   
