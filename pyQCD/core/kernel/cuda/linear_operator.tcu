@@ -1,6 +1,6 @@
 
 CudaLinearOperator::CudaLinearOperator(const int L, const int T, const int precondition,
-			       const int hermitian, Complex* links,
+			       const int hermitian, const Complex* links,
 			       const bool copyLinks)
   : super(12 * L * L * L * T, 12 * L * L * L * T)
 {
