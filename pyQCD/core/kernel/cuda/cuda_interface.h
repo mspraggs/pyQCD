@@ -17,7 +17,8 @@ namespace pyQCD
   void makeSource(VectorTypeDev& eta, const int site[4], const int spin,
 		  const int colour, const CudaLinearOperator* smearingOperator);
 
-  void diracOperatorFactory(CudaLinearOperator* diracOperator, const int action,
+  void diracOperatorFactory(CudaLinearOperator*& diracOperator,
+			    const int action,
 			    const int* intParams, const float* floatParams,
 			    const Complex* complexParams,
 			    const Complex* boundaryConditions,

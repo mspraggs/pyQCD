@@ -109,7 +109,7 @@ public:
 
   VectorXcd makeSource(const int site[4], const int spin, const int colour,
 		       LinearOperator* smearingOperator);
-  void diracOperatorFactory(LinearOperator* diracOperator, const int action,
+  void diracOperatorFactory(LinearOperator*& diracOperator, const int action,
 			    const vector<int>& intParams,
 			    const vector<double>& floatParams,
 			    const vector<complex<double> >& complexParams,

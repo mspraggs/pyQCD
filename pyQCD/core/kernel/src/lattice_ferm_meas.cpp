@@ -29,7 +29,7 @@ Lattice::makeSource(const int site[4], const int spin, const int colour,
 
 
 void Lattice::diracOperatorFactory(
-  LinearOperator* diracOperator, const int action, const vector<int>& intParams,
+  LinearOperator*& diracOperator, const int action, const vector<int>& intParams,
   const vector<double>& floatParams,
   const vector<complex<double> >& complexParams,
   const vector<complex<double> >& boundaryConditions)

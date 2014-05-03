@@ -20,7 +20,8 @@ namespace pyQCD
 
 
 
-  void diracOperatorFactory(CudaLinearOperator* diracOperator, const int action,
+  void diracOperatorFactory(CudaLinearOperator*& diracOperator,
+			    const int action,
 			    const int* intParams, const float* floatParams,
 			    const Complex* complexParams,
 			    const Complex* boundaryConditions,
