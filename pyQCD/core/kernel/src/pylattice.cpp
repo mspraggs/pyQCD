@@ -117,6 +117,10 @@ py::list pyLattice::computeWilsonPropagatorP(
   // Wrapper for the calculation of a propagator
   int tempSite[4];
   vector<complex<double> > tempBoundaryConditions;
+  vector<int> intParams;
+  vector<double> floatParams;
+  floatParams.push_back(mass);
+  vector<complex<double> > complexParams;
 
   pyQCD::propagatorPrep(tempSite, tempBoundaryConditions, site,
 			boundaryConditions);
@@ -125,13 +129,14 @@ py::list pyLattice::computeWilsonPropagatorP(
   ScopedGILRelease* scope = new ScopedGILRelease;
   // Get the propagator
   vector<MatrixXcd> prop 
-    = this->computeWilsonPropagator(mass, tempSite, nSmears, smearingParameter,
-				    sourceSmearingType, nSourceSmears,
-				    sourceSmearingParameter, sinkSmearingType,
-				    nSinkSmears, sinkSmearingParameter,
-				    solverMethod, tempBoundaryConditions,
-				    precondition, maxIterations, tolerance,
-				    verbosity);
+    = this->computePropagator(pyQCD::wilson, intParams, floatParams,
+			      complexParams, tempBoundaryConditions,
+			      tempSite, nSmears, smearingParameter,
+			      sourceSmearingType, nSourceSmears,
+			      sourceSmearingParameter, sinkSmearingType,
+			      nSinkSmears, sinkSmearingParameter,
+			      solverMethod, maxIterations, tolerance,
+			      precondition, verbosity);
   // Put GIL back in place
   delete scope;
 
@@ -153,20 +158,26 @@ py::list pyLattice::computeHamberWuPropagatorP(
   // Wrapper for the calculation of a propagator
   int tempSite[4];
   vector<complex<double> > tempBoundaryConditions;
+  vector<int> intParams;
+  vector<double> floatParams;
+  floatParams.push_back(mass);
+  vector<complex<double> > complexParams;
 
   pyQCD::propagatorPrep(tempSite, tempBoundaryConditions, site,
 			boundaryConditions);
+
   // Release the GIL for the propagator inversion
   ScopedGILRelease* scope = new ScopedGILRelease;
   // Get the propagator
   vector<MatrixXcd> prop 
-    = this->computeHamberWuPropagator(mass, tempSite, nSmears, smearingParameter,
-				      sourceSmearingType, nSourceSmears,
-				      sourceSmearingParameter, sinkSmearingType,
-				      nSinkSmears, sinkSmearingParameter,
-				      solverMethod, tempBoundaryConditions,
-				      precondition, maxIterations, tolerance,
-				      verbosity);
+    = this->computePropagator(pyQCD::hamberWu, intParams, floatParams,
+			      complexParams, tempBoundaryConditions,
+			      tempSite, nSmears, smearingParameter,
+			      sourceSmearingType, nSourceSmears,
+			      sourceSmearingParameter, sinkSmearingType,
+			      nSinkSmears, sinkSmearingParameter,
+			      solverMethod, maxIterations, tolerance,
+			      precondition, verbosity);
   // Put GIL back in place
   delete scope;
 
@@ -188,20 +199,26 @@ py::list pyLattice::computeNaikPropagatorP(
   // Wrapper for the calculation of a propagator
   int tempSite[4];
   vector<complex<double> > tempBoundaryConditions;
+  vector<int> intParams;
+  vector<double> floatParams;
+  floatParams.push_back(mass);
+  vector<complex<double> > complexParams;
 
   pyQCD::propagatorPrep(tempSite, tempBoundaryConditions, site,
 			boundaryConditions);
+
   // Release the GIL for the propagator inversion
   ScopedGILRelease* scope = new ScopedGILRelease;
   // Get the propagator
   vector<MatrixXcd> prop 
-    = this->computeNaikPropagator(mass, tempSite, nSmears, smearingParameter,
-				  sourceSmearingType, nSourceSmears,
-				  sourceSmearingParameter, sinkSmearingType,
-				  nSinkSmears, sinkSmearingParameter,
-				  solverMethod, tempBoundaryConditions,
-				  precondition, maxIterations, tolerance,
-				  verbosity);
+    = this->computePropagator(pyQCD::naik, intParams, floatParams,
+			      complexParams, tempBoundaryConditions,
+			      tempSite, nSmears, smearingParameter,
+			      sourceSmearingType, nSourceSmears,
+			      sourceSmearingParameter, sinkSmearingType,
+			      nSinkSmears, sinkSmearingParameter,
+			      solverMethod, maxIterations, tolerance,
+			      precondition, verbosity);
   // Put GIL back in place
   delete scope;
 
