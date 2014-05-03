@@ -28,6 +28,33 @@ Lattice::makeSource(const int site[4], const int spin, const int colour,
 
 
 
+void Lattice::diracOperatorFactory(
+  LinearOperator* diracOperator, const int action, const vector<int>& intParams,
+  const vector<double>& floatParams,
+  const vector<complex<double> >& complexParams,
+  const vector<complex<double> >& boundaryConditions)
+{
+  // Generates the specified Dirac operator with the specified parameters
+
+  switch (action) {
+  case pyQCD::wilson:
+    diracOperator = new Wilson(floatParams[0], boundaryConditions, this);
+    break;
+  case pyQCD::hamberWu:
+    diracOperator = new HamberWu(floatParams[0], boundaryConditions, this);
+    break;
+  case pyQCD::naik:
+    diracOperator = new Naik(floatParams[0], boundaryConditions, this);
+    break;
+  case pyQCD::dwf:
+    diracOperator = new DWF(floatParams[0], floatParams[1], intParams[0],
+			    intParams[1], boundaryConditions, this);
+    break;
+  }
+}
+
+
+
 vector<MatrixXcd>
 Lattice::computeWilsonPropagator(
   const double mass, int site[4], const int nSmears,
