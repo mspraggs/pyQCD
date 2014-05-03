@@ -97,21 +97,21 @@ Lattice::computePropagator(const int action, const vector<int>& intParams,
   Complex* gaugeField = new Complex[9 * this->nLinks_];
   pyQCD::eigenToCusp(gaugeField, this->links_);
 
-  int* cudaIntParams = new int[intParams.size()];
-  float* cudaFloatParams = new float[floatParams.size()];
-  Complex* cudaComplexParams = new Complex[complexParams.size()];
+  int* cuspIntParams = new int[intParams.size()];
+  float* cuspFloatParams = new float[floatParams.size()];
+  Complex* cuspComplexParams = new Complex[complexParams.size()];
   Complex cuspBoundaryConditions[4];
   
-  pyQCD::convertLinopParams(cudaIntParams, intParams,
-			    cudaFloatParams, floatParams,
-			    cudaComplexParams, complexParams);
+  pyQCD::convertLinopParams(cuspIntParams, intParams,
+			    cuspFloatParams, floatParams,
+			    cuspComplexParams, complexParams);
 
   pyQCD::eigenToCusp(cuspBoundaryConditions, boundaryConditions);
 
   PropagatorTypeHost cuspProp(12 * nSites, 12, 0.0);
 
-  pyQCD::computePropagator(cuspProp, action, cudaIntParams, cudaFloatParams,
-			   cudaComplexParams, cudaBoundaryConditions,
+  pyQCD::computePropagator(cuspProp, action, cuspIntParams, cuspFloatParams,
+			   cuspComplexParams, cuspBoundaryConditions,
 			   site, sourceSmearingType, nSourceSmears,
 			   sourceSmearingParameter, sinkSmearingType,
 			   nSinkSmears, sinkSmearingParameter, solverMethod,
@@ -119,9 +119,9 @@ Lattice::computePropagator(const int action, const vector<int>& intParams,
 			   this->spatialExtent, this->temporalExtent,
 			   gaugeField);
 
-  delete[] cudaIntParams;
-  delete[] cudaFloatParams;
-  delete[] cudaComplexParams;
+  delete[] cuspIntParams;
+  delete[] cuspFloatParams;
+  delete[] cuspComplexParams;
 
   propagator = pyQCD::cuspToEigen(cuspProp);
 
