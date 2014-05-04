@@ -72,7 +72,7 @@ def spin_prod(a, b):
     except IndexError:
         # Right multiplication
         out = np.tensordot(a, b, (1, 4))
-        out = np.transpose(out, (1, 2, 3, 4, 5, 6, 0, 7))
+        out = np.transpose(out, (1, 2, 3, 4, 0, 5, 6, 7))
         
         return out
 
