@@ -683,7 +683,7 @@ def compute_meson_correlator(propagator1, propagator2, source_interpolator,
       >>> lattice = pyQCD.Lattice()
       >>> lattice.thermalize(100)
       >>> prop = lattice.get_propagator(0.4)
-      >>> twopoint.compute_meson_correlator(prop, prop, "g5", "g5")
+      >>> correlator = pyQCD.compute_meson_correlator(prop, prop, "g5", "g5")
     """
         
     try:
