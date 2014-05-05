@@ -890,6 +890,55 @@ def fit_correlator(correlator, fit_function, fit_range,
         return b
     else:
         return postprocess_function(b)
+        
+def compute_energy(correlator, fit_range, initial_parameters,
+                   correlator_std=None):
+    """Computes the ground state energy of the specified correlator by fitting
+    a curve to the data. The type of curve to be fitted (cosh or sinh) is
+    determined from the shape of the correlator.
+                     
+    Args:
+      correlator (numpy.ndarray): The correlator to be fitted.
+      fit_range (list or tuple): Specifies the timeslices over which
+        to perform the fit. If a list or tuple with two elements is
+        supplied, then range(*fit_range): is applied to the function
+        to generate a list of timeslices to fit over.
+      initial_parameters (list or tuple): The initial parameters to supply
+        to the fitting routine.
+      correlator_std (numpy.ndarray, optional): The standard deviation
+        in the specified correlator. If no standard deviation is supplied,
+        then it is taken to be unity for each timeslice. This is equivalent
+        to neglecting the error when computing the residuals for the fit.
+        
+    Returns:
+      float: The fitted ground state energy.
+          
+    Examples:
+      This function works in a very similar way to fit_correlato function,
+      except the fitting function and the postprocessing function are already
+      specified.
+          
+      >>> import pyQCD
+      >>> import numpy as np
+      >>> correlator = np.load("correlator.npy")
+      >>> pyQCD.compute_energy(correlator, [5, 16], [1.0, 1.0])
+      1.532435
+    """
+
+    T = correlator.size
+                
+    if np.sign(correlator[1]) == np.sign(correlator[-1]):
+        fit_function = lambda b, t, Ct, err: \
+          (Ct - b[0] * np.exp(-b[1] * t) - b[0] * np.exp(-b[1] * (T - t))) / err
+    else:
+        fit_function = lambda b, t, Ct, err: \
+          (Ct - b[0] * np.exp(-b[1] * t) + b[0] * np.exp(-b[1] * (T - t))) / err
+          
+    postprocess_function = lambda b: b[1]
+        
+    return fit_correlator(correlator, fit_function, fit_range,
+                          initial_parameters, correlator_std,
+                          postprocess_function)
               
 class TwoPoint(Observable):
     """Encapsulates two-point function data and provides fitting tools.
@@ -1258,71 +1307,6 @@ class TwoPoint(Observable):
         # Now we add the correlators to the current object
         for key, value in results:
             self.add_correlator(value, *key)
-        
-    def compute_energy(self, fit_range, initial_parameters, correlator_std=None,
-                       label=None, masses=None, momentum=None, source_type=None,
-                       sink_type=None):
-        """Computes the ground state energy of the specified correlator
-        by fitting a curve to the data. The type of curve to be fitted
-        (cosh or sinh) is determined from the shape of the correlator.
-                     
-        Args:
-          fit_range (list): (list or tuple): Specifies the timeslices over which
-            to perform the fit. If a list or tuple with two elements is
-            supplied, then range(*fit_range): is applied to the function
-            to generate a list of timeslices to fit over.
-          initial_parameters (list or tuple): The initial parameters to
-            supply to the fitting routine.
-          correlator_std (numpy.ndarray, optional): The standard deviation
-            in the specified correlator. If no standard deviation is
-            supplied, then it is taken to be unity for each timeslice.
-            This is equivalent to neglecting the error when computing
-            the residuals for the fit.
-          label (str, optional): The label of the correlator to be fitted.
-          masses (list, optional): The bare quark masses of the quarks
-            that form the hadron that the correlator corresponds to.
-          momentum (list, optional): The momentum of the hadron that
-            the correlator corresponds to.
-          source_type (str, optional): The type of source used when
-            generating the propagators that form the correlator.
-          sink_type (str, optional): The type of sink used when
-            generating the propagators that form the correlator.
-        
-        Returns:
-          float: The fitted ground state energy.
-          
-        Examples:
-          This function works in a very similar way to fit_correlator
-          function, except the fitting function and the postprocessing
-          function are already specified.
-          
-          >>> import pyQCD
-          >>> correlator = pyQCD.TwoPoint.load("correlator.npz")
-          >>> correlator.compute_energy([5, 16], [1.0, 1.0])
-          1.532435
-        """
-        
-        correlator = self.get_correlator(label, masses, momentum, source_type,
-                                         sink_type)
-        
-        if TwoPoint._detect_cosh(correlator):
-            fit_function \
-              = lambda b, t, Ct, err: \
-              (Ct - b[0] * np.exp(-b[1] * t)
-               - b[0] * np.exp(-b[1] * (self.T - t))) \
-              / err
-        else:
-            fit_function \
-              = lambda b, t, Ct, err: \
-              (Ct - b[0] * np.exp(-b[1] * t)
-               + b[0] * np.exp(-b[1] * (self.T - t))) \
-              / err
-          
-        postprocess_function = lambda b: b[1]
-        
-        return self.fit_correlator(fit_function, fit_range, initial_parameters,
-                                   correlator_std, postprocess_function, label,
-                                   masses, momentum, source_type, sink_type)
         
     def compute_square_energy(self, fit_range, initial_parameters,
                               correlator_std=None, label=None, masses=None,
