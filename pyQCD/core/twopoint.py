@@ -394,6 +394,65 @@ def load_chroma_hadspec_currents(filename, fold=False):
               = fold_correlator(correlator) if fold else correlator
 
     return out
+
+def load_chroma_mres(filename, fold=False):
+    """Loads the domain wall mres data from the provided chroma output xml
+    file.
+        
+    The data is imported as two correlators: the pseudoscalar correlator at
+    the edges of the fifth dimension (<J5a P> )and the midpoint-pseudoscalar
+    correlator in the centre of the fifth dimension (<J5qa P>). The resulting
+    correlators are labelled 'J5a' and 'J5qa', respectively.
+        
+    Args:
+      filename: (str): The name of the file from which to import the
+        correlators.
+      fold (bool, optional): Determines whether the correlators should
+        be folded about the centre of the temporal axis after they are
+        imported.
+
+    Returns:
+      dict: The two correlators used to compute the residual mass.
+            
+    Examples:
+      Here we simply load the correlators from a the supplied xml file.
+      Note that the mass of each quark is also extracted, and so can
+      be used when referring to results for a specific propagator
+          
+      >>> import pyQCD
+      >>> mres_data = pyQCD.load_chroma_mres('results.out.xml')
+      >>> J5a_mq0p1 = pyQCD.filter_correlator(mres_data, 'J5a', (0.1, 0.1))
+      >>> J5a_mq0p3 = pyQCD.filter_correlator(mres_data, 'J5a', (0.3, 0.3))
+    """
+        
+    xmltree = ET.parse(filename)
+    xmlroot = xmltree.getroot()
+        
+    propagator_roots = xmlroot.findall("InlineObservables/elem/propagator")
+
+    out = {}
+    
+    for prop_root in propagator_roots:
+        mass = float(prop_root.find("Input/Param/FermionAction/Mass").text)
+        pseudo_pseudo_string \
+          = prop_root.find("DWF_QuarkProp4/DWF_Psuedo_Pseudo/mesprop").text
+        midpoint_pseudo_string \
+          = prop_root.find("DWF_QuarkProp4/DWF_MidPoint_Pseudo/mesprop").text
+
+        pseudo_pseudo_array \
+          = np.array([float(x) for x in pseudo_pseudo_string.split()])
+        midpoint_pseudo_array \
+          = np.array([float(x) for x in midpoint_pseudo_string.split()])
+              
+        out["J5a", (mass, mass), (0, 0, 0), None, None] \
+          = fold_correlator(pseudo_pseudo_array) \
+          if fold else pseudo_pseudo_array
+              
+        out["J5qa", (mass, mass), (0, 0, 0), None, None] \
+          = fold_correlator(midpoint_pseudo_array) \
+          if fold else midpoint_pseudo_array
+
+    return out
     
 def filter_correlators(data, label=None, masses=None, momentum=None,
                        source_type=None, sink_type=None):
@@ -762,57 +821,7 @@ class TwoPoint(Observable):
             
     
                 
-    def load_chroma_mres(self, filename, fold=False):
-        """Loads the domain wall mres data from the provided chroma output xml
-        file.
-        
-        The data is imported as two correlators: the pseudoscalar correlator
-        at the edges of the fifth dimension (<J5a P> )and the
-        midpoint-pseudoscalar correlator in the centre of the fifth dimension
-        (<J5qa P>). The resulting correlators are labelled 'J5a' and 'J5qa',
-        respectively.
-        
-        Args:
-          filename: (str): The name of the file from which to import the
-            correlators.
-          fold (bool, optional): Determines whether the correlators should
-            be folded about the centre of the temporal axis after they are
-            imported.
-            
-        Examples:
-          Here we simply load the correlators from a the supplied xml file.
-          Note that the mass of each quark is also extracted, and so can
-          be used when referring to results for a specific propagator
-          
-          >>> import pyQCD
-          >>> tp = pyQCD.TwoPoint(32, 16)
-          >>> tp.load_chroma_mres('results.out.xml')
-          >>> J5a_mq0p1 = tp.get_correlator('J5a', (0.1, 0.1))
-          >>> J5a_mq0p3 = tp.get_correlator('J5a', (0.3, 0.3))
-        """
-        
-        xmltree = ET.parse(filename)
-        xmlroot = xmltree.getroot()
-        
-        propagator_roots = xmlroot.findall("InlineObservables/elem/propagator")
-        
-        for prop_root in propagator_roots:
-            mass = float(prop_root.find("Input/Param/FermionAction/Mass").text)
-            pseudo_pseudo_string \
-              = prop_root.find("DWF_QuarkProp4/DWF_Psuedo_Pseudo/mesprop").text
-            midpoint_pseudo_string \
-              = prop_root.find("DWF_QuarkProp4/DWF_MidPoint_Pseudo/mesprop").text
-
-            pseudo_pseudo_array \
-              = np.array([float(x) for x in pseudo_pseudo_string.split()])
-            midpoint_pseudo_array \
-              = np.array([float(x) for x in midpoint_pseudo_string.split()])
-              
-            self.add_correlator(pseudo_pseudo_array, "J5a", (mass, mass),
-                                fold=fold)
-              
-            self.add_correlator(midpoint_pseudo_array, "J5qa", (mass, mass),
-                                fold=fold)
+    
                 
     def load_ukhadron_meson_binary(self, filename, byteorder, quark_masses,
                                    source_type=None, sink_type=None,

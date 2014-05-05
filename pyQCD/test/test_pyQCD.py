@@ -935,7 +935,7 @@ class TestPropagator:
         assert (prop_multiplied == expected_product).all()
 
 class TestTwoPoint:
-                
+
     def test_load_chroma_mesonspec(self):
         
         correlators \
@@ -974,11 +974,9 @@ class TestTwoPoint:
         
     def test_load_chroma_mres(self):
         
-        twopoint = TwoPoint(32, 16)
+        mres_data = load_chroma_mres(create_fullpath("hadspec.out.xml"))
         
-        twopoint.load_chroma_mres(create_fullpath("hadspec.out.xml"))
-        
-        assert len(twopoint.data.keys()) == 10
+        assert len(mres_data.keys()) == 10
             
     def test_load_ukhadron_meson_binary(self):
         
