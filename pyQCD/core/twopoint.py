@@ -421,8 +421,8 @@ def load_chroma_mres(filename, fold=False):
           
       >>> import pyQCD
       >>> mres_data = pyQCD.load_chroma_mres('results.out.xml')
-      >>> J5a_mq0p1 = pyQCD.filter_correlator(mres_data, 'J5a', (0.1, 0.1))
-      >>> J5a_mq0p3 = pyQCD.filter_correlator(mres_data, 'J5a', (0.3, 0.3))
+      >>> J5a_mq0p1 = mres_data[('J5a', (0.1, 0.1))]
+      >>> J5a_mq0p3 = mres_data['J5a', (0.3, 0.3))]
     """
         
     xmltree = ET.parse(filename)
@@ -444,11 +444,11 @@ def load_chroma_mres(filename, fold=False):
         midpoint_pseudo_array \
           = np.array([float(x) for x in midpoint_pseudo_string.split()])
               
-        out["J5a", (mass, mass), (0, 0, 0), None, None] \
+        out["J5a", (mass, mass)] \
           = fold_correlator(pseudo_pseudo_array) \
           if fold else pseudo_pseudo_array
               
-        out["J5qa", (mass, mass), (0, 0, 0), None, None] \
+        out["J5qa", (mass, mass)] \
           = fold_correlator(midpoint_pseudo_array) \
           if fold else midpoint_pseudo_array
 
@@ -479,8 +479,8 @@ def load_ukhadron_meson_binary(filename, byteorder, fold=False):
           
       >>> import pyQCD
       >>> correlators \
-      ...   = load_ukhadron_meson_binary("meson_m_0.45_m_0.45_Z2.280.bin",
-      ...                                "big")
+      ...   = pyQCD.load_ukhadron_meson_binary("meson_m_0.45_m_0.45_Z2.280.bin",
+      ...                                      "big")
     """
         
     if sys.byteorder == byteorder:
@@ -542,8 +542,8 @@ def load_ukhadron_mres(filename, fold=False):
       Here we simply load the correlators from a the supplied xml file.
     
       >>> import pyQCD
-      >>> correlators = pyQCD.load_ukhadron_mres('prop1.xml', 0.1)
-      >>> J5a_mq0p1 = pyQCD.filter_correlators(correlators, 'J5a', (0.1, 0.1))
+      >>> correlators = pyQCD.load_ukhadron_mres('prop1.xml')
+      >>> J5a_mq0p1 = correlators['J5a']
     """
     
     xmltree = ET.parse(filename)
@@ -561,9 +561,9 @@ def load_ukhadron_mres(filename, fold=False):
     midpoint_pseudo_array \
       = np.array([float(x) for x in midpoint_pseudo_string.split()])
 
-    out[("J5a", (0, 0, 0))] = pseudo_pseudo_array
+    out["J5a"] = pseudo_pseudo_array
 
-    out[("J5qa", (0, 0, 0))] = midpoint_pseudo_array
+    out["J5qa"] = midpoint_pseudo_array
 
     return out
     
