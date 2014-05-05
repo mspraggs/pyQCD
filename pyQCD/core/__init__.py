@@ -19,7 +19,7 @@ except ImportError:
 
 from dicts import *    
 from observable import Observable
-from propagator import Propagator
+from propagator import *
 from config import Config
 from twopoint import TwoPoint
 from wilslps import WilsonLoops
