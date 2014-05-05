@@ -1009,61 +1009,44 @@ class TestTwoPoint:
         filename \
           = create_fullpath("prop_wilson_conjugate_gradient_jacobi_0_0_0.npy")
         propagator_data = np.load(filename)
-        
-        propagator = Propagator(propagator_data, 0.4, 4, 8, 5.5, 1.0, 1.0, 1.0,
-                                "wilson", "wilson", {}, [-1, 1, 1, 1],
-                                [0, 0, 0, 0], 0, 1.0, "jacobi",
-                                0, 1.0, "jacobi", 0, 1.0)
-        
+                
         momenta = [0, 0, 0]
-        twopoint = TwoPoint(8, 4)
         source_interpolators = [gamma5, "g5", "pion"]
         sink_interpolators = source_interpolators
         label = "pion"
-        
-        for source_interpolator, sink_interpolator \
-          in zip(source_interpolators, sink_interpolators):
-            twopoint.compute_meson_correlator(propagator, propagator,
-                                              source_interpolator,
-                                              sink_interpolator,
-                                              label, momenta,
-                                              average_momenta=True)
+
+        for source_interpolator, sink_interpolator in \
+          zip(source_interpolators, sink_interpolators):
+            correlator \
+              =  compute_meson_correlator(propagator_data, propagator_data,
+                                          source_interpolator,
+                                          sink_interpolator,
+                                          momenta, average_momenta=True)
               
-            correlator_key = (label, (0.4, 0.4), tuple(momenta),
-                              "point_point", "point_point")
-        
-            assert np.allclose(twopoint.data[correlator_key],
-                               expected_correlator)
+                    
+            assert np.allclose(correlator, expected_correlator)
             
         momenta = [[0, 0, 0], [1, 0, 0], [1, 1, 0], [1, 1, 1]]
         filename \
           = create_fullpath("prop_free_8c16_m1.0_no_smear.npy")
         propagator_data = np.load(filename)
         
-        propagator = Propagator(propagator_data, 1.0, 8, 16, 5.5, 1.0, 1.0,
-                                1.0, "wilson", "wilson", {}, [-1, 1, 1, 1],
-                                [0, 0, 0, 0], 0, 1.0, "jacobi",
-                                0, 1.0, "jacobi", 0, 1.0)
-        
         filename \
           = create_fullpath("correlators_free_8c16_m1.0.npy")
         expected_correlators = np.load(filename)
         
-        twopoint = TwoPoint(16, 8)
         source_interpolator = gamma5
         sink_interpolator = gamma5
         label = "another_pion"
         
-        twopoint.compute_meson_correlator(propagator, propagator,
-                                          source_interpolator, sink_interpolator,
-                                          label, momenta, average_momenta=True)
+        correlators \
+          = compute_meson_correlator(propagator_data, propagator_data,
+                                     source_interpolator, sink_interpolator,
+                                     momenta, average_momenta=True)
         
         for i, momentum in enumerate(momenta):
               
-            correlator_key = (label, (1.0, 1.0), tuple(momentum),
-                              "point_point", "point_point")
-        
-            assert np.allclose(twopoint.data[correlator_key],
+            assert np.allclose(correlators[tuple(momentum)],
                                expected_correlators[i])
             
     def test_fit_correlator(self):

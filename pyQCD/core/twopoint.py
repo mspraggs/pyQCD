@@ -10,7 +10,7 @@ import scipy.optimize as spop
 
 import constants as const
 from observable import Observable
-#from propagator import Propagator
+from propagator import spin_prod, prop_adjoint
 from dataset import parmap
 
 def fold_correlator(correlator):
@@ -635,6 +635,135 @@ def filter_correlators(data, label=None, masses=None, momentum=None,
                        for attrib in correlator_attributes]
            
         return dict(zip(correlator_attributes, tuple(correlators)))
+  
+def compute_meson_correlator(propagator1, propagator2, source_interpolator,
+                             sink_interpolator, momenta=(0, 0, 0),
+                             average_momenta=True, fold=False):
+    """Computes and stores the specified meson correlator within the current
+    TwoPoint object
+        
+    Colour and spin traces are taken over the following product:
+        
+    propagator1 * source_interpolator * propagator2 * sink_interpolator
+        
+    Args:
+      propagator1 (numpy.ndarray): The first propagator to use in calculating
+        the correlator.
+      propagator2 (numpy.ndarray): The second propagator to use in calculating
+        the correlator.
+      source_interpolator (numpy.ndarray or str): The interpolator describing
+        the source of the two-point function. If a numpy array is passed, then
+        it must have the shape (4, 4) (i.e. must encode some form of spin
+        structure). If a string is passed, then the operator is searched for in
+        pyQCD.constants.Gammas. A list of possible strings to use as this
+        argument can be seen by calling pyQCD..available_interpolators()
+      sink_interpolator (numpy.ndarray or str): The interpolator describing
+        the sink of the two-point function. Conventions for this argument
+        follow those of source_interpolator.
+      momenta (list, optional): The momenta to project the spatial
+        correlator onto. May be either a list of three ints defining a
+        single lattice momentum, or a list of such lists defining multiple
+        momenta.
+      average_momenta (bool, optional): Determines whether the correlator
+        is computed at all momenta equivalent to that in the momenta
+        argument before an averable is taken (e.g. an average of the
+        correlators for p = [1, 0, 0], [0, 1, 0], [0, 0, 1] and so on would
+        be taken).
+      fold (bool, optional): Determines whether the correlator is folded
+        about it's mid-point.
+
+    Returns:
+      numpy.ndarray or dict: The computed correlator or correlators
+            
+    Examples:
+      Create and thermalize a lattice, generate some propagators and use
+      them to compute a pseudoscalar correlator.
+          
+      >>> import pyQCD
+      >>> lattice = pyQCD.Lattice()
+      >>> lattice.thermalize(100)
+      >>> prop = lattice.get_propagator(0.4)
+      >>> twopoint.compute_meson_correlator(prop, prop, "g5", "g5")
+    """
+        
+    try:
+        source_interpolator = const.Gammas[source_interpolator]
+    except TypeError:
+        pass
+        
+    try:
+        sink_interpolator = const.Gammas[sink_interpolator]
+    except TypeError:
+        pass
+    
+    if type(momenta[0]) != list and type(momenta[0]) != tuple:
+        momenta = [momenta]
+
+    L = propagator1.shape[1]
+    T = propagator1.shape[0]
+        
+    spatial_correlator = _compute_correlator(propagator1, propagator2,
+                                             source_interpolator,
+                                             sink_interpolator)
+        
+    mom_correlator = np.fft.fftn(spatial_correlator, axes=(1, 2, 3))
+
+    out = {}
+    
+    # Now go through all momenta and compute the
+    # correlators
+    for momentum in momenta:
+        if average_momenta:
+            equiv_momenta = _get_all_momenta(momentum, L, T)
+            # Put the equivalent momenta into a form so that we can filter
+            # the relevant part of the mom space correlator out
+            equiv_momenta = np.array(equiv_momenta)
+            equiv_momenta = (equiv_momenta[:, 0],
+                             equiv_momenta[:, 1],
+                             equiv_momenta[:, 2])
+            equiv_correlators \
+              = np.transpose(mom_correlator, (1, 2, 3, 0))[equiv_momenta]
+                    
+            correlator = np.mean(equiv_correlators, axis=0)
+                
+        else:
+            momentum = tuple([i % self.L for i in momentum])
+            correlator = mom_correlator[:, momentum[0], momentum[1],
+                                        momentum[2]]
+
+        out[tuple(momentum)] = correlator
+
+    if len(out.keys()) == 1:
+        return out.values()[0]
+    else:
+        return out
+
+def _get_all_momenta(p, L, T):
+    """Generates all possible equivalent lattice momenta"""
+        
+    p2 = p[0]**2 + p[1]**2 + p[2]**2
+        
+    return [(px % L, py % L, pz % L)
+            for px in xrange(-L / 2, L / 2)
+            for py in xrange(-L / 2, L / 2)
+            for pz in xrange(-L / 2, L / 2)
+            if px**2 + py**2 + pz**2 == p2]
+
+def _compute_correlator(prop1, prop2, gamma1, gamma2):
+    """Calculates the correlator for all space-time points
+    
+    We're doing the following (g1 = gamma1, g2 = gamma2, p1 = prop1,
+    p2 = prop2, g5 = const.gamma5):
+        
+    sum_{spin,colour} g1 * g5 * p1 * g5 * g2 * p2
+    
+    The g5s are used to find the Hermitian conjugate of the first propagator
+    """
+    
+    gp1 = spin_prod(gamma1, prop_adjoint(prop1))
+    gp2 = spin_prod(gamma2, prop2)
+    
+    return np.einsum('txyzijab,txyzjiba->txyz', gp1, gp2)
               
 class TwoPoint(Observable):
     """Encapsulates two-point function data and provides fitting tools.
