@@ -38,6 +38,40 @@ def parmap(f, X, nprocs = mp.cpu_count()):
 
     return [x for i,x in sorted(res)]
 
+def bootstrap_data(data, num_bootstraps, binsize=1):
+    """Resamples the supplied data using the bootstrap method.
+        
+    Args:
+      data (list): The data on which to perform a bootstrap resample.
+      num_bootstraps (int): The number of bootstraps to perform.
+      binsize (int, optional): The bin size to bin the data with before
+        performing the bootstrap.
+             
+    Returns:
+      list: The resampled data set.
+    
+    Examples:
+      Load some correlators and bootstrap the effective mass curve.
+          
+      >>> import pyQCD
+      >>> data = pyQCD.load_archive("correlators.zip")
+      >>> resampled_data = pyQCD.bootstrap_data(data, 100)
+    """
+
+    num_bins = len(data) / binsize
+    if len(data) % binsize > 0:
+        num_bins += 1
+
+    out = []
+
+    for i in xrange(num_bootstraps):
+
+        bins = npr.randint(num_bins, size=num_bins).tolist()
+        new_datum = np.mean([data[j] for j in bins], axis=0)
+        out.append(new_datum)
+
+    return out
+
 class DataSet:
     """Data set container holding data of the specified type.
     
