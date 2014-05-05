@@ -952,28 +952,25 @@ class TestTwoPoint:
         assert len(twopoint.data.keys()) == 95
             
     def test_load_chroma_hadspec_mesons(self):
-        
-        twopoint = TwoPoint(8, 4)
+    
         filename = create_fullpath("hadspec.dat.xml")
-        twopoint.load_chroma_hadspec_mesons(filename)
+        correlators = load_chroma_hadspec_mesons(filename)
                                        
-        assert len(twopoint.data.keys()) == 64
+        assert len(correlators.keys()) == 64
             
     def test_load_chroma_hadspec_baryons(self):
-        
-        twopoint = TwoPoint(8, 4)
+    
         filename = create_fullpath("hadspec.dat.xml")
-        twopoint.load_chroma_hadspec_baryons(filename)
+        correlators = load_chroma_hadspec_baryons(filename)
                                        
-        assert len(twopoint.data.keys()) == 20
+        assert len(correlators.keys()) == 20
             
     def test_load_chroma_hadspec_currents(self):
         
-        twopoint = TwoPoint(8, 4)
         filename = create_fullpath("hadspec.dat.xml")
-        twopoint.load_chroma_hadspec_currents(filename)
+        correlators = load_chroma_hadspec_currents(filename)
                                        
-        assert len(twopoint.data.keys()) == 11
+        assert len(correlators.keys()) == 11
         
     def test_load_chroma_mres(self):
         
