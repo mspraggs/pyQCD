@@ -4,6 +4,7 @@ import itertools
 import warnings
 import sys
 import struct
+import multiprocessing as mp
 
 import numpy as np
 import scipy.optimize as spop
@@ -764,6 +765,64 @@ def _compute_correlator(prop1, prop2, gamma1, gamma2):
     gp2 = spin_prod(gamma2, prop2)
     
     return np.einsum('txyzijab,txyzjiba->txyz', gp1, gp2)
+
+def compute_all_meson_correlators(propagator1, propagator2, momenta=(0, 0, 0),
+                                  average_momenta=True, fold=False):
+    """Computes and stores all 256 meson correlators within the
+    current TwoPoint object. Labels akin to those in pyQCD.interpolators
+    are used to denote the 16 gamma matrix combinations.
+        
+    Args:
+      propagator1 (Propagator): The first propagator to use in calculating
+        the correlator.
+      propagator2 (Propagator): The second propagator to use in calculating
+        the correlator.
+      momenta (list, optional): The momenta to project the spatial
+        correlator onto. May be either a list of three ints defining a
+        single lattice momentum, or a list of such lists defining multiple
+        momenta.
+      average_momenta (bool, optional): Determines whether the correlator
+        is computed at all momenta equivalent to that in the momenta
+        argument before an averable is taken (e.g. an average of the
+        correlators for p = [1, 0, 0], [0, 1, 0], [0, 0, 1] and so on would
+        be taken).
+      fold (bool, optional): Determines whether the correlator is folded
+        about it's mid-point.
+            
+    Examples:
+      Create and thermalize a lattice, generate some propagators and use
+      them to compute a pseudoscalar correlator.
+          
+      >>> import pyQCD
+      >>> lattice = pyQCD.Lattice()
+      >>> lattice.thermalize(100)
+      >>> prop = lattice.get_propagator(0.4)
+      >>> correlator = pyQCD.compute_all_meson_correlators(prop, prop)
+    """
+
+    interpolators = [(Gamma1, Gamma2)
+                     for Gamma1 in const.interpolators
+                     for Gamma2 in const.interpolators]
+
+    def parallel_function(gammas):
+        return compute_meson_correlator(propagator1, propagator2,
+                                        gammas[0], gammas[1], momenta,
+                                        average_momenta, fold)
+    
+    pool = mp.Pool()
+    results = pool.map(parallel_function, interpolators)
+
+    out = {}
+    for interpolator, result in zip(interpolators, results):
+        label = "{}_{}".format(interpolator[0], interpolator[1])
+        try:
+            for mom, corr in result.items():
+                out[(label, mom)] = corr
+
+        except AttributeError:
+            out[label] = corr
+
+    return out
               
 class TwoPoint(Observable):
     """Encapsulates two-point function data and provides fitting tools.
