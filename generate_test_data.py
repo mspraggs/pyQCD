@@ -33,9 +33,8 @@ def generate_props(fermion_action=None, smearing_type=None):
       = [(0, 0, 0), (1, 0, 0), (0, 1, 0), (0, 0, 1)]
     
     config_data = np.load(create_fullpath("chroma_config.npy"))
-    config = pyQCD.Config(config_data, 4, 8, 5.5, 1.0, 1.0, 1.0, "wilson")
     lattice = pyQCD.Lattice()
-    lattice.set_config(config)
+    lattice.set_config(config_data)
     
     function_dict = {"wilson": pyQCD.Lattice.get_wilson_propagator,
                      "hamber-wu": pyQCD.Lattice.get_hamberwu_propagator,
@@ -78,14 +77,13 @@ def generate_props(fermion_action=None, smearing_type=None):
                   .format(fermion_action, smearing_type, n_link_s, n_source_s,
                           n_sink_s)
                 
-                np.save(create_fullpath(filename), prop.data)
+                np.save(create_fullpath(filename), prop)
             
 def generate_spinors(fermion_action=None, solver_method=None):
     
     config_data = np.load(create_fullpath("chroma_config.npy"))
-    config = pyQCD.Config(config_data, 4, 8, 5.5, 1.0, 1.0, 1.0, "wilson")
     lattice = pyQCD.Lattice()
-    lattice.set_config(config)
+    lattice.set_config(config_data)
     
     function_dict = {"wilson": pyQCD.Lattice.invert_wilson_dirac,
                      "hamber-wu": pyQCD.Lattice.invert_hamberwu_dirac,
@@ -136,9 +134,8 @@ def generate_spinors(fermion_action=None, solver_method=None):
 def generate_Dpsis():
     
     config_data = np.load(create_fullpath("chroma_config.npy"))
-    config = pyQCD.Config(config_data, 4, 8, 5.5, 1.0, 1.0, 1.0, "wilson")
     lattice = pyQCD.Lattice()
-    lattice.set_config(config)
+    lattice.set_config(config_data)
     
     function_dict = {"wilson": pyQCD.Lattice.apply_wilson_dirac,
                      "hamber-wu": pyQCD.Lattice.apply_hamberwu_dirac,
