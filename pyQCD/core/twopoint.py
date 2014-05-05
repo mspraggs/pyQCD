@@ -640,8 +640,7 @@ def filter_correlators(data, label=None, masses=None, momentum=None,
 def compute_meson_correlator(propagator1, propagator2, source_interpolator,
                              sink_interpolator, momenta=(0, 0, 0),
                              average_momenta=True, fold=False):
-    """Computes and stores the specified meson correlator within the current
-    TwoPoint object
+    """Computes the specified meson correlator
         
     Colour and spin traces are taken over the following product:
         
