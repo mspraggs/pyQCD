@@ -822,6 +822,74 @@ def compute_all_meson_correlators(propagator1, propagator2, momenta=(0, 0, 0),
             out[label] = corr
 
     return out
+            
+def fit_correlator(correlator, fit_function, fit_range,
+                   initial_parameters, correlator_std=None,
+                   postprocess_function=None):
+    """Fits the specified function to the specified correlator using
+    scipy.optimize.leastsq
+    
+    Args:
+      correlator (numpy.ndarray): The correlator to be fitted.
+      fit_function (function): The function with which to fit the correlator.
+        Must accept a list of fitting parameters as the first argument,
+        followed by a numpy.ndarray of time coordinates, a numpy.ndarray of
+        correlator values and a numpy.ndarray of correlator errors.
+      fit_range (list or tuple): Specifies the timeslices over which to
+        perform the fit. If a list or tuple with two elements is supplied,
+        then range(*fit_range): is applied to the function to generate a
+        list of timeslices to fit over.
+      initial_parameters (list or tuple): The initial parameters to supply
+        to the fitting routine.
+      correlator_std (numpy.ndarray, optional): The standard deviation in
+        the specified correlator. If no standard deviation is supplied, then
+        it is taken to be unity for each timeslice. This is equivalent to
+        neglecting the error when computing the residuals for the fit.
+      postprocess_function (function, optional): The function to apply to
+        the result from scipy.optimize.leastsq.
+                  
+    Returns:
+      list: The fitted parameters for the fit function.
+            
+    Examples:
+      Load a correlator from disk and fit a simple exponential to it. A
+      postprocess function to select the mass from the fit result is also
+      specified.
+    
+      >>> import pyQCD
+      >>> import numpy as np
+      >>> correlator = np.load("my_correlator.npy")
+      >>> def fit_function(b, t, Ct, err):
+      ...     return (Ct - b[0] * np.exp(-b[1] * t)) / err
+      ...
+      >>> postprocess = lambda b: b[1]
+      >>> pyQCD.fit_correlator(fit_function, [5, 10], [1., 1.],
+      ...                      postprocess_function=postprocess)
+      1.356389
+      """
+                
+    if correlator_std == None:
+        correlator_std = np.ones(correlator.size)
+    if len(fit_range) == 2:
+        fit_range = range(*fit_range)
+            
+    t = np.arange(correlator.size)
+        
+    x = t[fit_range]
+    y = correlator[fit_range].real
+    err = correlator_std[fit_range].real
+        
+    b, result = spop.leastsq(fit_function, initial_parameters,
+                             args=(x, y, err))
+        
+    if [1, 2, 3, 4].count(result) < 1:
+        warnings.warn("fit failed when calculating potential at "
+                      "r = {}".format(r), RuntimeWarning)
+        
+    if postprocess_function == None:
+        return b
+    else:
+        return postprocess_function(b)
               
 class TwoPoint(Observable):
     """Encapsulates two-point function data and provides fitting tools.
@@ -1190,110 +1258,6 @@ class TwoPoint(Observable):
         # Now we add the correlators to the current object
         for key, value in results:
             self.add_correlator(value, *key)
-            
-    def fit_correlator(self, fit_function, fit_range, initial_parameters,
-                       correlator_std=None, postprocess_function=None,
-                       label=None, masses=None, momentum=None, source_type=None,
-                       sink_type=None):
-        """Fits the specified function to the specified correlator using
-        scipy.optimize.leastsq
-                     
-        Args:
-          fit_function (function): The function with which to fit the
-            correlator. Must accept a list of fitting parameters as
-            the first argument, followed by a numpy.ndarray of time
-            coordinates, a numpy.ndarray of correlator values and a
-            numpy.ndarray of correlator errors.
-          fit_range (list or tuple): Specifies the timeslices over which
-            to perform the fit. If a list or tuple with two elements is
-            supplied, then range(*fit_range): is applied to the function
-            to generate a list of timeslices to fit over.
-          initial_parameters (list or tuple): The initial parameters to
-            supply to the fitting routine.
-          correlator_std (numpy.ndarray, optional): The standard deviation
-            in the specified correlator. If no standard deviation is
-            supplied, then it is taken to be unity for each timeslice.
-            This is equivalent to neglecting the error when computing
-            the residuals for the fit.
-          postprocess_function (function, optional): The function to apply
-            to the result from scipy.optimize.leastsq.
-          label (str, optional): The label of the correlator to be fitted.
-          masses (list, optional): The bare quark masses of the quarks
-            that form the hadron that the correlator corresponds to.
-          momentum (list, optional): The momentum of the hadron that
-            the correlator corresponds to.
-          source_type (str, optional): The type of source used when
-            generating the propagators that form the correlator.
-          sink_type (str, optional): The type of sink used when
-            generating the propagators that form the correlator.
-            
-        Returns:
-          list: The fitted parameters for the fit function.
-            
-        Examples:
-          Load a correlator from disk and fit a simple exponential to it.
-          Because there is only one correlator in the loaded TwoPoint
-          object, no specifiers need to be provided, since get_correlator
-          will return a unique correlator regardless. A postprocess
-          function to select the mass from the fit result is also
-          specified.
-          
-          >>> import pyQCD
-          >>> import numpy as np
-          >>> correlator = pyQCD.TwoPoint.load("my_correlator.npz")
-          >>> def fit_function(b, t, Ct, err):
-          ...     return (Ct - b[0] * np.exp(-b[1] * t)) / err
-          ...
-          >>> postprocess = lambda b: b[1]
-          >>> correlator.fit_correlator(fit_function, [5, 10], [1., 1.],
-          ...                           postprocess_function=postprocess)
-          1.356389
-          
-          Load a TwoPoint DataSet from disk and jackknife an exponential
-          fit. We use DataSet.statistics to get an estimate of the error
-          in the correlator.
-          
-          >>> import pyQCD
-          >>> import numpy as np
-          >>> correlator_data = pyQCD.DataSet.load("correlators.zip")
-          >>> def fit_function(b, t, Ct, err):
-          ...     return (Ct - b[0] * np.exp(-b[1] * t)) / err
-          ...
-          >>> postprocess = lambda b: b[1]
-          >>> stats = correlator_data.statistics()
-          >>> correlator_std = stats[1].get_correlator("pion")
-          >>> correlator_data.jackknife(pyQCD.TwoPoint.fit_correlator,
-          ...                           args=[fit_function, [5, 10],
-          ...                                 [1., 1.], correlator_std,
-          ...                                 postprocess, "pion"])
-          (1.356541, 0.088433)
-        """
-        
-        correlator = self.get_correlator(label, masses, momentum, source_type,
-                                         sink_type)
-                
-        if correlator_std == None:
-            correlator_std = np.ones(self.T)
-        if len(fit_range) == 2:
-            fit_range = range(*fit_range)
-            
-        t = np.arange(self.T)
-        
-        x = t[fit_range]
-        y = correlator[fit_range].real
-        err = correlator_std[fit_range].real
-        
-        b, result = spop.leastsq(fit_function, initial_parameters,
-                                 args=(x, y, err))
-        
-        if [1, 2, 3, 4].count(result) < 1:
-            warnings.warn("fit failed when calculating potential at "
-                          "r = {}".format(r), RuntimeWarning)
-        
-        if postprocess_function == None:
-            return b
-        else:
-            return postprocess_function(b)
         
     def compute_energy(self, fit_range, initial_parameters, correlator_std=None,
                        label=None, masses=None, momentum=None, source_type=None,
