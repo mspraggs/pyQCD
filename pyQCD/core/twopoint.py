@@ -112,6 +112,289 @@ def load_chroma_mesonspec(filename, fold=False):
               
     return out
 
+def load_chroma_hadspec(filename, fold=False):
+    """Loads the correlator(s) present in the supplied Chroma hadspec output
+    xml file
+        
+    Args:
+      filename (str): The name of the file in which the correlators
+        are contained.
+      fold (bool, optional): Determines whether the correlator is folded
+        about it's mid-point.
+
+    Returns:
+      dict: Correlators indexed by particle properties.
+            
+    Examples:
+      Load some correlators computed by Chroma's hadspec routine.
+          
+      >>> import pyQCD
+      >>> correlators = pyQCD.load_chroma_hadspec("96c48_hadspec_corr.xml")
+    """
+
+    output = {}
+
+    for key, value in load_chroma_hadspec_mesons(filename, fold).items():
+        output[key] = value
+    for key, value in load_chroma_hadspec_baryons(filename, fold).items():
+        output[key] = value
+    for key, value in load_chroma_hadspec_currents(filename, fold).items():
+        output[key] = value
+
+    return output
+            
+def load_chroma_hadspec_mesons(filename, fold=False):
+    """Loads the meson correlator(s) present in the supplied Chroma hadspec
+    output xml file
+        
+    Args:
+      filename (str): The name of the file in which the correlators
+        are contained.
+      fold (bool, optional): Determines whether the correlator is folded
+        about it's mid-point.
+
+    Returns:
+      dict: Correlators indexed by particle properties.
+            
+    Examples:
+      Load some correlators computed by Chroma's hadspec routine.
+          
+      >>> import pyQCD
+      >>> correlators \
+      ...   = pyQCD.load_chroma_hadspec_mesons("96c48_hadspec_corr.xml")
+    """
+        
+    xmlfile = ET.parse(filename)
+    xmlroot = xmlfile.getroot()
+        
+    propagator_pairs = xmlroot.findall("Wilson_hadron_measurements/elem")
+
+    out = {}
+        
+    for propagator_pair in propagator_pairs:            
+        mass_1 = float(propagator_pair.find("Mass_1").text)
+        mass_2 = float(propagator_pair.find("Mass_2").text)
+            
+        raw_source_string \
+          = propagator_pairs[0] \
+          .find("SourceSinkType/source_type_1").text.lower()
+        raw_sink_string \
+          = propagator_pairs[0] \
+          .find("SourceSinkType/sink_type_1").text.lower()
+            
+        source_sink_types = ["point", "shell", "wall"]
+            
+        for source_sink_type in source_sink_types:
+            if raw_source_string.find(source_sink_type) > -1:
+                source_type = source_sink_type
+            if raw_sink_string.find(source_sink_type) > -1:
+                sink_type = source_sink_type
+            
+        interpolator_tag_prefix \
+          = "{}_{}".format(source_type.capitalize(), sink_type.capitalize())
+            
+        interpolators \
+          = propagator_pair.findall("{}_Wilson_Mesons/elem"
+                                    .format(interpolator_tag_prefix))
+            
+        for interpolator in interpolators:
+                
+            gamma_matrix \
+              = int(interpolator.find("gamma_value").text)
+            label = const.mesons[gamma_matrix]
+                
+            correlator_data \
+              = interpolator.find("momenta")
+                
+            for correlator_datum in correlator_data:
+                momentum_string = correlator_datum.find("sink_mom").text
+                momentum = tuple(int(x) for x in momentum_string.split())
+                
+                correlator_values = correlator_datum.findall("mesprop/elem/re")
+                  
+                correlator = np.array([float(x.text)
+                                       for x in correlator_values])
+
+                out[(label, (mass_1, mass_2), momentum,
+                     source_type, sink_type)] \
+                  = fold_correlator(correlator) if fold else correlator
+
+    return out
+            
+def load_chroma_hadspec_baryons(filename, fold=False):
+    """Loads the current correlator(s) present in the supplied Chroma
+    hadspec output xml file
+        
+    Args:
+      filename (str): The name of the file in which the correlators
+        are contained.
+      fold (bool, optional): Determines whether the correlator is folded
+        about it's mid-point.
+
+    Returns:
+      dict: Correlators indexed by particle properties.
+                      
+    Examples:
+      Load some correlators computed by Chroma's hadspec routine.
+          
+      >>> import pyQCD
+      >>> correlators \
+      ...   = pyQCD.load_chroma_hadspec_baryons("96c48_hadspec_corr.xml")
+    """
+        
+    xmlfile = ET.parse(filename)
+    xmlroot = xmlfile.getroot()
+        
+    propagator_pairs = xmlroot.findall("Wilson_hadron_measurements/elem")
+
+    out = {}
+        
+    for propagator_pair in propagator_pairs:            
+        mass_1 = float(propagator_pair.find("Mass_1").text)
+        mass_2 = float(propagator_pair.find("Mass_2").text)
+            
+        if mass_1 == mass_2:
+            baryon_names = const.baryons_degenerate
+        elif mass_1 < mass_2:
+            baryon_names = baryons_m1m2
+        else:
+            baryon_names = baryons_m2m1
+            
+        raw_source_string \
+          = propagator_pairs[0] \
+          .find("SourceSinkType/source_type_1").text.lower()
+        raw_sink_string \
+          = propagator_pairs[0] \
+          .find("SourceSinkType/sink_type_1").text.lower()
+            
+        source_sink_types = ["point", "shell", "wall"]
+            
+        for source_sink_type in source_sink_types:
+            if raw_source_string.find(source_sink_type) > -1:
+                source_type = source_sink_type
+            if raw_sink_string.find(source_sink_type) > -1:
+                sink_type = source_sink_type
+            
+        interpolator_tag_prefix \
+          = "{}_{}".format(source_type.capitalize(), sink_type.capitalize())
+            
+        interpolators \
+          = propagator_pair.findall("{}_Wilson_Baryons/elem"
+                                    .format(interpolator_tag_prefix))
+            
+        for interpolator in interpolators:
+                
+            gamma_matrix \
+              = int(interpolator.find("baryon_num").text)
+            label = baryon_names[gamma_matrix]
+                
+            correlator_data \
+              = interpolator.find("momenta")
+                
+            for correlator_datum in correlator_data:
+                momentum_string = correlator_datum.find("sink_mom").text
+                momentum = tuple(int(x) for x in momentum_string.split())
+                
+                correlator_values \
+                  = correlator_datum.findall("barprop/elem/re")
+                  
+                correlator = np.array([float(x.text)
+                                       for x in correlator_values])
+
+                out[(label, (mass_1, mass_2), momentum,
+                     source_type, sink_type)] \
+                  = fold_correlator(correlator) if fold else correlator
+                
+    return out
+            
+def load_chroma_hadspec_currents(filename, fold=False):
+    """Loads the current correlator(s) present in the supplied Chroma
+    hadspec output xml file
+        
+    Args:
+      filename (str): The name of the file in which the correlators
+        are contained.
+      fold (bool, optional): Determines whether the correlator is folded
+        about it's mid-point.
+
+    Returns:
+      dict: Correlators indexed by particle properties.
+            
+    Examples:
+      Load some correlators computed by Chroma's hadspec routine.
+          
+      >>> import pyQCD
+      >>> correlators \
+      ...   = pyQCD.load_chroma_hadspec_currents("96c48_hadspec_corr.xml")
+    """
+        
+    xmlfile = ET.parse(filename)
+    xmlroot = xmlfile.getroot()
+        
+    propagator_pairs = xmlroot.findall("Wilson_hadron_measurements/elem")
+
+    out = {}
+    
+    for propagator_pair in propagator_pairs:            
+        mass_1 = float(propagator_pair.find("Mass_1").text)
+        mass_2 = float(propagator_pair.find("Mass_2").text)
+            
+        raw_source_string \
+          = propagator_pairs[0] \
+          .find("SourceSinkType/source_type_1").text.lower()
+        raw_sink_string \
+          = propagator_pairs[0] \
+          .find("SourceSinkType/sink_type_1").text.lower()
+            
+        source_sink_types = ["point", "shell", "wall"]
+            
+        for source_sink_type in source_sink_types:
+            if raw_source_string.find(source_sink_type) > -1:
+                source_type = source_sink_type
+            if raw_sink_string.find(source_sink_type) > -1:
+                sink_type = source_sink_type
+            
+        interpolator_tag_prefix \
+          = "{}_{}".format(source_type.capitalize(), sink_type.capitalize())
+            
+        vector_currents \
+          = propagator_pair.findall("{}_Meson_Currents/Vector_currents/elem"
+                                    .format(interpolator_tag_prefix))
+            
+        for vector_current in vector_currents:
+                
+            current_num \
+              = int(vector_current.find("current_value").text)
+            label = const.vector_currents[current_num]
+                
+            correlator_data = vector_current.find("vector_current").text
+                
+            correlator \
+              = np.array([float(x) for x in correlator_data.split()])
+
+            out[(label, (mass_1, mass_2), (0, 0, 0), source_type, sink_type)] \
+              = fold_correlator(correlator) if fold else correlator
+            
+        axial_currents \
+          = propagator_pair.findall("{}_Meson_Currents/Axial_currents/elem"
+                                    .format(interpolator_tag_prefix))
+            
+        for axial_current in axial_currents:
+                
+            current_num \
+              = int(axial_current.find("current_value").text)
+            label = const.axial_currents[current_num]
+                
+            correlator_data = axial_current.find("axial_current").text
+                
+            correlator \
+              = np.array([float(x) for x in correlator_data.split()])
+
+            out[(label, (mass_1, mass_2), (0, 0, 0), source_type, sink_type)] \
+              = fold_correlator(correlator) if fold else correlator
+
+    return out
+              
 class TwoPoint(Observable):
     """Encapsulates two-point function data and provides fitting tools.
     
@@ -475,278 +758,7 @@ class TwoPoint(Observable):
                 self.add_correlator(correlator, label, (mass_1, mass_2),
                                     momentum, source_type, sink_type, True, fold)
             
-    def load_chroma_hadspec(self, filename, fold=False):
-        """Loads the correlator(s) present in the supplied Chroma
-        hadspec output xml file
-        
-        Args:
-          filename (str): The name of the file in which the correlators
-            are contained.
-          fold (bool, optional): Determines whether the correlator is folded
-            about it's mid-point.
-            
-        Examples:
-          Create a TwoPoint object to hold correlators for a 48^3 x 96
-          lattice, then load some correlators computed by Chroma's
-          hadspec routine.
-          
-          >>> import pyQCD
-          >>> twopoint = pyQCD.TwoPoint(96, 48)
-          >>> twopoint.load_chroma_hadspec("96c48_hadspec_corr.xml")
-        """
-        
-        self.load_chroma_hadspec_mesons(filename, fold)
-        self.load_chroma_hadspec_baryons(filename, fold)
-        self.load_chroma_hadspec_currents(filename, fold)
-            
-    def load_chroma_hadspec_mesons(self, filename, fold=False):
-        """Loads the meson correlator(s) present in the supplied Chroma
-        hadspec output xml file
-        
-        Args:
-          filename (str): The name of the file in which the correlators
-            are contained.
-          fold (bool, optional): Determines whether the correlator is folded
-            about it's mid-point.
-            
-        Examples:
-          Create a TwoPoint object to hold correlators for a 48^3 x 96
-          lattice, then load some correlators computed by Chroma's
-          hadspec routine.
-          
-          >>> import pyQCD
-          >>> twopoint = pyQCD.TwoPoint(96, 48)
-          >>> twopoint.load_chroma_hadspec_mesons("96c48_hadspec_corr.xml")
-        """
-        
-        xmlfile = ET.parse(filename)
-        xmlroot = xmlfile.getroot()
-        
-        propagator_pairs = xmlroot.findall("Wilson_hadron_measurements/elem")
-        
-        for propagator_pair in propagator_pairs:            
-            mass_1 = float(propagator_pair.find("Mass_1").text)
-            mass_2 = float(propagator_pair.find("Mass_2").text)
-            
-            raw_source_string \
-              = propagator_pairs[0] \
-              .find("SourceSinkType/source_type_1").text \
-              .lower()
-            raw_sink_string \
-              = propagator_pairs[0] \
-              .find("SourceSinkType/sink_type_1").text \
-              .lower()
-            
-            source_sink_types = ["point", "shell", "wall"]
-            
-            for source_sink_type in source_sink_types:
-                if raw_source_string.find(source_sink_type) > -1:
-                    source_type = source_sink_type
-                if raw_sink_string.find(source_sink_type) > -1:
-                    sink_type = source_sink_type
-            
-            interpolator_tag_prefix \
-              = "{}_{}".format(source_type.capitalize(),
-                               sink_type.capitalize())
-            
-            interpolators \
-              = propagator_pair.findall("{}_Wilson_Mesons/elem"
-                                     .format(interpolator_tag_prefix))
-            
-            for interpolator in interpolators:
-                
-                gamma_matrix \
-                  = int(interpolator.find("gamma_value").text)
-                label = const.mesons[gamma_matrix]
-                
-                correlator_data \
-                  = interpolator.find("momenta")
-                
-                for correlator_datum in correlator_data:
-                    momentum_string = correlator_datum.find("sink_mom").text
-                    momentum = [int(x) for x in momentum_string.split()]
-                
-                    correlator_values \
-                      = correlator_datum.findall("mesprop/elem/re")
-                  
-                    correlator = np.array([float(x.text)
-                                           for x in correlator_values])
-                
-                    self.add_correlator(correlator, label, (mass_1, mass_2),
-                                        momentum, source_type, sink_type, True,
-                                        fold)
-            
-    def load_chroma_hadspec_baryons(self, filename, fold=False):
-        """Loads the current correlator(s) present in the supplied Chroma
-        hadspec output xml file
-        
-        Args:
-          filename (str): The name of the file in which the correlators
-            are contained.
-          fold (bool, optional): Determines whether the correlator is folded
-            about it's mid-point.
-            
-        Examples:
-          Create a TwoPoint object to hold correlators for a 48^3 x 96
-          lattice, then load some correlators computed by Chroma's
-          hadspec routine.
-          
-          >>> import pyQCD
-          >>> twopoint = pyQCD.TwoPoint(96, 48)
-          >>> twopoint.load_chroma_hadspec_baryons("96c48_hadspec_corr.xml")
-        """
-        
-        xmlfile = ET.parse(filename)
-        xmlroot = xmlfile.getroot()
-        
-        propagator_pairs = xmlroot.findall("Wilson_hadron_measurements/elem")
-        
-        for propagator_pair in propagator_pairs:            
-            mass_1 = float(propagator_pair.find("Mass_1").text)
-            mass_2 = float(propagator_pair.find("Mass_2").text)
-            
-            if mass_1 == mass_2:
-                baryon_names = const.baryons_degenerate
-            elif mass_1 < mass_2:
-                baryon_names = baryons_m1m2
-            else:
-                baryon_names = baryons_m2m1
-            
-            raw_source_string \
-              = propagator_pairs[0] \
-              .find("SourceSinkType/source_type_1").text \
-              .lower()
-            raw_sink_string \
-              = propagator_pairs[0] \
-              .find("SourceSinkType/sink_type_1").text \
-              .lower()
-            
-            source_sink_types = ["point", "shell", "wall"]
-            
-            for source_sink_type in source_sink_types:
-                if raw_source_string.find(source_sink_type) > -1:
-                    source_type = source_sink_type
-                if raw_sink_string.find(source_sink_type) > -1:
-                    sink_type = source_sink_type
-            
-            interpolator_tag_prefix \
-              = "{}_{}".format(source_type.capitalize(),
-                               sink_type.capitalize())
-            
-            interpolators \
-              = propagator_pair.findall("{}_Wilson_Baryons/elem"
-                                     .format(interpolator_tag_prefix))
-            
-            for interpolator in interpolators:
-                
-                gamma_matrix \
-                  = int(interpolator.find("baryon_num").text)
-                label = baryon_names[gamma_matrix]
-                
-                correlator_data \
-                  = interpolator.find("momenta")
-                
-                for correlator_datum in correlator_data:
-                    momentum_string = correlator_datum.find("sink_mom").text
-                    momentum = [int(x) for x in momentum_string.split()]
-                
-                    correlator_values \
-                      = correlator_datum.findall("barprop/elem/re")
-                  
-                    correlator = np.array([float(x.text)
-                                           for x in correlator_values])
-                
-                    self.add_correlator(correlator, label, (mass_1, mass_2),
-                                        momentum, source_type, sink_type, True,
-                                        fold)
-            
-    def load_chroma_hadspec_currents(self, filename, fold=False):
-        """Loads the current correlator(s) present in the supplied Chroma
-        hadspec output xml file
-        
-        Args:
-          filename (str): The name of the file in which the correlators
-            are contained.
-          fold (bool, optional): Determines whether the correlator is folded
-            about it's mid-point.
-            
-        Examples:
-          Create a TwoPoint object to hold correlators for a 48^3 x 96
-          lattice, then load some correlators computed by Chroma's
-          hadspec routine.
-          
-          >>> import pyQCD
-          >>> twopoint = pyQCD.TwoPoint(96, 48)
-          >>> twopoint.load_chroma_hadspec_currents("96c48_hadspec_corr.xml")
-        """
-        
-        xmlfile = ET.parse(filename)
-        xmlroot = xmlfile.getroot()
-        
-        propagator_pairs = xmlroot.findall("Wilson_hadron_measurements/elem")
-        
-        for propagator_pair in propagator_pairs:            
-            mass_1 = float(propagator_pair.find("Mass_1").text)
-            mass_2 = float(propagator_pair.find("Mass_2").text)
-            
-            raw_source_string \
-              = propagator_pairs[0] \
-              .find("SourceSinkType/source_type_1").text \
-              .lower()
-            raw_sink_string \
-              = propagator_pairs[0] \
-              .find("SourceSinkType/sink_type_1").text \
-              .lower()
-            
-            source_sink_types = ["point", "shell", "wall"]
-            
-            for source_sink_type in source_sink_types:
-                if raw_source_string.find(source_sink_type) > -1:
-                    source_type = source_sink_type
-                if raw_sink_string.find(source_sink_type) > -1:
-                    sink_type = source_sink_type
-            
-            interpolator_tag_prefix \
-              = "{}_{}".format(source_type.capitalize(),
-                               sink_type.capitalize())
-            
-            vector_currents \
-              = propagator_pair.findall("{}_Meson_Currents/Vector_currents/elem"
-                                     .format(interpolator_tag_prefix))
-            
-            for vector_current in vector_currents:
-                
-                current_num \
-                  = int(vector_current.find("current_value").text)
-                label = const.vector_currents[current_num]
-                
-                correlator_data = vector_current.find("vector_current").text
-                
-                correlator \
-                  = np.array([float(x) for x in correlator_data.split()])
-                
-                self.add_correlator(correlator, label, (mass_1, mass_2),
-                                    [0, 0, 0], source_type, sink_type, True,
-                                    fold)
-            
-            axial_currents \
-              = propagator_pair.findall("{}_Meson_Currents/Axial_currents/elem"
-                                     .format(interpolator_tag_prefix))
-            
-            for axial_current in axial_currents:
-                
-                current_num \
-                  = int(axial_current.find("current_value").text)
-                label = const.axial_currents[current_num]
-                
-                correlator_data = axial_current.find("axial_current").text
-                
-                correlator \
-                  = np.array([float(x) for x in correlator_data.split()])
-                
-                self.add_correlator(correlator, label, (mass_1, mass_2),
-                                    [0, 0, 0], source_type, sink_type, True,
-                                    fold)
+    
                 
     def load_chroma_mres(self, filename, fold=False):
         """Loads the domain wall mres data from the provided chroma output xml
