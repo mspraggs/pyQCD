@@ -454,8 +454,7 @@ def load_chroma_mres(filename, fold=False):
 
     return out
          
-def load_ukhadron_meson_binary(filename, byteorder, quark_masses,
-                               source_type=None, sink_type=None, fold=False):
+def load_ukhadron_meson_binary(filename, byteorder, fold=False):
     """Loads the correlators contained in the specified UKHADRON binary file.
     The correlators are labelled using the CHROMA convention for particle
     interpolators (see pyQCD.mesons). Note that information on the quark
@@ -468,12 +467,6 @@ def load_ukhadron_meson_binary(filename, byteorder, quark_masses,
         "little" or "big". For data created from simulations on an intel
         machine, this is likely to be "little". For data created on one
         of the IBM Bluegene machines, this is likely to be "big".
-      quark_masses (list): The masses of the quarks forming the meson that
-        the correlators represent.
-      source_type (str, optional): The type of source used when computing
-        the two-point function.
-      sink_type (str, optional): The type of sink used when computing
-        the two-point function.
       fold (bool, optional): Determines whether the correlators should
         be folded prior to being imported.
 
@@ -523,15 +516,61 @@ def load_ukhadron_meson_binary(filename, byteorder, quark_masses,
         for mu, nu in [(x, y) for x in xrange(Nmu) for y in xrange(Nnu)]:
             label = "{}_{}".format(const.interpolators[mu],
                                    const.interpolators[nu])
-            out[(label, quark_masses, (px, py, pz), source_type, sink_type)] \
-              = correlators[mu, nu]
+            out[(label, (px, py, pz))] = correlators[mu, nu]
+
+    return out            
+
+def load_ukhadron_mres(filename, fold=False):
+    """Loads the domain wall mres data from the provided ukhadron output xml
+    file.
+        
+    The data is imported as two correlators: the pseudoscalar correlator at the
+    edges of the fifth dimension (<J5a P>) and the midpoint-pseudoscalar
+    correlator in the centre of the fifth dimension (<J5qa P>). The resulting
+    correlators are labelled 'J5a' and 'J5qa', respectively.
+        
+    Args:
+      filename (str): The name of the file from which to import the
+        correlators.
+      fold (bool, optional): Determines whether the correlators should be folded
+        about the centre of the temporal axis after they are imported.
+
+    Returns:
+      dict: Contains the two correlators used to compute mres.
+
+    Examples:
+      Here we simply load the correlators from a the supplied xml file.
+    
+      >>> import pyQCD
+      >>> correlators = pyQCD.load_ukhadron_mres('prop1.xml', 0.1)
+      >>> J5a_mq0p1 = pyQCD.filter_correlators(correlators, 'J5a', (0.1, 0.1))
+    """
+    
+    xmltree = ET.parse(filename)
+    xmlroot = xmltree.getroot()
+    
+    dwf_observables = xmlroot.find("DWF_observables")
+
+    out = {}
+    
+    pseudo_pseudo_string = dwf_observables.find("PP").text
+    midpoint_pseudo_string = dwf_observables.find("PJ5q").text
+
+    pseudo_pseudo_array \
+      = np.array([float(x) for x in pseudo_pseudo_string.split()])
+    midpoint_pseudo_array \
+      = np.array([float(x) for x in midpoint_pseudo_string.split()])
+
+    out[("J5a", (0, 0, 0))] = pseudo_pseudo_array
+
+    out[("J5qa", (0, 0, 0))] = midpoint_pseudo_array
 
     return out
     
 def filter_correlators(data, label=None, masses=None, momentum=None,
                        source_type=None, sink_type=None):
-    """Filters the dictionary of correlators returned by one of the CHROMA or
-    UKhadron import functions. Returns the specified correlator, or a dictionary
+    """Filters the dictionary of correlators returned by one of the CHROMA
+    import functions. Returns the specified correlator, or a dictionary
     containing the correlators that match the arguments supplied to the
     function.
         
@@ -595,57 +634,7 @@ def filter_correlators(data, label=None, masses=None, momentum=None,
         correlators = [data[attrib]
                        for attrib in correlator_attributes]
            
-        return dict(zip(correlator_attributes, tuple(correlators)))            
-
-def load_ukhadron_mres(filename, mass, fold=False):
-    """Loads the domain wall mres data from the provided ukhadron output xml
-    file.
-        
-    The data is imported as two correlators: the pseudoscalar correlator at the
-    edges of the fifth dimension (<J5a P>) and the midpoint-pseudoscalar
-    correlator in the centre of the fifth dimension (<J5qa P>). The resulting
-    correlators are labelled 'J5a' and 'J5qa', respectively.
-        
-    Args:
-      filename (str): The name of the file from which to import the
-        correlators.
-      mass (float): The mass of the quark pertaining to the supplied output
-      fold (bool, optional): Determines whether the correlators should be folded
-        about the centre of the temporal axis after they are imported.
-
-    Returns:
-      dict: Contains the two correlator used to compute mres.
-            
-    Examples:
-      Here we simply load the correlators from a the supplied xml file.
-    
-      >>> import pyQCD
-      >>> correlators = pyQCD.load_ukhadron_mres('prop1.xml', 0.1)
-      >>> J5a_mq0p1 = pyQCD.filter_correlators(correlators, 'J5a', (0.1, 0.1))
-    """
-    
-    xmltree = ET.parse(filename)
-    xmlroot = xmltree.getroot()
-    
-    dwf_observables = xmlroot.find("DWF_observables")
-
-    out = {}
-    
-    pseudo_pseudo_string = dwf_observables.find("PP").text
-    midpoint_pseudo_string = dwf_observables.find("PJ5q").text
-
-    pseudo_pseudo_array \
-      = np.array([float(x) for x in pseudo_pseudo_string.split()])
-    midpoint_pseudo_array \
-      = np.array([float(x) for x in midpoint_pseudo_string.split()])
-
-    out[("J5a", (mass, mass), (0, 0, 0), None, None)] \
-      = pseudo_pseudo_array
-
-    out[("J5qa", (mass, mass), (0, 0, 0), None, None)] \
-      = midpoint_pseudo_array
-
-    return out
+        return dict(zip(correlator_attributes, tuple(correlators)))
               
 class TwoPoint(Observable):
     """Encapsulates two-point function data and provides fitting tools.
@@ -949,126 +938,6 @@ class TwoPoint(Observable):
     
     
     
-    def compute_meson_correlator(self, propagator1, propagator2,
-                                 source_interpolator,
-                                 sink_interpolator, label, momenta = [0, 0, 0],
-                                 average_momenta=True,
-                                 fold=False):
-        """Computes and stores the specified meson correlator within the
-        current TwoPoint object
-        
-        Colour and spin traces are taken over the following product:
-        
-        propagator1 * source_interpolator * propagator2 * sink_interpolator
-        
-        Args:
-          propagator1 (Propagator): The first propagator to use in calculating
-            the correlator.
-          propagator2 (Propagator): The second propagator to use in calculating
-            the correlator.
-          source_interpolator (numpy.ndarray or str): The interpolator
-            describing the source of the two-point function. If a numpy array
-            is passed, then it must have the shape (4, 4) (i.e. must encode
-            some form of spin structure). If a string is passed, then the
-            operator is searched for in pyQCD.constants.Gammas. A list of
-            possible strings to use as this argument can be seen by calling
-            TwoPoint.available_interpolators()
-          sink_interpolator (numpy.ndarray or str): The interpolator describing
-            the sink of the two-point function. Conventions for this argument
-            follow those of source_interpolator.
-          label (str): The label ascribed to the resulting correlator.
-          momenta (list, optional): The momenta to project the spatial
-            correlator onto. May be either a list of three ints defining a
-            single lattice momentum, or a list of such lists defining multiple
-            momenta.
-          average_momenta (bool, optional): Determines whether the correlator
-            is computed at all momenta equivalent to that in the momenta
-            argument before an averable is taken (e.g. an average of the
-            correlators for p = [1, 0, 0], [0, 1, 0], [0, 0, 1] and so on would
-            be taken).
-          fold (bool, optional): Determines whether the correlator is folded
-            about it's mid-point.
-            
-        Examples:
-          Create and thermalize a lattice, generate some propagators and use
-          them to compute a pseudoscalar correlator.
-          
-          >>> import pyQCD
-          >>> lattice = pyQCD.Lattice()
-          >>> lattice.thermalize(100)
-          >>> prop = lattice.get_propagator(0.4)
-          >>> twopoint = pyQCD.TwoPoint(8, 4)
-          >>> twopoint.compute_meson_correlator(prop, prop, "g5", "g5"
-          ...                                   "pseudoscalar")
-        """
-        
-        try:
-            source_interpolator = const.Gammas[source_interpolator]
-        except TypeError:
-            pass
-        
-        try:
-            sink_interpolator = const.Gammas[sink_interpolator]
-        except TypeError:
-            pass
-            
-        if type(momenta[0]) != list and type(momenta[0]) != tuple:
-            momenta = [momenta]
-        
-        spatial_correlator = self._compute_correlator(propagator1, propagator2,
-                                                      source_interpolator,
-                                                      sink_interpolator)
-        
-        mom_correlator = np.fft.fftn(spatial_correlator, axes=(1, 2, 3))
-        
-        if propagator1.num_source_smears == 0:
-            if propagator2.num_source_smears == 0:
-                source_type = "point_point"
-            else:
-                source_type = "point_shell"
-        else:
-            if propagator2.num_source_smears == 0:
-                source_type = "shell_point"
-            else:
-                source_type = "shell_shell"
-        
-        if propagator1.num_sink_smears == 0:
-            if propagator2.num_sink_smears == 0:
-                sink_type = "point_point"
-            else:
-                sink_type = "point_shell"
-        else:
-            if propagator2.num_sink_smears == 0:
-                sink_type = "shell_point"
-            else:
-                sink_type = "shell_shell"
-        
-        # Now go through all momenta and compute the
-        # correlators
-        for momentum in momenta:
-            if average_momenta:
-                equiv_momenta = self._get_all_momenta(momentum)
-                # Put the equivalent momenta into a form so that we can filter
-                # the relevant part of the mom space correlator out
-                equiv_momenta = np.array(equiv_momenta)
-                equiv_momenta = (equiv_momenta[:, 0],
-                                 equiv_momenta[:, 1],
-                                 equiv_momenta[:, 2])
-                equiv_correlators \
-                  = np.transpose(mom_correlator, (1, 2, 3, 0))[equiv_momenta]
-                    
-                correlator = np.mean(equiv_correlators, axis=0)
-                
-            else:
-                momentum = tuple([i % self.L for i in momentum])
-                correlator = mom_correlator[:,
-                                            momentum[0],
-                                            momentum[1],
-                                            momentum[2]]
-            
-            self.add_correlator(correlator, label,
-                                [propagator1.mass, propagator2.mass],
-                                momentum, source_type, sink_type, True, fold)
     
     def compute_all_meson_correlators(self, propagator1, propagator2,
                                       momenta = [0, 0, 0],
