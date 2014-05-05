@@ -945,11 +945,9 @@ class TestTwoPoint:
             
     def test_load_chroma_hadspec(self):
         
-        twopoint = TwoPoint(8, 4)
-        
-        twopoint.load_chroma_hadspec(create_fullpath("hadspec.dat.xml"))
+        mres_data = load_chroma_hadspec(create_fullpath("hadspec.dat.xml"))
                                        
-        assert len(twopoint.data.keys()) == 95
+        assert len(mres_data.keys()) == 95
             
     def test_load_chroma_hadspec_mesons(self):
     
@@ -983,11 +981,9 @@ class TestTwoPoint:
         filename = create_fullpath("meson_m_0.45_m_0.45_Z2.280.bin")        
         correlators = load_ukhadron_mesbin(filename, "big", (0.1, 0.1))
                                        
-        assert len(twopoint.data.keys()) == 256
+        assert len(correlators.keys()) == 256
         
     def test_load_ukhadron_mres(self):
-        
-        twopoint = TwoPoint(32, 16)
         
         mres_data = load_ukhadron_mres(create_fullpath("mres_data.xml"), 0.1)
         
@@ -1039,9 +1035,9 @@ class TestTwoPoint:
         label = "another_pion"
         
         correlators \
-          = compute_meson_correlator(propagator_data, propagator_data,
-                                     source_interpolator, sink_interpolator,
-                                     momenta, average_momenta=True)
+          = compute_meson_corr(propagator_data, propagator_data,
+                               source_interpolator, sink_interpolator,
+                               momenta, average_momenta=True)
         
         for i, momentum in enumerate(momenta):
               
@@ -1076,17 +1072,17 @@ class TestTwoPoint:
         assert np.allclose(fit_result, mass**2)
             
     def test_compute_energy(self):
-        
-        twopoint = TwoPoint(16, 8)
+
+        T = 16
         
         mass = npr.random()
         amplitude = 1000 * npr.random()
         expected_result = np.array([amplitude, mass])
         
-        correlator = amplitude * np.exp(-mass * np.arange(twopoint.T)) \
-          + amplitude * np.exp(-mass * (twopoint.T - np.arange(twopoint.T)))
+        correlator = amplitude * np.exp(-mass * np.arange(T)) \
+          + amplitude * np.exp(-mass * (T - np.arange(T)))
         
-        fitted_mass = compute_energy(correlator, range(twopoint.T), [500, 1])
+        fitted_mass = compute_energy(correlator, range(T), [500, 1])
         assert np.allclose(fitted_mass, mass)
             
     def test_compute_energy_sqr(self):
