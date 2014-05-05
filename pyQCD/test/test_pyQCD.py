@@ -1089,20 +1089,18 @@ class TestTwoPoint:
         fitted_mass = compute_energy(correlator, range(twopoint.T), [500, 1])
         assert np.allclose(fitted_mass, mass)
             
-    def test_compute_square_energy(self):
-        
-        twopoint = TwoPoint(16, 8)
+    def test_compute_energy_sqr(self):
+
+        T = 16
         
         mass = npr.random()
         amplitude = 1000 * npr.random()
         expected_result = np.array([amplitude, mass])
         
-        correlator = amplitude * np.exp(-mass * np.arange(twopoint.T)) \
-          + amplitude * np.exp(-mass * (twopoint.T - np.arange(twopoint.T)))
-        twopoint.add_correlator(correlator, "test", [0.1, 0.1], [0, 0, 0],
-                                "point", "point")
-        
-        fitted_mass = twopoint.compute_square_energy(range(twopoint.T), [500, 1])
+        correlator = amplitude * np.exp(-mass * np.arange(T)) \
+          + amplitude * np.exp(-mass * (T - np.arange(T)))
+                
+        fitted_mass = compute_energy_sqr(correlator, range(T), [500, 1])
         assert np.allclose(fitted_mass, mass**2)
         
     def test_compute_c_square(self):
