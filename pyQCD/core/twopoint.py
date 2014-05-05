@@ -13,6 +13,103 @@ from observable import Observable
 from propagator import Propagator
 from dataset import parmap
 
+def fold_correlator(self, correlator):
+    """Folds the supplied correlator about it's mid-point.
+
+    Args:
+      correlator (numpy.ndarray): The correlator to be folded.
+    
+    Returns:
+      numpy.ndarray: The folded correlator.
+
+    Examples:
+      Load a correlator from a numpy binary and fold it.
+
+      >>> import numpy as np
+      >>> import pyQCD
+      >>> correlator = np.load("some_correlator.npy")
+      >>> folded_correlator = pyQCD.fold_correlator(correlator)
+    """
+
+    if np.sign(correlator[1]) == np.sign(correlator[-1]):
+        out = np.append(correlator[0], (x[:0:-1] + x[1:]) / 2)
+    else:
+        out = np.append(correlator[0], (correlator[1:] - correlator[:0:-1]) / 2)
+
+    return out
+
+def load_chroma_mesonspec(self, filename, fold=False):
+    """Loads the meson correlator(s) present in the supplied Chroma mesonspec
+    output xml file
+
+    Args:
+      filename (str): The name of the file in which the correlators
+        are contained.
+      fold (bool, optional): Determines whether the correlator is folded
+        about it's mid-point.
+
+    Returns:
+      dict: Correlators indexed by particle properties.
+
+    Examples:
+      Here we load some correlators produced by Chroma's mesospec routine
+      and examine the keys of the resulting dict.
+
+      >>> import pyQCD
+      >>> correlators = pyQCD.load_chroma_mesonspec("96c48_pion_corr.xml")
+      >>> correlators.keys()
+      [('PS_PS', (0.4, 0.4), (0, 0, 0), 'point', 'point'),
+       ('PS_AX', (0.4, 0.4), (0, 0, 0), 'point', 'point')]
+    """
+
+    xmlfile = ET.parse(filename)
+    xmlroot = xmlfile.getroot()
+
+    interpolators = xmlroor.findall("Wilson_hadron_measurements/elem")
+
+    out = {}
+
+    for interpolator in interpolators:
+        source_particle_label = interpolator.find("source_particle").text
+        sink_particle_label = interpolator.find("sink_particle").text
+
+        label = "{}_{}".format(source_particle_label,
+                                   sink_particle_label)
+            
+        mass_1 = float(interpolator.find("Mass_1").text)
+        mass_2 = float(interpolator.find("Mass_2").text)
+            
+        raw_source_string \
+          = interpolators[0] \
+          .find("SourceSinkType/elem/source_type_1").text.lower()
+        raw_sink_string \
+          = interpolators[0] \
+          .find("SourceSinkType/elem/sink_type_1").text.lower()
+            
+        source_sink_types = ["point", "shell", "wall"]
+            
+        for source_sink_type in source_sink_types:
+            if raw_source_string.find(source_sink_type) > -1:
+                source_type = source_sink_type
+            if raw_sink_string.find(source_sink_type) > -1:
+                sink_type = source_sink_type
+                    
+        correlator_data = interpolator.findall("Mesons/momenta/elem")
+            
+        for correlator_datum in correlator_data:
+                
+            momentum_string = correlator_datum.find("sink_mom").text
+            momentum = [int(x) for x in momentum_string.split()]
+                
+            correlator_value_elems \
+              = correlator_datum.findall("mesprop/elem/re")
+                  
+            correlator = np.array([float(x.text)
+                                   for x in correlator_value_elems]
+
+            out[(label, (mass_1, mass_2), momentum, source_type, sink_type)] \
+              = fold_correlator(correlator) if fold else correlator
+
 class TwoPoint(Observable):
     """Encapsulates two-point function data and provides fitting tools.
     
