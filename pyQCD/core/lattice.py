@@ -235,7 +235,7 @@ class Lattice(lattice.Lattice):
                          dtype=complex)
         
         for t, x, y, z, mu in sites:
-            link_matrix = configuration.data[t][x][y][z][mu].tolist()
+            link_matrix = configuration[t][x][y][z][mu].tolist()
             lattice.Lattice.set_link(self, [t, x, y, z, mu], link_matrix)
     
     def save_config(self, filename):
