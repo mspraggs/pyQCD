@@ -986,6 +986,59 @@ def compute_energy_sqr(correlator, fit_range, initial_parameters,
         
     return compute_energy(correlator, fit_range, initial_parameters,
                           correlator_std) ** 2
+    
+def compute_effmass(correlator, guess_mass=1.0):
+    """Computes the effective mass for the supplied correlator by first
+    trying to solve the ratio of the correlators on neighbouring time slices
+    (see eq 6.57 in Gattringer and Lang). If this fails, then the function
+    falls back to computing log(C(t) / C(t + 1)).
+        
+    Args:
+      correlator (numpy.ndarray): The correlator used to compute the
+        effective mass.
+      guess_mass (float, optional): A guess effective mass to be used in
+        the Newton method used to compute the effective mass.
+            
+    Returns:
+      numpy.ndarray: The effective mass.
+            
+    Examples:
+      Load a TwoPoint object containing a single correlator and compute
+      its effective mass.
+          
+      >>> import pyQCD
+      >>> import numpy as np
+      >>> correlator = np.load("mycorrelator.npy")
+      >>> pyQCD.compute_effmass(correlator)
+          array([ 0.44806453,  0.41769303,  0.38761196,  0.3540968 ,
+                  0.3112345 ,  0.2511803 ,  0.16695767,  0.05906789,
+                 -0.05906789, -0.16695767, -0.2511803 , -0.3112345 ,
+                 -0.3540968 , -0.38761196, -0.41769303, -0.44806453])
+    """
+    
+    T = correlator.size
+        
+    try:
+        if np.sign(correlator[1]) == np.sign(correlator[-1]):
+            solve_function \
+              = lambda m, t: np.cosh(m * (t - T / 2)) \
+              / np.cosh(m * (t + 1 - T / 2))
+        else:
+            solve_function \
+              = lambda m, t: np.sinh(m * (t - T / 2)) \
+              / np.sinh(m * (t + 1 - T / 2))
+          
+        ratios = correlator / np.roll(correlator, -1)
+        effmass = np.zeros(T)
+            
+        for t in xrange(T):
+            function = lambda m: solve_function(m, t) - ratios[t]
+            effmass[t] = spop.newton(function, guess_mass, maxiter=1000)
+                
+        return effmass
+        
+    except RuntimeError:        
+        return np.log(np.abs(correlator / np.roll(correlator, -1)))
               
 class TwoPoint(Observable):
     """Encapsulates two-point function data and provides fitting tools.
@@ -1428,68 +1481,6 @@ class TwoPoint(Observable):
             out[i] = (E_square - E0_square) / p_square
             
         return out
-    
-    def compute_effmass(self, label=None, masses=None, momentum=None,
-                       source_type=None, sink_type=None):
-        """Computes the effective mass for the specified correlator by first
-        trying to solve the ratio of the correlators on neighbouring time slices
-        (see eq 6.57 in Gattringer and Lang). If this fails, then the function
-        falls back to computing log(C(t) / C(t + 1)).
-        
-        Args:
-          label (str, optional): The label of the correlator to be fitted.
-          masses (list, optional): The bare quark masses of the quarks
-            that form the hadron that the correlator corresponds to.
-          momentum (list, optional): The momentum of the hadron that
-            the correlator corresponds to.
-          source_type (str, optional): The type of source used when
-            generating the propagators that form the correlator.
-          sink_type (str, optional): The type of sink used when
-            generating the propagators that form the correlator.
-            
-        Returns:
-          numpy.ndarray: The effective mass.
-            
-        Examples:
-          Load a TwoPoint object containing a single correlator and
-          compute its effective mass.
-          
-          >>> import pyQCD
-          >>> correlator = pyQCD.TwoPoint.load("mycorrelator.npz")
-          >>> correlator.compute_effmass()
-          array([ 0.44806453,  0.41769303,  0.38761196,  0.3540968 ,
-                  0.3112345 ,  0.2511803 ,  0.16695767,  0.05906789,
-                 -0.05906789, -0.16695767, -0.2511803 , -0.3112345 ,
-                 -0.3540968 , -0.38761196, -0.41769303, -0.44806453])
-        """
-        
-        correlator = self.get_correlator(label, masses, momentum, source_type,
-                                         sink_type).real
-        
-        try:
-            if masses == None:
-                masses = (0.5, 0.5)
-                
-            if self._detect_cosh(correlator):
-                solve_function \
-                  = lambda m, t: np.cosh(m * (t - self.T / 2)) \
-                  / np.cosh(m * (t + 1 - self.T / 2))
-            else:
-                solve_function \
-                  = lambda m, t: np.sinh(m * (t - self.T / 2)) \
-                  / np.sinh(m * (t + 1 - self.T / 2))
-          
-            ratios = correlator / np.roll(correlator, -1)
-            effmass = np.zeros(self.T)
-            
-            for t in xrange(self.T):
-                function = lambda m: solve_function(m, t) - ratios[t]
-                effmass[t] = spop.newton(function, sum(masses), maxiter=1000)
-                
-            return effmass
-        
-        except RuntimeError:        
-            return np.log(np.abs(correlator / np.roll(correlator, -1)))
     
     def __add__(self, tp):
         """Addition operator overload"""

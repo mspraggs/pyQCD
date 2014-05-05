@@ -1131,16 +1131,12 @@ class TestTwoPoint:
         
     def test_compute_effmass(self):
         
-        twopoint = TwoPoint(16, 8)
+        T = 16
         
-        correlator = npr.random(twopoint.T)
+        correlator = npr.random(T)
         expected_effmass = np.log(np.abs(correlator / np.roll(correlator, -1)))
         
-        twopoint.add_correlator(correlator, "test", [0.1, 0.1], [0, 0, 0],
-                                "point", "point")
-        
-        actual_effmass = twopoint.compute_effmass("test", [0.1, 0.1], [0, 0, 0],
-                                                  "point", "point")
+        actual_effmass = compute_effmass(correlator, 1.0)
         
         assert np.allclose(actual_effmass, expected_effmass)
         
