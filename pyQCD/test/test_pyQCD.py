@@ -989,9 +989,9 @@ class TestTwoPoint:
         
         twopoint = TwoPoint(32, 16)
         
-        twopoint.load_ukhadron_mres("{}/mres_data.xml".format(data_dir), 0.1)
+        mres_data = load_ukhadron_mres(create_fullpath("mres_data.xml"), 0.1)
         
-        assert len(twopoint.data.keys()) == 2
+        assert len(mres_data.keys()) == 2
             
     def test_compute_meson_correlator(self):
         
