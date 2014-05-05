@@ -534,18 +534,11 @@ class Lattice(lattice.Lattice):
         
         loops = np.zeros((self.L, self.T))
         
-        for r in xrange(self.L):
-            for t in xrange(self.T):
-                loops[r, t] \
-                  = lattice.Lattice.get_av_wilson_loop(self, r, t,
-                                                       num_field_smears,
-                                                       field_smearing_param)
-                
-        out = wilslps.WilsonLoops(loops, self.L, self.T, self.beta, self.ut,
-                                  self.us, self.chi, self.action,
-                                  num_field_smears, field_smearing_param)
-        
-        return out
+        for r, t in [(x, y) for x in xrange(self.L) for y in xrange(self.T)]:
+            loops[r, t] \
+              = lattice.Lattice.get_av_wilson_loop(self, r, t, num_field_smears,
+                                                   field_smearing_param)
+        return loops
     
     def get_wilson_propagator(self, mass,
                               source_site=[0, 0, 0, 0],

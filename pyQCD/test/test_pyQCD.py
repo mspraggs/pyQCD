@@ -484,7 +484,7 @@ if lattice_exists:
             
                 for r in xrange(lattice.L):
                     for t in xrange(lattice.T):
-                        assert wilson_loops.data[r, t] \
+                        assert wilson_loops[r, t] \
                           == lattice.get_av_wilson_loop(r, t, n, 0.5)
 
         def test_get_wilson_propagator(self):
