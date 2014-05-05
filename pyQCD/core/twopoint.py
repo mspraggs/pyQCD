@@ -453,6 +453,80 @@ def load_chroma_mres(filename, fold=False):
           if fold else midpoint_pseudo_array
 
     return out
+         
+def load_ukhadron_meson_binary(filename, byteorder, quark_masses,
+                               source_type=None, sink_type=None, fold=False):
+    """Loads the correlators contained in the specified UKHADRON binary file.
+    The correlators are labelled using the CHROMA convention for particle
+    interpolators (see pyQCD.mesons). Note that information on the quark
+    masses and the source and sink types is extracted from the filename, so
+    if this information is missing then the function will fail.
+    
+    Args:
+      filename (str): The name of the file containing the data
+        byteorder (str): The endianness of the binary file. Can either be
+        "little" or "big". For data created from simulations on an intel
+        machine, this is likely to be "little". For data created on one
+        of the IBM Bluegene machines, this is likely to be "big".
+      quark_masses (list): The masses of the quarks forming the meson that
+        the correlators represent.
+      source_type (str, optional): The type of source used when computing
+        the two-point function.
+      sink_type (str, optional): The type of sink used when computing
+        the two-point function.
+      fold (bool, optional): Determines whether the correlators should
+        be folded prior to being imported.
+
+    Returns:
+      dict: Correlators indexed by particle properties
+        
+    Examples:
+      Create a twopoint object and import the data contained in
+      meson_m_0.45_m_0.45_Z2.280.bin
+          
+      >>> import pyQCD
+      >>> correlators \
+      ...   = load_ukhadron_meson_binary("meson_m_0.45_m_0.45_Z2.280.bin",
+      ...                                "big")
+    """
+        
+    if sys.byteorder == byteorder:
+        switch_endianness = lambda x: x
+    else:
+        switch_endianness = lambda x: x[::-1]
+        
+    binary_file = open(filename)
+        
+    mom_num_string = switch_endianness(binary_file.read(4))
+    mom_num = struct.unpack('i', mom_num_string)[0]
+
+    out = {}
+
+    for i in xrange(mom_num):
+        header_string = binary_file.read(40)
+        px = struct.unpack('i', switch_endianness(header_string[16:20]))[0]
+        py = struct.unpack('i', switch_endianness(header_string[20:24]))[0]
+        pz = struct.unpack('i', switch_endianness(header_string[24:28]))[0]
+        Nmu = struct.unpack('i', switch_endianness(header_string[28:32]))[0]
+        Nnu = struct.unpack('i', switch_endianness(header_string[32:36]))[0]
+        T = struct.unpack('i', switch_endianness(header_string[36:40]))[0]
+
+        correlators = np.zeros((Nmu, Nnu, T), dtype=np.complex)
+    
+        for t, mu, nu in [(x, y, z) for x in xrange(T) for y in xrange(Nmu)
+                          for y in xrange(y)]:
+            double_string = switch_endianness(binary_file.read(8))
+            correlators[mu, nu, t] = struct.unpack('d', double_string)[0]
+            double_string = binary_file.read(8)
+            correlators[mu, nu, t] += 1j * struct.unpack('d', double_string)[0]
+                        
+        for mu, nu in [(x, y) for x in xrange(Nmu) for y in xrange(Nnu)]:
+            label = "{}_{}".format(const.interpolators[mu],
+                                   const.interpolators[nu])
+            out[(label, quark_masses, (px, py, pz), source_type, sink_type)] \
+              = correlators[mu, nu]
+
+    return out
     
 def filter_correlators(data, label=None, masses=None, momentum=None,
                        source_type=None, sink_type=None):
@@ -822,81 +896,7 @@ class TwoPoint(Observable):
     
                 
     
-                
-    def load_ukhadron_meson_binary(self, filename, byteorder, quark_masses,
-                                   source_type=None, sink_type=None,
-                                   fold=False):
-        """Loads the correlators contained in the specified UKHADRON binary
-        file. The correlators are labelled using the CHROMA convention for
-        particle interpolators (see pyQCD.mesons). Note that information
-        on the quark masses and the source and sink types is extracted
-        from the filename, so if this information is missing then the function
-        will fail.
-        
-        Args:
-          filename (str): The name of the file containing the data
-          byteorder (str): The endianness of the binary file. Can either be
-            "little" or "big". For data created from simulations on an intel
-            machine, this is likely to be "little". For data created on one
-            of the IBM Bluegene machines, this is likely to be "big".
-          quark_masses (list): The masses of the quarks forming the meson that
-            the correlators represent.
-          source_type (str, optional): The type of source used when computing
-            the two-point function.
-          sink_type (str, optional): The type of sink used when computing
-            the two-point function.
-          fold (bool, optional): Determines whether the correlators should
-            be folded prior to being imported.
-        
-        Examples:
-          Create a twopoint object and import the data contained in
-          meson_m_0.45_m_0.45_Z2.280.bin
-          
-          >>> import pyQCD
-          >>> twopoint = pyQCD.TwoPoint(L=16, T=32)
-          >>> twopoint \
-          ...     .load_ukhadron_meson_binary("meson_m_0.45_m_0.45_Z2.280.bin",
-          ...                                 "big")
-        """
-        
-        if sys.byteorder == byteorder:
-            switch_endianness = lambda x: x
-        else:
-            switch_endianness = lambda x: x[::-1]
-        
-        binary_file = open(filename)
-        
-        mom_num_string = switch_endianness(binary_file.read(4))
-        mom_num = struct.unpack('i', mom_num_string)[0]
-
-        for i in xrange(mom_num):
-            header_string = binary_file.read(40)
-            px = struct.unpack('i', switch_endianness(header_string[16:20]))[0]
-            py = struct.unpack('i', switch_endianness(header_string[20:24]))[0]
-            pz = struct.unpack('i', switch_endianness(header_string[24:28]))[0]
-            Nmu = struct.unpack('i', switch_endianness(header_string[28:32]))[0]
-            Nnu = struct.unpack('i', switch_endianness(header_string[32:36]))[0]
-            T = struct.unpack('i', switch_endianness(header_string[36:40]))[0]
     
-            correlators = np.zeros((Nmu, Nnu, T), dtype=np.complex)
-    
-            for t in xrange(T):
-                for mu in xrange(Nmu):
-                    for nu in xrange(Nnu):
-                        double_string = switch_endianness(binary_file.read(8))
-                        correlators[mu, nu, t] \
-                          = struct.unpack('d', double_string)[0]
-                        double_string = binary_file.read(8)
-                        correlators[mu, nu, t] \
-                          += 1j * struct.unpack('d', double_string)[0]
-                        
-            for mu in xrange(Nmu):
-                for nu in xrange(Nnu):
-                    label = "{}_{}".format(const.interpolators[mu],
-                                           const.interpolators[nu])
-                    self.add_correlator(correlators[mu, nu], label, quark_masses,
-                                        [px, py, pz], source_type, sink_type,
-                                        True, fold)
                 
     def load_ukhadron_mres(self, filename, mass, fold=False):
         """Loads the domain wall mres data from the provided ukhadron output xml

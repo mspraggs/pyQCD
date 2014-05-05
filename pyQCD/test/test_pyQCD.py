@@ -980,11 +980,8 @@ class TestTwoPoint:
             
     def test_load_ukhadron_meson_binary(self):
         
-        twopoint = TwoPoint(32, 16)
-        
         filename = create_fullpath("meson_m_0.45_m_0.45_Z2.280.bin")        
-        twopoint \
-          .load_ukhadron_meson_binary(filename, "big", (0.1, 0.1))
+        correlators = load_ukhadron_meson_binary(filename, "big", (0.1, 0.1))
                                        
         assert len(twopoint.data.keys()) == 256
         
