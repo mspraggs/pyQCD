@@ -10,10 +10,10 @@ import scipy.optimize as spop
 
 import constants as const
 from observable import Observable
-from propagator import Propagator
+#from propagator import Propagator
 from dataset import parmap
 
-def fold_correlator(self, correlator):
+def fold_correlator(correlator):
     """Folds the supplied correlator about it's mid-point.
 
     Args:
@@ -38,7 +38,7 @@ def fold_correlator(self, correlator):
 
     return out
 
-def load_chroma_mesonspec(self, filename, fold=False):
+def load_chroma_mesonspec(filename, fold=False):
     """Loads the meson correlator(s) present in the supplied Chroma mesonspec
     output xml file
 
@@ -65,7 +65,7 @@ def load_chroma_mesonspec(self, filename, fold=False):
     xmlfile = ET.parse(filename)
     xmlroot = xmlfile.getroot()
 
-    interpolators = xmlroor.findall("Wilson_hadron_measurements/elem")
+    interpolators = xmlroot.findall("Wilson_hadron_measurements/elem")
 
     out = {}
 
@@ -99,16 +99,18 @@ def load_chroma_mesonspec(self, filename, fold=False):
         for correlator_datum in correlator_data:
                 
             momentum_string = correlator_datum.find("sink_mom").text
-            momentum = [int(x) for x in momentum_string.split()]
+            momentum = tuple(int(x) for x in momentum_string.split())
                 
             correlator_value_elems \
               = correlator_datum.findall("mesprop/elem/re")
                   
             correlator = np.array([float(x.text)
-                                   for x in correlator_value_elems]
+                                   for x in correlator_value_elems])
 
             out[(label, (mass_1, mass_2), momentum, source_type, sink_type)] \
               = fold_correlator(correlator) if fold else correlator
+              
+    return out
 
 class TwoPoint(Observable):
     """Encapsulates two-point function data and provides fitting tools.
