@@ -394,6 +394,75 @@ def load_chroma_hadspec_currents(filename, fold=False):
               = fold_correlator(correlator) if fold else correlator
 
     return out
+    
+def filter_correlators(data, label=None, masses=None, momentum=None,
+                       source_type=None, sink_type=None):
+    """Filters the dictionary of correlators returned by one of the CHROMA or
+    UKhadron import functions. Returns the specified correlator, or a dictionary
+    containing the correlators that match the arguments supplied to the
+    function.
+        
+    Args:
+      data (dict): The dictionary of correlators to be filtered
+      label (str, optional): The correlator label
+      masses (array-like, optional): The masses of the valence quarks that
+        form the hadron that corresponds to the correlator.
+      momentum (array-like, optional): The momentum of the hadron that
+        corresponds to the correlator
+      source_type (str, optional): The type of the source used when
+        computing the propagator(s) used to compute the corresponding
+        correlator.
+      sink_type (str, optional): The type of the sink used when
+        computing the propagator(s) used to compute the corresponding
+        correlator.
+            
+    Returns:
+      dict or numpy.ndarray: The correlator(s) matching the criteria
+          
+      If the supplied criteria match more than one correlator, then
+      a dict is returned, containing the correlators that match these
+      criteria. The keys are tuples containing the corresponding
+      criteria for the correlators. If only one correlator is found, then
+      the correlator itself is returned as a numpy array.
+          
+    Examples:
+      Load a two-point object from disk and retreive the correlator
+      denoted by the label "pion" with zero momentum.
+          
+      >>> import pyQCD
+      >>> correlators = pyQCD.load_chroma_hadspec("correlators.dat.xml")
+      >>> pyQCD.filter_correlators(correlators, "pion", momentum=(0, 0, 0))
+      array([  9.19167425e-01,   4.41417607e-02,   4.22095090e-03,
+               4.68472393e-04,   5.18833346e-05,   5.29751835e-06,
+               5.84481783e-07,   6.52953123e-08,   1.59048703e-08,
+               7.97830102e-08,   7.01262406e-07,   6.08545149e-06,
+               5.71428481e-05,   5.05306201e-04,   4.74744759e-03,
+               4.66148785e-02])
+    """
+        
+    correlator_attributes = data.keys()
+        
+    if masses != None:
+        masses = tuple([round(mass, 8) for mass in masses])
+            
+    if momentum != None:
+        momentum = tuple(momentum)
+        
+    filter_params = [label, masses, momentum, source_type, sink_type]
+        
+    for i, param in enumerate(filter_params):       
+        if param != None:
+            correlator_attributes \
+              = [attrib for attrib in correlator_attributes
+                 if attrib[i] == param]
+        
+    if len(correlator_attributes) == 1:
+        return data[correlator_attributes[0]]
+    else:
+        correlators = [data[attrib]
+                       for attrib in correlator_attributes]
+           
+        return dict(zip(correlator_attributes, tuple(correlators)))
               
 class TwoPoint(Observable):
     """Encapsulates two-point function data and provides fitting tools.
@@ -556,73 +625,6 @@ class TwoPoint(Observable):
         """
         
         return zip(const.mesons, const.interpolators)
-    
-    def get_correlator(self, label=None, masses=None, momentum=None,
-                       source_type=None, sink_type=None):
-        """Returns the specified correlator, or a dictionary containing the
-        correlators that match the arguments supplied to the function
-        
-        Args:
-          label (str, optional): The correlator label
-          masses (array-like, optional): The masses of the valence quarks that
-            form the hadron that corresponds to the correlator.
-          momentum (array-like, optional): The momentum of the hadron that
-            corresponds to the correlator
-          source_type (str, optional): The type of the source used when
-            computing the propagator(s) used to compute the corresponding
-            correlator.
-          sink_type (str, optional): The type of the sink used when
-            computing the propagator(s) used to compute the corresponding
-            correlator.
-            
-        Returns:
-          dict or numpy.ndarray: The correlator(s) matching the criteria
-          
-          If the supplied criteria match more than one correlator, then
-          a dict is returned, containing the correlators that match these
-          criteria. The keys are tuples containing the corresponding
-          criteria for the correlators. If only one correlator is found, then
-          the correlator itself is returned as a numpy array.
-          
-        Examples:
-          Load a two-point object from disk and retreive the correlator
-          denoted by the label "pion" with zero momentum.
-          
-          >>> import pyQCD
-          >>> pion_correlators = pyQCD.TwoPoint.load("pion_correlator.npz")
-          >>> pion_correlators.get_correlator("pion", momentum=(0, 0, 0))
-          array([  9.19167425e-01,   4.41417607e-02,   4.22095090e-03,
-                   4.68472393e-04,   5.18833346e-05,   5.29751835e-06,
-                   5.84481783e-07,   6.52953123e-08,   1.59048703e-08,
-                   7.97830102e-08,   7.01262406e-07,   6.08545149e-06,
-                   5.71428481e-05,   5.05306201e-04,   4.74744759e-03,
-                   4.66148785e-02])
-        """
-        
-        correlator_attributes = self.data.keys()
-        
-        if masses != None:
-            masses = tuple([round(mass, 8) for mass in masses])
-            
-        if momentum != None:
-            momentum = tuple(momentum)
-        
-        filter_params = [label, masses, momentum, source_type, sink_type]
-        
-        for i, param in enumerate(filter_params):       
-            if param != None:
-                correlator_attributes \
-                  = [attrib for attrib in correlator_attributes
-                     if attrib[i] == param]
-        
-        if len(correlator_attributes) == 1:
-            return self.data[correlator_attributes[0]]
-        else:
-            correlators = [self.data[attrib]
-                           for attrib in correlator_attributes]
-           
-            return dict(zip(correlator_attributes,
-                            tuple(correlators)))
     
     def add_correlator(self, data, label, masses=[], momentum=[0, 0, 0],
                        source_type=None, sink_type=None, projected=True,
