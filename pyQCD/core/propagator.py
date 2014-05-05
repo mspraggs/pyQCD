@@ -33,8 +33,8 @@ def prop_adjoint(propagator):
     out = np.transpose(propagator, (0, 1, 2, 3, 5, 4, 7, 6))
     out = np.conj(out)
     
-    out = pyQCD.spin_prod(gamma5, out)
-    out = pyQCD.spin_prod(out, gamma5)
+    out = spin_prod(gamma5, out)
+    out = spin_prod(out, gamma5)
     
     return out
 
