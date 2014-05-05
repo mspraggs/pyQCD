@@ -21,7 +21,7 @@ from dicts import *
 from observable import Observable
 from propagator import *
 from config import Config
-from twopoint import TwoPoint
+from twopoint import *
 from wilslps import WilsonLoops
 from dataset import DataSet
 from constants import *

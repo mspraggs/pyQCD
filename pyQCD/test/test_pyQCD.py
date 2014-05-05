@@ -1103,32 +1103,6 @@ class TestTwoPoint:
         fitted_mass = compute_energy_sqr(correlator, range(T), [500, 1])
         assert np.allclose(fitted_mass, mass**2)
         
-    def test_compute_c_square(self):
-        
-        twopoint = TwoPoint(16, 8)
-        
-        amplitude = 1000 * npr.random()
-        mass = npr.random()
-        energy1 = 1 + npr.random()
-        energy2 = 2 + npr.random()
-        momenta = [[0, 0, 0], [1, 0, 0], [1, 1, 0]]
-        
-        expected_result \
-          = np.array([(energy1**2 - mass**2) / (np.pi / 4)**2,
-                      (energy2**2 - mass**2) / ((np.pi / 4)**2 * 2)])
-        
-        for m, p in zip([mass, energy1, energy2], momenta):
-            correlator = amplitude * np.exp(-m * np.arange(twopoint.T)) \
-              + amplitude * np.exp(-m * (twopoint.T - np.arange(twopoint.T)))
-              
-            twopoint.add_correlator(correlator, "test", [0.1, 0.1], p, "point",
-                                    "point")
-            
-        actual_result = twopoint.compute_c_square(3 * [range(16)], [500, 1],
-                                                  [[1, 0, 0], [1, 1, 0]])
-        
-        assert np.allclose(actual_result, expected_result)
-        
     def test_compute_effmass(self):
         
         T = 16
@@ -1140,79 +1114,6 @@ class TestTwoPoint:
         
         assert np.allclose(actual_effmass, expected_effmass)
         
-    def test_div(self):
-        
-        twopoint = TwoPoint(16, 8)
-        
-        correlator = npr.random(16)
-        
-        twopoint.add_correlator(correlator, "test", [0.1, 0.1], [0, 0, 0],
-                                "point", "point")
-
-        div = npr.random()        
-        twopoint_div = twopoint / div
-        
-        expected_correlator = correlator / div
-        actual_correlator = twopoint_div.get_correlator("test", [0.1, 0.1],
-                                                        [0, 0, 0], "point",
-                                                        "point")
-        assert np.allclose(actual_correlator, expected_correlator)
-        
-    def test_neg(self):
-        
-        twopoint = TwoPoint(16, 8)
-        
-        correlator = npr.random(16)
-        
-        twopoint.add_correlator(correlator, "test", [0.1, 0.1], [0, 0, 0],
-                                "point", "point")
-        
-        twopoint_neg = -twopoint
-        
-        expected_correlator = -correlator
-        actual_correlator = twopoint_neg.get_correlator("test", [0.1, 0.1],
-                                                        [0, 0, 0], "point",
-                                                        "point")
-        assert np.allclose(actual_correlator, expected_correlator)
-        
-    def test_sub(self):
-        
-        twopoint1 = TwoPoint(16, 8)
-        twopoint2 = TwoPoint(16, 8)
-        
-        correlator1 = npr.random(twopoint1.T)
-        correlator2 = npr.random(twopoint2.T)
-        correlator3 = npr.random(twopoint1.T)
-        correlator4 = npr.random(twopoint2.T)
-        
-        twopoint1.add_correlator(correlator1, "test", [0.1, 0.1], [0, 0, 0],
-                                 "point", "point")
-        twopoint1.add_correlator(correlator3, "test", [0.2, 0.5], [0, 0, 0],
-                                 "point", "point")
-        twopoint2.add_correlator(correlator2, "test", [0.1, 0.1], [0, 0, 0],
-                                 "point", "point")
-        twopoint2.add_correlator(correlator4, "test", [1.0, 0.1], [1, 0, 0],
-                                 "point", "point")
-        
-        with pytest.raises(KeyError):
-            twopoint3 = twopoint1 - twopoint2
-        
-        twopoint1 = TwoPoint(16, 8)
-        twopoint2 = TwoPoint(16, 8)
-        
-        twopoint1.add_correlator(correlator1, "test", [0.1, 0.1], [0, 0, 0],
-                                 "point", "point")
-        twopoint2.add_correlator(correlator2, "test", [0.1, 0.1], [0, 0, 0],
-                                 "point", "point")
-        
-        twopoint3 = twopoint1 - twopoint2
-        
-        expected_correlator = correlator1 - correlator2
-        actual_correlator = twopoint3.get_correlator("test", [0.1, 0.1],
-                                                     [0, 0, 0], "point",
-                                                     "point")
-        assert np.allclose(actual_correlator, expected_correlator)
-
 class TestDataSet:
     
     def test_init(self):
