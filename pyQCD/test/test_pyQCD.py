@@ -214,22 +214,15 @@ if lattice_exists:
 
             config = lattice.get_config()
             
-            assert config.L == lattice.L
-            assert config.T == lattice.T
-            assert config.beta == lattice.beta
-            assert config.ut == lattice.ut
-            assert config.us == lattice.us
-            assert config.chi == lattice.chi
-            assert config.action == lattice.action
+            expected_shape = (lattice.T, lattice.L, lattice.L, lattice.L,
+                              4, 3, 3)
             
-            expected_shape = (lattice.T, lattice.L, lattice.L, lattice.L, 4, 3, 3)
-            
-            assert config.data.shape == expected_shape
+            assert config.shape == expected_shape
             
             links = make_links(lattice.T, lattice.L)
             
             for link in links:
-                assert (lattice.get_link(link) == config.data[tuple(link)]).all()
+                assert (lattice.get_link(link) == config[tuple(link)]).all()
 
         def test_set_config(self):
             # This could fail if the Config constructor doesn't work
@@ -243,43 +236,33 @@ if lattice_exists:
             
             for t, x, y, z, mu in links:
                 data[t, x, y, z] = make_random_su(3)
-
-            config = Config(data, lattice.L, lattice.T, lattice.beta, lattice.ut,
-                            lattice.us, lattice.chi, lattice.action)
             
-            lattice.set_config(config)
-            
-            assert lattice.L == config.L
-            assert lattice.T == config.T
-            assert lattice.beta == config.beta
-            assert lattice.ut == config.ut
-            assert lattice.us == config.us
-            assert lattice.chi == config.chi
-            assert lattice.action == config.action
+            lattice.set_config(data)
             
             for link in links:
-                assert (lattice.get_link(link) == config.data[tuple(link)]).all()
+                assert (lattice.get_link(link) == data[tuple(link)]).all()
                 
         def test_save_config(self):
         
             lattice = Lattice()
             
-            lattice.save_config("test_config.npz")
+            lattice.save_config("test_config.npy")
             
-            assert os.path.exists("test_config.npz")
+            assert os.path.exists("test_config.npy")
             
-            test_config = np.load("test_config.npz")
+            test_config = np.load("test_config.npy")
+            expected_shape = (lattice.T, lattice.L, lattice.L, lattice.L,
+                              4, 3, 3)
             
-            assert "data" in test_config.files
-            assert "header" in test_config.files
+            assert test_config.shape == expected_shape
 
         def test_load_config(self):
             
             lattice = Lattice()
 
-            lattice.load_config("test_config.npz")
+            lattice.load_config("test_config.npy")
             
-            os.unlink("test_config.npz")
+            os.unlink("test_config.npy")
             
         def test_update(self):
     
@@ -300,7 +283,7 @@ if lattice_exists:
                         
                         config_data = np.load(create_fullpath(filename))
                         
-                        assert np.allclose(lattice.get_config().data, config_data)
+                        assert np.allclose(lattice.get_config(), config_data)
 
         def test_next_config(self):
             
@@ -313,11 +296,10 @@ if lattice_exists:
                 matrix = lattice.get_link([0, 0, 0, 0, 0])
                 # Test that the gauge links are SU3
                 determinant = spla.det(matrix)
-                assert np.abs(spla.det(matrix) - 1.0) < 1e-12
+                assert np.allclose(spla.det(matrix), 1.0)
             
                 UUdagger = np.dot(matrix, np.conj(matrix.T))
-                assert (np.abs(UUdagger - np.identity(3)) 
-                        < 1e-12 * np.ones((3, 3))).all()
+                assert np.allclose(UUdagger, np.identity(3))
             
         def test_thermalize(self):
             
@@ -508,11 +490,7 @@ if lattice_exists:
         def test_get_wilson_propagator(self):
             
             lattice = Lattice()
-            config_data \
-              = np.load(create_fullpath("chroma_config.npy"))
-            config = Config(config_data, 4, 8, 5.5, 1.0, 1.0, 1.0,
-                            "wilson")
-            lattice.set_config(config)
+            lattice.load_config(create_fullpath("chroma_config.npy"))
             
             smearing_combinations \
               = [(0, 0, 0), (1, 0, 0), (0, 1, 0), (0, 0, 1)]
@@ -539,16 +517,12 @@ if lattice_exists:
                         
                     actual_prop = np.load(create_fullpath(filename))
                         
-                    assert np.allclose(actual_prop, prop.data)
+                    assert np.allclose(actual_prop, prop)
 
         def test_get_hamberwu_propagator(self):
             
             lattice = Lattice()
-            config_data \
-              = np.load(create_fullpath("chroma_config.npy"))
-            config = Config(config_data, 4, 8, 5.5, 1.0, 1.0, 1.0,
-                                  "wilson")
-            lattice.set_config(config)
+            lattice.load_config(create_fullpath("chroma_config.npy"))
             
             smearing_combinations \
               = [(0, 0, 0), (1, 0, 0), (0, 1, 0), (0, 0, 1)]
@@ -575,16 +549,12 @@ if lattice_exists:
                         
                     actual_prop = np.load(create_fullpath(filename))
                         
-                    assert np.allclose(actual_prop, prop.data)
+                    assert np.allclose(actual_prop, prop)
 
         def test_get_naik_propagator(self):
             
             lattice = Lattice()
-            config_data \
-              = np.load(create_fullpath("chroma_config.npy"))
-            config = Config(config_data, 4, 8, 5.5, 1.0, 1.0, 1.0,
-                                  "wilson")
-            lattice.set_config(config)
+            lattice.load_config(create_fullpath("chroma_config.npy"))
             
             smearing_combinations \
               = [(0, 0, 0), (1, 0, 0), (0, 1, 0), (0, 0, 1)]
@@ -611,16 +581,12 @@ if lattice_exists:
                         
                     actual_prop = np.load(create_fullpath(filename))
                         
-                    assert np.allclose(actual_prop, prop.data)
+                    assert np.allclose(actual_prop, prop)
                         
         def test_invert_wilson_dirac(self):
             
             lattice = Lattice()
-            config_data \
-              = np.load(create_fullpath("chroma_config.npy"))
-            config = Config(config_data, 4, 8, 5.5, 1.0, 1.0, 1.0,
-                                  "wilson")
-            lattice.set_config(config)
+            lattice.load_config(create_fullpath("chroma_config.npy"))
             
             psi = np.zeros([8, 4, 4, 4, 4, 3])
             psi[0, 0, 0, 0, 0, 0] = 1.0
@@ -640,11 +606,7 @@ if lattice_exists:
         def test_invert_hamberwu_dirac(self):
             
             lattice = Lattice()
-            config_data \
-              = np.load(create_fullpath("chroma_config.npy"))
-            config = Config(config_data, 4, 8, 5.5, 1.0, 1.0, 1.0,
-                                  "wilson")
-            lattice.set_config(config)
+            lattice.load_config(create_fullpath("chroma_config.npy"))
             
             psi = np.zeros([8, 4, 4, 4, 4, 3])
             psi[0, 0, 0, 0, 0, 0] = 1.0
@@ -664,11 +626,7 @@ if lattice_exists:
         def test_invert_naik_dirac(self):
             
             lattice = Lattice()
-            config_data \
-              = np.load(create_fullpath("chroma_config.npy"))
-            config = Config(config_data, 4, 8, 5.5, 1.0, 1.0, 1.0,
-                                  "wilson")
-            lattice.set_config(config)
+            lattice.load_config(create_fullpath("chroma_config.npy"))
             
             psi = np.zeros([8, 4, 4, 4, 4, 3])
             psi[0, 0, 0, 0, 0, 0] = 1.0
@@ -688,11 +646,7 @@ if lattice_exists:
         def test_invert_dwf_dirac(self):
             
             lattice = Lattice()
-            config_data \
-              = np.load(create_fullpath("chroma_config.npy"))
-            config = Config(config_data, 4, 8, 5.5, 1.0, 1.0, 1.0,
-                                  "wilson")
-            lattice.set_config(config)
+            lattice.load_config(create_fullpath("chroma_config.npy"))
             
             psi = np.zeros([4, 8, 4, 4, 4, 4, 3])
             psi[0, 0, 0, 0, 0, 0, 0] = 1.0
@@ -712,11 +666,7 @@ if lattice_exists:
         def test_apply_wilson_dirac(self):
             
             lattice = Lattice()
-            config_data \
-              = np.load(create_fullpath("chroma_config.npy"))
-            config = Config(config_data, 4, 8, 5.5, 1.0, 1.0, 1.0,
-                            "wilson")
-            lattice.set_config(config)
+            lattice.load_config(create_fullpath("chroma_config.npy"))
             
             psi = np.zeros([8, 4, 4, 4, 4, 3])
             psi[0, 0, 0, 0, 0, 0] = 1.0
@@ -729,11 +679,7 @@ if lattice_exists:
         def test_apply_hamberwu_dirac(self):
             
             lattice = Lattice()
-            config_data \
-              = np.load(create_fullpath("chroma_config.npy"))
-            config = Config(config_data, 4, 8, 5.5, 1.0, 1.0, 1.0,
-                            "wilson")
-            lattice.set_config(config)
+            lattice.load_config(create_fullpath("chroma_config.npy"))
             
             psi = np.zeros([8, 4, 4, 4, 4, 3])
             psi[0, 0, 0, 0, 0, 0] = 1.0
@@ -746,11 +692,7 @@ if lattice_exists:
         def test_apply_naik_dirac(self):
             
             lattice = Lattice()
-            config_data \
-              = np.load(create_fullpath("chroma_config.npy"))
-            config = Config(config_data, 4, 8, 5.5, 1.0, 1.0, 1.0,
-                            "wilson")
-            lattice.set_config(config)
+            lattice.set_config(create_fullpath("chroma_config.npy"))
             
             psi = np.zeros([8, 4, 4, 4, 4, 3])
             psi[0, 0, 0, 0, 0, 0] = 1.0
@@ -763,11 +705,7 @@ if lattice_exists:
         def test_apply_dwf_dirac(self):
             
             lattice = Lattice()
-            config_data \
-              = np.load(create_fullpath("chroma_config.npy"))
-            config = Config(config_data, 4, 8, 5.5, 1.0, 1.0, 1.0,
-                            "wilson")
-            lattice.set_config(config)
+            lattice.load_config(create_fullpath("chroma_config.npy"))
             
             psi = np.zeros([4, 8, 4, 4, 4, 4, 3])
             psi[0, 0, 0, 0, 0, 0, 0] = 1.0
@@ -775,18 +713,15 @@ if lattice_exists:
             for fermion_action in dicts.fermion_actions.keys():
                 eta = lattice.apply_dwf_dirac(psi, 0.4, 1.6, 4, fermion_action)
                 expected_eta \
-                  = np.load(create_fullpath("Dpsi_dwf_{}.npy".format(fermion_action)))
+                  = np.load(create_fullpath("Dpsi_dwf_{}.npy"
+                                            .format(fermion_action)))
             
                 assert np.allclose(eta, expected_eta)
             
         def test_apply_jacobi_smearing(self):
             
             lattice = Lattice()
-            config_data \
-              = np.load(create_fullpath("chroma_config.npy"))
-            config = Config(config_data, 4, 8, 5.5, 1.0, 1.0, 1.0,
-                            "wilson")
-            lattice.set_config(config)
+            lattice.load_config(create_fullpath("chroma_config.npy"))
             
             psi = np.zeros([8, 4, 4, 4, 4, 3])
             psi[0, 0, 0, 0, 0, 0] = 1.0
