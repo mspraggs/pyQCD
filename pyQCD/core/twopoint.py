@@ -455,7 +455,7 @@ def load_chroma_mres(filename, fold=False):
 
     return out
          
-def load_ukhadron_meson_binary(filename, byteorder, fold=False):
+def load_ukhadron_mesbin(filename, byteorder, fold=False):
     """Loads the correlators contained in the specified UKHADRON binary file.
     The correlators are labelled using the CHROMA convention for particle
     interpolators (see pyQCD.mesons). Note that information on the quark
@@ -637,9 +637,9 @@ def filter_correlators(data, label=None, masses=None, momentum=None,
            
         return dict(zip(correlator_attributes, tuple(correlators)))
   
-def compute_meson_correlator(propagator1, propagator2, source_interpolator,
-                             sink_interpolator, momenta=(0, 0, 0),
-                             average_momenta=True, fold=False):
+def compute_meson_corr(propagator1, propagator2, source_interpolator,
+                       sink_interpolator, momenta=(0, 0, 0),
+                       average_momenta=True, fold=False):
     """Computes the specified meson correlator
         
     Colour and spin traces are taken over the following product:
@@ -765,8 +765,8 @@ def _compute_correlator(prop1, prop2, gamma1, gamma2):
     
     return np.einsum('txyzijab,txyzjiba->txyz', gp1, gp2)
 
-def compute_all_meson_correlators(propagator1, propagator2, momenta=(0, 0, 0),
-                                  average_momenta=True, fold=False):
+def compute_meson_corr256(propagator1, propagator2, momenta=(0, 0, 0),
+                          average_momenta=True, fold=False):
     """Computes and stores all 256 meson correlators within the
     current TwoPoint object. Labels akin to those in pyQCD.interpolators
     are used to denote the 16 gamma matrix combinations.

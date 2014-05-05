@@ -978,10 +978,10 @@ class TestTwoPoint:
         
         assert len(mres_data.keys()) == 10
             
-    def test_load_ukhadron_meson_binary(self):
+    def test_load_ukhadron_mesbin(self):
         
         filename = create_fullpath("meson_m_0.45_m_0.45_Z2.280.bin")        
-        correlators = load_ukhadron_meson_binary(filename, "big", (0.1, 0.1))
+        correlators = load_ukhadron_mesbin(filename, "big", (0.1, 0.1))
                                        
         assert len(twopoint.data.keys()) == 256
         
@@ -993,7 +993,7 @@ class TestTwoPoint:
         
         assert len(mres_data.keys()) == 2
             
-    def test_compute_meson_correlator(self):
+    def test_compute_meson_corr(self):
         
         tolerance = 1e-6
         
@@ -1018,10 +1018,9 @@ class TestTwoPoint:
         for source_interpolator, sink_interpolator in \
           zip(source_interpolators, sink_interpolators):
             correlator \
-              =  compute_meson_correlator(propagator_data, propagator_data,
-                                          source_interpolator,
-                                          sink_interpolator,
-                                          momenta, average_momenta=True)
+              =  compute_meson_corr(propagator_data, propagator_data,
+                                    source_interpolator, sink_interpolator,
+                                    momenta, average_momenta=True)
               
                     
             assert np.allclose(correlator, expected_correlator)
