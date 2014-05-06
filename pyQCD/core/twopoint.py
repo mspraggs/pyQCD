@@ -681,7 +681,7 @@ def compute_meson_corr(propagator1, propagator2, source_interpolator,
       >>> lattice = pyQCD.Lattice()
       >>> lattice.thermalize(100)
       >>> prop = lattice.get_propagator(0.4)
-      >>> correlator = pyQCD.compute_meson_correlator(prop, prop, "g5", "g5")
+      >>> correlator = pyQCD.compute_meson_corr(prop, prop, "g5", "g5")
     """
         
     try:
@@ -794,7 +794,7 @@ def compute_meson_corr256(propagator1, propagator2, momenta=(0, 0, 0),
       >>> lattice = pyQCD.Lattice()
       >>> lattice.thermalize(100)
       >>> prop = lattice.get_propagator(0.4)
-      >>> correlator = pyQCD.compute_all_meson_correlators(prop, prop)
+      >>> correlator = pyQCD.compute_meson_corr256(prop, prop)
     """
 
     interpolators = [(Gamma1, Gamma2)
@@ -802,12 +802,12 @@ def compute_meson_corr256(propagator1, propagator2, momenta=(0, 0, 0),
                      for Gamma2 in const.interpolators]
 
     def parallel_function(gammas):
-        return compute_meson_correlator(propagator1, propagator2,
-                                        gammas[0], gammas[1], momenta,
-                                        average_momenta, fold)
+        return compute_meson_corr(propagator1, propagator2,
+                                  gammas[0], gammas[1], momenta,
+                                  average_momenta, fold)
     
     pool = mp.Pool()
-    results = pool.map(parallel_function, interpolators)
+    results = map(parallel_function, interpolators)
 
     out = {}
     for interpolator, result in zip(interpolators, results):
@@ -817,7 +817,7 @@ def compute_meson_corr256(propagator1, propagator2, momenta=(0, 0, 0),
                 out[(label, mom)] = corr
 
         except AttributeError:
-            out[label] = corr
+            out[label] = result
 
     return out
             
