@@ -10,9 +10,7 @@ import numpy as np
 import scipy.optimize as spop
 
 import constants as const
-from observable import Observable
 from propagator import spin_prod, prop_adjoint
-from dataset import parmap
 
 def fold_correlator(correlator):
     """Folds the supplied correlator about it's mid-point.
