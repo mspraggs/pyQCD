@@ -520,7 +520,10 @@ class Lattice(lattice.Lattice):
             parameter
           
         Returns:
-          WilsonLoops: The Wilson loops object encapsulating the Wilson loops
+          numpy.ndarray: An array of the Wilson loop expectation values.
+
+          Element (i, j) corrsponds to the expectation value of a Wilson loop
+          with spatial extent j and temporal extent i.
           
         Examples:
           Create a lattice object, thermalize it, then extract the Wilson
