@@ -130,6 +130,67 @@ def bootstrap(data, func, num_bootstraps=None, binsize=1, args=[],
 
     return np.mean(results, axis=0), np.std(results, axis=0)
 
+def jackknife_data(data, binsize=1):
+    """Resamples the supplied data using the jackknife method.
+        
+    Args:
+      data (list): The data on which to perform a jackknife resample.
+      binsize (int, optional): The bin size to bin the data with before
+        performing the jackknife.
+             
+    Returns:
+      list: The resampled data set.
+    
+    Examples:
+      Load some correlators and create jackknife copies of the data.
+          
+      >>> import pyQCD
+      >>> data = pyQCD.load_archive("correlators.zip")
+      >>> resampled_data = pyQCD.jackknife_data(data, 100)
+    """
+
+    binned_data = bin_data(data, binsize)
+    data_sum = sum(binned_data)
+
+    return [(data_sum - datum) / (len(binned_data) - 1)
+            for datum in binned_data]
+
+def jackknife(data, func, binsize=1, args=[], kwargs={}, resample=True):
+    """Performs a jackknifed measurement on the data set using the supplied
+    function
+
+    Args:
+      data (list): The data on which to perform the resampling and measurement
+      func (function): The measurement function. The first argument of this
+        function should accept a type identical to that of the elements of the
+        data list.
+      binsize (int, optional): The binsize to bin the data with before
+        performing the jackknife.
+      args (list, optional): Any additional arguments required by func
+      kwargs (dict, optional): Any additional keyword arguments required by func
+      resample (bool, optional): Determines whether to treat data as an existing
+        jackknife data set, or perform the jackknife from scratch.
+
+    Returns:
+      tuple: The jackknifed central value and the estimated error.
+
+    Examples:
+      Load some correlators and jackknife the effective mass curve.
+
+      >>> import pyQCD
+      >>> data = pyQCD.load_archive("correlators.zip")
+      >>> effmass = pyQCD.jackknife(data, pyQCD.compute_effmass, 100)
+    """
+
+    if resample:
+        resamp_data = jackknife_data(data, binsize)
+    else:
+        resamp_data = data
+
+    results = map(lambda x: func(x, *args, **kwargs), resamp_data)
+
+    return np.mean(results, axis=0), np.std(out, axis=0)
+
 class DataSet:
     """Data set container holding data of the specified type.
     
