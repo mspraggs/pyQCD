@@ -36,6 +36,10 @@ def _extract_datum(index, zfname):
 
     zfile.extract(fname)
     datum = np.load(fname)
+    try:
+        datum = datum.item()
+    except ValueError:
+        pass
     os.unlink(fname)
     zfile.close()
 
