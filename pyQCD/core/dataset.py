@@ -38,6 +38,63 @@ def parmap(f, X, nprocs = mp.cpu_count()):
 
     return [x for i,x in sorted(res)]
 
+def save_archive(filename, data):
+    """Save the supplied list of data to a zip archive using the numpy save
+    function
+
+    Args:
+      filename (str): The name of the zip archive.
+      data (list): The list of data to save.
+
+    Examples:
+      Load a series of correlators from CHROMA xml output files, then save
+      them as a zip file.
+
+      >>> import pyQCD
+      >>> data = [pyQCD.load_chroma_hadspec("hadspec_{}.dat.xml".format(i))
+      ...         for i in xrange(100)]
+      >>> pyQCD.save_archive("chroma_data.zip", data)
+    """
+
+    try:
+        zfile = zipfile.ZipFile(filename, 'w', zipfile.ZIP_DEFLATED, True)
+    except (RuntimeError, zipfile.LargeZipFile):
+        zfile = zipfile.ZipFile(filename, 'w', zipfile.ZIP_STORED, False)
+
+    for i, datum in enumerate(data):
+        np.save("datum{}.npy".format(i), datum)
+        zfile.write("datum{}.npy".format(i))
+        os.unlink("datum{}.npy".format(i))
+
+    zfile.close()
+
+def load_archive(filename):
+    """Load the contents of the supplied zip archive into a list
+
+    Args:
+      filename (str): The name of the zip archive.
+    """
+
+    try:
+        zfile = zipfile.ZipFile(filename, 'r', zipfile.ZIP_DEFLATED, True)
+    except (RuntimeError, zipfile.LargeZipFile):
+        zfile = zipfile.ZipFile(filename, 'r', zipfile.ZIP_STORED, False)
+
+    data = []
+
+    for f in zfile.filelist:
+        zfile.extract(f.filename)
+        datum = np.load(f.filename)
+        try:
+            data.append(datum.item())
+        except ValueError:
+            data.append(datum)
+        os.unlink(f.filename)
+
+    zfile.close()
+
+    return data
+
 def bin_data(data, binsize=1):
     """Bins the supplied data into of the specified size
 
