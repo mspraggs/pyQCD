@@ -1236,21 +1236,20 @@ if lattice_exists:
         def test_add_measurement(self):
         
             simulation = Simulation(100, 10, 250)
-            simulation.add_measurement(Lattice.get_config, Config,
-                                       "configs.zip")
-            simulation.add_measurement(Lattice.get_config, Config, "configs.zip",
+            simulation.add_measurement(Lattice.get_config, "configs.zip",
                                        meas_message="Getting correlator")
             
         def test_run(self):
             
             simulation = Simulation(5, 10, 100)
             simulation.create_lattice(4, 8, "wilson", 5.5)
-            simulation.add_measurement(Lattice.get_config, Config, "configs.zip",
-                                       meas_message="Storing gauge configuration")
+            simulation.add_measurement(Lattice.get_config, "configs.zip",
+                                       meas_message="Storing gauge "
+                                       "configuration")
             simulation.run()
         
             simulation = Simulation(3, 10, 100)
             simulation.create_lattice(4, 8, "wilson", 5.5)
             simulation.load_ensemble(create_fullpath("4c8_ensemble.zip"))
-            simulation.add_measurement(Lattice.get_config, Config, "configs.zip")
+            simulation.add_measurement(Lattice.get_config, "configs.zip")
             simulation.run()
