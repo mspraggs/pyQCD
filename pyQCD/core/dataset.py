@@ -91,7 +91,8 @@ def bootstrap_data(data, num_bootstraps, binsize=1):
 
     return out
 
-def bootstrap(data, func, num_bootstraps=None, binsize=1, resample=True):
+def bootstrap(data, func, num_bootstraps=None, binsize=1, args=[],
+              kwargs={}, resample=True):
     """Performs a bootstrapped measurement on the data set using the supplied
     function
 
@@ -104,6 +105,8 @@ def bootstrap(data, func, num_bootstraps=None, binsize=1, resample=True):
         resample is set to False, then this value is ignored.
       binsize (int, optional): The binsize to bin the data with before
         performing the bootstrap.
+      args (list, optional): Any additional arguments required by func
+      kwargs (dict, optional): Any additional keyword arguments required by func
       resample (bool, optional): Determines whether to treat data as an existing
         bootstrap data set, or perform the bootstrap from scratch.
 
@@ -123,9 +126,9 @@ def bootstrap(data, func, num_bootstraps=None, binsize=1, resample=True):
     else:
         resamp_data = data
 
-    results = map(func, resamp_data)
+    results = map(lambda x: func(x, *args, **kwargs), resamp_data)
 
-    return np.mean(results, axis=0), np.std(out, axis=0)
+    return np.mean(results, axis=0), np.std(results, axis=0)
 
 class DataSet:
     """Data set container holding data of the specified type.
