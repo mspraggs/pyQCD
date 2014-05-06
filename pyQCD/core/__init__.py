@@ -23,5 +23,5 @@ from propagator import *
 from config import Config
 from twopoint import *
 from wilslps import WilsonLoops
-from dataset import DataSet
+from dataset import *
 from constants import *
