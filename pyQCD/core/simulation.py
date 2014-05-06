@@ -4,10 +4,7 @@ import time
 import numpy as np
 
 from lattice import Lattice
-from config import Config
-from propagator import Propagator
-from wilslps import WilsonLoops
-from dataset import DataSet
+from dataset import _write_datum, _extract_datum
 
 class Simulation(object):
     """Creates, configures and runs a lattice simulation.
@@ -202,10 +199,10 @@ class Simulation(object):
           >>> simulation.load_ensemble("my_configs.zip")
         """
         
-        self.ensemble = DataSet.load(filename)
+        self.ensemble = filename
         self.use_ensemble = True
             
-    def add_measurement(self, meas_function, meas_type, meas_file, kwargs={},
+    def add_measurement(self, meas_function, meas_file, args=[], kwargs={},
                         meas_message=None):
         """Adds a measurement to the simulation to be performed when the
         simulation is run
@@ -214,10 +211,10 @@ class Simulation(object):
           meas_function (function): The function defining the measurement.
             This must accept a lattice object as the first argument, and
             return a type specified my meas_type.
-          meas_type (type): The type of the object returned by
-            meas_function.
           meas_file (str): The name of the file in which the measurements
             will be stored.
+          args (list, optional): The additional arguments to supply to
+            the measurement function.
           kwargs (dict, optional): The additional keyword arguments to
             supply to the measurement function.
           meas_message (str, optional): The message to display when
@@ -228,7 +225,7 @@ class Simulation(object):
         Examples:
           Create a simulation object, create a lattice and add the
           get_propagator function (a member function of pyQCD.Lattice).
-          The function returns a pyQCD.Propagator object, and we store
+          The function returns a numpy.ndarray object, and we store
           these in "4c8_wilson_purgaug_propagators".
           
           When run, the simulation should print "Running get_propagator"
@@ -237,9 +234,8 @@ class Simulation(object):
           >>> sim = pyQCD.Simulation(100, 10, 100)
           >>> sim.create_lattice(4, 8, "wilson", 5.5)
           >>> sim.add_measurement(pyQCD.Lattice.get_propagator,
-          ...                     pyQCD.Propagator,
           ...                     "4c8_wilson_purgaug_propagators.zip"
-          ...                     {"mass": 0.4})
+          ...                     kwargs={"mass": 0.4})
         """
         
         if "verbosity" in meas_function.func_code.co_varnames \
@@ -248,28 +244,33 @@ class Simulation(object):
         
         if meas_message == None:
             meas_message = "Running {}".format(meas_function.__name__)
-
-        self.measurements.append([meas_function, meas_message, kwargs,
-                                  DataSet(meas_type, meas_file)])
+        
+        self.measurements.append([meas_function, meas_message, args, kwargs,
+                                  meas_file])
     
-    def _do_measurements(self, save=True):
+    def _do_measurements(self, config, save=True):
         """Iterate through self.measurements and gather results"""
+
+        specifier = 'w' if config == 0 else 'a'
         
         for measurement in self.measurements:
+                
             if self.verbosity > 0:
                 print("- {}...".format(measurement[1]))
                 sys.stdout.flush()
                 
-            meas_result = measurement[0](self.lattice, **measurement[2])
-                
+            meas_result = measurement[0](self.lattice, *measurement[2],
+                                         **measurement[3])
+
             if save:
-                measurement[3].add_datum(meas_result)
+                _write_datum(meas_result, config, measurement[4])
                 
             if self.verbosity > 0:
                 print("Done!")
                 sys.stdout.flush()
         
-    def run(self, timing_run=False, num_timing_configs=10, store_plaquette=True):
+    def run(self, timing_run=False, num_timing_configs=10,
+            store_plaquette=True):
         """Runs the simulation
         
         Args:
@@ -373,7 +374,7 @@ class Simulation(object):
                     print("Loading gauge field..."),
                     sys.stdout.flush()
                     
-                config = self.ensemble.get_datum(i)
+                config = _extract_datum(i, self.ensemble)
                 self.lattice.set_config(config)
                 
                 if self.verbosity > 0:
@@ -398,7 +399,7 @@ class Simulation(object):
             if self.verbosity > 0:
                 print("Performing measurements...")
                 sys.stdout.flush()
-            self._do_measurements(not timing_run)
+            self._do_measurements(i, not timing_run)
             
             if self.verbosity > 0:
                 print("")
@@ -462,9 +463,13 @@ class Simulation(object):
             
                 meas_settings \
                   = "".join([meas_settings,
-                             "Filename: {}\n".format(measurement[3].filename)])
+                             "Filename: {}\n".format(measurement[4])])
                 
-                for key, value in measurement[2].items():
+                for value in measurement[2]:
+                    meas_settings = "".join([meas_settings,
+                                        "{}\n".format(value)])
+                
+                for key, value in measurement[3].items():
                     meas_settings = "".join([meas_settings,
                                         "{}: {}\n".format(key, value)])
                 
