@@ -64,10 +64,13 @@ def bootstrap_data(data, num_bootstraps, binsize=1):
 
     out = []
 
+    binned_data = [sum(data[i:i+binsize]) / binsize
+                   for i in xrange(0, len(data) - binsize + 1, binsize)]
+
     for i in xrange(num_bootstraps):
 
         bins = npr.randint(num_bins, size=num_bins).tolist()
-        new_datum = np.mean([data[j] for j in bins], axis=0)
+        new_datum = np.mean([binned_data[j] for j in bins], axis=0)
         out.append(new_datum)
 
     return out
