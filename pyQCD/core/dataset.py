@@ -8,35 +8,38 @@ from itertools import izip
 import numpy as np
 import numpy.random as npr
 
-# Following functions taken from Stack Overflow answer by
-# klaus se at http://stackoverflow.com/questions/3288595/ \
-# multiprocessing-using-pool-map-on-a-function-defined-in-a-class
-def spawn(f):
-    def fun(q_in,q_out):
-        while True:
-            i,x = q_in.get()
-            if i is None:
-                break
-            q_out.put((i,f(x)))
-    return fun
+def _write_datum(datum, index, zfname):
+    """Writes the specified file to the specified zipfile"""
 
-def parmap(f, X, nprocs = mp.cpu_count()):
-    q_in   = mp.Queue(1)
-    q_out  = mp.Queue()
+    fname = "datum{}.npy".format(index)
+    mode = "w" if index == 0 else "a"
 
-    proc = [mp.Process(target=spawn(f),args=(q_in,q_out))
-            for _ in range(nprocs)]
-    for p in proc:
-        p.daemon = True
-        p.start()
+    try:
+        zfile = zipfile.ZipFile(zfname, mode, zipfile.ZIP_DEFLATED, True)
+    except (RuntimeError, zipfile.LargeZipFile):
+        zfile = zipfile.ZipFile(zfname, mode, zipfile.ZIP_STORED, False)
 
-    sent = [q_in.put((i,x)) for i,x in enumerate(X)]
-    [q_in.put((None,None)) for _ in range(nprocs)]
-    res = [q_out.get() for _ in range(len(sent))]
+    np.save(fname, datum)
+    zfile.write(fname)
+    os.unlink(fname)
+    zfile.close()
 
-    [p.join() for p in proc]
+def _extract_datum(index, zfname):
+    """Extracts the specified datum from the specified zipfile"""
 
-    return [x for i,x in sorted(res)]
+    fname = "datum{}.npy".format(index)
+
+    try:
+        zfile = zipfile.ZipFile(zfname, "r", zipfile.ZIP_DEFLATED, True)
+    except (RuntimeError, zipfile.LargeZipFile):
+        zfile = zipfile.ZipFile(zfname, "r", zipfile.ZIP_STORED, False)
+
+    zfile.extract(fname)
+    datum = np.load(fname)
+    os.unlink(fname)
+    zfile.close()
+
+    return datum
 
 def save_archive(filename, data):
     """Save the supplied list of data to a zip archive using the numpy save
@@ -56,17 +59,8 @@ def save_archive(filename, data):
       >>> pyQCD.save_archive("chroma_data.zip", data)
     """
 
-    try:
-        zfile = zipfile.ZipFile(filename, 'w', zipfile.ZIP_DEFLATED, True)
-    except (RuntimeError, zipfile.LargeZipFile):
-        zfile = zipfile.ZipFile(filename, 'w', zipfile.ZIP_STORED, False)
-
     for i, datum in enumerate(data):
-        np.save("datum{}.npy".format(i), datum)
-        zfile.write("datum{}.npy".format(i))
-        os.unlink("datum{}.npy".format(i))
-
-    zfile.close()
+        _write_datum(datum, i, filename)
 
 def load_archive(filename):
     """Load the contents of the supplied zip archive into a list
@@ -80,20 +74,11 @@ def load_archive(filename):
     except (RuntimeError, zipfile.LargeZipFile):
         zfile = zipfile.ZipFile(filename, 'r', zipfile.ZIP_STORED, False)
 
-    data = []
-
-    for f in zfile.filelist:
-        zfile.extract(f.filename)
-        datum = np.load(f.filename)
-        try:
-            data.append(datum.item())
-        except ValueError:
-            data.append(datum)
-        os.unlink(f.filename)
+    num_data = len(zfile.filelist)
 
     zfile.close()
 
-    return data
+    return [_extract_datum(i, filename) for i in xrange(num_data)]
 
 def bin_data(data, binsize=1):
     """Bins the supplied data into of the specified size
