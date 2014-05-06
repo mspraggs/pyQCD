@@ -18,10 +18,8 @@ except ImportError:
     pass
 
 from dicts import *    
-from observable import Observable
 from propagator import *
-from config import Config
 from twopoint import *
-from wilslps import WilsonLoops
+from wilslps import *
 from dataset import *
 from constants import *
