@@ -1187,16 +1187,6 @@ class TestDataSet:
         assert np.allclose(jackknife_mean, data_mean**2, rtol)
         
 class TestWilsonLoops:
-    
-    def test_init(self):
-        
-        wilslp_data = npr.random((4, 8))
-        
-        wilslps = WilsonLoops(wilslp_data, 4, 8, 5.5, 1.0, 1.0, 1.0, "wilson", 0, 1.0)
-        
-        with pytest.raises(ValueError):
-            wilslps = WilsonLoops(wilslp_data.T, 4, 8, 5.5, 1.0, 1.0, 1.0,
-                                  "wilson", 0, 1.0)
             
     def test_lattice_spacing(self):
         
@@ -1204,10 +1194,8 @@ class TestWilsonLoops:
           = np.array([0.31695984599258381, 0.62152983253471605])
         
         wilslp_data = np.load(create_fullpath("wilslps_no_smear.npy"))
-        wilslps = WilsonLoops(wilslp_data, 4, 8, 5.5, 1.0, 1.0, 1.0,
-                              "wilson", 0, 1.0)
-        
-        actual_lattice_spacing = np.array(wilslps.lattice_spacing())
+                
+        actual_lattice_spacing = np.array(lattice_spacing(wilslp_data))
         
         assert np.allclose(actual_lattice_spacing, expected_lattice_spacing)
         
@@ -1219,10 +1207,8 @@ class TestWilsonLoops:
                                        1.9389738652985116])
         
         wilslp_data = np.load(create_fullpath("wilslps_no_smear.npy"))
-        wilslps = WilsonLoops(wilslp_data, 4, 8, 5.5, 1.0, 1.0, 1.0,
-                              "wilson", 0, 1.0)
-        
-        actual_potential = wilslps.pair_potential()
+                
+        actual_potential = pair_potential(wilslp_data)
         
         assert np.allclose(actual_potential, expected_potential)
     
