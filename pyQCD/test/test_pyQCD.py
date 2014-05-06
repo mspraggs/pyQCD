@@ -1112,282 +1112,80 @@ class TestTwoPoint:
         
 class TestDataSet:
     
-    def test_init(self):
-        
-        try:
-            shutil.rmtree("pyQCDcache")
-        except:
-            pass
-        
-        dataset = DataSet(floatWrapper, "test_data.zip")
-        
-    def test_add_datum(self):
-        
-        dataset = DataSet(floatWrapper, "test_data.zip")
-        
-        rand_floats = npr.randint(100, size=100)
-        
-        for i in rand_floats:
-            dataset.add_datum(floatWrapper(i))
-        
-        try:
-            zfile = zipfile.ZipFile("test_data.zip", 'r', zipfile.ZIP_DEFLATED,
-                                    True)
-        except RuntimeError:
-            zfile = zipfile.ZipFile("test_data.zip", 'r', zipfile.ZIP_STORED,
-                                    False)
-            
-        assert len(zfile.namelist()) == 101
+    def test_save_archive(self):
+    
+        data = npr.random(100).tolist()
 
-        with pytest.raises(TypeError):
-            dataset.add_datum({})
+        save_archive("test_data.zip", data)
+
+        assert os.path.exists("test_data.zip")
+                    
+    def test_load_archive(self):
         
-        for i in xrange(100):
-            assert zfile.namelist().count("floatWrapper{}.npz".format(i)) == 1
-            
-        zfile.close()
-            
-    def test_get_datum(self):
+        dataset = load_archive("test_data.zip")
+
+        assert len(dataset) == 100
+
+        os.unlink("test_data.zip")
+
+    def test_bin_data(self):
+
+        dataset = npr.random(100).tolist()
+
+        binned_data = bin_data(dataset, 10)
+
+        assert len(binned_data) == 10
         
-        dataset = DataSet(floatWrapper, "test_data.zip")
+    def test_bootstrap_data(self):
         
-        rand_floats = npr.randint(100, size=100)
+        dataset = npr.random(100).tolist()
         
-        for i in rand_floats:
-            dataset.add_datum(floatWrapper(i))
-            
-        for j, i in enumerate(rand_floats):
-            assert i == dataset.get_datum(j)
-            
-    def test_set_datum(self):
+        bootstrapped_data = bootstrap_data(dataset, 10)
         
-        dataset = DataSet(floatWrapper, "test_data.zip")
-        dataset.add_datum(floatWrapper(3))
-        with pytest.raises(NotImplementedError):
-            dataset.set_datum(0, floatWrapper(4))
-            
-    def test_apply_function(self):
-        
-        dataset = DataSet(floatWrapper, "test_data.zip")
-        dataset.add_datum(floatWrapper(3))
-        with pytest.raises(NotImplementedError):
-            dataset.apply_function(lambda x: x, [])
-            
-    def test_measure(self):
-        
-        dataset = DataSet(floatWrapper, "test_data.zip")
-        
-        rand_floats = npr.randint(100, size=100)
-        
-        for i in rand_floats:
-            dataset.add_datum(floatWrapper(i))
-            
-        data_mean = rand_floats.mean()
-            
-        assert dataset.measure(lambda x: x**2) == data_mean**2
-        assert dataset.measure(lambda x, b: b * np.sin(x), args=[2]) == 2 * np.sin(data_mean)
-        
-    def test_statistics(self):
-        
-        dataset = DataSet(floatWrapper, "test_data.zip")
-        
-        rand_floats = npr.randint(100, size=100)
-        
-        for i in rand_floats:
-            dataset.add_datum(floatWrapper(i))
-            
-        data_mean = rand_floats.mean()
-        
-        data_std = rand_floats.std()
-        
-        statistics = dataset.statistics()
-        
-        assert statistics[0] == data_mean
-        assert statistics[1] == data_std
-        
-    def test_generate_bootstrap_cache(self):
-        
-        dataset = DataSet(floatWrapper, "test_data.zip")
-        
-        rand_floats = npr.randint(100, size=100)
-        
-        for i in rand_floats:
-            dataset.add_datum(floatWrapper(i))
-        
-        dataset.generate_bootstrap_cache(10)
-        
-        assert len(dataset.cache.keys()) == 10
-        
-        with pytest.raises(ValueError):
-            dataset.generate_bootstrap_cache(10, -1)
-            
-        dataset.generate_bootstrap_cache(10, 3)
+        assert len(bootstrapped_data) == 10
         
     def test_bootstrap(self):
         
-        dataset = DataSet(floatWrapper, "test_data.zip")
-        
-        rand_floats = npr.randint(100, size=100)
-        
-        for i in rand_floats:
-            dataset.add_datum(floatWrapper(i))
-            
-        data_mean = rand_floats.mean()
+        dataset = npr.random(100).tolist()
+                    
+        data_mean = np.mean(dataset)
         
         rtol = 0.1
+
+        bootstrapped_data = bootstrap_data(dataset, 100)
         
-        bootstrap_mean, bootstrap_std = dataset.bootstrap(lambda x: x**2, 100,
-                                                          use_cache=False)
+        bootstrap_mean, bootstrap_std = bootstrap(dataset, lambda x: x**2, 100)
         assert np.allclose(bootstrap_mean, data_mean**2, rtol)
-        
-        bootstrap_mean, bootstrap_std = dataset.bootstrap(lambda x: x**2, 100,
-                                                          use_cache=False,
-                                                          use_parallel=True)
+
+        bootstrap_mean, bootstrap_std \
+          = bootstrap(bootstrapped_data, lambda x: x**2, resample=False)
         assert np.allclose(bootstrap_mean, data_mean**2, rtol)
+                
+    def test_jackknife_data(self):
         
-        bootstrap_mean, bootstrap_std = dataset.bootstrap(lambda x: x**2, 100)
-        assert np.allclose(bootstrap_mean, data_mean**2, rtol)
+        dataset = npr.random(100).tolist()
         
-        bootstrap_mean_2, bootstrap_std_2 = dataset.bootstrap(lambda x: x**2, 100,
-                                                              use_cache=True,
-                                                              use_parallel=True)
-        assert bootstrap_mean == bootstrap_mean_2
-        assert bootstrap_std == bootstrap_std_2
-            
-        bootstrap_mean, bootstrap_std = dataset.bootstrap(lambda x: x**2, 10, 3,
-                                                          use_cache=False)
-        assert np.allclose(bootstrap_mean, data_mean**2, rtol)
-            
-    def test_jackknife_datum(self):
+        jackknifed_data = jackknife_data(dataset)
         
-        dataset = DataSet(floatWrapper, "test_data.zip")
-        
-        rand_floats = npr.randint(100, size=100)
-        
-        for i in rand_floats:
-            dataset.add_datum(floatWrapper(i))        
-        
-        assert dataset.jackknife_datum(0) == rand_floats[1:].mean()
-        
-        with pytest.raises(KeyError):
-            dataset.jackknife_datum(100)
-            
-        jackknife_result = dataset.jackknife_datum(0, 3)
-        
-    def test_generate_jackknife_cache(self):
-        
-        dataset = DataSet(floatWrapper, "test_data.zip")
-        
-        rand_floats = npr.randint(100, size=100)
-        
-        for i in rand_floats:
-            dataset.add_datum(floatWrapper(i))
-        
-        dataset.generate_jackknife_cache()
-        
-        assert len(dataset.cache.keys()) == 100
-            
-        dataset.generate_jackknife_cache(3)
+        assert len(jackknifed_data) == 100
         
     def test_jackknife(self):
         
-        dataset = DataSet(floatWrapper, "test_data.zip")
-        
-        rand_floats = npr.randint(100, size=100)
-        
-        for i in rand_floats:
-            dataset.add_datum(floatWrapper(i))
+        dataset = npr.random(100).tolist()
             
-        data_mean = rand_floats.mean()
+        data_mean = np.mean(dataset)
         
         rtol = 0.001
-        
-        jackknife_mean, jackknife_std = dataset.jackknife(lambda x: x**2)        
+
+        jackknifed_data = jackknife_data(dataset)
+                
+        jackknife_mean, jackknife_std = jackknife(dataset, lambda x: x**2)
         assert np.allclose(jackknife_mean, data_mean**2, rtol)
-        old_mean = jackknife_mean
-        
-        jackknife_mean, jackknife_std = dataset.jackknife(lambda x: x**2,
-                                                          use_cache=False)
+
+        jackknife_mean, jackknife_std \
+          = jackknife(jackknifed_data, lambda x: x**2, resample=False)
         assert np.allclose(jackknife_mean, data_mean**2, rtol)
-        assert old_mean == jackknife_mean
         
-        jackknife_mean, jackknife_std = dataset.jackknife(lambda x: x**2,
-                                                          use_parallel=True)
-        assert np.allclose(jackknife_mean, data_mean**2, rtol)
-        assert old_mean == jackknife_mean
-        
-        with pytest.raises(ZeroDivisionError):
-            result = dataset.jackknife(lambda x: x**2, 0)
-            
-        result = dataset.jackknife(lambda x: x**2, 3)
-        assert np.allclose(result[0], data_mean**2, 0.1)
-            
-    def test_load(self):
-        
-        dataset = DataSet.load("test_data.zip")
-        
-        assert dataset.num_data == 100
-        
-    def test_utils(self):
-        
-        a = npr.random(10)
-        b = npr.random(10)
-        
-        # First check addition
-        assert DataSet._add_measurements(a.tolist(), b.tolist()) \
-          == (a + b).tolist()
-        assert DataSet._add_measurements(tuple(a.tolist()), tuple(b.tolist())) \
-          == (a + b).tolist()
-          
-        a_dict = dict(zip(range(10), a.tolist()))
-        b_dict = dict(zip(range(10), b.tolist()))
-        
-        assert DataSet._add_measurements(a_dict, b_dict) \
-          == dict(zip(b_dict.keys(), (a + b).tolist()))
-        
-        # Now subtraction
-        assert DataSet._sub_measurements(a.tolist(), b.tolist()) \
-          == (a - b).tolist()
-        assert DataSet._sub_measurements(tuple(a.tolist()), tuple(b.tolist())) \
-          == (a - b).tolist()
-        
-        assert DataSet._sub_measurements(a_dict, b_dict) \
-          == dict(zip(b_dict.keys(), (a - b).tolist()))
-        
-        # Now multiplication
-        assert DataSet._mul_measurements(a.tolist(), b.tolist()) \
-          == (a * b).tolist()
-        assert DataSet._mul_measurements(tuple(a.tolist()), tuple(b.tolist())) \
-          == (a * b).tolist()
-        
-        assert DataSet._mul_measurements(a_dict, b_dict) \
-          == dict(zip(b_dict.keys(), (a * b).tolist()))
-        
-        # Now division
-        div = npr.random()
-        assert DataSet._div_measurements(a.tolist(), div) \
-          == (a / div).tolist()
-        assert DataSet._div_measurements(tuple(a.tolist()), div) \
-          == (a / div).tolist()
-        
-        assert DataSet._div_measurements(a_dict, div) \
-          == dict(zip(a_dict.keys(), (a / div).tolist()))
-          
-        # Now square root
-        assert DataSet._sqrt_measurements(a.tolist()) \
-          == np.sqrt(a).tolist()
-        assert DataSet._sqrt_measurements(tuple(a.tolist())) \
-          == np.sqrt(a).tolist()
-        
-        assert DataSet._sqrt_measurements(a_dict) \
-          == dict(zip(a_dict.keys(), np.sqrt(a).tolist()))
-            
-    def test_iteration(self):
-        
-        test_data = DataSet.load("test_data.zip")
-        data = [x for x in test_data]
-        os.unlink("test_data.zip")
-          
 class TestWilsonLoops:
     
     def test_init(self):
