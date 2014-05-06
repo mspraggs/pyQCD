@@ -4,7 +4,7 @@ import numpy as np
 import scipy.optimize as spop
 
 from observable import Observable
-    
+
 def lattice_spacing(data):
     """Compute the lattice spacing using the Sommer scale
 
@@ -46,11 +46,11 @@ def pair_potential(data):
         params, result = spop.leastsq(fit_function, [1., 1.],
                                       args=(t, data[r]))
     
-    if [1, 2, 3, 4].count(result) < 1:
-        warnings.warn("fit failed when calculating potential at "
-                      "r = {}".format(r), RuntimeWarning)
-                
-    out[r] = params[1]
+        if [1, 2, 3, 4].count(result) < 1:
+            warnings.warn("fit failed when calculating potential at "
+                          "r = {}".format(r), RuntimeWarning)
+
+        out[r] = params[1]
             
     return out
     
