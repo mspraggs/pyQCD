@@ -75,6 +75,42 @@ def bootstrap_data(data, num_bootstraps, binsize=1):
 
     return out
 
+def bootstrap(data, func, num_bootstraps=None, binsize=1, resample=True):
+    """Performs a bootstrapped measurement on the data set using the supplied
+    function
+
+    Args:
+      data (list): The data on which to perform the resampling and measurement
+      func (function): The measurement function. The first argument of this
+        function should accept a type identical to that of the elements of the
+        data list.
+      num_bootstraps (int, optional): The number of bootstraps to perform. If
+        resample is set to False, then this value is ignored.
+      binsize (int, optional): The binsize to bin the data with before
+        performing the bootstrap.
+      resample (bool, optional): Determines whether to treat data as an existing
+        bootstrap data set, or perform the bootstrap from scratch.
+
+    Returns:
+      tuple: The bootstrapped central value and the estimated error.
+
+    Examples:
+      Load some correlators and bootstrap the effective mass curve.
+
+      >>> import pyQCD
+      >>> data = pyQCD.load_archive("correlators.zip")
+      >>> effmass = pyQCD.bootstrap(data, pyQCD.compute_effmass, 100)
+    """
+
+    if resample:
+        resamp_data = bootstrap_data(data, num_bootstraps, binsize)
+    else:
+        resamp_data = data
+
+    results = map(func, resamp_data)
+
+    return np.mean(results, axis=0), np.std(out, axis=0)
+
 class DataSet:
     """Data set container holding data of the specified type.
     
