@@ -38,6 +38,27 @@ def parmap(f, X, nprocs = mp.cpu_count()):
 
     return [x for i,x in sorted(res)]
 
+def bin_data(data, binsize=1):
+    """Bins the supplied data into of the specified size
+
+    Args:
+      data (list): The data to bin.
+      binsize (int, optional): The bin width to use when resampling.
+
+    Returns:
+      list: The binned data
+
+    Examples:
+      Load some correlators and bin them.
+
+      >>> import pyQCD
+      >>> data = pyQCD.load_archive("correlators.zip")
+      >>> binned_data = pyQCD.bin_data(data)
+    """
+
+    return [sum(data[i:i+binsize]) / binsize
+            for i in xrange(0, len(data) - binsize + 1, binsize)]
+
 def bootstrap_data(data, num_bootstraps, binsize=1):
     """Resamples the supplied data using the bootstrap method.
         
@@ -51,24 +72,19 @@ def bootstrap_data(data, num_bootstraps, binsize=1):
       list: The resampled data set.
     
     Examples:
-      Load some correlators and bootstrap the effective mass curve.
+      Load some correlators and create bootstrap copies of them.
           
       >>> import pyQCD
       >>> data = pyQCD.load_archive("correlators.zip")
       >>> resampled_data = pyQCD.bootstrap_data(data, 100)
     """
-
-    num_bins = len(data) / binsize
-    if len(data) % binsize > 0:
-        num_bins += 1
-
+    
     out = []
 
-    binned_data = [sum(data[i:i+binsize]) / binsize
-                   for i in xrange(0, len(data) - binsize + 1, binsize)]
+    binned_data = bin_data(data, binsize)
+    num_bins = len(binned_data)
 
     for i in xrange(num_bootstraps):
-
         bins = npr.randint(num_bins, size=num_bins).tolist()
         new_datum = np.mean([binned_data[j] for j in bins], axis=0)
         out.append(new_datum)
