@@ -189,7 +189,7 @@ def jackknife(data, func, binsize=1, args=[], kwargs={}, resample=True):
 
     results = map(lambda x: func(x, *args, **kwargs), resamp_data)
 
-    return np.mean(results, axis=0), np.std(out, axis=0)
+    return np.mean(results, axis=0), np.std(results, axis=0)
 
 class DataSet:
     """Data set container holding data of the specified type.
