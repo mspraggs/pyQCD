@@ -881,8 +881,7 @@ def fit_correlator(correlator, fit_function, fit_range,
                              args=(x, y, err))
         
     if [1, 2, 3, 4].count(result) < 1:
-        warnings.warn("fit failed when calculating potential at "
-                      "r = {}".format(r), RuntimeWarning)
+        warnings.warn("fit failed when fitting correlator", RuntimeWarning)
         
     if postprocess_function == None:
         return b
