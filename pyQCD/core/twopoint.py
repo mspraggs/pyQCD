@@ -912,7 +912,7 @@ def compute_energy(correlator, fit_range, initial_parameters,
       float: The fitted ground state energy.
           
     Examples:
-      This function works in a very similar way to fit_correlato function,
+      This function works in a very similar way to fit_correlator function,
       except the fitting function and the postprocessing function are already
       specified.
           
