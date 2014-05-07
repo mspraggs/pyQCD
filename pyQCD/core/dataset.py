@@ -8,6 +8,36 @@ from itertools import izip
 import numpy as np
 import numpy.random as npr
 
+# Following functions taken from Stack Overflow answer by
+# klaus se at http://stackoverflow.com/questions/3288595/ \
+# multiprocessing-using-pool-map-on-a-function-defined-in-a-class
+def spawn(f):
+    def fun(q_in,q_out):
+        while True:
+            i,x = q_in.get()
+            if i is None:
+                break
+            q_out.put((i,f(x)))
+    return fun
+
+def parmap(f, X, nprocs = mp.cpu_count()):
+    q_in = mp.Queue(1)
+    q_out = mp.Queue()
+
+    proc = [mp.Process(target=spawn(f),args=(q_in,q_out))
+            for _ in range(nprocs)]
+    for p in proc:
+        p.daemon = True
+        p.start()
+
+    sent = [q_in.put((i,x)) for i,x in enumerate(X)]
+    [q_in.put((None,None)) for _ in range(nprocs)]
+    res = [q_out.get() for _ in range(len(sent))]
+
+    [p.join() for p in proc]
+
+    return [x for i,x in sorted(res)]
+
 def _write_datum(datum, index, zfname):
     """Writes the specified file to the specified zipfile"""
 
@@ -105,7 +135,7 @@ def bin_data(data, binsize=1):
     return [sum(data[i:i+binsize]) / binsize
             for i in xrange(0, len(data) - binsize + 1, binsize)]
 
-def bootstrap_data(data, num_bootstraps, binsize=1):
+def bootstrap_data(data, num_bootstraps, binsize=1, parallel=False):
     """Resamples the supplied data using the bootstrap method.
         
     Args:
@@ -113,6 +143,8 @@ def bootstrap_data(data, num_bootstraps, binsize=1):
       num_bootstraps (int): The number of bootstraps to perform.
       binsize (int, optional): The bin size to bin the data with before
         performing the bootstrap.
+      parallel (bool, optional): Parallelizes the bootstrap using python's
+        multiprocessing module.
              
     Returns:
       list: The resampled data set.
@@ -130,15 +162,17 @@ def bootstrap_data(data, num_bootstraps, binsize=1):
     binned_data = bin_data(data, binsize)
     num_bins = len(binned_data)
 
-    for i in xrange(num_bootstraps):
+    def parallel_function(index):
         bins = npr.randint(num_bins, size=num_bins).tolist()
-        new_datum = np.mean([binned_data[j] for j in bins], axis=0)
-        out.append(new_datum)
+        return np.mean([binned_data[j] for j in bins], axis=0)
+
+    out = parmap(parallel_function, xrange(num_bootstraps)) \
+      if parallel else map(parallel_function, xrange(num_bootstraps))
 
     return out
 
 def bootstrap(data, func, num_bootstraps=None, binsize=1, args=[],
-              kwargs={}, resample=True):
+              kwargs={}, resample=True, parallel=False):
     """Performs a bootstrapped measurement on the data set using the supplied
     function
 
@@ -155,6 +189,8 @@ def bootstrap(data, func, num_bootstraps=None, binsize=1, args=[],
       kwargs (dict, optional): Any additional keyword arguments required by func
       resample (bool, optional): Determines whether to treat data as an existing
         bootstrap data set, or perform the bootstrap from scratch.
+      parallel (bool, optional): Parallelizes the bootstrap using python's
+        multiprocessing module.
 
     Returns:
       tuple: The bootstrapped central value and the estimated error.
@@ -168,21 +204,27 @@ def bootstrap(data, func, num_bootstraps=None, binsize=1, args=[],
     """
 
     if resample:
-        resamp_data = bootstrap_data(data, num_bootstraps, binsize)
+        resamp_data = bootstrap_data(data, num_bootstraps, binsize, parallel)
     else:
         resamp_data = data
 
-    results = map(lambda x: func(x, *args, **kwargs), resamp_data)
+    def parallel_function(datum):
+        return func(datum, *args, **kwargs)
+
+    results = parmap(parallel_function, resamp_data) \
+      if parallel else map(parallel_function, resamp_data)
 
     return np.mean(results, axis=0), np.std(results, axis=0)
 
-def jackknife_data(data, binsize=1):
+def jackknife_data(data, binsize=1, parallel=False):
     """Resamples the supplied data using the jackknife method.
         
     Args:
       data (list): The data on which to perform a jackknife resample.
       binsize (int, optional): The bin size to bin the data with before
         performing the jackknife.
+      parallel (bool, optional): Parallelizes the jackknife using python's
+        multiprocessing module.
              
     Returns:
       list: The resampled data set.
@@ -198,10 +240,16 @@ def jackknife_data(data, binsize=1):
     binned_data = bin_data(data, binsize)
     data_sum = sum(binned_data)
 
-    return [(data_sum - datum) / (len(binned_data) - 1)
-            for datum in binned_data]
+    def parallel_function(datum):
+        return (data_sum - datum) / (len(binned_data) - 1)
+    
+    out = parmap(parallel_function, binned_data) \
+      if parallel else map(parallel_function, binned_data)
 
-def jackknife(data, func, binsize=1, args=[], kwargs={}, resample=True):
+    return out
+
+def jackknife(data, func, binsize=1, args=[], kwargs={}, resample=True,
+              parallel=False):
     """Performs a jackknifed measurement on the data set using the supplied
     function
 
@@ -216,6 +264,8 @@ def jackknife(data, func, binsize=1, args=[], kwargs={}, resample=True):
       kwargs (dict, optional): Any additional keyword arguments required by func
       resample (bool, optional): Determines whether to treat data as an existing
         jackknife data set, or perform the jackknife from scratch.
+      parallel (bool, optional): Parallelizes the jackknife using python's
+        multiprocessing module.
 
     Returns:
       tuple: The jackknifed central value and the estimated error.
@@ -229,11 +279,16 @@ def jackknife(data, func, binsize=1, args=[], kwargs={}, resample=True):
     """
 
     if resample:
-        resamp_data = jackknife_data(data, binsize)
+        resamp_data = jackknife_data(data, binsize, parallel)
     else:
         resamp_data = data
 
-    results = map(lambda x: func(x, *args, **kwargs), resamp_data)
+    def parallel_function(datum):
+        return func(datum, *args, **kwargs)
+
+    results = parmap(parallel_function, resamp_data) \
+      if parallel else map(parallel_function, resamp_data)
+
     N = len(results)
 
     return np.mean(results, axis=0), np.sqrt(N - 1) * np.std(results, axis=0)
