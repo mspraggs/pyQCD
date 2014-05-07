@@ -32,7 +32,7 @@ def fold_correlator(correlator):
     """
 
     if np.sign(correlator[1]) == np.sign(correlator[-1]):
-        out = np.append(correlator[0], (x[:0:-1] + x[1:]) / 2)
+        out = np.append(correlator[0], (correlator[:0:-1] + correlator[1:]) / 2)
     else:
         out = np.append(correlator[0], (correlator[1:] - correlator[:0:-1]) / 2)
 
