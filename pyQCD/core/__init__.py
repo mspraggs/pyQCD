@@ -3,13 +3,8 @@ Contains the core datatype used to store data and implement
 lattice simulations and analysis.
 
 Classes:
-  * Config
-  * DataSet
   * Lattice
-  * Propagator
   * Simulation
-  * TwoPoint
-  * WilsonLoops
 """
 try:
     from lattice import Lattice
