@@ -18,15 +18,16 @@ pyQCD brings an object-orientated approach to lattice simulations and analysis. 
 * Support for multiple gauge actions, including Wilson and Symanzik rectangle-improved.
 * Support for stout smearing gauge fields prior to measurements.
 * Wilson loop computation capability.
-* Convenience functions for saving and loading gauge fields in numpy zip format.
+* Convenience functions for saving and loading gauge fields as numpy ndarrays and numpy binaries.
 
 Analysis features:
 
-* Fully-fledged DataSet class, providing parallelised bootstrap and jackknife resampling functions.
-* Resampling routines allow for extensibility by accepting user-created measurement functions.
-* TwoPoint correlator wrapper class provides core fitting and Propagator contraction routines.
-* TwoPoint class fully capable of importing correlator data from Chroma and UKhadron.
-* WilsonLoops class facilitates computation of static quark pair potential and lattice spacing via the Sommer scale.
+* Fully parallelised bootstrap and jackknife resampling functions.
+* Import functions to load data produced by CHROMA and UKhadron.
+* General correlator fitting function to fit an arbitrary function to a given correlator.
+* Specialised correlator fitting function to fit the ground state of a given correlator.
+* Effective mass computation function.
+* Lattice spacing computation using the Sommer scale and static quark pair potential.
 
 ***Please note that this software is very much still in alpha stage and is not yet mature, so backwards
 compatability is not yet guaranteed for newer versions. If something's broken, have a look at the function
@@ -137,52 +138,3 @@ Quick Start
 Several examples are included in the examples/ directory in the repository root. I'd encourage newcomers
 to look there for ideas on how to use pyQCD. I'd also strongly encourage the use of IPython when exploring
 the package (http://ipython.org/).
-
-Simulations are performed using the Simulation class. The settings for an individual simulation may be
-specified individually. For example:
-
-    import pyQCD
-    
-    simulation = pyQCD.Simulation(num_configs=100,
-                                  measurement_spacing=10,
-                                  num_warmup_updates=100,
-                                  update_method="heatbath",
-                                  run_parallel=True,
-                                  rand_seed=-1,
-                                  verbosity=2)
-
-    simulation.create_lattice(L=4, T=8, action="wilson", beta=5.5, u0=1.0)
-    simulation.run()
-
-The plaquettes for each of the individual configurations are then stored in the simulation object as the member
-"plaquettes", so in the above cases simulation.plaquettes contain the sequence of plaquttes values from the set
-of generated configurations.
-
-Measurements can be added to the simulation using the add_measurement function as follows:
-
-    .
-    .
-    .
-    simulation.add_measurement(pyQCD.Lattice.get_propagator,
-                               pyQCD.Propagator,
-			       "propagators.zip",
-			       kwargs={"mass": 0.4})
-    simulation.run()
-
-Results are saved in zip archives that can be opened using the pyQCD.DataSet object. The results may be loaded
-and analyzed in an object-orientated manner, as follows:
-
-    import pyQCD
-    
-    propagators = pyQCD.DataSet.load("propagators.zip")
-    correlators = pyQCD.DataSet(pyQCD.TwoPoint, "correlators.zip")
-    
-    for i in xrange(propagators.num_data):
-        # Specify the propagators that make up the two-point function
-	twopoint = pyQCD.TwoPoint(L=4, T=8)
-	twopoint.compute_meson_correlator(propagators[i], propagators[i], pyQCD.gamma5, pyQCD.gamma5, "pion")
-        correlators.add_datum(twopoint)
-    # Compute the energies of the zero-momentum pion and rho_x with a fit range of 2 <= t <= 6
-    correlator_mean, correlator_std = correlators.statistics()
-    energies = correlators.jackknife(pyQCD.TwoPoint.compute_energy,
-                                     args=([2, 6], [1.0, 1.0], correlator_std.get_correlator("pion"), "pion"))
