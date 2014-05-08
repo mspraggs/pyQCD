@@ -35,9 +35,9 @@ public:
   virtual VectorXcd makeHermitian(const VectorXcd& x)
   { return VectorXcd::Zero(x.size()); }
 
-  unsigned long long getNumFlops() { return this->nFlops_; }
-  vector<int>& getEvenIndices() { return this->evenIndices_; }
-  vector<int>& getOddIndices() { return this->oddIndices_; }
+  const unsigned long long getNumFlops() const { return this->nFlops_; }
+  const vector<int>& getEvenIndices() const { return this->evenIndices_; }
+  const vector<int>& getOddIndices() const { return this->oddIndices_; }
 
   // Functions to set things up for the even-odd preconditioning
   VectorXcd makeEvenOdd(const VectorXcd& x);
