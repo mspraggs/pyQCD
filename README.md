@@ -57,7 +57,7 @@ To build and use the simulation components of the package, you will need the fol
 to those above:
 
 * CMake 2.6 or greater
-* boost::python, boost::random and boost::test, all version 1.49.0 or greater;
+* boost::python, boost::random and boost::test, boost::timer and boost::system, all version 1.49.0 or greater;
 * Eigen C++ matrix library, version 3.1.3 or greater;
 * OpenMP (version 3), required for parallel updates, but not essential.
 
