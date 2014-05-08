@@ -1044,7 +1044,7 @@ class TestTwoPoint:
             assert np.allclose(correlators[tuple(momentum)],
                                expected_correlators[i])
             
-    def test_fit_correlator(self):
+    def test_fit_1_correlator(self):
 
         T = 16
         
@@ -1057,19 +1057,43 @@ class TestTwoPoint:
         fit_function \
           = lambda b, t, Ct, err: Ct - b[0] * np.exp(-b[1] * t)
         
-        fit_result = fit_correlator(correlator, fit_function,
-                                    range(T), [500, 1])
+        fit_result = fit_1_correlator(correlator, fit_function,
+                                      range(T), [500, 1])
         fit_result = np.array(fit_result)
         assert np.allclose(fit_result, expected_result)
         
-        fit_result = fit_correlator(correlator, fit_function,
-                                    [0, T], [500, 1])
+        fit_result = fit_1_correlator(correlator, fit_function,
+                                      [0, T], [500, 1])
         fit_result = np.array(fit_result)
         assert np.allclose(fit_result, expected_result)
         
-        fit_result = fit_correlator(correlator, fit_function, range(T),
-                                    [500, 1], np.ones(T), lambda x: x[1]**2)
+        fit_result = fit_1_correlator(correlator, fit_function, range(T),
+                                      [500, 1], np.ones(T), lambda x: x[1]**2)
         assert np.allclose(fit_result, mass**2)
+
+    def test_fit_correlators(self):
+
+        T = 16
+
+        mass = npr.random()
+        amplitude1 = 1000 * npr.random()
+        amplitude2 = 10 * npr.random()
+        expected_result = np.array([amplitude1, amplitude2, mass])
+
+        def fit_function(b, t, Ct, err, fit_range):
+
+            r1 = (Ct[0] - b[0] * np.exp(-b[2] * t))
+            r2 = (Ct[1] - b[1] * np.exp(-b[2] * t))
+            
+            return np.append(r1, r2)
+
+        correlators = [amplitude1 * np.exp(-mass * np.arange(T)),
+                       amplitude2 * np.exp(-mass * np.arange(T))]
+
+        fit_result = fit_correlators(correlators, fit_function,
+                                     range(T), [500, 5, 1])
+
+        assert np.allclose(np.array(fit_result), expected_result)
             
     def test_compute_energy(self):
 

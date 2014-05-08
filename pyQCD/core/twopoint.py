@@ -821,10 +821,79 @@ def compute_meson_corr256(propagator1, propagator2, momenta=(0, 0, 0),
 
     return out
             
-def fit_correlator(correlator, fit_function, fit_range,
+def fit_correlators(correlator, fit_function, fit_range,
                    initial_parameters, correlator_std=None,
                    postprocess_function=None):
-    """Fits the specified function to the specified correlator using
+    """Fits the specified function to the supplied correlator(s) using
+    scipy.optimize.leastsq
+    
+    Args:
+      correlator (numpy.ndarray, list or dict): The correlator(s) to be fitted.
+      fit_function (function): The function with which to fit the correlator.
+        Must accept a list of fitting parameters as the first argument,
+        followed by a numpy.ndarray of time coordinates, a numpy.ndarray, list,
+        tuple or dictionary of correlator values, a numpy.ndarray of correlator
+        errors and finally the fit range.
+      fit_range (list or tuple): Specifies the timeslices over which to
+        perform the fit. If a list or tuple with two elements is supplied,
+        then range(*fit_range): is applied to the function to generate a
+        list of timeslices to fit over.
+      initial_parameters (list or tuple): The initial parameters to supply
+        to the fitting routine.
+      correlator_std (numpy.ndarray, optional): The standard deviation in
+        the specified correlator.
+      postprocess_function (function, optional): The function to apply to
+        the result from scipy.optimize.leastsq.
+                  
+    Returns:
+      list: The fitted parameters for the fit function.
+            
+    Examples:
+      Load a correlator from disk and fit a simple exponential to it. A
+      postprocess function to select the mass from the fit result is also
+      specified.
+    
+      >>> import pyQCD
+      >>> import numpy as np
+      >>> correlator = np.load("my_correlator.npy")
+      >>> def fit_function(b, t, Ct, err, fit_range):
+      ...     x = t[fit_range]
+      ...     y = Ct[fit_range]
+      ...     yerr = err[fit_range]
+      ...     return (y - b[0] * np.exp(-b[1] * x)) / yerr
+      ...
+      >>> postprocess = lambda b: b[1]
+      >>> pyQCD.fit_correlator(fit_function, [5, 10], [1., 1.],
+      ...                      postprocess_function=postprocess)
+      1.356389
+      """
+                                
+    if len(fit_range) == 2:
+        fit_range = range(*fit_range)
+
+    try:
+        t = np.arange(correlator.size)
+    except AttributeError:
+        try:
+            t = np.arange(correlator[0].size)
+        except KeyError:
+            t = np.arange(correlator.values()[0].size)
+        
+    b, result = spop.leastsq(fit_function, initial_parameters,
+                             args=(t, correlator, correlator_std, fit_range))
+        
+    if [1, 2, 3, 4].count(result) < 1:
+        warnings.warn("fit failed when fitting correlator", RuntimeWarning)
+        
+    if postprocess_function == None:
+        return b
+    else:
+        return postprocess_function(b)
+            
+def fit_1_correlator(correlator, fit_function, fit_range,
+                   initial_parameters, correlator_std=None,
+                   postprocess_function=None):
+    """Fits the specified function to the given single correlator using
     scipy.optimize.leastsq
     
     Args:
@@ -832,7 +901,8 @@ def fit_correlator(correlator, fit_function, fit_range,
       fit_function (function): The function with which to fit the correlator.
         Must accept a list of fitting parameters as the first argument,
         followed by a numpy.ndarray of time coordinates, a numpy.ndarray of
-        correlator values and a numpy.ndarray of correlator errors.
+        correlator values and a numpy.ndarray of correlator errors and finally
+        the fit range.
       fit_range (list or tuple): Specifies the timeslices over which to
         perform the fit. If a list or tuple with two elements is supplied,
         then range(*fit_range): is applied to the function to generate a
@@ -870,15 +940,15 @@ def fit_correlator(correlator, fit_function, fit_range,
         correlator_std = np.ones(correlator.size)
     if len(fit_range) == 2:
         fit_range = range(*fit_range)
-            
+
     t = np.arange(correlator.size)
-        
+
     x = t[fit_range]
     y = correlator[fit_range].real
-    err = correlator_std[fit_range].real
+    yerr = correlator_std[fit_range].real
         
     b, result = spop.leastsq(fit_function, initial_parameters,
-                             args=(x, y, err))
+                             args=(x, y, yerr))
         
     if [1, 2, 3, 4].count(result) < 1:
         warnings.warn("fit failed when fitting correlator", RuntimeWarning)
@@ -925,17 +995,22 @@ def compute_energy(correlator, fit_range, initial_parameters,
     T = correlator.size
                 
     if np.sign(correlator[1]) == np.sign(correlator[-1]):
-        fit_function = lambda b, t, Ct, err: \
-          (Ct - b[0] * np.exp(-b[1] * t) - b[0] * np.exp(-b[1] * (T - t))) / err
+
+        def fit_function(b, t, Ct, err):
+            return (Ct - b[0] * np.exp(-b[1] * t)
+                    - b[0] * np.exp(-b[1] * (T - t))) / err
+        
     else:
-        fit_function = lambda b, t, Ct, err: \
-          (Ct - b[0] * np.exp(-b[1] * t) + b[0] * np.exp(-b[1] * (T - t))) / err
+
+        def fit_function(b, t, Ct, err):
+            return (Ct - b[0] * np.exp(-b[1] * T)
+                    + b[0] * np.exp(-b[1] * (T - t))) / err
           
     postprocess_function = lambda b: b[1]
         
-    return fit_correlator(correlator, fit_function, fit_range,
-                          initial_parameters, correlator_std,
-                          postprocess_function)
+    return fit_1_correlator(correlator, fit_function, fit_range,
+                            initial_parameters, correlator_std,
+                            postprocess_function)
         
 def compute_energy_sqr(correlator, fit_range, initial_parameters,
                        correlator_std=None):
