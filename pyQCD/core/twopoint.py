@@ -860,11 +860,11 @@ def fit_correlators(correlator, fit_function, fit_range,
       ...     x = t[fit_range]
       ...     y = Ct[fit_range]
       ...     yerr = err[fit_range]
-      ...     return (y - b[0] * np.exp(-b[1] * x)) / yerr
+      ...     return (y - b[0] * np.exp(-b[1] * x))
       ...
       >>> postprocess = lambda b: b[1]
-      >>> pyQCD.fit_correlator(fit_function, [5, 10], [1., 1.],
-      ...                      postprocess_function=postprocess)
+      >>> pyQCD.fit_correlators(fit_function, [5, 10], [1., 1.],
+      ...                       postprocess_function=postprocess)
       1.356389
       """
                                 
@@ -931,8 +931,8 @@ def fit_1_correlator(correlator, fit_function, fit_range,
       ...     return (Ct - b[0] * np.exp(-b[1] * t)) / err
       ...
       >>> postprocess = lambda b: b[1]
-      >>> pyQCD.fit_correlator(fit_function, [5, 10], [1., 1.],
-      ...                      postprocess_function=postprocess)
+      >>> pyQCD.fit_1_correlator(fit_function, [5, 10], [1., 1.],
+      ...                        postprocess_function=postprocess)
       1.356389
       """
                 
