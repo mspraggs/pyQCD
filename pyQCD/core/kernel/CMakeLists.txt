@@ -1,11 +1,9 @@
 cmake_minimum_required (VERSION 2.8.8)
 project (lattice)
-enable_testing()
 
 option (USE_CUDA "Compile to use CUDA GPU?" 1)
 
 set (BENCH_DIR ${PROJECT_BINARY_DIR}/benchmark)
-set (TEST_DIR ${PROJECT_BINARY_DIR}/test)
 set (SRC_DIR ${PROJECT_BINARY_DIR}/src)
 set (INC_DIR ${PROJECT_BINARY_DIR}/include)
 set (CUDA_INC_DIR ${PROJECT_BINARY_DIR}/cuda)
@@ -27,10 +25,6 @@ file (GLOB
 file (GLOB
   cuda_SRC
   ${CUDA_INC_DIR}/*.cu)
-
-file (GLOB
-  test_SRC
-  ${TEST_DIR}/*.cpp)
 
 file (GLOB
   benchmark_SRC
@@ -65,7 +59,7 @@ include_directories (${Boost_INCLUDE_DIRS}
 set (Boost_USE_STATIC_LIBS OFF)
 set (Boost_USE_MULTITHREADED ON)
 set (Boost_USE_STATIC_RUNTIME OFF)
-find_package (Boost COMPONENTS random python timer unit_test_framework system)
+find_package (Boost COMPONENTS random python timer system)
 
 #set (CMAKE_SHARED_LIBRARY_PREFIX "")
 
@@ -100,18 +94,6 @@ if (CUDA_FOUND AND USE_CUDA AND CUSP_INCLUDE_DIR)
 else()
   target_link_libraries (lattice ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
 endif()
-
-add_definitions(-DBOOST_TEST_DYN_LINK)
-add_executable (test_lattice $<TARGET_OBJECTS:shared_objects> ${test_SRC})
-
-if (CUDA_FOUND AND USE_CUDA AND CUSP_INCLUDE_DIR)
-  target_link_libraries (test_lattice ${Boost_LIBRARIES} ${PYTHON_LIBRARIES}
-    cudalinops ${CUDA_LIBRARIES})
-else()
-  target_link_libraries (test_lattice ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
-endif()
-
-add_test(lattice test_lattice)
 
 foreach ( benchsourcefile ${benchmark_SRC} )
   string( REPLACE ".cpp" "" benchname ${benchsourcefile} )

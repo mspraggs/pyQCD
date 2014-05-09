@@ -57,7 +57,7 @@ To build and use the simulation components of the package, you will need the fol
 to those above:
 
 * CMake 2.6 or greater
-* boost::python, boost::random and boost::test, boost::timer and boost::system, all version 1.49.0 or greater;
+* boost::python, boost::random, boost::timer and boost::system, all version 1.49.0 or greater;
 * Eigen C++ matrix library, version 3.1.3 or greater;
 * OpenMP (version 3), required for parallel updates, but not essential.
 
@@ -101,11 +101,7 @@ paths:
 
 Running the Tests
 -----------------
-Once everything's built and installed, it's a good idea to test it. First run the boost test executable:
-
-    make test
-
-Then test the Python implementation:
+Once everything's built and installed, it's a good idea to test it. To test the code, just run
 
     py.test pyQCD
 
