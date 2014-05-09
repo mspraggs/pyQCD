@@ -74,6 +74,13 @@ Once these are installed, the package can be built using cmake. On Unix-like OSe
     cmake .
     make
 
+To see substantial performance gains, you can tell the compiler to use AVX and turn off the Eigen bounds
+checking code by running cmake as follows before compiling:
+
+    cmake . -DCMAKE_CXX_FLAGS="-mavx -DNDEBUG"
+
+The "-mavx" flag will likely vary between compilers. See your compilers documentation for details.
+
 If you want to use CUDA, then you'll need to specify the path to CUSP when you run cmake. For example,
 if you clone the CUSP library into /home/user/cusplibrary, then you'll need to run:
 
