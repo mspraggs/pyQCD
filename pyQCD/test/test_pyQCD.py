@@ -697,7 +697,7 @@ if lattice_exists:
         def test_apply_naik_dirac(self):
             
             lattice = Lattice()
-            lattice.set_config(create_fullpath("chroma_config.npy"))
+            lattice.load_config(create_fullpath("chroma_config.npy"))
             
             psi = np.zeros([8, 4, 4, 4, 4, 3])
             psi[0, 0, 0, 0, 0, 0] = 1.0
