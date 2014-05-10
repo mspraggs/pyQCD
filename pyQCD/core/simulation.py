@@ -5,6 +5,7 @@ from __future__ import print_function
 
 import sys
 import time
+import inspect
 
 import numpy as np
 
@@ -243,7 +244,7 @@ class Simulation(object):
           ...                     kwargs={"mass": 0.4})
         """
         
-        if "verbosity" in meas_function.func_code.co_varnames \
+        if "verbosity" in inspect.getargspec(meas_function).args \
           and not "verbosity" in kwargs.keys():
             kwargs.update({"verbosity": self.verbosity})
         

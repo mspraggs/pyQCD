@@ -172,7 +172,7 @@ def bootstrap_data(data, num_bootstraps, binsize=1, parallel=False):
     out = parmap(parallel_function, range(num_bootstraps)) \
       if parallel else map(parallel_function, range(num_bootstraps))
 
-    return out
+    return list(out)
 
 def bootstrap(data, func, num_bootstraps=None, binsize=1, args=[],
               kwargs={}, resample=True, parallel=False):
@@ -215,7 +215,7 @@ def bootstrap(data, func, num_bootstraps=None, binsize=1, args=[],
         return func(datum, *args, **kwargs)
 
     results = parmap(parallel_function, resamp_data) \
-      if parallel else map(parallel_function, resamp_data)
+      if parallel else list(map(parallel_function, resamp_data))
 
     return np.mean(results, axis=0), np.std(results, axis=0)
 
@@ -249,7 +249,7 @@ def jackknife_data(data, binsize=1, parallel=False):
     out = parmap(parallel_function, binned_data) \
       if parallel else map(parallel_function, binned_data)
 
-    return out
+    return list(out)
 
 def jackknife(data, func, binsize=1, args=[], kwargs={}, resample=True,
               parallel=False):
@@ -290,7 +290,7 @@ def jackknife(data, func, binsize=1, args=[], kwargs={}, resample=True,
         return func(datum, *args, **kwargs)
 
     results = parmap(parallel_function, resamp_data) \
-      if parallel else map(parallel_function, resamp_data)
+      if parallel else list(map(parallel_function, resamp_data))
 
     N = len(results)
 
