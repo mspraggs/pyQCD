@@ -122,5 +122,3 @@ VectorXcd Naik::applyOddEven(const VectorXcd& psi)
   return 1.0 / 16.0 * this->nextNextNearestNeighbour_->applyOddEven(psi)
     - 9.0 / 16.0 * this->nearestNeighbour_->applyOddEven(psi);
 }
-
-
