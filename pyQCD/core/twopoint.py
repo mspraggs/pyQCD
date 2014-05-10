@@ -493,7 +493,7 @@ def load_ukhadron_mesbin(filename, byteorder, fold=False):
     else:
         switch_endianness = lambda x: x[::-1]
         
-    binary_file = open(filename)
+    binary_file = open(filename, "rb")
         
     mom_num_string = switch_endianness(binary_file.read(4))
     mom_num = struct.unpack('i', mom_num_string)[0]
@@ -738,7 +738,7 @@ def compute_meson_corr(propagator1, propagator2, source_interpolator,
         out[tuple(momentum)] = correlator
 
     if len(out.keys()) == 1:
-        return out.values()[0]
+        return list(out.values())[0]
     else:
         return out
 
@@ -948,9 +948,9 @@ def fit_1_correlator(correlator, fit_function, fit_range,
 
     t = np.arange(correlator.size)
 
-    x = t[fit_range]
-    y = correlator[fit_range].real
-    yerr = correlator_std[fit_range].real
+    x = t[list(fit_range)]
+    y = correlator[list(fit_range)].real
+    yerr = correlator_std[list(fit_range)].real
         
     b, result = spop.leastsq(fit_function, initial_parameters,
                              args=(x, y, yerr))
