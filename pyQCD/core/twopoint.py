@@ -748,9 +748,9 @@ def _get_all_momenta(p, L, T):
     p2 = p[0]**2 + p[1]**2 + p[2]**2
         
     return [(px % L, py % L, pz % L)
-            for px in range(-L / 2, L / 2)
-            for py in range(-L / 2, L / 2)
-            for pz in range(-L / 2, L / 2)
+            for px in range(-L // 2, L // 2)
+            for py in range(-L // 2, L // 2)
+            for pz in range(-L // 2, L // 2)
             if px**2 + py**2 + pz**2 == p2]
 
 def _compute_correlator(prop1, prop2, gamma1, gamma2):
