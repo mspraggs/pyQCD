@@ -76,8 +76,8 @@ Once these are installed, the package can be built using cmake. On Unix-like OSe
 
 To compile for Python 3, run the following instead:
 
-   cmake . -DUSE_PYTHON3=1
-   make
+    cmake . -DUSE_PYTHON3=1
+    make
 
 To see substantial performance gains, you can tell the compiler to use AVX and turn off the Eigen bounds
 checking code by running cmake as follows before compiling:
