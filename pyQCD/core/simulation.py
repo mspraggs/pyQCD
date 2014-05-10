@@ -1,10 +1,15 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import unicode_literals
+from __future__ import print_function
+
 import sys
 import time
 
 import numpy as np
 
-from lattice import Lattice
-from dataset import _write_datum, _extract_datum
+from .lattice import Lattice
+from .dataset import _write_datum, _extract_datum
 
 class Simulation(object):
     """Creates, configures and runs a lattice simulation.
@@ -364,7 +369,7 @@ class Simulation(object):
             
         t1 = time.time()
             
-        for i in xrange(N):
+        for i in range(N):
             if self.verbosity > 0:
                 print("Configuration: {}".format(i))
                 sys.stdout.flush()

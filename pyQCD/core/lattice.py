@@ -1,11 +1,13 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import unicode_literals
+from __future__ import print_function
+
 import itertools
 import numpy as np
 
-from kernel import lattice
-import wilslps
-import propagator
-import config
-import dicts
+from .kernel import lattice
+from . import dicts
 
 class Lattice(lattice.Lattice):
     """Encapsulates a hypercubic lattice and associated SU(3) gauge field
@@ -195,8 +197,8 @@ class Lattice(lattice.Lattice):
           >>> lattice.thermalize(100)
           >>> config = lattice.get_config()
         """
-        r = xrange(self.L)
-        t = xrange(self.T)
+        r = range(self.L)
+        t = range(self.T)
         sites = itertools.product(t, r, r, r, range(4))
         
         links = np.zeros((self.T, self.L, self.L, self.L, 4, 3, 3),
@@ -227,8 +229,8 @@ class Lattice(lattice.Lattice):
           >>> lattice.set_config(config)
         """
         
-        r = xrange(self.L)
-        t = xrange(self.T)
+        r = range(self.L)
+        t = range(self.T)
         sites = itertools.product(t, r, r, r, range(4))
         
         links = np.zeros((self.T, self.L, self.L, self.L, 4, 3, 3),
@@ -286,7 +288,7 @@ class Lattice(lattice.Lattice):
           
           >>> import pyQCD
           >>> lattice = pyQCD.Lattice(L=8, T=8)
-          >>> for i in xrange(10):
+          >>> for i in range(10):
           ...     lattice.update()
           ...     print(lattice.get_av_plaquette())
         """
@@ -304,7 +306,7 @@ class Lattice(lattice.Lattice):
           
           >>> import pyQCD
           >>> lattice = pyQCD.Lattice(L=8, T=8)
-          >>> for i in xrange(10):
+          >>> for i in range(10):
           ...     lattice.next_config()
           ...     print(lattice.get_av_plaquette())
         """
@@ -537,7 +539,7 @@ class Lattice(lattice.Lattice):
         
         loops = np.zeros((self.L, self.T))
         
-        for r, t in [(x, y) for x in xrange(self.L) for y in xrange(self.T)]:
+        for r, t in [(x, y) for x in range(self.L) for y in range(self.T)]:
             loops[r, t] \
               = lattice.Lattice.get_av_wilson_loop(self, r, t, num_field_smears,
                                                    field_smearing_param)

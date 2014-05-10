@@ -1,9 +1,12 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import unicode_literals
+from __future__ import print_function
+
 import warnings
 
 import numpy as np
 import scipy.optimize as spop
-
-from observable import Observable
 
 def lattice_spacing(data):
     """Compute the lattice spacing using the Sommer scale
@@ -42,7 +45,7 @@ def pair_potential(data):
     
     fit_function = lambda b, t, W: W - b[0] * np.exp(-b[1] * t)
     
-    for r in xrange(data.shape[0]):
+    for r in range(data.shape[0]):
         params, result = spop.leastsq(fit_function, [1., 1.],
                                       args=(t, data[r]))
     

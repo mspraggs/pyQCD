@@ -19,8 +19,8 @@ def smear_propagator(lattice, prop, n_smears, smearing_param):
 
     new_prop = np.zeros(prop.shape, dtype=np.complex)
     
-    for alpha in xrange(4):
-        for a in xrange(3):
+    for alpha in range(4):
+        for a in range(3):
             prop_element = prop[:, :, :, :, :, alpha, :, a]
             
             new_prop[:, :, :, :, :, alpha, :, a] \

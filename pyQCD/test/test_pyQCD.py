@@ -1,3 +1,8 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import unicode_literals
+from __future__ import print_function
+
 import os
 import shutil
 import itertools
@@ -33,7 +38,7 @@ def random_variable_name():
     
     name = (string.uppercase + string.lowercase)[npr.randint(52)]
     
-    character_indices = [npr.randint(62) for i in xrange(npr.randint(30))]
+    character_indices = [npr.randint(62) for i in range(npr.randint(30))]
     
     for i, index in enumerate(character_indices):
         if npr.random() < 0.2:
@@ -53,7 +58,7 @@ def make_random_su(N):
 def test_random_su():
     
     # NB if this fails, many of the tests below will probably also fail
-    for i in xrange(2, 5):
+    for i in range(2, 5):
         U = make_random_su(i)
         
         determinant = spla.det(U)
@@ -66,11 +71,11 @@ def test_random_su():
 def make_links(T, L):
         
     links = [[t, x, y, z, mu]
-             for t in xrange(T)
-             for x in xrange(L)
-             for y in xrange(L)
-             for z in xrange(L)
-             for mu in xrange(4)]
+             for t in range(T)
+             for x in range(L)
+             for y in range(L)
+             for z in range(L)
+             for mu in range(4)]
     
     return links
 
@@ -86,10 +91,10 @@ def test_make_links():
 def make_sites(T, L):
         
     sites = [[t, x, y, z]
-             for t in xrange(T)
-             for x in xrange(L)
-             for y in xrange(L)
-             for z in xrange(L)]
+             for t in range(T)
+             for x in range(L)
+             for y in range(L)
+             for z in range(L)]
     
     return sites
 
@@ -319,7 +324,7 @@ if lattice_exists:
                 for mu, nu in zip([0, 0, 0, 1, 1, 2], [1, 2, 3, 2, 3, 3]):
                     assert lattice.get_plaquette(site, mu, nu) == 1.0
                         
-            for i in xrange(100):
+            for i in range(100):
                 lattice.update()
             
             # Test for gauge invariance  
@@ -348,7 +353,7 @@ if lattice_exists:
                 for mu, nu in zip([0, 0, 0, 1, 1, 2], [1, 2, 3, 2, 3, 3]):
                     assert lattice.get_rectangle(site, mu, nu) == 1.0
                 
-            for i in xrange(100):
+            for i in range(100):
                 lattice.update()
             
             # Test for gauge invariance  
@@ -377,7 +382,7 @@ if lattice_exists:
                 for mu, nu in zip([0, 0, 0, 1, 1, 2], [1, 2, 3, 2, 3, 3]):
                     assert lattice.get_rectangle(site, mu, nu) == 1.0
                 
-            for i in xrange(100):
+            for i in range(100):
                 lattice.update()
         
             # Test for gauge invariance  
@@ -402,8 +407,8 @@ if lattice_exists:
             
             sites = make_sites(lattice.T, lattice.L)
             
-            T_range = [1, lattice.T / 2, lattice.T - 1]
-            L_range = [1, lattice.L / 2, lattice.L - 1]
+            T_range = [1, lattice.T // 2, lattice.T - 1]
+            L_range = [1, lattice.L // 2, lattice.L - 1]
             
             for site in sites:
                 for r, t in itertools.product(L_range, T_range):
@@ -412,7 +417,7 @@ if lattice_exists:
                             assert lattice.get_wilson_loop(site, r, t,
                                                            dim, n, 0.5) == 1.0
                 
-            for i in xrange(100):
+            for i in range(100):
                 lattice.update()
             
             # Test for gauge invariance - only valid for non-smeared gauge fields
@@ -435,7 +440,7 @@ if lattice_exists:
             
             # Test to make sure no smearing is applied.
             W1 = lattice.get_wilson_loop([0, 0, 0, 0], 4, 4, 1)
-            for n in xrange(10):
+            for n in range(10):
                 W2 = lattice.get_wilson_loop([0, 0, 0, 0, 0], 4, 4, 1, 0,
                                              0.1 * n)
                 assert W1 == W2
@@ -479,11 +484,11 @@ if lattice_exists:
             
             lattice = Lattice()
             
-            for n in xrange(3):
+            for n in range(3):
                 wilson_loops = lattice.get_wilson_loops(n, 0.5)
             
-                for r in xrange(lattice.L):
-                    for t in xrange(lattice.T):
+                for r in range(lattice.L):
+                    for t in range(lattice.T):
                         assert wilson_loops[r, t] \
                           == lattice.get_av_wilson_loop(r, t, n, 0.5)
 

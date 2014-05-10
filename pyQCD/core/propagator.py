@@ -1,7 +1,11 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import unicode_literals
+from __future__ import print_function
+
 import numpy as np
 
-from observable import Observable
-from constants import gamma5
+from .constants import gamma5
 
 def prop_adjoint(propagator):
     """Returns the spin and colour adjoint of the given propagator

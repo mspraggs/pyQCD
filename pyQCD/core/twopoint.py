@@ -1,3 +1,8 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import unicode_literals
+from __future__ import print_function
+
 import re
 import xml.etree.ElementTree as ET
 import itertools
@@ -9,9 +14,9 @@ import multiprocessing as mp
 import numpy as np
 import scipy.optimize as spop
 
-import constants as const
-from propagator import spin_prod, prop_adjoint
-from dataset import parmap
+from .constants import *
+from .propagator import spin_prod, prop_adjoint
+from .dataset import parmap
 
 def fold_correlator(correlator):
     """Folds the supplied correlator about it's mid-point.
@@ -201,7 +206,7 @@ def load_chroma_hadspec_mesons(filename, fold=False):
                 
             gamma_matrix \
               = int(interpolator.find("gamma_value").text)
-            label = const.mesons[gamma_matrix]
+            label = mesons[gamma_matrix]
                 
             correlator_data \
               = interpolator.find("momenta")
@@ -254,7 +259,7 @@ def load_chroma_hadspec_baryons(filename, fold=False):
         mass_2 = float(propagator_pair.find("Mass_2").text)
             
         if mass_1 == mass_2:
-            baryon_names = const.baryons_degenerate
+            baryon_names = baryons_degenerate
         elif mass_1 < mass_2:
             baryon_names = baryons_m1m2
         else:
@@ -365,7 +370,7 @@ def load_chroma_hadspec_currents(filename, fold=False):
                 
             current_num \
               = int(vector_current.find("current_value").text)
-            label = const.vector_currents[current_num]
+            label = vector_currents[current_num]
                 
             correlator_data = vector_current.find("vector_current").text
                 
@@ -383,7 +388,7 @@ def load_chroma_hadspec_currents(filename, fold=False):
                 
             current_num \
               = int(axial_current.find("current_value").text)
-            label = const.axial_currents[current_num]
+            label = axial_currents[current_num]
                 
             correlator_data = axial_current.find("axial_current").text
                 
@@ -495,7 +500,7 @@ def load_ukhadron_mesbin(filename, byteorder, fold=False):
 
     out = {}
 
-    for i in xrange(mom_num):
+    for i in range(mom_num):
         header_string = binary_file.read(40)
         px = struct.unpack('i', switch_endianness(header_string[16:20]))[0]
         py = struct.unpack('i', switch_endianness(header_string[20:24]))[0]
@@ -506,16 +511,16 @@ def load_ukhadron_mesbin(filename, byteorder, fold=False):
 
         correlators = np.zeros((Nmu, Nnu, T), dtype=np.complex)
     
-        for t, mu, nu in [(x, y, z) for x in xrange(T) for y in xrange(Nmu)
-                          for z in xrange(Nnu)]:
+        for t, mu, nu in [(x, y, z) for x in range(T) for y in range(Nmu)
+                          for z in range(Nnu)]:
             double_string = switch_endianness(binary_file.read(8))
             correlators[mu, nu, t] = struct.unpack('d', double_string)[0]
             double_string = binary_file.read(8)
             correlators[mu, nu, t] += 1j * struct.unpack('d', double_string)[0]
                         
-        for mu, nu in [(x, y) for x in xrange(Nmu) for y in xrange(Nnu)]:
-            label = "{}_{}".format(const.interpolators[mu],
-                                   const.interpolators[nu])
+        for mu, nu in [(x, y) for x in range(Nmu) for y in range(Nnu)]:
+            label = "{}_{}".format(interpolators[mu],
+                                   interpolators[nu])
             out[(label, (px, py, pz))] = correlators[mu, nu]
 
     return out            
@@ -686,12 +691,12 @@ def compute_meson_corr(propagator1, propagator2, source_interpolator,
     """
         
     try:
-        source_interpolator = const.Gammas[source_interpolator]
+        source_interpolator = Gammas[source_interpolator]
     except TypeError:
         pass
         
     try:
-        sink_interpolator = const.Gammas[sink_interpolator]
+        sink_interpolator = Gammas[sink_interpolator]
     except TypeError:
         pass
     
@@ -743,16 +748,16 @@ def _get_all_momenta(p, L, T):
     p2 = p[0]**2 + p[1]**2 + p[2]**2
         
     return [(px % L, py % L, pz % L)
-            for px in xrange(-L / 2, L / 2)
-            for py in xrange(-L / 2, L / 2)
-            for pz in xrange(-L / 2, L / 2)
+            for px in range(-L / 2, L / 2)
+            for py in range(-L / 2, L / 2)
+            for pz in range(-L / 2, L / 2)
             if px**2 + py**2 + pz**2 == p2]
 
 def _compute_correlator(prop1, prop2, gamma1, gamma2):
     """Calculates the correlator for all space-time points
     
     We're doing the following (g1 = gamma1, g2 = gamma2, p1 = prop1,
-    p2 = prop2, g5 = const.gamma5):
+    p2 = prop2, g5 = gamma5):
         
     sum_{spin,colour} g1 * g5 * p1 * g5 * g2 * p2
     
@@ -799,8 +804,8 @@ def compute_meson_corr256(propagator1, propagator2, momenta=(0, 0, 0),
     """
 
     interpolators = [(Gamma1, Gamma2)
-                     for Gamma1 in const.interpolators
-                     for Gamma2 in const.interpolators]
+                     for Gamma1 in interpolators
+                     for Gamma2 in interpolators]
 
     def parallel_function(gammas):
         return compute_meson_corr(propagator1, propagator2,
@@ -1103,7 +1108,7 @@ def compute_effmass(correlator, guess_mass=1.0):
         ratios = correlator / np.roll(correlator, -1)
         effmass = np.zeros(T)
             
-        for t in xrange(T):
+        for t in range(T):
             function = lambda m: solve_function(m, t) - ratios[t]
             effmass[t] = spop.newton(function, guess_mass, maxiter=1000)
                 

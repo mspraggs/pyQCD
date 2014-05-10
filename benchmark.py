@@ -1,3 +1,8 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import unicode_literals
+from __future__ import print_function
+
 import time
 import sys
 import inspect
@@ -17,7 +22,7 @@ def time_function(function, min_trials=10, args=[]):
     
     times = np.zeros(n_trials)
     
-    for i in xrange(n_trials):
+    for i in range(n_trials):
         t0 = time.time()
         function(*args)
         tf = time.time()
@@ -130,7 +135,7 @@ def benchmark_wilson_loops(L=8, T=8):
     print("Speed-up: {:f} x".format(single_results[0] / parallel_results[0]))
     print("")
     
-    for n in xrange(3):
+    for n in range(3):
         display_benchmark(function=lattice.get_wilson_loops, args=[n, 0.4])
         print("")
     
@@ -154,19 +159,19 @@ def benchmark_propagator_computation(L=4, T=8):
                             "jacobi", 0, 1.0, "bicgstab"])
     print("")
     
-    for n in xrange(1, 3):
+    for n in range(1, 3):
         display_benchmark(function=lattice.get_wilson_propagator,
                           args=[0.4, [0, 0, 0, 0], n, 0.4, "jacobi", 0, 1.0,
                                 "jacobi", 0, 1.0, "bicgstab"])
         print("")
     
-    for n in xrange(1, 3):
+    for n in range(1, 3):
         display_benchmark(function=lattice.get_wilson_propagator,
                           args=[0.4, [0, 0, 0, 0], 0, 1.0, "jacobi", n, 0.4,
                                 "jacobi", 0, 1.0, "bicgstab"])
         print("")
     
-    for n in xrange(1, 3):
+    for n in range(1, 3):
         display_benchmark(function=lattice.get_wilson_propagator,
                           args=[0.4, [0, 0, 0, 0], 0, 1.0, "jacobi", 0, 1.0,
                                 "jacobi", n, 0.4, "bicgstab"])

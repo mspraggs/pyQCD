@@ -1,9 +1,12 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import unicode_literals
+from __future__ import print_function
+
 import os
-import cPickle
 import zipfile
 import warnings
 import multiprocessing as mp
-from itertools import izip
 
 import numpy as np
 import numpy.random as npr
@@ -89,7 +92,7 @@ def save_archive(filename, data):
 
       >>> import pyQCD
       >>> data = [pyQCD.load_chroma_hadspec("hadspec_{}.dat.xml".format(i))
-      ...         for i in xrange(100)]
+      ...         for i in range(100)]
       >>> pyQCD.save_archive("chroma_data.zip", data)
     """
 
@@ -112,7 +115,7 @@ def load_archive(filename):
 
     zfile.close()
 
-    return [_extract_datum(i, filename) for i in xrange(num_data)]
+    return [_extract_datum(i, filename) for i in range(num_data)]
 
 def bin_data(data, binsize=1):
     """Bins the supplied data into of the specified size
@@ -133,7 +136,7 @@ def bin_data(data, binsize=1):
     """
 
     return [sum(data[i:i+binsize]) / binsize
-            for i in xrange(0, len(data) - binsize + 1, binsize)]
+            for i in range(0, len(data) - binsize + 1, binsize)]
 
 def bootstrap_data(data, num_bootstraps, binsize=1, parallel=False):
     """Resamples the supplied data using the bootstrap method.
@@ -166,8 +169,8 @@ def bootstrap_data(data, num_bootstraps, binsize=1, parallel=False):
         bins = npr.randint(num_bins, size=num_bins).tolist()
         return np.mean([binned_data[j] for j in bins], axis=0)
 
-    out = parmap(parallel_function, xrange(num_bootstraps)) \
-      if parallel else map(parallel_function, xrange(num_bootstraps))
+    out = parmap(parallel_function, range(num_bootstraps)) \
+      if parallel else map(parallel_function, range(num_bootstraps))
 
     return out
 
