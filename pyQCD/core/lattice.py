@@ -158,7 +158,7 @@ class Lattice(lattice.Lattice):
                   [ 0.+0.j,  0.+0.j,  1.+0.j]])
         """
         
-        return np.array(lattice.Lattice.get_link(self, link))
+        return np.array(lattice.Lattice.get_link(self, list(link)))
     
     def set_link(self, link, matrix):
         """Sets the specified link to the value specified in matrix
