@@ -160,7 +160,7 @@ VectorXcd DWF::makeEvenOdd(const VectorXcd& psi)
 
   VectorXcd eta = VectorXcd::Zero(this->operatorSize_);
 
-  if (psi.size() != this->operatorSize_ / 2)
+  if (psi.size() != this->operatorSize_)
     return eta;
 
   int size4d = this->operatorSize_ / this->Ls_;
@@ -183,6 +183,8 @@ VectorXcd DWF::makeEvenOdd(const VectorXcd& psi)
 	= eta4d.head(halfSize4d);      
     }
   }
+
+  return eta;
 }
 
 
@@ -194,7 +196,7 @@ VectorXcd DWF::removeEvenOdd(const VectorXcd& psi)
 
   VectorXcd eta = VectorXcd::Zero(this->operatorSize_);
 
-  if (psi.size() != this->operatorSize_ / 2)
+  if (psi.size() != this->operatorSize_)
     return eta;
 
   int size4d = this->operatorSize_ / this->Ls_;
