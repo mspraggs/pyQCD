@@ -36,7 +36,10 @@ void CudaLinearOperator::operator()(const VectorTypeDev& x, VectorTypeDev& y) co
   Complex* y_ptr = thrust::raw_pointer_cast(&y[0]);
 
   if (this->precondition_) {
-    
+    if (this->hermitian_)
+      this->applyPreconditionedHermitian(y_ptr, x_ptr);
+    else
+      this->applyPreconditioned(y_ptr, x_ptr);    
   }
   else {
     if (this->hermitian_)
