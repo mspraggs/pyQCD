@@ -23,8 +23,8 @@ public:
   virtual void makeHermitian(Complex* y, const Complex* x) const { };
 
   // Even-odd preconditioning functions
-  void makeEvenOdd(Complex* y, const Complex* x) const;
-  void removeEvenOdd(Complex* y, const Complex* x) const;
+  virtual void makeEvenOdd(Complex* y, const Complex* x) const;
+  virtual void removeEvenOdd(Complex* y, const Complex* x) const;
   void makeEvenOddSource(Complex* y, const Complex* x) const;
   void makeEvenOddSolution(Complex* y, const Complex* x) const;
   virtual void applyEvenEvenInv(Complex* y, const Complex* x) const { }
