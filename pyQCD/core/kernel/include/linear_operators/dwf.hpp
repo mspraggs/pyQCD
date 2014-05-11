@@ -36,6 +36,11 @@ public:
   VectorXcd makeEvenOdd(const VectorXcd& psi);
   VectorXcd removeEvenOdd(const VectorXcd& psi);
 
+  VectorXcd applyEvenEvenInv(const VectorXcd& psi);
+  VectorXcd applyOddOdd(const VectorXcd& psi);
+  VectorXcd applyEvenOdd(const VectorXcd& psi);
+  VectorXcd applyOddEven(const VectorXcd& psi);
+
 private:
   // Pointer to the lattice object containing the gauge links
   Lattice* lattice_;
