@@ -114,6 +114,62 @@ void generateNeighbours(int* indices, const int hopSize, const int L,
   }
 }
 
+void generateEvenOddNeighbours(int* indices, const int hopSize,
+			       const int remainder, const int L, const int T)
+{
+  int numSites = L * L * L * T;
+
+  for (int index = 0; index < numSites; ++index) {
+
+    int latticeShape[4] = {T, L, L, L};
+    
+    int site[4];
+    int tempIndex = index;
+    for (int i = 0; i < 4; ++i) {
+      site[3 - i] = mod(tempIndex, latticeShape[3 - i]);
+      tempIndex /= latticeShape[3 - i];
+    }
+
+    if ((site[0] + site[1] + site[2] + site[3]) % 2 == remainder) {
+
+      for (int mu = 0; mu < 4; ++mu) {
+	int siteBehind[4];
+	int siteAhead[4];
+
+	for (int i = 0; i < 4; ++i) {
+	  siteAhead[i] = site[i];
+	  siteBehind[i] = site[i];
+	}
+
+	siteAhead[mu] += hopSize;
+	siteAhead[mu] = mod(siteAhead[mu], latticeShape[mu]);
+	siteBehind[mu] -= hopSize;
+	siteBehind[mu] = mod(siteBehind[mu], latticeShape[mu]);
+
+	int siteBehindIndex
+	  = siteBehind[3] 
+	  + L * siteBehind[2]
+	  + L * L * siteBehind[1]
+	  + L * L * L * siteBehind[0];
+
+	int siteAheadIndex
+	  = siteAhead[3] 
+	  + L * siteAhead[2]
+	  + L * L * siteAhead[1]
+	  + L * L * L * siteAhead[0];
+
+	if (siteAheadIndex >= numSites || siteAheadIndex < 0)
+	  std::cout << "Warning: site ahead index out of bounds." << std::endl;
+	if (siteBehindIndex >= numSites || siteBehindIndex < 0)
+	  std::cout << "Warning: site ahead index out of bounds." << std::endl;
+
+	indices[8 * (index / 2) + mu] = siteBehindIndex;
+	indices[8 * (index / 2) + mu + 4] = siteAheadIndex;
+      }
+    }
+  }
+}
+
 void generateBoundaryConditions(Complex* siteBoundaryConditions,
 				const int hopSize,
 				const Complex* boundaryConditions,
