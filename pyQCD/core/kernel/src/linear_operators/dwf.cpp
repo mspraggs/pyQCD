@@ -223,13 +223,12 @@ VectorXcd DWF::applyEvenEvenInv(const VectorXcd& psi)
 
   int halfSize4d = this->operatorSize_ / (2 * this->Ls_);
 
-  VectorXcd evenEvenDiagonal = VectorXcd::Ones(halfSize4d);
-  VectorXcd oddOddDiagonal = VectorXcd::Ones(halfSize4d);
-
-  evenEvenDiagonal
-    = this->kernel_->applyEvenEven(evenEvenDiagonal) + evenEvenDiagonal;
-  oddOddDiagonal
-    = this->kernel_->applyOddOdd(oddOddDiagonal) + oddOddDiagonal;
+  VectorXcd evenEvenDiagonal
+    = this->kernel_->applyEvenEven(VectorXcd::Ones(halfSize4d)) 
+    + VectorXcd::Ones(halfSize4d);
+  VectorXcd oddOddDiagonal
+    = this->kernel_->applyOddOdd(VectorXcd::Ones(halfSize4d)) 
+    + VectorXcd::Ones(halfSize4d);
 
   for (int i = 0; i < this->Ls_; ++i) {
     if (i % 2 == 0)
