@@ -2,7 +2,7 @@
 
 HoppingTerm::HoppingTerm(
   const vector<complex<double> >& boundaryConditions,
-  Lattice* lattice, const int nHops) : LinearOperator::LinearOperator()
+  const Lattice* lattice, const int nHops) : LinearOperator::LinearOperator()
 {
   // Class constructor - we create a pointer to the lattice and compute the
   // frequently used spin structures used within the Dirac operator.
@@ -23,7 +23,7 @@ HoppingTerm::HoppingTerm(
 HoppingTerm::HoppingTerm(
   const vector<complex<double> >& boundaryConditions,
   const vector<Matrix4cd>& spinStructures,
-  Lattice* lattice, const int nHops) : lattice_(lattice)
+  const Lattice* lattice, const int nHops) : lattice_(lattice)
 {
   // Class constructor - we create a pointer to the lattice and compute the
   // frequently used spin structures used within the Dirac operator.
@@ -39,7 +39,7 @@ HoppingTerm::HoppingTerm(
 HoppingTerm::HoppingTerm(
   const vector<complex<double> >& boundaryConditions,
   const Matrix4cd& spinStructure,
-  Lattice* lattice, const int nHops) : lattice_(lattice)
+  const Lattice* lattice, const int nHops) : lattice_(lattice)
 {
   // Class constructor - we create a pointer to the lattice and compute the
   // frequently used spin structures used within the Dirac operator.
@@ -59,7 +59,7 @@ HoppingTerm::~HoppingTerm()
 
 
 
-void HoppingTerm::init(Lattice* lattice,
+void HoppingTerm::init(const Lattice* lattice,
 		       const vector<complex<double> >& boundaryConditions,
 		       const int nHops)
 {

@@ -3,7 +3,7 @@
 JacobiSmearing::JacobiSmearing(
     const int numSmears, const double smearingParameter,
     const vector<complex<double> >& boundaryConditions,
-    Lattice* lattice) : LinearOperator::LinearOperator()
+    const Lattice* lattice) : LinearOperator::LinearOperator()
 {
   // Class constructor - we set the pointer to the lattice and determine
   // the nearest neighbours

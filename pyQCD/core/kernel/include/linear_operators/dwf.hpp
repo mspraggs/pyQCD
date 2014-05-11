@@ -26,7 +26,7 @@ public:
   DWF(const double mass, const double M5, const int Ls,
       const int kernelType,
       const vector<complex<double> >& boundaryConditions,
-      Lattice* lattice);
+      const Lattice* lattice);
   ~DWF();
 
   VectorXcd apply(const VectorXcd& psi);
@@ -45,7 +45,7 @@ public:
 
 private:
   // Pointer to the lattice object containing the gauge links
-  Lattice* lattice_;
+  const Lattice* lattice_;
   LinearOperator* kernel_; // The 4D kernel
   double mass_; // Mass of the Wilson fermion
   int Ls_;

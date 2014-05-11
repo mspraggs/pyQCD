@@ -17,11 +17,11 @@ namespace pyQCD
   VectorXcd multiplyPplus(const VectorXcd& psi);
   VectorXcd multiplyPminus(const VectorXcd& psi);
 
-  vector<vector<int> > getNeighbourIndices(const int hopSize, Lattice* lattice);
+  vector<vector<int> > getNeighbourIndices(const int hopSize, const Lattice* lattice);
 
   vector<vector<complex<double> > > getBoundaryConditions(
     const int hopSize, const vector<complex<double> >& boundaryConditions,
-    Lattice* lattice);
+    const Lattice* lattice);
 }
 
 #endif

@@ -22,7 +22,7 @@ class Wilson : public LinearOperator
 public:
   Wilson(const double mass,
 	 const vector<complex<double> >& boundaryConditions,
-	 Lattice* lattice);
+	 const Lattice* lattice);
   ~Wilson();
 
   VectorXcd apply(const VectorXcd& psi);
@@ -36,7 +36,7 @@ public:
 
 private:
   // Pointer to the lattice object containing the gauge links
-  Lattice* lattice_;
+  const Lattice* lattice_;
   HoppingTerm* hoppingMatrix_; // This operator does the derivative
   double mass_; // Mass of the Wilson fermion
   vector<vector<complex<double> > > boundaryConditions_;

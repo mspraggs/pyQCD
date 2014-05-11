@@ -56,7 +56,7 @@ namespace pyQCD
 
 
 
-  vector<vector<int> > getNeighbourIndices(const int hopSize, Lattice* lattice)
+  vector<vector<int> > getNeighbourIndices(const int hopSize, const Lattice* lattice)
   {
     // Gets the site indices for the sites a certain number of hops away
     // from each of the sites on the lattice
@@ -112,7 +112,7 @@ namespace pyQCD
 
   vector<vector<complex<double> > > getBoundaryConditions(
     const int hopSize, const vector<complex<double> >& boundaryConditions,
-    Lattice* lattice)
+    const Lattice* lattice)
   {
     // Determines the boundary conditions for each hop
 

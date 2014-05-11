@@ -4,7 +4,7 @@
 
 VectorXcd
 Lattice::makeSource(const int site[4], const int spin, const int colour,
-		    LinearOperator* smearingOperator)
+		    LinearOperator* smearingOperator) const
 {
   // Generate a (possibly smeared) quark source at the given site, spin and
   // colour
@@ -32,7 +32,7 @@ void Lattice::diracOperatorFactory(
   LinearOperator*& diracOperator, const int action, const vector<int>& intParams,
   const vector<double>& floatParams,
   const vector<complex<double> >& complexParams,
-  const vector<complex<double> >& boundaryConditions)
+  const vector<complex<double> >& boundaryConditions) const
 {
   // Generates the specified Dirac operator with the specified parameters
 

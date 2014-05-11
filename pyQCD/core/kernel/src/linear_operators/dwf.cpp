@@ -3,7 +3,7 @@
 DWF::DWF(
   const double mass, const double M5, const int Ls, const int kernelType,
   const vector<complex<double> >& boundaryConditions,
-  Lattice* lattice) : LinearOperator::LinearOperator()
+  const Lattice* lattice) : LinearOperator::LinearOperator()
 {
   // Class constructor - we set the fermion mass, create a pointer to the 
   // lattice and compute the frequently used spin structures used within the

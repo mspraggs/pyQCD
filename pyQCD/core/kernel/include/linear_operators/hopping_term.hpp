@@ -20,17 +20,17 @@ class HoppingTerm : public LinearOperator
 
 public:
   HoppingTerm(const vector<complex<double> >& boundaryConditions,
-	      Lattice* lattice, const int nHops);
+	      const Lattice* lattice, const int nHops);
   HoppingTerm(const vector<complex<double> >& boundaryConditions,
 	      const vector<Matrix4cd>& spinStructures,
-	      Lattice* lattice, const int nHops);
+	      const Lattice* lattice, const int nHops);
   HoppingTerm(const vector<complex<double> >& boundaryConditions,
 	      const Matrix4cd& spinStructure,
-	      Lattice* lattice, const int nHops);
+	      const Lattice* lattice, const int nHops);
   ~HoppingTerm();
 
   // Common code for constructors
-  void init(Lattice* lattice,
+  void init(const Lattice* lattice,
 	    const vector<complex<double> >& boundaryConditions,
 	    const int nHops);
 
@@ -46,7 +46,7 @@ public:
 
 private:
   // Pointer to the lattice object containing the gauge links
-  Lattice* lattice_;
+  const Lattice* lattice_;
   // The actual links we'll work with within the operator
   GaugeField links_;
   // The spin matrices required by the operator

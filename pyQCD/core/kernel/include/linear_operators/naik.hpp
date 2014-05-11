@@ -22,7 +22,7 @@ class Naik : public LinearOperator
 public:
   Naik(const double mass,
        const vector<complex<double> >& boundaryConditions,
-       Lattice* lattice);
+       const Lattice* lattice);
   ~Naik();
 
   VectorXcd apply(const VectorXcd& psi);
@@ -36,7 +36,7 @@ public:
 
 private:
   // Pointer to the lattice object containing the gauge links
-  Lattice* lattice_;
+  const Lattice* lattice_;
   HoppingTerm* nearestNeighbour_; // Our Wilson hopping piece
   HoppingTerm* nextNextNearestNeighbour_; // Our Naik hopping piece
   double mass_; // Mass of the Naik fermion

@@ -241,7 +241,7 @@ double Lattice::computeWilsonLoop(const int corner[4], const int r,
 
 
 double Lattice::computePlaquette(const int site[4], const int mu,
-				 const int nu)
+				 const int nu) const
 {
   // Calculate the plaquette operator at the given site, on plaquette
   // specified by directions mu and nu.
@@ -278,7 +278,7 @@ double Lattice::computePlaquette(const int site[4], const int mu,
 
 
 double Lattice::computeRectangle(const int site[4], const int mu,
-				 const int nu)
+				 const int nu) const
 {
   // Calculate the rectangle operator at the given site, on the rectangle
   // specified by directions mu and nu.
@@ -320,7 +320,7 @@ double Lattice::computeRectangle(const int site[4], const int mu,
 
 
 double Lattice::computeTwistedRectangle(const int site[4], const int mu,
-					const int nu)
+					const int nu) const
 {
   // Calculate the twisted rectangle operator
   
@@ -366,7 +366,7 @@ double Lattice::computeTwistedRectangle(const int site[4], const int mu,
 
 
 
-double Lattice::computeAveragePlaquette()
+double Lattice::computeAveragePlaquette() const
 {
   // Calculate average plaquette operator value
   // mu > nu, so there are six plaquettes at each site.
@@ -392,7 +392,7 @@ double Lattice::computeAveragePlaquette()
 
 
 
-double Lattice::computeAverageRectangle()
+double Lattice::computeAverageRectangle() const
 {
   // Calculate average plaquette operator value
   // mu > nu, so there are six plaquettes at each site.
@@ -474,7 +474,7 @@ double Lattice::computeAverageWilsonLoop(const int r, const int t,
 
 
 
-double Lattice::computeMeanLink()
+double Lattice::computeMeanLink() const
 {
   // Pretty simple: step through the matrix and add all link traces up
   double totalLink = 0;
@@ -487,7 +487,8 @@ double Lattice::computeMeanLink()
 
 
 
-Matrix3cd Lattice::computeQ(const int link[5], const double smearingParameter)
+Matrix3cd Lattice::computeQ(const int link[5],
+			    const double smearingParameter) const
 {
   // Calculates Q matrix for analytic smearing according to paper on analytic
   // smearing (Morningstart and Peardon, 2003)

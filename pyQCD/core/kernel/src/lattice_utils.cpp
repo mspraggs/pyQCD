@@ -28,7 +28,39 @@ Matrix3cd& Lattice::getLink(const int link[5])
 
 
 
+const Matrix3cd& Lattice::getLink(const int link[5]) const
+{
+  // Return link specified by index (sanitizes link indices)
+  int tempLink[5];
+  tempLink[0] = pyQCD::mod(link[0], this->temporalExtent);
+  for (int i = 1; i < 4; ++i)
+    tempLink[i] = pyQCD::mod(link[i], this->spatialExtent);
+  tempLink[4] = pyQCD::mod(link[4], 4);
+
+  int index = pyQCD::getLinkIndex(tempLink, this->spatialExtent);
+  
+  return this->links_[index];
+}
+
+
+
 Matrix3cd& Lattice::getLink(const vector<int> link)
+{
+  // Return link specified by indices
+  int tempLink[5];
+  tempLink[0] = pyQCD::mod(link[0], this->temporalExtent);
+  for (int i = 1; i < 4; ++i)
+    tempLink[i] = pyQCD::mod(link[i], this->spatialExtent);
+  tempLink[4] = pyQCD::mod(link[4], 4);
+
+  int index = pyQCD::getLinkIndex(tempLink, this->spatialExtent);
+
+  return this->links_[index];
+}
+
+
+
+const Matrix3cd& Lattice::getLink(const vector<int> link) const
 {
   // Return link specified by indices
   int tempLink[5];
@@ -90,7 +122,7 @@ Matrix2cd Lattice::makeHeatbathSu2(double coefficients[4],
   // Initialise lambdaSquared so that we'll go into the for loop
   double lambdaSquared = 2.0;
   // A random squared float to use in the while loop
-  double randomSquare = pow(rng.generateReal(), 2);
+  double randomSquare = pow(this->rng.generateReal(), 2);
   // Loop until lambdaSquared meets the distribution condition
   while (randomSquare > 1.0 - lambdaSquared) {
     // Generate three random floats in (0,1] as per Gattringer and Lang

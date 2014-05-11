@@ -22,7 +22,7 @@ class JacobiSmearing : public LinearOperator
 public:
   JacobiSmearing(const int numSmears, const double smearingParameter,
 		 const vector<complex<double> >& boundaryConditions,
-		 Lattice* lattice);
+		 const Lattice* lattice);
   ~JacobiSmearing();
 
   VectorXcd apply(const VectorXcd& psi);
@@ -32,7 +32,7 @@ public:
 
 private:
   // Pointer to the lattice object containing the gauge links
-  Lattice* lattice_;
+  const Lattice* lattice_;
   HoppingTerm* hoppingMatrix_; // This operator applies the derivative
   int operatorSize_; // Size of vectors on which the operator may operate
   vector<vector<int> > nearestNeighbours_;

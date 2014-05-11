@@ -22,7 +22,7 @@ class HamberWu : public LinearOperator
 public:
   HamberWu(const double mass,
 	   const vector<complex<double> >& boundaryConditions,
-	   Lattice* lattice);
+	   const Lattice* lattice);
   ~HamberWu();
 
   VectorXcd apply(const VectorXcd& psi);
@@ -31,7 +31,7 @@ public:
 
 private:
   // Pointer to the lattice object containing the gauge links
-  Lattice* lattice_;
+  const Lattice* lattice_;
   HoppingTerm* nearestNeighbour_; // Our Wilson hopping piece
   HoppingTerm* nextNearestNeighbour_; // Our Hamber-Wu hopping piece
   double mass_; // Mass of the HamberWu fermion

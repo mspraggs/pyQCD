@@ -48,8 +48,12 @@ public:
 
   void print();
   Matrix3cd& getLink(const int link[5]);
+  const Matrix3cd& getLink(const int link[5]) const;
   Matrix3cd& getLink(const vector<int> link);
+  const Matrix3cd& getLink(const vector<int> link) const;
   Matrix3cd& getLink(const int index) { return this->links_[index]; };
+  const Matrix3cd& getLink(const int index) const
+  { return this->links_[index]; };
   void setLink(const int link[5], const Matrix3cd& matrix);
 
   double us() const { return this->us_; }
@@ -84,18 +88,18 @@ public:
 			   const double smearingParameter = 1.0);
 
   double computePlaquette(const int site[4], const int dimension1,
-			  const int dimension2);
+			  const int dimension2) const;
   double computeRectangle(const int site[4], const int dimension1,
-			  const int dimension2);
+			  const int dimension2) const;
   double computeTwistedRectangle(const int site[4], const int dimension1,
-				 const int dimension2);
+				 const int dimension2) const;
 
-  double computeAveragePlaquette();
-  double computeAverageRectangle();
+  double computeAveragePlaquette() const;
+  double computeAverageRectangle() const;
   double computeAverageWilsonLoop(const int r, const int t,
 				  const int nSmears = 0,
 				  const double smearingParameter = 1.0);
-  double computeMeanLink();
+  double computeMeanLink() const;
 
   double (Lattice::*computeLocalAction)(const int link[5]);
   Matrix3cd (Lattice::*computeStaples)(const int link[5]);
@@ -103,17 +107,19 @@ public:
   Matrix2cd makeHeatbathSu2(double coefficients[4],
 			    const double weighting);
 
-  Matrix3cd computeQ(const int link[5], const double smearingParameter);
+  Matrix3cd computeQ(const int link[5],
+		     const double smearingParameter) const;
   void smearLinks(const int time, const int nSmears,
 		  const double smearingParameter);
 
-  VectorXcd makeSource(const int site[4], const int spin, const int colour,
-		       LinearOperator* smearingOperator);
-  void diracOperatorFactory(LinearOperator*& diracOperator, const int action,
-			    const vector<int>& intParams,
-			    const vector<double>& floatParams,
-			    const vector<complex<double> >& complexParams,
-			    const vector<complex<double> >& boundaryConditions);
+  VectorXcd makeSource(const int site[4], const int spin,
+		       const int colour,
+		       LinearOperator* smearingOperator) const;
+  void diracOperatorFactory(
+    LinearOperator*& diracOperator, const int action,
+    const vector<int>& intParams, const vector<double>& floatParams,
+    const vector<complex<double> >& complexParams,
+    const vector<complex<double> >& boundaryConditions) const;
   vector<MatrixXcd> computePropagator(
     const int action, const vector<int>& intParams,
     const vector<double>& floatParams,
@@ -136,7 +142,7 @@ public:
   int nCorrelations, spatialExtent, temporalExtent;
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-protected:
+  protected:
   double beta_, us_, ut_, chi_; // a_s / a_t = chi_
   double anisotropyCoefficients_[4][4];
   double plaquetteTadpoleCoefficients_[4][4];

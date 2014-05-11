@@ -2,7 +2,7 @@
 
 Wilson::Wilson(
     const double mass, const vector<complex<double> >& boundaryConditions,
-    Lattice* lattice) : LinearOperator::LinearOperator()
+    const Lattice* lattice) : LinearOperator::LinearOperator()
 {
   // Class constructor - we set the fermion mass, create a pointer to the 
   // lattice and compute the frequently used spin structures used within the
