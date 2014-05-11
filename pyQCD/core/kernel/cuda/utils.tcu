@@ -194,9 +194,9 @@ void generateBoundaryConditions(Complex* siteBoundaryConditions,
       siteBoundaryConditions[8 * index + mu + 4] = Complex(1.0, 0.0);
 
       if (site[mu] - hopSize < 0 || site[mu] - hopSize >= latticeShape[mu])
-	  siteBoundaryConditions[8 * index + mu] = boundaryConditions[mu];
+	siteBoundaryConditions[8 * index + mu] = boundaryConditions[mu];
       if (site[mu] + hopSize < 0 || site[mu] + hopSize >= latticeShape[mu])
-	  siteBoundaryConditions[8 * index + mu + 4] = boundaryConditions[mu];
+	siteBoundaryConditions[8 * index + mu + 4] = boundaryConditions[mu];
     }
   }
 }
