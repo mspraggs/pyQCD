@@ -50,6 +50,8 @@ public:
   { return VectorXcd::Zero(x.size()); }
   virtual VectorXcd applyOddOddInv(const VectorXcd& x)
   { return this->applyEvenEvenInv(x); }
+  virtual VectorXcd applyEvenEven(const VectorXcd& x)
+  { return this->applyOddOdd(x); }
   virtual VectorXcd applyOddOdd(const VectorXcd& x)
   { return VectorXcd::Zero(x.size()); }
   virtual VectorXcd applyEvenOdd(const VectorXcd& x)
