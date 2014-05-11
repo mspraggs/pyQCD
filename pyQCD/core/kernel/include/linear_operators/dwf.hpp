@@ -33,6 +33,9 @@ public:
   VectorXcd applyHermitian(const VectorXcd& psi);
   VectorXcd makeHermitian(const VectorXcd& psi);
 
+  VectorXcd makeEvenOdd(const VectorXcd& psi);
+  VectorXcd removeEvenOdd(const VectorXcd& psi);
+
 private:
   // Pointer to the lattice object containing the gauge links
   Lattice* lattice_;

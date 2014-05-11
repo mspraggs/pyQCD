@@ -40,8 +40,8 @@ public:
   const vector<int>& getOddIndices() const { return this->oddIndices_; }
 
   // Functions to set things up for the even-odd preconditioning
-  VectorXcd makeEvenOdd(const VectorXcd& x);
-  VectorXcd removeEvenOdd(const VectorXcd& x);
+  virtual VectorXcd makeEvenOdd(const VectorXcd& x);
+  virtual VectorXcd removeEvenOdd(const VectorXcd& x);
   VectorXcd makeEvenOddSource(const VectorXcd& x);
   VectorXcd makeEvenOddSolution(const VectorXcd& x);
 

@@ -140,3 +140,71 @@ VectorXcd DWF::makeHermitian(const VectorXcd& psi)
 }
 
 
+
+VectorXcd DWF::makeEvenOdd(const VectorXcd& psi)
+{
+  // Permutes the supplied spinor, shuffling it so that all of the 5D lattice
+  // points are split into even and odd sites
+
+  VectorXcd eta = VectorXcd::Zero(this->operatorSize_);
+
+  if (psi.size() != this->operatorSize_ / 2)
+    return eta;
+
+  int size4d = this->operatorSize_ / this->Ls_;
+  int halfSize4d = size4d / 2;
+
+  for (int i = 0; i < this->Ls_; ++i) {
+    VectorXcd eta4d \
+      = this->kernel_->makeEvenOdd(psi.segment(i * size4d, size4d));
+
+    if (i % 2 == 0) {
+      eta.segment(i * halfSize4d, halfSize4d) \
+	= eta4d.head(halfSize4d);
+      eta.segment((i + this->Ls_) * halfSize4d, halfSize4d) \
+	= eta4d.tail(halfSize4d);
+    }
+    else {
+      eta.segment(i * halfSize4d, halfSize4d) \
+	= eta4d.tail(halfSize4d);
+      eta.segment((i + this->Ls_) * halfSize4d, halfSize4d) \
+	= eta4d.head(halfSize4d);      
+    }
+  }
+}
+
+
+
+VectorXcd DWF::removeEvenOdd(const VectorXcd& psi)
+{
+  // Permutes the supplied spinor, shuffling it and putting it back into
+  // lexicographic order
+
+  VectorXcd eta = VectorXcd::Zero(this->operatorSize_);
+
+  if (psi.size() != this->operatorSize_ / 2)
+    return eta;
+
+  int size4d = this->operatorSize_ / this->Ls_;
+  int halfSize4d = size4d / 2;
+
+  for (int i = 0; i < this->Ls_; ++i) {
+    VectorXcd eta4d = VectorXcd::Zero(size4d);
+
+    if (i % 2 == 0) {
+      eta4d.head(halfSize4d) \
+	= psi.segment(i * halfSize4d, halfSize4d);
+      eta4d.tail(halfSize4d) \
+	= psi.segment((i + this->Ls_) * halfSize4d, halfSize4d);
+    }
+    else {
+      eta4d.tail(halfSize4d) \
+	= psi.segment(i * halfSize4d, halfSize4d);
+      eta4d.head(halfSize4d) \
+	= psi.segment((i + this->Ls_) * halfSize4d, halfSize4d);
+    }
+    eta.segment(i * size4d, size4d) = this->kernel_->removeEvenOdd(eta4d);
+  }
+
+  return eta;
+}
