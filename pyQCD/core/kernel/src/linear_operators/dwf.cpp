@@ -320,6 +320,61 @@ VectorXcd DWF::applyEvenOdd(const VectorXcd& psi)
 
 
 
+VectorXcd DWF::applyEvenOddDagger(const VectorXcd& psi)
+{
+  // Apply the daggered even-odd piece of the Dirac operator to the supplied
+  // spinor
+
+  VectorXcd eta = VectorXcd::Zero(this->operatorSize_ / 2);
+
+  if (psi.size() != this->operatorSize_ / 2)
+    return eta;
+
+  int halfSize4d = this->operatorSize_ / (2 * this->Ls_);
+
+  for (int i = 0; i < this->Ls_; ++i) {
+
+    eta.segment(i * halfSize4d, halfSize4d)
+      = pyQCD::multiplyGamma5(psi.segment(i * halfSize4d, halfSize4d));
+
+    if (i % 2 == 0)
+      eta.segment(i * halfSize4d, halfSize4d)
+	= this->kernel_->applyEvenOdd(eta.segment(i * halfSize4d, halfSize4d));
+    else
+      eta.segment(i * halfSize4d, halfSize4d)
+	= this->kernel_->applyOddEven(eta.segment(i * halfSize4d, halfSize4d));
+    
+    eta.segment(i * halfSize4d, halfSize4d)
+      = pyQCD::multiplyGamma5(eta.segment(i * halfSize4d, halfSize4d));
+      
+    if (i == 0) {
+      eta.segment(i * halfSize4d, halfSize4d)
+	-= pyQCD::multiplyPplus(psi.segment(halfSize4d, halfSize4d));
+      eta.segment(i * halfSize4d, halfSize4d) 
+	+= this->mass_
+	* pyQCD::multiplyPminus(psi.segment((this->Ls_ - 1) * halfSize4d,
+					    halfSize4d));
+    }
+    else if (i == this->Ls_ - 1) {
+      eta.segment(i * halfSize4d, halfSize4d)
+	-= pyQCD::multiplyPminus(psi.segment((this->Ls_ - 2) * halfSize4d,
+					    halfSize4d));
+      eta.segment(i * halfSize4d, halfSize4d)
+	+= this->mass_ * pyQCD::multiplyPplus(psi.segment(0, halfSize4d));
+    }
+    else {
+      eta.segment(i * halfSize4d, halfSize4d)
+	-= pyQCD::multiplyPplus(psi.segment((i + 1) * halfSize4d, halfSize4d));
+      eta.segment(i * halfSize4d, halfSize4d)
+	-= pyQCD::multiplyPminus(psi.segment((i - 1) * halfSize4d, halfSize4d));
+    }
+  }
+
+  return eta;
+}
+
+
+
 VectorXcd DWF::applyOddEven(const VectorXcd& psi)
 {
   // Apply the even-odd piece of the Dirac operator to the supplied spinor
@@ -359,6 +414,60 @@ VectorXcd DWF::applyOddEven(const VectorXcd& psi)
 	-= pyQCD::multiplyPminus(psi.segment((i + 1) * halfSize4d, halfSize4d));
       eta.segment(i * halfSize4d, halfSize4d)
 	-= pyQCD::multiplyPplus(psi.segment((i - 1) * halfSize4d, halfSize4d));
+    }
+  }
+
+  return eta;
+}
+
+
+
+VectorXcd DWF::applyOddEvenDagger(const VectorXcd& psi)
+{
+  // Apply the even-odd piece of the Dirac operator to the supplied spinor
+
+  VectorXcd eta = VectorXcd::Zero(this->operatorSize_ / 2);
+
+  if (psi.size() != this->operatorSize_ / 2)
+    return eta;
+
+  int halfSize4d = this->operatorSize_ / (2 * this->Ls_);
+
+  for (int i = 0; i < this->Ls_; ++i) {
+
+    eta.segment(i * halfSize4d, halfSize4d)
+      = pyQCD::multiplyGamma5(psi.segment(i * halfSize4d, halfSize4d));
+
+    if (i % 2 == 0)
+      eta.segment(i * halfSize4d, halfSize4d)
+	= this->kernel_->applyOddEven(eta.segment(i * halfSize4d, halfSize4d));
+    else
+      eta.segment(i * halfSize4d, halfSize4d)
+	= this->kernel_->applyEvenOdd(eta.segment(i * halfSize4d, halfSize4d));
+
+    eta.segment(i * halfSize4d, halfSize4d)
+      = pyQCD::multiplyGamma5(eta.segment(i * halfSize4d, halfSize4d));
+
+    if (i == 0) {
+      eta.segment(i * halfSize4d, halfSize4d)
+	-= pyQCD::multiplyPplus(psi.segment(halfSize4d, halfSize4d));
+      eta.segment(i * halfSize4d, halfSize4d) 
+	+= this->mass_
+	* pyQCD::multiplyPminus(psi.segment((this->Ls_ - 1) * halfSize4d,
+					    halfSize4d));
+    }
+    else if (i == this->Ls_ - 1) {
+      eta.segment(i * halfSize4d, halfSize4d)
+	-= pyQCD::multiplyPminus(psi.segment((this->Ls_ - 2) * halfSize4d,
+					     halfSize4d));
+      eta.segment(i * halfSize4d, halfSize4d)
+	+= this->mass_ * pyQCD::multiplyPplus(psi.segment(0, halfSize4d));
+    }
+    else {
+      eta.segment(i * halfSize4d, halfSize4d)
+	-= pyQCD::multiplyPplus(psi.segment((i + 1) * halfSize4d, halfSize4d));
+      eta.segment(i * halfSize4d, halfSize4d)
+	-= pyQCD::multiplyPminus(psi.segment((i - 1) * halfSize4d, halfSize4d));
     }
   }
 
