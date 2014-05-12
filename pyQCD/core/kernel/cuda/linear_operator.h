@@ -18,9 +18,9 @@ public:
   void operator()(const VectorTypeDev& x, VectorTypeDev& y) const;
 
   //Applies the linear operator to a column vector using right multiplication
-  virtual void apply(Complex* y, const Complex* x) const { };
-  virtual void applyHermitian(Complex* y, const Complex* x) const { };
-  virtual void makeHermitian(Complex* y, const Complex* x) const { };
+  virtual void apply(Complex* y, const Complex* x) const { }
+  virtual void applyHermitian(Complex* y, const Complex* x) const { }
+  virtual void makeHermitian(Complex* y, const Complex* x) const { }
 
   // Even-odd preconditioning functions
   virtual void makeEvenOdd(Complex* y, const Complex* x) const;
