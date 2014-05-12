@@ -47,6 +47,9 @@ def _write_datum(datum, index, zfname):
     fname = "datum{}.npy".format(index)
     mode = "w" if index == 0 else "a"
 
+    if zfname[-4:] != ".zip":
+        zfname = "{}.zip".format(zfname)
+
     try:
         zfile = zipfile.ZipFile(zfname, mode, zipfile.ZIP_DEFLATED, True)
     except (RuntimeError, zipfile.LargeZipFile):
@@ -61,6 +64,9 @@ def _extract_datum(index, zfname):
     """Extracts the specified datum from the specified zipfile"""
 
     fname = "datum{}.npy".format(index)
+
+    if zfname[-4:] != ".zip":
+        zfname = "{}.zip".format(zfname)
 
     try:
         zfile = zipfile.ZipFile(zfname, "r", zipfile.ZIP_DEFLATED, True)
