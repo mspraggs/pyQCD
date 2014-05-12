@@ -5,5 +5,16 @@ CudaHoppingTerm::CudaHoppingTerm(const int numHops, const int L, const int T,
 				 Complex* links, const bool copyLinks)
   : CudaLinearOperator(L, T, precondition, hermitian, links, copyLinks)
 {
-  
+  // Constructor - creates Wilson spin structures.
+
+  Complex hostGammas[64];
+  createGammas(hostGammas);
+  Complex hostSpinStructures[128];
+  diagonalSpinMatrices(hostSpinStructures, 1.0);
+  diagonalSpinMatrices(hostSpinStructures + 64, 1.0);
+  subtractArray(hostSpinStructures, hostGammas, 64);
+  addArray(hostSpinStructures + 64, hostGammas, 64);
+
+  this->init(numHops, L, T, precondition, hermitian, boundaryConditions,
+	     spinStructures, links, copyLinks);
 }
