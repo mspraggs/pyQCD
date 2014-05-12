@@ -22,8 +22,6 @@ private:
   float mass_;
 
   int* neighbourIndices_;
-  int* evenNeighbourIndices_;
-  int* oddNeighbourIndices_;
 
   Complex* spinStructures_;
   Complex* boundaryConditions_;

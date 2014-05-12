@@ -46,6 +46,11 @@ protected:
   bool precondition_;
   bool hermitian_;
 
+  int* evenIndices_;
+  int* oddIndices_;
+  int* evenNeighbours_;
+  int* oddNeighbours_;
+
   Complex* links_;
 };
 
