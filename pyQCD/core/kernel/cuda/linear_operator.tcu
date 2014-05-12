@@ -49,3 +49,16 @@ void CudaLinearOperator::operator()(const VectorTypeDev& x, VectorTypeDev& y) co
   }
 }
 
+
+
+void CudaLinearOperator::makeEvenOdd(Complex* y, const Complex* x) const
+{
+  // Permutes the supplied spinor, shuffling it so the upper half contains
+  // the even sites and the lower half contains the odd sites
+
+  int dimGrid;
+  int dimBlock;
+  setGridAndBlockSize(dimBlock, dimGrid, this->N);
+
+  assignDev<<<dimGrid,dimBlock>>>(y, 0.0, this->N);
+}
