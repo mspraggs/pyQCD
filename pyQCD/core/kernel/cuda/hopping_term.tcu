@@ -16,5 +16,31 @@ CudaHoppingTerm::CudaHoppingTerm(const int numHops, const int L, const int T,
   addArray(hostSpinStructures + 64, hostGammas, 64);
 
   this->init(numHops, L, T, precondition, hermitian, boundaryConditions,
-	     spinStructures, links, copyLinks);
+	     hostSpinStructures, links, copyLinks);
+}
+
+
+
+CudaHoppingTerm::CudaHoppingTerm(const int numHops, const int L, const int T,
+				 const bool precondition, const bool hermitian,
+				 const Complex* boundaryConditions,
+				 const Complex* spinStructures,
+				 const int spinLength, Complex* links,
+				 const bool copyLinks)
+  : CudaLinearOperator(L, T, precondition, hermitian, links, copyLinks)
+{
+  // Constructor - user-specified spin structures
+
+  if (spinLength == 128)
+    this->init(numHops, L, T, precondition, hermitian, boundaryConditions,
+	       spinStructures, links, copyLinks);
+  else {
+    Complex hostSpinStructures[128];
+    diagonalSpinMatrices(hostSpinStructures, 0.0);
+    for (int i = 0; i < 8; ++i) {
+      addArray(hostSpinStructures + 16 * i, spinStructures);
+    }
+    this->init(numHops, L, T, precondition, hermitian, boundaryConditions,
+	       hostSpinStructures, links, copyLinks);
+  }
 }
