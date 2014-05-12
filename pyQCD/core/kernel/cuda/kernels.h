@@ -27,6 +27,7 @@ template<int numHops>
 __global__ 
 void precHoppingKernel(Complex* y, const Complex* x, const Complex* links,
 		       const Complex* gammas, const int* neighbourIndices,
+		       const int* siteIndices,
 		       const Complex* boundaryConditions,
 		       const Complex scaling, const int L, const int T);
 

@@ -102,6 +102,7 @@ template<int numHops>
 __global__ 
 void precHoppingKernel(Complex* y, const Complex* x, const Complex* links,
 		       const Complex* gammas, const int* neighbourIndices,
+		       const int* siteIndices,
 		       const Complex* boundaryConditions,
 		       const Complex scaling, const int L, const int T)
 {
@@ -122,18 +123,19 @@ void precHoppingKernel(Complex* y, const Complex* x, const Complex* links,
 	int beta = j / 3;
 	int b = j % 3;
       
-	Complex Up = computeU<numHops>(links, siteIndex, mu, a, b, L, T);
+	Complex Up = computeU<numHops>(links, siteIndices[siteIndex], mu, a, b,
+				       L, T);
 	Complex Um
 	  = cusp::conj(computeU<numHops>(links, siteBehindIndex, mu, b, a,
 					 L, T));
 	
 	y[index]
 	  += scaling * Um * gammas[16 * mu + 4 * alpha + beta]
-	  * boundaryConditions[8 * siteIndex + mu]
+	  * boundaryConditions[8 * siteIndices[siteIndex] + mu]
 	  * x[12 * (siteBehindIndex / 2) + j];
 	y[index]
 	  += scaling * Up * gammas[64 + 16 * mu + 4 * alpha + beta]
-	  * boundaryConditions[8 * siteIndex + mu + 4]
+	  * boundaryConditions[8 * siteIndices[siteIndex] + mu + 4]
 	  * x[12 * (siteAheadIndex / 2) + j];
       }
     }
