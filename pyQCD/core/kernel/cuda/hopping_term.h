@@ -22,7 +22,8 @@ public:
 
   void init(const int numHops, const int L, const int T,
 	    const bool precondition, const bool hermitian,
-	    const Complex* boundaryConditions, Complex* links,
+	    const Complex* boundaryConditions, 
+	    const Complex* spinStructures, Complex* links,
 	    const bool copyLinks);
 
   void apply3d(Complex* y, const Complex* x) const;
