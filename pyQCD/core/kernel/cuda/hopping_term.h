@@ -1,0 +1,45 @@
+#ifndef CUDA_HOPPING_TERM_H
+#define CUDA_HOPPING_TERM_H
+
+#include <linear_operator.h>
+
+#include <utils.h>
+#include <kernels.h>
+
+class CudaHoppingTerm : public CudaLinearOperator
+{
+public:
+  CudaHoppingTerm(const int numHops, const int L, const int T,
+		  const bool precondition, const bool hermitian,
+		  const Complex* boundaryConditions,
+		  Complex* links, const bool copyLinks);
+  CudaHoppingTerm(const int numHops, const int L, const int T,
+		  const bool precondition, const bool hermitian,
+		  const Complex* boundaryConditions,
+		  const Complex* spinStructures, const int spinLength,
+		  Complex* links, const bool copyLinks);
+  ~CudaHoppingTerm();
+
+  void init(const int numHops, const int L, const int T,
+	    const bool precondition, const bool hermitian,
+	    const Complex* boundaryConditions, Complex* links,
+	    const bool copyLinks);
+
+  void apply3d(Complex* y, const Complex* x) const;
+  void apply(Complex* y, const Complex* x) const;
+  void applyHermitian(Complex* y, const Complex* x) const;
+  void makeHermitian(Complex* y, const Complex* x) const;
+
+  void applyEvenOdd(Complex* y, const Complex* x) const;
+  void applyOddEven(Complex* y, const Complex* x) const;
+
+private:
+  
+  Complex* spinStructures_;
+  int* neighbours_;
+  Complex* boundaryConditions_;
+}
+
+#include <hopping_term.tcu>
+
+#endif

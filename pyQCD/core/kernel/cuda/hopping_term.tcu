@@ -1,0 +1,9 @@
+
+CudaHoppingTerm::CudaHoppingTerm(const int numHops, const int L, const int T,
+				 const bool precondition, const bool hermitian,
+				 const Complex* boundaryConditions,
+				 Complex* links, const bool copyLinks)
+  : CudaLinearOperator(L, T, precondition, hermitian, links, copyLinks)
+{
+  
+}
