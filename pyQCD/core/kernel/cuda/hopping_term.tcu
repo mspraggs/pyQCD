@@ -44,3 +44,12 @@ CudaHoppingTerm::CudaHoppingTerm(const int numHops, const int L, const int T,
 	       hostSpinStructures, links, copyLinks);
   }
 }
+
+
+
+CudaHoppingTerm::~CudaHoppingTerm()
+{
+  cudaFree(this->spinStructures_);
+  cudaFree(this->neighbours_);
+  cudaFree(this->boundaryConditions_);
+}
