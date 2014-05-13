@@ -44,7 +44,7 @@ CudaHoppingTerm<numHops>::CudaHoppingTerm(const Complex scaling,
     Complex hostSpinStructures[128];
     diagonalSpinMatrices(hostSpinStructures, 0.0);
     for (int i = 0; i < 8; ++i) {
-      addArray(hostSpinStructures + 16 * i, spinStructures);
+      addArray(hostSpinStructures + 16 * i, spinStructures, 16);
     }
     this->init(scaling, L, T, precondition, hermitian, boundaryConditions,
 	       hostSpinStructures, links, copyLinks);
