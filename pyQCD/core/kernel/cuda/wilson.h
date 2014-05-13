@@ -4,7 +4,7 @@
 #include <linear_operator.h>
 
 #include <utils.h>
-#include <kernels.h>
+#include <hopping_term.h>
 
 class CudaWilson : public CudaLinearOperator
 {
@@ -20,11 +20,7 @@ public:
 
 private:
   float mass_;
-
-  int* neighbourIndices_;
-
-  Complex* spinStructures_;
-  Complex* boundaryConditions_;
+  CudaLinearOperator* hoppingTerm_;
 };
 
 #include <wilson.tcu>
