@@ -53,8 +53,6 @@ CudaWilson::CudaWilson(const float mass, const int L, const int T,
 CudaWilson::~CudaWilson()
 {
   cudaFree(this->neighbourIndices_);
-  cudaFree(this->evenNeighbourIndices_);
-  cudaFree(this->oddNeighbourIndices_);
   cudaFree(this->spinStructures_);
   cudaFree(this->boundaryConditions_);
 }
