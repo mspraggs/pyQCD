@@ -84,7 +84,7 @@ void CudaHoppingTerm<numHops>::init(const Complex scaling,
   
   // First copy over the spin structures
   cudaMalloc((void**) &this->spinStructures_, 128 * sizeof(Complex));
-  cudaMemcpy(this->spinStructures_, hostSpinStructures, 128 * sizeof(Complex),
+  cudaMemcpy(this->spinStructures_, spinStructures, 128 * sizeof(Complex),
 	     cudaMemcpyHostToDevice);
 
   // Generate boundary conditions then copy them over
@@ -103,8 +103,8 @@ void CudaHoppingTerm<numHops>::init(const Complex scaling,
   int* hostNeighbours = (int*) malloc(size);
   generateNeighbours(hostNeighbours, numHops, L, T);
 
-  cudaMalloc((void**) &this->neighbourIndices_, size);
-  cudaMemcpy(this->neighbours_, hostIndices, size,
+  cudaMalloc((void**) &this->neighbours_, size);
+  cudaMemcpy(this->neighbours_, hostNeighbours, size,
 	     cudaMemcpyHostToDevice);
 
   int* hostEvenIndices = (int*) malloc(size / 16);
@@ -116,7 +116,7 @@ void CudaHoppingTerm<numHops>::init(const Complex scaling,
   int evenIndex = 0;
   int oddIndex = 0;
   
-  for (int i = 0; i < T, ++i) {
+  for (int i = 0; i < T; ++i) {
     for (int j = 0; j < L; ++j) {
       for (int k = 0; k < L; ++k) {
 	for (int l = 0; l < L; ++l) {
@@ -171,7 +171,7 @@ void CudaHoppingTerm<numHops>::apply3d(Complex* y, const Complex* x) const
 
   hoppingKernel3d<numHops><<<dimGrid,dimGrid>>>(y, x, this->links_,
 						this->spinStructures_,
-						this->neighbourIndices_,
+						this->neighbours_,
 						this->boundaryConditions_,
 						this->scaling_,
 						this->L_, this->T_);
@@ -188,7 +188,7 @@ void CudaHoppingTerm<numHops>::apply(Complex* y, const Complex* x) const
 
   hoppingKernel<numHops><<<dimGrid,dimBlock>>>(y, x, this->links_,
 					       this->spinStructures_,
-					       this->neighbourIndices_,
+					       this->neighbours_,
 					       this->boundaryConditions_,
 					       this->scaling_,
 					       this->L_, this->T_);  
