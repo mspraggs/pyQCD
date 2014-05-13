@@ -20,7 +20,7 @@ void createLinks(Complex* links, const int L, const int T);
 void generateNeighbours(int* indices, const int hopSize, const int L,
 			const int T);
 void generateEvenOddNeighbours(int* indices, const int hopSize,
-			       const int remainder, const int L, const int T)
+			       const int remainder, const int L, const int T);
 void generateBoundaryConditions(Complex* siteBoundaryConditions,
 				const int hopSize,
 				const Complex* boundaryConditions,
