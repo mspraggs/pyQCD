@@ -41,7 +41,7 @@ private:
   int* neighbours_;
   Complex* boundaryConditions_;
   Complex scaling_;
-}
+};
 
 #include <hopping_term.tcu>
 
