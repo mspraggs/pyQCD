@@ -23,7 +23,7 @@ private:
   float mass_;
 
   CudaLinearOperator* nearestHopping_;
-  CudaLinearOperator* nextNextHopping_;
+  CudaLinearOperator* nextNextNearestHopping_;
 };
 
 #include <naik.tcu>
