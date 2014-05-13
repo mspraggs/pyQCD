@@ -7,9 +7,9 @@ CudaWilson::CudaWilson(const float mass, const int L, const int T,
 {
   this->mass_ = mass;
 
-  this->hoppingTerm_ = new CudaHoppingTerm(-0.5, L, T, precondition, hermitian,
-					   boundaryConditions, links,
-					   copyLinks);
+  this->hoppingTerm_ = new CudaHoppingTerm<1>(-0.5, L, T, precondition,
+					      hermitian, boundaryConditions,
+					      links, copyLinks);
 }
 
 
