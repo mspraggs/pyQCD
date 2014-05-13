@@ -1,8 +1,10 @@
 
-CudaLinearOperator::CudaLinearOperator(const int L, const int T, const int precondition,
-			       const int hermitian, Complex* links,
-			       const bool copyLinks)
-  : super(12 * L * L * L * T, 12 * L * L * L * T)
+CudaLinearOperator::CudaLinearOperator(const int L, const int T,
+				       const int precondition,
+				       const int hermitian, Complex* links,
+				       const bool copyLinks)
+  : super(precondition > 0 ? 6 * L * L * L * T : 12 * L * L * L * T,
+	  precondition > 0 ? 6 * L * L * L * T : 12 * L * L * L * T)
 {
   this->N = 12 * L * L * L * T;
   this->L_ = L;
@@ -56,11 +58,53 @@ void CudaLinearOperator::makeEvenOdd(Complex* y, const Complex* x) const
 {
   // Permutes the supplied spinor, shuffling it so the upper half contains
   // the even sites and the lower half contains the odd sites
+
+  int dimGrid;
+  int dimBlock;
+  setGridAndBlockSize(dimGrid, dimBlock, this->N);
+  // Zero out the result
+  assignDev<<<dimGrid,dimBlock>>>(y, 0.0, this->N);
+
+  int nSites = this->N / 12;
+
+  setGridAndBlockSize(dimGrid, dimBlock, 12);
+
+  for (int i = 0; i < nSites / 2; ++i) {
+    assignDev<<<dimGrid,dimBlock>>>(y + 12 * i, x + 12 * this->evenIndices_[i],
+				    12);
+  }
+
+  for (int i = nSites / 2; i < nSites; ++i) {
+    assignDev<<<dimGrid,dimBlock>>>(y + 12 * i,
+				    x + 12 * this->oddIndices_[i - nSites / 2],
+				    12);
+  }
 }
 
 
 
 void CudaLinearOperator::removeEvenOdd(Complex* y, const Complex* x) const
 {
-  
+  // Permutes the supplied spinor, shuffling it so it's back in lexicographic
+  // order
+
+  int dimGrid;
+  int dimBlock;
+  setGridAndBlockSize(dimGrid, dimBlock, this->N);
+  // Zero the output
+  assignDev<<<dimGrid,dimBlock>>>(y, 0.0, this->N);
+
+  int nSites = this->N / 12;
+
+  setGridAndBlockSize(dimGrid, dimBlock, 12);
+
+  for (int i = 0; i < nSites / 2; ++i) {
+    assignDev<<<dimGrid,dimBlock>>>(y + 12 * this->evenIndices_[i], x + 12 * i,
+				    12);
+  }
+
+  for (int i = nSites / 2; i < nSites; ++i) {
+    assignDev<<<dimGrid,dimBlock>>>(y + 12 * this->oddIndices_[i - nSites / 2],
+				    x + 12 * i, 12);
+  }
 }
