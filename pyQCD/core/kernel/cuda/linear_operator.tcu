@@ -30,7 +30,8 @@ CudaLinearOperator::~CudaLinearOperator()
 
 
 
-void CudaLinearOperator::operator()(const VectorTypeDev& x, VectorTypeDev& y) const
+void CudaLinearOperator::operator()(const VectorTypeDev& x,
+				    VectorTypeDev& y) const
 {
   const Complex* x_ptr = thrust::raw_pointer_cast(&x[0]);
   Complex* y_ptr = thrust::raw_pointer_cast(&y[0]);
@@ -55,10 +56,11 @@ void CudaLinearOperator::makeEvenOdd(Complex* y, const Complex* x) const
 {
   // Permutes the supplied spinor, shuffling it so the upper half contains
   // the even sites and the lower half contains the odd sites
+}
 
-  int dimGrid;
-  int dimBlock;
-  setGridAndBlockSize(dimBlock, dimGrid, this->N);
 
-  assignDev<<<dimGrid,dimBlock>>>(y, 0.0, this->N);
+
+void CudaLinearOperator::removeEvenOdd(Complex* y, const Complex* x) const
+{
+  
 }

@@ -31,8 +31,14 @@ public:
   virtual void applyOddOdd(Complex* y, const Complex* x) const { }
   virtual void applyEvenOdd(Complex* y, const Complex* x) const { }
   virtual void applyOddEven(Complex* y, const Complex* x) const { }
-  void applyPreconditioned(Complex* y, const Complex* x) const;
-  void applyPreconditionedHermitian(Complex* y, const Complex* x) const;
+  void applyPreconditioned(Complex* y, const Complex* x) const
+  {
+    
+  }
+  void applyPreconditionedHermitian(Complex* y, const Complex* x) const
+  {
+    
+  }
 
   int L() const { return this->L_; }
   int T() const { return this->T_; }
