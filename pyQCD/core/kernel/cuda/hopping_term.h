@@ -6,21 +6,22 @@
 #include <utils.h>
 #include <kernels.h>
 
+template<int numHops>
 class CudaHoppingTerm : public CudaLinearOperator
 {
 public:
-  CudaHoppingTerm(const int numHops, const int L, const int T,
+  CudaHoppingTerm(const Complex scaling, const int L, const int T,
 		  const bool precondition, const bool hermitian,
 		  const Complex* boundaryConditions,
 		  Complex* links, const bool copyLinks);
-  CudaHoppingTerm(const int numHops, const int L, const int T,
+  CudaHoppingTerm(const Complex scaling, const int L, const int T,
 		  const bool precondition, const bool hermitian,
 		  const Complex* boundaryConditions,
 		  const Complex* spinStructures, const int spinLength,
 		  Complex* links, const bool copyLinks);
   ~CudaHoppingTerm();
 
-  void init(const int numHops, const int L, const int T,
+  void init(const Complex scaling, const int L, const int T,
 	    const bool precondition, const bool hermitian,
 	    const Complex* boundaryConditions, 
 	    const Complex* spinStructures, Complex* links,
@@ -39,6 +40,7 @@ private:
   Complex* spinStructures_;
   int* neighbours_;
   Complex* boundaryConditions_;
+  Complex scaling_;
 }
 
 #include <hopping_term.tcu>

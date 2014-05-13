@@ -32,7 +32,7 @@ void precHoppingKernel(Complex* y, const Complex* x, const Complex* links,
 		       const Complex scaling, const int L, const int T);
 
 template<int numHops>
-__global__ 
+__global__
 void hoppingKernel3d(Complex* y, const Complex* x, const Complex* links,
 		     const Complex* gammas, const int* neighbourIndices,
 		     const Complex* boundaryConditions, const Complex scaling,
