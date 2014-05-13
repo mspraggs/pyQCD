@@ -22,13 +22,8 @@ private:
 
   float mass_;
 
-  int* neighbourIndices_;
-  int* nextNextNeighbourIndices_;
-
-  Complex* spinStructures_;
-  Complex* naikSpinStructures_;
-  Complex* boundaryConditions_;
-  Complex* naikBoundaryConditions_;
+  CudaLinearOperator* nearestHopping_;
+  CudaLinearOperator* nextNextHopping_;
 };
 
 #include <naik.tcu>
