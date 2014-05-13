@@ -22,13 +22,8 @@ private:
 
   float mass_;
 
-  int* neighbourIndices_;
-  int* nextNeighbourIndices_;
-
-  Complex* spinStructures_;
-  Complex* hamberWuSpinStructures_;
-  Complex* boundaryConditions_;
-  Complex* hamberWuBoundaryConditions_;
+  CudaLinearOperator* nearestHopping_;
+  CudaLinearOperator* nextNearestHopping_;
 };
 
 #include <hamber_wu.tcu>
