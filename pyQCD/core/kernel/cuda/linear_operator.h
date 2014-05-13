@@ -33,7 +33,22 @@ public:
   virtual void applyOddEven(Complex* y, const Complex* x) const { }
   void applyPreconditioned(Complex* y, const Complex* x) const
   {
+    Complex* z = malloc(this->N / 2 * sizeof(Complex));
     
+    int dimGrid;
+    int dimBlock;
+    setGridAndBlockSize(dimGrid, dimBlock, this->N / 2);
+    assignDev<<<dimGrid,dimBlock>>>(z, 0.0, this->N / 2);
+
+    this->applyEvenOdd(z, x);
+    this->applyEvenEvenInv(y, z);
+    this->applyOddEven(z, y);
+    
+    this->applyOddOdd(y, x);
+    
+    saxpyDev<<<dimGrid,dimBlock>>>(y, z, -1.0, this->N);
+
+    free(z);
   }
   void applyPreconditionedHermitian(Complex* y, const Complex* x) const
   {
