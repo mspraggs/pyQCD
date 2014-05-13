@@ -6,7 +6,7 @@
 #include <utils.h>
 #include <kernels.h>
 
-template<int numHops>
+template <int numHops>
 class CudaHoppingTerm : public CudaLinearOperator
 {
 public:
