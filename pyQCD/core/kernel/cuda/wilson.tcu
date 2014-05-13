@@ -15,16 +15,6 @@ CudaWilson::CudaWilson(const float mass, const int L, const int T,
   generateNeighbours(hostIndices, 1, L, T);
   cudaMemcpy(this->neighbourIndices_, hostIndices, size,
 	     cudaMemcpyHostToDevice);
-
-  cudaMalloc((void**) &this->evenNeighbourIndices_, size / 2);
-  generateEvenOddNeighbours(hostIndices, 1, 0, L, T);
-  cudaMemcpy(this->evenNeighbourIndices_, hostIndices, size / 2,
-	     cudaMemcpyHostToDevice);
-
-  cudaMalloc((void**) &this->oddNeighbourIndices_, size / 2);
-  generateEvenOddNeighbours(hostIndices, 1, 1, L, T);
-  cudaMemcpy(this->evenNeighbourIndices_, hostIndices, size / 2,
-	     cudaMemcpyHostToDevice);
   free(hostIndices);
 
   // Now generate the spin structures needed. There are eight, one for each
