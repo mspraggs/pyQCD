@@ -67,15 +67,45 @@ namespace pyQCD
 			   const double tolerance, const int verbosity,
 			   const int L, const int T, Complex* gaugeField)
   {
-    VectorTypeDev psiDev = eta; // Put the source here temporarily
-    VectorTypeDev etaDev = eta;
+    int solveSize = (precondition > 0) ? psi.size() / 2 : psi.size();
+    
+    VectorTypeDev psiDev(solveSize, 0.0); // Put the source here temporarily
+    VectorTypeDev etaDev(solveSize, 0.0);
 
     CudaLinearOperator* diracMatrix;
     diracOperatorFactory(diracMatrix, action, intParams, floatParams,
 			 complexParams, boundaryConditions, L, T, precondition,
 			 solverMethod == 1, gaugeField, true);
-    
+
+    VectorTypeHost etaEvenOdd;
+    VectorTypeHost psiEvenOdd;
+
+    if (precondition == 0) {
+      etaDev = eta;
+    }
+    else {
+      // Here we construct the odd source
+      etaEvenOdd.resize(eta.size());
+      diracMatrix->makeEvenOdd(thrust::raw_pointer_case(&etaEvenOdd[0]),
+			       thrust::raw_pointer_case(&eta[0]));
+
+      VectorTypeHost::view etaEven(etaEvenOdd.begin(),
+				   etaEvenOdd.begin() + solveSize);
+      VectorTypeHost::view etaOdd(etaEvenOdd.begin() + solveSize,
+				  etaEvenOdd.end());
+
+      cusp::copy(etaOdd, etaDev); // etaD <- eta_o
+      cusp::copy(etaEven, psiDev); // psi D <- eta_e
+
+      // etaD <- etaD - Moe Mee^-1 psiD
+      // eta_o <- eta_o - Moe Mee^-1 eta_e
+      diracMatrix->makeEvenOddSource(thrust::raw_pointer_cast(&etaDev[0]),
+				     thrust::raw_pointer_cast(&psiDev[0]),
+				     thrust::raw_pointer_cast(&etaDev[0)]);
+    }
+
     if (solverMethod == 1) {
+      psiDev = etaDev;
       // To save memory, we use the solution to hold the source while
       // we make it hermitian (to prevent data race)
       Complex* eta_ptr = thrust::raw_pointer_cast(&etaDev[0]);
@@ -104,8 +134,33 @@ namespace pyQCD
 		<< monitor.iteration_count() << " iterations." << std::endl;
     }
 
-    // Move the result to main memory
-    psi = psiDev;
+    if (precondition == 0) {
+      // Move the result to main memory
+      psi = psiDev;
+    }
+    else {
+      VectorTypeDev::view psiEven(psiEvenOdd.begin(),
+				  psiEvenOdd.begin() + solveSize);
+      VectorTypeDev::view psiOdd(psiEven.begin() + solveSize,
+				 psiEvenOdd.end());
+      VectorTypeDev::view etaEven(etaEvenOdd.begin(),
+				  etaEvenOdd.begin() + solveSize);
+
+      cusp::copy(psiDev, psiOdd); // psi_o <- psiD
+      cusp::copy(etaEven, etaDev); // etaD <- eta_e
+
+      diracMatrix->applyEvenEvenInv(thrust::raw_pointer_cast(&etaDev[0]),
+				    thrust::raw_pointer_cast(&etaDev[0]));
+
+      diracMatrix->makeEvenOddSolution(thrust::raw_pointer_cast(&psiDev[0]),
+				       thrust::raw_pointer_cast(&etaDev[0]),
+				       thrust::raw_pointer_cast(&psiDev[0]));
+
+      cusp::copy(psiDev, psiEven);
+
+      diracMatrix->removeEvenOdd(thrust::raw_pointer_cast(&psi[0]),
+				 thrust::raw_pointer_cast(&psiEvenOdd[0]));
+    }
   }
 
 
