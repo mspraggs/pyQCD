@@ -86,8 +86,8 @@ namespace pyQCD
     else {
       // Here we construct the odd source
       etaEvenOdd.resize(eta.size());
-      diracMatrix->makeEvenOdd(thrust::raw_pointer_case(&etaEvenOdd[0]),
-			       thrust::raw_pointer_case(&eta[0]));
+      diracMatrix->makeEvenOdd(thrust::raw_pointer_cast(&etaEvenOdd[0]),
+			       thrust::raw_pointer_cast(&eta[0]));
 
       VectorTypeHost::view etaEven(etaEvenOdd.begin(),
 				   etaEvenOdd.begin() + solveSize);
@@ -101,7 +101,7 @@ namespace pyQCD
       // eta_o <- eta_o - Moe Mee^-1 eta_e
       diracMatrix->makeEvenOddSource(thrust::raw_pointer_cast(&etaDev[0]),
 				     thrust::raw_pointer_cast(&psiDev[0]),
-				     thrust::raw_pointer_cast(&etaDev[0)]);
+				     thrust::raw_pointer_cast(&etaDev[0]));
     }
 
     if (solverMethod == 1) {
@@ -139,12 +139,12 @@ namespace pyQCD
       psi = psiDev;
     }
     else {
-      VectorTypeDev::view psiEven(psiEvenOdd.begin(),
-				  psiEvenOdd.begin() + solveSize);
-      VectorTypeDev::view psiOdd(psiEven.begin() + solveSize,
-				 psiEvenOdd.end());
-      VectorTypeDev::view etaEven(etaEvenOdd.begin(),
-				  etaEvenOdd.begin() + solveSize);
+      VectorTypeHost::view psiEven(psiEvenOdd.begin(),
+				   psiEvenOdd.begin() + solveSize);
+      VectorTypeHost::view psiOdd(psiEven.begin() + solveSize,
+				  psiEvenOdd.end());
+      VectorTypeHost::view etaEven(etaEvenOdd.begin(),
+				   etaEvenOdd.begin() + solveSize);
 
       cusp::copy(psiDev, psiOdd); // psi_o <- psiD
       cusp::copy(etaEven, etaDev); // etaD <- eta_e
