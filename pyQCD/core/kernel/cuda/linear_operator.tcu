@@ -70,14 +70,13 @@ void CudaLinearOperator::makeEvenOdd(Complex* y, const Complex* x) const
   setGridAndBlockSize(dimGrid, dimBlock, 12);
 
   for (int i = 0; i < nSites / 2; ++i) {
-    assignDev<<<dimGrid,dimBlock>>>(y + 12 * i, x + 12 * this->evenIndices_[i],
-				    12);
+    for (int j = 0; j < 12; ++j)
+      y[12 * i + j] = x[12 * this->evenIndices_[i] + j];
   }
 
   for (int i = nSites / 2; i < nSites; ++i) {
-    assignDev<<<dimGrid,dimBlock>>>(y + 12 * i,
-				    x + 12 * this->oddIndices_[i - nSites / 2],
-				    12);
+    for (int j = 0; j < 12; ++j)
+      y[12 * i + j] = x[12 * this->oddIndices_[i - nSites / 2] + j];
   }
 }
 
@@ -88,23 +87,15 @@ void CudaLinearOperator::removeEvenOdd(Complex* y, const Complex* x) const
   // Permutes the supplied spinor, shuffling it so it's back in lexicographic
   // order
 
-  int dimGrid;
-  int dimBlock;
-  setGridAndBlockSize(dimGrid, dimBlock, this->N);
-  // Zero the output
-  assignDev<<<dimGrid,dimBlock>>>(y, 0.0, this->N);
-
   int nSites = this->N / 12;
 
-  setGridAndBlockSize(dimGrid, dimBlock, 12);
-
   for (int i = 0; i < nSites / 2; ++i) {
-    assignDev<<<dimGrid,dimBlock>>>(y + 12 * this->evenIndices_[i], x + 12 * i,
-				    12);
+    for (int j = 0; j < 12; ++j)
+      y[12 * this->evenIndices_[i] + j] = x[12 * i + j];
   }
 
   for (int i = nSites / 2; i < nSites; ++i) {
-    assignDev<<<dimGrid,dimBlock>>>(y + 12 * this->oddIndices_[i - nSites / 2],
-				    x + 12 * i, 12);
+    for (int j = 0; j < 12; ++j)
+      y[12 * this->oddIndices_[i] + j] = x[12 * i + j];
   }
 }
