@@ -50,10 +50,8 @@ public:
 
     free(z);
   }
-  void applyPreconditionedHermitian(Complex* y, const Complex* x) const
-  {
-    
-  }
+  virtual void applyPreconditionedHermitian(Complex* y, const Complex* x) const
+  { }
 
   int L() const { return this->L_; }
   int T() const { return this->T_; }
