@@ -76,8 +76,8 @@ void CudaWilson::applyOddOdd(Complex* y, const Complex* x) const
   int dimGrid;
   setGridAndBlockSize(dimBlock, dimGrid, this->N / 2);
   
-  diagonalKernel<<dimGrid,dimBlock>>>(y, x, 4.0 + this->mass_,
-				      this->L_, this->T_ / 2);
+  diagonalKernel<<<dimGrid,dimBlock>>>(y, x, 4.0 + this->mass_,
+				       this->L_, this->T_ / 2);
 }
 
 
