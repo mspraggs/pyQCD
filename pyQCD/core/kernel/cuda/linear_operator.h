@@ -33,7 +33,7 @@ public:
   virtual void applyOddEven(Complex* y, const Complex* x) const { }
   void applyPreconditioned(Complex* y, const Complex* x) const
   {
-    Complex* z = malloc(this->N / 2 * sizeof(Complex));
+    Complex* z = (Complex*) malloc(this->N / 2 * sizeof(Complex));
     
     int dimGrid;
     int dimBlock;
