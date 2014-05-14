@@ -99,3 +99,14 @@ void CudaWilson::applyOddEven(Complex* y, const Complex* x) const
 {
   this->hoppingTerm_->applyOddEven(y, x);
 }
+
+
+
+void CudaWilson::applyPreconditionedHermitian(Complex* y, const Complex* x) const
+{
+  this->applyPreconditioned(y, x);
+  int dimBlock;
+  int dimGrid;
+  setGridAndBlockSize(dimBlock, dimGrid, this->N / 2);
+  applyGamma5<<<dimGrid,dimBlock>>>(y, y, this->L_, this->T_ / 2);
+}

@@ -23,6 +23,8 @@ public:
   void applyEvenOdd(Complex* y, const Complex* x) const;
   void applyOddEven(Complex* y, const Complex* x) const;
 
+  void applyPreconditionedHermitian(Complex* y, const Complex* x) const;
+
 private:
   float mass_;
   CudaLinearOperator* hoppingTerm_;
