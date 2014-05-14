@@ -55,3 +55,41 @@ void CudaWilson::makeHermitian(Complex* y, const Complex* x) const
   setGridAndBlockSize(dimBlock, dimGrid, this->N);
   applyGamma5<<<dimGrid,dimBlock>>>(y, x, this->L_, this->T_);
 }
+
+
+
+void CudaWilson::applyEvenEvenInv(Complex* y, const Complex* x) const
+{
+  int dimBlock;
+  int dimGrid;
+  setGridAndBlockSize(dimBlock, dimGrid, this->N / 2);
+  
+  diagonalKernel<<<dimGrid,dimBlock>>>(y, x, 1.0 / (4.0 + this->mass_),
+				       this->L_, this->T_ / 2);
+}
+
+
+
+void CudaWilson::applyOddOdd(Complex* y, const Complex* x) const
+{
+  int dimBlock;
+  int dimGrid;
+  setGridAndBlockSize(dimBlock, dimGrid, this->N / 2);
+  
+  diagonalKernel<<dimGrid,dimBlock>>>(y, x, 4.0 + this->mass_,
+				      this->L_, this->T_ / 2);
+}
+
+
+
+void CudaWilson::applyEvenOdd(Complex* y, const Complex* x) const
+{
+  this->hoppingTerm_->applyEvenOdd(y, x);
+}
+
+
+
+void CudaWilson::applyOddEven(Complex* y, const Complex* x) const
+{
+  this->hoppingTerm_->applyOddEven(y, x);
+}

@@ -18,6 +18,11 @@ public:
   void applyHermitian(Complex* y, const Complex* x) const;
   void makeHermitian(Complex* y, const Complex* x) const;
 
+  void applyEvenEvenInv(Complex* y, const Complex* x) const;
+  void applyOddOdd(Complex* y, const Complex* x) const;
+  void applyEvenOdd(Complex* y, const Complex* x) const;
+  void applyOddEven(Complex* y, const Complex* x) const;
+
 private:
   float mass_;
   CudaLinearOperator* hoppingTerm_;
