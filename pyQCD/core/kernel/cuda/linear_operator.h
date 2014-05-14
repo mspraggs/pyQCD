@@ -14,6 +14,9 @@ public:
 		 const bool copyLinks);
   virtual ~CudaLinearOperator();
 
+  int* getEvenIndices() const { return this->evenIndices_; }
+  int* getOddIndices() const { return this->oddIndices_; }
+
   // The CUSP linear operator application function
   void operator()(const VectorTypeDev& x, VectorTypeDev& y) const;
 

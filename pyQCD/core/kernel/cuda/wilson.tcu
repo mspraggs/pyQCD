@@ -10,6 +10,9 @@ CudaWilson::CudaWilson(const float mass, const int L, const int T,
   this->hoppingTerm_ = new CudaHoppingTerm<1>(-0.5, L, T, precondition,
 					      hermitian, boundaryConditions,
 					      this->links_, false);
+
+  this->evenIndices_ = this->hoppingTerm_->getEvenIndices();
+  this->oddIndices_ = this->hoppingTerm_->getOddIndices();
 }
 
 

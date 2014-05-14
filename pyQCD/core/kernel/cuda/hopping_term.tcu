@@ -143,14 +143,16 @@ void CudaHoppingTerm<numHops>::init(const Complex scaling,
 
   // Now copy all the even and odd indices over
   cudaMalloc((void**) &this->evenIndices_, size / 16);
-  cudaMemcpy(this->evenIndices_, hostEvenIndices, size, cudaMemcpyHostToDevice);
-  cudaMalloc((void**) &this->oddIndices_, size / 16);
-  cudaMemcpy(this->oddIndices_, hostOddIndices, size, cudaMemcpyHostToDevice);
-  cudaMalloc((void**) &this->evenNeighbours_, size / 16);
-  cudaMemcpy(this->evenNeighbours_, hostEvenNeighbours, size,
+  cudaMemcpy(this->evenIndices_, hostEvenIndices, size / 16,
 	     cudaMemcpyHostToDevice);
-  cudaMalloc((void**) &this->oddNeighbours_, size / 16);
-  cudaMemcpy(this->oddNeighbours_, hostOddNeighbours, size,
+  cudaMalloc((void**) &this->oddIndices_, size / 16);
+  cudaMemcpy(this->oddIndices_, hostOddIndices, size / 16,
+	     cudaMemcpyHostToDevice);
+  cudaMalloc((void**) &this->evenNeighbours_, size / 2);
+  cudaMemcpy(this->evenNeighbours_, hostEvenNeighbours, size / 2,
+	     cudaMemcpyHostToDevice);
+  cudaMalloc((void**) &this->oddNeighbours_, size / 2);
+  cudaMemcpy(this->oddNeighbours_, hostOddNeighbours, size / 2,
 	     cudaMemcpyHostToDevice);
 
   free(hostNeighbours);
