@@ -52,8 +52,11 @@ void CudaWilson::makeHermitian(Complex* y, const Complex* x) const
 {
   int dimBlock;
   int dimGrid;
-  setGridAndBlockSize(dimBlock, dimGrid, this->N);
-  applyGamma5<<<dimGrid,dimBlock>>>(y, x, this->L_, this->T_);
+
+  int divisor = this->precondition_ ? 2 : 1;
+
+  setGridAndBlockSize(dimBlock, dimGrid, this->N / divisor);
+  applyGamma5<<<dimGrid,dimBlock>>>(y, x, this->L_, this->T_ / divisor);
 }
 
 
