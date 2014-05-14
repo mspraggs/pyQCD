@@ -91,3 +91,52 @@ void CudaLinearOperator::removeEvenOdd(Complex* y, const Complex* x) const
       y[12 * this->oddIndices_[i] + j] = x[12 * i + j];
   }
 }
+
+
+
+void CudaLinearOperator::makeEvenOddSource(Complex* y, const Complex* x) const
+{
+  // Create the source required to do an even-odd inversion. Note that it's
+  // assumed here that x is ***already*** even-odd ordered, and in fact that
+  // x is actually the even part of the source vector (the lower half). y is
+  // then the lower half of the source, which is all you need for the solve
+
+  Complex* z;
+  cudaMalloc((void**) &z, this->N / 2 * sizeof(Complex));
+
+  this->applyEvenEvenInv(y, x);
+  this->applyOddEven(z, y);
+
+  int dimGrid;
+  int dimBlock;
+  setGridAndBlockSize(dimGrid, dimBlock, this->N / 2);
+  assignDev<<<dimGrid,dimBlock>>>(y, x, this->N / 2);
+
+  saxpyDev<<<dimGrid,dimBlock>>>(y, z, -1.0, this->N / 2);
+
+  cudaFree(z);
+}
+
+
+
+void CudaLinearOperator::makeEvenOddSolution(Complex* y, const Complex* x) const
+{
+  // Do the inverse of what makeEvenOddSource does. Note that the final y
+  // that's computed is still in even-odd form, and the vector must be
+  // transferred to the host before calling removeEvenOdd on it.
+
+  Complex* z;
+  cudaMalloc((void**) &z, this->N / 2 * sizeof(Complex));
+
+  this->applyEvenOdd(y, x);
+  this->applyEvenEvenInv(z, y);
+
+  int dimGrid;
+  int dimBlock;
+  setGridAndBlockSize(dimGrid, dimBlock, this->N / 2);
+  assignDev<<<dimGrid,dimBlock>>>(y, x, this->N / 2);
+
+  saxpyDev<<<dimGrid,dimBlock>>>(y, z, -1.0, this->N / 2);
+
+  cudaFree(z);
+}
