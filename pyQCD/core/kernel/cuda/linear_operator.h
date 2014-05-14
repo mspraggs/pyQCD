@@ -25,8 +25,10 @@ public:
   // Even-odd preconditioning functions
   virtual void makeEvenOdd(Complex* y, const Complex* x) const;
   virtual void removeEvenOdd(Complex* y, const Complex* x) const;
-  void makeEvenOddSource(Complex* y, const Complex* x) const;
-  void makeEvenOddSolution(Complex* y, const Complex* x) const;
+  void makeEvenOddSource(Complex* y, const Complex* xe,
+			 const Complex* xo) const;
+  void makeEvenOddSolution(Complex* y, const Complex* x,
+			   const Complex* xo) const;
   virtual void applyEvenEvenInv(Complex* y, const Complex* x) const { }
   virtual void applyOddOdd(Complex* y, const Complex* x) const { }
   virtual void applyEvenOdd(Complex* y, const Complex* x) const { }

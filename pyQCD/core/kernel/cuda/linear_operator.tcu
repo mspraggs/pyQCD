@@ -94,8 +94,11 @@ void CudaLinearOperator::removeEvenOdd(Complex* y, const Complex* x) const
 
 
 
-void CudaLinearOperator::makeEvenOddSource(Complex* y, const Complex* x) const
+void CudaLinearOperator::makeEvenOddSource(Complex* y, const Complex* xe,
+					   const Complex* xo) const
 {
+  // Create the source required to do an even-odd inversion. To save GPU
+  // memory, we only generate the odd part (the lower half) of the source.
   // Create the source required to do an even-odd inversion. Note that it's
   // assumed here that x is ***already*** even-odd ordered, and in fact that
   // x is actually the even part of the source vector (the lower half). y is
@@ -104,13 +107,13 @@ void CudaLinearOperator::makeEvenOddSource(Complex* y, const Complex* x) const
   Complex* z;
   cudaMalloc((void**) &z, this->N / 2 * sizeof(Complex));
 
-  this->applyEvenEvenInv(y, x);
+  this->applyEvenEvenInv(y, xe);
   this->applyOddEven(z, y);
 
   int dimGrid;
   int dimBlock;
   setGridAndBlockSize(dimGrid, dimBlock, this->N / 2);
-  assignDev<<<dimGrid,dimBlock>>>(y, x, this->N / 2);
+  assignDev<<<dimGrid,dimBlock>>>(y, xo, this->N / 2);
 
   saxpyDev<<<dimGrid,dimBlock>>>(y, z, -1.0, this->N / 2);
 
@@ -119,22 +122,22 @@ void CudaLinearOperator::makeEvenOddSource(Complex* y, const Complex* x) const
 
 
 
-void CudaLinearOperator::makeEvenOddSolution(Complex* y, const Complex* x) const
+void CudaLinearOperator::makeEvenOddSolution(Complex* y, const Complex* xe,
+					     const Complex* xo) const
 {
-  // Do the inverse of what makeEvenOddSource does. Note that the final y
-  // that's computed is still in even-odd form, and the vector must be
-  // transferred to the host before calling removeEvenOdd on it.
+  // Do the inverse of what makeEvenOddSource does. Note that the final
+  // y is odd part of the solution (the second half)
 
   Complex* z;
   cudaMalloc((void**) &z, this->N / 2 * sizeof(Complex));
 
-  this->applyEvenOdd(y, x);
+  this->applyEvenOdd(y, xo);
   this->applyEvenEvenInv(z, y);
 
   int dimGrid;
   int dimBlock;
   setGridAndBlockSize(dimGrid, dimBlock, this->N / 2);
-  assignDev<<<dimGrid,dimBlock>>>(y, x, this->N / 2);
+  assignDev<<<dimGrid,dimBlock>>>(y, xe, this->N / 2);
 
   saxpyDev<<<dimGrid,dimBlock>>>(y, z, -1.0, this->N / 2);
 
