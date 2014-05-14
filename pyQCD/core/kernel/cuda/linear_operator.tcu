@@ -61,8 +61,6 @@ void CudaLinearOperator::makeEvenOdd(Complex* y, const Complex* x) const
 
   int nSites = this->N / 12;
 
-  std::cout << "Just entered makeEvenOdd" << std::endl;
-
   int* indices = (int*) malloc(nSites / 2 * sizeof(int));
   cudaMemcpy(indices, this->evenIndices_, nSites / 2 * sizeof(int),
 	     cudaMemcpyDeviceToHost);
@@ -92,15 +90,24 @@ void CudaLinearOperator::removeEvenOdd(Complex* y, const Complex* x) const
 
   int nSites = this->N / 12;
 
+  int* indices = (int*) malloc(nSites / 2 * sizeof(int));
+  cudaMemcpy(indices, this->evenIndices_, nSites / 2 * sizeof(int),
+	     cudaMemcpyDeviceToHost);
+
   for (int i = 0; i < nSites / 2; ++i) {
     for (int j = 0; j < 12; ++j)
-      y[12 * this->evenIndices_[i] + j] = x[12 * i + j];
+      y[12 * indices[i] + j] = x[12 * i + j];
   }
+
+  cudaMemcpy(indices, this->oddIndices_, nSites / 2 * sizeof(int),
+	     cudaMemcpyDeviceToHost);
 
   for (int i = nSites / 2; i < nSites; ++i) {
     for (int j = 0; j < 12; ++j)
-      y[12 * this->oddIndices_[i] + j] = x[12 * i + j];
+      y[12 * indices[i - nSites / 2] + j] = x[12 * i + j];
   }
+
+  free(indices);
 }
 
 

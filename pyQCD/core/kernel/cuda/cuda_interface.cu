@@ -86,6 +86,7 @@ namespace pyQCD
     else {
       // Here we construct the odd source
       etaEvenOdd.resize(eta.size());
+      psiEvenOdd.resize(psi.size());
       diracMatrix->makeEvenOdd(thrust::raw_pointer_cast(&etaEvenOdd[0]),
 			       thrust::raw_pointer_cast(&eta[0]));
 
@@ -141,11 +142,10 @@ namespace pyQCD
     else {
       VectorTypeHost::view psiEven(psiEvenOdd.begin(),
 				   psiEvenOdd.begin() + solveSize);
-      VectorTypeHost::view psiOdd(psiEven.begin() + solveSize,
+      VectorTypeHost::view psiOdd(psiEvenOdd.begin() + solveSize,
 				  psiEvenOdd.end());
       VectorTypeHost::view etaEven(etaEvenOdd.begin(),
 				   etaEvenOdd.begin() + solveSize);
-
       cusp::copy(psiDev, psiOdd); // psi_o <- psiD
       cusp::copy(etaEven, etaDev); // etaD <- eta_e
 
