@@ -59,12 +59,6 @@ void CudaLinearOperator::makeEvenOdd(Complex* y, const Complex* x) const
   // Permutes the supplied spinor, shuffling it so the upper half contains
   // the even sites and the lower half contains the odd sites
 
-  int dimGrid;
-  int dimBlock;
-  setGridAndBlockSize(dimGrid, dimBlock, this->N);
-  // Zero out the result
-  assignDev<<<dimGrid,dimBlock>>>(y, 0.0, this->N);
-
   int nSites = this->N / 12;
 
   setGridAndBlockSize(dimGrid, dimBlock, 12);
