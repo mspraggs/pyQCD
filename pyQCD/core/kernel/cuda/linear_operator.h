@@ -35,6 +35,8 @@ public:
   virtual void applyEvenEvenInv(Complex* y, const Complex* x) const { }
   virtual void applyOddOdd(Complex* y, const Complex* x) const { }
   virtual void applyEvenOdd(Complex* y, const Complex* x) const { }
+  virtual void applyEvenEven(Complex* y, const Complex* x) const
+  { this->applyOddOdd(y, x); }
   virtual void applyOddEven(Complex* y, const Complex* x) const { }
   void applyPreconditioned(Complex* y, const Complex* x) const
   {
