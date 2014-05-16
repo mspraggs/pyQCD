@@ -236,7 +236,7 @@ void saxpyDev(Complex* y, const Complex* x, const Complex a, const int N)
 }
 
 __global__
-void saxpyDev(Complex* y, const Complex* x, const Complex a, const int N)
+void saxpyDev(Complex* y, const Complex* x, const Complex* a, const int N)
 {
   int index = blockDim.x * blockIdx.x + threadIdx.x;
 
@@ -275,7 +275,7 @@ void assignDev(Complex* y, const Complex x, const int N)
 }
 
 __global__
-void reciprocalDev(Complex* y, const Complex x, const int N)
+void reciprocalDev(Complex* y, const Complex* x, const int N)
 {
   int index = blockDim.x * blockIdx.x + threadIdx.x;
 

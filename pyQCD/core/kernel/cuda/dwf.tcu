@@ -181,15 +181,15 @@ void CudaDWF::makeEvenOdd(Complex* y, const Complex* x) const
     this->kernel_->makeEvenOdd(z, x + i * size4d);
 
     if (i % 2 == 0) {
-      for (int j = 0; j < halfSize4d, ++j)
+      for (int j = 0; j < halfSize4d; ++j)
 	y[i * halfSize4d + j] = z[j];
-      for (int j = 0; j < halfSize4d, ++j)
+      for (int j = 0; j < halfSize4d; ++j)
 	y[(this->Ls_ + i) * halfSize4d + j] = z[halfSize4d + j];
     }
     else {
-      for (int j = 0; j < halfSize4d, ++j)
+      for (int j = 0; j < halfSize4d; ++j)
 	y[i * halfSize4d + j] = z[halfSize4d + j];
-      for (int j = 0; j < halfSize4d, ++j)
+      for (int j = 0; j < halfSize4d; ++j)
 	y[(this->Ls_ + i) * halfSize4d + j] = z[j];
     }
   }
@@ -212,15 +212,15 @@ void CudaDWF::removeEvenOdd(Complex* y, const Complex* x) const
   for (int i = 0; i < this->Ls_; ++i) {
 
     if (i % 2 == 0) {
-      for (int j = 0; j < halfSize4d, ++j)
+      for (int j = 0; j < halfSize4d; ++j)
 	z[j] = x[i * halfSize4d + j];
-      for (int j = 0; j < halfSize4d, ++j)
+      for (int j = 0; j < halfSize4d; ++j)
 	z[halfSize4d + j] = x[(this->Ls_ + i) * halfSize4d + j];
     }
     else {
-      for (int j = 0; j < halfSize4d, ++j)
+      for (int j = 0; j < halfSize4d; ++j)
 	z[halfSize4d + j] = x[i * halfSize4d + j];
-      for (int j = 0; j < halfSize4d, ++j)
+      for (int j = 0; j < halfSize4d; ++j)
 	z[j] = x[(this->Ls_ + i) * halfSize4d + j];
       
     }
