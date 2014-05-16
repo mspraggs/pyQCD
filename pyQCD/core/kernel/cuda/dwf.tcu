@@ -144,3 +144,68 @@ void CudaDWF::makeHermitian(Complex* y, const Complex* x) const
   cudaFree(xi);
   cudaFree(xim1);
 }
+
+
+
+void CudaDWF::makeEvenOdd(Complex* y, const Complex* x)
+{
+  // Permutes the supplied 5D spinor, shuffling it so that all of the 5D
+  // lattice sites are split according to whether they are even or odd
+
+  int size4d = this->N / this->Ls_;
+  int halfSize4d = size4d / 2;
+
+  Complex* z = (Complex*) malloc(size4d * sizeof(Complex));
+
+  for (int i = 0; i < this->Ls_; ++i) {
+    this->kernel_->makeEvenOdd(z, x + i * size4d);
+
+    if (i % 2 == 0) {
+      for (int j = 0; j < halfSize4d, ++j)
+	y[i * halfSize4d + j] = z[j];
+      for (int j = 0; j < halfSize4d, ++j)
+	y[(this->Ls_ + i) * halfSize4d + j] = z[halfSize4d + j];
+    }
+    else {
+      for (int j = 0; j < halfSize4d, ++j)
+	y[i * halfSize4d + j] = z[halfSize4d + j];
+      for (int j = 0; j < halfSize4d, ++j)
+	y[(this->Ls_ + i) * halfSize4d + j] = z[j];
+    }
+  }
+
+  free(z);
+}
+
+
+
+void CudaDWF::removeEvenOdd(Complex* y, const Complex* x)
+{
+  // Permutes the supplied 5D spinor, shuffling it back into lexicographic
+  // order
+
+  int size4d = this->N / this->Ls_;
+  int halfSize4d = size4d / 2;
+
+  Complex* z = (Complex*) malloc(size4d * sizeof(Complex));
+
+  for (int i = 0; i < this->Ls_; ++i) {
+
+    if (i % 2 == 0) {
+      for (int j = 0; j < halfSize4d, ++j)
+	z[j] = x[i * halfSize4d + j];
+      for (int j = 0; j < halfSize4d, ++j)
+	z[halfSize4d + j] = x[(this->Ls_ + i) * halfSize4d + j];
+    }
+    else {
+      for (int j = 0; j < halfSize4d, ++j)
+	z[halfSize4d + j] = x[i * halfSize4d + j];
+      for (int j = 0; j < halfSize4d, ++j)
+	z[j] = x[(this->Ls_ + i) * halfSize4d + j];
+      
+    }
+    this->kernel_->removeEvenOdd(y + i * size4d, z);
+  }
+
+  free(z);
+}
