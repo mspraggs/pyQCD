@@ -484,3 +484,11 @@ void CudaDWF::applyOddEvenDagger(Complex* y, const Complex* x) const
   cudaFree(xi);
   cudaFree(xim1);
 }
+
+
+
+void CudaDWF::applyPreconditionedHermitian(Complex* y, const Complex* x) const
+{
+  this->applyPreconditioned(y, x);
+  this->makeHermitian(y, y);
+}
