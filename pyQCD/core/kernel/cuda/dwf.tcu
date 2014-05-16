@@ -209,3 +209,48 @@ void CudaDWF::removeEvenOdd(Complex* y, const Complex* x)
 
   free(z);
 }
+
+
+
+void CudaDWF::applyEvenEvenInv(Complex* y, const Complex* x)
+{
+  // Applies the inverse of the even-even part of the domain wall operator
+  // to the supplied spinor
+
+  int halfSize4d = this->N / (2 * this->Ls_);
+
+  int dimGrid;
+  int dimBlock;
+  setGridAndBlockSize(dimGrid, dimBlock, halfSize4d);
+
+  Complex* ones;
+  cudaMalloc((void**) &diagonal, halfSize4d * sizeof(Complex));
+  assignDev<<<dimGrid,dimBlock>>>(ones, 1.0, halfSize4d);
+
+  Complex* inverseDiagonal;
+  cudaMalloc((void**) &inverseDiagonal, 2 * halfSize4d * sizeof(Complex));
+  assignDev<<<dimGrid,dimBlock>>>(inverseDiagonal, 1.0, 2 * halfSize4d);
+  this->kernel_->applyEvenEven(inverseDiagonal, inverseDiagonal);
+  this->kernel_->applyOddOdd(inverseDiagonal + halfSize4d,
+			     inverseDiagonal + halfSize4d);
+  reciprocalDev<<<2 * dimGrid,dimBlock>>>(inverseDiagonal, inverseDiagonal,
+					  2 * halfSize4d);
+  saxpyDev<<<dimGrid,dimBlock>>>(inverseDiagonal, ones, 1.0, halfSize4d);
+  saxpyDev<<<dimGrid,dimBlock>>>(inverseDiagonal + halfSize4d,
+				 ones, 1.0, halfSize4d);
+
+  cudaFree(ones);
+
+  for (int i = 0; i < this->Ls_; ++i) {
+    assignDev<<<dimGrid,dimBlock>>>(y + i * halfSize4d, 0.0, halfSize4d);
+    if (i % 2 == 0)
+      saxpyDev<<<dimGrid,dimBlock>>>(y + i * halfSize4d, x + i * halfSize4d,
+				     inverseDiagonal, 1.0, halfSize4d);
+    else
+      saxpyDev<<<dimGrid,dimBlock>>>(y + i * halfSize4d, x + i * halfSize4d,
+				     inverseDiagonal + halfSize4d,
+				     1.0, halfSize4d);
+  }
+
+  cudaFree(inverseDiagonal);
+}
