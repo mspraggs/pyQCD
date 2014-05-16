@@ -112,10 +112,7 @@ void CudaHoppingTerm<numHops>::init(const Complex scaling,
 
   int* hostEvenNeighbours = (int*) malloc(size / 2);
   int* hostOddNeighbours = (int*) malloc(size / 2);
-  
-  int evenIndex = 0;
-  int oddIndex = 0;
-  
+
   for (int i = 0; i < T; ++i) {
     for (int j = 0; j < L; ++j) {
       for (int k = 0; k < L; ++k) {
@@ -123,18 +120,16 @@ void CudaHoppingTerm<numHops>::init(const Complex scaling,
 	  int siteIndex = l + L * (k + L * (j + L * i));
 	  
 	  if ((i + j + k + l) % 2 == 0) {
-	    hostEvenIndices[evenIndex] = siteIndex;
+	    hostEvenIndices[siteIndex / 2] = siteIndex;
 	    for (int m = 0; m < 8; ++m)
-	      hostEvenNeighbours[8 * evenIndex + m]
+	      hostEvenNeighbours[8 * (siteIndex / 2) + m]
 		= hostNeighbours[8 * siteIndex + m];
-	    evenIndex++;
 	  }
 	  else {
-	    hostOddIndices[oddIndex] = siteIndex;
+	    hostOddIndices[siteIndex / 2] = siteIndex;
 	    for (int m = 0; m < 8; ++m)
-	      hostOddNeighbours[8 * oddIndex + m]
+	      hostOddNeighbours[8 * (siteIndex / 2) + m]
 		= hostNeighbours[8 * siteIndex + m];
-	    oddIndex++;
 	  }
 	}
       }
