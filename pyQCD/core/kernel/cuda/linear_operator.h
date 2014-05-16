@@ -38,7 +38,8 @@ public:
   virtual void applyOddEven(Complex* y, const Complex* x) const { }
   void applyPreconditioned(Complex* y, const Complex* x) const
   {
-    Complex* z = (Complex*) malloc(this->N / 2 * sizeof(Complex));
+    Complex* z;
+    cudaMalloc((void**) &z, this->N / 2 * sizeof(Complex));
     
     int dimGrid;
     int dimBlock;
@@ -47,13 +48,14 @@ public:
 
     this->applyEvenOdd(z, x);
     this->applyEvenEvenInv(y, z);
+    assignDev<<<dimGrid,dimBlock>>>(z, 0.0, this->N / 2);
     this->applyOddEven(z, y);
     
     this->applyOddOdd(y, x);
     
-    saxpyDev<<<dimGrid,dimBlock>>>(y, z, -1.0, this->N);
+    saxpyDev<<<dimGrid,dimBlock>>>(y, z, -1.0, this->N / 2);
 
-    free(z);
+    cudaFree(z);
   }
   virtual void applyPreconditionedHermitian(Complex* y, const Complex* x) const
   { }
