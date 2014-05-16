@@ -272,3 +272,46 @@ void CudaDWF::applyOddOdd(Complex* y, const Complex* x) const
     }
   }
 }
+
+
+
+void CudaDWF::applyEvenOdd(Complex* y, const Complex* x) const
+{  
+  int dimBlock;
+  int dimGrid;
+
+  int n = this->T_ * this->L_ * this->L_ * this->L_ * 6;
+
+  Complex* z;
+  cudaMalloc((void**) &z, n * sizeof(Complex));
+
+  setGridAndBlockSize(dimBlock, dimGrid, n);
+
+  for (int i = 0; i < this->Ls_; ++i) {
+    if (i % 2 == 0)
+      this->kernel_->applyEvenOdd(y + i * n, x + i * n);
+    else
+      this->kernel_->applyOddEven(y + i * n, x + i * n);
+
+    if (i == 0) {
+      applyPminus<<<dimGrid,dimBlock>>>(z, x + n, this->L_, this->T_ / 2);
+      saxpyDev<<<dimGrid,dimBlock>>>(y + i * n, z, -1.0, n);
+      applyPplus<<<dimGrid,dimBlock>>>(z, x + n * (this->Ls_ - 1), this->L_, this->T_ / 2);
+      saxpyDev<<<dimGrid,dimBlock>>>(y + i * n, z, this->mass_, n);
+    }
+    else if (i == this->Ls_ - 1) {
+      applyPplus<<<dimGrid,dimBlock>>>(z, x + n * (this->Ls_ - 2), this->L_, this->T_ / 2);
+      saxpyDev<<<dimGrid,dimBlock>>>(y + i * n, z, -1.0, n);
+      applyPminus<<<dimGrid,dimBlock>>>(z, x, this->L_, this->T_ / 2);
+      saxpyDev<<<dimGrid,dimBlock>>>(y + i * n, z, this->mass_, n);
+    }
+    else {
+      applyPminus<<<dimGrid,dimBlock>>>(z, x + (i + 1) * n, this->L_, this->T_ / 2);
+      saxpyDev<<<dimGrid,dimBlock>>>(y + i * n, z, -1.0, n);
+      applyPplus<<<dimGrid,dimBlock>>>(z, x + (i - 1) * n, this->L_, this->T_ / 2);
+      saxpyDev<<<dimGrid,dimBlock>>>(y + i * n, z, -1.0, n);
+    }
+  }
+
+  cudaFree(z);
+}
