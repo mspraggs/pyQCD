@@ -223,10 +223,6 @@ void CudaDWF::applyEvenEvenInv(Complex* y, const Complex* x) const
   int dimBlock;
   setGridAndBlockSize(dimGrid, dimBlock, halfSize4d);
 
-  Complex* ones;
-  cudaMalloc((void**) &diagonal, halfSize4d * sizeof(Complex));
-  assignDev<<<dimGrid,dimBlock>>>(ones, 1.0, halfSize4d);
-
   Complex* inverseDiagonal;
   cudaMalloc((void**) &inverseDiagonal, 2 * halfSize4d * sizeof(Complex));
   assignDev<<<dimGrid,dimBlock>>>(inverseDiagonal, 1.0, 2 * halfSize4d);
@@ -235,11 +231,7 @@ void CudaDWF::applyEvenEvenInv(Complex* y, const Complex* x) const
 			     inverseDiagonal + halfSize4d);
   reciprocalDev<<<2 * dimGrid,dimBlock>>>(inverseDiagonal, inverseDiagonal,
 					  2 * halfSize4d);
-  saxpyDev<<<dimGrid,dimBlock>>>(inverseDiagonal, ones, 1.0, halfSize4d);
-  saxpyDev<<<dimGrid,dimBlock>>>(inverseDiagonal + halfSize4d,
-				 ones, 1.0, halfSize4d);
-
-  cudaFree(ones);
+  addConstantDev<<2 * dimGrid,dimBlock>>>(inverseDiagonal, 1.0, 2 * halfSize4d);
 
   for (int i = 0; i < this->Ls_; ++i) {
     assignDev<<<dimGrid,dimBlock>>>(y + i * halfSize4d, 0.0, halfSize4d);
