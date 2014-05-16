@@ -236,6 +236,16 @@ void saxpyDev(Complex* y, const Complex* x, const Complex a, const int N)
 }
 
 __global__
+void saxpyDev(Complex* y, const Complex* x, const Complex a, const int N)
+{
+  int index = blockDim.x * blockIdx.x + threadIdx.x;
+
+  if (index < N) {
+    y[index] = a[index] * x[index] + y[index];
+  }
+}
+
+__global__
 void assignDev(Complex* y, const Complex* x, const int N)
 {
   int index = blockDim.x * blockIdx.x + threadIdx.x;
