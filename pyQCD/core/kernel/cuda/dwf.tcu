@@ -147,7 +147,7 @@ void CudaDWF::makeHermitian(Complex* y, const Complex* x) const
 
 
 
-void CudaDWF::makeEvenOdd(Complex* y, const Complex* x)
+void CudaDWF::makeEvenOdd(Complex* y, const Complex* x) const
 {
   // Permutes the supplied 5D spinor, shuffling it so that all of the 5D
   // lattice sites are split according to whether they are even or odd
@@ -179,7 +179,7 @@ void CudaDWF::makeEvenOdd(Complex* y, const Complex* x)
 
 
 
-void CudaDWF::removeEvenOdd(Complex* y, const Complex* x)
+void CudaDWF::removeEvenOdd(Complex* y, const Complex* x) const
 {
   // Permutes the supplied 5D spinor, shuffling it back into lexicographic
   // order
@@ -212,7 +212,7 @@ void CudaDWF::removeEvenOdd(Complex* y, const Complex* x)
 
 
 
-void CudaDWF::applyEvenEvenInv(Complex* y, const Complex* x)
+void CudaDWF::applyEvenEvenInv(Complex* y, const Complex* x) const
 {
   // Applies the inverse of the even-even part of the domain wall operator
   // to the supplied spinor
