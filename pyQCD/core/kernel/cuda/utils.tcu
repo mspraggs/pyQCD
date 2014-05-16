@@ -280,7 +280,7 @@ void reciprocalDev(Complex* y, const Complex* x, const int N)
   int index = blockDim.x * blockIdx.x + threadIdx.x;
 
   if (index < N) {
-    y[index] = 1.0 / x[index];
+    y[index] = Complex(1.0, 0.0) / x[index];
   }
 }
 
