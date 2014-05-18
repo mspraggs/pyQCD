@@ -9,8 +9,8 @@ CudaDWF::CudaDWF(const float mass, const float M5, const int Ls,
   this->Ls_ = Ls;
   this->M5_ = M5;
   this->N = 12 * L * L * L * T * Ls;
-  this->num_rows = this->N;
-  this->num_cols = this->N;
+  this->num_rows = precondition ? this->N / 2 : this->N;
+  this->num_cols = precondition ? this->N / 2 : this->N;
 
   if (kernelType == 0)
     this->kernel_ = new CudaWilson(-M5, L, T, false, false, boundaryConditions,
