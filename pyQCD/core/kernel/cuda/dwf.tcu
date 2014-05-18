@@ -254,13 +254,12 @@ void CudaDWF::applyEvenEvenInv(Complex* y, const Complex* x) const
 					  2 * halfSize4d);
 
   for (int i = 0; i < this->Ls_; ++i) {
-    assignDev<<<dimGrid,dimBlock>>>(y + i * halfSize4d, 0.0, halfSize4d);
     if (i % 2 == 0)
-      saxpyDev<<<dimGrid,dimBlock>>>(y + i * halfSize4d, x + i * halfSize4d,
-				     inverseDiagonal, halfSize4d);
+      saxDev<<<dimGrid,dimBlock>>>(y + i * halfSize4d, x + i * halfSize4d,
+				   inverseDiagonal, halfSize4d);
     else
-      saxpyDev<<<dimGrid,dimBlock>>>(y + i * halfSize4d, x + i * halfSize4d,
-				     inverseDiagonal + halfSize4d, halfSize4d);
+      saxDev<<<dimGrid,dimBlock>>>(y + i * halfSize4d, x + i * halfSize4d,
+				   inverseDiagonal + halfSize4d, halfSize4d);
   }
 
   cudaFree(inverseDiagonal);
