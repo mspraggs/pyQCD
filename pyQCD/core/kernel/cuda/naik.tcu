@@ -28,8 +28,8 @@ CudaNaik::CudaNaik(const float mass, const int L, const int T,
 			     hermitian, boundaryConditions,
 			     this->links_, false);
 
-  this->evenIndices_ = this->hoppingTerm_->getEvenIndices();
-  this->oddIndices_ = this->hoppingTerm_->getOddIndices();
+  this->evenIndices_ = this->nearestHopping_->getEvenIndices();
+  this->oddIndices_ = this->nearestHopping_->getOddIndices();
 }
 
 
@@ -79,11 +79,10 @@ void CudaNaik::makeHermitian(Complex* y, const Complex* x) const
   setGridAndBlockSize(dimBlock, dimGrid, this->N / divisor);
   applyGamma5<<<dimGrid,dimBlock>>>(y, x, this->L_, this->T_ / divisor);
 }
-}
 
 
 
-void CudaWilson::applyEvenEvenInv(Complex* y, const Complex* x) const
+void CudaNaik::applyEvenEvenInv(Complex* y, const Complex* x) const
 {
   int dimBlock;
   int dimGrid;
@@ -95,7 +94,7 @@ void CudaWilson::applyEvenEvenInv(Complex* y, const Complex* x) const
 
 
 
-void CudaWilson::applyOddOdd(Complex* y, const Complex* x) const
+void CudaNaik::applyOddOdd(Complex* y, const Complex* x) const
 {
   int dimBlock;
   int dimGrid;
@@ -107,7 +106,7 @@ void CudaWilson::applyOddOdd(Complex* y, const Complex* x) const
 
 
 
-void CudaWilson::applyEvenOdd(Complex* y, const Complex* x) const
+void CudaNaik::applyEvenOdd(Complex* y, const Complex* x) const
 {
   this->nearestHopping_->applyEvenOdd(y, x);
   this->nextNextNearestHopping_->applyEvenOdd(y, x);
@@ -115,7 +114,7 @@ void CudaWilson::applyEvenOdd(Complex* y, const Complex* x) const
 
 
 
-void CudaWilson::applyOddEven(Complex* y, const Complex* x) const
+void CudaNaik::applyOddEven(Complex* y, const Complex* x) const
 {
   this->nearestHopping_->applyOddEven(y, x);
   this->nextNextNearestHopping_->applyOddEven(y, x);
@@ -123,7 +122,7 @@ void CudaWilson::applyOddEven(Complex* y, const Complex* x) const
 
 
 
-void CudaWilson::applyPreconditionedHermitian(Complex* y, const Complex* x) const
+void CudaNaik::applyPreconditionedHermitian(Complex* y, const Complex* x) const
 {
   this->applyPreconditioned(y, x);
   int dimBlock;
