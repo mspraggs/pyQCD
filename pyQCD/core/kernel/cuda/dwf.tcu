@@ -283,14 +283,14 @@ void CudaDWF::applyOddOdd(Complex* y, const Complex* x) const
   for (int i = 0; i < this->Ls_; ++i) {
     if (i % 2 == 0) {
       this->kernel_->applyOddOdd(z, x + i * halfSize4d);
-      assignDev<<dimGrid,dimBlock>>>(y + i * halfSize4d, x + i * halfSize4d,
-				     halfSize4d);
+      assignDev<<<dimGrid,dimBlock>>>(y + i * halfSize4d, x + i * halfSize4d,
+				      halfSize4d);
       saxpyDev<<<dimGrid,dimBlock>>>(y + i * halfSize4d, z, 1.0, halfSize4d);
     }
     else {
       this->kernel_->applyEvenEven(z, x + i * halfSize4d);
-      assignDev<<dimGrid,dimBlock>>>(y + i * halfSize4d, x + i * halfSize4d,
-				     halfSize4d);
+      assignDev<<<dimGrid,dimBlock>>>(y + i * halfSize4d, x + i * halfSize4d,
+				      halfSize4d);
       saxpyDev<<<dimGrid,dimBlock>>>(y + i * halfSize4d, z, 1.0, halfSize4d);
     }
   }
