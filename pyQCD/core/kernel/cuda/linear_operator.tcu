@@ -118,9 +118,8 @@ void CudaLinearOperator::makeEvenOddSource(Complex* y, const Complex* xe,
   // Create the source required to do an even-odd inversion. To save GPU
   // memory, we only generate the odd part (the lower half) of the source.
   // Create the source required to do an even-odd inversion. Note that it's
-  // assumed here that x is ***already*** even-odd ordered, and in fact that
-  // x is actually the even part of the source vector (the lower half). y is
-  // then the lower half of the source, which is all you need for the solve
+  // assumed here that x is ***already*** even-odd ordered. y is then the
+  // lower half of the source, which is all you need for the solve
   int dimGrid;
   int dimBlock;
   setGridAndBlockSize(dimGrid, dimBlock, this->N / 2);
