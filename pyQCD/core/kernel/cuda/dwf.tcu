@@ -249,9 +249,9 @@ void CudaDWF::applyEvenEvenInv(Complex* y, const Complex* x) const
   this->kernel_->applyEvenEven(inverseDiagonal, inverseDiagonal);
   this->kernel_->applyOddOdd(inverseDiagonal + halfSize4d,
 			     inverseDiagonal + halfSize4d);
+  addConstantDev<<<2 * dimGrid,dimBlock>>>(inverseDiagonal, 1.0, 2 * halfSize4d);
   reciprocalDev<<<2 * dimGrid,dimBlock>>>(inverseDiagonal, inverseDiagonal,
 					  2 * halfSize4d);
-  addConstantDev<<<2 * dimGrid,dimBlock>>>(inverseDiagonal, 1.0, 2 * halfSize4d);
 
   for (int i = 0; i < this->Ls_; ++i) {
     assignDev<<<dimGrid,dimBlock>>>(y + i * halfSize4d, 0.0, halfSize4d);
