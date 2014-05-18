@@ -38,6 +38,12 @@ __global__
 void saxpyDev(Complex* y, const Complex* x, const Complex* a, const int N);
 
 __global__
+void saxDev(Complex* y, const Complex* x, const Complex a, const int N);
+
+__global__
+void saxDev(Complex* y, const Complex* x, const Complex* a, const int N);
+
+__global__
 void addConstantDev(Complex* y, const Complex a, const int N);
 
 __global__
