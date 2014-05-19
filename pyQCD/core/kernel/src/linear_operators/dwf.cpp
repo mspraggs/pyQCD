@@ -278,7 +278,7 @@ VectorXcd DWF::applyOddOdd(const VectorXcd& psi)
 	+ psi.segment(i * halfSize4d, halfSize4d);
     else
       eta.segment(i * halfSize4d, halfSize4d)
-	= this->kernel_->applyOddOdd(psi.segment(i * halfSize4d, halfSize4d))
+	= this->kernel_->applyEvenEven(psi.segment(i * halfSize4d, halfSize4d))
 	+ psi.segment(i * halfSize4d, halfSize4d);
   }
 

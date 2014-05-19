@@ -74,7 +74,7 @@ VectorXcd LinearOperator::makeEvenOddSource(const VectorXcd& x)
   int N = this->operatorSize_ / 2;
 
   y = this->makeEvenOdd(x);
-  y.tail(N) -= this->applyOddEven(this->applyEvenEvenInv(x.head(N)));
+  y.tail(N) -= this->applyOddEven(this->applyEvenEvenInv(y.head(N)));
 
   return y;
 }
