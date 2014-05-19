@@ -45,7 +45,7 @@ public:
     
     int dimGrid;
     int dimBlock;
-    setGridAndBlockSize(dimGrid, dimBlock, this->N / 2);
+    setGridAndBlockSize(dimBlock, dimGrid, this->N / 2);
     assignDev<<<dimGrid,dimBlock>>>(z, 0.0, this->N / 2);
 
     this->applyEvenOdd(z, x);

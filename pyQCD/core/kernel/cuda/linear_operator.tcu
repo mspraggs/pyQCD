@@ -122,7 +122,7 @@ void CudaLinearOperator::makeEvenOddSource(Complex* y, const Complex* xe,
   // lower half of the source, which is all you need for the solve
   int dimGrid;
   int dimBlock;
-  setGridAndBlockSize(dimGrid, dimBlock, this->N / 2);
+  setGridAndBlockSize(dimBlock, dimGrid, this->N / 2);
 
   Complex* z;
   cudaMalloc((void**) &z, this->N / 2 * sizeof(Complex));
@@ -148,7 +148,7 @@ void CudaLinearOperator::makeEvenOddSolution(Complex* y, const Complex* xe,
 
   int dimGrid;
   int dimBlock;
-  setGridAndBlockSize(dimGrid, dimBlock, this->N / 2);
+  setGridAndBlockSize(dimBlock, dimGrid, this->N / 2);
 
   Complex* z;
   cudaMalloc((void**) &z, this->N / 2 * sizeof(Complex));
