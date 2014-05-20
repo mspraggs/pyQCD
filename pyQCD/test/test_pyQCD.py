@@ -17,7 +17,7 @@ import scipy.linalg as spla
 from pyQCD import *
 
 try:
-    test_lattice = Lattice()
+    test_lattice = Lattice(4, 8, 5.5, "wilson", 10)
     lattice_exists = True
 except NameError:
     lattice_exists = False
@@ -121,7 +121,7 @@ def random_su3_transform(lattice):
 if lattice_exists:
     def test_random_su3_transform():
         
-        lattice = Lattice()
+        lattice = Lattice(4, 8, 5.5, "wilson", 10)
         
         random_su3_transform(lattice)
         
@@ -176,10 +176,10 @@ if lattice_exists:
     
         def test_block_calculation(self):
             with pytest.raises(ValueError):
-                lattice = Lattice(L=3, T=5)
+                lattice = Lattice(3, 5, 5.5, "wilson", 10)
             
         def test_get_link(self):
-            lattice = Lattice()
+            lattice = Lattice(4, 8, 5.5, "wilson", 10)
             
             links = make_links(lattice.T, lattice.L)
             
@@ -202,7 +202,7 @@ if lattice_exists:
 
         def test_set_link(self):
             
-            lattice = Lattice()
+            lattice = Lattice(4, 8, 5.5, "wilson", 10)
             links = make_links(lattice.T, lattice.L)
             
             # Check that each link can be set properly
@@ -214,7 +214,7 @@ if lattice_exists:
             
         def test_get_config(self):
             
-            lattice = Lattice()
+            lattice = Lattice(4, 8, 5.5, "wilson", 10)
             lattice.update()
 
             config = lattice.get_config()
@@ -231,7 +231,7 @@ if lattice_exists:
 
         def test_set_config(self):
             # This could fail if the Config constructor doesn't work
-            lattice = Lattice()
+            lattice = Lattice(4, 8, 5.5, "wilson", 10)
             
             # Generate some fake su3 config
             config_shape = (lattice.T, lattice.L, lattice.L, lattice.L, 4, 3, 3)
@@ -249,7 +249,7 @@ if lattice_exists:
                 
         def test_save_config(self):
         
-            lattice = Lattice()
+            lattice = Lattice(4, 8, 5.5, "wilson", 10)
             
             lattice.save_config("test_config.npy")
             
@@ -263,7 +263,7 @@ if lattice_exists:
 
         def test_load_config(self):
             
-            lattice = Lattice()
+            lattice = Lattice(4, 8, 5.5, "wilson", 10)
 
             lattice.load_config("test_config.npy")
             
@@ -281,7 +281,8 @@ if lattice_exists:
                                   update_method,
                                   rand_seed)
                 
-                        lattice = Lattice(rand_seed=rand_seed,
+                        lattice = Lattice(4, 8, 5.5, meas_spacing=10,
+                                          rand_seed=rand_seed,
                                           action=gauge_action,
                                           update_method=update_method)
                         lattice.update()
@@ -292,7 +293,8 @@ if lattice_exists:
 
         def test_next_config(self):
             
-            lattice = Lattice(rand_seed=0, n_cor=100)
+            lattice = Lattice(4, 8, 5.5, "wilson", rand_seed=0,
+                              meas_spacing=100)
             
             lattice.next_config()
             links = make_links(lattice.T, lattice.L)
@@ -308,7 +310,7 @@ if lattice_exists:
             
         def test_thermalize(self):
             
-            lattice = Lattice(T=8, L=8)
+            lattice = Lattice(8, 8, 5.5, "wilson", 10)
             
             lattice.thermalize(200)
             
@@ -316,7 +318,7 @@ if lattice_exists:
 
         def test_get_plaquette(self):
             
-            lattice = Lattice()
+            lattice = Lattice(4, 8, 5.5, "wilson", 10)
             
             sites = make_sites(lattice.T, lattice.L)
             
@@ -345,7 +347,7 @@ if lattice_exists:
 
         def test_get_rectangle(self):
                 
-            lattice = Lattice()
+            lattice = Lattice(4, 8, 5.5, "wilson", 10)
             
             sites = make_sites(lattice.T, lattice.L)
             
@@ -374,7 +376,7 @@ if lattice_exists:
 
         def test_get_twist_rect(self):
         
-            lattice = Lattice()
+            lattice = Lattice(4, 8, 5.5, "wilson", 10)
         
             sites = make_sites(lattice.T, lattice.L)
         
@@ -403,7 +405,7 @@ if lattice_exists:
 
         def test_get_wilson_loop(self):
         
-            lattice = Lattice()
+            lattice = Lattice(4, 8, 5.5, "wilson", 10)
             
             sites = make_sites(lattice.T, lattice.L)
             
@@ -447,7 +449,8 @@ if lattice_exists:
 
         def test_get_av_plaquette(self):
             
-            lattice = Lattice(rand_seed=0, update_method="heatbath")
+            lattice = Lattice(4, 8, 5.5, "wilson", 10,
+                              rand_seed=0, update_method="heatbath")
             lattice.update()
             
             assert np.allclose(lattice.get_av_plaquette(), 0.6744055385048071)
@@ -458,7 +461,8 @@ if lattice_exists:
 
         def test_get_av_rectangle(self):
             
-            lattice = Lattice(rand_seed=0, update_method="heatbath")
+            lattice = Lattice(4, 8, 5.5, "wilson", 10,
+                              rand_seed=0, update_method="heatbath")
             lattice.update()
             
             assert np.allclose(lattice.get_av_rectangle(), 0.5093032901600738)
@@ -469,7 +473,7 @@ if lattice_exists:
 
         def test_get_av_wilson_loop(self):
             
-            lattice = Lattice(rand_seed=0)
+            lattice = Lattice(4, 8, 5.5, "wilson", 10, rand_seed=0)
             lattice.update()
             
             W = lattice.get_av_wilson_loop(4, 4)
@@ -482,7 +486,7 @@ if lattice_exists:
             
         def test_get_wilson_loops(self):
             
-            lattice = Lattice()
+            lattice = Lattice(4, 8, 5.5, "wilson", 10)
             
             for n in range(3):
                 wilson_loops = lattice.get_wilson_loops(n, 0.5)
@@ -494,7 +498,7 @@ if lattice_exists:
 
         def test_get_wilson_propagator(self):
             
-            lattice = Lattice()
+            lattice = Lattice(4, 8, 5.5, "wilson", 10)
             lattice.load_config(create_fullpath("chroma_config.npy"))
             
             smearing_combinations \
@@ -526,7 +530,7 @@ if lattice_exists:
 
         def test_get_hamberwu_propagator(self):
             
-            lattice = Lattice()
+            lattice = Lattice(4, 8, 5.5, "wilson", 10)
             lattice.load_config(create_fullpath("chroma_config.npy"))
             
             smearing_combinations \
@@ -558,7 +562,7 @@ if lattice_exists:
 
         def test_get_naik_propagator(self):
             
-            lattice = Lattice()
+            lattice = Lattice(4, 8, 5.5, "wilson", 10)
             lattice.load_config(create_fullpath("chroma_config.npy"))
             
             smearing_combinations \
@@ -590,7 +594,7 @@ if lattice_exists:
                         
         def test_invert_wilson_dirac(self):
             
-            lattice = Lattice()
+            lattice = Lattice(4, 8, 5.5, "wilson", 10)
             lattice.load_config(create_fullpath("chroma_config.npy"))
             
             psi = np.zeros([8, 4, 4, 4, 4, 3])
@@ -610,7 +614,7 @@ if lattice_exists:
                         
         def test_invert_hamberwu_dirac(self):
             
-            lattice = Lattice()
+            lattice = Lattice(4, 8, 5.5, "wilson", 10)
             lattice.load_config(create_fullpath("chroma_config.npy"))
             
             psi = np.zeros([8, 4, 4, 4, 4, 3])
@@ -630,7 +634,7 @@ if lattice_exists:
                         
         def test_invert_naik_dirac(self):
             
-            lattice = Lattice()
+            lattice = Lattice(4, 8, 5.5, "wilson", 10)
             lattice.load_config(create_fullpath("chroma_config.npy"))
             
             psi = np.zeros([8, 4, 4, 4, 4, 3])
@@ -650,7 +654,7 @@ if lattice_exists:
                         
         def test_invert_dwf_dirac(self):
             
-            lattice = Lattice()
+            lattice = Lattice(4, 8, 5.5, "wilson", 10)
             lattice.load_config(create_fullpath("chroma_config.npy"))
             
             psi = np.zeros([4, 8, 4, 4, 4, 4, 3])
@@ -670,7 +674,7 @@ if lattice_exists:
             
         def test_apply_wilson_dirac(self):
             
-            lattice = Lattice()
+            lattice = Lattice(4, 8, 5.5, "wilson", 10)
             lattice.load_config(create_fullpath("chroma_config.npy"))
             
             psi = np.zeros([8, 4, 4, 4, 4, 3])
@@ -683,7 +687,7 @@ if lattice_exists:
             
         def test_apply_hamberwu_dirac(self):
             
-            lattice = Lattice()
+            lattice = Lattice(4, 8, 5.5, "wilson", 10)
             lattice.load_config(create_fullpath("chroma_config.npy"))
             
             psi = np.zeros([8, 4, 4, 4, 4, 3])
@@ -696,7 +700,7 @@ if lattice_exists:
             
         def test_apply_naik_dirac(self):
             
-            lattice = Lattice()
+            lattice = Lattice(4, 8, 5.5, "wilson", 10)
             lattice.load_config(create_fullpath("chroma_config.npy"))
             
             psi = np.zeros([8, 4, 4, 4, 4, 3])
@@ -709,7 +713,7 @@ if lattice_exists:
             
         def test_apply_dwf_dirac(self):
             
-            lattice = Lattice()
+            lattice = Lattice(4, 8, 5.5, "wilson", 10)
             lattice.load_config(create_fullpath("chroma_config.npy"))
             
             psi = np.zeros([4, 8, 4, 4, 4, 4, 3])
@@ -725,7 +729,7 @@ if lattice_exists:
             
         def test_apply_jacobi_smearing(self):
             
-            lattice = Lattice()
+            lattice = Lattice(4, 8, 5.5, "wilson", 10)
             lattice.load_config(create_fullpath("chroma_config.npy"))
             
             psi = np.zeros([8, 4, 4, 4, 4, 3])
@@ -738,7 +742,7 @@ if lattice_exists:
     
         def test_get_av_link(self):
             
-            lattice = Lattice()
+            lattice = Lattice(4, 8, 5.5, "wilson", 10)
 
             assert np.allclose(lattice.get_av_link(), 1.0)
 

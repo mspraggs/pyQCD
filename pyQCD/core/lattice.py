@@ -42,17 +42,17 @@ class Lattice(lattice.Lattice):
         generator.     
     
     Args:
-      L (int, optional): The spatial extent of the lattice
-      T (int, optional): The temporal extent of the lattice
-      beta (float, optional): The inverse coupling of the gauge action
-      ut (float, optional): The spatial mean link/tadpole improvement factor.
-      us (float, optional): The temporal mean link/tadpole improvement factor.
-      chi (float): The anisotropy factor, equal to the spatial lattice spacing
-        divided by the temporal lattice spacing.
-      action (str, optional): The gauge action to use when updating the lattice.
+      L (int): The spatial extent of the lattice
+      T (int): The temporal extent of the lattice
+      beta (float): The inverse coupling of the gauge action
+      action (str): The gauge action to use when updating the lattice.
         Currently "wilson", "rectangle_improved" and
         "twisted_rectangle_improved" are supported (see note 1).
-      n_cor (int, optional): The number of configurations between measurements
+      meas_spacing (int): The number of configurations between measurements
+      ut (float, optional): The spatial mean link/tadpole improvement factor.
+      us (float, optional): The temporal mean link/tadpole improvement factor.
+      chi (float, optional): The anisotropy factor, equal to the spatial lattice
+        spacing divided by the temporal lattice spacing.
       update_method (str, optional): The algorithm to use when updating the
         gauge field configuration. Currently "heatbath", "metropolis"
         and "staple_metropolis" are supported (see note 2).
@@ -80,7 +80,7 @@ class Lattice(lattice.Lattice):
       
       >>> import pyQCD
       >>> lattice = pyQCD.Lattice(L=8, T=16, action="rectangle_improved"
-      ...           beta=4.26, ut=0.852, us=0.852)
+      ...           beta=4.26, ut=0.852, us=0.852, meas_spacing=10)
         
     Notes:
       1. The "wilson" action is the well-known Wilson gauge action. The
@@ -103,9 +103,9 @@ class Lattice(lattice.Lattice):
          possible, being the most efficient algorithm.
     """
     
-    def __init__(self, L=4, T=8, beta=5.5, ut=1.0, us=1.0, chi=1.0,
-                 action="wilson", n_cor=10, update_method="heatbath",
-                 parallel_updates=True, block_size=None, rand_seed=-1):
+    def __init__(self, L, T, beta, action, meas_spacing, ut=1.0, us=1.0,
+                 chi=1.0, update_method="heatbath", parallel_updates=True,
+                 block_size=None, rand_seed=-1):
         """Constructor for pyQCD.Lattice (see help(pyQCD.Lattice))"""
         if block_size == None:
             block_size = 3
@@ -129,7 +129,7 @@ class Lattice(lattice.Lattice):
         self.shape = (T, L, L, L)
         
         lattice.Lattice.__init__(self, L, T, beta, ut, us, chi,
-                                 dicts.gauge_actions[action], n_cor,
+                                 dicts.gauge_actions[action], meas_spacing,
                                  dicts.update_methods[update_method],
                                  dicts.truefalse[parallel_updates], block_size,
                                  rand_seed)
@@ -151,7 +151,7 @@ class Lattice(lattice.Lattice):
            in the time direction.
            
            >>> import pyQCD
-           >>> lattice = pyQCD.Lattice()
+           >>> lattice = pyQCD.Lattice(4, 8, 5.5, "wilson", 10)
            >>> lattice.get_link([0, 0, 0, 0, 0])
            array([[ 1.+0.j,  0.+0.j,  0.+0.j],
                   [ 0.+0.j,  1.+0.j,  0.+0.j],
@@ -175,7 +175,7 @@ class Lattice(lattice.Lattice):
           
           >>> import pyQCD
           >>> import numpy
-          >>> lattice = pyQCD.Lattice()
+          >>> lattice = pyQCD.Lattice(4, 8, 5.5, "wilson", 10)
           >>> lattice.thermalize(100)
           >>> lattice.set_link([0, 0, 0, 0, 0], numpy.identity(3))
         """
@@ -193,7 +193,7 @@ class Lattice(lattice.Lattice):
           gauge field configuration.
           
           >>> import pyQCD
-          >>> lattice = pyQCD.Lattice()
+          >>> lattice = pyQCD.Lattice(4, 8, 5.5, "wilson", 10)
           >>> lattice.thermalize(100)
           >>> config = lattice.get_config()
         """
@@ -225,7 +225,7 @@ class Lattice(lattice.Lattice):
           >>> import numpy as np
           >>> import pyQCD
           >>> config = np.load("myconfig.npy")
-          >>> lattice = pyQCD.Lattice()
+          >>> lattice = pyQCD.Lattice(4, 8, 5.5, "wilson", 10)
           >>> lattice.set_config(config)
         """
         
@@ -251,7 +251,7 @@ class Lattice(lattice.Lattice):
           to myconfig.npy.
           
           >>> import pyQCD
-          >>> lattice = pyQCD.Lattice()
+          >>> lattice = pyQCD.Lattice(4, 8, 5.5, "wilson", 10)
           >>> lattice.thermalize(100)
           >>> lattice.save_config("myconfig")
         """
@@ -271,7 +271,7 @@ class Lattice(lattice.Lattice):
           from disk into it.
           
           >>> import pyQCD
-          >>> lattice = pyQCD.Lattice()
+          >>> lattice = pyQCD.Lattice(4, 8, 5.5, "wilson", 10)
           >>> lattice.load_config("myconfig.npy")
         """
         
@@ -287,7 +287,7 @@ class Lattice(lattice.Lattice):
           print the average plaquette.
           
           >>> import pyQCD
-          >>> lattice = pyQCD.Lattice(L=8, T=8)
+          >>> lattice = pyQCD.Lattice(8, 8, 5.5, "wilson", 10)
           >>> for i in range(10):
           ...     lattice.update()
           ...     print(lattice.get_av_plaquette())
@@ -305,7 +305,7 @@ class Lattice(lattice.Lattice):
           is generated, print the average plaquette.
           
           >>> import pyQCD
-          >>> lattice = pyQCD.Lattice(L=8, T=8)
+          >>> lattice = pyQCD.Lattice(8, 8, 5.5, "wilson", 10)
           >>> for i in range(10):
           ...     lattice.next_config()
           ...     print(lattice.get_av_plaquette())
@@ -326,7 +326,7 @@ class Lattice(lattice.Lattice):
            the average plaquette.
            
            >>> import pyQCD
-           >>> lattice = pyQCD.Lattice()
+           >>> lattice = pyQCD.Lattice(4, 8, 5.5, "wilson", 10)
            >>> lattice.thermalize(100)
            >>> print(lattice.get_av_plaquette())
         """
@@ -352,7 +352,7 @@ class Lattice(lattice.Lattice):
           at [0, 0, 0, 0] in the t and x plane (i.e. P_01(0, 0, 0, 0)).
           
           >>> import pyQCD
-          >>> lattice = pyQCD.Lattice()
+          >>> lattice = pyQCD.Lattice(4, 8, 5.5, "wilson", 10)
           >>> lattice.thermalize(100)
           >>> print(lattice.get_plaquette([0, 0, 0, 0], 0, 1))
           0.21414804616056343
@@ -379,7 +379,7 @@ class Lattice(lattice.Lattice):
           at [0, 0, 0, 0] in the t and x plane (i.e. R_01(0, 0, 0, 0)).
           
           >>> import pyQCD
-          >>> lattice = pyQCD.Lattice()
+          >>> lattice = pyQCD.Lattice(4, 8, 5.5, "wilson", 10)
           >>> lattice.thermalize(100)
           >>> print(lattice.get_rectangle([0, 0, 0, 0], 0, 1))
           0.501128452826521
@@ -407,7 +407,7 @@ class Lattice(lattice.Lattice):
           sited at [0, 0, 0, 0] in the t and x plane (i.e. T_01(0, 0, 0, 0)).
           
           >>> import pyQCD
-          >>> lattice = pyQCD.Lattice()
+          >>> lattice = pyQCD.Lattice(4, 8, 5.5, "wilson", 10)
           >>> lattice.thermalize(100)
           >>> print(lattice.get_twisted rect([0, 0, 0, 0], 0, 1))
           -0.10429666482691154
@@ -439,7 +439,7 @@ class Lattice(lattice.Lattice):
           spatial width 2 and temporal width 4.
           
           >>> import pyQCD
-          >>> lattice = pyQCD.Lattice()
+          >>> lattice = pyQCD.Lattice(4, 8, 5.5, "wilson", 10)
           >>> lattice.thermalize(100)
           >>> lattice.get_wilson_loop([4, 0, 2, 0], 2, 4, 1)
           -0.19872418745939716
@@ -458,7 +458,7 @@ class Lattice(lattice.Lattice):
           Create a lattice, thermalize and compute the average plaquette
           
           >>> import pyQCD
-          >>> lattice = pyQCD.Lattice(L=8, T=8)
+          >>> lattice = pyQCD.Lattice(8, 8, 5.5, "wilson", 10)
           >>> lattice.thermalize(100)
           >>> lattice.get_av_plaquette()
           0.49751028964943506
@@ -476,7 +476,7 @@ class Lattice(lattice.Lattice):
           Create a lattice, thermalize and compute the average rectangle
           
           >>> import pyQCD
-          >>> lattice = pyQCD.Lattice(L=8, T=8)
+          >>> lattice = pyQCD.Lattice(8, 8, 5.5, "wilson", 10)
           >>> lattice.thermalize(100)
           >>> lattice.get_av_rectangle()
           0.2605558875384393
@@ -502,7 +502,7 @@ class Lattice(lattice.Lattice):
           Create a lattice, thermalize and compute the average Wilson loop
           
           >>> import pyQCD
-          >>> lattice = pyQCD.Lattice()
+          >>> lattice = pyQCD.Lattice(4, 8, 5.5, "wilson", 10)
           >>> lattice.thermalize(100)
           >>> lattice.get_av_wilson_loop(3, 3)
           0.007159100123379076
@@ -532,7 +532,7 @@ class Lattice(lattice.Lattice):
           loops, smearing the gauge field a bit beforehand
           
           >>> import pyQCD
-          >>> lattice = pyQCD.Lattice()
+          >>> lattice = pyQCD.Lattice(4, 8, 5.5, "wilson", 10)
           >>> lattice.thermalize(100)
           >>> wilson_loops = lattice.get_wilson_loops(2, 0.4)
         """
@@ -607,7 +607,7 @@ class Lattice(lattice.Lattice):
           Create a lattice, thermalize it, and invert on a smeared source.
           
           >>> import pyQCD
-          >>> lattice = pyQCD.Lattice()
+          >>> lattice = pyQCD.Lattice(4, 8, 5.5, "wilson", 10)
           >>> lattice.thermalize(100)
           >>> prop = lattice.get_wilson_propagator(0.4, num_source_smears=2,
           ...                                      source_smearing_param=0.4)
@@ -697,7 +697,7 @@ class Lattice(lattice.Lattice):
           Create a lattice, thermalize it, and invert on a smeared source.
           
           >>> import pyQCD
-          >>> lattice = pyQCD.Lattice()
+          >>> lattice = pyQCD.Lattice(4, 8, 5.5, "wilson", 10)
           >>> lattice.thermalize(100)
           >>> prop = lattice.get_hamberwu_propagator(0.4, num_source_smears=2,
           ...                                      source_smearing_param=0.4)
@@ -787,7 +787,7 @@ class Lattice(lattice.Lattice):
           Create a lattice, thermalize it, and invert on a smeared source.
           
           >>> import pyQCD
-          >>> lattice = pyQCD.Lattice()
+          >>> lattice = pyQCD.Lattice(4, 8, 5.5, "wilson", 10)
           >>> lattice.thermalize(100)
           >>> prop = lattice.get_naik_propagator(0.4, num_source_smears=2,
           ...                                    source_smearing_param=0.4)
@@ -848,7 +848,7 @@ class Lattice(lattice.Lattice):
           operator on it.
           
           >>> import pyQCD
-          >>> lat = pyQCD.Lattice()
+          >>> lat = pyQCD.Lattice(4, 8, 5.5, "wilson", 10)
           >>> import numpy as np
           >>> eta = np.zeros(lat.shape + (4, 3), dtype=np.complex)
           >>> eta[0, 0, 0, 0, 0] = 1.0
@@ -906,7 +906,7 @@ class Lattice(lattice.Lattice):
           operator on it.
           
           >>> import pyQCD
-          >>> lat = pyQCD.Lattice()
+          >>> lat = pyQCD.Lattice(4, 8, 5.5, "wilson", 10)
           >>> import numpy as np
           >>> eta = np.zeros(lat.shape + (4, 3), dtype=np.complex)
           >>> eta[0, 0, 0, 0, 0] = 1.0
@@ -964,7 +964,7 @@ class Lattice(lattice.Lattice):
           operator on it.
           
           >>> import pyQCD
-          >>> lat = pyQCD.Lattice()
+          >>> lat = pyQCD.Lattice(4, 8, 5.5, "wilson", 10)
           >>> import numpy as np
           >>> eta = np.zeros(lat.shape + (4, 3), dtype=np.complex)
           >>> eta[0, 0, 0, 0, 0] = 1.0
@@ -1030,7 +1030,7 @@ class Lattice(lattice.Lattice):
           operator on it.
           
           >>> import pyQCD
-          >>> lat = pyQCD.Lattice()
+          >>> lat = pyQCD.Lattice(4, 8, 5.5, "wilson", 10)
           >>> import numpy as np
           >>> eta = np.zeros((4,) + lat.shape + (4, 3), dtype=np.complex)
           >>> eta[0, 0, 0, 0, 0, 0] = 1.0
@@ -1078,7 +1078,7 @@ class Lattice(lattice.Lattice):
           spinor.
           
           >>> import pyQCD
-          >>> lattice = pyQCD.Lattice()
+          >>> lattice = pyQCD.Lattice(4, 8, 5.5, "wilson", 10)
           >>> lattice.thermalize(100)
           >>> import numpy as np
           >>> psi = np.zeros((lattice.T, lattice.L, lattice.L, lattice.L, 4, 3))
@@ -1090,7 +1090,7 @@ class Lattice(lattice.Lattice):
           sparse solvers.
           
           >>> import pyQCD
-          >>> lattice = pyQCD.Lattice()
+          >>> lattice = pyQCD.Lattice(4, 8, 5.5, "wilson", 10)
           >>> import numpy as np
           >>> import scipy.sparse.linalg as spla
           >>> N = 12 * lattice.T * lattice.L**3
@@ -1141,7 +1141,7 @@ class Lattice(lattice.Lattice):
           spinor.
           
           >>> import pyQCD
-          >>> lattice = pyQCD.Lattice()
+          >>> lattice = pyQCD.Lattice(4, 8, 5.5, "wilson", 10)
           >>> lattice.thermalize(100)
           >>> import numpy as np
           >>> psi = np.zeros((lattice.T, lattice.L, lattice.L, lattice.L, 4, 3))
@@ -1153,7 +1153,7 @@ class Lattice(lattice.Lattice):
           sparse solvers.
           
           >>> import pyQCD
-          >>> lattice = pyQCD.Lattice()
+          >>> lattice = pyQCD.Lattice(4, 8, 5.5, "wilson", 10)
           >>> import numpy as np
           >>> import scipy.sparse.linalg as spla
           >>> N = 12 * lattice.T * lattice.L**3
@@ -1204,7 +1204,7 @@ class Lattice(lattice.Lattice):
           the spinor.
           
           >>> import pyQCD
-          >>> lattice = pyQCD.Lattice()
+          >>> lattice = pyQCD.Lattice(4, 8, 5.5, "wilson", 10)
           >>> lattice.thermalize(100)
           >>> import numpy as np
           >>> psi = np.zeros((lattice.T, lattice.L, lattice.L, lattice.L, 4, 3))
@@ -1216,7 +1216,7 @@ class Lattice(lattice.Lattice):
           sparse solvers.
           
           >>> import pyQCD
-          >>> lattice = pyQCD.Lattice()
+          >>> lattice = pyQCD.Lattice(4, 8, 5.5, "wilson", 10)
           >>> import numpy as np
           >>> import scipy.sparse.linalg as spla
           >>> N = 12 * lattice.T * lattice.L**3
@@ -1273,7 +1273,7 @@ class Lattice(lattice.Lattice):
           spinor.
           
           >>> import pyQCD
-          >>> lattice = pyQCD.Lattice()
+          >>> lattice = pyQCD.Lattice(4, 8, 5.5, "wilson", 10)
           >>> lattice.thermalize(100)
           >>> import numpy as np
           >>> psi = np.zeros((4, lattice.T, lattice.L, lattice.L, lattice.L,
@@ -1320,7 +1320,7 @@ class Lattice(lattice.Lattice):
           spinor.
           
           >>> import pyQCD
-          >>> lattice = pyQCD.Lattice()
+          >>> lattice = pyQCD.Lattice(4, 8, 5.5, "wilson", 10)
           >>> lattice.thermalize(100)
           >>> import numpy as np
           >>> psi = np.zeros((lattice.T, lattice.L, lattice.L, lattice.L, 4, 3))
@@ -1353,7 +1353,7 @@ class Lattice(lattice.Lattice):
           Create a lattice and compute the mean link.
           
           >>> import pyQCD
-          >>> lattice = pyQCD.Lattice()
+          >>> lattice = pyQCD.Lattice(4, 8, 5.5, "wilson", 10)
           >>> lattice.get_av_link()
           1.0
         """
