@@ -179,7 +179,6 @@ namespace pyQCD
 			 const int verbosity, const int L, const int T,
 			 Complex* gaugeField)
   {
-    int solveSize = (precondition > 0) ? psi.size() / 2 : psi.size();
     Complex tempBoundaryConditions[4] = {Complex(-1.0, 0.0),
 					 Complex(1.0, 0.0),
 					 Complex(1.0, 0.0),
@@ -202,8 +201,11 @@ namespace pyQCD
 			       tempBoundaryConditions, diracMatrix->links(),
 			       false);
 
-    VectorTypeDev eta(diracMatrix->num_rows, Complex(0.0, 0.0));
-    VectorTypeDev psi(diracMatrix->num_rows, Complex(0.0, 0.0));
+    int solveSize = diracMatrix->num_rows;
+    int N = (precondition > 0) ? 2 * solveSize : solveSize;
+
+    VectorTypeDev eta(N, Complex(0.0, 0.0));
+    VectorTypeDev psi(N, Complex(0.0, 0.0));
 
     for (int i = 0; i < 4; ++i) {
       for (int j = 0; j < 3; ++j) {
@@ -216,10 +218,10 @@ namespace pyQCD
 	if (precondition > 0) {
 	  // This is ugly, there's so much transfer between host and device...
 	  VectorTypeHost etaHost = eta;
-	  VectorTypeHost etaEvenOdd(eta.size(), 0.0);
+	  VectorTypeHost etaEvenOdd(N, 0.0);
 
 	  diracMatrix->makeEvenOdd(thrust::raw_pointer_cast(&etaEvenOdd[0]),
-				   thrust::raw_pointer_cast(&eta[0]));
+				   thrust::raw_pointer_cast(&etaHost[0]));
 
 	  VectorTypeHost::view etaEvenHost(etaEvenOdd.begin(),
 					   etaEvenOdd.begin() + solveSize);
@@ -233,35 +235,46 @@ namespace pyQCD
 
 	  cusp::copy(etaOddHost, etaOddDev);
 	  cusp::copy(etaEvenHost, etaEvenDev);
+
 	  
 	  diracMatrix
 	    ->makeEvenOddSource(thrust::raw_pointer_cast(&etaOddDev[0]),
-				thrust::raw_pointer_cast(&psiEvenDev[0]),
+				thrust::raw_pointer_cast(&etaEvenDev[0]),
 				thrust::raw_pointer_cast(&etaOddDev[0]));
 	}
+
+	VectorTypeDev::view etaSolve((precondition > 0)
+				     ? eta.begin() + solveSize
+				     : eta.begin(),
+				     eta.end());
+
+	VectorTypeDev::view psiSolve((precondition > 0)
+				     ? psi.begin() + solveSize
+				     : psi.begin(),
+				     psi.end());
 	
 	if (solverMethod == 1) {
 	  // To save memory, we use the solution to hold the source while
 	  // we make it hermitian (to prevent data race)
-	  cusp::copy(eta, psi);
-	  Complex* eta_ptr = thrust::raw_pointer_cast(&eta[0]);
-	  Complex* psi_ptr = thrust::raw_pointer_cast(&psi[0]);
+	  cusp::copy(etaSolve, psiSolve);
+	  Complex* eta_ptr = thrust::raw_pointer_cast(&etaSolve[0]);
+	  Complex* psi_ptr = thrust::raw_pointer_cast(&psiSolve[0]);
 	  diracMatrix->makeHermitian(eta_ptr, psi_ptr);
-	  cusp::blas::fill(psi, Complex(0.0, 0.0));
+	  cusp::blas::fill(psiSolve, Complex(0.0, 0.0));
 	}
       
-	cusp::default_monitor<Complex> monitor(eta, maxIterations, 0, tolerance);
+	cusp::default_monitor<Complex> monitor(etaSolve, maxIterations, 0, tolerance);
   
 	// Now do the inversion
 	switch (solverMethod) {
 	case 0:
-	  cusp::krylov::bicgstab(*diracMatrix, psi, eta, monitor);
+	  cusp::krylov::bicgstab(*diracMatrix, psiSolve, etaSolve, monitor);
 	  break;
 	case 1:
-	  cusp::krylov::cg(*diracMatrix, psi, eta, monitor);
+	  cusp::krylov::cg(*diracMatrix, psiSolve, etaSolve, monitor);
 	  break;
 	default:
-	  cusp::krylov::cg(*diracMatrix, psi, eta, monitor);
+	  cusp::krylov::cg(*diracMatrix, psiSolve, etaSolve, monitor);
 	  break;    
 	}
 
@@ -270,18 +283,12 @@ namespace pyQCD
 		    << monitor.residual_norm() << " in "
 		    << monitor.iteration_count() << " iterations." << std::endl;
 	}
-	// Copy the solution to the source before sink smearing
-	cusp::copy(psi, eta);
-	(*sinkSmearingOperator)(psi, eta);
 
-	PropagatorTypeHost::column_view propagatorColumn
-	  = result.column(3 * i + j);
-
-	if (precondition == 0) {
-	  cusp::copy(psi, propagatorColumn);
-	}
-	else {
-	  VectorTypeHost psiEvenOdd(eta.size(), 0.0);
+	if (precondition > 0) {
+	  // Again, there's so much back and forth between the host and device here
+	  // that memory latency will be huge.
+	  VectorTypeHost psiLexico(N, 0.0);
+	  VectorTypeHost psiEvenOdd(N, 0.0);
 
 	  VectorTypeDev::view psiEvenDev(psi.begin(),
 					 psi.begin() + solveSize);
@@ -298,12 +305,27 @@ namespace pyQCD
 	  diracMatrix->applyEvenEvenInv(thrust::raw_pointer_cast(&psi[0]),
 					thrust::raw_pointer_cast(&eta[0]));
 
-	  cusp::copy(psiEvenDev, psiEvenHost);
+	  diracMatrix
+	    ->makeEvenOddSolution(thrust::raw_pointer_cast(&psiOddDev[0]),
+				  thrust::raw_pointer_cast(&psiEvenDev[0]),
+				  thrust::raw_pointer_cast(&psiOddDev[0]));
+
+	  cusp::copy(psiOddDev, psiEvenHost);
 
 	  diracMatrix
-	    ->removeEvenOdd(thrust::raw_pointer_cast(&propagatorColumn[0]),
+	    ->removeEvenOdd(thrust::raw_pointer_cast(&psiLexico[0]),
 			    thrust::raw_pointer_cast(&psiEvenOdd[0]));
+	
+	  eta = psiLexico;
 	}
+	else
+	  eta = psi;
+	
+	(*sinkSmearingOperator)(eta, psi);
+
+	PropagatorTypeHost::column_view propagatorColumn
+	  = result.column(3 * i + j);
+	cusp::copy(psi, propagatorColumn);
       }
     }
 

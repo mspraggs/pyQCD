@@ -1,8 +1,8 @@
 
 CudaJacobiSmearing::CudaJacobiSmearing(const int nSmears, const double smearingParameter,
-			       const int L, const int T,
-			       const Complex boundaryConditions[4],
-			       Complex* links, const bool copyLinks)
+				       const int L, const int T,
+				       const Complex boundaryConditions[4],
+				       Complex* links, const bool copyLinks)
   : CudaLinearOperator(L, T, false, false, links, copyLinks)
 {
   this->nSmears_ = nSmears;
@@ -82,23 +82,27 @@ void CudaJacobiSmearing::apply(Complex* y, const Complex* x) const
 {
   int dimBlock;
   int dimGrid;
-
   setGridAndBlockSize(dimBlock, dimGrid, this->N);
 
-  Complex* z;
-  cudaMalloc((void**) &z, this->N * sizeof(Complex));
-  assignDev<<<dimGrid,dimBlock>>>(z, x, this->N);
+  if (this->nSmears_ < 1)
+    assignDev<<<dimGrid,dimBlock>>>(y, x, this->N);
+  else {
 
-  Complex* w;
-  cudaMalloc((void**) &w, this->N * sizeof(Complex));
-  assignDev<<<dimGrid,dimBlock>>>(w, 0.0, this->N);
+    Complex* z;
+    cudaMalloc((void**) &z, this->N * sizeof(Complex));
+    assignDev<<<dimGrid,dimBlock>>>(z, x, this->N);
 
-  for (int i = 0; i < this->nSmears_; ++i) {
-    this->applyOnce(w, z);
-    saxpyDev<<<dimGrid,dimBlock>>>(y, w, 1.0, this->N);
-    assignDev<<<dimGrid,dimBlock>>>(z, w, this->N);
+    Complex* w;
+    cudaMalloc((void**) &w, this->N * sizeof(Complex));
+    assignDev<<<dimGrid,dimBlock>>>(w, 0.0, this->N);
+
+    for (int i = 0; i < this->nSmears_; ++i) {
+      this->applyOnce(w, z);
+      saxpyDev<<<dimGrid,dimBlock>>>(y, w, 1.0, this->N);
+      assignDev<<<dimGrid,dimBlock>>>(z, w, this->N);
+    }
+
+    cudaFree(z);
+    cudaFree(w);
   }
-
-  cudaFree(z);
-  cudaFree(w);
 }
