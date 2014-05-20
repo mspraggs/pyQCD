@@ -26,6 +26,6 @@ private:
   CudaLinearOperator* nextNearestHopping_;
 };
 
-#include <hamber_wu.tcu>
+#include <hamber_wu.cu>
 
 #endif

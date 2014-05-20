@@ -69,6 +69,6 @@ __device__
 Complex computeU<1>(const Complex* links, const int siteIndex, const int mu,
 		    const int a, const int b, const int L, const int T);
 
-#include <utils.tcu>
+#include <utils.cu>
 
 #endif

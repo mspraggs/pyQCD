@@ -30,6 +30,6 @@ private:
   CudaLinearOperator* hoppingTerm_;
 };
 
-#include <wilson.tcu>
+#include <wilson.cu>
 
 #endif

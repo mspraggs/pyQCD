@@ -41,6 +41,6 @@ private:
   CudaLinearOperator* kernel_;
 };
 
-#include <dwf.tcu>
+#include <dwf.cu>
 
 #endif

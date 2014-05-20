@@ -82,6 +82,6 @@ protected:
   Complex* links_;
 };
 
-#include <linear_operator.tcu>
+#include <linear_operator.cu>
 
 #endif

@@ -43,6 +43,6 @@ private:
   Complex scaling_;
 };
 
-#include <hopping_term.tcu>
+#include <hopping_term.cu>
 
 #endif

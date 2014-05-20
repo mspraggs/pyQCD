@@ -33,6 +33,6 @@ private:
   CudaLinearOperator* nextNextNearestHopping_;
 };
 
-#include <naik.tcu>
+#include <naik.cu>
 
 #endif
