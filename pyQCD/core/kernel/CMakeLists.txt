@@ -25,7 +25,7 @@ file (GLOB
 
 file (GLOB
   cuda_SRC
-  ${CUDA_INC_DIR}/*.cu)
+  ${CUDA_INC_DIR}/cuda_interface.cu)
 
 file (GLOB
   benchmark_SRC
