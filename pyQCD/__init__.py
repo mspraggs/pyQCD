@@ -6,13 +6,6 @@ and analysis.
 The Simulation and Lattice classes supply the majority of the routines
 to run a lattice simulation.
 
-The remaining classes serve to encapsulate data produced by simulations,
-as well as providing certain routines for analysis. With the exception
-of the DataSet class, these classes all inherit from the Observable base
-class. The DataSet class serves to contain a series of objects that
-inherit from the Observable class, as well as providing statistical
-functions such as bootstrap and jackknife.
-
 Note that in general, despite being set in 4D Euclidean space, here zero is
 used to denote the time axis, and all numpy arrays use the the first
 index as the index for time. In addition, the chiral representation of the
