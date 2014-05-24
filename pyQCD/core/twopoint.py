@@ -3,13 +3,7 @@ from __future__ import division
 from __future__ import unicode_literals
 from __future__ import print_function
 
-import re
-import xml.etree.ElementTree as ET
-import itertools
 import warnings
-import sys
-import struct
-import multiprocessing as mp
 
 import numpy as np
 import scipy.optimize as spop
