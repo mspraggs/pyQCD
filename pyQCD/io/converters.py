@@ -51,7 +51,7 @@ def load_ildg_config(filename):
       numpy.ndarray: The field configuration as a numpy array.
     """
     
-    config = qcdutils.GaugeILDG(input_file)
+    config = qcdutils.GaugeILDG(filename)
 
     return _extract_datum(config)
 
@@ -67,7 +67,7 @@ def load_mdp_config(filename):
       numpy.ndarray: The field configuration as a numpy array.
     """
 
-    config = qcdutils.GaugeMDP(input_file)
+    config = qcdutils.GaugeMDP(filename)
 
     return _extract_datum(config)
 
@@ -83,7 +83,7 @@ def load_scidac_config(filename):
       numpy.ndarray: The field configuration as a numpy array.
     """
 
-    config = qcdutils.GaugeSCIDAC(input_file)
+    config = qcdutils.GaugeSCIDAC(filename)
 
     return _extract_datum(config)
 
@@ -99,7 +99,7 @@ def load_milc_config(filename):
       numpy.ndarray: The field configuration as a numpy array.
     """
 
-    config = qcdutils.GaugeMILC(input_file)
+    config = qcdutils.GaugeMILC(filename)
 
     return _extract_datum(config)
 
