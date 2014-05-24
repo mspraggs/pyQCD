@@ -9,7 +9,7 @@ import multiprocessing as mp
 import numpy as np
 import numpy.random as npr
 
-# Following functions taken from Stack Overflow answer by
+# Following two functions taken from Stack Overflow answer by
 # klaus se at http://stackoverflow.com/questions/3288595/ \
 # multiprocessing-using-pool-map-on-a-function-defined-in-a-class
 def _spawn(f):
