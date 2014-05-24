@@ -109,7 +109,7 @@ class Lime(object):
             while True:
                 header = self.file.read(144)
                 if not header: break
-                magic, null,size, name = struct.unpack('!iiq128s',header)
+                magic, null, size, name = struct.unpack(b'!iiq128s',header)
                 if magic != 1164413355:
                     raise IOError("not in lime format")
                 ### the following line is VERY IMPORTANT
@@ -166,7 +166,7 @@ class Lime(object):
             reader = StringIO(reader)
         # write record header
         position = self.file.tell()
-        header = struct.pack('!iHHq128s',self.magic,self.version,0,size,name)
+        header = struct.pack(b'!iHHq128s',self.magic,self.version,0,size,name)
         self.file.write(header)
         # read data from reader and write to file
         if hasattr(reader,'read'):
@@ -284,7 +284,9 @@ class QCDFormat(object):
             n = len(data) // 8
         else:
             raise IOError("incorrect input precision")
-        items = struct.unpack(self.endianess+str(n)+self.precision,data)
+        unpack_string = b'{}{}{}'.format(self.endianess, n,
+                                         self.precision)
+        items = struct.unpack(unpack_string, data)
         if self.is_gauge:
             items = reorder(items,self.link_order,(T,X,Y,Z))
             check_unitarity(items)
@@ -296,7 +298,8 @@ class QCDFormat(object):
         if self.is_gauge:
             items = reorder(items,(T,X,Y,Z),self.link_order)
         n = len(items)
-        return struct.pack(self.endianess+str(n)+self.precision,*items)
+        pack_string = b'{}{}{}'.format(self.endianess, n, self.precision)
+        return struct.pack(pack_string,*items)
     def __init__(self,filename):
         """set defaults"""
         pass
@@ -354,7 +357,7 @@ class GaugeMDP(QCDFormat):
     def read_header(self):
         self.file = open(self.filename,'rb')
         header = self.file.read(self.header_size)
-        items = struct.unpack(self.header_format,header)
+        items = struct.unpack(b''.format(self.header_format),header)
         if items[3] != 1325884739:
             pass # should this raise exception?
         nt,nx,ny,nz = items[5:9]
@@ -371,7 +374,7 @@ class GaugeMDP(QCDFormat):
     def write_header(self,precision,nt,nx,ny,nz):
         self.file = open(self.filename,'wb')
         self.site_size = self.base_size*(4 if precision == 'f' else 8)
-        data = struct.pack(self.header_format,'File Type: MDP FIELD',
+        data = struct.pack(b''.format(self.header_format),'File Type: MDP FIELD',
                            self.dummyfilename,NOW.isoformat(),
                            1325884739,4,nt,nx,ny,nz,0,0,0,0,0,0,
                            self.site_size,nt*nx*ny*nz)
@@ -437,7 +440,7 @@ class PropagatorMDP(QCDFormat):
     def read_header(self):
         self.file = open(self.filename,'rb')
         header = self.file.read(self.header_size)
-        items = struct.unpack(self.header_format,header)
+        items = struct.unpack(b''.format(self.header_format),header)
         if items[3] != '1325884739':
             pass # should this raise exception
         nt,nx,ny,nz = items[5:9]
@@ -454,7 +457,7 @@ class PropagatorMDP(QCDFormat):
     def write_header(self,precision,nt,nx,ny,nz):
         self.file = open(self.filename,'wb')
         self.site_size = self.base_size*(4 if precision == 'f' else 8)
-        data = struct.pack(self.header_format,'File Type: MDP FIELD',
+        data = struct.pack(b''.format(self.header_format),'File Type: MDP FIELD',
                            self.filename,NOW.isoformat(),
                            1325884739,4,nt,nx,ny,nz,0,0,0,0,0,0,
                            self.site_size,nt*nx*ny*nz)
@@ -500,7 +503,7 @@ class PropagatorMDPSplit(QCDFormat):
     def write_header(self,precision,nt,nx,ny,nz):
         self.file = open(self.filename,'wb')
         self.site_size = self.base_size*(4 if precision == 'f' else 8)
-        data = struct.pack(self.header_format,'File Type: MDP FIELD',
+        data = struct.pack(b''.format(self.header_format),'File Type: MDP FIELD',
                            self.filename,NOW.isoformat(),
                            1325884739,4,nt,nx,ny,nz,0,0,0,0,0,0,
                            self.site_size,nt*nx*ny*nz)
@@ -689,7 +692,7 @@ class GaugeMILC(QCDFormat):
         header = self.file.read(self.header_size)
         for self.header_format in ('<i4i64siii','>i4i64siii'):
             self.endianess = self.header_format[0]
-            items = struct.unpack(self.header_format,header)
+            items = struct.unpack(b''.format(self.header_format),header)
             if items[0] == 20103:
                 nt,nx,ny,nz = [items[4],items[1],items[2],items[3]]
                 self.site_size = (os.path.getsize(self.filename)-96) \
@@ -714,7 +717,7 @@ class GaugeMILC(QCDFormat):
         items[6] = 0
         items[7] = 0
         items[8] = 0
-        header = struct.pack(self.header_format,items)
+        header = struct.pack(b''.format(self.header_format),items)
         self.file.write(header)
         self.offset = self.file.tell()
     def read_data(self,t,x,y,z):
