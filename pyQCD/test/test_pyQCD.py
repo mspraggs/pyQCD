@@ -786,59 +786,6 @@ class TestPropagator:
         assert (prop_multiplied == expected_product).all()
 
 class TestTwoPoint:
-
-    def test_load_chroma_mesonspec(self):
-        
-        correlators \
-          = load_chroma_mesonspec(create_fullpath("mesonspec_hh_6000_1.xml"))
-                                       
-        assert len(correlators.keys()) == 8
-            
-    def test_load_chroma_hadspec(self):
-        
-        mres_data = load_chroma_hadspec(create_fullpath("hadspec.dat.xml"))
-                                       
-        assert len(mres_data.keys()) == 95
-            
-    def test_load_chroma_hadspec_mesons(self):
-    
-        filename = create_fullpath("hadspec.dat.xml")
-        correlators = load_chroma_hadspec_mesons(filename)
-                                       
-        assert len(correlators.keys()) == 64
-            
-    def test_load_chroma_hadspec_baryons(self):
-    
-        filename = create_fullpath("hadspec.dat.xml")
-        correlators = load_chroma_hadspec_baryons(filename)
-                                       
-        assert len(correlators.keys()) == 20
-            
-    def test_load_chroma_hadspec_currents(self):
-        
-        filename = create_fullpath("hadspec.dat.xml")
-        correlators = load_chroma_hadspec_currents(filename)
-                                       
-        assert len(correlators.keys()) == 11
-        
-    def test_load_chroma_mres(self):
-        
-        mres_data = load_chroma_mres(create_fullpath("hadspec.out.xml"))
-        
-        assert len(mres_data.keys()) == 10
-            
-    def test_load_ukhadron_mesbin(self):
-        
-        filename = create_fullpath("meson_m_0.45_m_0.45_Z2.280.bin")        
-        correlators = load_ukhadron_mesbin(filename, "big", (0.1, 0.1))
-                                       
-        assert len(correlators.keys()) == 256
-        
-    def test_load_ukhadron_mres(self):
-        
-        mres_data = load_ukhadron_mres(create_fullpath("mres_data.xml"), 0.1)
-        
-        assert len(mres_data.keys()) == 2
             
     def test_compute_meson_corr(self):
         
@@ -986,22 +933,6 @@ class TestTwoPoint:
         assert np.allclose(actual_effmass, expected_effmass)
         
 class TestDataSet:
-    
-    def test_save_archive(self):
-    
-        data = npr.random(100).tolist()
-
-        save_archive("test_data.zip", data)
-
-        assert os.path.exists("test_data.zip")
-                    
-    def test_load_archive(self):
-        
-        dataset = load_archive("test_data.zip")
-
-        assert len(dataset) == 100
-
-        os.unlink("test_data.zip")
 
     def test_bin_data(self):
 
@@ -1128,3 +1059,74 @@ if lattice_exists:
             simulation.load_ensemble(create_fullpath("4c8_ensemble.zip"))
             simulation.add_measurement(Lattice.get_config, "configs.zip")
             simulation.run()
+
+class TestIO:
+    
+    def test_save_archive(self):
+    
+        data = npr.random(100).tolist()
+
+        io.save_archive("test_data.zip", data)
+
+        assert os.path.exists("test_data.zip")
+                    
+    def test_load_archive(self):
+        
+        dataset = io.load_archive("test_data.zip")
+
+        assert len(dataset) == 100
+
+        os.unlink("test_data.zip")
+
+    def test_load_chroma_mesonspec(self):
+        
+        correlators \
+          = io.load_chroma_mesonspec(create_fullpath("mesonspec_hh_6000_1.xml"))
+                                       
+        assert len(correlators.keys()) == 8
+            
+    def test_load_chroma_hadspec(self):
+        
+        mres_data = io.load_chroma_hadspec(create_fullpath("hadspec.dat.xml"))
+                                       
+        assert len(mres_data.keys()) == 95
+            
+    def test_load_chroma_hadspec_mesons(self):
+    
+        filename = create_fullpath("hadspec.dat.xml")
+        correlators = io.load_chroma_hadspec_mesons(filename)
+                                       
+        assert len(correlators.keys()) == 64
+            
+    def test_load_chroma_hadspec_baryons(self):
+    
+        filename = create_fullpath("hadspec.dat.xml")
+        correlators = io.load_chroma_hadspec_baryons(filename)
+                                       
+        assert len(correlators.keys()) == 20
+            
+    def test_load_chroma_hadspec_currents(self):
+        
+        filename = create_fullpath("hadspec.dat.xml")
+        correlators = io.load_chroma_hadspec_currents(filename)
+                                       
+        assert len(correlators.keys()) == 11
+        
+    def test_load_chroma_mres(self):
+        
+        mres_data = io.load_chroma_mres(create_fullpath("hadspec.out.xml"))
+        
+        assert len(mres_data.keys()) == 10
+            
+    def test_load_ukhadron_mesbin(self):
+        
+        filename = create_fullpath("meson_m_0.45_m_0.45_Z2.280.bin")        
+        correlators = io.load_ukhadron_mesbin(filename, "big", (0.1, 0.1))
+                                       
+        assert len(correlators.keys()) == 256
+        
+    def test_load_ukhadron_mres(self):
+        
+        mres_data = io.load_ukhadron_mres(create_fullpath("mres_data.xml"), 0.1)
+        
+        assert len(mres_data.keys()) == 2

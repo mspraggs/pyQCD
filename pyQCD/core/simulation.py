@@ -10,7 +10,7 @@ import inspect
 import numpy as np
 
 from .lattice import Lattice
-from .dataset import _write_datum, _extract_datum
+from .. import io
 
 class Simulation(object):
     """Creates, configures and runs a lattice simulation.
@@ -269,7 +269,7 @@ class Simulation(object):
                                          **measurement[3])
 
             if save:
-                _write_datum(meas_result, config, measurement[4])
+                io._write_datum(meas_result, config, measurement[4])
                 
             if self.verbosity > 0:
                 print("Done!")
@@ -380,7 +380,7 @@ class Simulation(object):
                     print("Loading gauge field..."),
                     sys.stdout.flush()
                     
-                config = _extract_datum(i, self.ensemble)
+                config = io._extract_datum(i, self.ensemble)
                 self.lattice.set_config(config)
                 
                 if self.verbosity > 0:
