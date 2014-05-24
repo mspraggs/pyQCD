@@ -1030,13 +1030,13 @@ if lattice_exists:
         def test_create_lattice(self):
             
             simulation = Simulation(100, 10, 250)
-            simulation.create_lattice(4, 8, "wilson", 5.5)
-            simulation.create_lattice(4, 8, "wilson", 5.5, 1.0, 4)
+            simulation.create_lattice(4, 8, 5.5, "wilson")
+            simulation.create_lattice(4, 8, 5.5, "wilson", 1.0, 4)
             
         def test_load_ensemble(self):
                 
             simulation = Simulation(3, 10, 100)
-            simulation.create_lattice(4, 8, "wilson", 5.5)
+            simulation.create_lattice(4, 8, 5.5, "wilson")
             simulation.load_ensemble(create_fullpath("4c8_ensemble.zip"))
         
         def test_add_measurement(self):
@@ -1048,14 +1048,14 @@ if lattice_exists:
         def test_run(self):
             
             simulation = Simulation(5, 10, 100)
-            simulation.create_lattice(4, 8, "wilson", 5.5)
+            simulation.create_lattice(4, 8, 5.5, "wilson")
             simulation.add_measurement(Lattice.get_config, "configs.zip",
                                        meas_message="Storing gauge "
                                        "configuration")
             simulation.run()
         
             simulation = Simulation(3, 10, 100)
-            simulation.create_lattice(4, 8, "wilson", 5.5)
+            simulation.create_lattice(4, 8, 5.5, "wilson")
             simulation.load_ensemble(create_fullpath("4c8_ensemble.zip"))
             simulation.add_measurement(Lattice.get_config, "configs.zip")
             simulation.run()
