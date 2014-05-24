@@ -124,7 +124,7 @@ class Lime(object):
         # self.dump_info()
 
     def dump_info(self,filename=None):
-        f = open(filename or (self.filename+'.fromlime.info'),'w')
+        f = open(filename or (self.filename+'.fromlime.info'),'wb')
         f.write("LIME records:\n")
         for a,b,c in self:
             for a,b,c in self:
@@ -538,7 +538,7 @@ class GaugeILDG(QCDFormat):
         self.field = 'su3gauge'
         self.base_size = 4*9*2
     def read_header(self):
-        self.lime = Lime(self.filename,'r')
+        self.lime = Lime(self.filename,'rb')
         self.file = self.lime.file
         for name,stream,size in self.lime:
             if name == 'ildg-binary-data':
@@ -576,7 +576,7 @@ class GaugeILDG(QCDFormat):
         self.precision = precision
         self.site_size = 4*2*9*(4 if precision == 'f' else 8)
         self.size = (nt,nx,ny,nz)
-        self.lime = Lime(self.filename,'w')
+        self.lime = Lime(self.filename,'wb')
         self.file = self.lime.file
         precision = 32 if precision == 'f' else 64
         d = dict(field = 'su3gauge',version = '1.0',
@@ -624,7 +624,7 @@ class GaugeSCIDAC(QCDFormat):
         self.base_size = 4*9*2
         self.endianess = '>'
     def read_header(self):
-        self.lime = Lime(self.filename,'r')
+        self.lime = Lime(self.filename,'rb')
         self.file = self.lime.file
         for name,stream,size in self.lime:
             if name == 'scidac-binary-data':
