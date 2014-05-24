@@ -10,7 +10,7 @@ import scipy.optimize as spop
 
 from .constants import *
 from .propagator import spin_prod, prop_adjoint
-from .dataset import parmap
+from .dataset import _parmap
 
 def fold_correlator(correlator):
     """Folds the supplied correlator about it's mid-point.
@@ -277,7 +277,7 @@ def compute_meson_corr256(propagator1, propagator2, momenta=(0, 0, 0),
                                   gammas[0], gammas[1], momenta,
                                   average_momenta, fold)
     
-    results = parmap(parallel_function, interpolators)
+    results = _parmap(parallel_function, interpolators)
 
     out = {}
     for interpolator, result in zip(interpolators, results):

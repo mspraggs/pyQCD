@@ -12,7 +12,7 @@ import numpy.random as npr
 # Following functions taken from Stack Overflow answer by
 # klaus se at http://stackoverflow.com/questions/3288595/ \
 # multiprocessing-using-pool-map-on-a-function-defined-in-a-class
-def spawn(f):
+def _spawn(f):
     def fun(q_in,q_out):
         while True:
             i,x = q_in.get()
@@ -21,7 +21,7 @@ def spawn(f):
             q_out.put((i,f(x)))
     return fun
 
-def parmap(f, X, nprocs = mp.cpu_count()):
+def _parmap(f, X, nprocs = mp.cpu_count()):
     q_in = mp.Queue(1)
     q_out = mp.Queue()
 
@@ -91,7 +91,7 @@ def bootstrap_data(data, num_bootstraps, binsize=1, parallel=False):
         bins = npr.randint(num_bins, size=num_bins).tolist()
         return np.mean([binned_data[j] for j in bins], axis=0)
 
-    out = parmap(parallel_function, range(num_bootstraps)) \
+    out = _parmap(parallel_function, range(num_bootstraps)) \
       if parallel else map(parallel_function, range(num_bootstraps))
 
     return list(out)
@@ -136,7 +136,7 @@ def bootstrap(data, func, num_bootstraps=None, binsize=1, args=[],
     def parallel_function(datum):
         return func(datum, *args, **kwargs)
 
-    results = parmap(parallel_function, resamp_data) \
+    results = _parmap(parallel_function, resamp_data) \
       if parallel else list(map(parallel_function, resamp_data))
 
     return np.mean(results, axis=0), np.std(results, axis=0)
@@ -168,7 +168,7 @@ def jackknife_data(data, binsize=1, parallel=False):
     def parallel_function(datum):
         return (data_sum - datum) / (len(binned_data) - 1)
     
-    out = parmap(parallel_function, binned_data) \
+    out = _parmap(parallel_function, binned_data) \
       if parallel else map(parallel_function, binned_data)
 
     return list(out)
@@ -211,7 +211,7 @@ def jackknife(data, func, binsize=1, args=[], kwargs={}, resample=True,
     def parallel_function(datum):
         return func(datum, *args, **kwargs)
 
-    results = parmap(parallel_function, resamp_data) \
+    results = _parmap(parallel_function, resamp_data) \
       if parallel else list(map(parallel_function, resamp_data))
 
     N = len(results)
