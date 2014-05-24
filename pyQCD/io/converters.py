@@ -53,7 +53,7 @@ def load_ildg_config(filename):
     
     config = qcdutils.GaugeILDG(filename)
 
-    return _extract_datum(config)
+    return _extract_config(config)
 
 def load_mdp_config(filename):
     """Converts the specified MDP field configuration into a numpy array
@@ -69,7 +69,7 @@ def load_mdp_config(filename):
 
     config = qcdutils.GaugeMDP(filename)
 
-    return _extract_datum(config)
+    return _extract_config(config)
 
 def load_scidac_config(filename):
     """Converts the specified SCIDAC field configuration into a numpy array
@@ -85,7 +85,7 @@ def load_scidac_config(filename):
 
     config = qcdutils.GaugeSCIDAC(filename)
 
-    return _extract_datum(config)
+    return _extract_config(config)
 
 def load_milc_config(filename):
     """Converts the specified MILC field configuration into a numpy array
@@ -101,7 +101,7 @@ def load_milc_config(filename):
 
     config = qcdutils.GaugeMILC(filename)
 
-    return _extract_datum(config)
+    return _extract_config(config)
 
 def load_chroma_mesonspec(filename, fold=False):
     """Loads the meson correlator(s) present in the supplied Chroma mesonspec
