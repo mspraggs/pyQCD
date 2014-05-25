@@ -277,17 +277,16 @@ def compute_meson_corr256(propagator1, propagator2, momenta=(0, 0, 0),
                                   gammas[0], gammas[1], momenta,
                                   average_momenta, fold)
     
-    results = _parmap(parallel_function, interpolators)
+    results = _parmap(parallel_function, interp_pairs)
 
     out = {}
-    for interpolator, result in zip(interpolators, results):
-        label = "{}_{}".format(interpolator[0], interpolator[1])
+    for interpolator, result in zip(interp_pairs, results):
         try:
             for mom, corr in result.items():
-                out[(label, mom)] = corr
+                out[(interpolator[0], interpolator[1], mom)] = corr
 
         except AttributeError:
-            out[label] = result
+            out[(interpolator[0], interpolator[1])] = result
 
     return out
             
