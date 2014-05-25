@@ -25,7 +25,7 @@ def _parmap(f, X, nprocs = mp.cpu_count()):
     q_in = mp.Queue(1)
     q_out = mp.Queue()
 
-    proc = [mp.Process(target=spawn(f),args=(q_in,q_out))
+    proc = [mp.Process(target=_spawn(f),args=(q_in,q_out))
             for _ in range(nprocs)]
     for p in proc:
         p.daemon = True
