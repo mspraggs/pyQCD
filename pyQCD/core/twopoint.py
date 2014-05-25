@@ -149,9 +149,9 @@ def compute_meson_corr(propagator1, propagator2, source_interpolator,
       them to compute a pseudoscalar correlator.
           
       >>> import pyQCD
-      >>> lattice = pyQCD.Lattice()
+      >>> lattice = pyQCD.Lattice(4, 8, 5.5, "wilson", 10)
       >>> lattice.thermalize(100)
-      >>> prop = lattice.get_propagator(0.4)
+      >>> prop = lattice.get_wilson_propagator(0.4)
       >>> correlator = pyQCD.compute_meson_corr(prop, prop, "g5", "g5")
     """
         
@@ -262,9 +262,9 @@ def compute_meson_corr256(propagator1, propagator2, momenta=(0, 0, 0),
       them to compute a pseudoscalar correlator.
           
       >>> import pyQCD
-      >>> lattice = pyQCD.Lattice()
+      >>> lattice = pyQCD.Lattice(4, 8, 5.5, "wilson", 10)
       >>> lattice.thermalize(100)
-      >>> prop = lattice.get_propagator(0.4)
+      >>> prop = lattice.get_wilson_propagator(0.4)
       >>> correlator = pyQCD.compute_meson_corr256(prop, prop)
     """
 
