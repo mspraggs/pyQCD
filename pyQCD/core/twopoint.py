@@ -268,9 +268,9 @@ def compute_meson_corr256(propagator1, propagator2, momenta=(0, 0, 0),
       >>> correlator = pyQCD.compute_meson_corr256(prop, prop)
     """
 
-    interpolators = [(Gamma1, Gamma2)
-                     for Gamma1 in interpolators
-                     for Gamma2 in interpolators]
+    interp_pairs = [(Gamma1, Gamma2)
+                    for Gamma1 in interpolators
+                    for Gamma2 in interpolators]
 
     def parallel_function(gammas):
         return compute_meson_corr(propagator1, propagator2,
