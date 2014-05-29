@@ -82,7 +82,7 @@ Lattice::computePropagator(const int action, const vector<int>& intParams,
   if (nSmears > 0) {
     templinks = this->links_;
     for (int time = 0; time < this->temporalExtent; time++) {
-      this->smearLinks(time, nSmears, smearingParameter);
+      this->stoutSmearLinks(time, nSmears, smearingParameter);
     }
   }
 

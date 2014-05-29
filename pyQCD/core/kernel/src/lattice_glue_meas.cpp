@@ -121,8 +121,8 @@ double Lattice::computeWilsonLoop(const int corner1[4], const int corner2[4],
       linkStore1[i] = this->links_[corner1Timeslice + i];
       linkStore2[i] = this->links_[corner2Timeslice + i];
     }
-    this->smearLinks(corner1Timeslice, nSmears, smearingParameter);
-    this->smearLinks(corner2Timeslice, nSmears, smearingParameter);
+    this->stoutSmearLinks(corner1Timeslice, nSmears, smearingParameter);
+    this->stoutSmearLinks(corner2Timeslice, nSmears, smearingParameter);
   }
 
   // Check that corner1 and corner2 are on the same plane
@@ -187,8 +187,8 @@ double Lattice::computeWilsonLoop(const int corner[4], const int r,
       linkStore1[i] = this->links_[corner1Timeslice + i];
       linkStore2[i] = this->links_[corner2Timeslice + i];
     }
-    this->smearLinks(corner[0], nSmears, smearingParameter);
-    this->smearLinks(corner[0] + t, nSmears, smearingParameter);
+    this->stoutSmearLinks(corner[0], nSmears, smearingParameter);
+    this->stoutSmearLinks(corner[0] + t, nSmears, smearingParameter);
   }
   // An output matrix
   Matrix3cd out = Matrix3cd::Identity();
@@ -429,7 +429,7 @@ double Lattice::computeAverageWilsonLoop(const int r, const int t,
   if (nSmears > 0) {
     templinks = this->links_;
     for (int time = 0; time < this->temporalExtent; time++) {
-      this->smearLinks(time, nSmears, smearingParameter);
+      this->stoutSmearLinks(time, nSmears, smearingParameter);
     }
   }
 
@@ -538,8 +538,8 @@ Matrix3cd Lattice::computeQ(const int link[5],
 
 
 
-void Lattice::smearLinks(const int time, const int nSmears,
-			 const double smearingParameter)
+void Lattice::stoutSmearLinks(const int time, const int nSmears,
+			      const double smearingParameter)
 {
   // Smear the specified time slice by iterating calling this function
   int nSpatialLinks = this->nLinks_ / this->temporalExtent;
