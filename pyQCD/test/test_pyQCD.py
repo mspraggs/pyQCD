@@ -785,6 +785,32 @@ class TestPropagator:
         
         assert (prop_multiplied == expected_product).all()
 
+    def test_compute_propagator(self):
+
+        lattice = Lattice(4, 8, 5.5, "wilson", 10)
+        lattice.load_config(create_fullpath("chroma_config.npy"))
+
+        smearing_combinations = [(0, 0, 0), (1, 0, 0), (0, 1, 0), (0, 0, 1)]
+
+        invert_func = lambda psi: lattice.invert_wilson_dirac(psi, 0.4)
+
+        for n_link_s, n_source_s, n_sink_s, in smearing_combinations:
+
+            src_smear \
+              = lambda psi: lattice.apply_jacobi_smearing(psi, n_source_s, 0.4)
+            snk_smear \
+              = lambda psi: lattice.apply_jacobi_smearing(psi, n_sink_s, 0.4)
+
+            prop = compute_propagator(lattice.point_source,
+                                      invert_func, src_smear, snk_smear)
+                    
+            filename = ("prop_wilson_conjugate_gradient_{}_{}_{}_{}.npy"
+                        .format("jacobi", n_link_s, n_source_s, n_sink_s))
+
+            actual_prop = np.load(create_fullpath(filename))
+                        
+            assert np.allclose(actual_prop, prop)
+
 class TestTwoPoint:
             
     def test_compute_meson_corr(self):
