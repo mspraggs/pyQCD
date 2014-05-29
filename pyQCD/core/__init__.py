@@ -21,6 +21,4 @@ except ImportError:
 from .dicts import *    
 from .propagator import *
 from .twopoint import *
-from .wilslps import *
-from .dataset import *
 from .constants import *

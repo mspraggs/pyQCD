@@ -9,3 +9,4 @@ from __future__ import print_function
 
 from .fitting import *
 from .dataset import *
+from .wilslps import *
