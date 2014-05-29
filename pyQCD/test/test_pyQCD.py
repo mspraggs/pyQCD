@@ -855,18 +855,19 @@ class TestTwoPoint:
         fit_function \
           = lambda b, t, Ct, err: Ct - b[0] * np.exp(-b[1] * t)
         
-        fit_result = fit_1_correlator(correlator, fit_function,
-                                      range(T), [500, 1])
+        fit_result = analysis.fit_1_correlator(correlator, fit_function,
+                                               range(T), [500, 1])
         fit_result = np.array(fit_result)
         assert np.allclose(fit_result, expected_result)
         
-        fit_result = fit_1_correlator(correlator, fit_function,
-                                      [0, T], [500, 1])
+        fit_result = analysis.fit_1_correlator(correlator, fit_function,
+                                               [0, T], [500, 1])
         fit_result = np.array(fit_result)
         assert np.allclose(fit_result, expected_result)
         
-        fit_result = fit_1_correlator(correlator, fit_function, range(T),
-                                      [500, 1], np.ones(T), lambda x: x[1]**2)
+        fit_result = analysis.fit_1_correlator(correlator, fit_function,
+                                               range(T), [500, 1], np.ones(T),
+                                               lambda x: x[1]**2)
         assert np.allclose(fit_result, mass**2)
 
     def test_fit_correlators(self):
@@ -888,8 +889,8 @@ class TestTwoPoint:
         correlators = [amplitude1 * np.exp(-mass * np.arange(T)),
                        amplitude2 * np.exp(-mass * np.arange(T))]
 
-        fit_result = fit_correlators(correlators, fit_function,
-                                     range(T), [500, 5, 1])
+        fit_result = analysis.fit_correlators(correlators, fit_function,
+                                              range(T), [500, 5, 1])
 
         assert np.allclose(np.array(fit_result), expected_result)
             
@@ -904,7 +905,7 @@ class TestTwoPoint:
         correlator = amplitude * np.exp(-mass * np.arange(T)) \
           + amplitude * np.exp(-mass * (T - np.arange(T)))
         
-        fitted_mass = compute_energy(correlator, range(T), [500, 1])
+        fitted_mass = analysis.compute_energy(correlator, range(T), [500, 1])
         assert np.allclose(fitted_mass, mass)
             
     def test_compute_energy_sqr(self):
@@ -918,7 +919,8 @@ class TestTwoPoint:
         correlator = amplitude * np.exp(-mass * np.arange(T)) \
           + amplitude * np.exp(-mass * (T - np.arange(T)))
                 
-        fitted_mass = compute_energy_sqr(correlator, range(T), [500, 1])
+        fitted_mass = analysis.compute_energy_sqr(correlator, range(T),
+                                                  [500, 1])
         assert np.allclose(fitted_mass, mass**2)
         
     def test_compute_effmass(self):
@@ -928,7 +930,7 @@ class TestTwoPoint:
         correlator = npr.random(T)
         expected_effmass = np.log(np.abs(correlator / np.roll(correlator, -1)))
         
-        actual_effmass = compute_effmass(correlator, 1.0)
+        actual_effmass = analysis.compute_effmass(correlator, 1.0)
         
         assert np.allclose(actual_effmass, expected_effmass)
         
@@ -938,7 +940,7 @@ class TestDataSet:
 
         dataset = npr.random(100).tolist()
 
-        binned_data = bin_data(dataset, 10)
+        binned_data = analysis.bin_data(dataset, 10)
 
         assert len(binned_data) == 10
         
@@ -946,7 +948,7 @@ class TestDataSet:
         
         dataset = npr.random(100).tolist()
         
-        bootstrapped_data = bootstrap_data(dataset, 10)
+        bootstrapped_data = analysis.bootstrap_data(dataset, 10)
         
         assert len(bootstrapped_data) == 10
         
@@ -958,20 +960,22 @@ class TestDataSet:
         
         rtol = 0.1
 
-        bootstrapped_data = bootstrap_data(dataset, 100)
+        bootstrapped_data = analysis.bootstrap_data(dataset, 100)
         
-        bootstrap_mean, bootstrap_std = bootstrap(dataset, lambda x: x**2, 100)
+        bootstrap_mean, bootstrap_std \
+          = analysis.bootstrap(dataset, lambda x: x**2, 100)
         assert np.allclose(bootstrap_mean, data_mean**2, rtol)
 
         bootstrap_mean, bootstrap_std \
-          = bootstrap(bootstrapped_data, lambda x: x**2, resample=False)
+          = analysis.bootstrap(bootstrapped_data, lambda x: x**2,
+                               resample=False)
         assert np.allclose(bootstrap_mean, data_mean**2, rtol)
                 
     def test_jackknife_data(self):
         
         dataset = npr.random(100).tolist()
         
-        jackknifed_data = jackknife_data(dataset)
+        jackknifed_data = analysis.jackknife_data(dataset)
         
         assert len(jackknifed_data) == 100
         
@@ -983,13 +987,14 @@ class TestDataSet:
         
         rtol = 0.001
 
-        jackknifed_data = jackknife_data(dataset)
+        jackknifed_data = analysis.jackknife_data(dataset)
                 
-        jackknife_mean, jackknife_std = jackknife(dataset, lambda x: x**2)
+        jackknife_mean, jackknife_std \
+          = analysis.jackknife(dataset, lambda x: x**2)
         assert np.allclose(jackknife_mean, data_mean**2, rtol)
 
         jackknife_mean, jackknife_std \
-          = jackknife(jackknifed_data, lambda x: x**2, resample=False)
+          = analysis.jackknife(jackknifed_data, lambda x: x**2, resample=False)
         assert np.allclose(jackknife_mean, data_mean**2, rtol)
         
 class TestWilsonLoops:
@@ -1001,7 +1006,7 @@ class TestWilsonLoops:
         
         wilslp_data = np.load(create_fullpath("wilslps_no_smear.npy"))
                 
-        actual_lattice_spacing = np.array(lattice_spacing(wilslp_data))
+        actual_lattice_spacing = np.array(analysis.lattice_spacing(wilslp_data))
         
         assert np.allclose(actual_lattice_spacing, expected_lattice_spacing)
         
@@ -1014,7 +1019,7 @@ class TestWilsonLoops:
         
         wilslp_data = np.load(create_fullpath("wilslps_no_smear.npy"))
                 
-        actual_potential = pair_potential(wilslp_data)
+        actual_potential = analysis.pair_potential(wilslp_data)
         
         assert np.allclose(actual_potential, expected_potential)
     
