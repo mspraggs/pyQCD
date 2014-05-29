@@ -136,8 +136,8 @@ public:
     const vector<double>& floatParams,
     const vector<complex<double> >& complexParams,
     const vector<complex<double> >& boundaryConditions, const VectorXcd& eta,
-    const int solverMethod, const int precondition, const int maxIterations,
-    const double tolerance, const int verbosity);
+    const int solverMethod, const int precondition, int& iterations,
+    double& tolerance, double& time, const int verbosity);
   
   int nCorrelations, spatialExtent, temporalExtent;
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW

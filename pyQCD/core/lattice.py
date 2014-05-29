@@ -818,7 +818,7 @@ class Lattice(lattice.Lattice):
     def invert_wilson_dirac(self, eta, mass, boundary_conditions=[-1, 1, 1, 1],
                             solver_method="conjugate_gradient",
                             precondition=False, max_iterations=1000,
-                            tolerance=1e-8, verbosity=0):
+                            tolerance=1e-8, solver_info=False):
         """Inverts the Wilson Dirac operator on the specified lattice spinor
                             
         Args:
@@ -836,12 +836,15 @@ class Lattice(lattice.Lattice):
             the solver will perform before giving up.
           tolerance (float, optional): The maximum residual the solver will
             allow before considering convergence to have been reached.
-          verbosity (int, optional): Determines how much inversion is outputted
-            during the inversion. Values greater than one produce output, whilst
-            1 or 0 will produce no output.
+          solver_info (boolean, optional): If true, a tuple of four elements
+            is returned, with the first element containing the solution, the
+            second containing the number of iterations used by the solver, the
+            third containing the final residual after the solver completed and
+            the fourth containing the total CPU time consumed by the solver. If
+            false, then the result alone is returned.
         
         Returns:
-          numpy.ndarray: The spinor resulting from the inversion.
+          numpy.ndarray or tuple: The spinor resulting from the inversion.
           
         Examples:
           Here we create a lattice and a source, then invert a Wilson Dirac
@@ -862,21 +865,24 @@ class Lattice(lattice.Lattice):
         except AttributeError:
             pass
         
-        psi = lattice.Lattice \
+        result = lattice.Lattice \
           .invert_wilson_dirac(self, eta, mass, boundary_conditions,
                                dicts.solver_methods[solver_method],
                                dicts.truefalse[precondition],
-                               max_iterations, tolerance, verbosity)
+                               max_iterations, tolerance, 0)
         
-        psi = np.array(psi)
+        psi = np.array(result[0])
         psi = psi.reshape((self.T, self.L, self.L, self.L, 4, 3))
         
-        return psi
+        if solver_info:
+            return (psi, result[1], result[2], result[3])
+        else:
+            return psi
     
     def invert_hamberwu_dirac(self, eta, mass, boundary_conditions=[-1, 1, 1, 1],
                               solver_method="conjugate_gradient",
                               precondition=False, max_iterations=1000,
-                              tolerance=1e-8, verbosity=0):
+                              tolerance=1e-8, solver_info=False):
         """Inverts the Hamber-Wu Dirac operator on the specified lattice spinor
                             
         Args:
@@ -894,12 +900,15 @@ class Lattice(lattice.Lattice):
             the solver will perform before giving up.
           tolerance (float, optional): The maximum residual the solver will
             allow before considering convergence to have been reached.
-          verbosity (int, optional): Determines how much inversion is outputted
-            during the inversion. Values greater than one produce output, whilst
-            1 or 0 will produce no output.
+          solver_info (boolean, optional): If true, a tuple of four elements
+            is returned, with the first element containing the solution, the
+            second containing the number of iterations used by the solver, the
+            third containing the final residual after the solver completed and
+            the fourth containing the total CPU time consumed by the solver. If
+            false, then the result alone is returned.
         
         Returns:
-          numpy.ndarray: The spinor resulting from the inversion.
+          numpy.ndarray or tuple: The spinor resulting from the inversion.
           
         Examples:
           Here we create a lattice and a source, then invert a Hamber-Wu Dirac
@@ -920,21 +929,24 @@ class Lattice(lattice.Lattice):
         except AttributeError:
             pass
         
-        psi = lattice.Lattice\
+        result = lattice.Lattice\
           .invert_hamberwu_dirac(self, eta, mass, boundary_conditions,
                                  dicts.solver_methods[solver_method],
                                  dicts.truefalse[precondition],
-                                 max_iterations, tolerance, verbosity)
+                                 max_iterations, tolerance, 0)
         
-        psi = np.array(psi)
+        psi = np.array(result[0])
         psi = psi.reshape((self.T, self.L, self.L, self.L, 4, 3))
         
-        return psi
+        if solver_info:
+            return (psi, result[1], result[2], result[3])
+        else:
+            return psi
     
     def invert_naik_dirac(self, eta, mass, boundary_conditions=[-1, 1, 1, 1],
                           solver_method="conjugate_gradient",
                           precondition=False, max_iterations=1000,
-                          tolerance=1e-8, verbosity=0):
+                          tolerance=1e-8, solver_info=False):
         """Inverts the Naik Dirac operator on the specified lattice spinor
                             
         Args:
@@ -952,12 +964,15 @@ class Lattice(lattice.Lattice):
             the solver will perform before giving up.
           tolerance (float, optional): The maximum residual the solver will
             allow before considering convergence to have been reached.
-          verbosity (int, optional): Determines how much inversion is outputted
-            during the inversion. Values greater than one produce output, whilst
-            1 or 0 will produce no output.
+          solver_info (boolean, optional): If true, a tuple of four elements
+            is returned, with the first element containing the solution, the
+            second containing the number of iterations used by the solver, the
+            third containing the final residual after the solver completed and
+            the fourth containing the total CPU time consumed by the solver. If
+            false, then the result alone is returned.
         
         Returns:
-          numpy.ndarray: The spinor resulting from the inversion.
+          numpy.ndarray or tuple: The spinor resulting from the inversion.
           
         Examples:
           Here we create a lattice and a source, then invert a Hamber-Wu Dirac
@@ -978,22 +993,25 @@ class Lattice(lattice.Lattice):
         except AttributeError:
             pass
         
-        psi = lattice.Lattice\
+        result = lattice.Lattice\
           .invert_naik_dirac(self, eta, mass, boundary_conditions,
                              dicts.solver_methods[solver_method],
                              dicts.truefalse[precondition],
-                             max_iterations, tolerance, verbosity)
+                             max_iterations, tolerance, 0)
         
-        psi = np.array(psi)
+        psi = np.array(result[0])
         psi = psi.reshape((self.T, self.L, self.L, self.L, 4, 3))
         
-        return psi
+        if solver_info:
+            return (psi, result[1], result[2], result[3])
+        else:
+            return psi
     
     def invert_dwf_dirac(self, eta, mass, M5, Ls, kernel="wilson",
                          boundary_conditions=[-1, 1, 1, 1],
                          solver_method="conjugate_gradient",
                          precondition=False, max_iterations=1000,
-                         tolerance=1e-8, verbosity=0):
+                         tolerance=1e-8, solver_info=False):
         """Inverts the domain wall Dirac operator on the specified lattice spinor
         
         The domain wall (Shamir) operator is generalised and can use any existing
@@ -1018,9 +1036,12 @@ class Lattice(lattice.Lattice):
             the solver will perform before giving up.
           tolerance (float, optional): The maximum residual the solver will
             allow before considering convergence to have been reached.
-          verbosity (int, optional): Determines how much inversion is outputted
-            during the inversion. Values greater than one produce output, whilst
-            1 or 0 will produce no output.
+          solver_info (boolean, optional): If true, a tuple of four elements
+            is returned, with the first element containing the solution, the
+            second containing the number of iterations used by the solver, the
+            third containing the final residual after the solver completed and
+            the fourth containing the total CPU time consumed by the solver. If
+            false, then the result alone is returned.
         
         Returns:
           numpy.ndarray: The spinor resulting from the inversion.
@@ -1044,17 +1065,20 @@ class Lattice(lattice.Lattice):
         except AttributeError:
             pass
         
-        psi = lattice.Lattice \
+        result = lattice.Lattice \
           .invert_dwf_dirac(self, eta, mass, M5, Ls,
                             dicts.fermion_actions[kernel], boundary_conditions,
                             dicts.solver_methods[solver_method],
                             dicts.truefalse[precondition], max_iterations,
-                            tolerance, verbosity)
+                            tolerance, 0)
         
-        psi = np.array(psi)
+        psi = np.array(result[0])
         psi = psi.reshape((Ls, self.T, self.L, self.L, self.L, 4, 3))
         
-        return psi
+        if solver_info:
+            return (psi, result[1], result[2], result[3])
+        else:
+            return psi
     
     def apply_wilson_dirac(self, psi, mass, boundary_conditions=[-1, 1, 1, 1],
                            precondition=False):

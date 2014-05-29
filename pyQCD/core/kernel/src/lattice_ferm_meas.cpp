@@ -218,8 +218,8 @@ VectorXcd Lattice::invertDiracOperator(
   const vector<double>& floatParams,
   const vector<complex<double> >& complexParams,
   const vector<complex<double> >& boundaryConditions, const VectorXcd& eta,
-  const int solverMethod, const int precondition, const int maxIterations,
-  const double tolerance, const int verbosity)
+  const int solverMethod, const int precondition, int& iterations,
+  double& tolerance, double& time, const int verbosity)
 {
   // Inverts the supplied Dirac operator on the supplied source.
 
@@ -247,7 +247,7 @@ VectorXcd Lattice::invertDiracOperator(
 
   pyQCD::invertDiracOperator(psiCusp, action, cuspIntParams, cuspFloatParams,
 			     cuspComplexParams, cuspBoundaryConditions,
-			     etaCusp, solverMethod, precondition, maxIterations,
+			     etaCusp, solverMethod, precondition, iterations,
 			     tolerance, verbosity, this->spatialExtent,
 			     this->temporalExtent,
 			     gaugeField);
@@ -261,32 +261,28 @@ VectorXcd Lattice::invertDiracOperator(
 			     
 #else
 
-  int iterations = maxIterations;
-  double residual = tolerance;
-  double time = 0.0;
-
   LinearOperator* diracMatrix;
   this->diracOperatorFactory(diracMatrix, action, intParams, floatParams,
 			     complexParams, boundaryConditions);
 
   switch (solverMethod) {
   case pyQCD::bicgstab:
-    psi = bicgstab(diracMatrix, eta, residual, iterations, time,
+    psi = bicgstab(diracMatrix, eta, tolerance, iterations, time,
 		   precondition);
     break;
   case pyQCD::cg:
-    psi = cg(diracMatrix, eta, residual, iterations, time, precondition);
+    psi = cg(diracMatrix, eta, tolerance, iterations, time, precondition);
     break;
   case pyQCD::gmres:
-    psi = gmres(diracMatrix, eta, residual, iterations, time, precondition);
+    psi = gmres(diracMatrix, eta, tolerance, iterations, time, precondition);
     break;
   default:
-    psi = cg(diracMatrix, eta, residual, iterations, time, precondition);
+    psi = cg(diracMatrix, eta, tolerance, iterations, time, precondition);
     break;	
   }
   if (verbosity > 0) {
     cout << "  -> Solver finished with residual of "
-	 << residual << " in " << iterations << " iterations." << endl;
+	 << tolerance << " in " << iterations << " iterations." << endl;
     cout << "  -> CPU time: " << time << " seconds" << endl;
   }
 

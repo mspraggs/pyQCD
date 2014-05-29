@@ -227,14 +227,14 @@ py::list pyLattice::computeNaikPropagatorP(
 
 
 
-py::list pyLattice::invertWilsonDiracOperatorP(const py::list eta,
-					       const double mass,
-					       const py::list boundaryConditions,
-					       const int solverMethod,
-					       const int precondition,
-					       const int maxIterations,
-					       const double tolerance,
-					       const int verbosity)
+py::tuple pyLattice::invertWilsonDiracOperatorP(const py::list eta,
+						const double mass,
+						const py::list boundaryConditions,
+						const int solverMethod,
+						const int precondition,
+						const int maxIterations,
+						const double tolerance,
+						const int verbosity)
 {
   // Invert the Wilson Dirac operator on the specified source
 
@@ -250,20 +250,25 @@ py::list pyLattice::invertWilsonDiracOperatorP(const py::list eta,
   // Release the GIL
   ScopedGILRelease* scope = new ScopedGILRelease;
 
+  double residual = tolerance;
+  double time = 0;
+  int iterations = maxIterations;
+
   VectorXcd vectorPsi
     = this->invertDiracOperator(pyQCD::wilson, intParams, floatParams,
 				complexParams, tempBoundaryConditions,
 				vectorEta, solverMethod, precondition,
-				maxIterations, tolerance, verbosity);
+				iterations, residual, time, verbosity);
 
   delete scope;
 
-  return pyQCD::convertVectorToList(vectorPsi);
+  return py::make_tuple(pyQCD::convertVectorToList(vectorPsi),
+			iterations, residual, time);
 }
 
 
 
-py::list pyLattice::invertHamberWuDiracOperatorP(
+py::tuple pyLattice::invertHamberWuDiracOperatorP(
   const py::list eta, const double mass, const py::list boundaryConditions,
   const int solverMethod, const int precondition, const int maxIterations,
   const double tolerance, const int verbosity)
@@ -281,21 +286,26 @@ py::list pyLattice::invertHamberWuDiracOperatorP(
 
   // Release the GIL
   ScopedGILRelease* scope = new ScopedGILRelease;
+
+  double residual = tolerance;
+  double time = 0;
+  int iterations = maxIterations;
 
   VectorXcd vectorPsi
     = this->invertDiracOperator(pyQCD::hamberWu, intParams, floatParams,
 				complexParams, tempBoundaryConditions,
 				vectorEta, solverMethod, precondition,
-				maxIterations, tolerance, verbosity);
+				iterations, residual, time, verbosity);
 
   delete scope;
 
-  return pyQCD::convertVectorToList(vectorPsi);
+  return py::make_tuple(pyQCD::convertVectorToList(vectorPsi),
+			iterations, residual, time);
 }
 
 
 
-py::list pyLattice::invertNaikDiracOperatorP(
+py::tuple pyLattice::invertNaikDiracOperatorP(
   const py::list eta, const double mass, const py::list boundaryConditions,
   const int solverMethod, const int precondition, const int maxIterations,
   const double tolerance, const int verbosity)
@@ -314,20 +324,25 @@ py::list pyLattice::invertNaikDiracOperatorP(
   // Release the GIL
   ScopedGILRelease* scope = new ScopedGILRelease;
 
+  double residual = tolerance;
+  double time = 0;
+  int iterations = maxIterations;
+
   VectorXcd vectorPsi
     = this->invertDiracOperator(pyQCD::naik, intParams, floatParams,
 				complexParams, tempBoundaryConditions,
 				vectorEta, solverMethod, precondition,
-				maxIterations, tolerance, verbosity);
+				iterations, residual, time, verbosity);
   
   delete scope;
 
-  return pyQCD::convertVectorToList(vectorPsi);
+  return py::make_tuple(pyQCD::convertVectorToList(vectorPsi),
+			iterations, residual, time);
 }
 
 
 
-py::list pyLattice::invertDWFDiracOperatorP(const py::list eta,
+py::tuple pyLattice::invertDWFDiracOperatorP(const py::list eta,
 					    const double mass, const double M5,
 					    const int Ls, const int kernelType,
 					    const py::list boundaryConditions,
@@ -354,15 +369,20 @@ py::list pyLattice::invertDWFDiracOperatorP(const py::list eta,
   // Release the GIL
   ScopedGILRelease* scope = new ScopedGILRelease;
 
+  double residual = tolerance;
+  double time = 0;
+  int iterations = maxIterations;
+
   VectorXcd vectorPsi
     = this->invertDiracOperator(pyQCD::dwf, intParams, floatParams,
 				complexParams, tempBoundaryConditions,
 				vectorEta, solverMethod, precondition,
-				maxIterations, tolerance, verbosity);
+				iterations, residual, time, verbosity);
   
   delete scope;
 
-  return pyQCD::convertVectorToList(vectorPsi);
+  return py::make_tuple(pyQCD::convertVectorToList(vectorPsi),
+			iterations, residual, time);
 }
 
 
