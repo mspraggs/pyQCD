@@ -510,6 +510,33 @@ class Lattice(lattice.Lattice):
         
         return lattice.Lattice.get_av_wilson_loop(self, r, t, num_smears,
                                                   smearing_param)
+
+    def point_source(self, spin, colour, site=[0, 0, 0, 0]):
+        """Generates a point source at the specified lattice site at the
+        appropriate spin and colour indices
+
+        Args:
+          spin (int): The spin index of the source.
+          colour (int): The colour index of the source.
+          site (list, optional): The lattice site of the source.
+
+        Returns:
+          numpy.ndarray: The source, with shape (T, L, L, L, 4, 3)
+
+        Examples:
+          Here we create a point source at the site [4, 2, 2, 2]
+
+          >>> import pyQCD
+          >>> lattice = pyQCD.Lattice(4, 8, 5.5, "wilson", 10)
+          >>> src = lattice.point_source(0, 0, [4, 2, 2, 2])
+          >>> src.shape
+          (8, 4, 4, 4, 4, 3)
+        """
+
+        out = np.zeros(self.shape + (4, 3), dtype=np.complex)
+        out[tuple(site) + (spin, colour)] = 1.0
+
+        return out
     
     def get_wilson_loops(self, num_field_smears=0, field_smearing_param=1.0):
         """Calculates and returns all Wilson loops of size m x n,
