@@ -38,7 +38,7 @@ CudaHoppingTerm<numHops>::CudaHoppingTerm(const Complex scaling,
   // Constructor - user-specified spin structures
 
   if (spinLength == 128)
-    this->init(numHops, L, T, precondition, hermitian, boundaryConditions,
+    this->init(scaling, L, T, precondition, hermitian, boundaryConditions,
 	       spinStructures, links, copyLinks);
   else {
     Complex hostSpinStructures[128];
@@ -166,12 +166,12 @@ void CudaHoppingTerm<numHops>::apply3d(Complex* y, const Complex* x) const
   int dimGrid;
   setGridAndBlockSize(dimBlock, dimGrid, this->N);
 
-  hoppingKernel3d<numHops><<<dimGrid,dimGrid>>>(y, x, this->links_,
-						this->spinStructures_,
-						this->neighbours_,
-						this->boundaryConditions_,
-						this->scaling_,
-						this->L_, this->T_);
+  hoppingKernel3d<numHops><<<dimGrid,dimBlock>>>(y, x, this->links_,
+						 this->spinStructures_,
+						 this->neighbours_,
+						 this->boundaryConditions_,
+						 this->scaling_,
+						 this->L_, this->T_);
 }
 
 
@@ -200,7 +200,7 @@ void CudaHoppingTerm<numHops>::applyHermitian(Complex* y,
   this->apply(y, x);
   int dimBlock;
   int dimGrid;
-  setGridAndBlockSize(dimGrid, dimBlock, this->N);
+  setGridAndBlockSize(dimBlock, dimGrid, this->N);
   applyGamma5<<<dimGrid,dimBlock>>>(y, y, this->L_, this->T_);
 }
 

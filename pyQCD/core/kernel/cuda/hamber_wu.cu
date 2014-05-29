@@ -23,8 +23,9 @@ CudaHamberWu::CudaHamberWu(const float mass, const int L, const int T,
   addArray(hostSpinStructures + 64, hostGammas, 64); // 2 + gamma_mu
 
   this->nextNearestHopping_ \
-    = new CudaHoppingTerm<2>(1.0 / 6.0, L, T, precondition,
+    = new CudaHoppingTerm<2>(1.0 / 12.0, L, T, precondition,
 			     hermitian, boundaryConditions,
+			     hostSpinStructures, 128,
 			     this->links_, false);
 }
 
