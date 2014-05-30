@@ -12,12 +12,29 @@ import zipfile
 
 from .converters import *
 
-def _write_datum(datum, index, zfname):
-    """Writes the specified file to the specified zipfile"""
+def write_datum(datum, index, zfname, mode):
+    """Writes the specified datum to the specified zipfile
+
+    Args:
+      datum: Structure containing numerical data. May be a scalar value, an
+        iterable built-in or a numpy ndarray
+      index (int): The index label to give the datum in the zip archive.
+      zfname (str): The zip file name.
+      mode (str): The mode in which to open the file ('w' or 'a').
+
+    Examples:
+      Create some random numpy arrays and write them to a zip archive.
+
+      >>> import pyQCD
+      >>> import numpy as np
+      >>> data = [np.random.random(10) for i in range(10)]
+      >>> for i, datum in enumerate(data):
+      ...     pyQCD.io.write_datum(datum, i, "some_data.zip",
+      ...                          'w' if i == 0 else 'a')
+    """
 
     fname = "datum{}.npy".format(index)
-    mode = "w" if index == 0 else "a"
-
+    
     if zfname[-4:] != ".zip":
         zfname = "{}.zip".format(zfname)
 
@@ -31,8 +48,22 @@ def _write_datum(datum, index, zfname):
     os.unlink(fname)
     zfile.close()
 
-def _extract_datum(index, zfname):
-    """Extracts the specified datum from the specified zipfile"""
+def extract_datum(index, zfname):
+    """Extracts the specified datum from the specified zipfile
+
+    Args:
+      index (int): The index label of the required datum.
+      zfname (str): The zip file name.
+
+    Returns:
+      The datum value.
+
+    Examples:
+      Load the data we saved in the pyQCD.io.write_datum example.
+
+      >>> import pyQCD
+      >>> data = [pyQCD.io.extract_datum(i, "some_data.zip")
+      ...         for i in range(10)]"""
 
     fname = "datum{}.npy".format(index)
 
@@ -74,7 +105,7 @@ def save_archive(filename, data):
     """
 
     for i, datum in enumerate(data):
-        _write_datum(datum, i, filename)
+        write_datum(datum, i, filename, "w" if i == 0 else "a")
 
 def load_archive(filename):
     """Load the contents of the supplied zip archive into a list
@@ -92,4 +123,4 @@ def load_archive(filename):
 
     zfile.close()
 
-    return [_extract_datum(i, filename) for i in range(num_data)]
+    return [extract_datum(i, filename) for i in range(num_data)]
