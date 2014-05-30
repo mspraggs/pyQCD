@@ -177,5 +177,34 @@ def smear_propagator(propagator, smear_func):
     """Applies the supplied smearing function to the supplied propagator
 
     Args:
-      
+      propagator (numpy.ndarray): The propagator to smear, with a shape of the
+        form (..., 4, 4, 3, 3).
+      smear_func (function): The smearing function to apply. Should be able
+        to accept one of the 12 spin-colour components of the propagator,
+        accepting a numpy ndarray of shape (..., 4, 3) and returning an array
+        with the same shape.
+
+    Returns:
+      numpy.ndarray: The smeared propagator
+
+    Examples:
+      Create a lattice, generate a propagator then smear the propagator.
+
+      >>> import pyQCD
+      >>> lattice = pyQCD.Lattice(4, 8, 5.5, "wilson", 10)
+      >>> invert_func = lambda psi: lattice.invert_wilson_dirac(psi, 0.4)
+      >>> prop = pyQCD.compute_propagator(pyQCD.point_source([0, 0, 0, 0]),
+      ...                                 invert_func)
+      >>> smeared_prop = pyQCD.smear_propagator(prop)
     """
+
+    new_prop = np.zeros(propagator.shape, dtype=np.complex)
+    
+    for alpha in range(4):
+        for a in range(3):
+            prop_element = prop[:, :, :, :, :, alpha, :, a]
+            
+            new_prop[:, :, :, :, :, alpha, :, a] \
+              = smear_func(propagator[:, :, :, :, :, alpha, :, a])
+            
+    return new_prop
