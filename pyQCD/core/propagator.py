@@ -202,9 +202,9 @@ def smear_propagator(propagator, smear_func):
     
     for alpha in range(4):
         for a in range(3):
-            prop_element = prop[:, :, :, :, :, alpha, :, a]
+            prop_element = prop[..., alpha, :, a]
             
-            new_prop[:, :, :, :, :, alpha, :, a] \
+            new_prop[..., alpha, :, a] \
               = smear_func(propagator[:, :, :, :, :, alpha, :, a])
             
     return new_prop
