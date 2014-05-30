@@ -82,15 +82,15 @@ def spin_prod(a, b):
         
         return out
 
-def compute_propagator(src_func, invert_func, src_smear=None, snk_smear=None):
+def compute_propagator(src_template, invert_func, src_smear=None,
+                       snk_smear=None):
     """Extensible propagator generation function
 
     Args:
-      src_func (function): A function used to generate the source used by the
-        inversion function. This function must accept exactly two arguments.
-        The first should be the spin index of the source and the second the
-        colour index of the source. The resulting source should have shape
-        (T, L, L, L, 4, 3).
+      src_template (numpy.ndarray): A source template used to generate the
+        source used by the inversion function. This array should have the shape
+        (T, L, L, L). This template is then used to generate the source for
+        each spin and colour combination.
       invert_func (function): The function used to perform the inversion. This
         function must accept exactly one argument - the source of shape
         (T, L, L, L, 4, 3). The function should return either the solution or
@@ -132,9 +132,9 @@ def compute_propagator(src_func, invert_func, src_smear=None, snk_smear=None):
     prop_log = logging.getLogger("propagator")
     invert_log = logging.getLogger("propagator.invert")
 
-    spinor_shape = src_func(0, 0).shape
+    spinor_shape = src_template.shape
 
-    propagator = np.zeros((4, 3) + spinor_shape, dtype=np.complex)
+    propagator = np.zeros(spinor_shape + (4, 4, 3, 3), dtype=np.complex)
 
     prop_log.info("Started computing propagator")
     
@@ -144,7 +144,8 @@ def compute_propagator(src_func, invert_func, src_smear=None, snk_smear=None):
                          .format(spin, colour))
             
             prop_log.info("Generating source")
-            source = src_func(spin, colour)
+            source = np.zeros(spinor_shape + (4, 3), np.complex)
+            source[..., spin, colour] = src_template
             
             if src_smear != None:
                 prop_log.info("Smearing source")
@@ -166,18 +167,15 @@ def compute_propagator(src_func, invert_func, src_smear=None, snk_smear=None):
                 prop_log.info("Smearing sink")
                 solution = snk_smear(solution)
 
-            propagator[spin, colour] = solution
+            propagator[..., spin, :, colour] = solution
 
     prop_log.info("Finished computing propagator")
 
-    # This is a bit ugly, but I can't see another way to do this for an
-    # arbitrary shaped propagator (e.g. 5D).
+    return propagator
 
-    shape_size = len(propagator.shape)
-    # We're looking to construct the permuted ordering of the propagator
-    # indices so we can put the spin and colour indices at the end. E.g.:
-    # (4, 3, T, L, L, L, 4, 3) -> (T, L, L, L, 4, 4, 3, 3)
-    transposed_order = (tuple(range(2, shape_size - 2))
-                        + (shape_size - 2, 0, shape_size - 1, 1))
+def smear_propagator(propagator, smear_func):
+    """Applies the supplied smearing function to the supplied propagator
 
-    return np.transpose(propagator, transposed_order)
+    Args:
+      
+    """

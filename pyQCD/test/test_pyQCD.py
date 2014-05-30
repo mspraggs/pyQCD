@@ -804,7 +804,7 @@ class TestPropagator:
             snk_smear \
               = lambda psi: lattice.apply_jacobi_smearing(psi, n_sink_s, 0.4)
 
-            prop = compute_propagator(lattice.point_source,
+            prop = compute_propagator(lattice.point_source([0, 0, 0, 0]),
                                       invert_func, src_smear, snk_smear)
 
             lattice.set_config(backup_config)
