@@ -792,9 +792,12 @@ class TestPropagator:
 
         smearing_combinations = [(0, 0, 0), (1, 0, 0), (0, 1, 0), (0, 0, 1)]
 
-        invert_func = lambda psi: lattice.invert_wilson_dirac(psi, 0.4)
-
         for n_link_s, n_source_s, n_sink_s, in smearing_combinations:
+
+            backup_config = lattice.get_config()
+            lattice.stout_smear(n_link_s, 0.4)
+
+            invert_func = lambda psi: lattice.invert_wilson_dirac(psi, 0.4)
 
             src_smear \
               = lambda psi: lattice.apply_jacobi_smearing(psi, n_source_s, 0.4)
@@ -803,6 +806,8 @@ class TestPropagator:
 
             prop = compute_propagator(lattice.point_source,
                                       invert_func, src_smear, snk_smear)
+
+            lattice.set_config(backup_config)
                     
             filename = ("prop_wilson_conjugate_gradient_{}_{}_{}_{}.npy"
                         .format("jacobi", n_link_s, n_source_s, n_sink_s))
