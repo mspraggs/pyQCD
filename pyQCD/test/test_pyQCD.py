@@ -496,6 +496,9 @@ if lattice_exists:
                         assert wilson_loops[r, t] \
                           == lattice.get_av_wilson_loop(r, t, n, 0.5)
 
+        def test_point_source(self):
+            pass
+
         def test_get_wilson_propagator(self):
             
             lattice = Lattice(4, 8, 5.5, "wilson", 10)
@@ -815,6 +818,9 @@ class TestPropagator:
             actual_prop = np.load(create_fullpath(filename))
                         
             assert np.allclose(actual_prop, prop)
+
+    def test_smear_propagator(self):
+        pass
 
 class TestTwoPoint:
             
