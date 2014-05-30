@@ -70,6 +70,8 @@ BOOST_PYTHON_MODULE(lattice)
     .def("get_av_wilson_loop", &pyLattice::computeAverageWilsonLoopP,
 	 (py::arg("r"), py::arg("t"), py::arg("n_smears") = 0,
 	  py::arg("smearing_param") = 1.0))
+    .def("stout_smear", &pyLattice::stoutSmearLinks,
+	 (py::arg("timeslice"), py::arg("n_smears"), py::arg("smearing_param")))
     .def("get_wilson_propagator", &pyLattice::computeWilsonPropagatorP,
 	 (py::arg("mass"), py::arg("site") = listArg(),
 	  py::arg("n_link_smears") = 0, py::arg("link_param") = 1.0,

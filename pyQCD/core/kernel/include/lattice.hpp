@@ -110,7 +110,7 @@ public:
   Matrix3cd computeQ(const int link[5],
 		     const double smearingParameter) const;
   void stoutSmearLinks(const int time, const int nSmears,
-		  const double smearingParameter);
+		       const double smearingParameter);
 
   VectorXcd makeSource(const int site[4], const int spin,
 		       const int colour,

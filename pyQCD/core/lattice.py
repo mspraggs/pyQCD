@@ -571,6 +571,33 @@ class Lattice(lattice.Lattice):
               = lattice.Lattice.get_av_wilson_loop(self, r, t, num_field_smears,
                                                    field_smearing_param)
         return loops
+
+    def stout_smear(self, num_smears, smearing_param, timeslices=None):
+        """Perform stout smearing on the spatial links in the specified
+        timeslice using the supplied parameters.
+
+        Args:
+          num_smears (int): The number of times to apply the smearing operation.
+          smearing_param (float): The smearing parameter.
+          timeslices (list, optional): The timeslice(s) to smear. If omitted,
+            all timeslices are smeared.
+
+        Examples:
+          Here we create a lattice, load a config, smear it, then save it back
+          to disk.
+
+          >>> import pyQCD
+          >>> lattice = pyQCD.Lattice(8, 16, 5.5, "wilson", 10)
+          >>> lattice.load_config("random_config.npy")
+          >>> lattice.stout_smear(2, 0.4)
+          >>> lattice.save_config("random_config_stout_smear.npy")
+        """
+
+        if timeslices == None:
+            timeslices = range(self.T)
+
+        for t in timeslices:
+            lattice.Lattice.stout_smear(self, t, num_smears, smearing_param)
     
     def get_wilson_propagator(self, mass,
                               source_site=[0, 0, 0, 0],
