@@ -13,54 +13,47 @@ import numpy as np
 
 import pyQCD
 
-def smear_propagator(lattice, prop, n_smears, smearing_param):
-    """Smear the supplied propagator at the sink, and set the smearing
-    parameters in the propagator to those characterising the smearing"""
-
-    new_prop = np.zeros(prop.shape, dtype=np.complex)
-    
-    for alpha in range(4):
-        for a in range(3):
-            prop_element = prop[:, :, :, :, :, alpha, :, a]
-            
-            new_prop[:, :, :, :, :, alpha, :, a] \
-              = lattice.apply_jacobi_smearing(prop_element, n_smears,
-                                              smearing_param)
-            
-    return new_prop
-
 def compute_correlators(lattice, mass_1, mass_2):
     """Computes all 256 meson correlation functions for the two supplied
     quark masses and all four possible source/sink smearing combinations"""
 
     out = {}
+
+    # Could do some smearing here
+    #backup_config = lattice.get_config()
+    #lattice.stout_smear(2, 0.4)
+
+    # Create the inversion functions and smearing functions we'll use when doing
+    # the inversion.
+    invert_mass_1 \
+      = lambda psi: lattice.invert_wilson_dirac(psi, mass_1, precondition=True)
+    invert_mass_2 \
+      = lambda psi: lattice.invert_wilson_dirac(psi, mass_2, precondition=True)
+
+    smear_func = lambda psi: lattice.apply_jacobi_smearing(psi, 2, 0.4)
+
+    pt_src = lattice.point_source([0, 0, 0, 0])
     
     # Next we need the propagators. We do unsmeared first (the default).
-    prop_LL_mass_1 = lattice.get_wilson_propagator(mass_1, verbosity=2,
-                                                   precondition=True)
-    prop_LL_mass_2 = lattice.get_wilson_propagator(mass_2, verbosity=2,
-                                                   precondition=True)
-    
+    prop_LL_mass_1 = pyQCD.compute_propagator(pt_src,
+                                              invert_mass_1)
+    prop_LL_mass_2 = pyQCD.compute_propagator(pt_src,
+                                              invert_mass_2)
+
     # Smear these propagators with two jacobi smears and a parameter of 0.4
-    prop_LS_mass_1 = smear_propagator(lattice, prop_LL_mass_1, 2, 0.4)
-    prop_LS_mass_2 = smear_propagator(lattice, prop_LL_mass_2, 2, 0.4)
+    prop_LS_mass_1 = pyQCD.smear_propagator(prop_LL_mass_1, smear_func)
+    prop_LS_mass_2 = pyQCD.smear_propagator(prop_LL_mass_2, smear_func)
     
     # Now we need compute the propagators with source smearing.
     # We do unsmeared first (the default).
-    prop_SL_mass_1 = lattice.get_wilson_propagator(mass_1,
-                                                   num_source_smears=2,
-                                                   source_smearing_param=0.4,
-                                                   verbosity=2,
-                                                   precondition=True)
-    prop_SL_mass_2 = lattice.get_wilson_propagator(mass_2,
-                                                   num_source_smears=2,
-                                                   source_smearing_param=0.4,
-                                                   verbosity=2,
-                                                   precondition=True)
+    prop_SL_mass_1 = pyQCD.compute_propagator(pt_src,
+                                              invert_mass_1, smear_func)
+    prop_SL_mass_2 = pyQCD.compute_propagator(pt_src,
+                                              invert_mass_2, smear_func)
     
     # Smear these propagators with two jacobi smears and a parameter of 0.4
-    prop_SS_mass_1 = smear_propagator(lattice, prop_SL_mass_1, 2, 0.4)
-    prop_SS_mass_2 = smear_propagator(lattice, prop_SL_mass_2, 2, 0.4)
+    prop_SS_mass_1 = pyQCD.smear_propagator(prop_SL_mass_1, smear_func)
+    prop_SS_mass_2 = pyQCD.smear_propagator(prop_SL_mass_2, smear_func)
     
     mass_1_props = [prop_LL_mass_1,
                     prop_LS_mass_1,
@@ -87,6 +80,9 @@ def compute_correlators(lattice, mass_1, mass_2):
         correlators = dict([((key,) + (smear_comb,), value)
                             for key, value in correlators.iteritems()])
         out.update(correlators)
+
+    # If we'd smeared, we'd restore the config here
+    #lattice.set_config(backup_config)
         
     return out
 
@@ -97,7 +93,7 @@ if __name__ == "__main__":
     simulation = pyQCD.Simulation(100, 10, 100)
     
     # Create the lattice. Again, the action and beta value do nothing here.
-    simulation.create_lattice(4, 8, "rectangle_improved", 5.5)
+    simulation.create_lattice(4, 8, 5.5, "rectangle_improved")
 
     # Here we load the ensemble
     simulation.load_ensemble("4c8_ensemble.zip")
