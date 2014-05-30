@@ -11,9 +11,9 @@ import pyQCD
 if __name__ == "__main__":
     
     # First load the data from the zip archive
-    data = pyQCD.load_archive("4c8_correlators_m0.4_m0.03.zip")
+    data = pyQCD.io.load_archive("4c8_correlators_m0.4_m0.03.zip")
 
-    filtered_data = [datum[("g5_g5", "LLLL")] for datum in data]
+    filtered_data = [datum[(("g5", "g5"), "LLLL")] for datum in data]
     
     # Then we'll need an estimate of the error in the correlators to supply
     # to the fitting function
@@ -28,14 +28,15 @@ if __name__ == "__main__":
     # measurement function as the second argument. The arguments to the
     # measurement function are specified using the args and kwargs named
     # arguments. Here we specify a fit range from the 2nd to 6th timeslices.
-    mass_mean, mass_err = pyQCD.jackknife(filtered_data, pyQCD.compute_energy,
-                                          args=[fit_range, [1., 1.],
-                                                corr_err])
+    mass_mean, mass_err \
+      = pyQCD.analysis.jackknife(filtered_data, pyQCD.analysis.compute_energy,
+                                 args=[fit_range, [1., 1.], corr_err])
     
     # To plot the effective mass, we'll need to compute it under the jackknife
     # again
-    effmass_mean, effmass_err = pyQCD.jackknife(filtered_data,
-                                                pyQCD.compute_effmass)
+    effmass_mean, effmass_err \
+      = pyQCD.analysis.jackknife(filtered_data,
+                                 pyQCD.analysis.compute_effmass)
     
     t = np.arange(effmass_mean.size)    
     plt.errorbar(t, effmass_mean, effmass_err, fmt='o', capsize=0)
