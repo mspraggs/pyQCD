@@ -86,6 +86,40 @@ def extract_datum(index, zfname):
 
     return datum
 
+def write_datum_callback(filename):
+    """Creates a callback function from the write_datum function for use as a
+    measurement output callback in the Simulation class.
+
+    Args:
+      filename (str): The filename to save measurments to.
+
+    Returns:
+      function: The callback function.
+    """
+
+    def wrapper(datum, index):
+        write_datum(datum, index, filename, "w" if index == 0 else "a")
+
+    return wrapper
+
+def extract_datum_callback(filename):
+    """Creates a callback function from the extract_datum function for use as an
+    input loading callback in the Simulation class.
+
+    Args:
+      filename (str): The filename to load inputs from.
+
+    Returns:
+      function: The callback function.
+    """
+
+    def wrapper(index):
+        datum = extract_datum(index, filename)
+
+        return datum
+
+    return wrapper
+
 def save_archive(filename, data):
     """Save the supplied list of data to a zip archive using the numpy save
     function
