@@ -15,6 +15,7 @@ import numpy as np
 
 import pyQCD
 
+pyQCD.Log(ignore=("lattice",))
 def compute_correlators(lattice, mass_1, mass_2):
     """Computes all 256 meson correlation functions for the two supplied
     quark masses and all four possible source/sink smearing combinations"""
@@ -39,15 +40,11 @@ def compute_correlators(lattice, mass_1, mass_2):
     pt_src = lattice.point_source([0, 0, 0, 0])
     
     # Next we need the propagators. We do unsmeared first (the default).
-    logging.info("Computing point-point prop for mass = {}".format(mass_1))
     prop_LL_mass_1 = pyQCD.compute_propagator(pt_src, invert_mass_1)
-    logging.info("Computing point-point prop for mass = {}".format(mass_2))
     prop_LL_mass_2 = pyQCD.compute_propagator(pt_src, invert_mass_2)
 
     # Smear these propagators with two jacobi smears and a parameter of 0.4
-    logging.info("Smearing point-point prop with mass = {}".format(mass_1))
     prop_LS_mass_1 = pyQCD.smear_propagator(prop_LL_mass_1, smear_func)
-    logging.info("Smearing point-point prop with mass = {}".format(mass_2))
     prop_LS_mass_2 = pyQCD.smear_propagator(prop_LL_mass_2, smear_func)
     
     # Now we need compute the propagators with source smearing.
@@ -99,9 +96,7 @@ def compute_correlators(lattice, mass_1, mass_2):
 
 if __name__ == "__main__":
 
-    logging.basicConfig(level=logging.INFO,
-                        format='%(asctime)s - %(name)s - %(levelname)s - '
-                        '%(message)s')
+    logging.basicConfig(level=logging.INFO)
     
     # As in generate_configs.py, we create a lattice then use it to create a
     # simulation. Since we're providing an ensemble the number of thermalization
