@@ -8,6 +8,26 @@ import logging
 import inspect
 
 def logger():
+    """Generates a Logger object with path equal to the module, class and
+    function in which this function is called.
+
+    Returns:
+      logging.Logger: The logger object.
+
+    Examples:
+      Here we create a test function and call logger in it, just to try it
+      out.
+
+      >>> import pyQCD
+      >>> import logging
+      >>> def test(x):
+      ...     log = pyQCD.logger()
+      ...     log.info("Argument x = {}".format(x))
+      ...
+      >>> logging.basicConfig(level=logging.INFO)
+      >>> test(1):
+      >>> INFO:test:Argument x = 1
+    """
     
     stack = inspect.stack()
     for frame in stack[1:]:
