@@ -3,31 +3,36 @@ Here we generate a 4c8 ensemble with 100 configurations, using the Symanzik
 rectangle-improved gauge action.
 """
 
+import logging
+
 import pyQCD
 
 if __name__ == "__main__":
     
-    # Here we create the simulation object, specifying 100 configs, 10 updates
-    # in between measurements and 100 updates to thermalize the lattice
-    simulation = pyQCD.Simulation(100, 10, 100)
+    logging.basicConfig(level=logging.INFO)
 
-    # Now we create the lattice. Possible actions are specified in the keys of
+    # First we create the lattice. Possible actions are specified in the keys of
     # pyQCD.gauge_actions. Here we set the inverse coupling, beta, to 5.5. We
-    # set the lattice size to 4^3 x 8 in the first two arguments
-    simulation.create_lattice(4, 8, "rectangle_improved", 5.5)
+    # set the lattice size to 4^3 x 8 in the first two arguments. The spacing
+    # between measurements is set to ten updates.
+    lattice = pyQCD.Lattice(4, 8, 5.5, "rectangle_improved", 10)
+
+    # Here we create the simulation object, specifying 100 configs an 100
+    # thermalization updates
+    simulation = pyQCD.Simulation(lattice, 100, 100)
 
     # Now we can specify the measurements we want to do. All we want to do here
     # is store the field configurations, so we use the function
     # pyQCD.Lattice.get_config to do this, which is a member function of the
-    # lattice object. The resulting configs will be stored in a zip archive,
-    # so we need to specify a file name for the output. It is also possible to
-    # specify a message that is outputted when the measurement takes place.
-    # Here we specify one.
-    simulation.add_measurement(pyQCD.Lattice.get_config, "4c8_ensemble.zip",
-                               meas_message="Saving current config")
+    # lattice object. After a measurement is performed, a callback function is
+    # called to process the result of the measurement in some way. Here we
+    # create a callback function based on the write_datum function in the io
+    # submodule. This saves the result as a numpy binary and adds the file to
+    # a zip archive.
+    fname = "4c8_ensemble.zip"
+    simulation.add_measurement(pyQCD.Lattice.get_config,
+                               pyQCD.io.write_datum_callback(fname))
     
-    # Now that the lattice and measurements have been set up, the simulation can
-    # be run
     simulation.run()
 
     # Once finished, there should be a zip archive called 4c8_ensemble.zip in
