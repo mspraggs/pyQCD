@@ -497,7 +497,13 @@ if lattice_exists:
                           == lattice.get_av_wilson_loop(r, t, n, 0.5)
 
         def test_point_source(self):
-            pass
+
+            lattice = Lattice(4, 8, 5.5, "wilson", 10)
+            pnt_src = lattice.point_source([0, 0, 0, 0])
+
+            assert pnt_src.shape == (8, 4, 4, 4)
+            assert pnt_src.nonzero()[0].size == 1
+            assert pnt_src[0, 0, 0, 0] == 1.0
 
         def test_get_wilson_propagator(self):
             
