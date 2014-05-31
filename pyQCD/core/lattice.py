@@ -530,7 +530,7 @@ class Lattice(lattice.Lattice):
 
         W = lattice.Lattice.get_av_wilson_loop(self, r, t, num_smears,
                                                smearing_param)
-        _logger.info("Value: ".format(r, t, W))
+        _logger().info("Value: ".format(r, t, W))
         
         return W
 
@@ -596,6 +596,8 @@ class Lattice(lattice.Lattice):
           >>> lattice.thermalize(100)
           >>> wilson_loops = lattice.get_wilson_loops(2, 0.4)
         """
+
+        logger = _logger()
         
         loops = np.zeros((self.L, self.T))
         
