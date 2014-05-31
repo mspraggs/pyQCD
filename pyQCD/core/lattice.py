@@ -8,6 +8,7 @@ import numpy as np
 
 from .kernel import lattice
 from . import dicts
+from .log import _logger, Log, ApplyLog, InversionLog
 
 class Lattice(lattice.Lattice):
     """Encapsulates a hypercubic lattice and associated SU(3) gauge field
@@ -127,6 +128,8 @@ class Lattice(lattice.Lattice):
         self.block_size = block_size
         self.rand_seed = rand_seed
         self.shape = (T, L, L, L)
+
+        self.logger = logging.getLogger("pyQCD.Lattice")
         
         lattice.Lattice.__init__(self, L, T, beta, ut, us, chi,
                                  dicts.gauge_actions[action], meas_spacing,
@@ -181,7 +184,8 @@ class Lattice(lattice.Lattice):
         """
         
         lattice.Lattice.set_link(self, link, matrix.tolist())
-    
+
+    @Log("Getting current config")
     def get_config(self):
         """Returns the current field configuration.
         
@@ -197,6 +201,7 @@ class Lattice(lattice.Lattice):
           >>> lattice.thermalize(100)
           >>> config = lattice.get_config()
         """
+        
         r = range(self.L)
         t = range(self.T)
         sites = itertools.product(t, r, r, r, range(4))
@@ -209,7 +214,8 @@ class Lattice(lattice.Lattice):
               = np.array(lattice.Lattice.get_link(self, [t, x, y, z, mu]))
         
         return links
-    
+
+    @Log("Setting current config", ("configuration",))
     def set_config(self, configuration):
         """Sets the current field configuration
         
@@ -239,7 +245,8 @@ class Lattice(lattice.Lattice):
         for t, x, y, z, mu in sites:
             link_matrix = configuration[t][x][y][z][mu].tolist()
             lattice.Lattice.set_link(self, [t, x, y, z, mu], link_matrix)
-    
+
+    @Log("Saving current config")
     def save_config(self, filename):
         """Saves the current field configuration to a numpy binary file
         
@@ -258,7 +265,8 @@ class Lattice(lattice.Lattice):
         
         configuration = self.get_config()
         np.save(filename, configuration)
-        
+
+    @Log("Loading configuration from file")
     def load_config(self, filename):
         """Loads the configuration in the specified numpy binary file
         
@@ -277,7 +285,8 @@ class Lattice(lattice.Lattice):
         
         configuration = np.load(filename)
         self.set_config(configuration)
-        
+
+    @Log("Updating lattice")
     def update(self):
         """Update the gauge field using the method specified in the
         Lattice constructor
@@ -294,7 +303,8 @@ class Lattice(lattice.Lattice):
         """
         
         lattice.Lattice.update(self)
-        
+
+    @Log("Generating next field configuration")
     def next_config(self):
         """Updates the gauge field by a number of times specified
         by measurement spacing (n_cor) in the Lattice constructor
@@ -312,7 +322,8 @@ class Lattice(lattice.Lattice):
         """
         
         lattice.Lattice.next_config(self)
-        
+
+    @Log("Thermalizing lattice")
     def thermalize(self, num_updates):
         """Thermalizes the lattice by ensuring num_updates have been
         performed
@@ -332,7 +343,8 @@ class Lattice(lattice.Lattice):
         """
         
         lattice.Lattice.thermalize(self, num_updates)
-        
+
+    @Log
     def get_plaquette(self, site, dim1, dim2):
         """Computes and returns the value of the specified plaquette
         
@@ -359,7 +371,8 @@ class Lattice(lattice.Lattice):
         """
         
         return lattice.Lattice.get_plaquette(self, site, dim1, dim2)
-        
+
+    @Log
     def get_rectangle(self, site, dim1, dim2):
         """Computes and returns the value of the specified 2 x 1 rectangle
         
@@ -386,7 +399,8 @@ class Lattice(lattice.Lattice):
         """
         
         return lattice.Lattice.get_rectangle(self, site, dim1, dim2)
-        
+
+    @Log
     def get_twist_rect(self, site, dim1, dim2):
         """Computes and returns the value of the specified 2 x 1 twisted
         rectangle
@@ -414,7 +428,8 @@ class Lattice(lattice.Lattice):
         """
         
         return lattice.Lattice.get_twist_rect(self, site, dim1, dim2)
-        
+
+    @Log("Computing Wilson loop")
     def get_wilson_loop(self, corner, r, t, dim, num_smears=0,
                         smearing_param=1.0):
         """Computes and returns the value of the specified Wilson loop
@@ -444,7 +459,7 @@ class Lattice(lattice.Lattice):
           >>> lattice.get_wilson_loop([4, 0, 2, 0], 2, 4, 1)
           -0.19872418745939716
         """
-        
+
         return lattice.Lattice.get_wilson_loop(self, corner, r, t, dim,
                                                num_smears, smearing_param)
         
@@ -463,8 +478,11 @@ class Lattice(lattice.Lattice):
           >>> lattice.get_av_plaquette()
           0.49751028964943506
         """
+
+        p = lattice.Lattice.get_av_plaquette(self)
+        _logger().info("Average plaquette value = {}".format(p))
         
-        return lattice.Lattice.get_av_plaquette(self)
+        return p
     
     def get_av_rectangle(self):
         """Computes the rectangle expectation value
@@ -481,9 +499,13 @@ class Lattice(lattice.Lattice):
           >>> lattice.get_av_rectangle()
           0.2605558875384393
         """
+
+        r = lattice.Lattice.get_av_rectangle(self)
+        _logger().info("Average rectangle value = {}".format(r))
         
-        return lattice.Lattice.get_av_rectangle(self)
-    
+        return r
+
+    @Log
     def get_av_wilson_loop(self, r, t, num_smears=0, smearing_param=1.0):
         """Computes the average wilson loop of a given size
         
@@ -507,10 +529,14 @@ class Lattice(lattice.Lattice):
           >>> lattice.get_av_wilson_loop(3, 3)
           0.007159100123379076
         """
-        
-        return lattice.Lattice.get_av_wilson_loop(self, r, t, num_smears,
-                                                  smearing_param)
 
+        W = lattice.Lattice.get_av_wilson_loop(self, r, t, num_smears,
+                                               smearing_param)
+        _logger.info("Value: ".format(r, t, W))
+        
+        return W
+
+    @Log("Generating point source")
     def point_source(self, site, spin=None, colour=None):
         """Generates a point source at the specified lattice site, possibly at
         the appropriate spin and colour indices
@@ -545,7 +571,8 @@ class Lattice(lattice.Lattice):
             out[tuple(site) + (spin, colour)] = 1.0
 
         return out
-    
+
+    @Log("Computing averages of all Wilson loops...")
     def get_wilson_loops(self, num_field_smears=0, field_smearing_param=1.0):
         """Calculates and returns all Wilson loops of size m x n,
         with m = 0, 1, ... , L and n = 0, 1, ... , T.
@@ -575,11 +602,13 @@ class Lattice(lattice.Lattice):
         loops = np.zeros((self.L, self.T))
         
         for r, t in [(x, y) for x in range(self.L) for y in range(self.T)]:
+            logger.info("Loop size: (r, t) = ({}, {})".format(r, t))
             loops[r, t] \
               = lattice.Lattice.get_av_wilson_loop(self, r, t, num_field_smears,
                                                    field_smearing_param)
         return loops
 
+    @Log("Performing stout smearing")
     def stout_smear(self, num_smears, smearing_param, timeslices=None):
         """Perform stout smearing on the spatial links in the specified
         timeslice using the supplied parameters.
@@ -604,7 +633,10 @@ class Lattice(lattice.Lattice):
         if timeslices == None:
             timeslices = range(self.T)
 
+        logger = _logger()
+            
         for t in timeslices:
+            logger.info("Smearing timeslice {}".format(t))
             lattice.Lattice.stout_smear(self, t, num_smears, smearing_param)
     
     def get_wilson_propagator(self, mass,
@@ -876,7 +908,8 @@ class Lattice(lattice.Lattice):
                                                        6)
         
         return prop
-    
+
+    @InversionLog("Wilson")
     def invert_wilson_dirac(self, eta, mass, boundary_conditions=[-1, 1, 1, 1],
                             solver_method="conjugate_gradient",
                             precondition=False, max_iterations=1000,
@@ -920,6 +953,16 @@ class Lattice(lattice.Lattice):
           >>> psi = lat.invert_wilson_dirac(eta, 0.4)
         """
         
+        logger = _logger()
+        """
+        logger.info("Inverting Hamber-Wu Dirac operator...")
+        logger.info("mass: {}".format(mass))
+        logger.info("boundary_conditions: {}".format(boundary_conditions))
+        logger.info("solver: {}".format(solver_method))
+        logger.info("precondition: {}".format(precondition))
+        logger.info("max_iterations: {}".format(max_iterations))
+        logger.info("tolerance: {}".format(tolerance))
+        """
         eta = eta.flatten()
         
         try:
@@ -941,6 +984,7 @@ class Lattice(lattice.Lattice):
         else:
             return psi
     
+    @InversionLog("Hamber-Wu")
     def invert_hamberwu_dirac(self, eta, mass, boundary_conditions=[-1, 1, 1, 1],
                               solver_method="conjugate_gradient",
                               precondition=False, max_iterations=1000,
@@ -996,7 +1040,7 @@ class Lattice(lattice.Lattice):
                                  dicts.solver_methods[solver_method],
                                  dicts.truefalse[precondition],
                                  max_iterations, tolerance, 0)
-        
+
         psi = np.array(result[0])
         psi = psi.reshape((self.T, self.L, self.L, self.L, 4, 3))
         
@@ -1004,7 +1048,8 @@ class Lattice(lattice.Lattice):
             return (psi, result[1], result[2], result[3])
         else:
             return psi
-    
+
+    @InversionLog("Naik")
     def invert_naik_dirac(self, eta, mass, boundary_conditions=[-1, 1, 1, 1],
                           solver_method="conjugate_gradient",
                           precondition=False, max_iterations=1000,
@@ -1069,6 +1114,7 @@ class Lattice(lattice.Lattice):
         else:
             return psi
     
+    @InversionLog("DWF")
     def invert_dwf_dirac(self, eta, mass, M5, Ls, kernel="wilson",
                          boundary_conditions=[-1, 1, 1, 1],
                          solver_method="conjugate_gradient",
@@ -1141,7 +1187,8 @@ class Lattice(lattice.Lattice):
             return (psi, result[1], result[2], result[3])
         else:
             return psi
-    
+
+    @ApplyLog("Wilson Dirac")
     def apply_wilson_dirac(self, psi, mass, boundary_conditions=[-1, 1, 1, 1],
                            precondition=False):
         """Applies the Wilson dirac operator to the specified lattice spinor
@@ -1205,6 +1252,7 @@ class Lattice(lattice.Lattice):
         
         return eta
     
+    @ApplyLog("Hamber-Wu Dirac")
     def apply_hamberwu_dirac(self, psi, mass, boundary_conditions=[-1, 1, 1, 1],
                              precondition=False):
         """Applies the Hamber-Wu dirac operator to the specified lattice spinor
@@ -1268,6 +1316,7 @@ class Lattice(lattice.Lattice):
         
         return eta
     
+    @ApplyLog("Naik Dirac")
     def apply_naik_dirac(self, psi, mass, boundary_conditions=[-1, 1, 1, 1],
                          precondition=False):
         """Applies the Naik dirac operator to the specified lattice spinor
@@ -1331,6 +1380,7 @@ class Lattice(lattice.Lattice):
         
         return eta
     
+    @ApplyLog("DWF Dirac")
     def apply_dwf_dirac(self, psi, mass, M5, Ls, kernel="wilson",
                         boundary_conditions=[-1, 1, 1, 1], precondition=False):
         """Applies a generic DWF dirac operator to the specified 5D lattice
@@ -1384,7 +1434,8 @@ class Lattice(lattice.Lattice):
         eta = eta.reshape((Ls, self.T, self.L, self.L, self.L, 4, 3))
         
         return eta
-    
+
+    @ApplyLog("Jacobi smearing")
     def apply_jacobi_smearing(self, psi, num_smears, smearing_param,
                               boundary_conditions=[-1, 1, 1, 1]):
         """Applies the Jacobi smearing operator to the specified lattice spinor
@@ -1428,7 +1479,8 @@ class Lattice(lattice.Lattice):
         eta = eta.reshape((self.T, self.L, self.L, self.L, 4, 3))
         
         return eta
-    
+
+    @Log("Computing mean link")
     def get_av_link(self):
         """Computes the mean of the real part of the trace of each link matrix
         
