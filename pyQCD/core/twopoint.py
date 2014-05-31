@@ -8,6 +8,7 @@ import numpy as np
 from .constants import *
 from .propagator import spin_prod, prop_adjoint
 from .dataset import _parmap
+from .log import Log
     
 def filter_correlators(data, label=None, masses=None, momentum=None,
                        source_type=None, sink_type=None):
@@ -77,7 +78,7 @@ def filter_correlators(data, label=None, masses=None, momentum=None,
                        for attrib in correlator_attributes]
            
         return dict(zip(correlator_attributes, tuple(correlators)))
-  
+
 def compute_meson_corr(propagator1, propagator2, source_interpolator,
                        sink_interpolator, momenta=(0, 0, 0),
                        average_momenta=True, fold=False):
@@ -206,6 +207,8 @@ def _compute_correlator(prop1, prop2, gamma1, gamma2):
     
     return np.einsum('txyzijab,txyzjiba->txyz', gp1, gp2)
 
+@Log("Computing all 256 meson correlators",
+     ignore=("propagator1", "propagator2"))
 def compute_meson_corr256(propagator1, propagator2, momenta=(0, 0, 0),
                           average_momenta=True, fold=False):
     """Computes and stores all 256 meson correlators within the
