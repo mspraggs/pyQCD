@@ -8,6 +8,7 @@ import logging
 import numpy as np
 
 from .constants import gamma5
+from .log import _logger, Log
 
 def prop_adjoint(propagator):
     """Returns the spin and colour adjoint of the given propagator
@@ -82,6 +83,8 @@ def spin_prod(a, b):
         
         return out
 
+@Log("Computing propagator...",
+     ("src_template", "invert_func", "src_smear", "snk_smear"))
 def compute_propagator(src_template, invert_func, src_smear=None,
                        snk_smear=None):
     """Extensible propagator generation function
@@ -129,50 +132,35 @@ def compute_propagator(src_template, invert_func, src_smear=None,
       ...                                 smear_func, smear_func)
     """
 
-    prop_log = logging.getLogger("propagator")
-    invert_log = logging.getLogger("propagator.invert")
+    logger = _logger()
 
     spinor_shape = src_template.shape
-
     propagator = np.zeros(spinor_shape + (4, 4, 3, 3), dtype=np.complex)
 
-    prop_log.info("Started computing propagator")
-    
     for spin in range(4):
         for colour in range(3):
-            prop_log.info("Inverting for spin {} and colour {}"
+            logger.info("Inverting for spin {} and colour {}"
                          .format(spin, colour))
             
-            prop_log.info("Generating source")
             source = np.zeros(spinor_shape + (4, 3), np.complex)
             source[..., spin, colour] = src_template
             
             if src_smear != None:
-                prop_log.info("Smearing source")
                 source = src_smear(source)
 
-            invert_log.info("Now inverting...")
             result = invert_func(source)
-            if type(result) == tuple:
-                solution = result[0]
-                invert_log.info("Inversion finished after {} iterations "
-                                "with residual {}".format(result[1], result[2]))
-                invert_log.info("CPU time for this inversion: {} seconds"
-                                .format(result[3]))
-            else:
-                solution = result
-                invert_log.info("Done!")
+            solution = result[0] if type(result) == tuple else result
 
             if snk_smear != None:
-                prop_log.info("Smearing sink")
                 solution = snk_smear(solution)
 
             propagator[..., spin, :, colour] = solution
 
-    prop_log.info("Finished computing propagator")
+    logger.info("Finished computing propagator")
 
     return propagator
 
+@Log("Smearing propagator", ("propagator", "smear_func"))
 def smear_propagator(propagator, smear_func):
     """Applies the supplied smearing function to the supplied propagator
 
