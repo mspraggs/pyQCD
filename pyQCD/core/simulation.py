@@ -8,7 +8,7 @@ import logging
 
 import numpy as np
 
-from .log import _logger
+from .log import logger
 
 class Simulation(object):
     """Creates, configures and rns a lattice simulation
@@ -153,14 +153,14 @@ class Simulation(object):
 
         self._log_settings()
 
-        logger = _logger()
+        log = logger()
 
         if not self.use_ensemble:
-            logger.info("Thermalizing lattice")
+            log.info("Thermalizing lattice")
             self.lattice.thermalize(self.num_warmup_updates)
 
         for i in range(self.num_configs):
-            logger.info("Configuration: {}".format(i))
+            log.info("Configuration: {}".format(i))
 
             if self.use_ensemble:
                 config = self.config_loader(self.ensemble_indices[i])
@@ -175,31 +175,31 @@ class Simulation(object):
                 result = meas(self.lattice, *args, **kwargs)
                 callback(result, i)
 
-        logger.info("Simulation complete")
+        log.info("Simulation complete")
 
     def _log_settings(self):
         """Spits out the settings for the simulation"""
 
-        logger = _logger()
+        log = logger()
         
-        logger.info("Running measuremements on {} configurations"
-                    .format(self.num_configs))
+        log.info("Running measuremements on {} configurations"
+                 .format(self.num_configs))
         if not self.use_ensemble:
-            logger.info("Measurement frequency: {} configurations"
-                        .format(self.lattice.num_cor))
+            log.info("Measurement frequency: {} configurations"
+                     .format(self.lattice.num_cor))
 
-        logger.info("Lattice shape: {}".format(self.lattice.shape))
+        log.info("Lattice shape: {}".format(self.lattice.shape))
         if not self.use_ensemble:
-            logger.info("Gauge action: {}".format(self.lattice.action))
-            logger.info("Inverse coupling (beta): {}"
-                        .format(self.lattice.beta))
+            log.info("Gauge action: {}".format(self.lattice.action))
+            log.info("Inverse coupling (beta): {}"
+                     .format(self.lattice.beta))
 
-        logger.info("Mean temporal link (ut): {}".format(self.lattice.ut))
-        logger.info("Mean spatial link (us): {}".format(self.lattice.us))
-        logger.info("Anisotropy factor (chi): {}".format(self.lattice.chi))
+        log.info("Mean temporal link (ut): {}".format(self.lattice.ut))
+        log.info("Mean spatial link (us): {}".format(self.lattice.us))
+        log.info("Anisotropy factor (chi): {}".format(self.lattice.chi))
 
         if not self.use_ensemble:
-            logger.info("Parallel sub-lattice size: {}"
+            log.info("Parallel sub-lattice size: {}"
                         .format(self.lattice.block_size))
 
         for meas, callback, args, kwargs in self.measurements:
@@ -211,4 +211,4 @@ class Simulation(object):
             messages.extend(["  {}: {}\n".format(name, val)
                              for name, val in kwargs.items()])
 
-            logger.info("".join(messages))
+            log.info("".join(messages))

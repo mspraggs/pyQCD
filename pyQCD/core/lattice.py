@@ -8,7 +8,7 @@ import numpy as np
 
 from .kernel import lattice
 from . import dicts
-from .log import _logger, Log, ApplyLog, InversionLog
+from .log import logger, Log, ApplyLog, InversionLog
 
 class Lattice(lattice.Lattice):
     """Encapsulates a hypercubic lattice and associated SU(3) gauge field
@@ -478,7 +478,7 @@ class Lattice(lattice.Lattice):
         """
 
         p = lattice.Lattice.get_av_plaquette(self)
-        _logger().info("Average plaquette value = {}".format(p))
+        logger().info("Average plaquette value = {}".format(p))
         
         return p
     
@@ -499,7 +499,7 @@ class Lattice(lattice.Lattice):
         """
 
         r = lattice.Lattice.get_av_rectangle(self)
-        _logger().info("Average rectangle value = {}".format(r))
+        logger().info("Average rectangle value = {}".format(r))
         
         return r
 
@@ -530,7 +530,7 @@ class Lattice(lattice.Lattice):
 
         W = lattice.Lattice.get_av_wilson_loop(self, r, t, num_smears,
                                                smearing_param)
-        _logger().info("Value: ".format(r, t, W))
+        logger().info("Value: ".format(r, t, W))
         
         return W
 
@@ -597,12 +597,12 @@ class Lattice(lattice.Lattice):
           >>> wilson_loops = lattice.get_wilson_loops(2, 0.4)
         """
 
-        logger = _logger()
+        log = logger()
         
         loops = np.zeros((self.L, self.T))
         
         for r, t in [(x, y) for x in range(self.L) for y in range(self.T)]:
-            logger.info("Loop size: (r, t) = ({}, {})".format(r, t))
+            log.info("Loop size: (r, t) = ({}, {})".format(r, t))
             loops[r, t] \
               = lattice.Lattice.get_av_wilson_loop(self, r, t, num_field_smears,
                                                    field_smearing_param)
@@ -633,10 +633,10 @@ class Lattice(lattice.Lattice):
         if timeslices == None:
             timeslices = range(self.T)
 
-        logger = _logger()
+        log = logger()
             
         for t in timeslices:
-            logger.info("Smearing timeslice {}".format(t))
+            log.info("Smearing timeslice {}".format(t))
             lattice.Lattice.stout_smear(self, t, num_smears, smearing_param)
     
     def get_wilson_propagator(self, mass,
@@ -952,17 +952,7 @@ class Lattice(lattice.Lattice):
           >>> eta[0, 0, 0, 0, 0] = 1.0
           >>> psi = lat.invert_wilson_dirac(eta, 0.4)
         """
-        
-        logger = _logger()
-        """
-        logger.info("Inverting Hamber-Wu Dirac operator...")
-        logger.info("mass: {}".format(mass))
-        logger.info("boundary_conditions: {}".format(boundary_conditions))
-        logger.info("solver: {}".format(solver_method))
-        logger.info("precondition: {}".format(precondition))
-        logger.info("max_iterations: {}".format(max_iterations))
-        logger.info("tolerance: {}".format(tolerance))
-        """
+
         eta = eta.flatten()
         
         try:

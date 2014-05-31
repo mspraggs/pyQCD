@@ -8,7 +8,7 @@ import logging
 import numpy as np
 
 from .constants import gamma5
-from .log import _logger, Log
+from .log import logger, Log
 
 def prop_adjoint(propagator):
     """Returns the spin and colour adjoint of the given propagator
@@ -132,15 +132,15 @@ def compute_propagator(src_template, invert_func, src_smear=None,
       ...                                 smear_func, smear_func)
     """
 
-    logger = _logger()
+    log = logger()
 
     spinor_shape = src_template.shape
     propagator = np.zeros(spinor_shape + (4, 4, 3, 3), dtype=np.complex)
 
     for spin in range(4):
         for colour in range(3):
-            logger.info("Inverting for spin {} and colour {}"
-                         .format(spin, colour))
+            log.info("Inverting for spin {} and colour {}"
+                     .format(spin, colour))
             
             source = np.zeros(spinor_shape + (4, 3), np.complex)
             source[..., spin, colour] = src_template
@@ -156,7 +156,7 @@ def compute_propagator(src_template, invert_func, src_smear=None,
 
             propagator[..., spin, :, colour] = solution
 
-    logger.info("Finished computing propagator")
+    log.info("Finished computing propagator")
 
     return propagator
 

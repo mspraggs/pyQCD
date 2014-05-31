@@ -7,7 +7,7 @@ from __future__ import print_function
 import logging
 import inspect
 
-def _logger():
+def logger():
     
     stack = inspect.stack()
     for frame in stack:
