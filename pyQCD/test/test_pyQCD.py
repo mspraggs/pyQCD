@@ -826,7 +826,19 @@ class TestPropagator:
             assert np.allclose(actual_prop, prop)
 
     def test_smear_propagator(self):
-        pass
+
+        fname = "prop_wilson_conjugate_gradient_jacobi_0_0_0.npy"
+        prop = np.load(create_fullpath(fname))
+
+        lattice = Lattice(4, 8, 5.5, "wilson", 10)
+        lattice.load_config(create_fullpath("chroma_config.npy"))
+
+        smear_func = lambda psi: lattice.apply_jacobi_smearing(psi, 1, 0.4)
+
+        smeared_prop = smear_propagator(prop, smear_func)
+
+        fname = "prop_wilson_conjugate_gradient_jacobi_0_0_1.npy"
+        expected_prop = np.load(create_fullpath(fname))
 
 class TestTwoPoint:
             
