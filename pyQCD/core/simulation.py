@@ -3,29 +3,24 @@ from __future__ import division
 from __future__ import unicode_literals
 from __future__ import print_function
 
-import sys
 import time
-import inspect
+import logging
 
 import numpy as np
 
-from .lattice import Lattice
-from .. import io
-
 class Simulation(object):
-    """Creates, configures and runs a lattice simulation.
+    """Creates, configures and rns a lattice simulation
     
-    Before being able to run a simulation, a Lattice object, contained within
-    the Simulation object, must be created. An gauge ensemble can then specified,
+    Before being able to run a simulation, a Lattice object must be created and
+    passed to the Simulation object. A gauge ensemble can then specified,
     the configurations of which will then be loaded into the Lattice object
     during the simulation. If no ensemble is specified, then a gauge field will
     be initialized and thermalized prior to performing measurements.
     Measurements are then specified by passing functions to the Simulation
     object.
-    
+
     Attributes:
       lattice (Lattice): The lattice object used by the simulation.
-      measurement_spacing (int): The number of gauge field updates between
         measurements.
       measurements (list): Specifies the mesurements to be performed on the
         gauge configuration, in the form of a list of lists, with each sub-list
@@ -36,37 +31,13 @@ class Simulation(object):
         are performed.
       num_warmup_updates (int): The number of updates used to thermalize the
         lattice
-      update_method (str): The algorithm to use when updating the gauge
-        field configuration (see help(pyQCD.Lattice) for details).
-      rand_seed (int): The seed to be used by the Lattice random number
-        generator (-1 specifies that a seed based on the time should
-        be used).
-      run_parallel (bool): Determines whether the lattice is updated in
-        parallel. (Requires OpenMP to work.)
-      verbosity (int): The level of verbosity when performing the simulation,
-        with 0 producing no output, 1 producing some output and 2 producing
-        the most output, such as details of propagator inversions.
-    
+
     Args:
+      lattice (Lattice): The lattice object to use during the simulation.
       num_configs (int): The number of configurations on which to perform
-        measurements
-      measurement_spacing (int): The spacing of configurations on which
-        measurements are performed
+        measurements.
       num_warmup_updates (int): The number of updates used to thermalize the
-        lattice
-      update_method (str): The algorithm to use when updating the gauge
-        field configuration. Currently "heatbath", "metropolis" and
-        "staple_metropolis" are supported (see help(pyQCD.Lattice) for details)
-      run_parallel (bool): Determines whether to partition the
-        lattice into a red-black/checkerboard pattern, then perform
-        updates on the red blocks in parallel before updating the
-        black blocks. (Requires OpenMP to work.)
-      rand_seed (int): The seed to be used by the random number
-        generator (-1 specifies that a seed based on the time should
-        be used).
-      verbosity (int): The level of verbosity when performing the simulation,
-        with 0 producing no output, 1 producing some output and 2 producing
-        the most output, such as details of propagator inversions.
+        lattice.
         
     Examples:
       Create a simulation to perform measurements on 100 configurations,
@@ -79,407 +50,168 @@ class Simulation(object):
       >>> import pyQCD
       >>> simulation = pyQCD.Simulation(100, 10, 100)
       
-      Create a simulation object, create a lattice and add the
-      get_config function (a member function of pyQCD.Lattice).
-      The function returns a pyQCD.Config object, and we store
+      Create a lattice object before adding it to  a simulation. Then add the
+      get_config function (a member function of pyQCD.Lattice). The function
+      returns the current field configuration as a numpy ndarray, and we store
       these in "4c8_wilson_purgaug_configs".
       
       >>> import pyQCD
-      >>> sim = pyQCD.Simulation(100, 10, 100)
-      >>> sim.create_lattice(4, 8, "wilson", 5.5)
+      >>> lattice = pyQCD.Lattice(4, 8, 5.5, "wilson", 10)
+      >>> sim = pyQCD.Simulation(lattice, 100, 100)
+      >>> fname = "4c8_wilson_purgaug_configs.zip"
       >>> sim.add_measurement(pyQCD.Lattice.get_config,
-      ...                     pyQCD.Config,
-      ...                     "4c8_wilson_purgaug_configs.zip")
+      ...                     pyQCD.io.write_datum_callback(fname))
       >>> sim.run()
-      Simulation Settings
-      -------------------
-      Number of configurations: 100
-      Measurement spacing: 10
-      Thermalization updates: 100
-      Update method: heatbath
-      Use OpenMP: True
-      Random number generator seed: -1
-      .
-      Lattice Settings
-      ----------------
-      Spatial extent: 4
-      Temporal extent: 8
-      Gauge action: wilson
-      Inverse coupling (beta): 5.5
-      Mean temporal link (ut): 1.0
-      Mean spatial link (us): 1.0
-      Anisotropy factor (chi): 1.0
-      Parallel sub-lattice size: 4
-      .
-      Get Config Measurement Settings
-      -------------------------------
-      Filename: /absolute/path/to/configs.zip
-      .
-      Thermalizing lattice...  Done!
-      Configuration: 0
-      Updating gauge field...  Done!
-      Average plaquette: 0.499948844134
-      Performing measurements...
-      - Running get_config...
-      Done!
-      .
-      .
-      .
-      Simulation completed in 0 hours, 5 minutes and 16.9606249332 seconds
-      .
-      >>> simulation.plaquettes.shape
-      (100,)
-      """
-    
-    def __init__(self, num_configs, measurement_spacing, num_warmup_updates,
-                 update_method="heatbath", run_parallel=True, rand_seed=-1,
-                 verbosity=1):
+    """
+
+    def __init__(self, lattice, num_configs, num_warmup_updates):
         """Constructor for pyQCD.Simulation (see help(pyQCD.Simulation))"""
-        
+
         self.num_configs = num_configs
-        self.measurement_spacing = measurement_spacing
         self.num_warmup_updates = num_warmup_updates
-        
-        self.update_method = update_method
-        self.run_parallel = run_parallel
-        self.rand_seed = rand_seed
-        self.verbosity = verbosity
-        
-        self.use_ensemble = False
-        
+        self.lattice = lattice
         self.measurements = []
-    
-    def create_lattice(self, L, T, beta, action, ut=1.0, us=1.0, chi=1.0,
-                       block_size=None):
-        """Creates a Lattice instance to use in the simulation
-        
+
+        self.use_ensemble = False
+
+        self.logger = logging.getLogger("pyQCD.simulation")
+
+    def specify_ensemble(self, load_func, indices=None):
+        """Directs the simulation object to use the specified gauge ensemble
+
         Args:
-          L (int): The lattice spatial extent
-          T (int): The lattice temporal extent
-          beta (float): The inverse coupling to use in the gauge action.
-          action (str): The gauge action to use in gauge field updates. For
-            additional details see help(pyQCD.Lattice).
-          ut (float, optional): The spatial mean link/tadpole improvement factor.
-          us (float, optional): The temporal mean link/tadpole improvement
-            factor.
-          chi (float): The anisotropy factor, equal to the spatial lattice
-            spacing divided by the temporal lattice spacing.
-          block_size (int): The side length of the sub-lattices used to
-            partition the lattice for parallel updates. If left as None, then
-            this will be determined automatically.
-            
+          load_func (function): The function to load the specified field
+            configuration. Must accept an integer specifying the configuration
+            number as its first argument and return a numpy ndarray with shape
+            (T, L, L, L, 4, 3, 3).
+          indices (list, optional): The config numbers to load. Must have length
+            equal to the value in the simulation num_configs member variable.
+
         Examples:
-          Create a simulation and add a lattice to it, using the Symanzik
-          rectangle-improved gauge action, an inverse coupling of 4.26 and
-          a mean link of 0.852 (this should produce a Sommer scale lattice
-          spacing of ~0.25 fm).
-          
+          Here we create a simulation and specify an ensemble of measurements
+          contained within a zip archive, with each configuration in numpy
+          binary format. Note that the second argument of specify_ensemble in
+          this case is actually the same as what would have been assumed by
+          default. As no measurememts have been specified in this simulation,
+          when run is called, very little happens.
+
           >>> import pyQCD
-          >>> simulation = pyQCD.Simulation(100, 10, 100)
-          >>> simulation.add_lattice(4, 8, "rectangle_improved", 4.26, 0.852)
+          >>> lattice = pyQCD.Lattice(4, 8, 5.5, "wilson", 10)
+          >>> sim = pyQCD.Simulation(lattice, 100, 100)
+          >>> fname = "ensemble.zip"
+          >>> sim.specify_ensemble(pyQCD.io.extract_datum_callback(fname),
+          ...                      list(range(100)))
+          >>> sim.run()
         """
         
-        self.lattice = Lattice(L, T, beta, action, self.measurement_spacing,
-                               ut, us, chi, self.update_method,
-                               self.run_parallel, block_size, self.rand_seed)
-    
-    def load_ensemble(self, filename):
-        """Loads a gauge configuration dataset to use in the simulation
-        
-        Args:
-          filename (str): The name of the file containing the ensemble
-            
-        Examples:
-          Create a simulation to measure on 100 configurations, with each
-          measurement separated by 10 updates. Here the number of warmup
-          updates means nothing, so we set it to None. Then we create a
-          4^3 x 8 lattice using the Wilson action, before loading an
-          existing ensemble. The ensembly must contain the same number of
-          configs as entered when creating the Simulation object, and the
-          extents of the lattice must be the same as those entered when
-          creating the lattice.
-          
-          >>> import pyQCD
-          >>> simulation = pyQCD.Simulation(100, 10, None)
-          >>> simulation.create_lattice(8, 4, "wilson", 5.5)
-          >>> simulation.load_ensemble("my_configs.zip")
-        """
-        
-        self.ensemble = filename
+        self.config_loader = load_func
+        self.ensemble_indices = (list(range(self.num_configs))
+                                 if indices == None
+                                 else indices)
         self.use_ensemble = True
-            
-    def add_measurement(self, meas_function, meas_file, args=[], kwargs={},
-                        meas_message=None):
-        """Adds a measurement to the simulation to be performed when the
+
+    def add_measurement(self, meas_func, callback, args=(), kwargs={}):
+        """Adds a measurement to the simulation nto be performed when the
         simulation is run
-        
+
         Args:
-          meas_function (function): The function defining the measurement.
-            This must accept a lattice object as the first argument, and
-            return a type specified my meas_type.
-          meas_file (str): The name of the file in which the measurements
-            will be stored.
+          meas_func (function): The function defining the measurement. This
+            must accept a lattice object as the first argument.
+          callback (function): A function used to further process the return
+            value from meas_func. For example this could typically be used
+            to save the measurement result to disk in some way. The function
+            must accept exactly two arguments - the first the return value of
+            meas_func and the second an integer signifying the index of the
+            current config (which varies from 0 to self.num_configs - 1).
           args (list, optional): The additional arguments to supply to
             the measurement function.
           kwargs (dict, optional): The additional keyword arguments to
             supply to the measurement function.
-          meas_message (str, optional): The message to display when
-            the measurement is being performed, if verbose output is
-            turned on. If this argument is None, the function name is
-            displayed.
-            
-        Examples:
-          Create a simulation object, create a lattice and add the
-          get_propagator function (a member function of pyQCD.Lattice).
-          The function returns a numpy.ndarray object, and we store
-          these in "4c8_wilson_purgaug_propagators".
-          
-          When run, the simulation should print "Running get_propagator"
-          
-          >>> import pyQCD
-          >>> sim = pyQCD.Simulation(100, 10, 100)
-          >>> sim.create_lattice(4, 8, "wilson", 5.5)
-          >>> sim.add_measurement(pyQCD.Lattice.get_propagator,
-          ...                     "4c8_wilson_purgaug_propagators.zip"
-          ...                     kwargs={"mass": 0.4})
-        """
-        
-        if "verbosity" in inspect.getargspec(meas_function).args \
-          and not "verbosity" in kwargs.keys():
-            kwargs.update({"verbosity": self.verbosity})
-        
-        if meas_message == None:
-            meas_message = "Running {}".format(meas_function.__name__)
-        
-        self.measurements.append([meas_function, meas_message, args, kwargs,
-                                  meas_file])
-    
-    def _do_measurements(self, config, save=True):
-        """Iterate through self.measurements and gather results"""
 
-        specifier = 'w' if config == 0 else 'a'
-        
-        for measurement in self.measurements:
-                
-            if self.verbosity > 0:
-                print("- {}...".format(measurement[1]))
-                sys.stdout.flush()
-                
-            meas_result = measurement[0](self.lattice, *measurement[2],
-                                         **measurement[3])
-
-            if save:
-                io._write_datum(meas_result, config, measurement[4])
-                
-            if self.verbosity > 0:
-                print("Done!")
-                sys.stdout.flush()
-        
-    def run(self, timing_run=False, num_timing_configs=10,
-            store_plaquette=True):
-        """Runs the simulation
-        
-        Args:
-          timing_run (bool, optional): Determines whether this is a test
-            run. If True, the simulation perform the number of updates
-            specified by num_timing_configs. No measurements will be saved,
-            and an estimated time for the full simulation to complete
-            will be printed.
-          num_timing_configs (int, optional): Determines the number of
-            configurations generated if a timing run is being performed.
-          store_plaquette (bool, optional): Determines whether the average
-            plaquette value for the lattice should be stored after each
-            update. If this is True, then the plaquettes will be stored in
-            the member variable plaquettes, which has type numpy.ndarray.
-            
         Examples:
-          Create a simulation object, create a lattice and add the
-          get_config function (a member function of pyQCD.Lattice).
-          The function returns a pyQCD.Config object, and we store
-          these in "4c8_wilson_purgaug_configs".
-          
+          Create a lattice, pass it to a new simulation object, then add
+          a measurement to save the current field configuration to disk. Here
+          we use the pyQCD io function write_datum_callback, which generates
+          a function that wraps pyQCD.io.write_datum.
+
           >>> import pyQCD
-          >>> sim = pyQCD.Simulation(100, 10, 100)
-          >>> sim.create_lattice(4, 8, "wilson", 5.5)
+          >>> lattice = pyQCD.Lattice(4, 8, 5.5, "wilson", 10)
+          >>> sim = pyQCD.Simulation(lattice, 100, 100)
           >>> sim.add_measurement(pyQCD.Lattice.get_config,
-          ...                     pyQCD.Config,
-          ...                     "4c8_wilson_purgaug_configs.zip")
+          ...                     pyQCD.io.write_datum_callback("ensemble.zip"))
           >>> sim.run()
-          Simulation Settings
-          -------------------
-          Number of configurations: 100
-          Measurement spacing: 10
-          Thermalization updates: 100
-          Update method: heatbath
-          Use OpenMP: True
-          Random number generator seed: -1
-          .
-          Lattice Settings
-          ----------------
-          Spatial extent: 4
-          Temporal extent: 8
-          Gauge action: wilson
-          Inverse coupling (beta): 5.5
-          Mean temporal link (ut): 1.0
-          Mean spatial link (us): 1.0
-          Anisotropy factor (chi): 1.0
-          Parallel sub-lattice size: 4
-          .
-          Get Config Measurement Settings
-          -------------------------------
-          Filename: /absolute/path/to/configs.zip
-          .
-          Thermalizing lattice...  Done!
-          Configuration: 0
-          Updating gauge field...  Done!
-          Average plaquette: 0.499948844134
-          Performing measurements...
-          - Running get_config...
-          Done!
-          .
-          .
-          .
-          Simulation completed in 0 hours, 5 minutes and 16.9606249332 seconds
-          # Blank line
-          >>> simulation.plaquettes.shape
-          (100,)
-          """
-        
-        if store_plaquette:
-            self.plaquettes = np.zeros(self.num_configs)
-            
-        if self.verbosity > 0:
-            print(self)
-        
-        t0 = time.time()
-        
+        """
+
+        self.measurements.append((meas_func, callback, args, kwargs))
+
+    def run(self):
+        """Runs the simulation, including any added measurements"""
+
+        self.plaquettes = np.zeros(self.num_configs)
+
+        self._log_settings()
+
         if not self.use_ensemble:
-            if self.verbosity > 0:
-                print("Thermalizing lattice..."),
-                sys.stdout.flush()
-        
+            self.logger.info("Thermalizing lattice")
             self.lattice.thermalize(self.num_warmup_updates)
-        
-            if self.verbosity > 0:
-                print(" Done!")
-                
-        if timing_run:
-            N = num_timing_configs
-        else:
-            N = self.num_configs
-            
-        t1 = time.time()
-            
-        for i in range(N):
-            if self.verbosity > 0:
-                print("Configuration: {}".format(i))
-                sys.stdout.flush()
-            
+
+        for i in range(self.num_configs):
+            self.logger.info("Configuration: {}".format(i))
+
             if self.use_ensemble:
-                if self.verbosity > 0:
-                    print("Loading gauge field..."),
-                    sys.stdout.flush()
-                    
-                config = io._extract_datum(i, self.ensemble)
+                self.logger.info("Loading gauge configuration")
+                config = self.config_loader(self.ensemble_indices[i])
                 self.lattice.set_config(config)
-                
-                if self.verbosity > 0:
-                    print(" Done!")
-            
+
             else:
-                if self.verbosity > 0:
-                    print("Updating gauge field..."),
-                    sys.stdout.flush()
-                    
+                self.logger.info("Updating gauge field...")
                 self.lattice.next_config()
-                
-                if self.verbosity > 0:
-                    print(" Done!")
-                    
-            if store_plaquette:
-                self.plaquettes[i] = self.lattice.get_av_plaquette()
-                if self.verbosity > 0:
-                    print("Average plaquette: {}"
-                          .format(self.plaquettes[i]))
-                    
-            if self.verbosity > 0:
-                print("Performing measurements...")
-                sys.stdout.flush()
-            self._do_measurements(i, not timing_run)
-            
-            if self.verbosity > 0:
-                print("")
-            
-        t2 = time.time()
+                self.logger.info("Updated gauge field")
+
+            self.plaquettes[i] = self.lattice.get_av_plaquette()
+            self.logger.info("Average plaquette: {}".format(self.plaquettes[i]))
+
+            for meas, callback, args, kwargs in self.measurements:
+                self.logger.info("Running measurement function {}\n"
+                                 "  Arguments: {}\n"
+                                 "  Keyword arguments: {}"
+                                 .format(meas.__name__, args, kwargs))
+
+                result = meas(self.lattice, *args, **kwargs)
+                callback(result, i)
+
+        self.logger.info("Simulation complete")
+
+    def _log_settings(self):
+        """Spits out the settings for the simulation"""
         
-        if self.verbosity > 0:
-        
-            total_time = (t2 - t1) / N * self.num_configs + t1 - t0 \
-              if timing_run else t2 - t0
-          
-            hrs = int((total_time) / 3600)
-            mins = int((total_time - 3600 * hrs) / 60)
-            secs = total_time - 3600 * hrs - 60 * mins
-    
-            if timing_run:
-                print("Estimated run time: {} hours, {} minutes and {} seconds"
-                      .format(hrs, mins, secs))
-            else:
-                print("Simulation completed in {} hours, {} minutes and {} "
-                      "seconds".format(hrs, mins, secs))
-    
-    def __str__(self):
-        
-        out = \
-          "Simulation Settings\n" \
-          "-------------------\n" \
-          "Number of configurations: {}\n" \
-          "Measurement spacing: {}\n" \
-          "Thermalization updates: {}\n" \
-          "Update method: {}\n" \
-          "Use OpenMP: {}\n" \
-          "Random number generator seed: {}\n" \
-          "\n" \
-          "Lattice Settings\n" \
-          "----------------\n" \
-          "Spatial extent: {}\n" \
-          "Temporal extent: {}\n" \
-          "Gauge action: {}\n" \
-          "Inverse coupling (beta): {}\n" \
-          "Mean temporal link (ut): {}\n" \
-          "Mean spatial link (us): {}\n" \
-          "Anisotropy factor (chi): {}\n" \
-          "Parallel sub-lattice size: {}\n" \
-          "\n".format(self.num_configs, self.measurement_spacing,
-                      self.num_warmup_updates, self.update_method,
-                      self.run_parallel, self.rand_seed, self.lattice.L,
-                      self.lattice.T, self.lattice.action, self.lattice.beta,
-                      self.lattice.ut, self.lattice.us, self.lattice.chi,
-                      self.lattice.block_size)
-        
-        if len(self.measurements) > 0:
-            for measurement in self.measurements:
-                heading_underline \
-                  = (len(measurement[0].__name__) + 21) * "-"
-                meas_settings = \
-                  "{} Measurement Settings\n" \
-                  "{}\n".format(measurement[0].__name__.replace("_", " ")
-                                .title(),
-                                heading_underline)
-            
-                meas_settings \
-                  = "".join([meas_settings,
-                             "Filename: {}\n".format(measurement[4])])
-                
-                for value in measurement[2]:
-                    meas_settings = "".join([meas_settings,
-                                        "{}\n".format(value)])
-                
-                for key, value in measurement[3].items():
-                    meas_settings = "".join([meas_settings,
-                                        "{}: {}\n".format(key, value)])
-                
-        
-            out = "".join([out, meas_settings])
-            
-        return out
+        self.logger.info("Running measuremements on {} configurations"
+                         .format(self.num_configs))
+        if not self.use_ensemble:
+            self.logger.info("Measurement frequency: {} configurations"
+                             .format(self.lattice.num_cor))
+
+        self.logger.info("Lattice shape: {}".format(self.lattice.shape))
+        if not self.use_ensemble:
+            self.logger.info("Gauge action: {}".format(self.lattice.action))
+            self.logger.info("Inverse coupling (beta): {}"
+                             .format(self.lattice.beta))
+
+        self.logger.info("Mean temporal link (ut): {}".format(self.lattice.ut))
+        self.logger.info("Mean spatial link (us): {}".format(self.lattice.us))
+        self.logger.info("Anisotropy factor (chi): {}".format(self.lattice.chi))
+
+        if not self.use_ensemble:
+            self.logger.info("Parallel sub-lattice size: {}"
+                             .format(self.lattice.block_size))
+
+        for meas, callback, args, kwargs in self.measurements:
+            messages = ["Settings for measurement function {}\n"
+                        .format(meas.__name__)]
+            messages.extend(["  {}: {}\n".format(name, val)
+                             for name, val in zip(meas.__code__.co_varnames,
+                                                  args)])
+            messages.extend(["  {}: {}\n".format(name, val)
+                             for name, val in kwargs.items()])
+
+            self.logger.info("".join(messages))

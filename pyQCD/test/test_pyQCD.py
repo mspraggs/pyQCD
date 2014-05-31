@@ -1064,42 +1064,38 @@ if lattice_exists:
     class TestSimulation:
         
         def test_init(self):
+
+            lattice = Lattice(4, 8, 5.5, "wilson", 10)
+            simulation = Simulation(lattice, 100, 250)
+                        
+        def test_specify_ensemble(self):
             
-            simulation = Simulation(100, 10, 250)
-            simulation = Simulation(100, 10, 250, "heatbath", False,
-                                    rand_seed=-1, verbosity=0)
-        
-        def test_create_lattice(self):
-            
-            simulation = Simulation(100, 10, 250)
-            simulation.create_lattice(4, 8, 5.5, "wilson")
-            simulation.create_lattice(4, 8, 5.5, "wilson", 1.0, 4)
-            
-        def test_load_ensemble(self):
-                
-            simulation = Simulation(3, 10, 100)
-            simulation.create_lattice(4, 8, 5.5, "wilson")
-            simulation.load_ensemble(create_fullpath("4c8_ensemble.zip"))
+            lattice = Lattice(4, 8, 5.5, "wilson", 10)
+            simulation = Simulation(lattice, 3, 100)
+            fname = create_fullpath("4c8_ensemble.zip")
+            simulation.specify_ensemble(io.extract_datum_callback(fname))
         
         def test_add_measurement(self):
         
-            simulation = Simulation(100, 10, 250)
-            simulation.add_measurement(Lattice.get_config, "configs.zip",
-                                       meas_message="Getting correlator")
+            lattice = Lattice(4, 8, 5.5, "wilson", 10)
+            simulation = Simulation(lattice, 100, 250)
+            callback = io.write_datum_callback("configs.zip")
+            simulation.add_measurement(Lattice.get_config, callback)
             
         def test_run(self):
             
-            simulation = Simulation(5, 10, 100)
-            simulation.create_lattice(4, 8, 5.5, "wilson")
-            simulation.add_measurement(Lattice.get_config, "configs.zip",
-                                       meas_message="Storing gauge "
-                                       "configuration")
+            lattice = Lattice(4, 8, 5.5, "wilson", 10)
+            simulation = Simulation(lattice, 5, 250)
+            callback = io.write_datum_callback("configs.zip")
+            simulation.add_measurement(Lattice.get_config, callback)
             simulation.run()
         
-            simulation = Simulation(3, 10, 100)
-            simulation.create_lattice(4, 8, 5.5, "wilson")
-            simulation.load_ensemble(create_fullpath("4c8_ensemble.zip"))
-            simulation.add_measurement(Lattice.get_config, "configs.zip")
+            lattice = Lattice(4, 8, 5.5, "wilson", 10)
+            simulation = Simulation(lattice, 3, 100)
+            fname = create_fullpath("4c8_ensemble.zip")
+            simulation.specify_ensemble(io.extract_datum_callback(fname))
+            callback = io.write_datum_callback("configs.zip")
+            simulation.add_measurement(Lattice.get_config, callback)
             simulation.run()
 
 class TestIO:
