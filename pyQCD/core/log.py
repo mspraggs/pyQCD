@@ -111,13 +111,58 @@ class _Log(object):
                 continue
             logger.info("{}: {}".format(key, val))
 
-def Log(func_message=None, ignore=()):
-    if callable(func_message):
+def Log(message=None, ignore=()):
+    """Decorates a function so that its arguments are logged and outputted.
+
+    Args:
+      message (str, optional): Optional message to display before the body of
+        the function is executed.
+      ignore (tuple, optional): The names of any functions arguments that should
+        not be outputted (e.g. if one of the arguments is an enormouse array).
+
+    Returns:
+      function: The decorated function.
+        
+    Examples:
+      Here we create a random function, decorating it so the parameters are
+      printed to the screen.
+
+      >>> import logging
+      >>> logging.basicConfig(level=logging.INFO)
+      >>> import pyQCD
+      >>> @pyQCD.Log("Now running the test function!", ignore=("x",))
+      >>> def blah(x, y, z):
+      ...     print(x, y, z)
+      ...
+      >>> blah(1, 2, 3)
+      INFO:blah:Now running the test function!
+      INFO:blah:y: 2
+      INFO:blah:z: 3
+      (1, 2, 3)
+
+      You don't actually need to use parantheses or arguments with the Log
+      decorator at all:
+
+      >>> import logging
+      >>> logging.basicConfig(level=logging.INFO)
+      >>> import pyQCD
+      >>> @pyQCD.Log
+      >>> def blah(x, y, z):
+      ...     print(x, y, z)
+      ...
+      >>> blah(1, 2, 3)
+      INFO:blah:x: 1
+      INFO:blah:y: 2
+      INFO:blah:z: 3
+      (1, 2, 3)
+    """
+    
+    if callable(message):
         log = _Log()
-        return log(func_message)
+        return log(message)
     else:
         def _wrapper(f):
-            log = _Log(func_message, ignore)
+            log = _Log(message, ignore)
             return log(f)
         return _wrapper
         
@@ -127,13 +172,13 @@ class _ApplyLog(_Log):
         self.init_message = "Applying {} operator...".format(operator_label)
         self.ignore = ("self", "psi")
 
-def ApplyLog(func_message=None):
-    if callable(func_message):
+def ApplyLog(message=None):
+    if callable(message):
         log = _ApplyLog()
-        return log(func_message)
+        return log(message)
     else:
         def _wrapper(f):
-            log = _ApplyLog(func_message)
+            log = _ApplyLog(message)
             return log(f)
         return _wrapper
 
@@ -172,12 +217,12 @@ class _InversionLog(_Log):
 
         return _wrapper
 
-def InversionLog(func_message=None):
-    if callable(func_message):
+def InversionLog(message=None):
+    if callable(message):
         log = _InversionLog()
-        return log(func_message)
+        return log(message)
     else:
         def _wrapper(f):
-            log = _InversionLog(func_message)
+            log = _InversionLog(message)
             return log(f)
         return _wrapper
