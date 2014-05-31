@@ -53,7 +53,7 @@ def merge_arguments(argspec, args, kwargs):
 
         return kwargs_defaults
 
-class Log(object):
+class _Log(object):
 
     def __init__(self, message=None, ignore=()):
         self.init_message = message
@@ -86,14 +86,34 @@ class Log(object):
             if key in self.ignore:
                 continue
             logger.info("{}: {}".format(key, val))
+
+def Log(func_message=None, ignore=()):
+    if callable(func_message):
+        log = _Log()
+        return log(func_message)
+    else:
+        def _wrapper(f):
+            log = _Log(func_message, ignore)
+            return log(f)
+        return _wrapper
         
-class ApplyLog(Log):
+class _ApplyLog(_Log):
 
     def __init__(self, operator_label):
         self.init_message = "Applying {} operator...".format(operator_label)
         self.ignore = ("self", "psi")
 
-class InversionLog(Log):
+def ApplyLog(func_message=None):
+    if callable(func_message):
+        log = _ApplyLog()
+        return log(func_message)
+    else:
+        def _wrapper(f):
+            log = _ApplyLog(func_message)
+            return log(f)
+        return _wrapper
+
+class _InversionLog(_Log):
 
     def __init__(self, action_label):
         self.init_message = ("Inverting {} Dirac operator..."
@@ -126,4 +146,14 @@ class InversionLog(Log):
 
             return result[0]
 
+        return _wrapper
+
+def InversionLog(func_message=None):
+    if callable(func_message):
+        log = _InversionLog()
+        return log(func_message)
+    else:
+        def _wrapper(f):
+            log = _InversionLog(func_message)
+            return log(f)
         return _wrapper
