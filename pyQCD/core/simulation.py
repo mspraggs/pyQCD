@@ -8,6 +8,8 @@ import logging
 
 import numpy as np
 
+from .log import _logger
+
 class Simulation(object):
     """Creates, configures and rns a lattice simulation
     
@@ -151,59 +153,63 @@ class Simulation(object):
 
         self._log_settings()
 
+        logger = _logger()
+
         if not self.use_ensemble:
-            self.logger.info("Thermalizing lattice")
+            logger.info("Thermalizing lattice")
             self.lattice.thermalize(self.num_warmup_updates)
 
         for i in range(self.num_configs):
-            self.logger.info("Configuration: {}".format(i))
+            logger.info("Configuration: {}".format(i))
 
             if self.use_ensemble:
-                self.logger.info("Loading gauge configuration")
+                logger.info("Loading gauge configuration")
                 config = self.config_loader(self.ensemble_indices[i])
                 self.lattice.set_config(config)
 
             else:
-                self.logger.info("Updating gauge field...")
+                logger.info("Updating gauge field...")
                 self.lattice.next_config()
-                self.logger.info("Updated gauge field")
+                logger.info("Updated gauge field")
 
             self.plaquettes[i] = self.lattice.get_av_plaquette()
-            self.logger.info("Average plaquette: {}".format(self.plaquettes[i]))
+            logger.info("Average plaquette: {}".format(self.plaquettes[i]))
 
             for meas, callback, args, kwargs in self.measurements:
-                self.logger.info("Running measurement function {}\n"
-                                 "  Arguments: {}\n"
-                                 "  Keyword arguments: {}"
-                                 .format(meas.__name__, args, kwargs))
+                logger.info("Running measurement function {}\n"
+                            "  Arguments: {}\n"
+                            "  Keyword arguments: {}"
+                            .format(meas.__name__, args, kwargs))
 
                 result = meas(self.lattice, *args, **kwargs)
                 callback(result, i)
 
-        self.logger.info("Simulation complete")
+        logger.info("Simulation complete")
 
     def _log_settings(self):
         """Spits out the settings for the simulation"""
+
+        logger = _logger()
         
-        self.logger.info("Running measuremements on {} configurations"
-                         .format(self.num_configs))
+        logger.info("Running measuremements on {} configurations"
+                    .format(self.num_configs))
         if not self.use_ensemble:
-            self.logger.info("Measurement frequency: {} configurations"
-                             .format(self.lattice.num_cor))
+            logger.info("Measurement frequency: {} configurations"
+                        .format(self.lattice.num_cor))
 
-        self.logger.info("Lattice shape: {}".format(self.lattice.shape))
+        logger.info("Lattice shape: {}".format(self.lattice.shape))
         if not self.use_ensemble:
-            self.logger.info("Gauge action: {}".format(self.lattice.action))
-            self.logger.info("Inverse coupling (beta): {}"
-                             .format(self.lattice.beta))
+            logger.info("Gauge action: {}".format(self.lattice.action))
+            logger.info("Inverse coupling (beta): {}"
+                        .format(self.lattice.beta))
 
-        self.logger.info("Mean temporal link (ut): {}".format(self.lattice.ut))
-        self.logger.info("Mean spatial link (us): {}".format(self.lattice.us))
-        self.logger.info("Anisotropy factor (chi): {}".format(self.lattice.chi))
+        logger.info("Mean temporal link (ut): {}".format(self.lattice.ut))
+        logger.info("Mean spatial link (us): {}".format(self.lattice.us))
+        logger.info("Anisotropy factor (chi): {}".format(self.lattice.chi))
 
         if not self.use_ensemble:
-            self.logger.info("Parallel sub-lattice size: {}"
-                             .format(self.lattice.block_size))
+            logger.info("Parallel sub-lattice size: {}"
+                        .format(self.lattice.block_size))
 
         for meas, callback, args, kwargs in self.measurements:
             messages = ["Settings for measurement function {}\n"
@@ -214,4 +220,4 @@ class Simulation(object):
             messages.extend(["  {}: {}\n".format(name, val)
                              for name, val in kwargs.items()])
 
-            self.logger.info("".join(messages))
+            logger.info("".join(messages))
