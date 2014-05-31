@@ -10,12 +10,15 @@ import inspect
 def logger():
     
     stack = inspect.stack()
-    for frame in stack:
+    for frame in stack[1:]:
         if not frame[3].startswith("_"):
             obj = frame[0], frame[3]
             break
-    
-    names = [inspect.getmodule(obj[0]).__name__]
+
+    try:
+        names = [inspect.getmodule(obj[0]).__name__]
+    except AttributeError:
+        names = []
     
     try:
         names.append(obj[0].f_locals['self'].__class__.__name__)
