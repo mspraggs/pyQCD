@@ -35,14 +35,20 @@ def make_func_logger(f, args):
     names.append(f.__name__)
     return logging.getLogger(".".join(names))
 
-def merge_defaults(argspec, kwargs):
+def merge_arguments(argspec, args, kwargs):
 
     if argspec.defaults == None:
         return kwargs
-    else:
+    else:        
         kwargs_defaults = dict(zip(argspec.args[-len(argspec.defaults):],
                                    argspec.defaults))
         kwargs_defaults.update(kwargs)
+
+        for key, val in zip(argspec.args, args):
+            try:
+                kwargs_defaults.pop(key)
+            except KeyError:
+                pass
 
         return kwargs_defaults
 
@@ -66,7 +72,7 @@ class Log(object):
             self.print_args(zip(argspec.args, args), logger)
 
             # Now merge any default values with the kwargs and list these
-            kwargs = merge_defaults(argspec, kwargs)
+            kwargs = merge_arguments(argspec, args, kwargs)
             self.print_args(kwargs.items(), logger)
 
             return f(*args, **kwargs)
@@ -98,13 +104,16 @@ class InversionLog(Log):
         def _wrapper(*args, **kwargs):
 
             logger = make_func_logger(f, args)
-            argspec = inspect.getargspec(f)
 
+            if self.init_message != None:
+                logger.info(self.init_message)
+                
+            argspec = inspect.getargspec(f)
             # List the arguments that don't have defaults
             self.print_args(zip(argspec.args, args), logger)
 
             # Now merge any default values with the kwargs and list these
-            kwargs = merge_defaults(argspec, kwargs)
+            kwargs = merge_arguments(argspec, args, kwargs)
             kwargs.update({"solver_info": True})
             self.print_args(kwargs.items(), logger)
 
