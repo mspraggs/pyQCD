@@ -18,7 +18,8 @@ try:
 except ImportError:
     pass
 
-from .dicts import *    
+from .dicts import *
+from .log import Log
 from .propagator import *
 from .twopoint import *
 from .constants import *
