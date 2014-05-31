@@ -128,8 +128,6 @@ class Lattice(lattice.Lattice):
         self.block_size = block_size
         self.rand_seed = rand_seed
         self.shape = (T, L, L, L)
-
-        self.logger = logging.getLogger("pyQCD.Lattice")
         
         lattice.Lattice.__init__(self, L, T, beta, ut, us, chi,
                                  dicts.gauge_actions[action], meas_spacing,
