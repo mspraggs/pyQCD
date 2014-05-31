@@ -163,24 +163,15 @@ class Simulation(object):
             logger.info("Configuration: {}".format(i))
 
             if self.use_ensemble:
-                logger.info("Loading gauge configuration")
                 config = self.config_loader(self.ensemble_indices[i])
                 self.lattice.set_config(config)
 
             else:
-                logger.info("Updating gauge field...")
                 self.lattice.next_config()
-                logger.info("Updated gauge field")
 
             self.plaquettes[i] = self.lattice.get_av_plaquette()
-            logger.info("Average plaquette: {}".format(self.plaquettes[i]))
 
             for meas, callback, args, kwargs in self.measurements:
-                logger.info("Running measurement function {}\n"
-                            "  Arguments: {}\n"
-                            "  Keyword arguments: {}"
-                            .format(meas.__name__, args, kwargs))
-
                 result = meas(self.lattice, *args, **kwargs)
                 callback(result, i)
 
