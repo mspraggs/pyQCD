@@ -30,7 +30,8 @@ def make_func_logger(f, args):
 
     # First construct a logger based on module, class and function names
     names = [inspect.getmodule(f).__name__]
-    if inspect.isclass(args[0].__class__):
+    if (inspect.isclass(args[0].__class__)
+        and "self" in inspect.getargspec(f).args):
         names.append(args[0].__class__.__name__)
     names.append(f.__name__)
     return logging.getLogger(".".join(names))
