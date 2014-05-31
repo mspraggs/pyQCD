@@ -21,6 +21,7 @@ def compute_correlators(lattice, mass_1, mass_2):
     quark masses and all four possible source/sink smearing combinations"""
 
     out = {}
+    log = pyQCD.logger()
 
     # Could do some smearing here
     #backup_config = lattice.get_config()
@@ -50,15 +51,15 @@ def compute_correlators(lattice, mass_1, mass_2):
     # Now we need compute the propagators with source smearing.
     # We do unsmeared first (the default).
     
-    logging.info("Computing smeared-point prop for mass = {}".format(mass_1))
+    log.info("Computing smeared-point prop for mass = {}".format(mass_1))
     prop_SL_mass_1 = pyQCD.compute_propagator(pt_src, invert_mass_1, smear_func)
-    logging.info("Computing smeared-point prop for mass = {}".format(mass_2))
+    log.info("Computing smeared-point prop for mass = {}".format(mass_2))
     prop_SL_mass_2 = pyQCD.compute_propagator(pt_src, invert_mass_2, smear_func)
     
     # Smear these propagators with two jacobi smears and a parameter of 0.4
-    logging.info("Smearing smeared-point prop with mass = {}".format(mass_1))
+    log.info("Smearing smeared-point prop with mass = {}".format(mass_1))
     prop_SS_mass_1 = pyQCD.smear_propagator(prop_SL_mass_1, smear_func)
-    logging.info("Smearing smeared-point prop with mass = {}".format(mass_2))
+    log.info("Smearing smeared-point prop with mass = {}".format(mass_2))
     prop_SS_mass_2 = pyQCD.smear_propagator(prop_SL_mass_2, smear_func)
     
     mass_1_props = [prop_LL_mass_1,
@@ -81,8 +82,8 @@ def compute_correlators(lattice, mass_1, mass_2):
     # Now we go through and contract all propagator combinations    
     for (prop1, prop2), smear_comb in zip(prop_pairings, smearing_combinations):
 
-        logging.info("Computing meson correlators for smearing combination "
-                     "{}".format(smear_comb))
+        log.info("Computing meson correlators for smearing combination "
+                 "{}".format(smear_comb))
         correlators = pyQCD.compute_meson_corr256(prop1, prop2)
         # Merge the smearing labels into existing dict keys
         correlators = dict([((key,) + (smear_comb,), value)
