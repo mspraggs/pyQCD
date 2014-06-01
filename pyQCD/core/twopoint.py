@@ -7,7 +7,7 @@ import numpy as np
 
 from .constants import *
 from .propagator import spin_prod, prop_adjoint
-from .dataset import _parmap
+from ..analysis.dataset import _parmap
 from .log import Log
     
 def filter_correlators(data, label=None, masses=None, momentum=None,
