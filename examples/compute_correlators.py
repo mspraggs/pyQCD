@@ -10,6 +10,7 @@ computation time.
 """
 
 import logging
+from functools import partial
 
 import numpy as np
 
@@ -35,6 +36,11 @@ def compute_correlators(lattice, mass_1, mass_2):
     invert_mass_2 \
       = lambda psi: lattice.invert_wilson_dirac(psi, mass_2, precondition=True,
                                                 solver_info=True)
+
+    invert_wilson = lattice.invert_wilson_dirac
+    
+    invert_mass_1 = partial(invert_wilson, mass=mass_1, precondition=True)
+    invert_mass_2 = partial(invert_wilson, mass=mass_2, precondition=True)
 
     smear_func = lambda psi: lattice.apply_jacobi_smearing(psi, 2, 0.4)
 
