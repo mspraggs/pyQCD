@@ -6,6 +6,7 @@ from __future__ import print_function
 
 import logging
 import inspect
+from functools import wraps
 
 def logger():
     """Generates a Logger object with path equal to the module, class and
@@ -85,6 +86,7 @@ class _Log(object):
 
     def __call__(self, f):
 
+        @wraps(f)
         def _wrapper(*args, **kwargs):
 
             logger = make_func_logger(f, args)
@@ -191,6 +193,7 @@ class _InversionLog(_Log):
 
     def __call__(self, f):
 
+        @wraps(f)
         def _wrapper(*args, **kwargs):
 
             logger = make_func_logger(f, args)
