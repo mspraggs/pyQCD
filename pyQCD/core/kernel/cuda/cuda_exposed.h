@@ -17,8 +17,8 @@ extern "C"
 			     const Complex* complexParams,
 			     const Complex* boundaryConditions,
 			     const VectorTypeHost& eta, const int solverMethod,
-			     const int precondition, const int maxIterations,
-			     const double tolerance, const int verbosity,
+			     const int precondition, int* maxIterations,
+			     double* tolerance, const int verbosity,
 			     const int L, const int T,
 			     const Complex* gaugeField);
   

@@ -63,8 +63,8 @@ namespace pyQCD
 			   const Complex* complexParams,
 			   const Complex* boundaryConditions,
 			   const VectorTypeHost& eta, const int solverMethod,
-			   const int precondition, const int maxIterations,
-			   const double tolerance, const int verbosity,
+			   const int precondition, int* maxIterations,
+			   double* tolerance, const int verbosity,
 			   const int L, const int T, Complex* gaugeField)
   {
     int solveSize = (precondition > 0) ? psi.size() / 2 : psi.size();
@@ -115,7 +115,7 @@ namespace pyQCD
       cusp::blas::fill(psiDev, Complex(0.0, 0.0));
     }
 
-    cusp::default_monitor<Complex> monitor(etaDev, maxIterations, 0, tolerance);
+    cusp::default_monitor<Complex> monitor(etaDev, *maxIterations, 0, *tolerance);
 
     // Now do the inversion
     switch (solverMethod) {
@@ -129,6 +129,8 @@ namespace pyQCD
       cusp::krylov::cg(*diracMatrix, psiDev, etaDev, monitor);
       break;    
     }
+    *tolerance = monitor.residual_norm();
+    *maxIterations = monitor.iteration_count();
     if (verbosity > 0) {
       std::cout << "  -> Solver finished with residual of "
 		<< monitor.residual_norm() << " in "

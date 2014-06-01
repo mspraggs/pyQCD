@@ -247,8 +247,8 @@ VectorXcd Lattice::invertDiracOperator(
 
   pyQCD::invertDiracOperator(psiCusp, action, cuspIntParams, cuspFloatParams,
 			     cuspComplexParams, cuspBoundaryConditions,
-			     etaCusp, solverMethod, precondition, iterations,
-			     tolerance, verbosity, this->spatialExtent,
+			     etaCusp, solverMethod, precondition, &iterations,
+			     &tolerance, verbosity, this->spatialExtent,
 			     this->temporalExtent,
 			     gaugeField);
 
