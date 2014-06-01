@@ -164,7 +164,7 @@ namespace pyQCD
 				 thrust::raw_pointer_cast(&psiEvenOdd[0]));
     }
 
-    free diracMatrix;
+    delete diracMatrix;
   }
 
 
