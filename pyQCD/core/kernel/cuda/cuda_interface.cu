@@ -163,6 +163,8 @@ namespace pyQCD
       diracMatrix->removeEvenOdd(thrust::raw_pointer_cast(&psi[0]),
 				 thrust::raw_pointer_cast(&psiEvenOdd[0]));
     }
+
+    free diracMatrix;
   }
 
 
