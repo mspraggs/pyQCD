@@ -146,7 +146,7 @@ class Simulation(object):
 
         self.measurements.append((meas_func, callback, args, kwargs))
 
-    def run(self):
+    def run(self, start=0):
         """Runs the simulation, including any added measurements"""
 
         self.plaquettes = np.zeros(self.num_configs)
@@ -159,7 +159,7 @@ class Simulation(object):
             log.info("Thermalizing lattice")
             self.lattice.thermalize(self.num_warmup_updates)
 
-        for i in range(self.num_configs):
+        for i in range(start, self.num_configs):
             log.info("Configuration: {}".format(i))
 
             if self.use_ensemble:
