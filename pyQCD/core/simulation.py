@@ -21,6 +21,15 @@ class Simulation(object):
     Measurements are then specified by passing functions to the Simulation
     object.
 
+    Field configurations are numbered in two ways. The first is an internal
+    counter that runs from 0 to N - 1, where N is the number of configurations.
+    When using the run function the initial value of this counter can be set
+    to skip the first few configurations if necesssary. The second numbering
+    system only comes into play when an existing ensemble is used. In this
+    case a list of numbers is passed to specify_ensemble, which correspond to
+    the values used to number the field configurations loaded during the
+    simulation.
+
     Attributes:
       lattice (Lattice): The lattice object used by the simulation.
         measurements.
@@ -147,7 +156,13 @@ class Simulation(object):
         self.measurements.append((meas_func, callback, args, kwargs))
 
     def run(self, start=0):
-        """Runs the simulation, including any added measurements"""
+        """Runs the simulation, including any added measurements
+
+        Args:
+          start (int, optional): The configuration at which to start (allowing
+            for some configurations to be skipped if the simulation must be
+            re-run).
+        """
 
         self.plaquettes = np.zeros(self.num_configs)
 
