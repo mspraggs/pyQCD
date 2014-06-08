@@ -62,14 +62,14 @@ class Generator(object):
         self.args[funcname] = self.cur_args
         self.locals[funcname] = self.cur_locals
 
-        return self.format("{}\n{}".format(declarations, code))
+        return self.format("{}\n{}".format(declarations, code), 1)
 
     def _funcgen(self, tree):
         """Recurses through the supplied tree and assembles the function code
         in C++"""
 
         self.caller = self._funcgen
-
+        
         if isinstance(tree, list):
             branch_codes = []
             for branch in tree:
@@ -84,7 +84,7 @@ class Generator(object):
 
         out = ""
 
-        for var in self.cur_locals:            
+        for var in self.cur_locals:
             try:
                 array_search = re.findall("([\w\ ]+)\[(\d+)\]",
                                           self.cur_loc_types[var])
