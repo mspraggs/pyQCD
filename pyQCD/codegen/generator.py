@@ -367,20 +367,24 @@ class Generator(object):
     def translate_funcs(self, code):
 
         code = code.replace("append", "push_back")
-        code = code.replace("pyQCD.", "pyQCD::")
+        code = code.replace("{}.id4".format(self.imports['pyQCD']),
+                            "Matrix4cd::Identity()")
+        code = code.replace("{}.identity(4)".format(self.imports['numpy']),
+                            "Matrix4cd::Identity()")
+        code = code.replace("{}.".format(self.imports['pyQCD']), "pyQCD::")
 
         hopping_search = re.findall("HoppingTerm\((\d+)\)", code)
         for res in hopping_search:
             old = "HoppingTerm({})".format(res)
-            new = ("new HoppingTerm(this->boundaryConditions_, this->lattice_,"
-                   " {})".format(res))
+            new = ("new HoppingTerm(boundaryConditions, lattice, {})"
+                   .format(res))
 
             code = code.replace(old, new)
 
         hopping_search = re.findall("HoppingTerm\((\d+),\ *([\w\ ]+)\)", code)
         for res in hopping_search:
             old = "HoppingTerm({}, {})".format(*res)
-            new = ("new HoppingTerm(this->boundaryConditions_, this->lattice_,"
+            new = ("new HoppingTerm(boundaryConditions, lattice,"
                    " {}, {})".format(*res))
 
             code = code.replace(old, new)
