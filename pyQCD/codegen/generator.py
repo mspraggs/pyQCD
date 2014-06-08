@@ -355,9 +355,6 @@ class Generator(object):
 
         return "{}{}\n}}".format(header, body)
 
-    def _If(self, code):
-        pass
-    
     def translate_funcs(self, code):
 
         code = code.replace("append", "push_back")
