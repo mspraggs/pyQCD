@@ -387,11 +387,11 @@ class Generator(object):
 
         return code
 
-    def format(self, code):
+    def format(self, code, start_indent=0):
 
         old_lines = code.split("\n")
         new_lines = []
-        indent_count = 0
+        indent_count = start_indent
         
         for line in old_lines:
             try:
