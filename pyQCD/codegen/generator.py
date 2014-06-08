@@ -305,6 +305,15 @@ class Generator(object):
 
         return "{{{}}}".format(", ".join(list_values))
 
+    def _Tuple(self, tree):
+
+        list_values = []
+
+        for elem in tree.elts:
+            list_values.append(str(self.caller(elem)))
+
+        return "{{{}}}".format(", ".join(list_values))
+
     def _ListComp(self, tree):
 
         out = "[{}".format(self.caller(tree.elt))
