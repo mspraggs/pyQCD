@@ -363,6 +363,12 @@ class Generator(object):
     def _Import(self, tree):
         for name in tree.names:
             self.imports[name.name] = name.asname or name.name
+
+    def _AugAssign(self, tree):
+        L = self.caller(tree.target)
+        R = self.caller(tree.value)
+        O = self.caller(tree.op)
+        return "{} {}= {};".format(L, O, R)
                 
     def translate_funcs(self, code):
 
