@@ -388,7 +388,7 @@ class Generator(object):
                 
     def translate_funcs(self, code):
 
-        code = code.replace("append", "push_back")
+        code = code.replace(".append", ".push_back")
         code = code.replace("{}.id4".format(self.imports['pyQCD']),
                             "Matrix4cd::Identity()")
         code = code.replace("{}.identity(4)".format(self.imports['numpy']),
