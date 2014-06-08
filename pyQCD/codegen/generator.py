@@ -411,6 +411,12 @@ class Generator(object):
 
             code = code.replace(old, new)
 
+        code = code.replace("{}.zeros({{3, 3}})".format(self.imports["numpy"]),
+                            "Matrix3cd::Zero()")
+        code = code.replace("{}.zeros({{3, 3}}, dtype=np.complex)"
+                            .format(self.imports["numpy"]),
+                            "Matrix3cd::Zero()")
+            
         return code
 
     def format(self, code, start_indent=0):
