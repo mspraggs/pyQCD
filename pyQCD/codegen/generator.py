@@ -87,7 +87,7 @@ class Generator(object):
 
         for var in self.cur_locals:
             try:
-                array_search = re.findall("([\w\ ]+)\[(\d+)\]",
+                array_search = re.findall("([\w\ ]+)\[([\w\d]+)\]",
                                           self.cur_loc_types[var])
                 if len(array_search) > 0:
                     prefix = array_search[0][0]
@@ -195,11 +195,11 @@ class Generator(object):
             and not varname in self.cur_locals
             and varname != "this"):
 
-            array_strip = re.findall("(\w+)\[\d+\]", varname)
+            array_strip = re.findall("(\w+)\[[\w\d]+\]", varname)
             if len(array_strip) > 0:
                 varname = array_strip[0]
 
-            matrix_strip = re.findall("(\w+)\([\d,\ ]+\)", varname)
+            matrix_strip = re.findall("(\w+)\([\d\w,\ ]+\)", varname)
             if len(matrix_strip) > 0:
                 varname = matrix_strip[0]
             
@@ -340,7 +340,17 @@ class Generator(object):
 
     def _Subscript(self, tree):
 
-        out = "{}[{}]".format(self.caller(tree.value), self.caller(tree.slice))
+        try:
+            val_type = self.cur_loc_types[self.caller(tree.value)]
+    
+            eigen_types = ["Matrix3cd", "Matrix4cd", "VectorXcd"]
+            bracket_template = "{}({})" if val_type in eigen_types else "{}[{}]"
+
+        except KeyError:
+            bracket_template = "{}[{}]"
+
+        out = bracket_template.format(self.caller(tree.value),
+                                      self.caller(tree.slice))
         
         return out.replace("[{", "(").replace("}]", ")")
 
