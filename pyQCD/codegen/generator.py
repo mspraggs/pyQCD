@@ -279,7 +279,7 @@ class Generator(object):
         L = self.caller(tree.left)
         R = self.caller(tree.right)
         O = self.caller(tree.op)
-        return "{} {} {}".format(L, O, R)
+        return "({} {} {})".format(L, O, R)
 
     def _Mult(self, tree):
         return "*"
