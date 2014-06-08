@@ -18,7 +18,8 @@ class Generator(object):
         self.member_types = {}
         self.args = {}
         self.locals = {}
-        self.members = set()
+        self.members = set(["lattice_", "evenIndices_", "oddIndices_",
+                            "operatorSize_", "boundaryConditions_"])
         self.imports = {}
 
         self.collectfuncs(tree)
@@ -167,7 +168,6 @@ class Generator(object):
         return tree.id
 
     def _Call(self, tree):
-
         func = self.caller(tree.func)
         args = [str(self.caller(arg)) for arg in tree.args]
 
