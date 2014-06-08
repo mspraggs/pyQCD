@@ -19,6 +19,7 @@ class Generator(object):
         self.args = {}
         self.locals = {}
         self.members = set()
+        self.imports = {}
 
         self.collectfuncs(tree)
 
@@ -240,6 +241,10 @@ class Generator(object):
         attr = tree.attr
         value = self.caller(tree.value)
 
+        if (type(tree.value) != ast.Attribute and value != "self"
+            and not value in self.imports.values()):
+            self.cur_locals.add(value)
+
         connector = "."
         if value == "self":
             value = "this"
@@ -355,6 +360,10 @@ class Generator(object):
 
         return "{}{}\n}}".format(header, body)
 
+    def _Import(self, tree):
+        for name in tree.names:
+            self.imports[name.name] = name.asname or name.name
+                
     def translate_funcs(self, code):
 
         code = code.replace("append", "push_back")
