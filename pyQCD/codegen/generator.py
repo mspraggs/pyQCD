@@ -198,6 +198,10 @@ class Generator(object):
             array_strip = re.findall("(\w+)\[\d+\]", varname)
             if len(array_strip) > 0:
                 varname = array_strip[0]
+
+            matrix_strip = re.findall("(\w+)\([\d,\ ]+\)", varname)
+            if len(matrix_strip) > 0:
+                varname = matrix_strip[0]
             
             self.cur_locals.add(varname)
 
@@ -335,7 +339,10 @@ class Generator(object):
         return "{};".format(self.caller(tree.value))
 
     def _Subscript(self, tree):
-        return "{}[{}]".format(self.caller(tree.value), self.caller(tree.slice))
+
+        out = "{}[{}]".format(self.caller(tree.value), self.caller(tree.slice))
+        
+        return out.replace("[{", "(").replace("}]", ")")
 
     def _Index(self, tree):
         return self.caller(tree.value)
