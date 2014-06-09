@@ -15,7 +15,12 @@ class Generator(object):
 
         self.functions = {}
         self.local_types = {}
-        self.member_types = {}
+        self.member_types = {"lattice_": "Lattice*",
+                             "evenIndices_": "vector<int>",
+                             "oddIndices_": "vector<int>",
+                             "operatorSize_": "int",
+                             "boundaryConditions_":
+                             "vector<vector<complex<double> > >"}
         self.args = {}
         self.locals = {}
         self.members = set(["lattice_", "evenIndices_", "oddIndices_",
