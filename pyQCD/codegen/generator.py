@@ -409,6 +409,8 @@ class Generator(object):
                             "Matrix4cd::Identity()")
         code = code.replace("{}.identity(4)".format(self.imports['numpy']),
                             "Matrix4cd::Identity()")
+        code = code.replace("{}.identity(3)".format(self.imports['numpy']),
+                            "Matrix3cd::Identity()")
         code = code.replace("{}.".format(self.imports['pyQCD']), "pyQCD::")
 
         hopping_search = re.findall("HoppingTerm\((\d+)\)", code)
