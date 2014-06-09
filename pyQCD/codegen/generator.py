@@ -128,6 +128,7 @@ class Generator(object):
                     for dec in branch.decorator_list:
                         self._handledecorator(dec, False)
                     self.collectfuncs(branch)
+                    self.classname = branch.name
                 else:
                     self.collectfuncs(branch)
         else:
