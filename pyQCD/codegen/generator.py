@@ -87,6 +87,30 @@ class Generator(object):
         else:
             return self._handleobject(tree)
 
+    def declare_args(self, funcname):
+
+        out = []
+        for arg in self.args[funcname]:
+            out.append("{} {}".format(self.local_types[funcname][arg], arg))
+        return out
+
+    def destructibles(self):
+
+        out = []
+        for varname, vartype in self.member_types.items():
+            if not varname in self.members and vartype[-1] == "*":
+                out.append("this->{}".format(varname))
+
+        return out
+
+    def declare_members(self):
+        out = []
+        for varname, vartype in self.member_types.items():
+            if not varname in self.members:
+                out.append("{} {}".format(vartype, varname))
+
+        return out
+    
     def _declare_vars(self):
 
         out = ""
