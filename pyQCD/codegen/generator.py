@@ -216,7 +216,7 @@ class Generator(object):
         out = ""
 
         if type(tree.value) == ast.List or type(tree.value) == ast.ListComp:
-            search_vector = re.findall("vector<(\w+)>",
+            search_vector = re.findall("vector<([\w\ <>]+)>",
                                        self.cur_loc_types[varname])
             num_elems = value.count(",") + 1
             temp_varname \
