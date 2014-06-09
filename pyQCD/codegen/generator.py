@@ -177,7 +177,11 @@ class Generator(object):
         func = self.caller(tree.func)
         args = [str(self.caller(arg)) for arg in tree.args]
 
-        return "{}({})".format(func, ", ".join(args))
+        new_args = []
+        for arg in args:
+            new_args.append(arg if type(arg) != str else "\"{}\"".format(arg))
+
+        return "{}({})".format(func, ", ".join(new_args))
 
     def _Str(self, tree):
         return tree.s
