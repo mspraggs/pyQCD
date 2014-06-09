@@ -429,11 +429,25 @@ class Generator(object):
 
             code = code.replace(old, new)
 
-        code = code.replace("{}.zeros({{3, 3}})".format(self.imports["numpy"]),
-                            "Matrix3cd::Zero()")
-        code = code.replace("{}.zeros({{3, 3}}, dtype=np.complex)"
-                            .format(self.imports["numpy"]),
-                            "Matrix3cd::Zero()")
+        for i in range(2, 5):
+            code = code.replace("{}.zeros({{{}, {}}})"
+                                .format(self.imports["numpy"], i, i),
+                                "Matrix{}cd::Zero()".format(i))
+            code = code.replace("{}.zeros({{{}, {}}}, dtype=np.complex)"
+                                .format(self.imports["numpy"], i, i),
+                                "Matrix{}cd::Zero()".format(i))
+            code = code.replace("{}.ones({{{}, {}}})"
+                                .format(self.imports["numpy"], i, i),
+                                "Matrix{}cd::Ones()".format(i))
+            code = code.replace("{}.ones({{{}, {}}}, dtype=np.complex)"
+                                .format(self.imports["numpy"], i, i),
+                                "Matrix{}cd::Ones()".format(i))
+
+        raw_search = re.findall("RAW_CPP\([\"\'](.+)[\"\']\);", code)
+        for res in raw_search:
+            old = "RAW_CPP(\"{}\");".format(res)
+            new = res
+            code = code.replace(old, new)
             
         return code
 
