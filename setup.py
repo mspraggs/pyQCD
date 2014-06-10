@@ -46,6 +46,9 @@ setup(
     ext_modules = [Extension('pyQCD/core/kernel/lattice',
                              sources = ['pyQCD/core/kernel/src/wrapper.cpp'])],
     package_dir={'': '.'},
+    package_data={
+        'pyQCD.codegen': ['templates/*.cpp', 'templates/*.hpp'],
+        },
     classifiers = [
         'Programming Language :: Python',
         'Programming Language :: C++',
