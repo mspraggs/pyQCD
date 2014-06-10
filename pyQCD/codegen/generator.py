@@ -75,7 +75,19 @@ def make_template_args(syntax_tree):
     else:
         even_odd_handling = ""
 
-    template_args.update(ctor_args=generator.declare_args('__init__'))
+    template_args.update(apply_arg=list(generator.args['apply'])[0])
+    template_args.update(apply_herm_arg
+                         =list(generator.args['apply_hermitian'])[0])
+    template_args.update(make_herm_arg
+                         =list(generator.args['make_hermitian'])[0])
+    template_args.update(apply_even_even_inv_arg
+                         =list(generator.args['apply_even_even_inv'])[0])
+    template_args.update(apply_odd_odd_arg
+                         =list(generator.args['apply_odd_odd'])[0])
+    template_args.update(apply_even_odd_arg
+                         =list(generator.args['apply_even_odd'])[0])
+    template_args.update(apply_odd_even_arg
+                         =list(generator.args['apply_odd_even'])[0])
     template_args.update(member_vars=generator.declare_members())
     template_args.update(class_name=generator.classname)
     template_args.update(even_odd_handling=even_odd_handling)
