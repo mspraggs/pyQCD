@@ -260,7 +260,7 @@ class Generator(object):
                     typedict = {}
 
             for kw in tree.keywords:
-                value = self._Str(kw.value)
+                value = eval(self._Str(kw.value))
                 try:
                     typedict.update({kw.arg: value})
                 except KeyError:
@@ -285,16 +285,16 @@ class Generator(object):
 
     def _Call(self, tree):
         func = self.caller(tree.func)
-        args = [str(self.caller(arg)) for arg in tree.args]
+        args = [self.caller(arg) for arg in tree.args]
 
         new_args = []
         for arg in args:
             new_args.append(arg if type(arg) != str else "\"{}\"".format(arg))
 
-        return "{}({})".format(func, ", ".join(new_args))
+        return "{}({})".format(func, ", ".join(args))
 
     def _Str(self, tree):
-        return tree.s
+        return repr(tree.s)
 
     def _Assign(self, tree):
 
@@ -394,7 +394,7 @@ class Generator(object):
         return "{}{}{}".format(value, connector, attr)
 
     def _Num(self, tree):
-        return tree.n
+        return repr(tree.n)
 
     def _Return(self, tree):
         return "return {};".format(self.caller(tree.value))
@@ -559,9 +559,11 @@ class Generator(object):
 
         raw_search = re.findall("RAW_CPP\([\"\'](.+)[\"\']\);", code)
         for res in raw_search:
-            old = "RAW_CPP(\"{}\");".format(res)
+            old1 = "RAW_CPP(\"{}\");".format(res)
+            old2 = "RAW_CPP(\'{}\');".format(res)
             new = res
-            code = code.replace(old, new)
+            code = code.replace(old1, new)
+            code = code.replace(old2, new)
             
         return code
 
