@@ -75,6 +75,7 @@ def make_template_args(syntax_tree):
     else:
         even_odd_handling = ""
 
+    template_args.update(ctor_args=generator.declare_args('__init__'))
     template_args.update(apply_arg=list(generator.args['apply'])[0])
     template_args.update(apply_herm_arg
                          =list(generator.args['apply_hermitian'])[0])
