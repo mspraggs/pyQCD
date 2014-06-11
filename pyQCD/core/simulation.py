@@ -155,13 +155,15 @@ class Simulation(object):
 
         self.measurements.append((meas_func, callback, args, kwargs))
 
-    def run(self, start=0):
+    def run(self, start=0, stop=None):
         """Runs the simulation, including any added measurements
 
         Args:
           start (int, optional): The configuration at which to start (allowing
             for some configurations to be skipped if the simulation must be
             re-run).
+          stop (int, optional): The configuration at which to stop. Defaults to
+            the total number of configs.
         """
 
         self.plaquettes = np.zeros(self.num_configs)
@@ -170,11 +172,14 @@ class Simulation(object):
 
         log = logger()
 
+	if stop == None:
+            stop = self.num_configs - 1
+
         if not self.use_ensemble:
             log.info("Thermalizing lattice")
             self.lattice.thermalize(self.num_warmup_updates)
 
-        for i in range(start, self.num_configs):
+        for i in range(start, stop + 1):
             log.info("Configuration: {}".format(i))
 
             if self.use_ensemble:
