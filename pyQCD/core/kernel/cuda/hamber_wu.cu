@@ -17,8 +17,8 @@ CudaHamberWu::CudaHamberWu(const float mass, const int L, const int T,
 
   // Now set the spin structes up with the identity, which we'll then subtract
   // and add the gamma matrices from/to.
-  diagonalSpinMatrices(hostSpinStructures, Complex(2.0, 0.0));
-  diagonalSpinMatrices(hostSpinStructures + 64, Complex(2.0, 0.0));
+  diagonalSpinMatrices(hostSpinStructures, 2.0);
+  diagonalSpinMatrices(hostSpinStructures + 64, 2.0);
   subtractArray(hostSpinStructures, hostGammas, 64); // 2 - gamma_mu
   addArray(hostSpinStructures + 64, hostGammas, 64); // 2 + gamma_mu
 

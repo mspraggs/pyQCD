@@ -24,8 +24,9 @@ CudaNaik::CudaNaik(const float mass, const int L, const int T,
   addArray(hostSpinStructures + 64, hostGammas, 64); // 3 + gamma_mu
 
   this->nextNextNearestHopping_ \
-    = new CudaHoppingTerm<3>(1.0 / 6.0, L, T, precondition,
+    = new CudaHoppingTerm<3>(1.0 / 16.0, L, T, precondition,
 			     hermitian, boundaryConditions,
+			     hostSpinStructures, 128,
 			     this->links_, false);
 
   this->evenIndices_ = this->nearestHopping_->getEvenIndices();
