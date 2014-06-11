@@ -84,15 +84,17 @@ void hoppingKernel(Complex* y, const Complex* x, const Complex* links,
 	Complex Um
 	  = cusp::conj(computeU<numHops>(links, siteBehindIndex, mu, b, a,
 					 L, T));
-	
-	y[index]
-	  += scaling * Um * gammas[16 * mu + 4 * alpha + beta]
+
+	Complex temp
+	  = Um * gammas[16 * mu + 4 * alpha + beta]
 	  * boundaryConditions[8 * siteIndex + mu]
 	  * x[12 * siteBehindIndex + j];
-	y[index]
-	  += scaling * Up * gammas[64 + 16 * mu + 4 * alpha + beta]
+	temp
+	  += Up * gammas[64 + 16 * mu + 4 * alpha + beta]
 	  * boundaryConditions[8 * siteIndex + mu + 4]
 	  * x[12 * siteAheadIndex + j];
+
+	y[index] += scaling * temp;
       }
     }
   }
