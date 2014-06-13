@@ -153,7 +153,7 @@ def compute_propagator(src_template, invert_func, src_smear=None,
             result = invert_func(source)
             solution = result[0] if type(result) == tuple else result
             tf = time.time()
-            log.info("Inversion walltime: {}".format(t0 - tf))
+            log.info("Inversion walltime: {}".format(tf - t0))
             
             if snk_smear != None:
                 solution = snk_smear(solution)
