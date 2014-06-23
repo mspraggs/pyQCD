@@ -16,7 +16,7 @@ import numpy as np
 
 import pyQCD
 
-pyQCD.Log(ignore=("lattice",))
+@pyQCD.Log(ignore=("lattice",))
 def compute_correlators(lattice, mass_1, mass_2):
     """Computes all 256 meson correlation functions for the two supplied
     quark masses and all four possible source/sink smearing combinations"""
@@ -30,19 +30,12 @@ def compute_correlators(lattice, mass_1, mass_2):
 
     # Create the inversion functions and smearing functions we'll use when doing
     # the inversion.
-    invert_mass_1 \
-      = lambda psi: lattice.invert_wilson_dirac(psi, mass_1, precondition=True,
-                                                solver_info=True)
-    invert_mass_2 \
-      = lambda psi: lattice.invert_wilson_dirac(psi, mass_2, precondition=True,
-                                                solver_info=True)
-
     invert_wilson = lattice.invert_wilson_dirac
-    
     invert_mass_1 = partial(invert_wilson, mass=mass_1, precondition=True)
     invert_mass_2 = partial(invert_wilson, mass=mass_2, precondition=True)
 
-    smear_func = lambda psi: lattice.apply_jacobi_smearing(psi, 2, 0.4)
+    smear_func = partial(lattice.apply_jacobi_smearing,
+                         num_smears=2, smearing_param=0.4)
 
     pt_src = lattice.point_source([0, 0, 0, 0])
     
