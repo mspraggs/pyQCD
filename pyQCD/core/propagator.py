@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from __future__ import print_function
 
 import logging
+import time
 
 import numpy as np
 
@@ -147,10 +148,13 @@ def compute_propagator(src_template, invert_func, src_smear=None,
             
             if src_smear != None:
                 source = src_smear(source)
-
+            
+            t0 = time.time()
             result = invert_func(source)
             solution = result[0] if type(result) == tuple else result
-
+            tf = time.time()
+            log.info("Inversion walltime: {}".format(tf - t0))
+            
             if snk_smear != None:
                 solution = snk_smear(solution)
 

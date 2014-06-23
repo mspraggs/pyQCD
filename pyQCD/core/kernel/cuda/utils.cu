@@ -333,8 +333,8 @@ Complex computeU(const Complex* links, const int siteIndex, const int mu,
 {
   cusp::complex<float> out(0.0, 0.0);
 
+  int newIndex = shiftSiteIndex(siteIndex, mu, 1, L, T);
   for (int i = 0; i < 3; ++i) {
-    int newIndex = shiftSiteIndex(siteIndex, mu, 1, L, T);
     out
       += links[36 * siteIndex + 9 * mu + 3 * a + i]
       * computeU<numHops - 1>(links, newIndex, mu, i, b, L, T);
