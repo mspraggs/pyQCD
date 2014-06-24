@@ -24,8 +24,8 @@ class Lattice(lattice.Lattice):
       L (int): The spatial extent of the lattice
       T (int): The temporal extent of the lattice
       beta (float): The inverse coupling of the gauge action
-      ut (float): The spatial mean link/tadpole improvement factor.
-      us (float): The temporal mean link/tadpole improvement factor.
+      ut (float): The temporal mean link/tadpole improvement factor.
+      us (float): The spatial mean link/tadpole improvement factor.
       chi (float): The anisotropy factor, equal to the spatial lattice spacing
         divided by the temporal lattice spacing.
       action (str): The gauge action to use when updating the lattice
@@ -50,8 +50,8 @@ class Lattice(lattice.Lattice):
         Currently "wilson", "rectangle_improved" and
         "twisted_rectangle_improved" are supported (see note 1).
       meas_spacing (int): The number of configurations between measurements
-      ut (float, optional): The spatial mean link/tadpole improvement factor.
-      us (float, optional): The temporal mean link/tadpole improvement factor.
+      ut (float, optional): The temporal mean link/tadpole improvement factor.
+      us (float, optional): The spatial mean link/tadpole improvement factor.
       chi (float, optional): The anisotropy factor, equal to the spatial lattice
         spacing divided by the temporal lattice spacing.
       update_method (str, optional): The algorithm to use when updating the
