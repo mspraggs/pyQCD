@@ -19,6 +19,7 @@
 #include <string>
 #include <numeric>
 #include <functional>
+#include <algorithm>
 
 #include <utils/macros.hpp>
 
@@ -38,14 +39,14 @@ namespace pyQCD
 
     // Operator overloads
     LatticeArray<T>& operator=(const LatticeArray<T>& rhs);
-    const T& operator[](COORD_INDEX_ARGS(n)) const;
-    T& operator[](COORD_INDEX_ARGS(n));
+    const T& operator()(COORD_INDEX_ARGS(n)) const;
+    T& operator()(COORD_INDEX_ARGS(n));
 
     // Functions to access the _data member directly
     T& datum_ref(const int index);
-    const &T datum_ref(const int index) const;
+    const T& datum_ref(const int index) const;
     T& datum_ref(const int i, const int j);
-    const &T datum_ref(const int i, const int j) const;
+    const T& datum_ref(const int i, const int j) const;
 
     // Utility functions specific to the lattice layout
     std::vector<int> get_site_coords(const int index) const;
@@ -73,12 +74,12 @@ namespace pyQCD
 
   
   template <typename T>
-  LatticeArray::LatticeArray(const std::vector<int>& lattice_shape,
-			     const std::vector<int>& block_shape)
+  LatticeArray<T>::LatticeArray(const std::vector<int>& lattice_shape,
+				const std::vector<int>& block_shape)
     : _lattice_shape(lattice_shape), _block_shape(block_shape)
   {
     // First sanity check the input
-    if (lattice_shape.size() == NDIM || ) {
+    if (lattice_shape.size() == NDIM || block_shape.size() != NDIM) {
       // Then check that the blocks can fit inside the lattice
       for (int i = 0; i < NDIM; ++i)
 	if (lattice_shape[i] % block_shape[i] != 0) {
@@ -180,7 +181,7 @@ namespace pyQCD
 
 
   template <typename T>
-  LatticeArray::LatticeArray(const LatticeArray& lattice_array)
+  LatticeArray<T>::LatticeArray(const LatticeArray& lattice_array)
     : _data(lattice_array._data),
       _lattice_shape(lattice_array._lattice_shape),
       _block_shape(lattice_array._block_shape),
@@ -195,7 +196,7 @@ namespace pyQCD
 
 
   template <typename T>
-  LatticeArray::~LatticeArray()
+  LatticeArray<T>::~LatticeArray()
   {
     // Destructor - nothing to do here
   }
@@ -203,7 +204,7 @@ namespace pyQCD
 
 
   template <typename T>
-  LatticeArray<T>& LatticeArray::operator=(const LatticeArray<T>& rhs)
+  LatticeArray<T>& LatticeArray<T>::operator=(const LatticeArray<T>& rhs)
   {
     if (this != &rhs) {
       this->_data = rhs._data;
