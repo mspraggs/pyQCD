@@ -43,8 +43,10 @@ namespace pyQCD
 
     // Utility functions specific to the lattice layout
     vector<int> get_site_coords(const int index) const;
-    void get_site_coords(const int index, vector<int>& site_coords) const;
-    void get_site_index(const vector<int>& site_coords) const;
+    template <typename U>
+    void get_site_coords(const int index, U& site_coords) const;
+    template <typename U>
+    void get_site_index(const U& site_coords) const;
 
   protected:
     vector<vector<T> > _data;
