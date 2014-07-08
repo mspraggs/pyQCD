@@ -199,6 +199,24 @@ namespace pyQCD
   {
     // Destructor - nothing to do here
   }
+
+
+
+  template <typename T>
+  LatticeArray<T>& LatticeArray::operator=(const LatticeArray<T>& rhs)
+  {
+    if (this != &rhs) {
+      this->_data = rhs._data;
+      this->_lattice_shape = rhs._lattice_shape;
+      this->_lattice_shape = rhs._block_shape;
+      this->_layout = rhs._layout;
+      this->_lattice_volume = rhs._lattice_volume;
+      this->_num_blocks = rhs._num_blocks;
+      this->_block_volume = rhs._block_volume;
+    }
+
+    return *this;
+  }
 }
 
 #endif
