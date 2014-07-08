@@ -187,7 +187,7 @@ namespace pyQCD
       _num_blocks(lattice_array._num_blocks),
       _block_volume(lattice_array._block_volume)
   {
-    
+    // Copy constructor, we'll all done here
   }
 
 
