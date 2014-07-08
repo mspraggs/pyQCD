@@ -41,6 +41,11 @@ namespace pyQCD
     T& datum_ref(const int i, const int j);
     const &T datum_ref(const int i, const int j) const;
 
+    // Utility functions specific to the lattice layout
+    vector<int> get_site_coords(const int index) const;
+    void get_site_coords(const int index, vector<int>& site_coords) const;
+    void get_site_index(const vector<int>& site_coords) const;
+
   protected:
     vector<vector<T> > _data;
 
