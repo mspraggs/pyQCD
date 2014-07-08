@@ -15,6 +15,9 @@
  */
 
 #include <vector>
+#include <exception>
+#include <string>
+#include <numeric>
 
 #include <utils/macros.hpp>
 
@@ -65,6 +68,112 @@ namespace pyQCD
     int _num_blocks;
     int _block_volume;
   };
+
+
+  
+  template <typename T>
+  LatticeArray::LatticeArray(const std::vector<int>& lattice_shape,
+			     const std::vector<int>& block_shape)
+    : _lattice_shape(lattice_shape), _block_shape(block_shape)
+  {
+    // First sanity check the input
+    if (lattice_shape.size() == NDIM || ) {
+      // Then check that the blocks can fit inside the lattice
+      for (int i = 0; i < NDIM; ++i)
+	if (lattice_shape[i] % block_shape[i] != 0) {
+	  std::string msg = "Lattice shape is not integer multiple "
+	    "of block shape along dimension ";
+	  msg += std::to_string(i);
+	  throw std::invalid_argument(msg);
+	}
+
+      // Now compute the total number of sites
+      this->_lattice_volume = 1;
+      for (int i : lattice_shape)
+	this->_lattice_volume *= i;
+      // And the block volume
+      for (int i : block_shape)
+	this->_block_volume *= i;
+
+      this->_num_blocks = this->_lattice_volume / this->_block_volume;
+      // Resize the _data vector
+      this->_data.resize(this->_num_blocks);
+      this->_layout.resize(this->_lattice_volume);
+
+      // Now that we have the number of sites, iterate through
+      // the lexicographic indices of the sites, compute the
+      // coordinates, then assign a block and block site
+      std::vector<int> coords(NDIM, 0);
+      for (int i = 0; i < this->_num_sites; ++i) {
+	// Resize the current _layout sub-vector
+	this->_layout[i] = std::vector<int>(2, 0);
+	// Determine the coordinates of the current site
+	this->get_site_coords(i, coords);
+
+	// Now determine the coordinates of the current block relative to the
+	// lattice and the coordinates of the current site relative to the block
+	// Block relative to lattice:
+	std::vector<int> lattice_block_coords(NDIM, 0);
+	// Site relative to block:
+	std::vector<int> block_site_coords(NDIM, 0);
+	for (int j = 0; j < NDIM; ++j) {
+	  lattice_block_coords[j] = coords[j] / block_shape[j];
+	  block_site_coords[j] = coords[j] % block_shape[j];
+	}
+
+	// Now determine the lexicographical index of the block within
+	// the lattice and the lexicographical index of the site within
+	// the block.
+	int lattice_block_index = 0;
+	int block_site_index = 0;
+	for (int j = 0; j < NDIM; ++j) {
+	  lattice_block_index *= lattice_shape[j] / block_shape[j];
+	  lattice_block_index += lattice_block_coords[j];
+
+	  block_site_index *= block_shape[j];
+	  block_site_index += block_site_coords[j];
+	}
+
+	// Determine if the site will change the half of the block it resides
+	// in due to even-odd ordering. Because we're about to divide the
+	// lexicographic indices by two (to account for even-odd ordering), we
+	// need some form of compensation factor to prevent some sites from
+	// ending up in the same block and block site. Here, we add half a block
+	// volume whenever the block lexicographic index is odd.
+	int block_site_index_shift
+	  = (lattice_block_index % 2 > 0) ? this->_block_volume / 2 : 0;
+
+	// Since we're doing everything even-odd stylee, we divide the two
+	// computed indices by two.
+	block_site_index /= 2;
+	lattice_block_index /= 2;
+
+	// In much the same way as within the block, we need a correction factor
+	// for the fact that we've just divided the lattice_block_index by 2
+	// Here, odd sites get moved to the second set of blocks.
+	if (std::accumulate(coords.begin(), coords.end(), 0) % 2 > 0)
+	  lattice_block_index += this->_num_blocks / 2;
+
+	// Assign those blocks
+	this->_layout[i][0] = lattice_block_index;
+	this->_layout[i][1] = block_site_index;
+      } // End loop over sites
+      
+      // Now we've configured the layout, we proceed to initialize the variables
+      // within _data
+
+      for (std::vector<T>& inner : this->_data)
+	for (T& datum: inner)
+	  datum = T();
+    }
+    else {
+      // The input was bad (lattice shape exceeds number of dimesnions)
+      // so throw an error
+      std::string msg = "Lattice or block shape does not have dimension ";
+      msg += std::to_string(NDIM);
+      throw std::invalid_argument(msg);
+    }
+  }
 }
 
 #endif
