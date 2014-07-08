@@ -189,6 +189,14 @@ namespace pyQCD
   {
     
   }
+
+
+
+  template <typename T>
+  LatticeArray::~LatticeArray()
+  {
+    // Destructor - nothing to do here
+  }
 }
 
 #endif
