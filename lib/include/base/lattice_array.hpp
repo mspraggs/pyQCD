@@ -18,6 +18,7 @@
 #include <exception>
 #include <string>
 #include <numeric>
+#include <functional>
 
 #include <utils/macros.hpp>
 
@@ -88,12 +89,13 @@ namespace pyQCD
 	}
 
       // Now compute the total number of sites
-      this->_lattice_volume = 1;
-      for (int i : lattice_shape)
-	this->_lattice_volume *= i;
+      this->_lattice_volume = std::accumulate(lattice_shape.begin(),
+					      lattice_shape.end(), 1,
+					      std::multiplies<int>());
       // And the block volume
-      for (int i : block_shape)
-	this->_block_volume *= i;
+      this->_block_volume = std::accumulate(block_shape.begin(),
+					    block_shape.end(), 1,
+					    std::multiplies<int>());
 
       this->_num_blocks = this->_lattice_volume / this->_block_volume;
       // Resize the _data vector
@@ -114,12 +116,12 @@ namespace pyQCD
 	// lattice and the coordinates of the current site relative to the block
 	// Block relative to lattice:
 	std::vector<int> lattice_block_coords(NDIM, 0);
+	std::transform(coords.begin(), coords.end(), block_shape.begin(),
+		       lattice_block_coords.begin(), std::divides<int>());
 	// Site relative to block:
 	std::vector<int> block_site_coords(NDIM, 0);
-	for (int j = 0; j < NDIM; ++j) {
-	  lattice_block_coords[j] = coords[j] / block_shape[j];
-	  block_site_coords[j] = coords[j] % block_shape[j];
-	}
+	std::transform(coords.begin(), coords.end(), block_shape.begin(),
+		       block_site_coords.begin(), std::modulus<int>());
 
 	// Now determine the lexicographical index of the block within
 	// the lattice and the lexicographical index of the site within
