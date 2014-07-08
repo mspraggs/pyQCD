@@ -46,6 +46,7 @@ namespace pyQCD
   private:
     vector<int> _shape;
     vector<vector<int> > _layout;
+    int _num_sites;
   };
 }
 
