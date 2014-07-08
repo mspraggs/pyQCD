@@ -26,15 +26,11 @@ namespace pyQCD
 
   public:
     // Constructors
-    LatticeArray();
     LatticeArray(const vector<int>& lattice_shape);
     LatticeArray(const LatticeArray<T>& lattice_array);
     virtual ~LatticeArray();
 
-    // Shared constructor code
-    void init(const vector<int>& lattice_shape);
-
-    // 
+    // Operator overloads
     LatticeArray<T>& operator=(const LatticeArray<T>& rhs);
     const T& operator[](COORD_INDEX_ARGS(n)) const;
     T& operator[](COORD_INDEX_ARGS(n));
