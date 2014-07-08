@@ -174,6 +174,21 @@ namespace pyQCD
       throw std::invalid_argument(msg);
     }
   }
+
+
+
+  template <typename T>
+  LatticeArray::LatticeArray(const LatticeArray& lattice_array)
+    : _data(lattice_array._data),
+      _lattice_shape(lattice_array._lattice_shape),
+      _block_shape(lattice_array._block_shape),
+      _layout(lattice_array._layout),
+      _lattice_volume(lattice_array._lattice_volume),
+      _num_blocks(lattice_array._num_blocks),
+      _block_volume(lattice_array._block_volume)
+  {
+    
+  }
 }
 
 #endif
