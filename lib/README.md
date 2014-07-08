@@ -66,6 +66,7 @@ The include and lib directories share a common directory structure:
 * fermion_actions - pretty self-explanatory
 * gauge_actions - also pretty self-explanatory
 * linear_operators - basic linear operators from which dirac operators can be built, as well as smearing operators
+* utils - utility functions used througout the codebase
 
 The files in src and include should mirror each other, as the latter contains
 the headers for the former.
