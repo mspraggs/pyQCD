@@ -26,7 +26,9 @@ namespace pyQCD
 
   public:
     // Constructors
-    LatticeArray(const vector<int>& lattice_shape);
+    LatticeArray(const std::vector<int>& lattice_shape,
+		 const std::vector<int>& block_shape
+		 = std::vector<int>(NDIM, 2));
     LatticeArray(const LatticeArray<T>& lattice_array);
     virtual ~LatticeArray();
 
@@ -42,19 +44,26 @@ namespace pyQCD
     const &T datum_ref(const int i, const int j) const;
 
     // Utility functions specific to the lattice layout
-    vector<int> get_site_coords(const int index) const;
+    std::vector<int> get_site_coords(const int index) const;
     template <typename U>
     void get_site_coords(const int index, U& site_coords) const;
     template <typename U>
     void get_site_index(const U& site_coords) const;
 
   protected:
-    vector<vector<T> > _data;
+    // The data we're wrapping. We use a vector of vectors to
+    // implement some sort of cache blocking: the lattice is
+    // sub-divided into blocks to reduce cache misses by
+    // improving locality.
+    std::vector<std::vector<T> > _data;
 
   private:
-    vector<int> _shape;
-    vector<vector<int> > _layout;
-    int _num_sites;
+    std::vector<int> _lattice_shape;
+    std::vector<int> _block_shape;
+    std::vector<std::vector<int> > _layout;
+    int _lattice_volume;
+    int _num_blocks;
+    int _block_volume;
   };
 }
 
