@@ -568,7 +568,7 @@ def load_ukhadron_mesbin(filename, byteorder, fold=False):
                           for z in range(Nnu)]:
             double_string = switch_endianness(binary_file.read(8))
             correlators[mu, nu, t] = struct.unpack('d', double_string)[0]
-            double_string = binary_file.read(8)
+            double_string = switch_endianness(binary_file.read(8))
             correlators[mu, nu, t] += 1j * struct.unpack('d', double_string)[0]
                         
         for mu, nu in [(x, y) for x in range(Nmu) for y in range(Nnu)]:
