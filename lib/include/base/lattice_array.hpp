@@ -218,6 +218,28 @@ namespace pyQCD
 
     return *this;
   }
+
+
+
+  template <typename T>
+  const T& LatticeArray<T>::operator()(COORD_INDEX_ARGS(n)) const
+  {
+    ;
+    int site_index 
+      = this->get_site_index(std::vector<int>{COORD_INDEX_PARAMS(n)});
+    return (*this)[site_index];
+  }
+
+
+
+  template <typename T>
+  T& LatticeArray<T>::operator()(COORD_INDEX_ARGS(n))
+  {
+    ;
+    int site_index 
+      = this->get_site_index(std::vector<int>{COORD_INDEX_PARAMS(n)});
+    return (*this)[site_index];
+  }
 }
 
 #endif
