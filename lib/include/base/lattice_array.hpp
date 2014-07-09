@@ -63,11 +63,20 @@ namespace pyQCD
     std::vector<std::vector<T> > _data;
 
   private:
+    // The shape of the lattice
     std::vector<int> _lattice_shape;
+    // The shape of the blocks used for cache blocking
     std::vector<int> _block_shape;
+    // The layout of the sites within the lattice. The index for the outer
+    // vector corresponds to the lexicographic index of a site relative to
+    // the origin of the entire lattice. The inner vector is of length two.
+    // The first element is the lexicographic index of the block (in terms
+    // of the number of blocks) relative to the origin of the lattice. The
+    // second element is the lexicographic index of the site relative to
+    // the origin of the block in which it resides.
     std::vector<std::vector<int> > _layout;
-    int _lattice_volume;
-    int _num_blocks;
+    int _lattice_volume; // Total number of lattice sites
+    int _num_blocks; // Total number of blocks
     int _block_volume;
   };
 
