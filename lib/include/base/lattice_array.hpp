@@ -224,7 +224,8 @@ namespace pyQCD
   template <typename T>
   const T& LatticeArray<T>::operator()(COORD_INDEX_ARGS(n)) const
   {
-    ;
+    // Returns a constant reference to the object at the lattice site specified
+    // by the integer coordinates n0, n1, n2, ...
     int site_index 
       = this->get_site_index(std::vector<int>{COORD_INDEX_PARAMS(n)});
     return (*this)[site_index];
@@ -235,7 +236,8 @@ namespace pyQCD
   template <typename T>
   T& LatticeArray<T>::operator()(COORD_INDEX_ARGS(n))
   {
-    ;
+    // Returns a reference to the object at the lattice site specified
+    // by the integer coordinates n0, n1, n2, ...
     int site_index 
       = this->get_site_index(std::vector<int>{COORD_INDEX_PARAMS(n)});
     return (*this)[site_index];
