@@ -53,7 +53,7 @@ namespace pyQCD
     template <typename U>
     void get_site_coords(const int index, U& site_coords) const;
     template <typename U>
-    void get_site_index(const U& site_coords) const;
+    int get_site_index(const U& site_coords) const;
 
   protected:
     // The data we're wrapping. We use a vector of vectors to
