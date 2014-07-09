@@ -295,6 +295,17 @@ namespace pyQCD
     // given vector indices i and j
     return this->_data[i][j];
   }
+
+
+
+  template <typename T>
+  std::vector<int> LatticeArray<T>::get_site_coords(const int index) const
+  {
+    // Computes the coordinates of a site from the specified lexicographic index
+    std::vector<int> out(NDIM, 0);
+    this->get_site_coords(index, out);
+    return out;
+  }
 }
 
 #endif
