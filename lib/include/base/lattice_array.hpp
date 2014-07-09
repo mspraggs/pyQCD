@@ -242,6 +242,26 @@ namespace pyQCD
       = this->get_site_index(std::vector<int>{COORD_INDEX_PARAMS(n)});
     return (*this)[site_index];
   }
+
+
+
+  template <typename T>
+  const T& LatticeArray<T>::operator[](const int index) const
+  {
+    // Returns a constant reference to the object specified by the given 
+    // lexicographic lattice site index.
+    return this->_data[this->_layout[0]][this->_layout[1]];
+  }
+
+
+
+  template <typename T>
+  T& LatticeArray<T>::operator[](const int index)
+  {
+    // Returns a reference to the object specified by the given 
+    // lexicographic lattice site index.
+    return this->_data[this->_layout[0]][this->_layout[1]];
+  }
 }
 
 #endif
