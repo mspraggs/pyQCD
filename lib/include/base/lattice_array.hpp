@@ -22,6 +22,7 @@
 #include <algorithm>
 
 #include <utils/macros.hpp>
+#include <utils/math.hpp>
 
 namespace pyQCD
 {
