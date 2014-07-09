@@ -347,6 +347,30 @@ namespace pyQCD
 
 
   template <typename T>
+  template <typename U>
+  LatticeArray<T>& LatticeArray<T>::operator*=(const U& scalar)
+  {
+    // Multiply whole LatticeArray by a scalar value
+    for (std::vector<T>& inner : this->_data)
+      for (T& datum : inner)
+	datum *= scalar;
+  }
+
+
+
+  template <typename T>
+  template <typename U>
+  LatticeArray<T>& LatticeArray<T>::operator/=(const U& scalar)
+  {
+    // Multiply whole LatticeArray by a scalar value
+    for (std::vector<T>& inner : this->_data)
+      for (T& datum : inner)
+	datum /= scalar;
+  }
+
+
+
+  template <typename T>
   std::vector<int> LatticeArray<T>::get_site_coords(const int index) const
   {
     // Computes the coordinates of a site from the specified lexicographic index
