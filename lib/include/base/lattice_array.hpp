@@ -321,6 +321,24 @@ namespace pyQCD
       temp_index /= this->_lattice_shape[i];
     }    
   }
+
+  
+
+  template <typename T>
+  template <typename U>
+  int LatticeArray<T>::get_site_index(const U& site_coords) const
+  {
+    // Computes the lexicographic site index from the specified site
+    // coordinates.
+    // We're basically coming up with an index computed as follows:
+    // index = x_n + N_1 * (x_{n-1} + ... (x_1 + N_{n-1} * x_0) ... )
+    int index = 0;
+    for (int i = 0; i < NDIM; ++i) {
+      index *= this->_lattice_shape[i];
+      index += this->_lattice_shape[i];
+    }
+    return index;
+  }
 }
 
 #endif
