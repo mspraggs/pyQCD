@@ -257,8 +257,8 @@ namespace pyQCD
   template <typename T>
   const T& LatticeArray<T>::operator[](const int index) const
   {
-    // Returns a constant reference to the object specified by the given 
-    // lexicographic lattice site index.
+    // Returns a constant reference to the element in _datum specified by the
+    // given lexicographic lattice site index.
     return this->_data[this->_layout[0]][this->_layout[1]];
   }
 
@@ -267,7 +267,7 @@ namespace pyQCD
   template <typename T>
   T& LatticeArray<T>::operator[](const int index)
   {
-    // Returns a reference to the object specified by the given 
+    // Returns a reference to the element in _datum specified by the given 
     // lexicographic lattice site index.
     return this->_data[this->_layout[0]][this->_layout[1]];
   }
