@@ -7,3 +7,5 @@ namespace pyQCD
 {
   int mod(const int i, const int n);
 }
+
+#endif
