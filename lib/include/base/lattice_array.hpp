@@ -130,7 +130,7 @@ namespace pyQCD
     
     for (std::vector<T>& inner : this->_data)
       for (T& datum: inner)
-	datum = init;
+	datum = init_value;
   }
 
 
@@ -311,7 +311,7 @@ namespace pyQCD
   {
     // Returns a constant reference to the element in _datum specified by the
     // given lexicographic lattice site index.
-    return this->_data[this->_layout[0]][this->_layout[1]];
+    return this->_data[this->_layout[index][0]][this->_layout[index][1]];
   }
 
 
@@ -321,7 +321,7 @@ namespace pyQCD
   {
     // Returns a reference to the element in _datum specified by the given 
     // lexicographic lattice site index.
-    return this->_data[this->_layout[0]][this->_layout[1]];
+    return this->_data[this->_layout[index][0]][this->_layout[index][1]];
   }
 
 
