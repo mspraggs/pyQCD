@@ -77,7 +77,7 @@ namespace pyQCD
     std::vector<std::vector<int> > _layout;
     int _lattice_volume; // Total number of lattice sites
     int _num_blocks; // Total number of blocks
-    int _block_volume;
+    int _block_volume; // The number of sites in each block.
   };
 
 
