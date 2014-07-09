@@ -271,6 +271,26 @@ namespace pyQCD
     // lexicographic lattice site index.
     return this->_data[this->_layout[0]][this->_layout[1]];
   }
+
+
+
+  template <typename T>
+  const T& LatticeArray<T>::datum_ref(const int i, const int j) const
+  {
+    // Returns a constant reference to the element in _datum specified by the
+    // given vector indices i and j
+    return this->_data[i][j];
+  }
+
+
+
+  template <typename T>
+  T& LatticeArray<T>::datum_ref(const int i, const int j)
+  {
+    // Returns a reference to the element in _datum specified by the
+    // given vector indices i and j
+    return this->_data[i][j];
+  }
 }
 
 #endif
