@@ -521,10 +521,8 @@ def load_chroma_mres(filename, fold=False):
          
 def load_ukhadron_mesbin(filename, byteorder, fold=False):
     """Loads the correlators contained in the specified UKHADRON binary file.
-    The correlators are labelled using the CHROMA convention for particle
-    interpolators (see pyQCD.mesons). Note that information on the quark
-    masses and the source and sink types is extracted from the filename, so
-    if this information is missing then the function will fail.
+    The correlators are labelled using the gamma matrix combinations used as
+    interpolators when doing the meson contractions (see pyQCD.iterpolators).
     
     Args:
       filename (str): The name of the file containing the data
@@ -539,13 +537,12 @@ def load_ukhadron_mesbin(filename, byteorder, fold=False):
       dict: Correlators indexed by particle properties
         
     Examples:
-      Create a twopoint object and import the data contained in
-      meson_m_0.45_m_0.45_Z2.280.bin
+      Import the data contained in meson_m_0.45_m_0.45_Z2.280.bin
           
       >>> import pyQCD
       >>> correlators \
-      ...   = pyQCD.load_ukhadron_meson_binary("meson_m_0.45_m_0.45_Z2.280.bin",
-      ...                                      "big")
+      ...   = pyQCD.load_ukhadron_mesbin("meson_m_0.45_m_0.45_Z2.280.bin",
+      ...                                "big")
     """
         
     if sys.byteorder == byteorder:
@@ -561,13 +558,9 @@ def load_ukhadron_mesbin(filename, byteorder, fold=False):
     out = {}
 
     for i in range(mom_num):
-        header_string = binary_file.read(40)
-        px = struct.unpack('i', switch_endianness(header_string[16:20]))[0]
-        py = struct.unpack('i', switch_endianness(header_string[20:24]))[0]
-        pz = struct.unpack('i', switch_endianness(header_string[24:28]))[0]
-        Nmu = struct.unpack('i', switch_endianness(header_string[28:32]))[0]
-        Nnu = struct.unpack('i', switch_endianness(header_string[32:36]))[0]
-        T = struct.unpack('i', switch_endianness(header_string[36:40]))[0]
+        header_string = switch_endianness(binary_file.read(40))
+        header = switch_endianness(struct.unpack("<iiiiiiiiii", header_string))
+        px, py, pz, Nmu, Nnu, T = header_string[4:
 
         correlators = np.zeros((Nmu, Nnu, T), dtype=np.complex)
     
@@ -579,9 +572,9 @@ def load_ukhadron_mesbin(filename, byteorder, fold=False):
             correlators[mu, nu, t] += 1j * struct.unpack('d', double_string)[0]
                         
         for mu, nu in [(x, y) for x in range(Nmu) for y in range(Nnu)]:
-            label = "{}_{}".format(interpolators[mu],
-                                   interpolators[nu])
-            out[(label, (px, py, pz))] = correlators[mu, nu]
+            out[(interpolators[mu],
+                 interpolators[nu],
+                 (px, py, pz))] = correlators[mu, nu]
 
     return out            
 
