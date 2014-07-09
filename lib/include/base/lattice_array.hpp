@@ -43,8 +43,8 @@ namespace pyQCD
     T& operator()(COORD_INDEX_ARGS(n));
 
     // Functions to access the _data member directly
-    T& datum_ref(const int index);
-    const T& datum_ref(const int index) const;
+    T& operator[](const int index);
+    const T& operator[](const int index) const;
     T& datum_ref(const int i, const int j);
     const T& datum_ref(const int i, const int j) const;
 
