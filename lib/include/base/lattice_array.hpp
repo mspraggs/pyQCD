@@ -35,7 +35,7 @@ namespace pyQCD
     LatticeArray(const std::vector<int>& lattice_shape,
 		 const std::vector<int>& block_shape
 		 = std::vector<int>(NDIM, 2));
-    LatticeArray(const T& init,
+    LatticeArray(const T& init_value,
 		 const std::vector<int>& lattice_shape,
 		 const std::vector<int>& block_shape
 		 = std::vector<int>(NDIM, 2));
@@ -102,6 +102,69 @@ namespace pyQCD
 				const std::vector<int>& block_shape)
     : _lattice_shape(lattice_shape), _block_shape(block_shape)
   {
+    // Constructor for given lattice size etc -> values in _data initialized
+    // to default for type T
+    this->init(lattice_shape, block_shape);
+    
+    // Now we've configured the layout, we proceed to initialize the variables
+    // within _data    
+    for (std::vector<T>& inner : this->_data)
+      for (T& datum: inner)
+	datum = T();
+  }
+
+
+  
+  template <typename T>
+  LatticeArray<T>::LatticeArray(const T& init_value,
+				const std::vector<int>& lattice_shape,
+				const std::vector<int>& block_shape)
+    : _lattice_shape(lattice_shape), _block_shape(block_shape)
+  {
+    // Constructor for given lattice size etc -> values in _data initialized
+    // as all equal to the specified value.
+    this->init(lattice_shape, block_shape);
+    
+    // Now we've configured the layout, we proceed to initialize the variables
+    // within _data
+    
+    for (std::vector<T>& inner : this->_data)
+      for (T& datum: inner)
+	datum = init;
+  }
+
+
+
+  template <typename T>
+  LatticeArray<T>::LatticeArray(const LatticeArray& lattice_array)
+    : _data(lattice_array._data),
+      _lattice_shape(lattice_array._lattice_shape),
+      _block_shape(lattice_array._block_shape),
+      _layout(lattice_array._layout),
+      _lattice_volume(lattice_array._lattice_volume),
+      _num_blocks(lattice_array._num_blocks),
+      _block_volume(lattice_array._block_volume)
+  {
+    // Copy constructor, we'll all done here
+  }
+
+
+
+  template <typename T>
+  LatticeArray<T>::~LatticeArray()
+  {
+    // Destructor - nothing to do here
+  }
+
+
+
+  template <typename T>
+  void LatticeArray<T>::init(const std::vector<int>& lattice_shape,
+			     const std::vector<int>& block_shape)
+  {
+    // Common include code - determines lattice site layout for the given
+    // lattice_shape and block_shape
+
     // First sanity check the input
     if (lattice_shape.size() == NDIM || block_shape.size() != NDIM) {
       // Then check that the blocks can fit inside the lattice
@@ -185,13 +248,6 @@ namespace pyQCD
 	this->_layout[i][0] = lattice_block_index;
 	this->_layout[i][1] = block_site_index;
       } // End loop over sites
-      
-      // Now we've configured the layout, we proceed to initialize the variables
-      // within _data
-
-      for (std::vector<T>& inner : this->_data)
-	for (T& datum: inner)
-	  datum = T();
     }
     else {
       // The input was bad (lattice shape exceeds number of dimesnions)
@@ -200,29 +256,6 @@ namespace pyQCD
       msg += std::to_string(NDIM);
       throw std::invalid_argument(msg);
     }
-  }
-
-
-
-  template <typename T>
-  LatticeArray<T>::LatticeArray(const LatticeArray& lattice_array)
-    : _data(lattice_array._data),
-      _lattice_shape(lattice_array._lattice_shape),
-      _block_shape(lattice_array._block_shape),
-      _layout(lattice_array._layout),
-      _lattice_volume(lattice_array._lattice_volume),
-      _num_blocks(lattice_array._num_blocks),
-      _block_volume(lattice_array._block_volume)
-  {
-    // Copy constructor, we'll all done here
-  }
-
-
-
-  template <typename T>
-  LatticeArray<T>::~LatticeArray()
-  {
-    // Destructor - nothing to do here
   }
 
 
