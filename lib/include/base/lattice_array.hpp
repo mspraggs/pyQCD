@@ -306,6 +306,21 @@ namespace pyQCD
     this->get_site_coords(index, out);
     return out;
   }
+
+
+
+  template <typename T>
+  template <typename U>
+  void LatticeArray<T>::get_site_coords(const int index, U& site_coords) const
+  {
+    // Gets the coordinates of the site with the specified lexicographic index
+    int temp_index = index;
+    for (int i = NDIM - 1; i >= 0; ++i) {
+      // Here we're basically doing the reverse of get_site_index
+      site_coords[i] = temp_index % this->_lattice_shape[i];
+      temp_index /= this->_lattice_shape[i];
+    }    
+  }
 }
 
 #endif
