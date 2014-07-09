@@ -34,10 +34,18 @@ namespace pyQCD
     LatticeArray(const std::vector<int>& lattice_shape,
 		 const std::vector<int>& block_shape
 		 = std::vector<int>(NDIM, 2));
+    LatticeArray(const T& init,
+		 const std::vector<int>& lattice_shape,
+		 const std::vector<int>& block_shape
+		 = std::vector<int>(NDIM, 2));
     LatticeArray(const LatticeArray<T>& lattice_array);
     virtual ~LatticeArray();
 
-    // Operator overloads
+    // Common constructor code
+    void init(const std::vector<int>& lattice_shape,
+	      const std::vector<int>& block_shape);
+
+    // Operator overloads for scalar multiply/divisor
     LatticeArray<T>& operator=(const LatticeArray<T>& rhs);
     const T& operator()(COORD_INDEX_ARGS(n)) const;
     T& operator()(COORD_INDEX_ARGS(n));
@@ -47,6 +55,12 @@ namespace pyQCD
     const T& operator[](const int index) const;
     T& datum_ref(const int i, const int j);
     const T& datum_ref(const int i, const int j) const;
+
+    // Arithmetic operator overloads
+    template <typename U>
+    LatticeArray<T>& operator*=(const U& scalar);
+    template <typename U>
+    LatticeArray<T>& operator/=(const U& scalar);
 
     // Utility functions specific to the lattice layout
     std::vector<int> get_site_coords(const int index) const;
