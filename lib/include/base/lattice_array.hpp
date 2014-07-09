@@ -131,7 +131,7 @@ namespace pyQCD
       // the lexicographic indices of the sites, compute the
       // coordinates, then assign a block and block site
       std::vector<int> coords(NDIM, 0);
-      for (int i = 0; i < this->_num_sites; ++i) {
+      for (int i = 0; i < this->_lattice_volume; ++i) {
 	// Resize the current _layout sub-vector
 	this->_layout[i] = std::vector<int>(2, 0);
 	// Determine the coordinates of the current site
@@ -330,7 +330,7 @@ namespace pyQCD
   {
     // Gets the coordinates of the site with the specified lexicographic index
     int temp_index = index;
-    for (int i = NDIM - 1; i >= 0; ++i) {
+    for (int i = NDIM - 1; i >= 0; --i) {
       // Here we're basically doing the reverse of get_site_index
       site_coords[i] = temp_index % this->_lattice_shape[i];
       temp_index /= this->_lattice_shape[i];
