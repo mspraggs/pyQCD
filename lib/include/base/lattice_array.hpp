@@ -235,8 +235,10 @@ namespace pyQCD
   {
     // Returns a constant reference to the object at the lattice site specified
     // by the integer coordinates n0, n1, n2, ...
-    int site_index 
-      = this->get_site_index(std::vector<int>{COORD_INDEX_PARAMS(n)});
+    std::vector<int> coords{COORD_INDEX_PARAMS(n)};
+    for (int i = 0; i < NDIM; ++i)
+      coords[i] = mod(coords[i], this->_lattice_shape[i]);
+    int site_index = this->get_site_index(coords);
     return (*this)[site_index];
   }
 
@@ -247,8 +249,10 @@ namespace pyQCD
   {
     // Returns a reference to the object at the lattice site specified
     // by the integer coordinates n0, n1, n2, ...
-    int site_index 
-      = this->get_site_index(std::vector<int>{COORD_INDEX_PARAMS(n)});
+    std::vector<int> coords{COORD_INDEX_PARAMS(n)};
+    for (int i = 0; i < NDIM; ++i)
+      coords[i] = mod(coords[i], this->_lattice_shape[i]);
+    int site_index = this->get_site_index(coords);
     return (*this)[site_index];
   }
 
