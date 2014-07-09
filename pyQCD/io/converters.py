@@ -560,7 +560,7 @@ def load_ukhadron_mesbin(filename, byteorder, fold=False):
     for i in range(mom_num):
         header_string = switch_endianness(binary_file.read(40))
         header = switch_endianness(struct.unpack("<iiiiiiiiii", header_string))
-        px, py, pz, Nmu, Nnu, T = header_string[4:
+        px, py, pz, Nmu, Nnu, T = header_string[4:]
 
         correlators = np.zeros((Nmu, Nnu, T), dtype=np.complex)
     
