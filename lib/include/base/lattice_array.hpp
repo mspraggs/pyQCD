@@ -188,6 +188,8 @@ namespace pyQCD
       this->_num_blocks = this->_lattice_volume / this->_block_volume;
       // Resize the _data vector
       this->_data.resize(this->_num_blocks);
+      for (std::vector<T>& inner : this->_data)
+	inner.resize(this->_block_volume);
       this->_layout.resize(this->_lattice_volume);
 
       // Now that we have the number of sites, iterate through
@@ -266,7 +268,7 @@ namespace pyQCD
     if (this != &rhs) {
       this->_data = rhs._data;
       this->_lattice_shape = rhs._lattice_shape;
-      this->_lattice_shape = rhs._block_shape;
+      this->_block_shape = rhs._block_shape;
       this->_layout = rhs._layout;
       this->_lattice_volume = rhs._lattice_volume;
       this->_num_blocks = rhs._num_blocks;
@@ -391,7 +393,7 @@ namespace pyQCD
       // Here we're basically doing the reverse of get_site_index
       site_coords[i] = temp_index % this->_lattice_shape[i];
       temp_index /= this->_lattice_shape[i];
-    }    
+    }   
   }
 
   
@@ -407,7 +409,7 @@ namespace pyQCD
     int index = 0;
     for (int i = 0; i < NDIM; ++i) {
       index *= this->_lattice_shape[i];
-      index += this->_lattice_shape[i];
+      index += site_coords[i];
     }
     return index;
   }
