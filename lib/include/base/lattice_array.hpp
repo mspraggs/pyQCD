@@ -70,6 +70,18 @@ namespace pyQCD
     template <typename U>
     int get_site_index(const U& site_coords) const;
 
+    // Member access functions
+    const std::vector<int>& lattice_shape() const
+    { return this->_lattice_shape; }
+    const std::vector<int>& block_shape() const
+    { return this->_block_shape; }
+    const int lattice_volume() const
+    { return this->_lattice_volume; }
+    const int num_blocks() const
+    { return this->_num_blocks; }
+    const int block_volume() const
+    { return this->_block_volume; }
+
   protected:
     // The data we're wrapping. We use a vector of vectors to
     // implement some sort of cache blocking: the lattice is
