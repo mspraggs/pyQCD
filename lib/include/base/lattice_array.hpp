@@ -405,7 +405,7 @@ namespace pyQCD
     int index = 0;
     for (int i = 0; i < NDIM; ++i) {
       index *= this->_lattice_shape[i];
-      index += site_coords[i];
+      index += mod(site_coords[i], this->_lattice_shape[i]);
     }
     return index;
   }
