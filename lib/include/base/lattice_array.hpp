@@ -349,6 +349,7 @@ namespace pyQCD
   LatticeArray<T>& LatticeArray<T>::operator*=(const U& scalar)
   {
     // Multiply whole LatticeArray by a scalar value
+#pragma omp parallel for
     for (std::vector<T>& inner : this->_data)
       for (T& datum : inner)
 	datum *= scalar;
@@ -361,6 +362,7 @@ namespace pyQCD
   LatticeArray<T>& LatticeArray<T>::operator/=(const U& scalar)
   {
     // Multiply whole LatticeArray by a scalar value
+#pragma omp parallel for
     for (std::vector<T>& inner : this->_data)
       for (T& datum : inner)
 	datum /= scalar;
