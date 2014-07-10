@@ -84,7 +84,11 @@ def bootstrap_data(data, num_bootstraps, binsize=1, parallel=False):
     
     out = []
 
-    binned_data = bin_data(data, binsize)
+    working_data = ([np.array(datum.values()) for datum in data]
+                    if type(data[0]) == dict
+                    else data)
+
+    binned_data = bin_data(working_data, binsize)
     num_bins = len(binned_data)
 
     def parallel_function(index):
@@ -94,7 +98,9 @@ def bootstrap_data(data, num_bootstraps, binsize=1, parallel=False):
     out = _parmap(parallel_function, range(num_bootstraps)) \
       if parallel else map(parallel_function, range(num_bootstraps))
 
-    return list(out)
+    out = dict(zip(data.keys(), out)) if type(data[0]) == dict else list(data)
+      
+    return out
 
 def bootstrap(data, func, num_bootstraps=None, binsize=1, args=[],
               kwargs={}, resample=True, parallel=False):
@@ -162,7 +168,10 @@ def jackknife_data(data, binsize=1, parallel=False):
       >>> resampled_data = pyQCD.jackknife_data(data, 100)
     """
 
-    binned_data = bin_data(data, binsize)
+    working_data = ([np.array(datum.values()) for datum in data]
+                    if type(data[0]) == dict
+                    else data)
+    binned_data = bin_data(working_data, binsize)
     data_sum = sum(binned_data)
 
     def parallel_function(datum):
@@ -171,7 +180,9 @@ def jackknife_data(data, binsize=1, parallel=False):
     out = _parmap(parallel_function, binned_data) \
       if parallel else map(parallel_function, binned_data)
 
-    return list(out)
+    out = ([dict(zip(data[0].keys(), datum)) for datum in out]
+           if type(data[0]) == dict else list(data))
+    return out
 
 def jackknife(data, func, binsize=1, args=[], kwargs={}, resample=True,
               parallel=False):
