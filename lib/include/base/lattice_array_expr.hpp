@@ -50,6 +50,8 @@ namespace pyQCD
     { return static_cast<const T&>(*this); }
   };
 
+
+
   template <typename T, typename U, typename V>
   class LatticeArrayDiff
     : public LatticeArrayExpr<LatticeArrayDiff<T, U, V>, V>
@@ -84,6 +86,8 @@ namespace pyQCD
     U const& _rhs;
   };
 
+
+
   template <typename T, typename U, typename V>
   class LatticeArraySum
     : public LatticeArrayExpr<LatticeArraySum<T, U, V>, V>
@@ -116,6 +120,8 @@ namespace pyQCD
     const U& _rhs;
   };
 
+
+
   template <typename T, typename U, typename V>
   class LatticeArrayMult
     : public LatticeArrayExpr<LatticeArrayMult<T, U, V>, U>
@@ -146,6 +152,8 @@ namespace pyQCD
     const V& _scalar;
     const T& _lattice;
   };
+
+
 
   template <typename T, typename U, typename V>
   class LatticeArrayDiv
