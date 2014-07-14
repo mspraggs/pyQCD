@@ -10,8 +10,8 @@
  * sites are blocked together, and all odd sites are blocked together, since
  * Dirac operators and so on often require access to only one type of site.
  *
- * This file also contains expression templates to hopefully optimize any
- * arithmetic operations involving LatticeArray.
+ * The expression templates to optimize the arithmetic for this class can be
+ * found in lattice_array_expr.hpp.
  */
 
 #include <vector>
@@ -24,10 +24,12 @@
 #include <utils/macros.hpp>
 #include <utils/math.hpp>
 
+#include <base/lattice_array_expr.hpp>
+
 namespace pyQCD
 {
   template <typename T>
-  class LatticeArray
+  class LatticeArray : public LatticeArrayExpr<LatticeArray<T>, T>
   {
 
   public:
@@ -40,6 +42,25 @@ namespace pyQCD
 		 const std::vector<int>& block_shape
 		 = std::vector<int>(NDIM, 2));
     LatticeArray(const LatticeArray<T>& lattice_array);
+    template <typename U>
+    LatticeArray(const LatticeArrayExpr<U, T>& expr)
+    {
+      // Copy constructor to create a LatticeArray from its respective
+      // expression template
+      const U& e = expr;
+      this->_lattice_shape = e.lattice_shape();
+      this->_block_shape = e.block_shape();
+      this->_layout = e.layout();
+      this->_lattice_volume = e.lattice_volume();
+      this->_num_blocks = e.num_blocks();
+      this->_block_volume = e.block_volume();
+      this->_data.resize(e.num_blocks());
+      for (int i = 0; i < e.num_blocks(); ++i) {
+	this->_data[i].resize(e.block_volume());
+	for (int j = 0; j < e.block_volume(); ++j)
+	  this->_data[i][j] = e.datum_ref(i, j);
+      }
+    }
     virtual ~LatticeArray();
 
     // Common constructor code
@@ -75,6 +96,8 @@ namespace pyQCD
     { return this->_lattice_shape; }
     const std::vector<int>& block_shape() const
     { return this->_block_shape; }
+    const std::vector<std::vector<int> >& layout() const
+    { return this->_layout; }
     const int lattice_volume() const
     { return this->_lattice_volume; }
     const int num_blocks() const
