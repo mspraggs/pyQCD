@@ -183,6 +183,13 @@ namespace pyQCD
   }
 
   template <typename T, typename U, typename V>
+  const LatticeArrayMult<T, U, V>
+  operator*(const LatticeArrayExpr<T, U>& lattice, const V& scalar)
+  {
+    return LatticeArrayMult<T, U, V>(scalar, lattice);
+  }
+
+  template <typename T, typename U, typename V>
   const LatticeArrayDiv<T, U, V>
   operator/(const LatticeArrayExpr<T, U>& lattice, const V& scalar)
   {
