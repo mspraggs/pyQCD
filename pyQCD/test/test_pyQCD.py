@@ -902,6 +902,7 @@ class TestDataSet:
         binned_data = analysis.bin_data(dataset, 10)
 
         assert len(binned_data) == 10
+        assert sum(dataset[:10]) / 10 == binned_data[0]
         
     def test_bootstrap_data(self):
         
@@ -937,6 +938,25 @@ class TestDataSet:
         jackknifed_data = analysis.jackknife_data(dataset)
         
         assert len(jackknifed_data) == 100
+        for orig_datum, resamp_datum in zip(dataset, jackknifed_data):
+            expected_val = (sum(dataset) - orig_datum) / (len(dataset) - 1)
+            assert np.allclose(resamp_datum, expected_val)
+        
+        dataset = [{"a": npr.random(10), "b": npr.random(10)}
+                   for i in range(100)]
+        
+        jackknifed_data = analysis.jackknife_data(dataset)
+        
+        assert len(jackknifed_data) == 100
+
+        for orig_datum, resamp_datum in zip(dataset, jackknifed_data):
+            sum_a = sum([x["a"] for x in dataset])
+            expected_val = (sum_a - orig_datum["a"]) / (len(dataset) - 1)
+            assert np.allclose(resamp_datum["a"], expected_val)
+            
+            sum_b = sum([x["b"] for x in dataset])
+            expected_val = (sum_b - orig_datum["b"]) / (len(dataset) - 1)
+            assert np.allclose(resamp_datum["b"], expected_val)
         
     def test_jackknife(self):
         
@@ -954,6 +974,23 @@ class TestDataSet:
 
         jackknife_mean, jackknife_std \
           = analysis.jackknife(jackknifed_data, lambda x: x**2, resample=False)
+        assert np.allclose(jackknife_mean, data_mean**2, rtol)
+        
+        dataset = [{0: val} for val in npr.random(100)]
+            
+        data_mean = np.mean([x.values() for x in dataset], axis=0)
+        
+        rtol = 0.001
+
+        jackknifed_data = analysis.jackknife_data(dataset)
+                
+        jackknife_mean, jackknife_std \
+          = analysis.jackknife(dataset, lambda x: x[0]**2)
+        assert np.allclose(jackknife_mean, data_mean**2, rtol)
+
+        jackknife_mean, jackknife_std \
+          = analysis.jackknife(jackknifed_data, lambda x: x[0]**2,
+                               resample=False)
         assert np.allclose(jackknife_mean, data_mean**2, rtol)
         
 class TestWilsonLoops:
