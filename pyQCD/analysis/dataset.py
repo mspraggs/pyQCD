@@ -98,7 +98,7 @@ def bootstrap_data(data, num_bootstraps, binsize=1, parallel=False):
     out = _parmap(parallel_function, range(num_bootstraps)) \
       if parallel else map(parallel_function, range(num_bootstraps))
 
-    out = dict(zip(data.keys(), out)) if type(data[0]) == dict else list(data)
+    out = dict(zip(data.keys(), out)) if type(data[0]) == dict else list(out)
       
     return out
 
@@ -181,7 +181,7 @@ def jackknife_data(data, binsize=1, parallel=False):
       if parallel else map(parallel_function, binned_data)
 
     out = ([dict(zip(data[0].keys(), datum)) for datum in out]
-           if type(data[0]) == dict else list(data))
+           if type(data[0]) == dict else list(out))
     return out
 
 def jackknife(data, func, binsize=1, args=[], kwargs={}, resample=True,
