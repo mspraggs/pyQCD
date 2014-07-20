@@ -1,5 +1,5 @@
-#ifndef LATTICE_ARRAY_HPP
-#define LATTICE_ARRAY_HPP
+#ifndef LATTICE_BASE_HPP
+#define LATTICE_BASE_HPP
 
 /* This file provides a container for lattice-wide objects. This class serves as
  * a base for all other lattice objects, e.g. LatticeGaugeField, LatticeSpinor,
@@ -11,7 +11,7 @@
  * Dirac operators and so on often require access to only one type of site.
  *
  * The expression templates to optimize the arithmetic for this class can be
- * found in lattice_array_expr.hpp.
+ * found in lattice_base_expr.hpp.
  */
 
 #include <vector>
@@ -24,28 +24,28 @@
 #include <utils/macros.hpp>
 #include <utils/math.hpp>
 
-#include <base/lattice_array_expr.hpp>
+#include <base/lattice_base_expr.hpp>
 
 namespace pyQCD
 {
   template <typename T>
-  class LatticeArray : public LatticeArrayExpr<LatticeArray<T>, T>
+  class LatticeBase : public LatticeBaseExpr<LatticeBase<T>, T>
   {
 
   public:
     // Constructors
-    LatticeArray(const std::vector<int>& lattice_shape,
+    LatticeBase(const std::vector<int>& lattice_shape,
 		 const std::vector<int>& block_shape
 		 = std::vector<int>(NDIM, 2));
-    LatticeArray(const T& init_value,
+    LatticeBase(const T& init_value,
 		 const std::vector<int>& lattice_shape,
 		 const std::vector<int>& block_shape
 		 = std::vector<int>(NDIM, 2));
-    LatticeArray(const LatticeArray<T>& lattice_array);
+    LatticeBase(const LatticeBase<T>& lattice_base);
     template <typename U>
-    LatticeArray(const LatticeArrayExpr<U, T>& expr)
+    LatticeBase(const LatticeBaseExpr<U, T>& expr)
     {
-      // Copy constructor to create a LatticeArray from its respective
+      // Copy constructor to create a LatticeBase from its respective
       // expression template
       const U& e = expr;
       this->_lattice_shape = e.lattice_shape();
@@ -61,14 +61,14 @@ namespace pyQCD
 	  this->_data[i][j] = e.datum_ref(i, j);
       }
     }
-    virtual ~LatticeArray();
+    virtual ~LatticeBase();
 
     // Common constructor code
     void init(const std::vector<int>& lattice_shape,
 	      const std::vector<int>& block_shape);
 
     // Operator overloads for scalar multiply/divisor
-    LatticeArray<T>& operator=(const LatticeArray<T>& rhs);
+    LatticeBase<T>& operator=(const LatticeBase<T>& rhs);
     const T& operator()(COORD_INDEX_ARGS(n)) const;
     T& operator()(COORD_INDEX_ARGS(n));
 
@@ -80,9 +80,9 @@ namespace pyQCD
 
     // Arithmetic operator overloads
     template <typename U>
-    LatticeArray<T>& operator*=(const U& scalar);
+    LatticeBase<T>& operator*=(const U& scalar);
     template <typename U>
-    LatticeArray<T>& operator/=(const U& scalar);
+    LatticeBase<T>& operator/=(const U& scalar);
 
     // Utility functions specific to the lattice layout
     std::vector<int> get_site_coords(const int index) const;
@@ -133,7 +133,7 @@ namespace pyQCD
 
   
   template <typename T>
-  LatticeArray<T>::LatticeArray(const std::vector<int>& lattice_shape,
+  LatticeBase<T>::LatticeBase(const std::vector<int>& lattice_shape,
 				const std::vector<int>& block_shape)
     : _lattice_shape(lattice_shape), _block_shape(block_shape)
   {
@@ -151,7 +151,7 @@ namespace pyQCD
 
   
   template <typename T>
-  LatticeArray<T>::LatticeArray(const T& init_value,
+  LatticeBase<T>::LatticeBase(const T& init_value,
 				const std::vector<int>& lattice_shape,
 				const std::vector<int>& block_shape)
     : _lattice_shape(lattice_shape), _block_shape(block_shape)
@@ -171,14 +171,14 @@ namespace pyQCD
 
 
   template <typename T>
-  LatticeArray<T>::LatticeArray(const LatticeArray& lattice_array)
-    : _data(lattice_array._data),
-      _lattice_shape(lattice_array._lattice_shape),
-      _block_shape(lattice_array._block_shape),
-      _layout(lattice_array._layout),
-      _lattice_volume(lattice_array._lattice_volume),
-      _num_blocks(lattice_array._num_blocks),
-      _block_volume(lattice_array._block_volume)
+  LatticeBase<T>::LatticeBase(const LatticeBase& lattice_base)
+    : _data(lattice_base._data),
+      _lattice_shape(lattice_base._lattice_shape),
+      _block_shape(lattice_base._block_shape),
+      _layout(lattice_base._layout),
+      _lattice_volume(lattice_base._lattice_volume),
+      _num_blocks(lattice_base._num_blocks),
+      _block_volume(lattice_base._block_volume)
   {
     // Copy constructor, we'll all done here
   }
@@ -186,7 +186,7 @@ namespace pyQCD
 
 
   template <typename T>
-  LatticeArray<T>::~LatticeArray()
+  LatticeBase<T>::~LatticeBase()
   {
     // Destructor - nothing to do here
   }
@@ -194,7 +194,7 @@ namespace pyQCD
 
 
   template <typename T>
-  void LatticeArray<T>::init(const std::vector<int>& lattice_shape,
+  void LatticeBase<T>::init(const std::vector<int>& lattice_shape,
 			     const std::vector<int>& block_shape)
   {
     // Common include code - determines lattice site layout for the given
@@ -298,7 +298,7 @@ namespace pyQCD
 
 
   template <typename T>
-  LatticeArray<T>& LatticeArray<T>::operator=(const LatticeArray<T>& rhs)
+  LatticeBase<T>& LatticeBase<T>::operator=(const LatticeBase<T>& rhs)
   {
     if (this != &rhs) {
       this->_data = rhs._data;
@@ -316,7 +316,7 @@ namespace pyQCD
 
 
   template <typename T>
-  const T& LatticeArray<T>::operator()(COORD_INDEX_ARGS(n)) const
+  const T& LatticeBase<T>::operator()(COORD_INDEX_ARGS(n)) const
   {
     // Returns a constant reference to the object at the lattice site specified
     // by the integer coordinates n0, n1, n2, ...
@@ -328,7 +328,7 @@ namespace pyQCD
 
 
   template <typename T>
-  T& LatticeArray<T>::operator()(COORD_INDEX_ARGS(n))
+  T& LatticeBase<T>::operator()(COORD_INDEX_ARGS(n))
   {
     // Returns a reference to the object at the lattice site specified
     // by the integer coordinates n0, n1, n2, ...
@@ -340,7 +340,7 @@ namespace pyQCD
 
 
   template <typename T>
-  const T& LatticeArray<T>::operator[](const int index) const
+  const T& LatticeBase<T>::operator[](const int index) const
   {
     // Returns a constant reference to the element in _datum specified by the
     // given lexicographic lattice site index.
@@ -350,7 +350,7 @@ namespace pyQCD
 
 
   template <typename T>
-  T& LatticeArray<T>::operator[](const int index)
+  T& LatticeBase<T>::operator[](const int index)
   {
     // Returns a reference to the element in _datum specified by the given 
     // lexicographic lattice site index.
@@ -360,7 +360,7 @@ namespace pyQCD
 
 
   template <typename T>
-  const T& LatticeArray<T>::datum_ref(const int i, const int j) const
+  const T& LatticeBase<T>::datum_ref(const int i, const int j) const
   {
     // Returns a constant reference to the element in _datum specified by the
     // given vector indices i and j
@@ -370,7 +370,7 @@ namespace pyQCD
 
 
   template <typename T>
-  T& LatticeArray<T>::datum_ref(const int i, const int j)
+  T& LatticeBase<T>::datum_ref(const int i, const int j)
   {
     // Returns a reference to the element in _datum specified by the
     // given vector indices i and j
@@ -381,9 +381,9 @@ namespace pyQCD
 
   template <typename T>
   template <typename U>
-  LatticeArray<T>& LatticeArray<T>::operator*=(const U& scalar)
+  LatticeBase<T>& LatticeBase<T>::operator*=(const U& scalar)
   {
-    // Multiply whole LatticeArray by a scalar value
+    // Multiply whole LatticeBase by a scalar value
     for (std::vector<T>& inner : this->_data)
       for (T& datum : inner)
 	datum *= scalar;
@@ -393,9 +393,9 @@ namespace pyQCD
 
   template <typename T>
   template <typename U>
-  LatticeArray<T>& LatticeArray<T>::operator/=(const U& scalar)
+  LatticeBase<T>& LatticeBase<T>::operator/=(const U& scalar)
   {
-    // Multiply whole LatticeArray by a scalar value
+    // Multiply whole LatticeBase by a scalar value
     for (std::vector<T>& inner : this->_data)
       for (T& datum : inner)
 	datum /= scalar;
@@ -404,7 +404,7 @@ namespace pyQCD
 
 
   template <typename T>
-  std::vector<int> LatticeArray<T>::get_site_coords(const int index) const
+  std::vector<int> LatticeBase<T>::get_site_coords(const int index) const
   {
     // Computes the coordinates of a site from the specified lexicographic index
     std::vector<int> out(NDIM, 0);
@@ -416,7 +416,7 @@ namespace pyQCD
 
   template <typename T>
   template <typename U>
-  void LatticeArray<T>::get_site_coords(const int index, U& site_coords) const
+  void LatticeBase<T>::get_site_coords(const int index, U& site_coords) const
   {
     // Gets the coordinates of the site with the specified lexicographic index
     int temp_index = index;
@@ -431,7 +431,7 @@ namespace pyQCD
 
   template <typename T>
   template <typename U>
-  int LatticeArray<T>::get_site_index(const U& site_coords) const
+  int LatticeBase<T>::get_site_index(const U& site_coords) const
   {
     // Computes the lexicographic site index from the specified site
     // coordinates.

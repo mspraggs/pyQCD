@@ -1,12 +1,12 @@
-#ifndef LATTICE_ARRAY_EXP_HPP
-#define LATTICE_ARRAY_EXP_HPP
+#ifndef LATTICE_BASE_EXP_HPP
+#define LATTICE_BASE_EXP_HPP
 
-/* This file provides expression templates for the LatticeArray class, so that
+/* This file provides expression templates for the LatticeBase class, so that
  * temporaries do not need to be created when performing arithmetic operations.
  *
  * The idea is to use template metaprogramming to represent arithmetic
  * operations at compile time so that the expression can be compiled down to
- * expressions that iterate over the elements of the LatticeArray, thus negating
+ * expressions that iterate over the elements of the LatticeBase, thus negating
  * the need for allocating temporaries.
  */
 
@@ -14,17 +14,17 @@
 namespace pyQCD
 {
   template <typename T, typename U>
-  class LatticeArrayExpr
+  class LatticeBaseExpr
   {
     // This is the main expression class from which all others are derived. It
     // It takes two template arguments: the type that's involved in expressions
-    // and the site type used in LatticeArray. This allows expressions to be
+    // and the site type used in LatticeBase. This allows expressions to be
     // abstracted to a nested hierarchy of types. When the compiler goes through
     // and does it's thing, the definitions of the operations within these
     // template classes are all spliced together.
   public:
     // Here we use curiously recurring template patterns to call functions in
-    // the LatticeArray type.
+    // the LatticeBase type.
     U& datum_ref(const int i, const int j)
     { return static_cast<T&>(*this).datum_ref(i, j); }
     const U& datum_ref(const int i, const int j) const
@@ -53,15 +53,15 @@ namespace pyQCD
 
 
   template <typename T, typename U, typename V>
-  class LatticeArrayDiff
-    : public LatticeArrayExpr<LatticeArrayDiff<T, U, V>, V>
+  class LatticeBaseDiff
+    : public LatticeBaseExpr<LatticeBaseDiff<T, U, V>, V>
   {
     // First expression sub-class: subtraction.
   public:
     // Constructed from two other expressions: the bits either side of the minus
     // sign.
-    LatticeArrayDiff(LatticeArrayExpr<T, V> const& lhs,
-		     LatticeArrayExpr<U, V> const& rhs)
+    LatticeBaseDiff(LatticeBaseExpr<T, V> const& lhs,
+		     LatticeBaseExpr<U, V> const& rhs)
       : _lhs(lhs), _rhs(rhs)
     { }
     // Here we denote the actual arithmetic operation.
@@ -89,13 +89,13 @@ namespace pyQCD
 
 
   template <typename T, typename U, typename V>
-  class LatticeArraySum
-    : public LatticeArrayExpr<LatticeArraySum<T, U, V>, V>
+  class LatticeBaseSum
+    : public LatticeBaseExpr<LatticeBaseSum<T, U, V>, V>
   {
     // Next: addition
   public:
-    LatticeArraySum(const LatticeArrayExpr<T, V>& lhs,
-		    const LatticeArrayExpr<U, V>& rhs)
+    LatticeBaseSum(const LatticeBaseExpr<T, V>& lhs,
+		    const LatticeBaseExpr<U, V>& rhs)
       : _lhs(lhs), _rhs(rhs)
     { }
     // Again, denote the operation here.
@@ -123,12 +123,12 @@ namespace pyQCD
 
 
   template <typename T, typename U, typename V>
-  class LatticeArrayMult
-    : public LatticeArrayExpr<LatticeArrayMult<T, U, V>, U>
+  class LatticeBaseMult
+    : public LatticeBaseExpr<LatticeBaseMult<T, U, V>, U>
   {
     // Scalar multiplication. The scalar type is templated.
   public:
-    LatticeArrayMult(const V& scalar, const LatticeArrayExpr<T, U>& lattice)
+    LatticeBaseMult(const V& scalar, const LatticeBaseExpr<T, U>& lattice)
       : _scalar(scalar), _lattice(lattice)
     { }
     // Define the operation
@@ -156,12 +156,12 @@ namespace pyQCD
 
 
   template <typename T, typename U, typename V>
-  class LatticeArrayDiv
-    : public LatticeArrayExpr<LatticeArrayDiv<T, U, V>, U>
+  class LatticeBaseDiv
+    : public LatticeBaseExpr<LatticeBaseDiv<T, U, V>, U>
   {
     // Scalar division.
   public:
-    LatticeArrayDiv(const V& scalar, const LatticeArrayExpr<T, U>& lattice)
+    LatticeBaseDiv(const V& scalar, const LatticeBaseExpr<T, U>& lattice)
       : _scalar(scalar), _lattice(lattice)
     { }
     U datum_ref(const int i, const int j) const
@@ -190,48 +190,48 @@ namespace pyQCD
   // Now we add some syntactic sugar by overloading the various arithmetic
   // operators corresponding to the expressions we've implemented above.
   template <typename T, typename U, typename V>
-  const LatticeArrayDiff<T, U, V>
-  operator-(const LatticeArrayExpr<T, V>& lhs,
-	    const LatticeArrayExpr<U, V>& rhs)
+  const LatticeBaseDiff<T, U, V>
+  operator-(const LatticeBaseExpr<T, V>& lhs,
+	    const LatticeBaseExpr<U, V>& rhs)
   {
-    return LatticeArrayDiff<T, U, V>(lhs, rhs);
+    return LatticeBaseDiff<T, U, V>(lhs, rhs);
   }
 
 
 
   template <typename T, typename U, typename V>
-  const LatticeArrayDiff<T, U, V>
-  operator+(const LatticeArrayExpr<T, V>& lhs,
-	    const LatticeArrayExpr<U, V>& rhs)
+  const LatticeBaseDiff<T, U, V>
+  operator+(const LatticeBaseExpr<T, V>& lhs,
+	    const LatticeBaseExpr<U, V>& rhs)
   {
-    return LatticeArrayDiff<T, U, V>(lhs, rhs);
+    return LatticeBaseDiff<T, U, V>(lhs, rhs);
   }
 
 
 
   template <typename T, typename U, typename V>
-  const LatticeArrayMult<T, U, V>
-  operator*(const V& scalar, const LatticeArrayExpr<T, U>& lattice)
+  const LatticeBaseMult<T, U, V>
+  operator*(const V& scalar, const LatticeBaseExpr<T, U>& lattice)
   {
-    return LatticeArrayMult<T, U, V>(scalar, lattice);
+    return LatticeBaseMult<T, U, V>(scalar, lattice);
   }
 
 
 
   template <typename T, typename U, typename V>
-  const LatticeArrayMult<T, U, V>
-  operator*(const LatticeArrayExpr<T, U>& lattice, const V& scalar)
+  const LatticeBaseMult<T, U, V>
+  operator*(const LatticeBaseExpr<T, U>& lattice, const V& scalar)
   {
-    return LatticeArrayMult<T, U, V>(scalar, lattice);
+    return LatticeBaseMult<T, U, V>(scalar, lattice);
   }
 
 
 
   template <typename T, typename U, typename V>
-  const LatticeArrayDiv<T, U, V>
-  operator/(const LatticeArrayExpr<T, U>& lattice, const V& scalar)
+  const LatticeBaseDiv<T, U, V>
+  operator/(const LatticeBaseExpr<T, U>& lattice, const V& scalar)
   {
-    return LatticeArrayDiv<T, U, V>(scalar, lattice);
+    return LatticeBaseDiv<T, U, V>(scalar, lattice);
   }
 }
 
