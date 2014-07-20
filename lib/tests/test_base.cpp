@@ -63,11 +63,21 @@ BOOST_AUTO_TEST_CASE(constructors)
 					    layout.block_shape),
 		    std::invalid_argument);
 
-  Base base_1(1.0, layout.lattice_shape, layout.block_shape);
-  Base base_2(2.0, layout.lattice_shape, layout.block_shape);
-  Base base_sum = base_1 + base_2;
-  for (int i = 0; i < base_1.lattice_volume(); ++i)
-    BOOST_CHECK_CLOSE(base_sum[i], 3.0, 0.0001);
+  Base test_init_const(10.0, layout.lattice_shape, layout.block_shape);
+  BOOST_CHECK_EQUAL_COLLECTIONS(test_init_const.lattice_shape().begin(),
+				test_init_const.lattice_shape().end(),
+				layout.lattice_shape.begin(),
+				layout.lattice_shape.end());
+  BOOST_CHECK_EQUAL_COLLECTIONS(test_init_const.block_shape().begin(),
+				test_init_const.block_shape().end(),
+				layout.block_shape.begin(),
+				layout.block_shape.end());
+  BOOST_CHECK_EQUAL(test_init_const.layout().size(), layout.lattice_volume);
+  BOOST_CHECK_EQUAL(test_init_const.lattice_volume(), layout.lattice_volume);
+  BOOST_CHECK_EQUAL(test_init_const.block_volume(), layout.block_volume);
+  BOOST_CHECK_EQUAL(test_init_const.num_blocks(), layout.num_blocks);
+  for (int i = 0; i < test_init_const.lattice_volume(); ++i)
+    BOOST_CHECK_CLOSE(test_init_const[i], 10.0, 1e-5);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
