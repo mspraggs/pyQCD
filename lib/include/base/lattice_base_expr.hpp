@@ -200,11 +200,11 @@ namespace pyQCD
 
 
   template <typename T, typename U, typename V>
-  const LatticeBaseDiff<T, U, V>
+  const LatticeBaseSum<T, U, V>
   operator+(const LatticeBaseExpr<T, V>& lhs,
 	    const LatticeBaseExpr<U, V>& rhs)
   {
-    return LatticeBaseDiff<T, U, V>(lhs, rhs);
+    return LatticeBaseSum<T, U, V>(lhs, rhs);
   }
 
 
