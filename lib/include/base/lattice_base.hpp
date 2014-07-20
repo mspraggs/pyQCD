@@ -63,10 +63,6 @@ namespace pyQCD
     }
     virtual ~LatticeBase();
 
-    // Common constructor code
-    void init(const std::vector<int>& lattice_shape,
-	      const std::vector<int>& block_shape);
-
     // Operator overloads for scalar multiply/divisor
     LatticeBase<T>& operator=(const LatticeBase<T>& rhs);
     const T& operator()(COORD_INDEX_ARGS(n)) const;
@@ -128,6 +124,10 @@ namespace pyQCD
     int _lattice_volume; // Total number of lattice sites
     int _num_blocks; // Total number of blocks
     int _block_volume; // The number of sites in each block.
+
+    // Common constructor code
+    void init(const std::vector<int>& lattice_shape,
+	      const std::vector<int>& block_shape);
   };
 
 
