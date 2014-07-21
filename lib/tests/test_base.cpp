@@ -127,6 +127,7 @@ BOOST_AUTO_TEST_CASE(test_lattice_base_constructors)
 BOOST_AUTO_TEST_CASE(test_lattice_base_utils)
 {
   TestLayout layout;
+  TestRandom rng;
   BaseDouble test_base(layout.lattice_shape, layout.block_shape);
 
   for (int i = 0; i < layout.lattice_volume; ++i) {
@@ -143,6 +144,10 @@ BOOST_AUTO_TEST_CASE(test_lattice_base_utils)
     }
     BOOST_REQUIRE_EQUAL(test_base.get_site_index(coords), i);
   }
+
+  double rand_num = rng.gen_real();
+  test_base = rand_num;
+  BOOST_TEST_CASE(boost::bind(&const_value_test, test_base, rand_num));
 }
 
 BOOST_AUTO_TEST_CASE(test_accessors)
