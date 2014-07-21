@@ -11,7 +11,7 @@
 
 #include <base/lattice_base.hpp>
 
-typedef pyQCD::LatticeBase<double> Base;
+typedef pyQCD::LatticeBase<double> BaseDouble;
 
 struct TestRandom
 {
@@ -63,7 +63,7 @@ struct TestLayout
 
 
 
-void constructor_test(const pyQCD::LatticeBase<double>& lattice_base,
+void constructor_test(const BaseDouble& lattice_base,
 		      const TestLayout& layout)
 {
   BOOST_CHECK_EQUAL_COLLECTIONS(lattice_base.lattice_shape().begin(),
@@ -82,11 +82,12 @@ void constructor_test(const pyQCD::LatticeBase<double>& lattice_base,
 
 
 
-void const_value_test(const pyQCD::LatticeBase<double>& lattice_base,
+void const_value_test(const BaseDouble& lattice_base,
 		      const double value)
 {
-  for (int i = 0; i < lattice_base.lattice_volume(); ++i)
-    BOOST_CHECK_CLOSE(lattice_base[i], value, 1e-5);
+  for (int i = 0; i < lattice_base.num_blocks(); ++i)
+    for (int j = 0; j < lattice_base.block_volume(); ++j)
+      BOOST_CHECK_CLOSE(lattice_base.datum_ref(i, j), value, 1e-8);
 }
 
 
@@ -98,24 +99,26 @@ BOOST_AUTO_TEST_CASE(test_constructors)
   TestLayout layout;
   TestRandom rng;
   double rand_num = rng.gen_real();
-  Base test_const_init(rand_num, layout.lattice_shape, layout.block_shape);
+  BaseDouble test_const_init(rand_num, layout.lattice_shape,
+			     layout.block_shape);
 
-  std::vector<Base> test_bases;
+  std::vector<BaseDouble> test_bases;
   test_bases.push_back(Base(layout.lattice_shape, layout.block_shape));
   test_bases.push_back(test_const_init);
   test_bases.push_back(Base(test_const_init));
-  Base test_equals = test_const_init;
+  BaseDouble test_equals = test_const_init;
   test_bases.push_back(test_equals);
 
-  boost::unit_test::callback1<Base> bound_constructor_test
+  boost::unit_test::callback1<BaseDouble> bound_constructor_test
     = boost::bind(&constructor_test, _1, layout);
   BOOST_PARAM_TEST_CASE(bound_constructor_test,
 			test_bases.begin(), test_bases.end());
 
-  BOOST_CHECK_THROW(Base bad_base(layout.bad_latt_shape, layout.block_shape),
+  BOOST_CHECK_THROW(BaseDouble bad_base(layout.bad_latt_shape,
+					layout.block_shape),
 		    std::invalid_argument);
 
-  boost::unit_test::callback1<Base> bound_const_value_test
+  boost::unit_test::callback1<BaseDouble> bound_const_value_test
     = boost::bind(&const_value_test, _1, rand_num);
   BOOST_PARAM_TEST_CASE(bound_const_value_test,
 			test_bases.begin() + 1, test_bases.end());
