@@ -15,10 +15,10 @@ struct MatrixCompare
   bool operator(const MatrixType& rhs, const MatrixType& lhs) const
   {
     bool result = true;
-    return (rhs.array() - lhs.array()).abs()
-      > _percent_tolerance * rhs.array().abs()
-      || (rhs.array() - lhs.array()).abs()
-      > _percent_tolerance * lhs.array().abs();
+    return ((rhs.array() - lhs.array()).abs()
+	    > _percent_tolerance * rhs.array().abs()).any()
+      || ((rhs.array() - lhs.array()).abs()
+	  > _percent_tolerance * lhs.array().abs()).any();
   }
   
   double _percent_tolerance;
