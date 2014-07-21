@@ -18,13 +18,20 @@ file (GLOB
   ${PROJECT_BINARY_DIR}
   ${TEST_DIR}/*.cpp)
 
+file (GLOB
+  utils_SRC
+  ${SRC_DIR}/utils/*.cpp)
+
 find_package (Boost 1.46.0 REQUIRED COMPONENTS unit_test_framework)
 
 include_directories (${Boost_INCLUDE_DIRS} ${INC_DIR})
 
+add_library(utils SHARED ${utils_SRC})
+target_link_libraries(utils ${Boost_LIBRARIES})
+
 foreach ( testsourcefile ${test_SRC} )
   string( REPLACE ".cpp" "" testname ${testsourcefile} )
   add_executable( ${testname} ${testsourcefile} )
-  target_link_libraries( ${testname} ${Boost_LIBRARIES} )
+  target_link_libraries( ${testname} ${Boost_LIBRARIES} utils)
   add_test( NAME ${testname} COMMAND ${testname} --log_level=all)
 endforeach ( testsourcefile ${test_SRC} )
