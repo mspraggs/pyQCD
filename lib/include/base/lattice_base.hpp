@@ -20,6 +20,7 @@
 #include <numeric>
 #include <functional>
 #include <algorithm>
+#include <stdexcept>
 
 #include <utils/macros.hpp>
 #include <utils/math.hpp>
@@ -65,6 +66,7 @@ namespace pyQCD
 
     // Equality operator overload
     LatticeBase<T>& operator=(const LatticeBase<T>& rhs);
+    LatticeBase<T>& operator=(const T& rhs);
 
     // Functions to access the _data member directly
     T& operator()(COORD_INDEX_ARGS(n));
@@ -79,6 +81,8 @@ namespace pyQCD
     LatticeBase<T>& operator*=(const U& scalar);
     template <typename U>
     LatticeBase<T>& operator/=(const U& scalar);
+    LatticeBase<T>& operator+=(const LatticeBase<T>& rhs);
+    LatticeBase<T>& operator-=(const LatticeBase<T>& rhs);
 
     // Utility functions specific to the lattice layout
     std::vector<int> get_site_coords(const int index) const;
@@ -316,6 +320,21 @@ namespace pyQCD
 
 
   template <typename T>
+  LatticeBase<T>& LatticeBase<T>::operator=(const T& rhs)
+  {
+    // Set all site values to the supplied constant
+    if (this->_data.size() == 0 && this->_data[0].size() == 0)
+      throw std::out_of_range("Assigning constant value to empty LatticeBase");
+    for (auto& block : this->_data)
+      for (auto& site : block)
+	site = rhs;      
+
+    return *this;
+  }
+
+
+
+  template <typename T>
   const T& LatticeBase<T>::operator()(COORD_INDEX_ARGS(n)) const
   {
     // Returns a constant reference to the object at the lattice site specified
@@ -387,6 +406,7 @@ namespace pyQCD
     for (std::vector<T>& inner : this->_data)
       for (T& datum : inner)
 	datum *= scalar;
+    return *this;
   }
 
 
@@ -399,6 +419,31 @@ namespace pyQCD
     for (std::vector<T>& inner : this->_data)
       for (T& datum : inner)
 	datum /= scalar;
+    return *this;
+  }
+
+
+
+  template <typename T>
+  LatticeBase<T>& LatticeBase<T>::operator+=(const LatticeBase<T>& rhs)
+  {
+    // Add the given LatticeBase to this LatticeBase
+    for (int i = 0; i < this->_num_blocks; ++i)
+      for (int j = 0; j < this->_block_volume; ++j)
+	this->_data[i][j] += rhs._data[i][j];
+    return *this;
+  }
+
+
+
+  template <typename T>
+  LatticeBase<T>& LatticeBase<T>::operator-=(const LatticeBase<T>& rhs)
+  {
+    // Add the given LatticeBase to this LatticeBase
+    for (int i = 0; i < this->_num_blocks; ++i)
+      for (int j = 0; j < this->_block_volume; ++j)
+	this->_data[i][j] -= rhs._data[i][j];
+    return *this;
   }
 
 
