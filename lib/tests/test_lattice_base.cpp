@@ -71,14 +71,14 @@ void constructor_test(const BaseDouble& lattice_base,
 void const_value_test(const BaseDouble& lattice_base,
 		      const double value)
 {
-  bool result = true;
+  bool all_values_equal = true;
   for (int i = 0; i < lattice_base.num_blocks(); ++i)
     for (int j = 0; j < lattice_base.block_volume(); ++j)
       if (not fp_compare(lattice_base.datum_ref(i, j), value)) {
-	result = false;
+	all_values_equal = false;
 	break;
       }
-  BOOST_CHECK(result);
+  BOOST_CHECK(all_values_equal);
 }
 
 
