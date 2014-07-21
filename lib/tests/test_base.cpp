@@ -104,6 +104,8 @@ BOOST_AUTO_TEST_CASE(test_constructors)
   test_bases.push_back(Base(layout.lattice_shape, layout.block_shape));
   test_bases.push_back(test_const_init);
   test_bases.push_back(Base(test_const_init));
+  Base test_equals = test_const_init;
+  test_bases.push_back(test_equals);
 
   boost::unit_test::callback1<Base> bound_constructor_test
     = boost::bind(&constructor_test, _1, layout);
@@ -111,12 +113,12 @@ BOOST_AUTO_TEST_CASE(test_constructors)
 			test_bases.begin(), test_bases.end());
 
   BOOST_CHECK_THROW(Base bad_base(layout.bad_latt_shape, layout.block_shape),
-		    std::invalid_argument)
+		    std::invalid_argument);
 
-  BOOST_TEST_CASE(boost::bind(const_value_test,
-			      test_bases[1], rand_num));
-  BOOST_TEST_CASE(boost::bind(const_value_test,
-			      test_bases[2], rand_num));
+  boost::unit_test::callback1<Base> bound_const_value_test
+    = boost::bind(&const_value_test, _1, rand_num);
+  BOOST_PARAM_TEST_CASE(bound_const_value_test,
+			test_bases.begin() + 1, test_bases.end());
 }
 
 BOOST_AUTO_TEST_SUITE_END()
