@@ -6,6 +6,7 @@
 
 #include <boost/test/unit_test.hpp>
 #include <boost/test/parameterized_test.hpp>
+#include <boost/test/floating_point_comparison.hpp>
 #include <boost/bind.hpp>
 
 #include <base/lattice_base.hpp>
@@ -13,6 +14,9 @@
 #include "random.hpp"
 
 typedef pyQCD::LatticeBase<double> BaseDouble;
+
+boost::test_tools::close_at_tolerance<double>
+fp_compare(boost::test_tools::percent_tolerance(1e-8));
 
 struct TestLayout
 {
@@ -67,9 +71,14 @@ void constructor_test(const BaseDouble& lattice_base,
 void const_value_test(const BaseDouble& lattice_base,
 		      const double value)
 {
+  bool result = true;
   for (int i = 0; i < lattice_base.num_blocks(); ++i)
     for (int j = 0; j < lattice_base.block_volume(); ++j)
-      BOOST_CHECK_CLOSE(lattice_base.datum_ref(i, j), value, 1e-8);
+      if (not fp_compare(lattice_base.datum_ref(i, j), value)) {
+	result = false;
+	break;
+      }
+  BOOST_CHECK(result);
 }
 
 
@@ -112,20 +121,40 @@ BOOST_AUTO_TEST_CASE(test_utils)
   TestRandom rng;
   BaseDouble test_base(layout.lattice_shape, layout.block_shape);
 
+  bool site_utils_check = true;
   for (int i = 0; i < layout.lattice_volume; ++i) {
     std::vector<int> coords = test_base.get_site_coords(i);
     for (int j = 0; j < NDIM; ++j) {
-      BOOST_REQUIRE(coords[j] >= 0);
-      BOOST_REQUIRE(coords[j] < layout.lattice_shape[j]);
+      if (coords[j] < 0 || coords[j] >= layout.lattice_shape[j]) {
+	BOOST_TEST_MESSAGE("Computed site coordinates exceed lattice bounds "
+			   "(function get_site_coords(int))");
+	site_utils_check = false;
+	break;
+      }
     }
-    BOOST_REQUIRE_EQUAL(test_base.get_site_index(coords), i);
+    if (test_base.get_site_index(coords) != i) {
+      BOOST_TEST_MESSAGE("Unable to recreate site index from coordinates from "
+			 "get_site_coords(int)");
+      site_utils_check = false;
+    }
     test_base.get_site_coords(i, coords);
     for (int j = 0; j < NDIM; ++j) {
-      BOOST_REQUIRE(coords[j] >= 0);
-      BOOST_REQUIRE(coords[j] < layout.lattice_shape[j]);
+      if (coords[j] < 0 || coords[j] >= layout.lattice_shape[j]) {
+	BOOST_TEST_MESSAGE("Computed site coordinates exceed lattice bounds "
+			   "(function get_site_coords(int, std::vector<int>))");
+	site_utils_check = false;
+	break;
+      }
     }
-    BOOST_REQUIRE_EQUAL(test_base.get_site_index(coords), i);
+    if (test_base.get_site_index(coords) != i) {
+      BOOST_TEST_MESSAGE("Unable to recreate site index from coordinates from "
+			 "get_site_coords(int, std::vector<int>)");
+      site_utils_check = false;
+    }
+    if (not site_utils_check)
+      break;
   }
+  BOOST_REQUIRE(site_utils_check);
 
   double rand_num = rng.gen_real();
   test_base = rand_num;
@@ -140,14 +169,18 @@ BOOST_AUTO_TEST_CASE(test_accessors)
   BaseDouble test_base(layout.lattice_shape, layout.block_shape);
 
   std::vector<double> random_values(layout.lattice_volume, 0.0);
+  bool sqr_bracket_check = true;
   for (int i = 0; i < layout.lattice_volume; ++i) {
     random_values[i] = rng.gen_real();
     test_base[i] = random_values[i];
-    BOOST_CHECK_CLOSE(test_base[i], random_values[i], 1e-8);
   }
   for (int i = 0; i < layout.lattice_volume; ++i) {
-    BOOST_CHECK_CLOSE(test_base[i], random_values[i], 1e-8);
+    if (not fp_compare(test_base[i], random_values[i])) {
+      sqr_bracket_check = false;
+      break;
+    }
   }
+  BOOST_CHECK(sqr_bracket_check);
 
   for (int i = 0; i < layout.lattice_volume; ++i) {
     std::vector<int> coords = test_base.get_site_coords(i);
@@ -182,6 +215,7 @@ BOOST_AUTO_TEST_CASE(test_accessors)
     random_values[i] = rng.gen_real();
     test_base(COORD_INDEX_PARAMS(n)) = random_values[i];
   }
+  bool parantheses_check = true;
   for (int i = 0; i < layout.lattice_volume; ++i) {
     std::vector<int> coords = test_base.get_site_coords(i);
     int n0 = coords[0];
@@ -212,8 +246,12 @@ BOOST_AUTO_TEST_CASE(test_accessors)
 #if NDIM>9
     int n9 = coords[9];
 #endif
-    BOOST_CHECK_CLOSE(test_base(COORD_INDEX_PARAMS(n)), random_values[i], 1e-8);
+    if (not fp_compare(test_base(COORD_INDEX_PARAMS(n)), random_values[i])) {
+    parantheses_check = false;
+    break;
   }
+  }
+    BOOST_CHECK(parantheses_check);
 }
 
 BOOST_AUTO_TEST_CASE(test_arithmetic)
