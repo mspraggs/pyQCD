@@ -242,22 +242,22 @@ BOOST_AUTO_TEST_CASE(test_lattice_base_arithmetic)
   base_1 *= random_2;
   base_2 /= random_1;
 
-  BOOST_TEST_CASE(boost_bind(&const_value_test, base_1,
-			     random_1 * random_2));
-  BOOST_TEST_CASE(boost_bind(&const_value_test, base_2,
-			     random_2 / random_1));
+  BOOST_TEST_CASE(boost::bind(&const_value_test, base_1,
+			      random_1 * random_2));
+  BOOST_TEST_CASE(boost::bind(&const_value_test, base_2,
+			      random_2 / random_1));
 
-  base_1 = BaseDouble(random_1, layout.lattice_shape, layout.block_shape);
-  base_2 = BaseDouble(random_2, layout.lattice_shape, layout.block_shape);
+  base_1 = random_1;
+  base_2 = random_2;
 
   base_1 += base_2;
   base_1 = BaseDouble(random_1, layout.lattice_shape, layout.block_shape);
-  base_1 -= base_2
+  base_1 -= base_2;
 
-  BOOST_TEST_CASE(boost_bind(&const_value_test, base_1,
-			     random_1 + random_2));
-  BOOST_TEST_CASE(boost_bind(&const_value_test, base_1,
-			     random_1 - random_2));
+  BOOST_TEST_CASE(boost::bind(&const_value_test, base_1,
+			      random_1 + random_2));
+  BOOST_TEST_CASE(boost::bind(&const_value_test, base_1,
+			      random_1 - random_2));
 
   BaseDouble base_sum = base_1 + base_2;
   BaseDouble base_diff = base_1 - base_2;
