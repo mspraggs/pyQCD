@@ -114,8 +114,8 @@ BOOST_AUTO_TEST_CASE(test_constructors)
   BOOST_PARAM_TEST_CASE(bound_constructor_test,
 			test_bases.begin(), test_bases.end());
 
-  BOOST_CHECK_THROW(BaseDouble bad_base(layout.bad_latt_shape,
-					layout.block_shape),
+  BOOST_REQUIRE_THROW(BaseDouble bad_base(layout.bad_latt_shape,
+					  layout.block_shape),
 		    std::invalid_argument);
 
   boost::unit_test::callback1<BaseDouble> bound_const_value_test
