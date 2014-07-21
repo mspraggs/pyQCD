@@ -67,8 +67,8 @@ namespace pyQCD
     LatticeBase<T>& operator=(const LatticeBase<T>& rhs);
 
     // Functions to access the _data member directly
-    const T& operator()(COORD_INDEX_ARGS(n)) const;
     T& operator()(COORD_INDEX_ARGS(n));
+    const T& operator()(COORD_INDEX_ARGS(n)) const;
     T& operator[](const int index);
     const T& operator[](const int index) const;
     T& datum_ref(const int i, const int j);
