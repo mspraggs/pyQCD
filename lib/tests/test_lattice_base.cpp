@@ -1,5 +1,5 @@
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE test_base
+#define BOOST_TEST_MODULE test_lattice_base
 #include <vector>
 #include <exception>
 #include <random>
@@ -94,7 +94,7 @@ void const_value_test(const BaseDouble& lattice_base,
 
 BOOST_AUTO_TEST_SUITE(test_lattice_base)
 
-BOOST_AUTO_TEST_CASE(test_lattice_base_constructors)
+BOOST_AUTO_TEST_CASE(test_constructors)
 {
   TestLayout layout;
   TestRandom rng;
@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE(test_lattice_base_constructors)
 			test_bases.begin() + 1, test_bases.end());
 }
 
-BOOST_AUTO_TEST_CASE(test_lattice_base_utils)
+BOOST_AUTO_TEST_CASE(test_utils)
 {
   TestLayout layout;
   TestRandom rng;
@@ -234,7 +234,7 @@ BOOST_AUTO_TEST_CASE(test_accessors)
   }
 }
 
-BOOST_AUTO_TEST_CASE(test_lattice_base_arithmetic)
+BOOST_AUTO_TEST_CASE(test_arithmetic)
 {
   TestLayout layout;
   TestRandom rng;
