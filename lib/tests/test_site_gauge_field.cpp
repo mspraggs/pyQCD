@@ -6,9 +6,14 @@
 
 #include <base/site_gauge_field.hpp>
 
-BOOST_AUTO_TEST_SUITE(test_site_gauge_field)
+typedef pyQCD::SiteGaugeField Field;
 
-typedef pyQCD::SiteGaugeField Field
+void constructor_test(const Field& gauge_field)
+{
+
+}
+
+BOOST_AUTO_TEST_SUITE(test_site_gauge_field)
 
 BOOST_AUTO_TEST_CASE(test_constructors)
 {
