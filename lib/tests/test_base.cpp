@@ -145,4 +145,88 @@ BOOST_AUTO_TEST_CASE(test_lattice_base_utils)
   }
 }
 
+BOOST_AUTO_TEST_CASE(test_accessors)
+{
+  TestLayout layout;
+  TestRandom rng;
+  
+  BaseDouble test_base(layout.lattice_shape, layout.block_shape);
+
+  std::vector<double> random_values(layout.lattice_volume, 0.0);
+  for (int i = 0; i < layout.lattice_volume; ++i) {
+    random_values[i] = rng.gen_real();
+    test_base[i] = random_values[i];
+    BOOST_CHECK_CLOSE(test_base[i], random_values[i], 1e-8);
+  }
+  for (int i = 0; i < layout.lattice_volume; ++i) {
+    BOOST_CHECK_CLOSE(test_base[i], random_values[i], 1e-8);
+  }
+
+  for (int i = 0; i < layout.lattice_volume; ++i) {
+    std::vector<int> coords = test_base.get_site_coords(i);
+    int n0 = coords[0];
+#if NDIM>1
+    int n1 = coords[1];
+#endif
+#if NDIM>2
+    int n2 = coords[2];
+#endif
+#if NDIM>3
+    int n3 = coords[3];
+#endif
+#if NDIM>4
+    int n4 = coords[4];
+#endif
+#if NDIM>5
+    int n5 = coords[5];
+#endif
+#if NDIM>6
+    int n6 = coords[6];
+#endif
+#if NDIM>7
+    int n7 = coords[7];
+#endif
+#if NDIM>8
+    int n8 = coords[8];
+#endif
+#if NDIM>9
+    int n9 = coords[9];
+#endif
+    random_values[i] = rng.gen_real();
+    test_base(COORD_INDEX_PARAMS(n)) = random_values[i];
+  }
+  for (int i = 0; i < layout.lattice_volume; ++i) {
+    std::vector<int> coords = test_base.get_site_coords(i);
+    int n0 = coords[0];
+#if NDIM>1
+    int n1 = coords[1];
+#endif
+#if NDIM>2
+    int n2 = coords[2];
+#endif
+#if NDIM>3
+    int n3 = coords[3];
+#endif
+#if NDIM>4
+    int n4 = coords[4];
+#endif
+#if NDIM>5
+    int n5 = coords[5];
+#endif
+#if NDIM>6
+    int n6 = coords[6];
+#endif
+#if NDIM>7
+    int n7 = coords[7];
+#endif
+#if NDIM>8
+    int n8 = coords[8];
+#endif
+#if NDIM>9
+    int n9 = coords[9];
+#endif
+    BOOST_CHECK_CLOSE(test_base(COORD_INDEX_PARAMS(n)), random_values[i], 1e-8);
+  }
+}
+
 BOOST_AUTO_TEST_SUITE_END()
