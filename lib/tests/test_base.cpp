@@ -66,18 +66,18 @@ struct TestLayout
 void constructor_test(const BaseDouble& lattice_base,
 		      const TestLayout& layout)
 {
-  BOOST_CHECK_EQUAL_COLLECTIONS(lattice_base.lattice_shape().begin(),
-				lattice_base.lattice_shape().end(),
-				layout.lattice_shape.begin(),
-				layout.lattice_shape.end());
-  BOOST_CHECK_EQUAL_COLLECTIONS(lattice_base.block_shape().begin(),
-				lattice_base.block_shape().end(),
-				layout.block_shape.begin(),
-				layout.block_shape.end());
-  BOOST_CHECK_EQUAL(lattice_base.layout().size(), layout.lattice_volume);
-  BOOST_CHECK_EQUAL(lattice_base.lattice_volume(), layout.lattice_volume);
-  BOOST_CHECK_EQUAL(lattice_base.block_volume(), layout.block_volume);
-  BOOST_CHECK_EQUAL(lattice_base.num_blocks(), layout.num_blocks);
+  BOOST_REQUIRE_EQUAL_COLLECTIONS(lattice_base.lattice_shape().begin(),
+				  lattice_base.lattice_shape().end(),
+				  layout.lattice_shape.begin(),
+				  layout.lattice_shape.end());
+  BOOST_REQUIRE_EQUAL_COLLECTIONS(lattice_base.block_shape().begin(),
+				  lattice_base.block_shape().end(),
+				  layout.block_shape.begin(),
+				  layout.block_shape.end());
+  BOOST_REQUIRE_EQUAL(lattice_base.layout().size(), layout.lattice_volume);
+  BOOST_REQUIRE_EQUAL(lattice_base.lattice_volume(), layout.lattice_volume);
+  BOOST_REQUIRE_EQUAL(lattice_base.block_volume(), layout.block_volume);
+  BOOST_REQUIRE_EQUAL(lattice_base.num_blocks(), layout.num_blocks);
 }
 
 
