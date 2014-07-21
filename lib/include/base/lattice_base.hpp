@@ -63,12 +63,12 @@ namespace pyQCD
     }
     virtual ~LatticeBase();
 
-    // Operator overloads for scalar multiply/divisor
+    // Equality operator overload
     LatticeBase<T>& operator=(const LatticeBase<T>& rhs);
-    const T& operator()(COORD_INDEX_ARGS(n)) const;
-    T& operator()(COORD_INDEX_ARGS(n));
 
     // Functions to access the _data member directly
+    const T& operator()(COORD_INDEX_ARGS(n)) const;
+    T& operator()(COORD_INDEX_ARGS(n));
     T& operator[](const int index);
     const T& operator[](const int index) const;
     T& datum_ref(const int i, const int j);
