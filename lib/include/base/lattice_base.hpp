@@ -283,7 +283,7 @@ namespace pyQCD
 
 	// Assign those blocks
 	this->_layout[i][0] = lattice_block_index;
-	this->_layout[i][1] = block_site_index;
+	this->_layout[i][1] = block_site_index + block_site_index_shift;
       } // End loop over sites
     }
     else {
