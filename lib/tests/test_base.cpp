@@ -229,4 +229,52 @@ BOOST_AUTO_TEST_CASE(test_accessors)
   }
 }
 
+BOOST_AUTO_TEST_CASE(test_lattice_base_arithmetic)
+{
+  TestLayout layout;
+  TestRandom rng;
+  
+  double random_1 = rng.gen_real();
+  double random_2 = rng.gen_real();
+  BaseDouble base_1(random_1, layout.lattice_shape, layout.block_shape);
+  BaseDouble base_2(random_2, layout.lattice_shape, layout.block_shape);
+
+  base_1 *= random_2;
+  base_2 /= random_1;
+
+  BOOST_TEST_CASE(boost_bind(&const_value_test, base_1,
+			     random_1 * random_2));
+  BOOST_TEST_CASE(boost_bind(&const_value_test, base_2,
+			     random_2 / random_1));
+
+  base_1 = BaseDouble(random_1, layout.lattice_shape, layout.block_shape);
+  base_2 = BaseDouble(random_2, layout.lattice_shape, layout.block_shape);
+
+  base_1 += base_2;
+  base_1 = BaseDouble(random_1, layout.lattice_shape, layout.block_shape);
+  base_1 -= base_2
+
+  BOOST_TEST_CASE(boost_bind(&const_value_test, base_1,
+			     random_1 + random_2));
+  BOOST_TEST_CASE(boost_bind(&const_value_test, base_1,
+			     random_1 - random_2));
+
+  BaseDouble base_sum = base_1 + base_2;
+  BaseDouble base_diff = base_1 - base_2;
+  BaseDouble base_multiple = random_2 * base_1;
+  BaseDouble base_multiple_2 = base_1 * random_2;
+  BaseDouble base_div = base_1 / random_2;
+
+  BOOST_TEST_CASE(boost::bind(&const_value_test, base_sum,
+			      random_1 + random_2));
+  BOOST_TEST_CASE(boost::bind(&const_value_test, base_diff,
+			      random_1 - random_2));
+  BOOST_TEST_CASE(boost::bind(&const_value_test, base_multiple,
+			      random_1 * random_2));
+  BOOST_TEST_CASE(boost::bind(&const_value_test, base_multiple_2,
+			      random_1 * random_2));
+  BOOST_TEST_CASE(boost::bind(&const_value_test, base_div,
+			      random_1 / random_2));
+}
+
 BOOST_AUTO_TEST_SUITE_END()
