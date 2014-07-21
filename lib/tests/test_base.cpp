@@ -103,9 +103,9 @@ BOOST_AUTO_TEST_CASE(test_constructors)
 			     layout.block_shape);
 
   std::vector<BaseDouble> test_bases;
-  test_bases.push_back(Base(layout.lattice_shape, layout.block_shape));
+  test_bases.push_back(BaseDouble(layout.lattice_shape, layout.block_shape));
   test_bases.push_back(test_const_init);
-  test_bases.push_back(Base(test_const_init));
+  test_bases.push_back(BaseDouble(test_const_init));
   BaseDouble test_equals = test_const_init;
   test_bases.push_back(test_equals);
 
