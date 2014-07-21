@@ -132,16 +132,16 @@ BOOST_AUTO_TEST_CASE(test_lattice_base_utils)
   for (int i = 0; i < layout.lattice_volume; ++i) {
     std::vector<int> coords = test_base.get_site_coords(i);
     for (int j = 0; j < NDIM; ++j) {
-      BOOST_CHECK(coords[j] >= 0);
-      BOOST_CHECK(coords[j] < layout.lattice_shape[j]);
+      BOOST_REQUIRE(coords[j] >= 0);
+      BOOST_REQUIRE(coords[j] < layout.lattice_shape[j]);
     }
-    BOOST_CHECK_EQUAL(test_base.get_site_index(coords), i);
+    BOOST_REQUIRE_EQUAL(test_base.get_site_index(coords), i);
     test_base.get_site_coords(i, coords);
     for (int j = 0; j < NDIM; ++j) {
-      BOOST_CHECK(coords[j] >= 0);
-      BOOST_CHECK(coords[j] < layout.lattice_shape[j]);
+      BOOST_REQUIRE(coords[j] >= 0);
+      BOOST_REQUIRE(coords[j] < layout.lattice_shape[j]);
     }
-    BOOST_CHECK_EQUAL(test_base.get_site_index(coords), i);
+    BOOST_REQUIRE_EQUAL(test_base.get_site_index(coords), i);
   }
 }
 
