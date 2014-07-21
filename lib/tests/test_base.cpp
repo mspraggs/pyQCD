@@ -94,7 +94,7 @@ void const_value_test(const BaseDouble& lattice_base,
 
 BOOST_AUTO_TEST_SUITE(test_lattice_base)
 
-BOOST_AUTO_TEST_CASE(test_constructors)
+BOOST_AUTO_TEST_CASE(test_lattice_base_constructors)
 {
   TestLayout layout;
   TestRandom rng;
