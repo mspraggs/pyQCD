@@ -249,9 +249,9 @@ BOOST_AUTO_TEST_CASE(test_accessors)
     if (not fp_compare(test_base(COORD_INDEX_PARAMS(n)), random_values[i])) {
     parantheses_check = false;
     break;
+    }
   }
-  }
-    BOOST_CHECK(parantheses_check);
+  BOOST_CHECK(parantheses_check);
 }
 
 BOOST_AUTO_TEST_CASE(test_arithmetic)
