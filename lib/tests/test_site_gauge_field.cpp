@@ -9,29 +9,31 @@
 #include "random.hpp"
 #include "matrix_compare.hpp"
 
-typedef Eigen::Matrix3cd ColourType
-typedef pyQCD::SiteGaugeField<ColourType> Field;
+typedef pyQCD::SiteGaugeField<1, 1, NDIM> Field;
+typedef Field::link_type LinkType;
 
-MatrixCompare<ColourType> matrix_compare(1e-8);
+MatrixCompare<LinkType> matrix_compare(1e-8);
 
 
 
 struct FieldExposed : public Field
 {
-  
-}
+  const std::vector<link_type, Eigen::aligned_allocator<link_type> >&
+  data() const
+  { return this->_data; }
+};
 
 
 
 void constructor_test(const FieldExposed& gauge_field)
 {
-  BOOST_REQUIRE_EQUAL(gauge_field.data().size(), NDIM)
+  BOOST_REQUIRE_EQUAL(gauge_field.data().size(), NDIM);
 }
 
 
 
 void const_value_test(const FieldExposed& gauge_field,
-		      const ColourType& value)
+		      const LinkType& value)
 {
   bool all_vals_equal = true;
   for (int i = 0; i < NDIM; ++i)
@@ -51,7 +53,7 @@ BOOST_AUTO_TEST_SUITE(test_site_gauge_field)
 BOOST_AUTO_TEST_CASE(test_constructors)
 {
   TestRandom rng;
-  ColourType rand_col_mat = ColourType::Random();
+  LinkType rand_col_mat = LinkType::Random();
 
   std::vector<FieldExposed> gauge_fields;
   gauge_fields.push_back(FieldExposed());
