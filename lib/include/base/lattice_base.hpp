@@ -35,12 +35,12 @@ namespace pyQCD
   public:
     // Constructors
     LatticeBase(const std::vector<int>& lattice_shape,
-		 const std::vector<int>& block_shape
-		 = std::vector<int>(ndim, 2));
+		const std::vector<int>& block_shape
+		= std::vector<int>(ndim, 4));
     LatticeBase(const T& init_value,
-		 const std::vector<int>& lattice_shape,
-		 const std::vector<int>& block_shape
-		 = std::vector<int>(ndim, 2));
+		const std::vector<int>& lattice_shape,
+		const std::vector<int>& block_shape
+		= std::vector<int>(ndim, 4));
     LatticeBase(const LatticeBase<T, ndim>& lattice_base);
     template <typename U>
     LatticeBase(const LatticeBaseExpr<U, T>& expr)
