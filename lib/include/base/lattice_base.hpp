@@ -157,8 +157,8 @@ namespace pyQCD
   
   template <typename T, int ndim>
   LatticeBase<T, ndim>::LatticeBase(const T& init_value,
-				const std::vector<int>& lattice_shape,
-				const std::vector<int>& block_shape)
+				    const std::vector<int>& lattice_shape,
+				    const std::vector<int>& block_shape)
     : _lattice_shape(lattice_shape), _block_shape(block_shape)
   {
     // Constructor for given lattice size etc -> values in _data initialized
