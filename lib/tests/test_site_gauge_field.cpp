@@ -7,7 +7,7 @@
 #include <base/site_gauge_field.hpp>
 
 #include "random.hpp"
-#include "compare_matrix.hpp"
+#include "matrix_compare.hpp"
 
 typedef Eigen::Matrix3cd ColourType
 typedef pyQCD::SiteGaugeField<ColourType> Field;
