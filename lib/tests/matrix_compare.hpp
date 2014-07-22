@@ -1,3 +1,5 @@
+#ifndef TEST_MATRIX_COMPARE_HPP
+#define TEST_MATRIX_COMPARE_HPP
 
 #include <boost/test/unit_test.hpp>
 
@@ -23,3 +25,5 @@ struct MatrixCompare
   
   double _percent_tolerance;
 };
+
+#endif
