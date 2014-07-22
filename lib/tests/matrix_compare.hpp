@@ -12,7 +12,7 @@ struct MatrixCompare
   ~MatrixCompare()
   { BOOST_TEST_MESSAGE("Tear down matrix comparison"); }
   
-  bool operator(const MatrixType& rhs, const MatrixType& lhs) const
+  bool operator()(const MatrixType& rhs, const MatrixType& lhs) const
   {
     bool result = true;
     return ((rhs.array() - lhs.array()).abs()
