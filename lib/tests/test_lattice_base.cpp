@@ -13,7 +13,7 @@
 
 #include "random.hpp"
 
-typedef pyQCD::LatticeBase<double> BaseDouble;
+typedef pyQCD::LatticeBase<double, NDIM> BaseDouble;
 
 boost::test_tools::close_at_tolerance<double>
 fp_compare(boost::test_tools::percent_tolerance(1e-8));
@@ -184,74 +184,18 @@ BOOST_AUTO_TEST_CASE(test_accessors)
 
   for (int i = 0; i < layout.lattice_volume; ++i) {
     std::vector<int> coords = test_base.get_site_coords(i);
-    int n0 = coords[0];
-#if NDIM>1
-    int n1 = coords[1];
-#endif
-#if NDIM>2
-    int n2 = coords[2];
-#endif
-#if NDIM>3
-    int n3 = coords[3];
-#endif
-#if NDIM>4
-    int n4 = coords[4];
-#endif
-#if NDIM>5
-    int n5 = coords[5];
-#endif
-#if NDIM>6
-    int n6 = coords[6];
-#endif
-#if NDIM>7
-    int n7 = coords[7];
-#endif
-#if NDIM>8
-    int n8 = coords[8];
-#endif
-#if NDIM>9
-    int n9 = coords[9];
-#endif
     random_values[i] = rng.gen_real();
-    test_base(COORD_INDEX_PARAMS(n)) = random_values[i];
+    test_base[coords] = random_values[i];
   }
   bool parantheses_check = true;
   for (int i = 0; i < layout.lattice_volume; ++i) {
     std::vector<int> coords = test_base.get_site_coords(i);
-    int n0 = coords[0];
-#if NDIM>1
-    int n1 = coords[1];
-#endif
-#if NDIM>2
-    int n2 = coords[2];
-#endif
-#if NDIM>3
-    int n3 = coords[3];
-#endif
-#if NDIM>4
-    int n4 = coords[4];
-#endif
-#if NDIM>5
-    int n5 = coords[5];
-#endif
-#if NDIM>6
-    int n6 = coords[6];
-#endif
-#if NDIM>7
-    int n7 = coords[7];
-#endif
-#if NDIM>8
-    int n8 = coords[8];
-#endif
-#if NDIM>9
-    int n9 = coords[9];
-#endif
-    if (not fp_compare(test_base(COORD_INDEX_PARAMS(n)), random_values[i])) {
+    if (not fp_compare(test_base[coords], random_values[i])) {
     parantheses_check = false;
     break;
-    }
   }
-  BOOST_CHECK(parantheses_check);
+}
+BOOST_CHECK(parantheses_check);
 }
 
 BOOST_AUTO_TEST_CASE(test_arithmetic)

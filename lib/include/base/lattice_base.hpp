@@ -22,27 +22,26 @@
 #include <algorithm>
 #include <stdexcept>
 
-#include <utils/macros.hpp>
 #include <utils/math.hpp>
 
 #include <base/lattice_base_expr.hpp>
 
 namespace pyQCD
 {
-  template <typename T>
-  class LatticeBase : public LatticeBaseExpr<LatticeBase<T>, T>
+  template <typename T, int ndim>
+  class LatticeBase : public LatticeBaseExpr<LatticeBase<T, ndim>, T>
   {
 
   public:
     // Constructors
     LatticeBase(const std::vector<int>& lattice_shape,
 		 const std::vector<int>& block_shape
-		 = std::vector<int>(NDIM, 2));
+		 = std::vector<int>(ndim, 2));
     LatticeBase(const T& init_value,
 		 const std::vector<int>& lattice_shape,
 		 const std::vector<int>& block_shape
-		 = std::vector<int>(NDIM, 2));
-    LatticeBase(const LatticeBase<T>& lattice_base);
+		 = std::vector<int>(ndim, 2));
+    LatticeBase(const LatticeBase<T, ndim>& lattice_base);
     template <typename U>
     LatticeBase(const LatticeBaseExpr<U, T>& expr)
     {
@@ -65,24 +64,26 @@ namespace pyQCD
     virtual ~LatticeBase();
 
     // Equality operator overload
-    LatticeBase<T>& operator=(const LatticeBase<T>& rhs);
-    LatticeBase<T>& operator=(const T& rhs);
+    LatticeBase<T, ndim>& operator=(const LatticeBase<T, ndim>& rhs);
+    LatticeBase<T, ndim>& operator=(const T& rhs);
 
     // Functions to access the _data member directly
-    T& operator()(COORD_INDEX_ARGS(n));
-    const T& operator()(COORD_INDEX_ARGS(n)) const;
     T& operator[](const int index);
     const T& operator[](const int index) const;
+    template <typename U>
+    T& operator[](const U& coords);
+    template <typename U>
+    const T& operator[](const U& coords) const;
     T& datum_ref(const int i, const int j);
     const T& datum_ref(const int i, const int j) const;
 
     // Arithmetic operator overloads
     template <typename U>
-    LatticeBase<T>& operator*=(const U& scalar);
+    LatticeBase<T, ndim>& operator*=(const U& scalar);
     template <typename U>
-    LatticeBase<T>& operator/=(const U& scalar);
-    LatticeBase<T>& operator+=(const LatticeBase<T>& rhs);
-    LatticeBase<T>& operator-=(const LatticeBase<T>& rhs);
+    LatticeBase<T, ndim>& operator/=(const U& scalar);
+    LatticeBase<T, ndim>& operator+=(const LatticeBase<T, ndim>& rhs);
+    LatticeBase<T, ndim>& operator-=(const LatticeBase<T, ndim>& rhs);
 
     // Utility functions specific to the lattice layout
     std::vector<int> get_site_coords(const int index) const;
@@ -136,8 +137,8 @@ namespace pyQCD
 
 
   
-  template <typename T>
-  LatticeBase<T>::LatticeBase(const std::vector<int>& lattice_shape,
+  template <typename T, int ndim>
+  LatticeBase<T, ndim>::LatticeBase(const std::vector<int>& lattice_shape,
 				const std::vector<int>& block_shape)
     : _lattice_shape(lattice_shape), _block_shape(block_shape)
   {
@@ -154,8 +155,8 @@ namespace pyQCD
 
 
   
-  template <typename T>
-  LatticeBase<T>::LatticeBase(const T& init_value,
+  template <typename T, int ndim>
+  LatticeBase<T, ndim>::LatticeBase(const T& init_value,
 				const std::vector<int>& lattice_shape,
 				const std::vector<int>& block_shape)
     : _lattice_shape(lattice_shape), _block_shape(block_shape)
@@ -174,8 +175,8 @@ namespace pyQCD
 
 
 
-  template <typename T>
-  LatticeBase<T>::LatticeBase(const LatticeBase& lattice_base)
+  template <typename T, int ndim>
+  LatticeBase<T, ndim>::LatticeBase(const LatticeBase& lattice_base)
     : _data(lattice_base._data),
       _lattice_shape(lattice_base._lattice_shape),
       _block_shape(lattice_base._block_shape),
@@ -189,25 +190,25 @@ namespace pyQCD
 
 
 
-  template <typename T>
-  LatticeBase<T>::~LatticeBase()
+  template <typename T, int ndim>
+  LatticeBase<T, ndim>::~LatticeBase()
   {
     // Destructor - nothing to do here
   }
 
 
 
-  template <typename T>
-  void LatticeBase<T>::init(const std::vector<int>& lattice_shape,
+  template <typename T, int ndim>
+  void LatticeBase<T, ndim>::init(const std::vector<int>& lattice_shape,
 			     const std::vector<int>& block_shape)
   {
     // Common include code - determines lattice site layout for the given
     // lattice_shape and block_shape
 
     // First sanity check the input
-    if (lattice_shape.size() == NDIM || block_shape.size() != NDIM) {
+    if (lattice_shape.size() == ndim || block_shape.size() != ndim) {
       // Then check that the blocks can fit inside the lattice
-      for (int i = 0; i < NDIM; ++i)
+      for (int i = 0; i < ndim; ++i)
 	if (lattice_shape[i] % block_shape[i] != 0) {
 	  std::string msg = "Lattice shape is not integer multiple "
 	    "of block shape along dimension ";
@@ -234,7 +235,7 @@ namespace pyQCD
       // Now that we have the number of sites, iterate through
       // the lexicographic indices of the sites, compute the
       // coordinates, then assign a block and block site
-      std::vector<int> coords(NDIM, 0);
+      std::vector<int> coords(ndim, 0);
       for (int i = 0; i < this->_lattice_volume; ++i) {
 	// Resize the current _layout sub-vector
 	this->_layout[i] = std::vector<int>(2, 0);
@@ -244,11 +245,11 @@ namespace pyQCD
 	// Now determine the coordinates of the current block relative to the
 	// lattice and the coordinates of the current site relative to the block
 	// Block relative to lattice:
-	std::vector<int> lattice_block_coords(NDIM, 0);
+	std::vector<int> lattice_block_coords(ndim, 0);
 	std::transform(coords.begin(), coords.end(), block_shape.begin(),
 		       lattice_block_coords.begin(), std::divides<int>());
 	// Site relative to block:
-	std::vector<int> block_site_coords(NDIM, 0);
+	std::vector<int> block_site_coords(ndim, 0);
 	std::transform(coords.begin(), coords.end(), block_shape.begin(),
 		       block_site_coords.begin(), std::modulus<int>());
 
@@ -257,7 +258,7 @@ namespace pyQCD
 	// the block.
 	int lattice_block_index = 0;
 	int block_site_index = 0;
-	for (int j = 0; j < NDIM; ++j) {
+	for (int j = 0; j < ndim; ++j) {
 	  lattice_block_index *= lattice_shape[j] / block_shape[j];
 	  lattice_block_index += lattice_block_coords[j];
 
@@ -294,15 +295,16 @@ namespace pyQCD
       // The input was bad (lattice shape exceeds number of dimesnions)
       // so throw an error
       std::string msg = "Lattice or block shape does not have dimension ";
-      msg += std::to_string(NDIM);
+      msg += std::to_string(ndim);
       throw std::invalid_argument(msg);
     }
   }
 
 
 
-  template <typename T>
-  LatticeBase<T>& LatticeBase<T>::operator=(const LatticeBase<T>& rhs)
+  template <typename T, int ndim>
+  LatticeBase<T, ndim>&
+  LatticeBase<T, ndim>::operator=(const LatticeBase<T, ndim>& rhs)
   {
     if (this != &rhs) {
       this->_data = rhs._data;
@@ -319,8 +321,8 @@ namespace pyQCD
 
 
 
-  template <typename T>
-  LatticeBase<T>& LatticeBase<T>::operator=(const T& rhs)
+  template <typename T, int ndim>
+  LatticeBase<T, ndim>& LatticeBase<T, ndim>::operator=(const T& rhs)
   {
     // Set all site values to the supplied constant
     if (this->_data.size() == 0 && this->_data[0].size() == 0)
@@ -334,32 +336,8 @@ namespace pyQCD
 
 
 
-  template <typename T>
-  const T& LatticeBase<T>::operator()(COORD_INDEX_ARGS(n)) const
-  {
-    // Returns a constant reference to the object at the lattice site specified
-    // by the integer coordinates n0, n1, n2, ...
-    std::vector<int> coords{COORD_INDEX_PARAMS(n)};
-    int site_index = this->get_site_index(coords);
-    return (*this)[site_index];
-  }
-
-
-
-  template <typename T>
-  T& LatticeBase<T>::operator()(COORD_INDEX_ARGS(n))
-  {
-    // Returns a reference to the object at the lattice site specified
-    // by the integer coordinates n0, n1, n2, ...
-    std::vector<int> coords{COORD_INDEX_PARAMS(n)};
-    int site_index = this->get_site_index(coords);
-    return (*this)[site_index];
-  }
-
-
-
-  template <typename T>
-  const T& LatticeBase<T>::operator[](const int index) const
+  template <typename T, int ndim>
+  const T& LatticeBase<T, ndim>::operator[](const int index) const
   {
     // Returns a constant reference to the element in _datum specified by the
     // given lexicographic lattice site index.
@@ -368,8 +346,8 @@ namespace pyQCD
 
 
 
-  template <typename T>
-  T& LatticeBase<T>::operator[](const int index)
+  template <typename T, int ndim>
+  T& LatticeBase<T, ndim>::operator[](const int index)
   {
     // Returns a reference to the element in _datum specified by the given 
     // lexicographic lattice site index.
@@ -377,9 +355,33 @@ namespace pyQCD
   }
 
 
+  
+  template <typename T, int ndim>
+  template <typename U> 
+  const T& LatticeBase<T, ndim>::operator[](const U& coords) const
+  {
+    // Returns a constant reference to the object at the lattice site specified
+    // by the integer coordinates in the supplied vector
+    int site_index = this->get_site_index(coords);
+    return (*this)[site_index];
+  }
 
-  template <typename T>
-  const T& LatticeBase<T>::datum_ref(const int i, const int j) const
+
+
+  template <typename T, int ndim>
+  template <typename U>
+  T& LatticeBase<T, ndim>::operator[](const U& coords)
+  {
+    // Returns a reference to the object at the lattice site specified
+    // by the integer coordinates in the supplied vector
+    int site_index = this->get_site_index(coords);
+    return (*this)[site_index];
+  }
+
+
+
+  template <typename T, int ndim>
+  const T& LatticeBase<T, ndim>::datum_ref(const int i, const int j) const
   {
     // Returns a constant reference to the element in _datum specified by the
     // given vector indices i and j
@@ -388,8 +390,8 @@ namespace pyQCD
 
 
 
-  template <typename T>
-  T& LatticeBase<T>::datum_ref(const int i, const int j)
+  template <typename T, int ndim>
+  T& LatticeBase<T, ndim>::datum_ref(const int i, const int j)
   {
     // Returns a reference to the element in _datum specified by the
     // given vector indices i and j
@@ -398,9 +400,9 @@ namespace pyQCD
 
 
 
-  template <typename T>
+  template <typename T, int ndim>
   template <typename U>
-  LatticeBase<T>& LatticeBase<T>::operator*=(const U& scalar)
+  LatticeBase<T, ndim>& LatticeBase<T, ndim>::operator*=(const U& scalar)
   {
     // Multiply whole LatticeBase by a scalar value
     for (std::vector<T>& inner : this->_data)
@@ -411,9 +413,9 @@ namespace pyQCD
 
 
 
-  template <typename T>
+  template <typename T, int ndim>
   template <typename U>
-  LatticeBase<T>& LatticeBase<T>::operator/=(const U& scalar)
+  LatticeBase<T, ndim>& LatticeBase<T, ndim>::operator/=(const U& scalar)
   {
     // Multiply whole LatticeBase by a scalar value
     for (std::vector<T>& inner : this->_data)
@@ -424,8 +426,9 @@ namespace pyQCD
 
 
 
-  template <typename T>
-  LatticeBase<T>& LatticeBase<T>::operator+=(const LatticeBase<T>& rhs)
+  template <typename T, int ndim>
+  LatticeBase<T, ndim>&
+  LatticeBase<T, ndim>::operator+=(const LatticeBase<T, ndim>& rhs)
   {
     // Add the given LatticeBase to this LatticeBase
     for (int i = 0; i < this->_num_blocks; ++i)
@@ -436,8 +439,9 @@ namespace pyQCD
 
 
 
-  template <typename T>
-  LatticeBase<T>& LatticeBase<T>::operator-=(const LatticeBase<T>& rhs)
+  template <typename T, int ndim>
+  LatticeBase<T, ndim>&
+  LatticeBase<T, ndim>::operator-=(const LatticeBase<T, ndim>& rhs)
   {
     // Add the given LatticeBase to this LatticeBase
     for (int i = 0; i < this->_num_blocks; ++i)
@@ -448,24 +452,25 @@ namespace pyQCD
 
 
 
-  template <typename T>
-  std::vector<int> LatticeBase<T>::get_site_coords(const int index) const
+  template <typename T, int ndim>
+  std::vector<int> LatticeBase<T, ndim>::get_site_coords(const int index) const
   {
     // Computes the coordinates of a site from the specified lexicographic index
-    std::vector<int> out(NDIM, 0);
+    std::vector<int> out(ndim, 0);
     this->get_site_coords(index, out);
     return out;
   }
 
 
 
-  template <typename T>
+  template <typename T, int ndim>
   template <typename U>
-  void LatticeBase<T>::get_site_coords(const int index, U& site_coords) const
+  void LatticeBase<T, ndim>::get_site_coords(const int index,
+					     U& site_coords) const
   {
     // Gets the coordinates of the site with the specified lexicographic index
     int temp_index = index;
-    for (int i = NDIM - 1; i >= 0; --i) {
+    for (int i = ndim - 1; i >= 0; --i) {
       // Here we're basically doing the reverse of get_site_index
       site_coords[i] = temp_index % this->_lattice_shape[i];
       temp_index /= this->_lattice_shape[i];
@@ -474,16 +479,16 @@ namespace pyQCD
 
   
 
-  template <typename T>
+  template <typename T, int ndim>
   template <typename U>
-  int LatticeBase<T>::get_site_index(const U& site_coords) const
+  int LatticeBase<T, ndim>::get_site_index(const U& site_coords) const
   {
     // Computes the lexicographic site index from the specified site
     // coordinates.
     // We're basically coming up with an index computed as follows:
     // index = x_n + N_1 * (x_{n-1} + ... (x_1 + N_{n-1} * x_0) ... )
     int index = 0;
-    for (int i = 0; i < NDIM; ++i) {
+    for (int i = 0; i < ndim; ++i) {
       index *= this->_lattice_shape[i];
       index += mod(site_coords[i], this->_lattice_shape[i]);
     }
