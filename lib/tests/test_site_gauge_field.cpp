@@ -2,6 +2,7 @@
 #define BOOST_TEST_MODULE test_site_gauge_field
 
 #include <boost/test/unit_test.hpp>
+#include <boost/test/parameterized_test.hpp>
 #include <boost/bind.hpp>
 
 #include <base/site_gauge_field.hpp>
@@ -16,8 +17,10 @@ MatrixCompare<LinkType> matrix_compare(1e-8);
 
 
 
-struct FieldExposed : public Field
+class FieldExposed : public Field
 {
+  using Field::Field;
+public:
   const std::vector<link_type, Eigen::aligned_allocator<link_type> >&
   data() const
   { return this->_data; }
@@ -65,7 +68,7 @@ BOOST_AUTO_TEST_CASE(test_constructors)
   BOOST_PARAM_TEST_CASE(constructor_test,
 			gauge_fields.begin(), gauge_fields.end());
 
-  boost::unit_test::callback1<BaseDouble> bound_const_value_test
+  boost::unit_test::callback1<FieldExposed> bound_const_value_test
     = boost::bind(&const_value_test, _1, rand_col_mat);
   BOOST_PARAM_TEST_CASE(bound_const_value_test,
 			gauge_fields.begin() + 1, gauge_fields.end());
