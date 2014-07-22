@@ -4,6 +4,9 @@ project (kernels)
 
 add_definitions (-DNDIM=4)
 
+set (CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+set (EIGEN_INCLUDE_DIR ${CMAKE_MODULE_PATH}/FindEigen3.cmake)
+
 # Initialize CXXFLAGS.
 set(CMAKE_CXX_FLAGS "-Wall -std=c++11")
 # TODO: Multi-compiler/platform support.
@@ -22,9 +25,14 @@ file (GLOB
   utils_SRC
   ${SRC_DIR}/utils/*.cpp)
 
+find_package (Eigen3 3.1.3 REQUIRED)
 find_package (Boost 1.46.0 REQUIRED COMPONENTS unit_test_framework)
 
-include_directories (${Boost_INCLUDE_DIRS} ${INC_DIR})
+include_directories (
+  ${Boost_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIR}
+  ${INC_DIR}
+  )
 
 add_library(utils SHARED ${utils_SRC})
 target_link_libraries(utils ${Boost_LIBRARIES})
