@@ -34,12 +34,12 @@ include_directories (
   ${INC_DIR}
   )
 
-add_library(utils SHARED ${utils_SRC})
-target_link_libraries(utils ${Boost_LIBRARIES})
+add_library(pyQCDutils SHARED ${utils_SRC})
+target_link_libraries(pyQCDutils ${Boost_LIBRARIES})
 
 foreach ( testsourcefile ${test_SRC} )
   string( REPLACE ".cpp" "" testname ${testsourcefile} )
   add_executable( ${testname} ${testsourcefile} )
-  target_link_libraries( ${testname} ${Boost_LIBRARIES} utils)
+  target_link_libraries( ${testname} ${Boost_LIBRARIES} pyQCDutils)
   add_test( NAME ${testname} COMMAND ${testname} --log_level=all)
 endforeach ( testsourcefile ${test_SRC} )
