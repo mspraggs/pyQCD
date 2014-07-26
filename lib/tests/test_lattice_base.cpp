@@ -13,10 +13,24 @@
 
 #include "random.hpp"
 
-typedef pyQCD::LatticeBase<double, NDIM> BaseDouble;
-
 boost::test_tools::close_at_tolerance<double>
 fp_compare(boost::test_tools::percent_tolerance(1e-8));
+
+class BaseDouble : public pyQCD::LatticeBase<double, NDIM>
+{
+  public:
+  using pyQCD::LatticeBase<double, NDIM>::LatticeBase;
+  using pyQCD::LatticeBase<double, NDIM>::operator=;
+    // Member access functions
+    const std::vector<int>& block_shape() const
+    { return this->_block_shape; }
+    const std::vector<std::vector<int> >& layout() const
+    { return this->_layout; }
+    const int num_blocks() const
+    { return this->_num_blocks; }
+    const int block_volume() const
+    { return this->_block_volume; }
+};
 
 struct TestLayout
 {

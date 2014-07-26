@@ -31,7 +31,16 @@ namespace pyQCD
   template <typename T, int ndim>
   class LatticeBase : public LatticeBaseExpr<LatticeBase<T, ndim>, T>
   {
-
+    template <typename X, typename Y>
+    friend class LatticeBaseExpr;
+    template <typename X, typename Y, typename Z>
+    friend class LatticeBaseSum;
+    template <typename X, typename Y, typename Z>
+    friend class LatticeBaseDiff;
+    template <typename X, typename Y, typename Z>
+    friend class LatticeBaseMult;
+    template <typename X, typename Y, typename Z>
+    friend class LatticeBaseDiv;
   public:
     // Constructors
     LatticeBase(const std::vector<int>& lattice_shape,
@@ -61,7 +70,7 @@ namespace pyQCD
 	  this->_data[i][j] = e.datum_ref(i, j);
       }
     }
-    virtual ~LatticeBase();
+    virtual ~LatticeBase() { };
 
     // Equality operator overload
     LatticeBase<T, ndim>& operator=(const LatticeBase<T, ndim>& rhs);
@@ -95,16 +104,8 @@ namespace pyQCD
     // Member access functions
     const std::vector<int>& lattice_shape() const
     { return this->_lattice_shape; }
-    const std::vector<int>& block_shape() const
-    { return this->_block_shape; }
-    const std::vector<std::vector<int> >& layout() const
-    { return this->_layout; }
     const int lattice_volume() const
     { return this->_lattice_volume; }
-    const int num_blocks() const
-    { return this->_num_blocks; }
-    const int block_volume() const
-    { return this->_block_volume; }
 
   protected:
     // The data we're wrapping. We use a vector of vectors to
@@ -112,8 +113,6 @@ namespace pyQCD
     // sub-divided into blocks to reduce cache misses by
     // improving locality.
     std::vector<std::vector<T> > _data;
-
-  private:
     // The shape of the lattice
     std::vector<int> _lattice_shape;
     // The shape of the blocks used for cache blocking
@@ -130,9 +129,19 @@ namespace pyQCD
     int _num_blocks; // Total number of blocks
     int _block_volume; // The number of sites in each block.
 
+  private:
     // Common constructor code
     void init(const std::vector<int>& lattice_shape,
-	      const std::vector<int>& block_shape);
+              const std::vector<int>& block_shape);
+
+    const std::vector<int>& block_shape() const
+    { return this->_block_shape; }
+    const std::vector<std::vector<int> >& layout() const
+    { return this->_layout; }
+    const int num_blocks() const
+    { return this->_num_blocks; }
+    const int block_volume() const
+    { return this->_block_volume; }
   };
 
 
@@ -186,14 +195,6 @@ namespace pyQCD
       _block_volume(lattice_base._block_volume)
   {
     // Copy constructor, we'll all done here
-  }
-
-
-
-  template <typename T, int ndim>
-  LatticeBase<T, ndim>::~LatticeBase()
-  {
-    // Destructor - nothing to do here
   }
 
 
