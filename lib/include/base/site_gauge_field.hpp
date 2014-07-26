@@ -31,6 +31,24 @@ namespace pyQCD
     SiteGaugeField(const SiteGaugeField<nrows, ncols, ndim>& site_gauge_field);
     ~SiteGaugeField();
 
+    SiteGaugeField<nrows, ncols, ndim>& operator=(
+      const SiteGaugeField<nrows, ncols, ndim>& rhs);
+    SiteGaugeField<nrows, ncols, ndim>& operator=(const link_type& rhs);
+
+    // Accessor functions
+    link_type& operator[](const int index);
+    const link_type& operator[](const int index) const;
+    
+    // Arithmetic operator overloads
+    template <typename U>
+    SiteGaugeField<nrows, ncols, ndim>& operator*=(const U& scalar);
+    template <typename U>
+    SiteGaugeField<nrows, ncols, ndim>& operator/=(const U& scalar);
+    SiteGaugeField<nrows, ncols, ndim>& operator+=(
+      SiteGaugeField<nrows, ncols, ndim>& rhs);
+    SiteGaugeField<nrows, ncols, ndim>& operator-=(
+      SiteGaugeField<nrows, ncols, ndim>& rhs);
+
   protected:
     // The vector that holds the link variables
     std::vector<link_type, Eigen::aligned_allocator<link_type> > _data;
