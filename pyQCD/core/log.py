@@ -109,7 +109,7 @@ class _Log(object):
     def print_args(self, args, logger):
 
         for key, val in args:
-            if key in self.ignore:
+            if key in self.ignore or len(val.__repr__()) > 500:
                 continue
             logger.info("{}: {}".format(key, val))
 
