@@ -29,7 +29,7 @@ namespace pyQCD
     SiteGaugeField();
     SiteGaugeField(const link_type& link_val);
     SiteGaugeField(const SiteGaugeField<nrows, ncols, ndim>& site_gauge_field);
-    ~SiteGaugeField();
+    ~SiteGaugeField() { };
 
     SiteGaugeField<nrows, ncols, ndim>& operator=(
       const SiteGaugeField<nrows, ncols, ndim>& rhs);
@@ -90,14 +90,6 @@ namespace pyQCD
     : _data(site_gauge_field._data)
   {
     // Copy constructor. Nothing else to do here.
-  }
-
-
-
-  template <int nrows, int ncols, int ndim>
-  SiteGaugeField<nrows, ncols, ndim>::~SiteGaugeField()
-  {
-    // Destructor - nothing to do here.
   }
 }
 
