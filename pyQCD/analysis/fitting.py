@@ -34,8 +34,8 @@ def fold_correlator(correlator):
     return out
             
 def fit_correlators(correlator, fit_function, fit_range,
-                   initial_parameters, correlator_std=None,
-                   postprocess_function=None):
+                    initial_parameters, correlator_std=None,
+                    postprocess_function=None):
     """Fits the specified function to the supplied correlator(s) using
     scipy.optimize.leastsq
     
@@ -79,7 +79,7 @@ def fit_correlators(correlator, fit_function, fit_range,
       ...                       postprocess_function=postprocess)
       1.356389
       """
-                                
+
     if len(fit_range) == 2:
         fit_range = range(*fit_range)
 
