@@ -44,9 +44,9 @@ namespace pyQCD
     const int block_volume() const
     { return static_cast<const T&>(*this).block_volume(); }
 
-    operator T&()
+    T& operator()
     { return static_cast<T&>(*this); }
-    operator T const&() const
+    const T& operator() const
     { return static_cast<const T&>(*this); }
   };
 
@@ -60,8 +60,8 @@ namespace pyQCD
   public:
     // Constructed from two other expressions: the bits either side of the minus
     // sign.
-    LatticeBaseDiff(LatticeBaseExpr<T, V> const& lhs,
-		     LatticeBaseExpr<U, V> const& rhs)
+    LatticeBaseDiff(const LatticeBaseExpr<T, V>& lhs,
+		    const LatticeBaseExpr<U, V>& rhs)
       : _lhs(lhs), _rhs(rhs)
     { }
     // Here we denote the actual arithmetic operation.
@@ -95,7 +95,7 @@ namespace pyQCD
     // Next: addition
   public:
     LatticeBaseSum(const LatticeBaseExpr<T, V>& lhs,
-		    const LatticeBaseExpr<U, V>& rhs)
+		   const LatticeBaseExpr<U, V>& rhs)
       : _lhs(lhs), _rhs(rhs)
     { }
     // Again, denote the operation here.
