@@ -11,6 +11,8 @@
  */
 
 
+
+
 namespace pyQCD
 {
   template <typename T, typename U>
@@ -18,6 +20,7 @@ namespace pyQCD
   {
     // This is the main expression class from which all others are derived. It
     // It takes two template arguments: the type that's involved in expressions
+
     // and the site type used in LatticeBase. This allows expressions to be
     // abstracted to a nested hierarchy of types. When the compiler goes through
     // and does it's thing, the definitions of the operations within these
@@ -44,10 +47,65 @@ namespace pyQCD
     const int block_volume() const
     { return static_cast<const T&>(*this).block_volume(); }
 
-    T& operator()
+    operator T&()
     { return static_cast<T&>(*this); }
-    const T& operator() const
+    operator T const&() const
     { return static_cast<const T&>(*this); }
+  };
+
+
+
+  template <typename T, typename U>
+  class LatticeBaseEven
+    : public LatticeBaseExpr<LatticeBaseEven<T, U>, U>
+  {
+    // Generates a reference to the even sites in a lattice
+  public:
+    // Constructed from a reference to a LatticeBaseExpr.
+    LatticeBaseEven(LatticeBaseExpr<T, U>& lattice)
+      : _lattice(lattice)//static_cast<T&>(lattice))
+    { }
+
+    LatticeBaseEven& operator=(const LatticeBaseEven<T, U>& rhs)
+    {
+      return operator=(static_cast<const LatticeBaseExpr<LatticeBaseEven<T, U>,
+		       U>& >(rhs));
+    }
+
+    template <typename V>
+    LatticeBaseEven& operator=(const LatticeBaseExpr<V, U>& rhs)
+    {
+      const V& expr = rhs;
+      for (int i = 0; i < this->num_blocks(); ++i)
+	for (int j = 0; j < this->block_volume(); ++j)
+	  this->_lattice.datum_ref(i, j) = expr.datum_ref(i, j);
+      return *this;
+    }
+
+    // Accessor for the data
+    U datum_ref(const int i, const int j) const
+    { return _lattice.datum_ref(i, j); }
+    // Grab the other member variables from one of the arguments.
+    const std::vector<int>& lattice_shape() const
+    { return _lattice.lattice_shape(); }
+    const std::vector<int>& block_shape() const
+    { return _lattice.block_shape(); }
+    const std::vector<std::vector<int> >& layout() const
+    { return _lattice.layout(); }
+    const int lattice_volume() const
+    { return _lattice.lattice_volume(); }
+    const int num_blocks() const
+    { return _lattice.num_blocks() / 2; }
+    const int block_volume() const
+    { return _lattice.block_volume(); }
+
+    //operator T&()
+    //{ return static_cast<T&>(*this); }
+    //operator T const&() const
+    //{ return static_cast<const T&>(*this); }
+
+  private:
+    T& _lattice;
   };
 
 
@@ -56,7 +114,7 @@ namespace pyQCD
   class LatticeBaseDiff
     : public LatticeBaseExpr<LatticeBaseDiff<T, U, V>, V>
   {
-    // First expression sub-class: subtraction.
+    // Expression sub-class: subtraction.
   public:
     // Constructed from two other expressions: the bits either side of the minus
     // sign.
