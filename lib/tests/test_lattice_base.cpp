@@ -260,4 +260,47 @@ BOOST_AUTO_TEST_CASE(test_arithmetic)
 			      random_1 / random_2));
 }
 
+BOOST_AUTO_TEST_CASE(test_even_odd)
+{
+  TestLayout layout;
+  TestRandom rng;
+  
+  double random_1 = rng.gen_real();
+  double random_2 = rng.gen_real();
+  BaseDouble base_1(random_1, layout.lattice_shape, layout.block_shape);
+  BaseDouble base_2(random_2, layout.lattice_shape, layout.block_shape);
+
+  base_1.even_sites() = 2 * base_2 + base_2;
+  bool evens_transferred = true;
+  for (int i = 0; i < base_1.num_blocks() / 2; ++i)
+    for (int j = 0; j < base_1.block_volume(); ++j)
+      if (not fp_compare(base_1.datum_ref(i, j), 3 * random_2)) {
+	evens_transferred = false;
+	break;
+      }
+  for (int i = base_1.num_blocks() / 2; i < base_1.num_blocks(); ++i)
+    for (int j = 0; j < base_1.block_volume(); ++j)
+      if (not fp_compare(base_1.datum_ref(i, j), random_1)) {
+	evens_transferred = false;
+	break;
+      }
+  BOOST_CHECK(evens_transferred);
+
+  base_1.even_sites() = base_2.even_sites();
+  evens_transferred = true;
+  for (int i = 0; i < base_1.num_blocks() / 2; ++i)
+    for (int j = 0; j < base_1.block_volume(); ++j)
+      if (not fp_compare(base_1.datum_ref(i, j), random_2)) {
+	evens_transferred = false;
+	break;
+      }
+  for (int i = base_1.num_blocks() / 2; i < base_1.num_blocks(); ++i)
+    for (int j = 0; j < base_1.block_volume(); ++j)
+      if (not fp_compare(base_1.datum_ref(i, j), random_1)) {
+	evens_transferred = false;
+	break;
+      }
+  BOOST_CHECK(evens_transferred);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
