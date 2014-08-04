@@ -82,11 +82,12 @@ void constructor_test(const BaseDouble& lattice_base,
 
 
 
-void const_value_test(const BaseDouble& lattice_base,
-		      const double value)
+void const_value_test(const BaseDouble& lattice_base, const double value,
+		      const int start = 0, const int end = -1)
 {
   bool all_values_equal = true;
-  for (int i = 0; i < lattice_base.num_blocks(); ++i)
+  int true_end = (end < 0) ? lattice_base.num_blocks() : end;
+  for (int i = start; i < true_end; ++i)
     for (int j = 0; j < lattice_base.block_volume(); ++j)
       if (not fp_compare(lattice_base.datum_ref(i, j), value)) {
 	all_values_equal = false;
@@ -124,7 +125,7 @@ BOOST_AUTO_TEST_CASE(test_constructors)
 		    std::invalid_argument);
 
   boost::unit_test::callback1<BaseDouble> bound_const_value_test
-    = boost::bind(&const_value_test, _1, rand_num);
+    = boost::bind(&const_value_test, _1, rand_num, 0, -1);
   BOOST_PARAM_TEST_CASE(bound_const_value_test,
 			test_bases.begin() + 1, test_bases.end());
 }
@@ -172,7 +173,7 @@ BOOST_AUTO_TEST_CASE(test_utils)
 
   double rand_num = rng.gen_real();
   test_base = rand_num;
-  BOOST_TEST_CASE(boost::bind(&const_value_test, test_base, rand_num));
+  BOOST_TEST_CASE(boost::bind(&const_value_test, test_base, rand_num, 0, -1));
 }
 
 BOOST_AUTO_TEST_CASE(test_accessors)
@@ -248,16 +249,18 @@ BOOST_AUTO_TEST_CASE(test_arithmetic)
   BaseDouble base_multiple_2 = base_1 * random_2;
   BaseDouble base_div = base_1 / random_2;
 
-  BOOST_TEST_CASE(boost::bind(&const_value_test, base_sum,
-			      random_1 + random_2));
-  BOOST_TEST_CASE(boost::bind(&const_value_test, base_diff,
-			      random_1 - random_2));
-  BOOST_TEST_CASE(boost::bind(&const_value_test, base_multiple,
-			      random_1 * random_2));
-  BOOST_TEST_CASE(boost::bind(&const_value_test, base_multiple_2,
-			      random_1 * random_2));
-  BOOST_TEST_CASE(boost::bind(&const_value_test, base_div,
-			      random_1 / random_2));
+  const_value_test(base_sum, random_1 + random_2, 0, -1);
+  const_value_test(base_diff, random_1 - random_2, 0, -1);
+  const_value_test(base_multiple, random_1 * random_2, 0, -1);
+  const_value_test(base_multiple_2, random_1 * random_2, 0, -1);
+  const_value_test(base_div, random_1 / random_2, 0, -1);
+
+  BaseDouble base_sum_mult = random_1 * (base_1 + base_2);
+  BaseDouble base_mult_sum = random_1 * base_1 + base_2;
+  const_value_test(base_sum_mult, random_1 * (random_1 + random_2),
+		   0, -1);
+  const_value_test(base_mult_sum, random_1 * random_1 + random_2,
+		   0, -1);
 }
 
 BOOST_AUTO_TEST_CASE(test_even_odd)
@@ -270,37 +273,15 @@ BOOST_AUTO_TEST_CASE(test_even_odd)
   BaseDouble base_1(random_1, layout.lattice_shape, layout.block_shape);
   BaseDouble base_2(random_2, layout.lattice_shape, layout.block_shape);
 
-  base_1.even_sites() = 2 * base_2 + base_2;
-  bool evens_transferred = true;
-  for (int i = 0; i < base_1.num_blocks() / 2; ++i)
-    for (int j = 0; j < base_1.block_volume(); ++j)
-      if (not fp_compare(base_1.datum_ref(i, j), 3 * random_2)) {
-	evens_transferred = false;
-	break;
-      }
-  for (int i = base_1.num_blocks() / 2; i < base_1.num_blocks(); ++i)
-    for (int j = 0; j < base_1.block_volume(); ++j)
-      if (not fp_compare(base_1.datum_ref(i, j), random_1)) {
-	evens_transferred = false;
-	break;
-      }
-  BOOST_CHECK(evens_transferred);
+  base_1.even_sites() = 2.0 * base_2 + base_2;
+  const_value_test(base_1, 3 * random_2, 0, base_1.num_blocks() / 2);
+  const_value_test(base_1, random_1, base_1.num_blocks() / 2,
+		   base_1.num_blocks());
 
   base_1.even_sites() = base_2.even_sites();
-  evens_transferred = true;
-  for (int i = 0; i < base_1.num_blocks() / 2; ++i)
-    for (int j = 0; j < base_1.block_volume(); ++j)
-      if (not fp_compare(base_1.datum_ref(i, j), random_2)) {
-	evens_transferred = false;
-	break;
-      }
-  for (int i = base_1.num_blocks() / 2; i < base_1.num_blocks(); ++i)
-    for (int j = 0; j < base_1.block_volume(); ++j)
-      if (not fp_compare(base_1.datum_ref(i, j), random_1)) {
-	evens_transferred = false;
-	break;
-      }
-  BOOST_CHECK(evens_transferred);
+  const_value_test(base_1, random_2, 0, base_1.num_blocks() / 2);
+  const_value_test(base_1, random_1, base_1.num_blocks() / 2,
+		   base_1.num_blocks());
 }
 
 BOOST_AUTO_TEST_SUITE_END()
