@@ -206,11 +206,11 @@ BOOST_AUTO_TEST_CASE(test_accessors)
   for (int i = 0; i < layout.lattice_volume; ++i) {
     std::vector<int> coords = test_base.get_site_coords(i);
     if (not fp_compare(test_base[coords], random_values[i])) {
-    parantheses_check = false;
-    break;
+      parantheses_check = false;
+      break;
+    }
   }
-}
-BOOST_CHECK(parantheses_check);
+  BOOST_CHECK(parantheses_check);
 }
 
 BOOST_AUTO_TEST_CASE(test_arithmetic)
