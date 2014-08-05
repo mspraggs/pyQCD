@@ -274,13 +274,13 @@ BOOST_AUTO_TEST_CASE(test_even_odd)
   BaseDouble base_1(random_1, layout.lattice_shape, layout.block_shape);
   BaseDouble base_2(random_2, layout.lattice_shape, layout.block_shape);
 
-  base_1.even_sites() = 2.0 * base_2 + base_2;
-  const_value_test(base_1, 3 * random_2, 0, base_1.num_blocks() / 2);
+  base_1.even_sites() = base_2.even_sites();
+  const_value_test(base_1, random_2, 0, base_1.num_blocks() / 2);
   const_value_test(base_1, random_1, base_1.num_blocks() / 2,
 		   base_1.num_blocks());
 
-  base_1.even_sites() = base_2.even_sites();
-  const_value_test(base_1, random_2, 0, base_1.num_blocks() / 2);
+  base_1.even_sites() = (2.0 * base_2 + base_2).even_sites();
+  const_value_test(base_1, 3 * random_2, 0, base_1.num_blocks() / 2);
   const_value_test(base_1, random_1, base_1.num_blocks() / 2,
 		   base_1.num_blocks());
 }
