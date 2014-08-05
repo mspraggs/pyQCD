@@ -19,6 +19,54 @@ namespace pyQCD
   class LatticeBase;
 
   template <typename T, typename U>
+  class LatticeBaseExpr;
+
+  template <typename T, typename U>
+  class LatticeBaseEven;
+
+  template <typename T, typename U>
+  class LatticeBaseConst;
+
+
+  template <typename T, typename U>
+  class SubsetTraits
+  {
+  public:
+    typedef const T& member_type;
+    typedef const LatticeBaseExpr<T, U>& constructor_type;
+  };
+
+
+
+  template <typename T, int ndim>
+  class SubsetTraits<LatticeBase<T, ndim>, T>
+  {
+  public:
+    typedef LatticeBase<T, ndim>& member_type;
+    typedef LatticeBaseExpr<LatticeBase<T, ndim>, T>& constructor_type;
+  };
+
+
+
+  template <typename T>
+  class BinaryTraits
+  {
+  public:
+    typedef const T& type;
+  };
+
+
+
+  template <typename T, typename U>
+  class BinaryTraits<LatticeBaseConst<T, U> >
+  {
+  public:
+    typedef LatticeBaseConst<T, U> type;
+  };
+
+
+
+  template <typename T, typename U>
   class LatticeBaseExpr
   {
     // This is the main expression class from which all others are derived. It
@@ -50,6 +98,9 @@ namespace pyQCD
     const int block_volume() const
     { return static_cast<const T&>(*this).block_volume(); }
 
+    const LatticeBaseEven<T, U> even_sites() const
+    { return LatticeBaseEven<T, U>(*this); }
+
     operator T&()
     { return static_cast<T&>(*this); }
     operator T const&() const
@@ -65,7 +116,7 @@ namespace pyQCD
     // Generates a reference to the even sites in a lattice
   public:
     // Constructed from a reference to a LatticeBaseExpr.
-    LatticeBaseEven(LatticeBaseExpr<T, U>& lattice)
+    LatticeBaseEven(typename SubsetTraits<T, U>::constructor_type lattice)
       : _lattice(lattice)
     { }
 
@@ -105,7 +156,7 @@ namespace pyQCD
     { return _lattice.block_volume(); }
 
   private:
-    T& _lattice;
+    typename SubsetTraits<T, U>::member_type _lattice;
   };
 
 
@@ -126,24 +177,6 @@ namespace pyQCD
     { return _scalar; }
   private:
     T const& _scalar;
-  };
-
-
-
-  template <typename T>
-  class BinaryTraits
-  {
-  public:
-    typedef const T& type;
-  };
-
-
-
-  template <typename T, typename U>
-  class BinaryTraits<LatticeBaseConst<T, U> >
-  {
-  public:
-    typedef LatticeBaseConst<T, U> type;
   };
 
 
