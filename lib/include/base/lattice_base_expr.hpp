@@ -15,6 +15,9 @@
 
 namespace pyQCD
 {
+  template <typename T, int ndim>
+  class LatticeBase;
+
   template <typename T, typename U>
   class LatticeBaseExpr
   {
@@ -63,7 +66,7 @@ namespace pyQCD
   public:
     // Constructed from a reference to a LatticeBaseExpr.
     LatticeBaseEven(LatticeBaseExpr<T, U>& lattice)
-      : _lattice(lattice)//static_cast<T&>(lattice))
+      : _lattice(lattice)
     { }
 
     LatticeBaseEven& operator=(const LatticeBaseEven<T, U>& rhs)
@@ -99,32 +102,65 @@ namespace pyQCD
     const int block_volume() const
     { return _lattice.block_volume(); }
 
-    //operator T&()
-    //{ return static_cast<T&>(*this); }
-    //operator T const&() const
-    //{ return static_cast<const T&>(*this); }
-
   private:
     T& _lattice;
   };
 
 
 
-  template <typename T, typename U, typename V>
-  class LatticeBaseDiff
-    : public LatticeBaseExpr<LatticeBaseDiff<T, U, V>, V>
+  template <typename T, typename U>
+  class LatticeBaseConst
+    : public LatticeBaseExpr<LatticeBaseConst<T, U>, U>
+  {
+    // Create a constant expression for use in scalar multiplication and
+    // division.
+  public:
+    LatticeBaseConst(const T& scalar)
+      : _scalar(scalar)
+    { }
+
+    // Accessor for the data
+    const T& datum_ref(const int i, const int j) const
+    { return _scalar; }
+  private:
+    T const& _scalar;
+  };
+
+
+
+  template <typename T>
+  class BinaryTraits
+  {
+  public:
+    typedef const T& type;
+  };
+
+
+
+  template <typename T, typename U>
+  class BinaryTraits<LatticeBaseConst<T, U> >
+  {
+  public:
+    typedef LatticeBaseConst<T, U> type;
+  };
+
+
+
+  template <typename T, typename U, typename V, typename O>
+  class LatticeBaseBinary
+    : public LatticeBaseExpr<LatticeBaseBinary<T, U, V, O>, V>
   {
     // Expression sub-class: subtraction.
   public:
     // Constructed from two other expressions: the bits either side of the minus
     // sign.
-    LatticeBaseDiff(const LatticeBaseExpr<T, V>& lhs,
-		    const LatticeBaseExpr<U, V>& rhs)
+    LatticeBaseBinary(const LatticeBaseExpr<T, V>& lhs,
+		      const LatticeBaseExpr<U, V>& rhs)
       : _lhs(lhs), _rhs(rhs)
     { }
     // Here we denote the actual arithmetic operation.
     V datum_ref(const int i, const int j) const
-    { return _lhs.datum_ref(i, j) - _rhs.datum_ref(i, j); }
+    { return O::apply(_lhs.datum_ref(i, j), _rhs.datum_ref(i, j)); }
     // Grab the other member variables from one of the arguments.
     const std::vector<int>& lattice_shape() const
     { return _lhs.lattice_shape(); }
@@ -140,107 +176,44 @@ namespace pyQCD
     { return _lhs.block_volume(); }
   private:
     // The members - what we're subtracting (rhs) from something else (lhs)
-    T const& _lhs;
-    U const& _rhs;
+    typename BinaryTraits<T>::type _lhs;
+    typename BinaryTraits<U>::type _rhs;
   };
 
 
 
-  template <typename T, typename U, typename V>
-  class LatticeBaseSum
-    : public LatticeBaseExpr<LatticeBaseSum<T, U, V>, V>
+  struct Plus
   {
-    // Next: addition
-  public:
-    LatticeBaseSum(const LatticeBaseExpr<T, V>& lhs,
-		   const LatticeBaseExpr<U, V>& rhs)
-      : _lhs(lhs), _rhs(rhs)
-    { }
-    // Again, denote the operation here.
-    V datum_ref(const int i, const int j) const
-    { return _lhs.datum_ref(i, j) + _rhs.datum_ref(i, j); }
-    // Get our members from the sub-expressions.
-    const std::vector<int>& lattice_shape() const
-    { return _lhs.lattice_shape(); }
-    const std::vector<int>& block_shape() const
-    { return _lhs.block_shape(); }
-    const std::vector<std::vector<int> >& layout() const
-    { return _lhs.layout(); }
-    const int lattice_volume() const
-    { return _lhs.lattice_volume(); }
-    const int num_blocks() const
-    { return _lhs.num_blocks(); }
-    const int block_volume() const
-    { return _lhs.block_volume(); }
-  private:
-    // And the expressions we're summing.
-    const T& _lhs;
-    const U& _rhs;
+    template <typename T, typename U>
+    static T apply(const T& lhs, const U& rhs)
+    { return lhs + rhs; }
   };
 
 
 
-  template <typename T, typename U, typename V>
-  class LatticeBaseMult
-    : public LatticeBaseExpr<LatticeBaseMult<T, U, V>, U>
+  struct Minus
   {
-    // Scalar multiplication. The scalar type is templated.
-  public:
-    LatticeBaseMult(const V& scalar, const LatticeBaseExpr<T, U>& lattice)
-      : _scalar(scalar), _lattice(lattice)
-    { }
-    // Define the operation
-    U datum_ref(const int i, const int j) const
-    { return _scalar * _lattice.datum_ref(i, j); }
-    // Once again... get member variables.
-    const std::vector<int>& lattice_shape() const
-    { return _lattice.lattice_shape(); }
-    const std::vector<int>& block_shape() const
-    { return _lattice.block_shape(); }
-    const std::vector<std::vector<int> >& layout() const
-    { return _lattice.layout(); }
-    const int lattice_volume() const
-    { return _lattice.lattice_volume(); }
-    const int num_blocks() const
-    { return _lattice.num_blocks(); }
-    const int block_volume() const
-    { return _lattice.block_volume(); }
-
-  private:
-    const V& _scalar;
-    const T& _lattice;
+    template <typename T, typename U>
+    static T apply(const T& lhs, const U& rhs)
+    { return lhs - rhs; }
   };
 
 
 
-  template <typename T, typename U, typename V>
-  class LatticeBaseDiv
-    : public LatticeBaseExpr<LatticeBaseDiv<T, U, V>, U>
+  struct Multiplies
   {
-    // Scalar division.
-  public:
-    LatticeBaseDiv(const V& scalar, const LatticeBaseExpr<T, U>& lattice)
-      : _scalar(scalar), _lattice(lattice)
-    { }
-    U datum_ref(const int i, const int j) const
-    { return _lattice.datum_ref(i, j) / _scalar; }
+    template <typename T, typename U>
+    static T apply(const T& lhs, const U& rhs)
+    { return lhs * rhs; }
+  };
 
-    const std::vector<int>& lattice_shape() const
-    { return _lattice.lattice_shape(); }
-    const std::vector<int>& block_shape() const
-    { return _lattice.block_shape(); }
-    const std::vector<std::vector<int> >& layout() const
-    { return _lattice.layout(); }
-    const int lattice_volume() const
-    { return _lattice.lattice_volume(); }
-    const int num_blocks() const
-    { return _lattice.num_blocks(); }
-    const int block_volume() const
-    { return _lattice.block_volume(); }
 
-  private:
-    const V& _scalar;
-    const T& _lattice;
+
+  struct Divides
+  {
+    template <typename T, typename U>
+    static T apply(const T& lhs, const U& rhs)
+    { return lhs / rhs; }
   };
 
 
@@ -248,48 +221,51 @@ namespace pyQCD
   // Now we add some syntactic sugar by overloading the various arithmetic
   // operators corresponding to the expressions we've implemented above.
   template <typename T, typename U, typename V>
-  const LatticeBaseDiff<T, U, V>
+  const LatticeBaseBinary<T, U, V, Minus>
   operator-(const LatticeBaseExpr<T, V>& lhs,
 	    const LatticeBaseExpr<U, V>& rhs)
   {
-    return LatticeBaseDiff<T, U, V>(lhs, rhs);
+    return LatticeBaseBinary<T, U, V, Minus>(lhs, rhs);
   }
 
 
 
   template <typename T, typename U, typename V>
-  const LatticeBaseSum<T, U, V>
+  const LatticeBaseBinary<T, U, V, Plus>
   operator+(const LatticeBaseExpr<T, V>& lhs,
 	    const LatticeBaseExpr<U, V>& rhs)
   {
-    return LatticeBaseSum<T, U, V>(lhs, rhs);
+    return LatticeBaseBinary<T, U, V, Plus>(lhs, rhs);
   }
 
 
 
   template <typename T, typename U, typename V>
-  const LatticeBaseMult<T, U, V>
+  const LatticeBaseBinary<T, LatticeBaseConst<V, U>, V, Multiplies>
   operator*(const V& scalar, const LatticeBaseExpr<T, U>& lattice)
   {
-    return LatticeBaseMult<T, U, V>(scalar, lattice);
+    return LatticeBaseBinary<T, LatticeBaseConst<V, U>, V, Multiplies>
+      (lattice, LatticeBaseConst<V, U>(scalar));
   }
 
 
 
   template <typename T, typename U, typename V>
-  const LatticeBaseMult<T, U, V>
+  const LatticeBaseBinary<T, LatticeBaseConst<V, U>, V, Multiplies>
   operator*(const LatticeBaseExpr<T, U>& lattice, const V& scalar)
   {
-    return LatticeBaseMult<T, U, V>(scalar, lattice);
+    return LatticeBaseBinary<T, LatticeBaseConst<V, U>, V, Multiplies>
+      (lattice, LatticeBaseConst<V, U>(scalar));
   }
 
 
 
   template <typename T, typename U, typename V>
-  const LatticeBaseDiv<T, U, V>
+  const LatticeBaseBinary<T, LatticeBaseConst<V, U>, V, Divides>
   operator/(const LatticeBaseExpr<T, U>& lattice, const V& scalar)
   {
-    return LatticeBaseDiv<T, U, V>(scalar, lattice);
+    return LatticeBaseBinary<T, LatticeBaseConst<V, U>, V, Divides>
+      (lattice, LatticeBaseConst<V, U>(scalar));
   }
 }
 

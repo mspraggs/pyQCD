@@ -35,14 +35,8 @@ namespace pyQCD
     friend class LatticeBaseExpr;
     template <typename X, typename Y>
     friend class LatticeBaseEven;
-    template <typename X, typename Y, typename Z>
-    friend class LatticeBaseSum;
-    template <typename X, typename Y, typename Z>
-    friend class LatticeBaseDiff;
-    template <typename X, typename Y, typename Z>
-    friend class LatticeBaseMult;
-    template <typename X, typename Y, typename Z>
-    friend class LatticeBaseDiv;
+    template <typename W, typename X, typename Y, typename Z>
+    friend class LatticeBaseBinary;
   public:
     // Constructors
     LatticeBase(const std::vector<int>& lattice_shape,
