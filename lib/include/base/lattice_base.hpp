@@ -33,8 +33,8 @@ namespace pyQCD
   {
     template <typename X, typename Y>
     friend class LatticeBaseExpr;
-    template <typename X, typename Y>
-    friend class LatticeBaseEven;
+    template <typename X, typename Y, bool Z>
+    friend class LatticeBaseSubset;
     template <typename W, typename X, typename Y, typename Z>
     friend class LatticeBaseBinary;
   public:
@@ -103,8 +103,10 @@ namespace pyQCD
     const int lattice_volume() const
     { return this->_lattice_volume; }
 
-    LatticeBaseEven<LatticeBase<T, ndim>, T> even_sites()
-    { return LatticeBaseEven<LatticeBase<T, ndim>, T>(*this); }
+    LatticeBaseSubset<LatticeBase<T, ndim>, T, true> even_sites()
+    { return LatticeBaseSubset<LatticeBase<T, ndim>, T, true>(*this); }
+    LatticeBaseSubset<LatticeBase<T, ndim>, T, false> odd_sites()
+    { return LatticeBaseSubset<LatticeBase<T, ndim>, T, false>(*this); }
 
   protected:
     // The data we're wrapping. We use a vector of vectors to

@@ -21,8 +21,8 @@ namespace pyQCD
   template <typename T, typename U>
   class LatticeBaseExpr;
 
-  template <typename T, typename U>
-  class LatticeBaseEven;
+  template <typename T, typename U, bool even>
+  class LatticeBaseSubset;
 
   template <typename T, typename U>
   class LatticeBaseConst;
@@ -98,8 +98,10 @@ namespace pyQCD
     const int block_volume() const
     { return static_cast<const T&>(*this).block_volume(); }
 
-    const LatticeBaseEven<T, U> even_sites() const
-    { return LatticeBaseEven<T, U>(*this); }
+    const LatticeBaseSubset<T, U, true> even_sites() const
+    { return LatticeBaseSubset<T, U, true>(*this); }
+    const LatticeBaseSubset<T, U, false> odd_sites() const
+    { return LatticeBaseSubset<T, U, false>(*this); }
 
     operator T&()
     { return static_cast<T&>(*this); }
@@ -109,30 +111,32 @@ namespace pyQCD
 
 
 
-  template <typename T, typename U>
-  class LatticeBaseEven
-    : public LatticeBaseExpr<LatticeBaseEven<T, U>, U>
+  template <typename T, typename U, bool even>
+  class LatticeBaseSubset
+    : public LatticeBaseExpr<LatticeBaseSubset<T, U, even>, U>
   {
     // Generates a reference to the even sites in a lattice
   public:
     // Constructed from a reference to a LatticeBaseExpr.
-    LatticeBaseEven(typename SubsetTraits<T, U>::constructor_type lattice)
+    LatticeBaseSubset(typename SubsetTraits<T, U>::constructor_type lattice)
       : _lattice(lattice)
     { }
 
-    LatticeBaseEven& operator=(const LatticeBaseEven<T, U>& rhs)
+    LatticeBaseSubset& operator=(const LatticeBaseSubset<T, U, even>& rhs)
     {
-      return operator=(static_cast<const LatticeBaseExpr<LatticeBaseEven<T, U>,
-		       U>& >(rhs));
+      typedef LatticeBaseExpr<LatticeBaseSubset<T, U, even>, U> cast_type;
+      return operator=(static_cast<const cast_type&>(rhs));
     }
 
     template <typename V>
-    LatticeBaseEven& operator=(const LatticeBaseExpr<V, U>& rhs)
+    LatticeBaseSubset& operator=(const LatticeBaseExpr<V, U>& rhs)
     {
       const V& expr = rhs;
       assert(rhs.num_blocks() == this->num_blocks()
 	     && rhs.block_volume() == this->block_volume());
-      for (int i = 0; i < this->num_blocks(); ++i)
+      int start = even ? 0 : this->num_blocks();
+      int stop = even ? this->num_blocks() : 2 * this->num_blocks();
+      for (int i = start; i < stop; ++i)
 	for (int j = 0; j < this->block_volume(); ++j)
 	  this->_lattice.datum_ref(i, j) = expr.datum_ref(i, j);
       return *this;
