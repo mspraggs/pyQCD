@@ -79,6 +79,8 @@ namespace pyQCD
     LatticeBaseEven& operator=(const LatticeBaseExpr<V, U>& rhs)
     {
       const V& expr = rhs;
+      assert(rhs.num_blocks() == this->num_blocks()
+	     && rhs.block_volume() == this->block_volume());
       for (int i = 0; i < this->num_blocks(); ++i)
 	for (int j = 0; j < this->block_volume(); ++j)
 	  this->_lattice.datum_ref(i, j) = expr.datum_ref(i, j);

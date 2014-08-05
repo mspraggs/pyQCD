@@ -341,6 +341,7 @@ namespace pyQCD
   {
     // Returns a constant reference to the element in _datum specified by the
     // given lexicographic lattice site index.
+    assert(index > -1 && index < this->_lattice_volume);
     return this->_data[this->_layout[index][0]][this->_layout[index][1]];
   }
 
@@ -351,6 +352,7 @@ namespace pyQCD
   {
     // Returns a reference to the element in _datum specified by the given 
     // lexicographic lattice site index.
+    assert(index > -1 && index < this->_lattice_volume);
     return this->_data[this->_layout[index][0]][this->_layout[index][1]];
   }
 
@@ -362,6 +364,8 @@ namespace pyQCD
   {
     // Returns a constant reference to the object at the lattice site specified
     // by the integer coordinates in the supplied vector
+    for (int i = 0; i < ndim; ++i)
+      assert(coords[i] > -1 && coords[i] < this->_lattice_shape[i]);
     int site_index = this->get_site_index(coords);
     return (*this)[site_index];
   }
@@ -374,6 +378,8 @@ namespace pyQCD
   {
     // Returns a reference to the object at the lattice site specified
     // by the integer coordinates in the supplied vector
+    for (int i = 0; i < ndim; ++i)
+      assert(coords[i] > -1 && coords[i] < this->_lattice_shape[i]);
     int site_index = this->get_site_index(coords);
     return (*this)[site_index];
   }
@@ -385,6 +391,8 @@ namespace pyQCD
   {
     // Returns a constant reference to the element in _datum specified by the
     // given vector indices i and j
+    assert(i > -1 && i < this->_num_blocks);
+    assert(j > -1 && j < this->_block_volume);
     return this->_data[i][j];
   }
 
@@ -395,6 +403,8 @@ namespace pyQCD
   {
     // Returns a reference to the element in _datum specified by the
     // given vector indices i and j
+    assert(i > -1 && i < this->_num_blocks);
+    assert(j > -1 && j < this->_block_volume);
     return this->_data[i][j];
   }
 
@@ -487,6 +497,8 @@ namespace pyQCD
     // coordinates.
     // We're basically coming up with an index computed as follows:
     // index = x_n + N_1 * (x_{n-1} + ... (x_1 + N_{n-1} * x_0) ... )
+    for (int i = 0; i < ndim; ++i)
+      assert(site_coords[i] > -1 && site_coords[i] < this->_lattice_shape[i]);
     int index = 0;
     for (int i = 0; i < ndim; ++i) {
       index *= this->_lattice_shape[i];
