@@ -283,6 +283,19 @@ BOOST_AUTO_TEST_CASE(test_even_odd)
   const_value_test(base_1, 3 * random_2, 0, base_1.num_blocks() / 2);
   const_value_test(base_1, random_1, base_1.num_blocks() / 2,
 		   base_1.num_blocks());
+
+  base_1 = random_1;
+  base_2 = random_2;
+
+  base_1.odd_sites() = base_2.odd_sites();
+  const_value_test(base_1, random_1, 0, base_1.num_blocks() / 2);
+  const_value_test(base_1, random_2, base_1.num_blocks() / 2,
+		   base_1.num_blocks());
+
+  base_1.odd_sites() = (2.0 * base_2 + base_2).odd_sites();
+  const_value_test(base_1, random_1, 0, base_1.num_blocks() / 2);
+  const_value_test(base_1, 3 * random_2, base_1.num_blocks() / 2,
+		   base_1.num_blocks());
 }
 
 BOOST_AUTO_TEST_SUITE_END()
