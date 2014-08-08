@@ -182,8 +182,8 @@ def jackknife_data(data, binsize=1, parallel=False):
 
     new_data = ([dict(zip(data[0].keys(), datum)) for datum in new_data]
                 if type(data[0]) == dict else list(new_data))
-    central_value = (dict(zip(data[0].keys(),
-                              [datum / len(data) for datum in data_sum]))
+    central_value = (dict(zip(data[0].keys(), [datum / len(data)
+                                               for datum in data_sum]))
                      if type(data[0]) == dict else data_sum / len(data))
     return new_data, central_value
 
@@ -213,7 +213,7 @@ def jackknife_std(measurements, central_value):
       >>> error = pyQCD.analysis.jackknife_std(measurements, centre_meas)
     """
 
-    deviations = [(meas - central_value)**2 for meas in measurements]
+    deviations = map(lambda x: (x - central_value)**2, measurements)
     N = len(measurements)
     return np.sqrt((N - 1) / N * sum(deviations))
 
