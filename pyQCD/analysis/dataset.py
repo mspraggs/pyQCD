@@ -158,7 +158,7 @@ def jackknife_data(data, binsize=1, parallel=False):
         multiprocessing module.
              
     Returns:
-      list: The resampled data set.
+      tuple: The resampled dataset and central value
     
     Examples:
       Load some correlators and create jackknife copies of the data.
@@ -177,12 +177,15 @@ def jackknife_data(data, binsize=1, parallel=False):
     def parallel_function(datum):
         return (data_sum - datum) / (len(binned_data) - 1)
     
-    out = _parmap(parallel_function, binned_data) \
-      if parallel else map(parallel_function, binned_data)
+    new_data = (_parmap(parallel_function, binned_data)
+                if parallel else map(parallel_function, binned_data))
 
-    out = ([dict(zip(data[0].keys(), datum)) for datum in out]
-           if type(data[0]) == dict else list(out))
-    return out
+    new_data = ([dict(zip(data[0].keys(), datum)) for datum in new_data]
+                if type(data[0]) == dict else list(new_data))
+    central_value = (dict(zip(data[0].keys(),
+                              [datum / len(data) for datum in data_sum]))
+                     if type(data[0]) == dict else data_sum / len(data))
+    return new_data, central_value
 
 def jackknife(data, func, binsize=1, args=[], kwargs={}, resample=True,
               parallel=False):
@@ -204,7 +207,9 @@ def jackknife(data, func, binsize=1, args=[], kwargs={}, resample=True,
         multiprocessing module.
 
     Returns:
-      tuple: The jackknifed central value and the estimated error.
+      tuple: The central value and the estimated error.
+
+      If resample is set to false then the central value is not returned.
 
     Examples:
       Load some correlators and jackknife the effective mass curve.
@@ -215,7 +220,7 @@ def jackknife(data, func, binsize=1, args=[], kwargs={}, resample=True,
     """
 
     if resample:
-        resamp_data = jackknife_data(data, binsize, parallel)
+        resamp_data, central_value = jackknife_data(data, binsize, parallel)
     else:
         resamp_data = data
 
@@ -227,4 +232,8 @@ def jackknife(data, func, binsize=1, args=[], kwargs={}, resample=True,
 
     N = len(results)
 
-    return np.mean(results, axis=0), np.sqrt(N - 1) * np.std(results, axis=0)
+    if resample:
+        return (func(central_value, *args, **kwargs),
+                np.sqrt(N - 1) * np.std(results, axis=0))
+    else:
+        return np.sqrt(N - 1) * np.std(results, axis=0)
