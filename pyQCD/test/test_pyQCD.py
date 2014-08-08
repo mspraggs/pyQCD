@@ -984,8 +984,10 @@ class TestDataSet:
         assert np.allclose(jackknife_mean, data_mean**2)
         assert np.allclose(jackknife_std, 0.02884870, rtol)
 
-        jackknife_std \
-          = analysis.jackknife(jackknifed_data, lambda x: x**2, resample=False)
+        jackknife_mean, jackknife_std \
+          = analysis.jackknife(jackknifed_data, lambda x: x**2, resample=False,
+                               central_value=central_value)
+        assert np.allclose(jackknife_mean, np.mean(dataset)**2)
         assert np.allclose(jackknife_std, 0.02884870, rtol)
         
         dataset = [{0: val} for val in npr.random(100)]
@@ -999,9 +1001,9 @@ class TestDataSet:
         assert np.allclose(jackknife_mean, data_mean**2, rtol)
         assert np.allclose(jackknife_std, 0.02884870, rtol)
 
-        jackknife_std \
+        jackknife_std, jackknife_std \
           = analysis.jackknife(jackknifed_data, lambda x: x[0]**2,
-                               resample=False)
+                               resample=False, central_value=central_value)
         assert np.allclose(jackknife_std, 0.02884870, rtol)
         
 class TestWilsonLoops:
