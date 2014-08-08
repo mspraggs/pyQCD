@@ -23,7 +23,6 @@ except NameError:
     lattice_exists = False
         
 data_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data')
-
 def create_fullpath(fname):
     
     return "{}/{}".format(data_dir, fname)
@@ -962,6 +961,13 @@ class TestDataSet:
             sum_b = sum([x["b"] for x in dataset])
             expected_val = (sum_b - orig_datum["b"]) / (len(dataset) - 1)
             assert np.allclose(resamp_datum["b"], expected_val)
+
+    def test_jackknife_std(self):
+
+        data = np.random.random(100)
+        std = analysis.jackknife_std(data, data.mean())
+
+        assert np.allclose(std, np.sqrt(data.size - 1) * data.std())
         
     def test_jackknife(self):
         
