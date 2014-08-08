@@ -218,12 +218,12 @@ def jackknife_std(measurements, central_value):
     return np.sqrt((N - 1) / N * sum(deviations))
 
 def jackknife(data, func, binsize=1, args=[], kwargs={}, resample=True,
-              parallel=False):
+              central_value=None, parallel=False):
     """Performs a jackknifed measurement on the data set using the supplied
     function
 
     Args:
-      data (list): The data on which to perform the resampling and measurement
+      data (list): The data on which to perform the resampling and measurement.
       func (function): The measurement function. The first argument of this
         function should accept a type identical to that of the elements of the
         data list.
@@ -233,13 +233,13 @@ def jackknife(data, func, binsize=1, args=[], kwargs={}, resample=True,
       kwargs (dict, optional): Any additional keyword arguments required by func
       resample (bool, optional): Determines whether to treat data as an existing
         jackknife data set, or perform the jackknife from scratch.
+      central_value (optional): The central value of the original dataset. Only
+        required if resample is set to False
       parallel (bool, optional): Parallelizes the jackknife using python's
         multiprocessing module.
 
     Returns:
       tuple: The central value and the estimated error.
-
-      If resample is set to false then the central value is not returned.
 
     Examples:
       Load some correlators and jackknife the effective mass curve.
@@ -260,10 +260,6 @@ def jackknife(data, func, binsize=1, args=[], kwargs={}, resample=True,
     results = _parmap(parallel_function, resamp_data) \
       if parallel else list(map(parallel_function, resamp_data))
 
-    N = len(results)
+    meas_centre = func(central_value, *args, **kwargs)
 
-    if resample:
-        return (func(central_value, *args, **kwargs),
-                np.sqrt(N - 1) * np.std(results, axis=0))
-    else:
-        return np.sqrt(N - 1) * np.std(results, axis=0)
+    return meas_centre, jackknife_std(results, meas_centre)
