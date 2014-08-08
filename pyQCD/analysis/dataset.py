@@ -187,6 +187,36 @@ def jackknife_data(data, binsize=1, parallel=False):
                      if type(data[0]) == dict else data_sum / len(data))
     return new_data, central_value
 
+def jackknife_std(measurements, central_value):
+    """Computes the jackknife error for the supplied measurement and
+    central value.
+
+    Args:
+      measurements (list): The measurement results for the resampled
+        data.
+      central_value: The measurement on the central value of the data
+        we're resampling
+
+    Returns:
+      The jackknife error.
+
+    Examples:
+      Load some correlators, perform a jackknife resample, then compute
+      the effective mass and calculate the error in the central value.
+
+      >>> import pyQCD
+      >>> data = pyQCD.io.load_archive("correlators.zip")
+      >>> jack_data, centre = pyQCD.analysis.jackknife_data(data)
+      >>> centre_meas = pyQCD.analysis.compute_effmass(centre)
+      >>> measurements = [pyQCD.analysis.compute_effmass(datum)
+      ...                 for datum in jack_data]
+      >>> error = pyQCD.analysis.jackknife_std(measurements, centre_meas)
+    """
+
+    deviations = [(meas - central_value)**2 for meas in measurements]
+    N = len(measurements)
+    return np.sqrt((N - 1) / N * sum(deviations))
+
 def jackknife(data, func, binsize=1, args=[], kwargs={}, resample=True,
               parallel=False):
     """Performs a jackknifed measurement on the data set using the supplied
