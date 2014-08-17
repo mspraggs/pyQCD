@@ -264,7 +264,7 @@ BOOST_AUTO_TEST_CASE(test_arithmetic)
 		   0, -1);
 }
 
-BOOST_AUTO_TEST_CASE(test_even_odd)
+BOOST_AUTO_TEST_CASE(test_expressions)
 {
   TestLayout layout;
   TestRandom rng;
@@ -296,6 +296,21 @@ BOOST_AUTO_TEST_CASE(test_even_odd)
   const_value_test(base_1, random_1, 0, base_1.num_blocks() / 2);
   const_value_test(base_1, 3 * random_2, base_1.num_blocks() / 2,
 		   base_1.num_blocks());
+
+  BaseDouble base_roll = base_1.roll(2, -1);
+
+  bool roll_equal = true;
+  for (int i = 0; i < base_1.lattice_volume(); ++i) {
+    std::vector<int> site = base_1.get_site_coords(i);
+    std::vector<int> site_roll = site;
+    site_roll[2]++;
+
+    if (fp_compare(base_roll[site], base_1[site_roll])) {
+      roll_equal = false;
+      break;
+    }
+  }
+  BOOST_CHECK(roll_equal);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
