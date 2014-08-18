@@ -297,15 +297,17 @@ BOOST_AUTO_TEST_CASE(test_expressions)
   const_value_test(base_1, 3 * random_2, base_1.num_blocks() / 2,
 		   base_1.num_blocks());
 
+  for (int i = 0; i < base_1.lattice_volume(); ++i)
+    base_1[i] = rng.gen_real();
   BaseDouble base_roll = base_1.roll(2, -1);
 
   bool roll_equal = true;
   for (int i = 0; i < base_1.lattice_volume(); ++i) {
     std::vector<int> site = base_1.get_site_coords(i);
     std::vector<int> site_roll = site;
-    site_roll[2]++;
+    site_roll[2] = (site_roll[2] + 1) % base_1.lattice_shape()[2];
 
-    if (fp_compare(base_roll[site], base_1[site_roll])) {
+    if (not fp_compare(base_1[site_roll], base_roll[site])) {
       roll_equal = false;
       break;
     }
