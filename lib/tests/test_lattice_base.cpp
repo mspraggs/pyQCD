@@ -30,6 +30,12 @@ public:
   { return this->_num_blocks; }
   const int block_volume() const
   { return this->_block_volume; }
+  const double datum_ref(const int i, const int j) const
+  { 
+    assert(i > -1 && i < this->_num_blocks);
+    assert(j > -1 && j < this->_block_volume);
+    return this->_data[i][j];
+  }
 };
 
 struct TestLayout

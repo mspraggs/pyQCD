@@ -79,8 +79,6 @@ namespace pyQCD
     T& operator[](const U& coords);
     template <typename U>
     const T& operator[](const U& coords) const;
-    T& datum_ref(const int i, const int j);
-    const T& datum_ref(const int i, const int j) const;
 
     // Arithmetic operator overloads
     template <typename U>
@@ -143,6 +141,8 @@ namespace pyQCD
     { return this->_num_blocks; }
     const int block_volume() const
     { return this->_block_volume; }
+    T& datum_ref(const int i, const int j);
+    const T& datum_ref(const int i, const int j) const;
   };
 
 
