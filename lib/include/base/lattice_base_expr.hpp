@@ -10,6 +10,8 @@
  * the need for allocating temporaries.
  */
 
+#include <numeric>
+#include <functional>
 
 
 
@@ -161,6 +163,104 @@ namespace pyQCD
 
   private:
     typename SubsetTraits<T, U>::member_type _lattice;
+  };
+
+
+
+  template <typename T, typename U>
+  class LatticeBaseRoll
+    : public LatticeBaseExpr<LatticeBaseRoll<T, U>, U>
+  {
+    // Expression to handle rolling the lattice along a particular axis
+  public:
+    LatticeBaseRoll(typename SubsetTraits<T, U>::constructor_type lattice,
+		    const int dimension, const int shift)
+      : _lattice(lattice)
+    {
+      // Create the nested vector of rolled indices
+
+      // Check that the dimension is sane
+      assert(dimension >= 0 && dimension < this->lattice_shape().size());
+      assert(abs(shift) < this->lattice_shape()[dimension]);
+
+      // Allocate space
+      this->_rolled_layout.resize(lattice.num_blocks());
+      for (auto& elem : this->_rolled_layout) {
+	elem.resize(this->block_volume());
+	for (auto& subelem : elem)
+	  subelem.resize(2);
+      }
+
+      // Compute the offset for the given dimension and shift
+      // This is the shift required for the lexicographic index
+      // in the given dimension
+      int axis_shift = std::accumulate(this->lattice_shape().begin()
+				       + dimension + 1,
+				       this->lattice_shape().end(), 1,
+				       std::multiplies<int>());
+      // This is the correction we'll need if we go outside the lattice
+      // volume ( < 0 or > vol)
+      int axis_modulo = axis_shift * this->lattice_shape()[dimension];
+      // Then we multiply by the actual shift.
+      axis_shift *= -shift;
+
+      for (int i = 0; i < this->lattice_volume(); ++i) {
+	// Do the shift
+	int rolled_index = i + axis_shift;
+	if (i % axis_modulo + axis_shift >= axis_modulo)
+	  rolled_index -= axis_modulo;
+	else if (i % axis_modulo + axis_shift < 0)
+	  rolled_index += axis_modulo;
+	// Now assign the new coordinates to the _rolled_layout member variable
+	std::vector<int> old_coords = this->layout()[i];
+	this->_rolled_layout[old_coords[0]][old_coords[1]]
+	  = this->layout()[rolled_index];
+      }
+    }
+
+    LatticeBaseRoll& operator=(const LatticeBaseRoll<T, U>& rhs)
+    {
+      typedef LatticeBaseExpr<LatticeBaseRoll<T, U>, U> cast_type;
+      return operator=(static_cast<const cast_type&>(rhs));
+    }
+
+    template <typename V>
+    LatticeBaseRoll& operator=(const LatticeBaseExpr<V, U>& rhs)
+    {
+      const V& expr = rhs;
+      assert(rhs.num_blocks() == this->num_blocks()
+	     && rhs.block_volume() == this->block_volume());
+      for (int i = 0; i < this->num_blocks(); ++i)
+	for (int j = 0; j < this->block_volume(); ++j)
+	  this->_lattice.datum_ref(this->_rolled_layout[i][j][0],
+				   this->_rolled_layout[i][j][1])
+	    = expr.datum_ref(i, j);
+      return *this;
+    }
+
+    // Accessor for the data
+    U datum_ref(const int i, const int j) const
+    {
+      return _lattice.datum_ref(this->_rolled_layout[i][j][0],
+				this->_rolled_layout[i][j][1]);
+    }
+    // Grab the other member variables from one of the arguments.
+    const std::vector<int>& lattice_shape() const
+    { return _lattice.lattice_shape(); }
+    const std::vector<int>& block_shape() const
+    { return _lattice.block_shape(); }
+    const std::vector<std::vector<int> >& layout() const
+    { return _lattice.layout(); }
+    const int lattice_volume() const
+    { return _lattice.lattice_volume(); }
+    const int num_blocks() const
+    { return _lattice.num_blocks(); }
+    const int block_volume() const
+    { return _lattice.block_volume(); }
+
+  private:
+    typename SubsetTraits<T, U>::member_type _lattice;
+    std::vector<std::vector<std::vector<int> > > _rolled_layout;
   };
 
 
