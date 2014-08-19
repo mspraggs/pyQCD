@@ -18,18 +18,18 @@ fp_compare(boost::test_tools::percent_tolerance(1e-8));
 
 class BaseDouble : public pyQCD::LatticeBase<double, NDIM>
 {
-  public:
+public:
   using pyQCD::LatticeBase<double, NDIM>::LatticeBase;
   using pyQCD::LatticeBase<double, NDIM>::operator=;
-    // Member access functions
-    const std::vector<int>& block_shape() const
-    { return this->_block_shape; }
-    const std::vector<std::vector<int> >& layout() const
-    { return this->_layout; }
-    const int num_blocks() const
-    { return this->_num_blocks; }
-    const int block_volume() const
-    { return this->_block_volume; }
+  // Member access functions
+  const std::vector<int>& block_shape() const
+  { return this->_block_shape; }
+  const std::vector<std::vector<int> >& layout() const
+  { return this->_layout; }
+  const int num_blocks() const
+  { return this->_num_blocks; }
+  const int block_volume() const
+  { return this->_block_volume; }
 };
 
 struct TestLayout
@@ -308,6 +308,8 @@ BOOST_AUTO_TEST_CASE(test_expressions)
     site_roll[2] = (site_roll[2] + 1) % base_1.lattice_shape()[2];
 
     if (not fp_compare(base_1[site_roll], base_roll[site])) {
+      BOOST_TEST_MESSAGE("Index 1: " << i << " Index roll: "
+			 << base_1.get_site_index(site_roll));
       roll_equal = false;
       break;
     }
