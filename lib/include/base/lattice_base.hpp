@@ -151,6 +151,12 @@ namespace pyQCD
     { return this->_block_volume; }
     T& datum_ref(const int i, const int j);
     const T& datum_ref(const int i, const int j) const;
+
+    // Helper functions for iterating over the sites
+    inline void data_range_for(const std::function<void(T&)> func);
+    template <typename U>
+    inline void data_for(const std::function<void(T&, const T&)> func,
+			 const U& lattice);
   };
 
 
@@ -165,10 +171,8 @@ namespace pyQCD
     this->init(lattice_shape, block_shape);
     
     // Now we've configured the layout, we proceed to initialize the variables
-    // within _data    
-    for (std::vector<T>& inner : this->_data)
-      for (T& datum: inner)
-	datum = T();
+    // within _data
+    this->data_range_for([] (T& datum) { datum = T(); });
   }
 
 
@@ -185,10 +189,7 @@ namespace pyQCD
     
     // Now we've configured the layout, we proceed to initialize the variables
     // within _data
-    
-    for (std::vector<T>& inner : this->_data)
-      for (T& datum: inner)
-	datum = init_value;
+    this->data_range_for([&] (T& datum) { datum = init_value; });
   }
 
 
@@ -337,10 +338,7 @@ namespace pyQCD
     // Set all site values to the supplied constant
     if (this->_data.size() == 0 && this->_data[0].size() == 0)
       throw std::out_of_range("Assigning constant value to empty LatticeBase");
-    for (auto& block : this->_data)
-      for (auto& site : block)
-	site = rhs;      
-
+    this->data_range_for([&] (T& datum) { datum = rhs; });
     return *this;
   }
 
@@ -425,9 +423,7 @@ namespace pyQCD
   LatticeBase<T, ndim>& LatticeBase<T, ndim>::operator*=(const U& scalar)
   {
     // Multiply whole LatticeBase by a scalar value
-    for (std::vector<T>& inner : this->_data)
-      for (T& datum : inner)
-	datum *= scalar;
+    this->data_range_for([&] (T& datum) { datum *= scalar; });
     return *this;
   }
 
@@ -437,10 +433,8 @@ namespace pyQCD
   template <typename U>
   LatticeBase<T, ndim>& LatticeBase<T, ndim>::operator/=(const U& scalar)
   {
-    // Multiply whole LatticeBase by a scalar value
-    for (std::vector<T>& inner : this->_data)
-      for (T& datum : inner)
-	datum /= scalar;
+    // Divide whole LatticeBase by a scalar value
+    this->data_range_for([&] (T& datum) { datum /= scalar; });
     return *this;
   }
 
@@ -451,9 +445,7 @@ namespace pyQCD
   LatticeBase<T, ndim>::operator+=(const LatticeBase<T, ndim>& rhs)
   {
     // Add the given LatticeBase to this LatticeBase
-    for (int i = 0; i < this->_num_blocks; ++i)
-      for (int j = 0; j < this->_block_volume; ++j)
-	this->_data[i][j] += rhs._data[i][j];
+    this->data_for([] (T& lhs, const T& rhs) { lhs += rhs; }, rhs);
     return *this;
   }
 
@@ -463,10 +455,8 @@ namespace pyQCD
   LatticeBase<T, ndim>&
   LatticeBase<T, ndim>::operator-=(const LatticeBase<T, ndim>& rhs)
   {
-    // Add the given LatticeBase to this LatticeBase
-    for (int i = 0; i < this->_num_blocks; ++i)
-      for (int j = 0; j < this->_block_volume; ++j)
-	this->_data[i][j] -= rhs._data[i][j];
+    // Subtract the given LatticeBase to this LatticeBase
+    this->data_for([] (T& lhs, const T& rhs) { lhs -= rhs; }, rhs);
     return *this;
   }
 
@@ -515,6 +505,35 @@ namespace pyQCD
       index += mod(site_coords[i], this->_lattice_shape[i]);
     }
     return index;
+  }
+
+
+
+  template <typename T, int ndim>
+  void
+  LatticeBase<T, ndim>::data_range_for(const std::function<void(T&)> func)
+  {
+    // Iterate over the sites using a range based for loop and apply the
+    // supplied function to each site variable
+    for (auto& elem : this->_data)
+      for (auto& subelem : elem)
+	func(subelem);
+  }
+
+
+
+  template <typename T, int ndim>
+  template <typename U>
+  void LatticeBase<T, ndim>::data_for(
+    const std::function<void(T&, const T&)> func, const U& lattice)
+  {
+    // Iterate over the sites of this object and the supplied lattice and apply
+    // the supplied function to each of them.
+    assert(this->_num_blocks == lattice.num_blocks()
+	   && this->_block_volume == lattice.block_volume());
+    for (int i = 0; i < this->_num_blocks; ++i)
+      for (int j = 0; j < this->_block_volume; ++j)
+	func(this->_data[i][j], lattice.datum_ref(i, j));
   }
 }
 
