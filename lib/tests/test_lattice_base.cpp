@@ -247,6 +247,15 @@ BOOST_AUTO_TEST_CASE(test_arithmetic)
   base_1 = random_1;
   base_2 = random_2;
 
+  base_1 *= base_2;
+  const_value_test(base_1, random_1 * random_2, 0, -1);
+  base_1 = random_1;
+  base_1 /= base_2;
+  const_value_test(base_1, random_1 / random_2, 0, -1);
+
+  base_1 = random_1;
+  base_2 = random_2;
+
   BaseDouble base_sum = base_1 + base_2;
   BaseDouble base_diff = base_1 - base_2;
   BaseDouble base_multiple = random_2 * base_1;
