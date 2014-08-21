@@ -248,7 +248,7 @@ BOOST_AUTO_TEST_CASE(test_arithmetic)
   base_1 += random_2;
   base_2 -= random_1;
   const_value_test(base_1, random_1 + random_2, 0, -1);
-  const_value_test(base_2, U(random_2 - random_1), 0, -1);
+  const_value_test(base_2, random_2 - U(random_1), 0, -1);
 
   base_1 = random_1;
   base_2 = random_2;
