@@ -16,11 +16,12 @@
 boost::test_tools::close_at_tolerance<double>
 fp_compare(boost::test_tools::percent_tolerance(1e-8));
 
-class BaseDouble : public pyQCD::LatticeBase<double, NDIM>
+template <typename T>
+class Base : public pyQCD::LatticeBase<T, NDIM>
 {
 public:
-  using pyQCD::LatticeBase<double, NDIM>::LatticeBase;
-  using pyQCD::LatticeBase<double, NDIM>::operator=;
+  using pyQCD::LatticeBase<T, NDIM>::LatticeBase;
+  using pyQCD::LatticeBase<T, NDIM>::operator=;
   // Member access functions
   const std::vector<int>& block_shape() const
   { return this->_block_shape; }
@@ -30,7 +31,7 @@ public:
   { return this->_num_blocks; }
   const int block_volume() const
   { return this->_block_volume; }
-  const double datum_ref(const int i, const int j) const
+  const T datum_ref(const int i, const int j) const
   { 
     assert(i > -1 && i < this->_num_blocks);
     assert(j > -1 && j < this->_block_volume);
@@ -69,7 +70,8 @@ struct TestLayout
 
 
 
-void constructor_test(const BaseDouble& lattice_base,
+template <typename T>
+void constructor_test(const Base<T>& lattice_base,
 		      const TestLayout& layout)
 {
   BOOST_REQUIRE_EQUAL_COLLECTIONS(lattice_base.lattice_shape().begin(),
@@ -88,7 +90,8 @@ void constructor_test(const BaseDouble& lattice_base,
 
 
 
-void const_value_test(const BaseDouble& lattice_base, const double value,
+template <typename T>
+void const_value_test(const Base<T>& lattice_base, const T value,
 		      const int start = 0, const int end = -1)
 {
   bool all_values_equal = true;
@@ -111,27 +114,27 @@ BOOST_AUTO_TEST_CASE(test_constructors)
   TestLayout layout;
   TestRandom rng;
   double rand_num = rng.gen_real();
-  BaseDouble test_const_init(rand_num, layout.lattice_shape,
-			     layout.block_shape);
+  Base<double> test_const_init(rand_num, layout.lattice_shape,
+			       layout.block_shape);
 
-  std::vector<BaseDouble> test_bases;
-  test_bases.push_back(BaseDouble(layout.lattice_shape, layout.block_shape));
+  std::vector<Base<double> > test_bases;
+  test_bases.push_back(Base<double>(layout.lattice_shape, layout.block_shape));
   test_bases.push_back(test_const_init);
-  test_bases.push_back(BaseDouble(test_const_init));
-  BaseDouble test_equals = test_const_init;
+  test_bases.push_back(Base<double>(test_const_init));
+  Base<double> test_equals = test_const_init;
   test_bases.push_back(test_equals);
 
-  boost::unit_test::callback1<BaseDouble> bound_constructor_test
-    = boost::bind(&constructor_test, _1, layout);
+  boost::unit_test::callback1<Base<double> > bound_constructor_test
+    = boost::bind(&constructor_test<double>, _1, layout);
   BOOST_PARAM_TEST_CASE(bound_constructor_test,
 			test_bases.begin(), test_bases.end());
 
-  BOOST_REQUIRE_THROW(BaseDouble bad_base(layout.bad_latt_shape,
-					  layout.block_shape),
-		    std::invalid_argument);
+  BOOST_REQUIRE_THROW(Base<double> bad_base(layout.bad_latt_shape,
+					    layout.block_shape),
+		      std::invalid_argument);
 
-  boost::unit_test::callback1<BaseDouble> bound_const_value_test
-    = boost::bind(&const_value_test, _1, rand_num, 0, -1);
+  boost::unit_test::callback1<Base<double> > bound_const_value_test
+    = boost::bind(&const_value_test<double>, _1, rand_num, 0, -1);
   BOOST_PARAM_TEST_CASE(bound_const_value_test,
 			test_bases.begin() + 1, test_bases.end());
 }
@@ -140,7 +143,7 @@ BOOST_AUTO_TEST_CASE(test_utils)
 {
   TestLayout layout;
   TestRandom rng;
-  BaseDouble test_base(layout.lattice_shape, layout.block_shape);
+  Base<double> test_base(layout.lattice_shape, layout.block_shape);
 
   bool site_utils_check = true;
   for (int i = 0; i < layout.lattice_volume; ++i) {
@@ -179,7 +182,8 @@ BOOST_AUTO_TEST_CASE(test_utils)
 
   double rand_num = rng.gen_real();
   test_base = rand_num;
-  BOOST_TEST_CASE(boost::bind(&const_value_test, test_base, rand_num, 0, -1));
+  BOOST_TEST_CASE(boost::bind(&const_value_test<double>, test_base,
+			      rand_num, 0, -1));
 }
 
 BOOST_AUTO_TEST_CASE(test_accessors)
@@ -187,7 +191,7 @@ BOOST_AUTO_TEST_CASE(test_accessors)
   TestLayout layout;
   TestRandom rng;
   
-  BaseDouble test_base(layout.lattice_shape, layout.block_shape);
+  Base<double> test_base(layout.lattice_shape, layout.block_shape);
 
   std::vector<double> random_values(layout.lattice_volume, 0.0);
   bool sqr_bracket_check = true;
@@ -223,33 +227,35 @@ BOOST_AUTO_TEST_CASE(test_arithmetic)
 {
   TestLayout layout;
   TestRandom rng;
+
+  typedef double T;
+  typedef int U;
   
-  double random_1 = rng.gen_real();
-  double random_2 = rng.gen_real();
-  BaseDouble base_1(random_1, layout.lattice_shape, layout.block_shape);
-  BaseDouble base_2(random_2, layout.lattice_shape, layout.block_shape);
+  T random_1 = rng.gen_real();
+  U random_2 = rng.gen_int();
+  Base<T> base_1(random_1, layout.lattice_shape, layout.block_shape);
+  Base<U> base_2(random_2, layout.lattice_shape, layout.block_shape);
 
   base_1 *= random_2;
-  base_2 /= random_1;
-
   const_value_test(base_1, random_1 * random_2, 0, -1);
-  const_value_test(base_2, random_2 / random_1, 0, -1);
+  base_1 = random_1;
+  base_1 /= random_2;
+  const_value_test(base_1, T(random_1) / random_2, 0, -1);
 
   base_1 = random_1;
   base_2 = random_2;
 
   base_1 += random_2;
   base_2 -= random_1;
-
   const_value_test(base_1, random_1 + random_2, 0, -1);
-  const_value_test(base_2, random_2 - random_1, 0, -1);
+  const_value_test(base_2, U(random_2 - random_1), 0, -1);
 
   base_1 = random_1;
   base_2 = random_2;
 
   base_1 += base_2;
   const_value_test(base_1, random_1 + random_2, 0, -1);
-  base_1 = BaseDouble(random_1, layout.lattice_shape, layout.block_shape);
+  base_1 = Base<T>(random_1, layout.lattice_shape, layout.block_shape);
   base_1 -= base_2;
   const_value_test(base_1, random_1 - random_2, 0, -1);
 
@@ -265,11 +271,11 @@ BOOST_AUTO_TEST_CASE(test_arithmetic)
   base_1 = random_1;
   base_2 = random_2;
 
-  BaseDouble base_sum = base_1 + base_2;
-  BaseDouble base_diff = base_1 - base_2;
-  BaseDouble base_multiple = random_2 * base_1;
-  BaseDouble base_multiple_2 = base_1 * random_2;
-  BaseDouble base_div = base_1 / random_2;
+  Base<T> base_sum = base_1 + base_2;
+  Base<T> base_diff = base_1 - base_2;
+  Base<T> base_multiple = random_2 * base_1;
+  Base<T> base_multiple_2 = base_1 * random_2;
+  Base<T> base_div = base_1 / random_2;
 
   const_value_test(base_sum, random_1 + random_2, 0, -1);
   const_value_test(base_diff, random_1 - random_2, 0, -1);
@@ -277,9 +283,9 @@ BOOST_AUTO_TEST_CASE(test_arithmetic)
   const_value_test(base_multiple_2, random_1 * random_2, 0, -1);
   const_value_test(base_div, random_1 / random_2, 0, -1);
 
-  BaseDouble base_sum_mult = random_1 * (base_1 + base_2);
-  BaseDouble base_mult_sum = random_1 * base_1 + base_2;
-  BaseDouble base_sum_sum = base_1 + (base_1 + base_2);
+  Base<T> base_sum_mult = random_1 * (base_1 + base_2);
+  Base<T> base_mult_sum = random_1 * base_1 + base_2;
+  Base<T> base_sum_sum = base_1 + (base_1 + base_2);
   const_value_test(base_sum_mult, random_1 * (random_1 + random_2),
 		   0, -1);
   const_value_test(base_mult_sum, random_1 * random_1 + random_2,
@@ -295,8 +301,8 @@ BOOST_AUTO_TEST_CASE(test_expressions)
   
   double random_1 = rng.gen_real();
   double random_2 = rng.gen_real();
-  BaseDouble base_1(random_1, layout.lattice_shape, layout.block_shape);
-  BaseDouble base_2(random_2, layout.lattice_shape, layout.block_shape);
+  Base<double> base_1(random_1, layout.lattice_shape, layout.block_shape);
+  Base<double> base_2(random_2, layout.lattice_shape, layout.block_shape);
 
   base_1.even_sites() = base_2.even_sites();
   const_value_test(base_1, random_2, 0, base_1.num_blocks() / 2);
@@ -323,7 +329,7 @@ BOOST_AUTO_TEST_CASE(test_expressions)
 
   for (int i = 0; i < base_1.lattice_volume(); ++i)
     base_1[i] = rng.gen_real();
-  BaseDouble base_roll = base_1.roll(2, -1);
+  Base<double> base_roll = base_1.roll(2, -1);
 
   bool roll_equal = true;
   for (int i = 0; i < base_1.lattice_volume(); ++i) {
