@@ -84,30 +84,36 @@ namespace pyQCD
     const T& operator[](const U& coords) const;
 
     // Arithmetic operator overloads
-    template <typename U,
+    // We want to ensure that derived classes can also use the overloads where
+    // LatticeBase is the argument, so we have to use some SFINAE
+    template <typename U, typename V = T,
 	      typename std::enable_if<
-		!std::is_base_of<LatticeBase<T, ndim>, U>::value
+		!std::is_base_of<LatticeBase<V, ndim>, U>::value
 		>::type* = nullptr>
     LatticeBase<T, ndim>& operator+=(const U& rhs);
-    LatticeBase<T, ndim>& operator+=(const LatticeBase<T, ndim>& rhs);
-    template <typename U,
+    template <typename V>
+    LatticeBase<T, ndim>& operator+=(const LatticeBase<V, ndim>& rhs);
+    template <typename U, typename V = T,
 	      typename std::enable_if<
-		!std::is_base_of<LatticeBase<T, ndim>, U>::value
+		!std::is_base_of<LatticeBase<V, ndim>, U>::value
 		>::type* = nullptr>
     LatticeBase<T, ndim>& operator-=(const U& rhs);
-    LatticeBase<T, ndim>& operator-=(const LatticeBase<T, ndim>& rhs);
-    template <typename U,
+    template <typename V>
+    LatticeBase<T, ndim>& operator-=(const LatticeBase<V, ndim>& rhs);
+    template <typename U, typename V = T,
 	      typename std::enable_if<
-		!std::is_base_of<LatticeBase<T, ndim>, U>::value
+		!std::is_base_of<LatticeBase<V, ndim>, U>::value
 		>::type* = nullptr>
     LatticeBase<T, ndim>& operator*=(const U& rhs);
-    LatticeBase<T, ndim>& operator*=(const LatticeBase<T, ndim>& rhs);
-    template <typename U,
+    template <typename V>
+    LatticeBase<T, ndim>& operator*=(const LatticeBase<V, ndim>& rhs);
+    template <typename U, typename V = T,
 	      typename std::enable_if<
-		!std::is_base_of<LatticeBase<T, ndim>, U>::value
+		!std::is_base_of<LatticeBase<V, ndim>, U>::value
 		>::type* = nullptr>
     LatticeBase<T, ndim>& operator/=(const U& rhs);
-    LatticeBase<T, ndim>& operator/=(const LatticeBase<T, ndim>& rhs);
+    template <typename V>
+    LatticeBase<T, ndim>& operator/=(const LatticeBase<V, ndim>& rhs);
 
     // Utility functions specific to the lattice layout
     std::vector<int> get_site_coords(const int index) const;
@@ -414,9 +420,9 @@ namespace pyQCD
 
 
   template <typename T, int ndim>
-  template <typename U,
+  template <typename U, typename V,
 	    typename std::enable_if<
-	      !std::is_base_of<LatticeBase<T, ndim>, U>::value
+	      !std::is_base_of<LatticeBase<V, ndim>, U>::value
 	      >::type*>
   LatticeBase<T, ndim>& LatticeBase<T, ndim>::operator+=(const U& rhs)
   {
@@ -428,8 +434,9 @@ namespace pyQCD
 
 
   template <typename T, int ndim>
+  template <typename V>
   LatticeBase<T, ndim>&
-  LatticeBase<T, ndim>::operator+=(const LatticeBase<T, ndim>& rhs)
+  LatticeBase<T, ndim>::operator+=(const LatticeBase<V, ndim>& rhs)
   {
     // Overload for LatticeBase add-assign
     this->data_for([] (T& datum1, const T& datum2) { datum1 += datum2; }, rhs);
@@ -439,9 +446,9 @@ namespace pyQCD
 
 
   template <typename T, int ndim>
-  template <typename U,
+  template <typename U, typename V,
 	    typename std::enable_if<
-	      !std::is_base_of<LatticeBase<T, ndim>, U>::value
+	      !std::is_base_of<LatticeBase<V, ndim>, U>::value
 	      >::type*>
   LatticeBase<T, ndim>& LatticeBase<T, ndim>::operator-=(const U& rhs)
   {
@@ -453,8 +460,9 @@ namespace pyQCD
 
 
   template <typename T, int ndim>
+  template <typename V>
   LatticeBase<T, ndim>&
-  LatticeBase<T, ndim>::operator-=(const LatticeBase<T, ndim>& rhs)
+  LatticeBase<T, ndim>::operator-=(const LatticeBase<V, ndim>& rhs)
   {
     // Overload for LatticeBase subtract-assign
     this->data_for([] (T& datum1, const T& datum2) { datum1 -= datum2; }, rhs);
@@ -464,9 +472,9 @@ namespace pyQCD
 
 
   template <typename T, int ndim>
-  template <typename U,
+  template <typename U, typename V,
 	    typename std::enable_if<
-	      !std::is_base_of<LatticeBase<T, ndim>, U>::value
+	      !std::is_base_of<LatticeBase<V, ndim>, U>::value
 	      >::type*>
   LatticeBase<T, ndim>& LatticeBase<T, ndim>::operator*=(const U& rhs)
   {
@@ -478,8 +486,9 @@ namespace pyQCD
 
 
   template <typename T, int ndim>
+  template <typename V>
   LatticeBase<T, ndim>&
-  LatticeBase<T, ndim>::operator*=(const LatticeBase<T, ndim>& rhs)
+  LatticeBase<T, ndim>::operator*=(const LatticeBase<V, ndim>& rhs)
   {
     // Overload for LatticeBase multiply-assign
     this->data_for([] (T& datum1, const T& datum2) { datum1 *= datum2; }, rhs);
@@ -489,9 +498,9 @@ namespace pyQCD
 
 
   template <typename T, int ndim>
-  template <typename U,
+  template <typename U, typename V,
 	    typename std::enable_if<
-	      !std::is_base_of<LatticeBase<T, ndim>, U>::value
+	      !std::is_base_of<LatticeBase<V, ndim>, U>::value
 	      >::type*>
   LatticeBase<T, ndim>& LatticeBase<T, ndim>::operator/=(const U& rhs)
   {
@@ -503,8 +512,9 @@ namespace pyQCD
 
 
   template <typename T, int ndim>
+  template <typename V>
   LatticeBase<T, ndim>&
-  LatticeBase<T, ndim>::operator/=(const LatticeBase<T, ndim>& rhs)
+  LatticeBase<T, ndim>::operator/=(const LatticeBase<V, ndim>& rhs)
   {
     // Overload for LatticeBase divide-assign
     this->data_for([] (T& datum1, const T& datum2) { datum1 /= datum2; }, rhs);
