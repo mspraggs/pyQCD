@@ -24,6 +24,7 @@
 #include <type_traits>
 
 #include <utils/math.hpp>
+#include <utils/templates.hpp>
 
 #include <base/lattice_base_expr.hpp>
 
@@ -40,6 +41,8 @@ namespace pyQCD
     friend class LatticeBaseRoll;
     template <typename W, typename X, typename Y, typename Z>
     friend class LatticeBaseBinary;
+    template <typename X, int N>
+    friend class LatticeBase;
   public:
     // Constructors
     LatticeBase(const std::vector<int>& lattice_shape,
@@ -86,36 +89,23 @@ namespace pyQCD
     // Arithmetic operator overloads
     // We want to ensure that derived classes can also use the overloads where
     // LatticeBase is the argument, so we have to use some SFINAE
-    template <typename U, typename V = T,
-	      typename std::enable_if<
-		!std::is_base_of<LatticeBase<V, ndim>, U>::value
-		>::type* = nullptr>
-    LatticeBase<T, ndim>& operator+=(const U& rhs);
-    template <typename V>
-    LatticeBase<T, ndim>& operator+=(const LatticeBase<V, ndim>& rhs);
-    template <typename U, typename V = T,
-	      typename std::enable_if<
-		!std::is_base_of<LatticeBase<V, ndim>, U>::value
-		>::type* = nullptr>
-    LatticeBase<T, ndim>& operator-=(const U& rhs);
-    template <typename V>
-    LatticeBase<T, ndim>& operator-=(const LatticeBase<V, ndim>& rhs);
-    template <typename U, typename V = T,
-	      typename std::enable_if<
-		!std::is_base_of<LatticeBase<V, ndim>, U>::value
-		>::type* = nullptr>
-    LatticeBase<T, ndim>& operator*=(const U& rhs);
-    template <typename V>
-    LatticeBase<T, ndim>& operator*=(const LatticeBase<V, ndim>& rhs);
-    template <typename U, typename V = T,
-	      typename std::enable_if<
-		!std::is_base_of<LatticeBase<V, ndim>, U>::value
-		>::type* = nullptr>
-    LatticeBase<T, ndim>& operator/=(const U& rhs);
-    template <typename V>
-    LatticeBase<T, ndim>& operator/=(const LatticeBase<V, ndim>& rhs);
 
-    // Utility functions specific to the lattice layout
+// This will save having to write the same sort of operator assign operations
+// over and over.
+#define LATTICE_BASE_OPERATOR_ASSIGN_DECL(op) \
+    template <typename U,						\
+	      typename std::enable_if<					\
+		!is_instance_of_LatticeBase<U, LatticeBase>::value>::type* \
+	      = nullptr>						\
+    LatticeBase<T, ndim>& operator op ## =(const U& rhs);		\
+    template <typename U>						\
+    LatticeBase<T, ndim>& operator op ## =(const LatticeBase<U, ndim>& rhs);
+
+    LATTICE_BASE_OPERATOR_ASSIGN_DECL(+);
+    LATTICE_BASE_OPERATOR_ASSIGN_DECL(-);
+    LATTICE_BASE_OPERATOR_ASSIGN_DECL(*);
+    LATTICE_BASE_OPERATOR_ASSIGN_DECL(/);
+
     std::vector<int> get_site_coords(const int index) const;
     template <typename U>
     void get_site_coords(const int index, U& site_coords) const;
@@ -419,107 +409,35 @@ namespace pyQCD
 
 
 
-  template <typename T, int ndim>
-  template <typename U, typename V,
-	    typename std::enable_if<
-	      !std::is_base_of<LatticeBase<V, ndim>, U>::value
-	      >::type*>
-  LatticeBase<T, ndim>& LatticeBase<T, ndim>::operator+=(const U& rhs)
-  {
-    // Overload for scalar add-assign
-    this->data_range_for([&] (T& datum) { datum += rhs; });
-    return *this;
+#define LATTICE_BASE_OPERATOR_ASSIGN_IMPL(op)				\
+  template <typename T, int ndim>					\
+  template <typename U,							\
+	    typename std::enable_if<					\
+	      !is_instance_of_LatticeBase<U, LatticeBase>::value>::type*> \
+  LatticeBase<T, ndim>& LatticeBase<T, ndim>::operator op ## =(const U& rhs) \
+  {									\
+    this->data_range_for([&] (T& datum) { datum op ## = rhs; });	\
+    return *this;							\
+  }									\
+									\
+									\
+									\
+  template <typename T, int ndim>					\
+  template <typename U>							\
+  LatticeBase<T, ndim>&							\
+  LatticeBase<T, ndim>::operator op ## =(const LatticeBase<U, ndim>& rhs) \
+  {									\
+    this->data_for([] (T& datum1, const U& datum2)			\
+    { datum1 op ## = datum2; }, rhs);					\
+    return *this;							\
   }
 
 
 
-  template <typename T, int ndim>
-  template <typename V>
-  LatticeBase<T, ndim>&
-  LatticeBase<T, ndim>::operator+=(const LatticeBase<V, ndim>& rhs)
-  {
-    // Overload for LatticeBase add-assign
-    this->data_for([] (T& datum1, const T& datum2) { datum1 += datum2; }, rhs);
-    return *this;
-  }
-
-
-
-  template <typename T, int ndim>
-  template <typename U, typename V,
-	    typename std::enable_if<
-	      !std::is_base_of<LatticeBase<V, ndim>, U>::value
-	      >::type*>
-  LatticeBase<T, ndim>& LatticeBase<T, ndim>::operator-=(const U& rhs)
-  {
-    // Overload for scalar subtract-assign
-    this->data_range_for([&] (T& datum) { datum -= rhs; });
-    return *this;
-  }
-
-
-
-  template <typename T, int ndim>
-  template <typename V>
-  LatticeBase<T, ndim>&
-  LatticeBase<T, ndim>::operator-=(const LatticeBase<V, ndim>& rhs)
-  {
-    // Overload for LatticeBase subtract-assign
-    this->data_for([] (T& datum1, const T& datum2) { datum1 -= datum2; }, rhs);
-    return *this;
-  }
-
-
-
-  template <typename T, int ndim>
-  template <typename U, typename V,
-	    typename std::enable_if<
-	      !std::is_base_of<LatticeBase<V, ndim>, U>::value
-	      >::type*>
-  LatticeBase<T, ndim>& LatticeBase<T, ndim>::operator*=(const U& rhs)
-  {
-    // Overload for scalar multiply-assign
-    this->data_range_for([&] (T& datum) { datum *= rhs; });
-    return *this;
-  }
-
-
-
-  template <typename T, int ndim>
-  template <typename V>
-  LatticeBase<T, ndim>&
-  LatticeBase<T, ndim>::operator*=(const LatticeBase<V, ndim>& rhs)
-  {
-    // Overload for LatticeBase multiply-assign
-    this->data_for([] (T& datum1, const T& datum2) { datum1 *= datum2; }, rhs);
-    return *this;
-  }
-
-
-
-  template <typename T, int ndim>
-  template <typename U, typename V,
-	    typename std::enable_if<
-	      !std::is_base_of<LatticeBase<V, ndim>, U>::value
-	      >::type*>
-  LatticeBase<T, ndim>& LatticeBase<T, ndim>::operator/=(const U& rhs)
-  {
-    // Overload for scalar divide-assign
-    this->data_range_for([&] (T& datum) { datum /= rhs; });
-    return *this;
-  }
-
-
-
-  template <typename T, int ndim>
-  template <typename V>
-  LatticeBase<T, ndim>&
-  LatticeBase<T, ndim>::operator/=(const LatticeBase<V, ndim>& rhs)
-  {
-    // Overload for LatticeBase divide-assign
-    this->data_for([] (T& datum1, const T& datum2) { datum1 /= datum2; }, rhs);
-    return *this;
-  }
+LATTICE_BASE_OPERATOR_ASSIGN_IMPL(+);
+LATTICE_BASE_OPERATOR_ASSIGN_IMPL(-);
+LATTICE_BASE_OPERATOR_ASSIGN_IMPL(*);
+LATTICE_BASE_OPERATOR_ASSIGN_IMPL(/);
 
 
 
