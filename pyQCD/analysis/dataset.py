@@ -213,6 +213,7 @@ def jackknife_std(measurements, central_value):
       >>> error = pyQCD.analysis.jackknife_std(measurements, centre_meas)
     """
 
+    measurements = np.array(measurements)
     deviations = map(lambda x: (x - central_value)**2, measurements)
     N = len(measurements)
     return np.sqrt((N - 1) / N * sum(deviations))
