@@ -39,7 +39,7 @@ namespace pyQCD
     friend class LatticeBaseSubset;
     template <typename X, typename Y>
     friend class LatticeBaseRoll;
-    template <typename W, typename X, typename Y, typename Z>
+    template <typename V, typename W, typename X, typename Y, typename Z>
     friend class LatticeBaseBinary;
     template <typename X, int N>
     friend class LatticeBase;

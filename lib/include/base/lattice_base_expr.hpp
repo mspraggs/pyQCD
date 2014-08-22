@@ -285,20 +285,21 @@ namespace pyQCD
 
 
 
-  template <typename T, typename U, typename V, typename O>
+  template <typename T, typename U, typename V, typename W, typename O>
   class LatticeBaseBinary
-    : public LatticeBaseExpr<LatticeBaseBinary<T, U, V, O>, V>
+    : public LatticeBaseExpr<LatticeBaseBinary<T, U, V, W, O>,
+			     decltype(O::apply(V(), W()))>
   {
     // Expression sub-class: subtraction.
   public:
     // Constructed from two other expressions: the bits either side of the minus
     // sign.
     LatticeBaseBinary(const LatticeBaseExpr<T, V>& lhs,
-		      const LatticeBaseExpr<U, V>& rhs)
+		      const LatticeBaseExpr<U, W>& rhs)
       : _lhs(lhs), _rhs(rhs)
     { }
     // Here we denote the actual arithmetic operation.
-    V datum_ref(const int i, const int j) const
+    decltype(O::apply(V(), W())) datum_ref(const int i, const int j) const
     { return O::apply(_lhs.datum_ref(i, j), _rhs.datum_ref(i, j)); }
     // Grab the other member variables from one of the arguments.
     const std::vector<int>& lattice_shape() const
@@ -357,55 +358,48 @@ namespace pyQCD
 
 
 
-  // Now we add some syntactic sugar by overloading the various arithmetic
-  // operators corresponding to the expressions we've implemented above.
-  template <typename T, typename U, typename V>
-  const LatticeBaseBinary<T, U, V, Minus>
-  operator-(const LatticeBaseExpr<T, V>& lhs,
-	    const LatticeBaseExpr<U, V>& rhs)
-  {
-    return LatticeBaseBinary<T, U, V, Minus>(lhs, rhs);
+#define LATTICE_BASE_EXPR_OPERATOR(op, trait)				\
+  template <typename T, typename U, typename V, typename W>		\
+  const LatticeBaseBinary<T, U, V, W, trait>				\
+  operator op(const LatticeBaseExpr<T, V>& lhs,				\
+	      const LatticeBaseExpr<U, W>& rhs)				\
+  {									\
+    return LatticeBaseBinary<T, U, V, W, trait>(lhs, rhs);		\
+  }									\
+  									\
+  									\
+  									\
+  template <typename T, typename U, typename V,				\
+	    typename std::enable_if<					\
+	      !is_instance_of_type_temp<V, LatticeBaseExpr>::value>::type* \
+	    = nullptr>							\
+  const LatticeBaseBinary<T, LatticeBaseConst<V>, U, V, trait>		\
+  operator op(const LatticeBaseExpr<T, U>& lattice, const V& scalar)	\
+  {									\
+    return LatticeBaseBinary<T, LatticeBaseConst<V>, U, V, trait>	\
+      (lattice, LatticeBaseConst<V>(scalar));				\
   }
 
 
 
-  template <typename T, typename U, typename V>
-  const LatticeBaseBinary<T, U, V, Plus>
-  operator+(const LatticeBaseExpr<T, V>& lhs,
-	    const LatticeBaseExpr<U, V>& rhs)
-  {
-    return LatticeBaseBinary<T, U, V, Plus>(lhs, rhs);
+#define LATTICE_BASE_EXPR_OPERATOR_REVERSE_SCALAR(op, trait)		\
+  template <typename T, typename U, typename V,				\
+	    typename std::enable_if<					\
+	      !is_instance_of_type_temp<V, LatticeBaseExpr>::value>::type* \
+	    = nullptr>							\
+  const LatticeBaseBinary<T, LatticeBaseConst<V>, U, V, trait>		\
+  operator op(const V& scalar, const LatticeBaseExpr<T, U>& lattice)	\
+  {									\
+    return LatticeBaseBinary<T, LatticeBaseConst<V>, U, V, trait>	\
+      (lattice, LatticeBaseConst<V>(scalar));				\
   }
 
-
-
-  template <typename T, typename U, typename V>
-  const LatticeBaseBinary<T, LatticeBaseConst<V, U>, V, Multiplies>
-  operator*(const V& scalar, const LatticeBaseExpr<T, U>& lattice)
-  {
-    return LatticeBaseBinary<T, LatticeBaseConst<V, U>, V, Multiplies>
-      (lattice, LatticeBaseConst<V, U>(scalar));
-  }
-
-
-
-  template <typename T, typename U, typename V>
-  const LatticeBaseBinary<T, LatticeBaseConst<V, U>, V, Multiplies>
-  operator*(const LatticeBaseExpr<T, U>& lattice, const V& scalar)
-  {
-    return LatticeBaseBinary<T, LatticeBaseConst<V, U>, V, Multiplies>
-      (lattice, LatticeBaseConst<V, U>(scalar));
-  }
-
-
-
-  template <typename T, typename U, typename V>
-  const LatticeBaseBinary<T, LatticeBaseConst<V, U>, V, Divides>
-  operator/(const LatticeBaseExpr<T, U>& lattice, const V& scalar)
-  {
-    return LatticeBaseBinary<T, LatticeBaseConst<V, U>, V, Divides>
-      (lattice, LatticeBaseConst<V, U>(scalar));
-  }
+  LATTICE_BASE_EXPR_OPERATOR(+, Plus);
+  LATTICE_BASE_EXPR_OPERATOR_REVERSE_SCALAR(+, Plus);
+  LATTICE_BASE_EXPR_OPERATOR(-, Minus);
+  LATTICE_BASE_EXPR_OPERATOR(*, Multiplies);
+  LATTICE_BASE_EXPR_OPERATOR_REVERSE_SCALAR(*, Multiplies);
+  LATTICE_BASE_EXPR_OPERATOR(/, Divides);
 }
 
 #endif
