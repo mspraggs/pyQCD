@@ -26,7 +26,7 @@ namespace pyQCD
   template <typename T, typename U, bool even>
   class LatticeBaseSubset;
 
-  template <typename T, typename U>
+  template <typename T>
   class LatticeBaseConst;
 
 
@@ -59,11 +59,11 @@ namespace pyQCD
 
 
 
-  template <typename T, typename U>
-  class BinaryTraits<LatticeBaseConst<T, U> >
+  template <typename T>
+  class BinaryTraits<LatticeBaseConst<T> >
   {
   public:
-    typedef LatticeBaseConst<T, U> type;
+    typedef LatticeBaseConst<T> type;
   };
 
 
@@ -265,9 +265,9 @@ namespace pyQCD
 
 
 
-  template <typename T, typename U>
+  template <typename T>
   class LatticeBaseConst
-    : public LatticeBaseExpr<LatticeBaseConst<T, U>, U>
+    : public LatticeBaseExpr<LatticeBaseConst<T>, T>
   {
     // Create a constant expression for use in scalar multiplication and
     // division.
