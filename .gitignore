@@ -3,6 +3,7 @@
 *.html
 CTestTestfile.cmake
 Testing/*
+lib/CMakeFiles/*
 pyQCD/core/kernel/CTestTestfile.cmake
 pyQCD/core/kernel/CMakeCache.txt
 pyQCD/core/kernel/CMakeFiles/*
@@ -31,3 +32,5 @@ pyQCDcache/*
 pyQCD/core/*.npz
 pyQCD/core/*.zip
 pyQCD/core/*.npy
+
+*grind.out.*
