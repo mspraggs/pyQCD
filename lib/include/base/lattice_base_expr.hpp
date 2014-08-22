@@ -358,6 +358,10 @@ namespace pyQCD
 
 
 
+  // Some macros for the operator overloads, as the code is almost the
+  // same in each case. For the scalar multiplies I've used some SFINAE
+  // to disable these more generalized functions when a LatticeBaseExpr
+  // is used.
 #define LATTICE_BASE_EXPR_OPERATOR(op, trait)				\
   template <typename T, typename U, typename V, typename W>		\
   const LatticeBaseBinary<T, U, V, W, trait>				\
@@ -381,7 +385,8 @@ namespace pyQCD
   }
 
 
-
+  // This macro is for the + and * operators where the scalar can be
+  // either side of the operator.
 #define LATTICE_BASE_EXPR_OPERATOR_REVERSE_SCALAR(op, trait)		\
   template <typename T, typename U, typename V,				\
 	    typename std::enable_if<					\
