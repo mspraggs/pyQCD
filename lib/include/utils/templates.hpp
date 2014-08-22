@@ -24,6 +24,8 @@ struct is_instance_of
   = std::is_convertible<From, conversion_tester<To> >::value;
 };
 
+
+
 template <template <int...> class F>
 struct conversion_tester
 {
@@ -37,6 +39,8 @@ struct is_instance_of
   static const bool value
   = std::is_convertible<From, conversion_tester<To> >::value;
 };
+
+
 
 // Overloaded for cases like LatticeBase<T, ndim>
 template <template <typename, int> class F>
