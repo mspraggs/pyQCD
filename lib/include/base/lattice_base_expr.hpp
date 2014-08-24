@@ -17,7 +17,7 @@
 
 namespace pyQCD
 {
-  template <typename T, int ndim>
+  template <typename T, int ndim, template <typename> class Alloc>
   class LatticeBase;
 
   template <typename T, typename U>
@@ -40,12 +40,12 @@ namespace pyQCD
 
 
 
-  template <typename T, int ndim>
-  class SubsetTraits<LatticeBase<T, ndim>, T>
+  template <typename T, int ndim, template <typename> class Alloc>
+  class SubsetTraits<LatticeBase<T, ndim, Alloc>, T>
   {
   public:
-    typedef LatticeBase<T, ndim>& member_type;
-    typedef LatticeBaseExpr<LatticeBase<T, ndim>, T>& constructor_type;
+    typedef LatticeBase<T, ndim, Alloc>& member_type;
+    typedef LatticeBaseExpr<LatticeBase<T, ndim, Alloc>, T>& constructor_type;
   };
 
 

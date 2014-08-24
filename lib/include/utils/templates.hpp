@@ -47,14 +47,15 @@ namespace pyQCD
   
   
   
-  template <template <typename, int> class F>
+  template <template <typename, int, template <typename> class> class F>
   struct conversion_tester_LatticeBase
   {
-    template <typename T, int N>
-    conversion_tester_LatticeBase (const F<T, N>&);
+    template <typename T, int N, template <typename> class A>
+    conversion_tester_LatticeBase (const F<T, N, A>&);
   };
   
-  template <class From, template <typename, int> class To>
+  template <class From,
+	    template <typename, int, template <typename> class> class To>
   struct is_instance_of_LatticeBase
   {
     static const bool value

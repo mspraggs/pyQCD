@@ -30,8 +30,9 @@
 
 namespace pyQCD
 {
-  template <typename T, int ndim>
-  class LatticeBase : public LatticeBaseExpr<LatticeBase<T, ndim>, T>
+  template <typename T, int ndim,
+	    template <typename> class Alloc = std::allocator>
+  class LatticeBase : public LatticeBaseExpr<LatticeBase<T, ndim, Alloc>, T>
   {
     template <typename X, typename Y>
     friend class LatticeBaseExpr;
@@ -41,7 +42,7 @@ namespace pyQCD
     friend class LatticeBaseRoll;
     template <typename V, typename W, typename X, typename Y, typename Z>
     friend class LatticeBaseBinary;
-    template <typename X, int N>
+    template <typename X, int N, template <typename> class A>
     friend class LatticeBase;
   public:
     // Constructors
@@ -52,7 +53,7 @@ namespace pyQCD
 		const std::vector<int>& lattice_shape,
 		const std::vector<int>& block_shape
 		= std::vector<int>(ndim, 4));
-    LatticeBase(const LatticeBase<T, ndim>& lattice_base);
+    LatticeBase(const LatticeBase<T, ndim, Alloc>& lattice_base);
     template <typename U>
     LatticeBase(const LatticeBaseExpr<U, T>& expr)
     {
@@ -75,8 +76,9 @@ namespace pyQCD
     virtual ~LatticeBase() { };
 
     // Equality operator overload
-    LatticeBase<T, ndim>& operator=(const LatticeBase<T, ndim>& rhs);
-    LatticeBase<T, ndim>& operator=(const T& rhs);
+    LatticeBase<T, ndim, Alloc>&
+    operator=(const LatticeBase<T, ndim, Alloc>& rhs);
+    LatticeBase<T, ndim, Alloc>& operator=(const T& rhs);
 
     // Functions to access the _data member directly
     T& operator[](const int index);
@@ -92,14 +94,15 @@ namespace pyQCD
 
 // This will save having to write the same sort of operator assign operations
 // over and over.
-#define LATTICE_BASE_OPERATOR_ASSIGN_DECL(op) \
+#define LATTICE_BASE_OPERATOR_ASSIGN_DECL(op)				\
     template <typename U,						\
 	      typename std::enable_if<					\
 		!is_instance_of_LatticeBase<U, LatticeBase>::value>::type* \
 	      = nullptr>						\
-    LatticeBase<T, ndim>& operator op ## =(const U& rhs);		\
+    LatticeBase<T, ndim, Alloc>& operator op ## =(const U& rhs);	\
     template <typename U>						\
-    LatticeBase<T, ndim>& operator op ## =(const LatticeBase<U, ndim>& rhs);
+    LatticeBase<T, ndim, Alloc>&					\
+    operator op ## =(const LatticeBase<U, ndim, Alloc>& rhs);
 
     LATTICE_BASE_OPERATOR_ASSIGN_DECL(+);
     LATTICE_BASE_OPERATOR_ASSIGN_DECL(-);
@@ -119,14 +122,15 @@ namespace pyQCD
     { return this->_lattice_volume; }
 
     // Various expressions
-    LatticeBaseSubset<LatticeBase<T, ndim>, T, true> even_sites()
-    { return LatticeBaseSubset<LatticeBase<T, ndim>, T, true>(*this); }
-    LatticeBaseSubset<LatticeBase<T, ndim>, T, false> odd_sites()
-    { return LatticeBaseSubset<LatticeBase<T, ndim>, T, false>(*this); }
-    LatticeBaseRoll<LatticeBase<T, ndim>, T> roll(const int dimension,
-						  const int shift)
+    LatticeBaseSubset<LatticeBase<T, ndim, Alloc>, T, true> even_sites()
+    { return LatticeBaseSubset<LatticeBase<T, ndim, Alloc>, T, true>(*this); }
+    LatticeBaseSubset<LatticeBase<T, ndim, Alloc>, T, false> odd_sites()
+    { return LatticeBaseSubset<LatticeBase<T, ndim, Alloc>, T, false>(*this); }
+    LatticeBaseRoll<LatticeBase<T, ndim, Alloc>, T> roll(const int dimension,
+							 const int shift)
     {
-      return LatticeBaseRoll<LatticeBase<T, ndim>, T>(*this, dimension, shift);
+      return LatticeBaseRoll<LatticeBase<T, ndim, Alloc>, T>(*this, dimension,
+							     shift);
     }
 
   protected:
@@ -134,7 +138,7 @@ namespace pyQCD
     // implement some sort of cache blocking: the lattice is
     // sub-divided into blocks to reduce cache misses by
     // improving locality.
-    std::vector<std::vector<T> > _data;
+    std::vector<std::vector<T, Alloc<T> > > _data;
     // The shape of the lattice
     std::vector<int> _lattice_shape;
     // The shape of the blocks used for cache blocking
@@ -176,9 +180,9 @@ namespace pyQCD
 
 
   
-  template <typename T, int ndim>
-  LatticeBase<T, ndim>::LatticeBase(const std::vector<int>& lattice_shape,
-				    const std::vector<int>& block_shape)
+  template <typename T, int ndim, template <typename> class Alloc>
+  LatticeBase<T, ndim, Alloc>::LatticeBase(
+    const std::vector<int>& lattice_shape, const std::vector<int>& block_shape)
     : _lattice_shape(lattice_shape), _block_shape(block_shape)
   {
     // Constructor for given lattice size etc -> values in _data initialized
@@ -192,10 +196,10 @@ namespace pyQCD
 
 
   
-  template <typename T, int ndim>
-  LatticeBase<T, ndim>::LatticeBase(const T& init_value,
-				    const std::vector<int>& lattice_shape,
-				    const std::vector<int>& block_shape)
+  template <typename T, int ndim, template <typename> class Alloc>
+  LatticeBase<T, ndim, Alloc>::LatticeBase(
+    const T& init_value, const std::vector<int>& lattice_shape,
+    const std::vector<int>& block_shape)
     : _lattice_shape(lattice_shape), _block_shape(block_shape)
   {
     // Constructor for given lattice size etc -> values in _data initialized
@@ -209,8 +213,8 @@ namespace pyQCD
 
 
 
-  template <typename T, int ndim>
-  LatticeBase<T, ndim>::LatticeBase(const LatticeBase& lattice_base)
+  template <typename T, int ndim, template <typename> class Alloc>
+  LatticeBase<T, ndim, Alloc>::LatticeBase(const LatticeBase& lattice_base)
     : _data(lattice_base._data),
       _lattice_shape(lattice_base._lattice_shape),
       _block_shape(lattice_base._block_shape),
@@ -224,9 +228,9 @@ namespace pyQCD
 
 
 
-  template <typename T, int ndim>
-  void LatticeBase<T, ndim>::init(const std::vector<int>& lattice_shape,
-			     const std::vector<int>& block_shape)
+  template <typename T, int ndim, template <typename> class Alloc>
+  void LatticeBase<T, ndim, Alloc>::init(const std::vector<int>& lattice_shape,
+					 const std::vector<int>& block_shape)
   {
     // Common include code - determines lattice site layout for the given
     // lattice_shape and block_shape
@@ -328,9 +332,9 @@ namespace pyQCD
 
 
 
-  template <typename T, int ndim>
-  LatticeBase<T, ndim>&
-  LatticeBase<T, ndim>::operator=(const LatticeBase<T, ndim>& rhs)
+  template <typename T, int ndim, template <typename> class Alloc>
+  LatticeBase<T, ndim, Alloc>&
+  LatticeBase<T, ndim, Alloc>::operator=(const LatticeBase<T, ndim, Alloc>& rhs)
   {
     if (this != &rhs) {
       this->_data = rhs._data;
@@ -347,8 +351,9 @@ namespace pyQCD
 
 
 
-  template <typename T, int ndim>
-  LatticeBase<T, ndim>& LatticeBase<T, ndim>::operator=(const T& rhs)
+  template <typename T, int ndim, template <typename> class Alloc>
+  LatticeBase<T, ndim, Alloc>&
+  LatticeBase<T, ndim, Alloc>::operator=(const T& rhs)
   {
     // Set all site values to the supplied constant
     if (this->_data.size() == 0 && this->_data[0].size() == 0)
@@ -359,8 +364,8 @@ namespace pyQCD
 
 
 
-  template <typename T, int ndim>
-  const T& LatticeBase<T, ndim>::operator[](const int index) const
+  template <typename T, int ndim, template <typename> class Alloc>
+  const T& LatticeBase<T, ndim, Alloc>::operator[](const int index) const
   {
     // Returns a constant reference to the element in _datum specified by the
     // given lexicographic lattice site index.
@@ -370,8 +375,8 @@ namespace pyQCD
 
 
 
-  template <typename T, int ndim>
-  T& LatticeBase<T, ndim>::operator[](const int index)
+  template <typename T, int ndim, template <typename> class Alloc>
+  T& LatticeBase<T, ndim, Alloc>::operator[](const int index)
   {
     // Returns a reference to the element in _datum specified by the given 
     // lexicographic lattice site index.
@@ -381,9 +386,9 @@ namespace pyQCD
 
 
   
-  template <typename T, int ndim>
+  template <typename T, int ndim, template <typename> class Alloc>
   template <typename U> 
-  const T& LatticeBase<T, ndim>::operator[](const U& coords) const
+  const T& LatticeBase<T, ndim, Alloc>::operator[](const U& coords) const
   {
     // Returns a constant reference to the object at the lattice site specified
     // by the integer coordinates in the supplied vector
@@ -395,9 +400,9 @@ namespace pyQCD
 
 
 
-  template <typename T, int ndim>
+  template <typename T, int ndim, template <typename> class Alloc>
   template <typename U>
-  T& LatticeBase<T, ndim>::operator[](const U& coords)
+  T& LatticeBase<T, ndim, Alloc>::operator[](const U& coords)
   {
     // Returns a reference to the object at the lattice site specified
     // by the integer coordinates in the supplied vector
@@ -410,11 +415,12 @@ namespace pyQCD
 
 
 #define LATTICE_BASE_OPERATOR_ASSIGN_IMPL(op)				\
-  template <typename T, int ndim>					\
+  template <typename T, int ndim, template <typename> class Alloc>			\
   template <typename U,							\
 	    typename std::enable_if<					\
 	      !is_instance_of_LatticeBase<U, LatticeBase>::value>::type*> \
-  LatticeBase<T, ndim>& LatticeBase<T, ndim>::operator op ## =(const U& rhs) \
+  LatticeBase<T, ndim, Alloc>&						\
+  LatticeBase<T, ndim, Alloc>::operator op ## =(const U& rhs)		\
   {									\
     this->data_range_for([&] (T& datum) { datum op ## = rhs; });	\
     return *this;							\
@@ -422,10 +428,11 @@ namespace pyQCD
 									\
 									\
 									\
-  template <typename T, int ndim>					\
+  template <typename T, int ndim, template <typename> class Alloc>			\
   template <typename U>							\
-  LatticeBase<T, ndim>&							\
-  LatticeBase<T, ndim>::operator op ## =(const LatticeBase<U, ndim>& rhs) \
+  LatticeBase<T, ndim, Alloc>&						\
+  LatticeBase<T, ndim, Alloc>::operator op ## =(			\
+    const LatticeBase<U, ndim, Alloc>& rhs)				\
   {									\
     this->data_for([] (T& datum1, const U& datum2)			\
     { datum1 op ## = datum2; }, rhs);					\
@@ -441,8 +448,9 @@ LATTICE_BASE_OPERATOR_ASSIGN_IMPL(/);
 
 
 
-  template <typename T, int ndim>
-  const T& LatticeBase<T, ndim>::datum_ref(const int i, const int j) const
+  template <typename T, int ndim, template <typename> class Alloc>
+  const T&
+  LatticeBase<T, ndim, Alloc>::datum_ref(const int i, const int j) const
   {
     // Returns a constant reference to the element in _datum specified by the
     // given vector indices i and j
@@ -453,8 +461,8 @@ LATTICE_BASE_OPERATOR_ASSIGN_IMPL(/);
 
 
 
-  template <typename T, int ndim>
-  T& LatticeBase<T, ndim>::datum_ref(const int i, const int j)
+  template <typename T, int ndim, template <typename> class Alloc>
+  T& LatticeBase<T, ndim, Alloc>::datum_ref(const int i, const int j)
   {
     // Returns a reference to the element in _datum specified by the
     // given vector indices i and j
@@ -465,8 +473,9 @@ LATTICE_BASE_OPERATOR_ASSIGN_IMPL(/);
 
 
 
-  template <typename T, int ndim>
-  std::vector<int> LatticeBase<T, ndim>::get_site_coords(const int index) const
+  template <typename T, int ndim, template <typename> class Alloc>
+  std::vector<int> 
+  LatticeBase<T, ndim, Alloc>::get_site_coords(const int index) const
   {
     // Computes the coordinates of a site from the specified lexicographic index
     std::vector<int> out(ndim, 0);
@@ -476,10 +485,10 @@ LATTICE_BASE_OPERATOR_ASSIGN_IMPL(/);
 
 
 
-  template <typename T, int ndim>
+  template <typename T, int ndim, template <typename> class Alloc>
   template <typename U>
-  void LatticeBase<T, ndim>::get_site_coords(const int index,
-					     U& site_coords) const
+  void LatticeBase<T, ndim, Alloc>::get_site_coords(const int index,
+						    U& site_coords) const
   {
     // Gets the coordinates of the site with the specified lexicographic index
     int temp_index = index;
@@ -492,9 +501,9 @@ LATTICE_BASE_OPERATOR_ASSIGN_IMPL(/);
 
   
 
-  template <typename T, int ndim>
+  template <typename T, int ndim, template <typename> class Alloc>
   template <typename U>
-  int LatticeBase<T, ndim>::get_site_index(const U& site_coords) const
+  int LatticeBase<T, ndim, Alloc>::get_site_index(const U& site_coords) const
   {
     // Computes the lexicographic site index from the specified site
     // coordinates.
@@ -512,9 +521,9 @@ LATTICE_BASE_OPERATOR_ASSIGN_IMPL(/);
 
 
 
-  template <typename T, int ndim>
+  template <typename T, int ndim, template <typename> class Alloc>
   void
-  LatticeBase<T, ndim>::data_range_for(const std::function<void(T&)> func)
+  LatticeBase<T, ndim, Alloc>::data_range_for(const std::function<void(T&)> func)
   {
     // Iterate over the sites using a range based for loop and apply the
     // supplied function to each site variable
@@ -525,9 +534,9 @@ LATTICE_BASE_OPERATOR_ASSIGN_IMPL(/);
 
 
 
-  template <typename T, int ndim>
+  template <typename T, int ndim, template <typename> class Alloc>
   template <typename U>
-  void LatticeBase<T, ndim>::data_for(
+  void LatticeBase<T, ndim, Alloc>::data_for(
     const std::function<void(T&, const T&)> func, const U& lattice)
   {
     // Iterate over the sites of this object and the supplied lattice and apply
