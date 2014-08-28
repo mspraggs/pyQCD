@@ -549,27 +549,28 @@ def load_ukhadron_mesbin(filename, byteorder, fold=False):
         switch_endianness = lambda x: x
     else:
         switch_endianness = lambda x: x[::-1]
+
+    byteorder = '>' if byteorder == "big" else '<'
         
     binary_file = open(filename, "rb")
         
-    mom_num_string = switch_endianness(binary_file.read(4))
-    mom_num = struct.unpack('i', mom_num_string)[0]
+    mom_num_string = binary_file.read(4)
+    mom_num = struct.unpack('{}i'.format(byteorder), mom_num_string)[0]
 
     out = {}
 
     for i in range(mom_num):
-        header_string = switch_endianness(binary_file.read(40))
-        header = switch_endianness(struct.unpack("<iiiiiiiiii", header_string))
+        header_string = binary_file.read(40)
+        header = struct.unpack("{}iiiiiiiiii".format(byteorder), header_string)
         px, py, pz, Nmu, Nnu, T = header[4:]
 
         correlators = np.zeros((Nmu, Nnu, T), dtype=np.complex)
     
         for t, mu, nu in [(x, y, z) for x in range(T) for y in range(Nmu)
                           for z in range(Nnu)]:
-            double_string = switch_endianness(binary_file.read(8))
-            correlators[mu, nu, t] = struct.unpack('d', double_string)[0]
-            double_string = switch_endianness(binary_file.read(8))
-            correlators[mu, nu, t] += 1j * struct.unpack('d', double_string)[0]
+            double_string = binary_file.read(16)
+            doubles = struct.unpack('{}dd'.format(byteorder), double_string)
+            correlators[mu, nu, t] = doubles[0] + 1j * doubles[1]
                         
         for mu, nu in [(x, y) for x in range(Nmu) for y in range(Nnu)]:
             out[(interpolators[mu],
