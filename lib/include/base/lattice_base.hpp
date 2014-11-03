@@ -239,12 +239,12 @@ namespace pyQCD
     if (lattice_shape.size() == ndim || block_shape.size() != ndim) {
       // Then check that the blocks can fit inside the lattice
       for (int i = 0; i < ndim; ++i)
-	if (lattice_shape[i] % block_shape[i] != 0) {
-	  std::string msg = "Lattice shape is not integer multiple "
-	    "of block shape along dimension ";
-	  msg += std::to_string(i);
-	  throw std::invalid_argument(msg);
-	}
+        if (lattice_shape[i] % block_shape[i] != 0) {
+          std::string msg = "Lattice shape is not integer multiple "
+            "of block shape along dimension ";
+          msg += std::to_string(i);
+          throw std::invalid_argument(msg);
+      }
 
       // Now compute the total number of sites
       this->_lattice_volume = std::accumulate(lattice_shape.begin(),
