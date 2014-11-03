@@ -99,9 +99,10 @@ void const_value_test(const Base<T>& lattice_base, const T value,
   for (int i = start; i < true_end; ++i)
     for (int j = 0; j < lattice_base.block_volume(); ++j)
       if (not fp_compare(lattice_base.datum_ref(i, j), value)) {
-	all_values_equal = false;
-	break;
+        all_values_equal = false;
+        break;
       }
+  Rand
   BOOST_CHECK(all_values_equal);
 }
 
