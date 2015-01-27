@@ -20,6 +20,8 @@ struct Compare
   bool operator()(const T rhs, const T lhs) const
   {
     return abs(rhs - lhs) > (percent_tolerance_ * abs(rhs)
+      + absolute_tolerance_)
+      || abs(rhs - lhs) > (percent_tolerance_ * abs(lhs)
       + absolute_tolerance_);
   }
 
@@ -43,9 +45,9 @@ struct MatrixCompare
   bool operator()(const MatrixType& rhs, const MatrixType& lhs) const
   {
     return ((rhs.array() - lhs.array()).abs()
-      > percent_tolerance_ * rhs.array().abs()).any() + absolute_tolerance_
+      > percent_tolerance_ * rhs.array().abs() + absolute_tolerance_).any()
       || ((rhs.array() - lhs.array()).abs()
-      > percent_tolerance_ * lhs.array().abs()).any() + absolute_tolerance_;
+      > percent_tolerance_ * lhs.array().abs() + absolute_tolerance_).any();
   }
 
   T percent_tolerance_;
