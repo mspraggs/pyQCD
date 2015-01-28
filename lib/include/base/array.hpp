@@ -13,6 +13,9 @@
  * array_expr.hpp
  */
 
+#include <type_traits>
+#include <vector>
+
 #include <base/array_expr.hpp>
 #include <utils/templates.hpp>
 
@@ -43,10 +46,9 @@ namespace pyQCD
               typename std::enable_if<                            \
 		!is_instance_of_Array<U, Array>::value>::type*                \
               = nullptr>                                          \
-    Array<T, ndim, Alloc>& operator op ## =(const U& rhs);	      \
+    Array<T, Alloc>& operator op ## =(const U& rhs);	            \
     template <typename U>                                         \
-    Array<T, ndim, Alloc>&                                        \
-    operator op ## =(const Array<U, ndim, Alloc>& rhs);
+    Array<T, Alloc>& operator op ## =(const Array<U, Alloc>& rhs);
 
     ARRAY_OPERATOR_ASSIGN_DECL(+);
     ARRAY_OPERATOR_ASSIGN_DECL(-);
@@ -57,7 +59,33 @@ namespace pyQCD
     std::vector<T, Alloc> data_;
   };
 
-#define ARRAY_OPERATOR_ASSIGN_IMPL(op)
+#define ARRAY_OPERATOR_ASSIGN_IMPL(op)                                    \
+  template <typename U,                                                   \
+    typename std::enable_if<!is_instance_of_Array<U, Array>::value>::type*\
+                            = nullptr>                                    \
+  Array<T, Alloc>& operator op ## =(const U& rhs)                         \
+  {                                                                       \
+    for (auto& item : this->data_) {                                      \
+      item += rhs                                                         \
+    }                                                                     \
+    return *this;                                                         \
+  }                                                                       \
+                                                                          \
+                                                                          \
+  template <typename U>                                                   \
+  Array<T, Alloc>& operator op ## =(const Array<U, Alloc>& rhs)           \
+  {                                                                       \
+    assert (rhs.size() == this->data_.size());                            \
+    for (int i = 0; i < this->data_.size() ++i) {                         \
+      this->data_[i] += rhs[i];                                           \
+    }                                                                     \
+    return *this;                                                         \
+  }
+
+  ARRAY_OPERATOR_ASSIGN_DECL(+);
+  ARRAY_OPERATOR_ASSIGN_DECL(-);
+  ARRAY_OPERATOR_ASSIGN_DECL(*);
+  ARRAY_OPERATOR_ASSIGN_DECL(/);
 }
 
 #endif
