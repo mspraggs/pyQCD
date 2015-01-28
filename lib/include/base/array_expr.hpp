@@ -111,9 +111,46 @@ namespace pyQCD
     { return lhs / rhs; }
   };
 
-#define ARRAY_EXPR_OPERATOR(op, trait)
-#define ARRAY_EXPR_OPERATOR_REVERSE_SCALAR(op, trait)
 
+#define ARRAY_EXPR_OPERATOR(op, trait)                          \
+  template <typename T1, typename T2, typename T3, typename T4> \
+  const ArrayBinary<T1, T2, T3, T4, trait>                      \
+  operator op(const ArrayExpr<T1, T3>& lhs,                     \
+    const ArrayExpr<T2, T4>& rhs)                               \
+  {                                                             \
+    return ArrayBinary<T1, T2, T3, T4, trait>(lhs, rhs);        \
+  }                                                             \
+                                                                \
+                                                                \
+  template <typename T1, typename T2, typename T3,              \
+    typename std::enable_if<                                    \
+      !is_instance_of_type_temp<T3, ArrayExpr>::value>::type*   \
+  const ArrayBinary<T1, ArrayConst<T3>, T2, T3, trait>          \
+  operator op(const ArrayExpr<T1, T2>& array, const T3& scalar) \
+  {                                                             \
+    return ArrayBinary<T1, ArrayConst<T3>, T2, T3, trait>       \
+      (array, ArrayConst<T3>(array));                           \
+  }
+
+
+#define ARRAY_EXPR_OPERATOR_REVERSE_SCALAR(op, trait)           \
+  template <typename T1, typename T2, typename T3,              \
+    typename std::enable_if<                                    \
+      !is_instance_of_type_temp<T3, ArrayExpr>::value>::type*   \
+  const ArrayBinary<T1, ArrayConst<T3>, T2, T3, trait>          \
+  operator op(const T3& scalar, const ArrayExpr<T1, T2>& array) \
+  {                                                             \
+    return ArrayBinary<T1, ArrayConst<T3>, T2, T3, trait>       \
+      (array, ArrayConst<T3>(array));                           \
+  }
 }
+
+
+  ARRAY_EXPR_OPERATOR(+, Plus);
+  ARRAY_EXPR_OPERATOR_REVERSE_SCALAR(+, Plus);
+  ARRAY_EXPR_OPERATOR(-, Minus);
+  ARRAY_EXPR_OPERATOR(*, Multiplies);
+  ARRAY_EXPR_OPERATOR_REVERSE_SCALAR(*, Multiplies);
+  ARRAY_EXPR_OPERATOR(/, Divides);
 
 #endif
