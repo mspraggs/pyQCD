@@ -26,20 +26,25 @@ namespace pyQCD
   class Array : public ArrayExpr<Array<T, Alloc>, T>
   {
   public:
-    Array();
+    Array(const int n, const T& val) : data_(n, val) { }
     Array(const Array<T, Alloc>& array);
     Array(Array<T, Alloc>&& array);
     template <typename U>
-    Array(const Array<U, T>& expr)
+    Array(const ArrayExpr<U, T>& expr)
     {
       this->data_.resize(expr.size());
       for (int i = 0; i < expr.size(); ++i) {
         this->data_[i] = expr[i];
       }
     }
+    virtual ~Array() = default;
+
+    Array<T>& operator=(const Array<T>& array);
+    Array<T>& operator=(Array<T>&& array);
 
     Array<T, Alloc>& operator=(const Array<T, Alloc>& rhs);
     Array<T, Alloc>& operator=(Array<T, Alloc>&& rhs);
+    Array<T, Alloc>& operator=(const T& rhs);
 
 #define ARRAY_OPERATOR_ASSIGN_DECL(op)				                    \
     template <typename U,                                         \
@@ -55,9 +60,48 @@ namespace pyQCD
     ARRAY_OPERATOR_ASSIGN_DECL(*);
     ARRAY_OPERATOR_ASSIGN_DECL(/);
 
+    int size() const { return data_.size(); }
+
   protected:
     std::vector<T, Alloc> data_;
   };
+
+
+  template <typename T, template <typename> class Alloc>
+  Array<T>::Array(const Array<T, Alloc>& array)
+  {
+    this->data_.resize(array.size());
+    for (int i = 0; i < array.size(); ++i) {
+      this->data_[i] = array.data_[i];
+    }
+  }
+
+
+  template <typename T, template <typename> class Alloc>
+  Array<T>::Array(Array<T, Alloc>&& array) : data_(std::move(array.data_))
+  { }
+
+
+  template <typename T, template <typename> class Alloc>
+  Array<T>& Array<T>::operator=(const Array<T, Alloc>& array)
+  {
+    if (&array != this) {
+      this->data_.resize(array.size());
+      for (int i = 0; i < array.size(); ++i) {
+        this->data_[i] = array.data_[i];
+      }
+    }
+    return *this;
+  }
+
+
+  template <typename T, template <typename> class Alloc>
+  Array<T>& Array<T>::operator=(const Array<T, Alloc>& array)
+  {
+    this->data_ = std::move(array.data_);
+    return *this;
+  }
+
 
 #define ARRAY_OPERATOR_ASSIGN_IMPL(op)                                    \
   template <typename U,                                                   \

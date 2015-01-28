@@ -34,6 +34,8 @@ namespace pyQCD
     const T2& operator[](const int i)
     { return static_cast<T1&>(*this)[i]; }
 
+    int size() const { return static_cast<const Array&>(*this).size(); }
+
     operator T1&()
     { return static_cast<T1&>(*this); }
     operator T1 const&() const
@@ -71,6 +73,8 @@ namespace pyQCD
     // Here we denote the actual arithmetic operation.
     decltype(Op::apply(T3(), T4()))& operator[](const int i) const
     { return Op::apply(lhs_[i], rhs_[i]); }
+
+    int size() const { return lhs_.size(); }
 
   private:
     // The members - the inputs to the binary operation
