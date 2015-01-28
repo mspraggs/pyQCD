@@ -16,29 +16,26 @@ set (INC_DIR include)
 set (TEST_DIR tests)
 
 set (test_SRC
-  ${TEST_DIR}/test_lattice_base.cpp
-  ${TEST_DIR}/test_site_gauge_field.cpp)
+  ${TEST_DIR}/test_array.cpp)
 
 set (
   utils_SRC
   ${SRC_DIR}/utils/math.cpp)
 
 find_package (Eigen3 3.1.3 REQUIRED)
-find_package (Boost 1.46.0 REQUIRED COMPONENTS unit_test_framework)
 
 include_directories (
-  ${Boost_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIR}
   ${INC_DIR}
   )
 
 add_library(pyQCDutils SHARED ${utils_SRC})
-target_link_libraries(pyQCDutils ${Boost_LIBRARIES})
+target_link_libraries(pyQCDutils)
 
 foreach ( testsourcefile ${test_SRC} )
   string( REPLACE ".cpp" "" testname ${testsourcefile} )
   get_filename_component( testname ${testname} NAME )
   add_executable( ${testname} ${testsourcefile} )
-  target_link_libraries( ${testname} ${Boost_LIBRARIES} pyQCDutils)
+  target_link_libraries( ${testname} pyQCDutils)
   add_test( NAME ${testname} COMMAND ${testname} --log_level=all)
 endforeach ( testsourcefile ${test_SRC} )

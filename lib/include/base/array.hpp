@@ -39,18 +39,14 @@ namespace pyQCD
     }
     virtual ~Array() = default;
 
-    Array<T>& operator=(const Array<T>& array);
-    Array<T>& operator=(Array<T>&& array);
-
-    Array<T, Alloc>& operator=(const Array<T, Alloc>& rhs);
-    Array<T, Alloc>& operator=(Array<T, Alloc>&& rhs);
+    Array<T, Alloc>& operator=(const Array<T, Alloc>& array);
+    Array<T, Alloc>& operator=(Array<T, Alloc>&& array);
     Array<T, Alloc>& operator=(const T& rhs);
 
 #define ARRAY_OPERATOR_ASSIGN_DECL(op)				                    \
     template <typename U,                                         \
               typename std::enable_if<                            \
-		!is_instance_of_Array<U, Array>::value>::type*                \
-              = nullptr>                                          \
+		!is_instance_of_Array<U, Array>::value>::type* = nullptr>     \
     Array<T, Alloc>& operator op ## =(const U& rhs);	            \
     template <typename U>                                         \
     Array<T, Alloc>& operator op ## =(const Array<U, Alloc>& rhs);
@@ -63,12 +59,12 @@ namespace pyQCD
     int size() const { return data_.size(); }
 
   protected:
-    std::vector<T, Alloc> data_;
+    std::vector<T, Alloc<T> > data_;
   };
 
 
   template <typename T, template <typename> class Alloc>
-  Array<T>::Array(const Array<T, Alloc>& array)
+  Array<T, Alloc>::Array(const Array<T, Alloc>& array)
   {
     this->data_.resize(array.size());
     for (int i = 0; i < array.size(); ++i) {
@@ -78,12 +74,13 @@ namespace pyQCD
 
 
   template <typename T, template <typename> class Alloc>
-  Array<T>::Array(Array<T, Alloc>&& array) : data_(std::move(array.data_))
+  Array<T, Alloc>::Array(Array<T, Alloc>&& array)
+    : data_(std::move(array.data_))
   { }
 
 
   template <typename T, template <typename> class Alloc>
-  Array<T>& Array<T>::operator=(const Array<T, Alloc>& array)
+  Array<T, Alloc>& Array<T, Alloc>::operator=(const Array<T, Alloc>& array)
   {
     if (&array != this) {
       this->data_.resize(array.size());
@@ -96,40 +93,42 @@ namespace pyQCD
 
 
   template <typename T, template <typename> class Alloc>
-  Array<T>& Array<T>::operator=(const Array<T, Alloc>& array)
+  Array<T, Alloc>& Array<T, Alloc>::operator=(Array<T, Alloc>&& array)
   {
     this->data_ = std::move(array.data_);
     return *this;
   }
 
 
-#define ARRAY_OPERATOR_ASSIGN_IMPL(op)                                    \
-  template <typename U,                                                   \
-    typename std::enable_if<!is_instance_of_Array<U, Array>::value>::type*\
-                            = nullptr>                                    \
-  Array<T, Alloc>& operator op ## =(const U& rhs)                         \
-  {                                                                       \
-    for (auto& item : this->data_) {                                      \
-      item += rhs                                                         \
-    }                                                                     \
-    return *this;                                                         \
-  }                                                                       \
-                                                                          \
-                                                                          \
-  template <typename U>                                                   \
-  Array<T, Alloc>& operator op ## =(const Array<U, Alloc>& rhs)           \
-  {                                                                       \
-    assert (rhs.size() == this->data_.size());                            \
-    for (int i = 0; i < this->data_.size() ++i) {                         \
-      this->data_[i] += rhs[i];                                           \
-    }                                                                     \
-    return *this;                                                         \
+#define ARRAY_OPERATOR_ASSIGN_IMPL(op)                                      \
+  template <typename T, template <typename> class Alloc>                    \
+  template <typename U,                                                     \
+    typename std::enable_if<!is_instance_of_Array<U, Array>::value>::type*> \
+  Array<T, Alloc>& Array<T, Alloc>::operator op ## =(const U& rhs)          \
+  {                                                                         \
+    for (auto& item : this->data_) {                                        \
+      item op ## = rhs;                                                     \
+    }                                                                       \
+    return *this;                                                           \
+  }                                                                         \
+                                                                            \
+                                                                            \
+  template <typename T, template <typename> class Alloc>                    \
+  template <typename U>                                                     \
+  Array<T, Alloc>&                                                          \
+  Array<T, Alloc>::operator op ## =(const Array<U, Alloc>& rhs)             \
+  {                                                                         \
+    assert (rhs.size() == this->data_.size());                              \
+    for (int i = 0; i < this->data_.size();++i) {                           \
+      this->data_[i] op ## = rhs[i];                                        \
+    }                                                                       \
+    return *this;                                                           \
   }
 
-  ARRAY_OPERATOR_ASSIGN_DECL(+);
-  ARRAY_OPERATOR_ASSIGN_DECL(-);
-  ARRAY_OPERATOR_ASSIGN_DECL(*);
-  ARRAY_OPERATOR_ASSIGN_DECL(/);
+  ARRAY_OPERATOR_ASSIGN_IMPL(+);
+  ARRAY_OPERATOR_ASSIGN_IMPL(-);
+  ARRAY_OPERATOR_ASSIGN_IMPL(*);
+  ARRAY_OPERATOR_ASSIGN_IMPL(/);
 }
 
 #endif

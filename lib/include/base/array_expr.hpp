@@ -5,6 +5,10 @@
  * temporaries do not need to be created when performing arithmetic operations.
  */
 
+#include <type_traits>
+
+#include <utils/templates.hpp>
+
 
 namespace pyQCD
 {
@@ -14,33 +18,12 @@ namespace pyQCD
   template <typename T1, typename T2>
   class ArrayExpr;
 
+  template <typename T1, typename T2, typename T3, typename T4, typename Op>
+  class ArrayBinary;
+
   template <typename T>
   class ArrayConst;
 
-  template <typename T1, typename T2>
-  class ArrayExpr
-  {
-    // This is the main expression class from which all others are derived. It
-    // uses CRTP to escape inheritance. Parameter T1 is the expression type
-    // and T2 is the fundamental type contained in the Array. This allows
-    // expressions to be abstracted to a nested hierarchy of types. When the
-    // compiler goes through and does it's thing, the definitions of the
-    // operations within these template classes are all spliced together.
-
-  public:
-    // CRTP magic - call functions in the Array class
-    T2& operator[](const int i)
-    { return static_cast<T1&>(*this)[i]; }
-    const T2& operator[](const int i)
-    { return static_cast<T1&>(*this)[i]; }
-
-    int size() const { return static_cast<const Array&>(*this).size(); }
-
-    operator T1&()
-    { return static_cast<T1&>(*this); }
-    operator T1 const&() const
-    { return static_cast<const T1&>(*this); }
-  };
 
   // These traits classes allow us to switch between a const ref and simple
   // value in expression subclasses, avoiding memory issues.
@@ -57,6 +40,49 @@ namespace pyQCD
   {
   public:
     typedef ArrayConst<T> type;
+  };
+
+  template <typename T1, typename T2>
+  class ArrayExpr
+  {
+    // This is the main expression class from which all others are derived. It
+    // uses CRTP to escape inheritance. Parameter T1 is the expression type
+    // and T2 is the fundamental type contained in the Array. This allows
+    // expressions to be abstracted to a nested hierarchy of types. When the
+    // compiler goes through and does it's thing, the definitions of the
+    // operations within these template classes are all spliced together.
+
+  public:
+    // CRTP magic - call functions in the Array class
+    T2& operator[](const int i)
+    { return static_cast<T1&>(*this)[i]; }
+    const T2& operator[](const int i) const
+    { return static_cast<T1&>(*this)[i]; }
+
+    int size() const { return static_cast<const T1&>(*this).size(); }
+
+    operator T1&()
+    { return static_cast<T1&>(*this); }
+    operator T1 const&() const
+    { return static_cast<const T1&>(*this); }
+  };
+
+
+  template <typename T>
+  class ArrayConst
+    : public ArrayExpr<ArrayConst<T>, T>
+  {
+    // Expression subclass for const operations
+  public:
+    ArrayConst(const T& scalar)
+      : scalar_(scalar)
+    { }
+    // Here we denote the actual arithmetic operation.
+    const T& operator[](const int i) const
+    { return scalar_; }
+
+  private:
+    const T& scalar_;
   };
 
 
@@ -107,7 +133,6 @@ namespace pyQCD
   };
 
 
-
   struct Divides
   {
     template <typename T1, typename T2>
@@ -115,7 +140,10 @@ namespace pyQCD
     { return lhs / rhs; }
   };
 
-
+  // Some macros for the operator overloads, as the code is almost
+  // the same in each case. For the scalar multiplies I've used
+  // some SFINAE to disable these more generalized functions when
+  // a ArrayExpr is used.
 #define ARRAY_EXPR_OPERATOR(op, trait)                          \
   template <typename T1, typename T2, typename T3, typename T4> \
   const ArrayBinary<T1, T2, T3, T4, trait>                      \
@@ -129,6 +157,7 @@ namespace pyQCD
   template <typename T1, typename T2, typename T3,              \
     typename std::enable_if<                                    \
       !is_instance_of_type_temp<T3, ArrayExpr>::value>::type*   \
+      = nullptr>                                                \
   const ArrayBinary<T1, ArrayConst<T3>, T2, T3, trait>          \
   operator op(const ArrayExpr<T1, T2>& array, const T3& scalar) \
   {                                                             \
@@ -136,18 +165,19 @@ namespace pyQCD
       (array, ArrayConst<T3>(array));                           \
   }
 
-
+  // This macro is for the + and * operators where the scalar can
+  // be either side of the operator.
 #define ARRAY_EXPR_OPERATOR_REVERSE_SCALAR(op, trait)           \
   template <typename T1, typename T2, typename T3,              \
     typename std::enable_if<                                    \
       !is_instance_of_type_temp<T3, ArrayExpr>::value>::type*   \
+      = nullptr>                                                \
   const ArrayBinary<T1, ArrayConst<T3>, T2, T3, trait>          \
   operator op(const T3& scalar, const ArrayExpr<T1, T2>& array) \
   {                                                             \
     return ArrayBinary<T1, ArrayConst<T3>, T2, T3, trait>       \
       (array, ArrayConst<T3>(array));                           \
   }
-}
 
 
   ARRAY_EXPR_OPERATOR(+, Plus);
@@ -156,5 +186,6 @@ namespace pyQCD
   ARRAY_EXPR_OPERATOR(*, Multiplies);
   ARRAY_EXPR_OPERATOR_REVERSE_SCALAR(*, Multiplies);
   ARRAY_EXPR_OPERATOR(/, Divides);
+}
 
 #endif
