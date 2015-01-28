@@ -47,19 +47,19 @@ namespace pyQCD
   
   
   
-  template <template <typename, int, template <typename> class> class F>
-  struct conversion_tester_LatticeBase
+  template <template <typename, template <typename> class> class F>
+  struct conversion_tester_Array
   {
-    template <typename T, int N, template <typename> class A>
-    conversion_tester_LatticeBase (const F<T, N, A>&);
+    template <typename T, template <typename> class A>
+    conversion_tester_Array(const F<T, A>&);
   };
   
   template <class From,
-	    template <typename, int, template <typename> class> class To>
-  struct is_instance_of_LatticeBase
+    template <typename, template <typename> class> class To>
+  struct is_instance_of_Array
   {
     static const bool value
-    = std::is_convertible<From, conversion_tester_LatticeBase<To> >::value;
+    = std::is_convertible<From, conversion_tester_Array<To> >::value;
   };
 }
 
