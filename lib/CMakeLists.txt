@@ -11,8 +11,8 @@ set (EIGEN_INCLUDE_DIR ${CMAKE_MODULE_PATH}/FindEigen3.cmake)
 set(CMAKE_CXX_FLAGS "-Wall -std=c++11")
 # TODO: Multi-compiler/platform support.
 
-set (SRC_DIR src)
-set (INC_DIR include)
+set (SRC_DIR .)
+set (INC_DIR .)
 set (TEST_DIR tests)
 
 set (test_SRC
