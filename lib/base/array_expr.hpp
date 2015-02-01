@@ -57,7 +57,7 @@ namespace pyQCD
     T2& operator[](const int i)
     { return static_cast<T1&>(*this)[i]; }
     const T2& operator[](const int i) const
-    { return static_cast<T1&>(*this)[i]; }
+    { return static_cast<const T1&>(*this)[i]; }
 
     int size() const { return static_cast<const T1&>(*this).size(); }
 
@@ -97,7 +97,9 @@ namespace pyQCD
       : lhs_(lhs), rhs_(rhs)
     { }
     // Here we denote the actual arithmetic operation.
-    decltype(Op::apply(T3(), T4()))& operator[](const int i) const
+    decltype(Op::apply(T3(), T4()))& operator[](const int i)
+    { return Op::apply(lhs_[i], rhs_[i]); }
+    const decltype(Op::apply(T3(), T4()))& operator[](const int i) const
     { return Op::apply(lhs_[i], rhs_[i]); }
 
     int size() const { return lhs_.size(); }

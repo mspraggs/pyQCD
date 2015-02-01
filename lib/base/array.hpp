@@ -39,6 +39,9 @@ namespace pyQCD
     }
     virtual ~Array() = default;
 
+    T& operator[](const int i) { return data_[i]; }
+    const T& operator[](const int i) const { return data_[i]; }
+
     Array<T, Alloc>& operator=(const Array<T, Alloc>& array);
     Array<T, Alloc>& operator=(Array<T, Alloc>&& array);
     Array<T, Alloc>& operator=(const T& rhs);
