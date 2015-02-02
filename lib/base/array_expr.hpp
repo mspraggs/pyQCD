@@ -21,9 +21,26 @@ namespace pyQCD
   template <typename T>
   class ArrayConst;
 
+  // These traits classes allow us to switch between a const ref and simple
+  // value in expression subclasses, avoiding returning dangling references.
+  template <typename T1, typename T2>
+  class ExprTraits
+  {
+  public:
+    typedef T2 type;
+  };
+
+
+  template <typename T1, template <typename> class T2>
+  class ExprTraits<Array<T1, T2>, T1>
+  {
+  public:
+    typedef T1& type;
+  };
+
 
   // These traits classes allow us to switch between a const ref and simple
-  // value in expression subclasses, avoiding memory issues.
+  // value in expression subclasses, avoiding returning dangling references.
   template <typename T>
   class BinaryTraits
   {
@@ -51,9 +68,9 @@ namespace pyQCD
 
   public:
     // CRTP magic - call functions in the Array class
-    T2& operator[](const int i)
+    typename ExprTraits<T1, T2>::type operator[](const int i)
     { return static_cast<T1&>(*this)[i]; }
-    const T2& operator[](const int i) const
+    const typename ExprTraits<T1, T2>::type operator[](const int i) const
     { return static_cast<const T1&>(*this)[i]; }
 
     int size() const { return static_cast<const T1&>(*this).size(); }
@@ -94,9 +111,7 @@ namespace pyQCD
       : lhs_(lhs), rhs_(rhs)
     { }
     // Here we denote the actual arithmetic operation.
-    decltype(Op::apply(T3(), T4()))& operator[](const int i)
-    { return Op::apply(lhs_[i], rhs_[i]); }
-    const decltype(Op::apply(T3(), T4()))& operator[](const int i) const
+    const decltype(Op::apply(T3(), T4())) operator[](const int i) const
     { return Op::apply(lhs_[i], rhs_[i]); }
 
     int size() const { return lhs_.size(); }
