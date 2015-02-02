@@ -42,10 +42,10 @@ namespace pyQCD
     T& operator[](const int i) { return data_[i]; }
     const T& operator[](const int i) const { return data_[i]; }
 
-    typename std::vector<T>::iterator& begin() { return data_.begin(); }
-    typename std::vector<T>::const_iterator& begin() const { return data_.begin(); }
-    typename std::vector<T>::iterator& end() { return data_.end(); }
-    typename std::vector<T>::const_iterator& end() const { return data_.end(); }
+    typename std::vector<T>::iterator begin() { return data_.begin(); }
+    typename std::vector<T>::const_iterator begin() const { return data_.begin(); }
+    typename std::vector<T>::iterator end() { return data_.end(); }
+    typename std::vector<T>::const_iterator end() const { return data_.end(); }
 
     Array<T, Alloc>& operator=(const Array<T, Alloc>& array);
     Array<T, Alloc>& operator=(Array<T, Alloc>&& array);

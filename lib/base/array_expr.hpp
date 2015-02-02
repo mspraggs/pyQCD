@@ -18,9 +18,6 @@ namespace pyQCD
   template <typename T1, typename T2>
   class ArrayExpr;
 
-  template <typename T1, typename T2, typename T3, typename T4, typename Op>
-  class ArrayBinary;
-
   template <typename T>
   class ArrayConst;
 
@@ -106,8 +103,8 @@ namespace pyQCD
 
   private:
     // The members - the inputs to the binary operation
-    typename BinaryTraits<T1>::type rhs_;
-    typename BinaryTraits<T2>::type lhs_;
+    typename BinaryTraits<T1>::type lhs_;
+    typename BinaryTraits<T2>::type rhs_;
   };
 
 
@@ -164,7 +161,7 @@ namespace pyQCD
   operator op(const ArrayExpr<T1, T2>& array, const T3& scalar) \
   {                                                             \
     return ArrayBinary<T1, ArrayConst<T3>, T2, T3, trait>       \
-      (array, ArrayConst<T3>(array));                           \
+      (array, ArrayConst<T3>(scalar));                          \
   }
 
   // This macro is for the + and * operators where the scalar can
@@ -178,7 +175,7 @@ namespace pyQCD
   operator op(const T3& scalar, const ArrayExpr<T1, T2>& array) \
   {                                                             \
     return ArrayBinary<T1, ArrayConst<T3>, T2, T3, trait>       \
-      (array, ArrayConst<T3>(array));                           \
+      (array, ArrayConst<T3>(scalar));                          \
   }
 
 
