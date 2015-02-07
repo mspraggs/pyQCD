@@ -55,5 +55,47 @@ TEST_CASE("Array test") {
     for (int i = 0; i < 100; ++i) {
       REQUIRE (array3[i] == 0.2);
     }
+    array3 = array1 / 5.0 + array2;
+    for (int i = 0; i < 100; ++i) {
+      REQUIRE (array3[i] == 2.2);
+    }
+  }
+
+  SECTION ("Testing array-array op-assigns") {
+    array1 += array2;
+    for (int i = 0; i < 100; ++i) {
+      REQUIRE (array1[i] == 3.0);
+    }
+    array1 -= array2;
+    for (int i = 0; i < 100; ++i) {
+      REQUIRE (array1[i] == 1.0);
+    }
+    array1 *= array2;
+    for (int i = 0; i < 100; ++i) {
+      REQUIRE (array1[i] == 2.0);
+    }
+    array1 /= array2;
+    for (int i = 0; i < 100; ++i) {
+      REQUIRE (array1[i] == 1.0);
+    }
+  }
+
+  SECTION ("Testing array-scalar op-assigns") {
+    array1 += 5.0;
+    for (int i = 0; i < 100; ++i) {
+      REQUIRE (array1[i] == 6.0);
+    }
+    array1 -= 3.0;
+    for (int i = 0; i < 100; ++i) {
+      REQUIRE (array1[i] == 3.0);
+    }
+    array1 *= 2.0;
+    for (int i = 0; i < 100; ++i) {
+      REQUIRE (array1[i] == 6.0);
+    }
+    array1 /= 3.0;
+    for (int i = 0; i < 100; ++i) {
+      REQUIRE (array1[i] == 2.0);
+    }
   }
 }
