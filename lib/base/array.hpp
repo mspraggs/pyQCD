@@ -13,6 +13,8 @@
  * array_expr.hpp
  */
 
+#include <cassert>
+
 #include <type_traits>
 #include <vector>
 
