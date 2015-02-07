@@ -18,8 +18,8 @@
 #include <type_traits>
 #include <vector>
 
-#include "array_expr.hpp"
 #include <utils/templates.hpp>
+#include "array_expr.hpp"
 
 
 namespace pyQCD
