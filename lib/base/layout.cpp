@@ -32,11 +32,11 @@ namespace pyQCD
     // to get the array index (coordinate at site[0] varies slowest, that at
     // site[ndim - 1] varies fastest
     assert(site.size() == num_dims_);
-    int ret = 0;
+    int site_index = 0;
     for (int i = 0; i < num_dims_; ++i) {
-      ret *= lattice_shape_[i];
-      ret += site[i];
+      site_index *= lattice_shape_[i];
+      site_index += site[i];
     }
-    return ret;
+    return array_indices_[site_index];
   }
 }
