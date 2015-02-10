@@ -1,5 +1,7 @@
 #define CATCH_CONFIG_MAIN
 
+#include <Eigen/Dense>
+
 #include <base/array.hpp>
 
 #include "helpers.hpp"
@@ -98,4 +100,12 @@ TEST_CASE("Array test") {
       REQUIRE (array1[i] == 2.0);
     }
   }
+}
+
+TEST_CASE("Non-integral types test") {
+  pyQCD::Array<Eigen::Matrix3cd> array1(4, Eigen::Matrix3cd::Identity());
+  Eigen::Vector3cd vec(1.0, 1.0, 1.0);
+  pyQCD::Array<Eigen::Vector3cd> vecs = array1 * vec;
+  pyQCD::Array<pyQCD::Array<Eigen::Matrix3cd> > array2(10, array);
+  array2 *= 3.0;
 }
