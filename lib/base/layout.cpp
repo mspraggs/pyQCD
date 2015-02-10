@@ -8,25 +8,30 @@
 
 namespace pyQCD
 {
-  Layout::Layout(const std::vector<int>& lattice_shape)
-    : lattice_shape_(lattice_shape), num_dims_(lattice_shape.size())
+  Layout::Layout(const std::vector<unsigned int>& lattice_shape)
+    : num_dims_(static_cast<unsigned int>(lattice_shape.size())),
+      lattice_shape_(lattice_shape)
   {
     // Constructor create arrays of site/array indices
     lattice_volume_ = std::accumulate(lattice_shape.begin(),
                                       lattice_shape.end(),
-                                      1, std::multiplies<int>());
+                                      unsigned(1),
+                                      std::multiplies<unsigned int>());
 
     array_indices_.resize(lattice_volume_);
     site_indices_.resize(lattice_volume_);
-    for (int site_index = 0; site_index < lattice_volume_; ++site_index) {
-      int array_index = compute_array_index(site_index);
+    for (unsigned int site_index = 0;
+         site_index < lattice_volume_;
+         ++site_index) {
+      unsigned int array_index = compute_array_index(site_index);
       array_indices_[site_index] = array_index;
       site_indices_[array_index] = site_index;
     }
   }
 
 
-  int Layout::get_array_index(const std::vector<int>& site) const
+  unsigned int Layout::get_array_index(
+    const std::vector<unsigned int>& site) const
   {
     // Compute the lexicographic index of the specified site and use it to
     // to get the array index (coordinate at site[0] varies slowest, that at
