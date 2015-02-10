@@ -31,12 +31,12 @@ namespace pyQCD
     Array(const int n, const T& val) : data_(n, val) { }
     Array(const Array<T, Alloc>& array);
     Array(Array<T, Alloc>&& array);
-    template <typename U>
-    Array(const ArrayExpr<U, T>& expr)
+    template <typename U1, typename U2>
+    Array(const ArrayExpr<U1, U2>& expr)
     {
       this->data_.resize(expr.size());
       for (int i = 0; i < expr.size(); ++i) {
-        this->data_[i] = expr[i];
+        this->data_[i] = static_cast<T>(expr[i]);
       }
     }
     virtual ~Array() = default;
