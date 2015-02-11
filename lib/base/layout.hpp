@@ -7,6 +7,9 @@
  */
 
 #include <cassert>
+
+#include <functional>
+#include <numeric>
 #include <vector>
 
 
@@ -15,7 +18,28 @@ namespace pyQCD
   class Layout
   {
   public:
-    Layout(const std::vector<unsigned int>& shape);
+    template <typename Fn>
+    Layout(const std::vector<unsigned int>& lattice_shape,
+      Fn compute_array_index)
+      : num_dims_(static_cast<unsigned int>(lattice_shape.size())),
+        lattice_shape_(lattice_shape)
+    {
+      // Constructor create arrays of site/array indices
+      lattice_volume_ = std::accumulate(lattice_shape.begin(),
+                                        lattice_shape.end(),
+                                        unsigned(1),
+                                        std::multiplies<unsigned int>());
+
+      array_indices_.resize(lattice_volume_);
+      site_indices_.resize(lattice_volume_);
+      for (unsigned int site_index = 0;
+           site_index < lattice_volume_;
+           ++site_index) {
+        unsigned int array_index = compute_array_index(site_index);
+        array_indices_[site_index] = array_index;
+        site_indices_[array_index] = site_index;
+      }
+    }
     virtual ~Layout() = default;
 
     unsigned int get_array_index(const unsigned int site_index) const
@@ -24,10 +48,6 @@ namespace pyQCD
     unsigned int get_site_index(const unsigned int array_index) const
     { return site_indices_[array_index]; }
 
-  protected:
-    virtual unsigned int compute_array_index(
-      const unsigned int site_index) const = 0;
-
   private:
     unsigned int num_dims_, lattice_volume_;
     std::vector<unsigned int> lattice_shape_;
@@ -35,6 +55,15 @@ namespace pyQCD
     std::vector<unsigned int> array_indices_;
     // site_indices_[array_index] -> site_index
     std::vector<unsigned int> site_indices_;
+  };
+
+
+  class LexicoLayout : public Layout
+  {
+  public:
+    LexicoLayout(const std::vector<unsigned int>& shape)
+      : Layout(shape, [] (const unsigned int i) { return i; })
+    { }
   };
 }
 
