@@ -76,9 +76,9 @@ namespace pyQCD
   template <typename T, template <typename> class Alloc>
   Array<T, Alloc>::Array(const Array<T, Alloc>& array)
   {
-    this->data_.resize(array.size());
+    data_.resize(array.size());
     for (int i = 0; i < array.size(); ++i) {
-      this->data_[i] = array.data_[i];
+      data_[i] = array.data_[i];
     }
   }
 
@@ -93,9 +93,9 @@ namespace pyQCD
   Array<T, Alloc>& Array<T, Alloc>::operator=(const Array<T, Alloc>& array)
   {
     if (&array != this) {
-      this->data_.resize(array.size());
+      data_.resize(array.size());
       for (int i = 0; i < array.size(); ++i) {
-        this->data_[i] = array.data_[i];
+        data_[i] = array.data_[i];
       }
     }
     return *this;
@@ -105,7 +105,7 @@ namespace pyQCD
   template <typename T, template <typename> class Alloc>
   Array<T, Alloc>& Array<T, Alloc>::operator=(Array<T, Alloc>&& array)
   {
-    this->data_ = std::move(array.data_);
+    data_ = std::move(array.data_);
     return *this;
   }
 
@@ -117,7 +117,7 @@ namespace pyQCD
       !is_instance_of_Array<U, pyQCD::Array>::value>::type*>                \
   Array<T, Alloc>& Array<T, Alloc>::operator op ## =(const U& rhs)          \
   {                                                                         \
-    for (auto& item : this->data_) {                                        \
+    for (auto& item : data_) {                                              \
       item op ## = rhs;                                                     \
     }                                                                       \
     return *this;                                                           \
@@ -129,9 +129,9 @@ namespace pyQCD
   Array<T, Alloc>&                                                          \
   Array<T, Alloc>::operator op ## =(const Array<U, Alloc>& rhs)             \
   {                                                                         \
-    assert (rhs.size() == this->data_.size());                              \
-    for (int i = 0; i < this->data_.size();++i) {                           \
-      this->data_[i] op ## = rhs[i];                                        \
+    assert (rhs.size() == data_.size());                                    \
+    for (int i = 0; i < data_.size();++i) {                                 \
+      data_[i] op ## = rhs[i];                                              \
     }                                                                       \
     return *this;                                                           \
   }
