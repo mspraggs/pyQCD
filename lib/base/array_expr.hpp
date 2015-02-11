@@ -158,39 +158,39 @@ namespace pyQCD
   // the same in each case. For the scalar multiplies I've used
   // some SFINAE to disable these more generalized functions when
   // a ArrayExpr is used.
-#define ARRAY_EXPR_OPERATOR(op, trait)                          \
-  template <typename T1, typename T2, typename T3, typename T4> \
-  const ArrayBinary<T1, T2, T3, T4, trait>                      \
-  operator op(const ArrayExpr<T1, T3>& lhs,                     \
-    const ArrayExpr<T2, T4>& rhs)                               \
-  {                                                             \
-    return ArrayBinary<T1, T2, T3, T4, trait>(lhs, rhs);        \
-  }                                                             \
-                                                                \
-                                                                \
-  template <typename T1, typename T2, typename T3,              \
-    typename std::enable_if<                                    \
-      !is_instance_of_type_temp<T3, ArrayExpr>::value>::type*   \
-      = nullptr>                                                \
-  const ArrayBinary<T1, ArrayConst<T3>, T2, T3, trait>          \
-  operator op(const ArrayExpr<T1, T2>& array, const T3& scalar) \
-  {                                                             \
-    return ArrayBinary<T1, ArrayConst<T3>, T2, T3, trait>       \
-      (array, ArrayConst<T3>(scalar));                          \
+#define ARRAY_EXPR_OPERATOR(op, trait)                                \
+  template <typename T1, typename T2, typename T3, typename T4>       \
+  const ArrayBinary<T1, T2, T3, T4, trait>                            \
+  operator op(const ArrayExpr<T1, T3>& lhs,                           \
+    const ArrayExpr<T2, T4>& rhs)                                     \
+  {                                                                   \
+    return ArrayBinary<T1, T2, T3, T4, trait>(lhs, rhs);              \
+  }                                                                   \
+                                                                      \
+                                                                      \
+  template <typename T1, typename T2, typename T3,                    \
+    typename std::enable_if<                                          \
+      !is_instance_of_type_temp<T3, pyQCD::ArrayExpr>::value>::type*  \
+      = nullptr>                                                      \
+  const ArrayBinary<T1, ArrayConst<T3>, T2, T3, trait>                \
+  operator op(const ArrayExpr<T1, T2>& array, const T3& scalar)       \
+  {                                                                   \
+    return ArrayBinary<T1, ArrayConst<T3>, T2, T3, trait>             \
+      (array, ArrayConst<T3>(scalar));                                \
   }
 
   // This macro is for the + and * operators where the scalar can
   // be either side of the operator.
-#define ARRAY_EXPR_OPERATOR_REVERSE_SCALAR(op, trait)           \
-  template <typename T1, typename T2, typename T3,              \
-    typename std::enable_if<                                    \
-      !is_instance_of_type_temp<T3, ArrayExpr>::value>::type*   \
-      = nullptr>                                                \
-  const ArrayBinary<T1, ArrayConst<T3>, T2, T3, trait>          \
-  operator op(const T3& scalar, const ArrayExpr<T1, T2>& array) \
-  {                                                             \
-    return ArrayBinary<T1, ArrayConst<T3>, T2, T3, trait>       \
-      (array, ArrayConst<T3>(scalar));                          \
+#define ARRAY_EXPR_OPERATOR_REVERSE_SCALAR(op, trait)                 \
+  template <typename T1, typename T2, typename T3,                    \
+    typename std::enable_if<                                          \
+      !is_instance_of_type_temp<T3, pyQCD::ArrayExpr>::value>::type*  \
+      = nullptr>                                                      \
+  const ArrayBinary<T1, ArrayConst<T3>, T2, T3, trait>                \
+  operator op(const T3& scalar, const ArrayExpr<T1, T2>& array)       \
+  {                                                                   \
+    return ArrayBinary<T1, ArrayConst<T3>, T2, T3, trait>             \
+      (array, ArrayConst<T3>(scalar));                                \
   }
 
 
