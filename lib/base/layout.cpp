@@ -38,7 +38,7 @@ namespace pyQCD
     // site[ndim - 1] varies fastest
     assert(site.size() == num_dims_);
     int site_index = 0;
-    for (int i = 0; i < num_dims_; ++i) {
+    for (unsigned int i = 0; i < num_dims_; ++i) {
       site_index *= lattice_shape_[i];
       site_index += site[i];
     }
