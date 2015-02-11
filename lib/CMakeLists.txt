@@ -8,7 +8,7 @@ list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 set (EIGEN_INCLUDE_DIR ${CMAKE_MODULE_PATH}/FindEigen3.cmake)
 
 # Initialize CXXFLAGS.
-set(CMAKE_CXX_FLAGS "-Wall -std=c++11")
+set(CMAKE_CXX_FLAGS "-g -O3 -Wall -std=c++11")
 # TODO: Multi-compiler/platform support.
 
 set (SRC_DIR .)
@@ -16,11 +16,14 @@ set (INC_DIR .)
 set (TEST_DIR tests)
 
 set (test_SRC
-  ${TEST_DIR}/test_array.cpp)
+  ${TEST_DIR}/test_array.cpp
+  ${TEST_DIR}/test_layout.cpp)
 
-set (
-  utils_SRC
+set (utils_SRC
   ${SRC_DIR}/utils/math.cpp)
+
+set (base_SRC
+  ${SRC_DIR}/base/layout.cpp)
 
 find_package (Eigen3 3.1.3 REQUIRED)
 
@@ -32,10 +35,13 @@ include_directories (
 add_library(pyQCDutils SHARED ${utils_SRC})
 target_link_libraries(pyQCDutils)
 
+add_library(pyQCDbase SHARED ${base_SRC})
+target_link_libraries(pyQCDbase)
+
 foreach ( testsourcefile ${test_SRC} )
   string( REPLACE ".cpp" "" testname ${testsourcefile} )
   get_filename_component( testname ${testname} NAME )
   add_executable( ${testname} ${testsourcefile} )
-  target_link_libraries( ${testname} pyQCDutils)
+  target_link_libraries( ${testname} pyQCDutils pyQCDbase)
   add_test( NAME ${testname} COMMAND ${testname} --log_level=all)
 endforeach ( testsourcefile ${test_SRC} )
