@@ -32,6 +32,12 @@ include_directories (
   ${INC_DIR}
   )
 
+# Workaround to get clion to identify header files
+file (GLOB_RECURSE clion_all_headers ${INC_DIR}/*.hpp)
+add_custom_target(all_clion
+  SOURCES ${clion_all_headers}
+)
+
 add_library(pyQCDutils SHARED ${utils_SRC})
 target_link_libraries(pyQCDutils)
 
