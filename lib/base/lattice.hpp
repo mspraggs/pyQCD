@@ -23,6 +23,14 @@ namespace pyQCD
       : Array<T, Alloc>(layout->volume(), val), layout_(layout)
     {}
     Lattice(const Lattice<T, Alloc>& lattice) = default;
+    template <typename U1, typename U2>
+    Lattice(const ArrayExpr<U1, U2>& expr)
+    {
+      this->data_.resize(expr.size());
+      for (int i = 0; i < expr.size(); ++i) {
+        this->data_[i] = static_cast<T>(expr[i]);
+      }
+    }
     Lattice(Lattice<T, Alloc>&& lattice) = default;
 
     T& operator()(const int i)

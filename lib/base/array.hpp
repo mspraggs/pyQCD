@@ -28,6 +28,7 @@ namespace pyQCD
   class Array : public ArrayExpr<Array<T, Alloc>, T>
   {
   public:
+    Array() { }
     Array(const int n, const T& val) : data_(n, val) { }
     Array(const Array<T, Alloc>& array) = default;
     Array(Array<T, Alloc>&& array) = default;
