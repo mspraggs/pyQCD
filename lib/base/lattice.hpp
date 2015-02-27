@@ -18,8 +18,8 @@ namespace pyQCD
   class Lattice : public Array<T, Alloc>
   {
   public:
-    Lattice(const Layout* shape, const T& val)
-      : layout_(shape), Array(layout_->volume(), val)
+    Lattice(const Layout* layout, const T& val)
+      : Array<T, Alloc>(layout->volume(), val), layout_(layout)
     {}
     Lattice(const Lattice<T, Alloc>& lattice);
     Lattice(Lattice<T, Alloc>&& lattice) = default;
@@ -31,7 +31,7 @@ namespace pyQCD
     Lattice<T, Alloc>& operator=(Lattice<T, Alloc>&& lattice);
 
   protected:
-    Layout* layout_;
+    const Layout* layout_;
   };
 }
 
