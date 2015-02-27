@@ -24,7 +24,7 @@ namespace pyQCD
   // These traits classes allow us to switch between a const ref and simple
   // value in expression subclasses, avoiding returning dangling references.
   template <typename T1, typename T2>
-  class ExprTraits
+  class ExprReturnTraits
   {
   public:
     typedef T2 type;
@@ -32,7 +32,7 @@ namespace pyQCD
 
 
   template <typename T1, template <typename> class T2>
-  class ExprTraits<Array<T1, T2>, T1>
+  class ExprReturnTraits<Array<T1, T2>, T1>
   {
   public:
     typedef T1& type;
@@ -42,7 +42,7 @@ namespace pyQCD
   // These traits classes allow us to switch between a const ref and simple
   // value in expression subclasses, avoiding returning dangling references.
   template <typename T>
-  class BinaryTraits
+  class BinaryOperandTraits
   {
   public:
     typedef const T& type;
@@ -50,7 +50,7 @@ namespace pyQCD
 
 
   template <typename T>
-  class BinaryTraits<ArrayConst<T> >
+  class BinaryOperandTraits<ArrayConst<T> >
   {
   public:
     typedef ArrayConst<T> type;
@@ -68,9 +68,9 @@ namespace pyQCD
 
   public:
     // CRTP magic - call functions in the Array class
-    typename ExprTraits<T1, T2>::type operator[](const int i)
+    typename ExprReturnTraits<T1, T2>::type operator[](const int i)
     { return static_cast<T1&>(*this)[i]; }
-    const typename ExprTraits<T1, T2>::type operator[](const int i) const
+    const typename ExprReturnTraits<T1, T2>::type operator[](const int i) const
     { return static_cast<const T1&>(*this)[i]; }
 
     int size() const { return static_cast<const T1&>(*this).size(); }
@@ -118,8 +118,8 @@ namespace pyQCD
 
   private:
     // The members - the inputs to the binary operation
-    typename BinaryTraits<T1>::type lhs_;
-    typename BinaryTraits<T2>::type rhs_;
+    typename BinaryOperandTraits<T1>::type lhs_;
+    typename BinaryOperandTraits<T2>::type rhs_;
   };
 
 
