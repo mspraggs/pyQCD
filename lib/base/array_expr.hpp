@@ -24,17 +24,15 @@ namespace pyQCD
   // These traits classes allow us to switch between a const ref and simple
   // value in expression subclasses, avoiding returning dangling references.
   template <typename T1, typename T2>
-  class ExprReturnTraits
+  struct ExprReturnTraits
   {
-  public:
     typedef T2 type;
   };
 
 
   template <typename T1, template <typename> class T2>
-  class ExprReturnTraits<Array<T1, T2>, T1>
+  struct ExprReturnTraits<Array<T1, T2>, T1>
   {
-  public:
     typedef T1& type;
   };
 
@@ -42,19 +40,18 @@ namespace pyQCD
   // These traits classes allow us to switch between a const ref and simple
   // value in expression subclasses, avoiding returning dangling references.
   template <typename T>
-  class BinaryOperandTraits
+  struct BinaryOperandTraits
   {
-  public:
     typedef const T& type;
   };
 
 
   template <typename T>
-  class BinaryOperandTraits<ArrayConst<T> >
+  struct BinaryOperandTraits<ArrayConst<T> >
   {
-  public:
     typedef ArrayConst<T> type;
   };
+
 
   template <typename T1, typename T2>
   class ArrayExpr
