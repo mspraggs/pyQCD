@@ -6,6 +6,7 @@
  * the Array index.
  */
 
+#include <cassert>
 #include <vector>
 
 #include "array.hpp"
@@ -21,18 +22,41 @@ namespace pyQCD
     Lattice(const Layout* layout, const T& val)
       : Array<T, Alloc>(layout->volume(), val), layout_(layout)
     {}
-    Lattice(const Lattice<T, Alloc>& lattice);
+    Lattice(const Lattice<T, Alloc>& lattice) = default;
     Lattice(Lattice<T, Alloc>&& lattice) = default;
 
-    T& operator()(const int i) { }
-    const T& operator()(const int i) const { }
+    T& operator()(const int i)
+    { return data_[layout_->get_array_index(i)]; }
+    const T& operator()(const int i) const
+    { return data_[layout_->get_array_index(i)]; }
+    T& operator()(const std::vector<unsigned int>& site)
+    { return data_[layout_->get_array_index(site)]; }
+    const T& operator()(const std::vector<unsigned int>& site) const
+    { return data_[layout_->get_array_index(site)]; }
 
     Lattice<T, Alloc>& operator=(const Lattice<T, Alloc>& lattice);
-    Lattice<T, Alloc>& operator=(Lattice<T, Alloc>&& lattice);
+    Lattice<T, Alloc>& operator=(Lattice<T, Alloc>&& lattice) = default;
+
+    unsigned int volume() const { return layout_->volume(); }
+    unsigned int num_dims() const { return layout_->num_dims(); }
 
   protected:
     const Layout* layout_;
   };
+
+
+  template <typename T, template <typename> class Alloc>
+  Lattice<T, Alloc>& Lattice<T, Alloc>::operator=(
+    const Lattice<T, Alloc>& lattice)
+  {
+    assert (lattice.volume() == volume());
+    if (&lattice != this) {
+      for (unsigned int i = 0; i < volume(); ++i) {
+        (*this)(lattice.layout_->get_site_index(i)) = lattice[i];
+      }
+    }
+    return *this;
+  }
 }
 
 #endif
