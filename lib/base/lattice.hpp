@@ -26,13 +26,13 @@ namespace pyQCD
     Lattice(Lattice<T, Alloc>&& lattice) = default;
 
     T& operator()(const int i)
-    { return data_[layout_->get_array_index(i)]; }
+    { return this->data_[layout_->get_array_index(i)]; }
     const T& operator()(const int i) const
-    { return data_[layout_->get_array_index(i)]; }
+    { return this->data_[layout_->get_array_index(i)]; }
     T& operator()(const std::vector<unsigned int>& site)
-    { return data_[layout_->get_array_index(site)]; }
+    { return this->data_[layout_->get_array_index(site)]; }
     const T& operator()(const std::vector<unsigned int>& site) const
-    { return data_[layout_->get_array_index(site)]; }
+    { return this->data_[layout_->get_array_index(site)]; }
 
     Lattice<T, Alloc>& operator=(const Lattice<T, Alloc>& lattice);
     Lattice<T, Alloc>& operator=(Lattice<T, Alloc>&& lattice) = default;
