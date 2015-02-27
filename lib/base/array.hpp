@@ -29,8 +29,8 @@ namespace pyQCD
   {
   public:
     Array(const int n, const T& val) : data_(n, val) { }
-    Array(const Array<T, Alloc>& array);
-    Array(Array<T, Alloc>&& array);
+    Array(const Array<T, Alloc>& array) = default;
+    Array(Array<T, Alloc>&& array) = default;
     template <typename U1, typename U2>
     Array(const ArrayExpr<U1, U2>& expr)
     {
@@ -49,8 +49,8 @@ namespace pyQCD
     typename std::vector<T>::iterator end() { return data_.end(); }
     typename std::vector<T>::const_iterator end() const { return data_.end(); }
 
-    Array<T, Alloc>& operator=(const Array<T, Alloc>& array);
-    Array<T, Alloc>& operator=(Array<T, Alloc>&& array);
+    Array<T, Alloc>& operator=(const Array<T, Alloc>& array) = default;
+    Array<T, Alloc>& operator=(Array<T, Alloc>&& array) = default;
     Array<T, Alloc>& operator=(const T& rhs);
 
 #define ARRAY_OPERATOR_ASSIGN_DECL(op)				                        \
@@ -74,39 +74,9 @@ namespace pyQCD
 
 
   template <typename T, template <typename> class Alloc>
-  Array<T, Alloc>::Array(const Array<T, Alloc>& array)
+  Array<T, Alloc>& Array<T, Alloc>::operator=(const T& rhs)
   {
-    data_.resize(array.size());
-    for (int i = 0; i < array.size(); ++i) {
-      data_[i] = array.data_[i];
-    }
-  }
-
-
-  template <typename T, template <typename> class Alloc>
-  Array<T, Alloc>::Array(Array<T, Alloc>&& array)
-    : data_(std::move(array.data_))
-  { }
-
-
-  template <typename T, template <typename> class Alloc>
-  Array<T, Alloc>& Array<T, Alloc>::operator=(const Array<T, Alloc>& array)
-  {
-    if (&array != this) {
-      data_.resize(array.size());
-      for (int i = 0; i < array.size(); ++i) {
-        data_[i] = array.data_[i];
-      }
-    }
-    return *this;
-  }
-
-
-  template <typename T, template <typename> class Alloc>
-  Array<T, Alloc>& Array<T, Alloc>::operator=(Array<T, Alloc>&& array)
-  {
-    data_ = std::move(array.data_);
-    return *this;
+    data_.assign(data_.size(), rhs);
   }
 
 
