@@ -17,6 +17,7 @@ set (TEST_DIR tests)
 
 set (test_SRC
   ${TEST_DIR}/test_array.cpp
+  ${TEST_DIR}/test_lattice.cpp
   ${TEST_DIR}/test_layout.cpp)
 
 set (utils_SRC
