@@ -14,4 +14,6 @@ TEST_CASE("LexicoLayout test") {
   }
   REQUIRE (layout.get_array_index(std::vector<unsigned int>{4, 3, 2, 1})
              == 313);
+  REQUIRE (layout.volume() == 512);
+  REQUIRE (layout.num_dims() == 4);
 }
