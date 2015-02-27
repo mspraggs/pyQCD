@@ -24,43 +24,63 @@
 
 namespace pyQCD
 {
-  template <typename T, template <typename> class Alloc = std::allocator>
-  class Array : public ArrayExpr<Array<T, Alloc>, T>
+  template <typename T1, template <typename> class Alloc, typename T2>
+  class Array;
+
+
+  template <typename T1, typename T2, template <typename> class Alloc>
+  struct CrtpTrait
+  {
+    typedef T1 type;
+  };
+
+
+  template <typename T, template <typename> class Alloc>
+  struct CrtpTrait<EmptyType, T, Alloc>
+  {
+    typedef Array<T, Alloc, EmptyType> type;
+  };
+
+
+  template <typename T1, template <typename> class Alloc = std::allocator,
+    typename T2 = EmptyType>
+  class Array : public ArrayExpr<typename CrtpTrait<T2, T1, Alloc>::type, T1>
   {
   public:
     Array() { }
-    Array(const int n, const T& val) : data_(n, val) { }
-    Array(const Array<T, Alloc>& array) = default;
-    Array(Array<T, Alloc>&& array) = default;
+    Array(const int n, const T1& val) : data_(n, val) { }
+    Array(const Array<T1, Alloc, T2>& array) = default;
+    Array(Array<T1, Alloc, T2>&& array) = default;
     template <typename U1, typename U2>
     Array(const ArrayExpr<U1, U2>& expr)
     {
       this->data_.resize(expr.size());
       for (int i = 0; i < expr.size(); ++i) {
-        this->data_[i] = static_cast<T>(expr[i]);
+        this->data_[i] = static_cast<T1>(expr[i]);
       }
     }
     virtual ~Array() = default;
 
-    T& operator[](const int i) { return data_[i]; }
-    const T& operator[](const int i) const { return data_[i]; }
+    T1& operator[](const int i) { return data_[i]; }
+    const T1& operator[](const int i) const { return data_[i]; }
 
-    typename std::vector<T>::iterator begin() { return data_.begin(); }
-    typename std::vector<T>::const_iterator begin() const { return data_.begin(); }
-    typename std::vector<T>::iterator end() { return data_.end(); }
-    typename std::vector<T>::const_iterator end() const { return data_.end(); }
+    typename std::vector<T1>::iterator begin() { return data_.begin(); }
+    typename std::vector<T1>::const_iterator begin() const
+    { return data_.begin(); }
+    typename std::vector<T1>::iterator end() { return data_.end(); }
+    typename std::vector<T1>::const_iterator end() const { return data_.end(); }
 
-    Array<T, Alloc>& operator=(const Array<T, Alloc>& array) = default;
-    Array<T, Alloc>& operator=(Array<T, Alloc>&& array) = default;
-    Array<T, Alloc>& operator=(const T& rhs);
+    Array<T1, Alloc, T2>& operator=(const Array<T1, Alloc, T2>& array) = default;
+    Array<T1, Alloc, T2>& operator=(Array<T1, Alloc, T2>&& array) = default;
+    Array<T1, Alloc, T2>& operator=(const T1& rhs);
 
-#define ARRAY_OPERATOR_ASSIGN_DECL(op)				                        \
-    template <typename U,                                             \
-              typename std::enable_if<                                \
-		!is_instance_of_Array<U, pyQCD::Array>::value>::type* = nullptr>  \
-    Array<T, Alloc>& operator op ## =(const U& rhs);	                \
-    template <typename U>                                             \
-    Array<T, Alloc>& operator op ## =(const Array<U, Alloc>& rhs);
+#define ARRAY_OPERATOR_ASSIGN_DECL(op)				                             \
+    template <typename U,                                                  \
+              typename std::enable_if<                                     \
+		!is_instance_of_Array<U, pyQCD::Array>::value>::type* = nullptr>       \
+    Array<T1, Alloc, T2>& operator op ## =(const U& rhs);	                 \
+    template <typename U>                                                  \
+    Array<T1, Alloc, T2>& operator op ## =(const Array<U, Alloc, T2>& rhs);
 
     ARRAY_OPERATOR_ASSIGN_DECL(+);
     ARRAY_OPERATOR_ASSIGN_DECL(-);
@@ -70,23 +90,23 @@ namespace pyQCD
     int size() const { return data_.size(); }
 
   protected:
-    std::vector<T, Alloc<T> > data_;
+    std::vector<T1, Alloc<T1> > data_;
   };
 
 
-  template <typename T, template <typename> class Alloc>
-  Array<T, Alloc>& Array<T, Alloc>::operator=(const T& rhs)
+  template <typename T1, template <typename> class Alloc, typename T2>
+  Array<T1, Alloc, T2>& Array<T1, Alloc, T2>::operator=(const T1& rhs)
   {
     data_.assign(data_.size(), rhs);
   }
 
 
 #define ARRAY_OPERATOR_ASSIGN_IMPL(op)                                      \
-  template <typename T, template <typename> class Alloc>                    \
+  template <typename T1, template <typename> class Alloc, typename T2>      \
   template <typename U,                                                     \
     typename std::enable_if<                                                \
       !is_instance_of_Array<U, pyQCD::Array>::value>::type*>                \
-  Array<T, Alloc>& Array<T, Alloc>::operator op ## =(const U& rhs)          \
+  Array<T1, Alloc, T2>& Array<T1, Alloc, T2>::operator op ## =(const U& rhs)\
   {                                                                         \
     for (auto& item : data_) {                                              \
       item op ## = rhs;                                                     \
@@ -95,10 +115,10 @@ namespace pyQCD
   }                                                                         \
                                                                             \
                                                                             \
-  template <typename T, template <typename> class Alloc>                    \
+  template <typename T1, template <typename> class Alloc, typename T2>      \
   template <typename U>                                                     \
-  Array<T, Alloc>&                                                          \
-  Array<T, Alloc>::operator op ## =(const Array<U, Alloc>& rhs)             \
+  Array<T1, Alloc, T2>&                                                     \
+  Array<T1, Alloc, T2>::operator op ## =(const Array<U, Alloc, T2>& rhs)    \
   {                                                                         \
     assert (rhs.size() == data_.size());                                    \
     for (int i = 0; i < data_.size();++i) {                                 \

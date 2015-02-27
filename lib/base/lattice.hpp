@@ -16,11 +16,12 @@
 namespace pyQCD
 {
   template <typename T, template <typename> class Alloc = std::allocator>
-  class Lattice : public Array<T, Alloc>
+  class Lattice : public Array<T, Alloc, Lattice<T, Alloc> >
   {
   public:
     Lattice(const Layout* layout, const T& val)
-      : Array<T, Alloc>(layout->volume(), val), layout_(layout)
+      : Array<T, Alloc, Lattice<T, Alloc> >(layout->volume(), val),
+        layout_(layout)
     {}
     Lattice(const Lattice<T, Alloc>& lattice) = default;
     template <typename U1, typename U2>

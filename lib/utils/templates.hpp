@@ -15,6 +15,8 @@
 
 namespace pyQCD
 {
+  class EmptyType { };
+
   template <template <typename...> class F>
   struct conversion_tester_type_temp
   {
@@ -47,15 +49,15 @@ namespace pyQCD
   
   
   
-  template <template <typename, template <typename> class> class F>
+  template <template <typename, template <typename> class, typename> class F>
   struct conversion_tester_Array
   {
-    template <typename T, template <typename> class A>
-    conversion_tester_Array(const F<T, A>&);
+    template <typename T1, template <typename> class A, typename T2>
+    conversion_tester_Array(const F<T1, A, T2>&);
   };
   
   template <class From,
-    template <typename, template <typename> class> class To>
+    template <typename, template <typename> class, typename> class To>
   struct is_instance_of_Array
   {
     static const bool value
