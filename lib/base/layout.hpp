@@ -44,7 +44,8 @@ namespace pyQCD
 
     unsigned int get_array_index(const unsigned int site_index) const
     { return array_indices_[site_index]; }
-    unsigned int get_array_index(const std::vector<unsigned int>& site) const;
+    template <typename T>
+    unsigned int get_array_index(const T& site) const;
     unsigned int get_site_index(const unsigned int array_index) const
     { return site_indices_[array_index]; }
 
@@ -68,6 +69,21 @@ namespace pyQCD
       : Layout(shape, [] (const unsigned int i) { return i; })
     { }
   };
+
+
+  template <typename T>
+  unsigned int Layout::get_array_index(const T& site) const
+  {
+    // Compute the lexicographic index of the specified site and use it to
+    // to get the array index (coordinate at site[0] varies slowest, that at
+    // site[ndim - 1] varies fastest
+    int site_index = 0;
+    for (unsigned int i = 0; i < num_dims_; ++i) {
+      site_index *= lattice_shape_[i];
+      site_index += site[i];
+    }
+    return array_indices_[site_index];
+  }
 }
 
 #endif

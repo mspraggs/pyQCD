@@ -23,9 +23,6 @@ set (test_SRC
 set (utils_SRC
   ${SRC_DIR}/utils/math.cpp)
 
-set (base_SRC
-  ${SRC_DIR}/base/layout.cpp)
-
 find_package (Eigen3 3.1.3 REQUIRED)
 
 include_directories (
@@ -41,9 +38,6 @@ add_custom_target(all_clion
 
 add_library(pyQCDutils SHARED ${utils_SRC})
 target_link_libraries(pyQCDutils)
-
-add_library(pyQCDbase SHARED ${base_SRC})
-target_link_libraries(pyQCDbase)
 
 foreach ( testsourcefile ${test_SRC} )
   string( REPLACE ".cpp" "" testname ${testsourcefile} )
