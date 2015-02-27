@@ -3,7 +3,6 @@
 #include <base/lattice.hpp>
 
 #include "helpers.hpp"
-#include "../base/layout.hpp"
 
 typedef pyQCD::Lattice<double> Lattice;
 
