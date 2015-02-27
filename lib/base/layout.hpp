@@ -48,6 +48,9 @@ namespace pyQCD
     unsigned int get_site_index(const unsigned int array_index) const
     { return site_indices_[array_index]; }
 
+    unsigned int volume() const { return lattice_volume_; }
+    unsigned int num_dims() const { return num_dims_; }
+
   private:
     unsigned int num_dims_, lattice_volume_;
     std::vector<unsigned int> lattice_shape_;
