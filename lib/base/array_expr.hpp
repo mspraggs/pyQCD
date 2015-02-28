@@ -5,11 +5,10 @@
  * temporaries do not need to be created when performing arithmetic operations.
  */
 
-#include <cassert>
-
 #include <typeinfo>
 #include <type_traits>
 
+#include <utils/macros.hpp>
 #include <utils/templates.hpp>
 
 
@@ -130,12 +129,11 @@ namespace pyQCD
     ArrayBinary(const ArrayExpr<T1, T3>& lhs, const ArrayExpr<T2, T4>& rhs)
       : lhs_(lhs), rhs_(rhs)
     {
-#ifndef NDEBUG
-      bool LAYOUTS_ARE_EQUAL = BinaryLayoutTraits<T1, T2>::check_layout(
+      //bool LAYOUTS_ARE_EQUAL = ;
+      pyQCDassert ((BinaryLayoutTraits<T1, T2>::check_layout(
         static_cast<const T1&>(lhs),
-        static_cast<const T2&>(rhs));
-      assert (LAYOUTS_ARE_EQUAL);
-#endif
+        static_cast<const T2&>(rhs))),
+        std::bad_cast());
     }
     // Here we denote the actual arithmetic operation.
     const decltype(Op::apply(T3(), T4())) operator[](const int i) const
