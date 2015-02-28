@@ -13,11 +13,11 @@
  * array_expr.hpp
  */
 
-#include <cassert>
-
+#include <stdexcept>
 #include <type_traits>
 #include <vector>
 
+#include <utils/macros.hpp>
 #include <utils/templates.hpp>
 #include "array_expr.hpp"
 
@@ -122,7 +122,7 @@ namespace pyQCD
   Array<T1, Alloc, T2>&                                                     \
   Array<T1, Alloc, T2>::operator op ## =(const Array<U, Alloc, T2>& rhs)    \
   {                                                                         \
-    assert (rhs.size() == data_.size());                                    \
+    pyQCDassert (rhs.size() == data_.size(), std::out_of_range());          \
     for (int i = 0; i < data_.size();++i) {                                 \
       data_[i] op ## = rhs[i];                                              \
     }                                                                       \
