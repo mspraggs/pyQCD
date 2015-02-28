@@ -5,6 +5,9 @@
  * temporaries do not need to be created when performing arithmetic operations.
  */
 
+#include <cassert>
+
+#include <typeinfo>
 #include <type_traits>
 
 #include <utils/templates.hpp>
@@ -12,7 +15,7 @@
 
 namespace pyQCD
 {
-  template <typename T, template <typename> class Alloc>
+  template <typename T, template <typename> class Alloc, typename U>
   class Array;
 
   template <typename T1, typename T2>
@@ -20,6 +23,9 @@ namespace pyQCD
 
   template <typename T>
   class ArrayConst;
+
+  template <typename T, template <typename> class Alloc>
+  class Lattice;
 
   // These traits classes allow us to switch between a const ref and simple
   // value in expression subclasses, avoiding returning dangling references.
@@ -30,8 +36,8 @@ namespace pyQCD
   };
 
 
-  template <typename T1, template <typename> class T2>
-  struct ExprReturnTraits<Array<T1, T2>, T1>
+  template <typename T1, template <typename> class T2, typename T3>
+  struct ExprReturnTraits<Array<T1, T2, T3>, T1>
   {
     typedef T1& type;
   };
@@ -50,6 +56,23 @@ namespace pyQCD
   struct BinaryOperandTraits<ArrayConst<T> >
   {
     typedef ArrayConst<T> type;
+  };
+
+  // Traits to check first whether supplied type is a Lattice, then test
+  // whether Layouts are the same
+  template <typename T1, typename T2>
+  struct BinaryLayoutTraits
+  {
+    static bool check_layout(const T1& lhs, const T2& rhs)
+    { return true; }
+  };
+
+
+  template <typename T, template <typename> class A>
+  struct BinaryLayoutTraits<Lattice<T, A>, Lattice<T, A> >
+  {
+    static bool check_layout(const Lattice<T, A>& lhs, const Lattice<T, A>& rhs)
+    { return typeid(*(lhs.layout_)) == typeid(*(rhs.layout_)); }
   };
 
 
@@ -106,7 +129,14 @@ namespace pyQCD
   public:
     ArrayBinary(const ArrayExpr<T1, T3>& lhs, const ArrayExpr<T2, T4>& rhs)
       : lhs_(lhs), rhs_(rhs)
-    { }
+    {
+#ifndef NDEBUG
+      bool check = BinaryLayoutTraits<T1, T2>::check_layout(
+        static_cast<const T1&>(lhs),
+        static_cast<const T2&>(rhs));
+      assert (check);
+#endif
+    }
     // Here we denote the actual arithmetic operation.
     const decltype(Op::apply(T3(), T4())) operator[](const int i) const
     { return Op::apply(lhs_[i], rhs_[i]); }

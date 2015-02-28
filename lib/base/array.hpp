@@ -27,7 +27,7 @@ namespace pyQCD
   template <typename T1, template <typename> class Alloc, typename T2>
   class Array;
 
-
+  // Traits to allow passing of inheriting member types to ArrayExpr
   template <typename T1, typename T2, template <typename> class Alloc>
   struct CrtpTrait
   {
@@ -46,6 +46,8 @@ namespace pyQCD
     typename T2 = EmptyType>
   class Array : public ArrayExpr<typename CrtpTrait<T2, T1, Alloc>::type, T1>
   {
+  template <typename U1, typename U2, typename U3, typename U4, typename Op>
+  friend class ArrayBinary;
   public:
     Array() { }
     Array(const int n, const T1& val) : data_(n, val) { }

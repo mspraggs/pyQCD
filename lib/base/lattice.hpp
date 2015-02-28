@@ -18,6 +18,8 @@ namespace pyQCD
   template <typename T, template <typename> class Alloc = std::allocator>
   class Lattice : public Array<T, Alloc, Lattice<T, Alloc> >
   {
+  template <typename U1, typename U2>
+  friend class BinaryLayoutTraits;
   public:
     Lattice(const Layout* layout, const T& val)
       : Array<T, Alloc, Lattice<T, Alloc> >(layout->volume(), val),
