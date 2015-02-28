@@ -8,7 +8,7 @@ list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 set (EIGEN_INCLUDE_DIR ${CMAKE_MODULE_PATH}/FindEigen3.cmake)
 
 # Initialize CXXFLAGS.
-set(CMAKE_CXX_FLAGS "-g -O3 -Wall -std=c++11")
+set(CMAKE_CXX_FLAGS "-g -Wall -std=c++11")
 # TODO: Multi-compiler/platform support.
 
 set (SRC_DIR .)
