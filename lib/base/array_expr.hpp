@@ -131,10 +131,10 @@ namespace pyQCD
       : lhs_(lhs), rhs_(rhs)
     {
 #ifndef NDEBUG
-      bool layouts_equal = BinaryLayoutTraits<T1, T2>::check_layout(
+      bool LAYOUTS_ARE_EQUAL = BinaryLayoutTraits<T1, T2>::check_layout(
         static_cast<const T1&>(lhs),
         static_cast<const T2&>(rhs));
-      assert (layouts_equal);
+      assert (LAYOUTS_ARE_EQUAL);
 #endif
     }
     // Here we denote the actual arithmetic operation.
