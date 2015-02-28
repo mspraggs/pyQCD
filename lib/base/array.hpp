@@ -122,7 +122,8 @@ namespace pyQCD
   Array<T1, Alloc, T2>&                                                     \
   Array<T1, Alloc, T2>::operator op ## =(const Array<U, Alloc, T2>& rhs)    \
   {                                                                         \
-    pyQCDassert (rhs.size() == data_.size(), std::out_of_range());          \
+    pyQCDassert (rhs.size() == data_.size(),                                \
+      std::out_of_range("Arrays must be the same size"));                   \
     for (int i = 0; i < data_.size();++i) {                                 \
       data_[i] op ## = rhs[i];                                              \
     }                                                                       \
