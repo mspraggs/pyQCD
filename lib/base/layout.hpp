@@ -6,10 +6,9 @@
  * and their derived types to specify the relationship between e
  */
 
-#include <cassert>
-
 #include <functional>
 #include <numeric>
+#include <type_traits>
 #include <vector>
 
 
@@ -42,10 +41,11 @@ namespace pyQCD
     }
     virtual ~Layout() = default;
 
+    template <typename T,
+      typename std::enable_if<not std::is_scalar<T>::value>::type* = nullptr>
+    unsigned int get_array_index(const T& site) const;
     unsigned int get_array_index(const unsigned int site_index) const
     { return array_indices_[site_index]; }
-    template <typename T>
-    unsigned int get_array_index(const T& site) const;
     unsigned int get_site_index(const unsigned int array_index) const
     { return site_indices_[array_index]; }
 
@@ -71,7 +71,8 @@ namespace pyQCD
   };
 
 
-  template <typename T>
+  template <typename T,
+    typename std::enable_if<not std::is_scalar<T>::value>::type*>
   unsigned int Layout::get_array_index(const T& site) const
   {
     // Compute the lexicographic index of the specified site and use it to
