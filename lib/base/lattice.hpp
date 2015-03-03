@@ -18,8 +18,6 @@ namespace pyQCD
   template <typename T, template <typename> class Alloc = std::allocator>
   class Lattice : public Array<T, Alloc, Lattice<T, Alloc> >
   {
-  template <typename U1, typename U2>
-  friend class BinaryLayoutTraits;
   public:
     Lattice(const Layout* layout, const T& val)
       : Array<T, Alloc, Lattice<T, Alloc> >(layout->volume(), val),
@@ -33,6 +31,7 @@ namespace pyQCD
       for (int i = 0; i < expr.size(); ++i) {
         this->data_[i] = static_cast<T>(expr[i]);
       }
+      layout_ = expr.layout();
     }
     Lattice(Lattice<T, Alloc>&& lattice) = default;
 
@@ -50,6 +49,7 @@ namespace pyQCD
 
     unsigned int volume() const { return layout_->volume(); }
     unsigned int num_dims() const { return layout_->num_dims(); }
+    const Layout* layout() const { return layout_; }
 
   protected:
     const Layout* layout_;

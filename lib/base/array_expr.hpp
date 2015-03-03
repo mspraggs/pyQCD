@@ -11,6 +11,8 @@
 #include <utils/macros.hpp>
 #include <utils/templates.hpp>
 
+#include "layout.hpp"
+
 
 namespace pyQCD
 {
@@ -57,21 +59,21 @@ namespace pyQCD
     typedef ArrayConst<T> type;
   };
 
-  // Traits to check first whether supplied type is a Lattice, then test
-  // whether Layouts are the same
-  template <typename T1, typename T2>
-  struct BinaryLayoutTraits
+  // Traits to check first whether supplied type is a Lattice, then get the
+  // layout from the supplied object, if applicable
+  template <typename T>
+  struct CrtpLayoutTraits
   {
-    static bool check_layout(const T1& lhs, const T2& rhs)
-    { return true; }
+    static const Layout* get_layout(const T& arr)
+    { return arr.layout(); }
   };
 
 
-  template <typename T, template <typename> class A>
-  struct BinaryLayoutTraits<Lattice<T, A>, Lattice<T, A> >
+  template <typename T1, template <typename> class A, typename T2>
+  struct CrtpLayoutTraits<Array<T1, A, T2> >
   {
-    static bool check_layout(const Lattice<T, A>& lhs, const Lattice<T, A>& rhs)
-    { return typeid(*(lhs.layout_)) == typeid(*(rhs.layout_)); }
+    static const Layout* get_layout(const Array<T1, A, T2>& lat)
+    { return nullptr; }
   };
 
 
@@ -93,6 +95,8 @@ namespace pyQCD
     { return static_cast<const T1&>(*this)[i]; }
 
     int size() const { return static_cast<const T1&>(*this).size(); }
+    const Layout* layout() const
+    { return CrtpLayoutTraits<T1>::get_layout(static_cast<const T1&>(*this)); }
 
     operator T1&()
     { return static_cast<T1&>(*this); }
@@ -129,17 +133,17 @@ namespace pyQCD
     ArrayBinary(const ArrayExpr<T1, T3>& lhs, const ArrayExpr<T2, T4>& rhs)
       : lhs_(lhs), rhs_(rhs)
     {
-      //bool LAYOUTS_ARE_EQUAL = ;
-      pyQCDassert ((BinaryLayoutTraits<T1, T2>::check_layout(
-        static_cast<const T1&>(lhs),
-        static_cast<const T2&>(rhs))),
-        std::bad_cast());
+      if (lhs.layout() != nullptr and rhs.layout() != nullptr) {
+        pyQCDassert ((typeid(*(lhs.layout())) == typeid(*(rhs.layout()))),
+          std::bad_cast());
+      }
     }
     // Here we denote the actual arithmetic operation.
     const decltype(Op::apply(T3(), T4())) operator[](const int i) const
     { return Op::apply(lhs_[i], rhs_[i]); }
 
     int size() const { return lhs_.size(); }
+    const Layout* layout() const { return lhs_.layout(); }
 
   private:
     // The members - the inputs to the binary operation
