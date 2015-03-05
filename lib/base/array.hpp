@@ -74,7 +74,11 @@ namespace pyQCD
 
     Array<T1, Alloc, T2>& operator=(const Array<T1, Alloc, T2>& array) = default;
     Array<T1, Alloc, T2>& operator=(Array<T1, Alloc, T2>&& array) = default;
-    Array<T1, Alloc, T2>& operator=(const T1& rhs);
+    Array<T1, Alloc, T2>& operator=(const T1& rhs)
+    {
+      data_.assign(data_.size(), rhs);
+      return *this;
+    }
 
 #define ARRAY_OPERATOR_ASSIGN_DECL(op)				                             \
     template <typename U,                                                  \
@@ -94,13 +98,6 @@ namespace pyQCD
   protected:
     std::vector<T1, Alloc<T1> > data_;
   };
-
-
-  template <typename T1, template <typename> class Alloc, typename T2>
-  Array<T1, Alloc, T2>& Array<T1, Alloc, T2>::operator=(const T1& rhs)
-  {
-    data_.assign(data_.size(), rhs);
-  }
 
 
 #define ARRAY_OPERATOR_ASSIGN_IMPL(op)                                      \
