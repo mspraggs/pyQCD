@@ -19,9 +19,16 @@ TEST_CASE("Array test") {
     }
   }
 
-  SECTION("Testing array iterators") {
+  SECTION ("Testing array iterators") {
     for (auto elem : array1) {
       REQUIRE (elem == 1.0);
+    }
+  }
+
+  SECTION ("Testing scalar assign") {
+    array1 = 4.0;
+    for (int i = 0; i < 100; ++i) {
+      REQUIRE (array1[i] == 4.0);
     }
   }
 
