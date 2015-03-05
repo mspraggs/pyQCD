@@ -28,7 +28,7 @@ namespace pyQCD
     Lattice(const ArrayExpr<U1, U2>& expr)
     {
       this->data_.resize(expr.size());
-      for (int i = 0; i < expr.size(); ++i) {
+      for (unsigned long i = 0; i < expr.size(); ++i) {
         this->data_[i] = static_cast<T>(expr[i]);
       }
       layout_ = expr.layout();

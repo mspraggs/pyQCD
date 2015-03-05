@@ -94,7 +94,7 @@ namespace pyQCD
     const typename ExprReturnTraits<T1, T2>::type operator[](const int i) const
     { return static_cast<const T1&>(*this)[i]; }
 
-    int size() const { return static_cast<const T1&>(*this).size(); }
+    unsigned long size() const { return static_cast<const T1&>(*this).size(); }
     const Layout* layout() const
     { return CrtpLayoutTraits<T1>::get_layout(static_cast<const T1&>(*this)); }
 
@@ -115,7 +115,7 @@ namespace pyQCD
       : scalar_(scalar)
     { }
     // Here we denote the actual arithmetic operation.
-    const T& operator[](const int i) const
+    const T& operator[](const unsigned long i) const
     { return scalar_; }
 
   private:
@@ -139,10 +139,11 @@ namespace pyQCD
       }
     }
     // Here we denote the actual arithmetic operation.
-    const decltype(Op::apply(T3(), T4())) operator[](const int i) const
+    const decltype(Op::apply(T3(), T4()))
+    operator[](const unsigned long i) const
     { return Op::apply(lhs_[i], rhs_[i]); }
 
-    int size() const { return lhs_.size(); }
+    unsigned long size() const { return lhs_.size(); }
     const Layout* layout() const { return lhs_.layout(); }
 
   private:

@@ -57,14 +57,14 @@ namespace pyQCD
     Array(const ArrayExpr<U1, U2>& expr)
     {
       this->data_.resize(expr.size());
-      for (int i = 0; i < expr.size(); ++i) {
+      for (unsigned long i = 0; i < expr.size(); ++i) {
         this->data_[i] = static_cast<T1>(expr[i]);
       }
     }
     virtual ~Array() = default;
 
-    T1& operator[](const int i) { return data_[i]; }
-    const T1& operator[](const int i) const { return data_[i]; }
+    T1& operator[](const unsigned long i) { return data_[i]; }
+    const T1& operator[](const unsigned long i) const { return data_[i]; }
 
     typename std::vector<T1>::iterator begin() { return data_.begin(); }
     typename std::vector<T1>::const_iterator begin() const
@@ -93,7 +93,7 @@ namespace pyQCD
     ARRAY_OPERATOR_ASSIGN_DECL(*);
     ARRAY_OPERATOR_ASSIGN_DECL(/);
 
-    int size() const { return data_.size(); }
+    unsigned long size() const { return data_.size(); }
 
   protected:
     std::vector<T1, Alloc<T1> > data_;
@@ -121,7 +121,7 @@ namespace pyQCD
   {                                                                         \
     pyQCDassert (rhs.size() == data_.size(),                                \
       std::out_of_range("Arrays must be the same size"));                   \
-    for (int i = 0; i < data_.size();++i) {                                 \
+    for (unsigned long i = 0; i < data_.size(); ++i) {                      \
       data_[i] op ## = rhs[i];                                              \
     }                                                                       \
     return *this;                                                           \
