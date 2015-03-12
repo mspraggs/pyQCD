@@ -1,8 +1,6 @@
 cmake_minimum_required (VERSION 2.8.8)
 enable_testing()
-project (kernels)
-
-add_definitions (-DNDIM=4)
+project (pyQCD)
 
 list (APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 set (EIGEN_INCLUDE_DIR ${CMAKE_MODULE_PATH}/FindEigen3.cmake)
