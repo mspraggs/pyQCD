@@ -301,25 +301,23 @@ def compute_effmass(correlator, guess_mass=1.0):
     """
     
     T = correlator.size
+    
+    if np.sign(correlator[1]) == np.sign(correlator[-1]):
+        solve_function \
+            = lambda m, t: np.cosh(m * (t - T / 2)) \
+            / np.cosh(m * (t + 1 - T / 2))
+    else:
+        solve_function \
+            = lambda m, t: np.sinh(m * (t - T / 2)) \
+            / np.sinh(m * (t + 1 - T / 2))
         
-    try:
-        if np.sign(correlator[1]) == np.sign(correlator[-1]):
-            solve_function \
-              = lambda m, t: np.cosh(m * (t - T / 2)) \
-              / np.cosh(m * (t + 1 - T / 2))
-        else:
-            solve_function \
-              = lambda m, t: np.sinh(m * (t - T / 2)) \
-              / np.sinh(m * (t + 1 - T / 2))
-          
-        ratios = correlator / np.roll(correlator, -1)
-        effmass = np.zeros(T)
-            
-        for t in range(T):
-            function = lambda m: solve_function(m, t) - ratios[t]
-            effmass[t] = spop.newton(function, guess_mass, maxiter=1000)
-                
-        return effmass
-        
-    except RuntimeError:        
-        return np.log(np.abs(correlator / np.roll(correlator, -1)))
+    ratios = correlator / np.roll(correlator, -1)
+    inits = np.abs(np.log(np.abs(ratios)))
+    effmass = np.zeros(T)
+    for t, init in enumerate(inits):
+        function = lambda m: solve_function(m, t) - ratios[t]
+        try:
+            effmass[t] = spop.newton(function, guess_mass, maxiter=10000)
+        except RuntimeError:
+            effmass[t] = init
+    return effmass
