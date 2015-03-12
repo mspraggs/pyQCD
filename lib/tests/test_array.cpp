@@ -113,6 +113,9 @@ TEST_CASE("Non-integral Array types test") {
   pyQCD::Array<Eigen::Matrix3cd> array1(4, Eigen::Matrix3cd::Identity());
   Eigen::Vector3cd vec(1.0, 1.0, 1.0);
   pyQCD::Array<Eigen::Vector3cd> vecs = array1 * vec;
+
   pyQCD::Array<pyQCD::Array<Eigen::Matrix3cd> > array2(10, array1);
   array2 *= 3.0;
+
+  pyQCD::Array<Eigen::Matrix3cd> array3 = Eigen::Matrix3cd::Ones() * array1;
 }

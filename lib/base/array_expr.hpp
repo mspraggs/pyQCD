@@ -77,6 +77,7 @@ namespace pyQCD
   };
 
 
+  // TODO: Eliminate need for second template parameter
   template <typename T1, typename T2>
   class ArrayExpr
   {
@@ -129,7 +130,7 @@ namespace pyQCD
   template <typename T1, typename T2, typename T3, typename T4, typename Op>
   class ArrayBinary
     : public ArrayExpr<ArrayBinary<T1, T2, T3, T4, Op>,
-        decltype(Op::apply(T3(), T4()))>
+        decltype(Op::apply(std::declval<T3>(), std::declval<T4>()))>
   {
   // Expression subclass for binary operations
   public:
@@ -142,7 +143,7 @@ namespace pyQCD
       }
     }
     // Here we denote the actual arithmetic operation.
-    const decltype(Op::apply(T3(), T4()))
+    const decltype(Op::apply(std::declval<T3>(), std::declval<T4>()))
     operator[](const unsigned long i) const
     { return Op::apply(lhs_[i], rhs_[i]); }
 
@@ -159,7 +160,7 @@ namespace pyQCD
   struct Plus
   {
     template <typename T1, typename T2>
-    static decltype(T1() + T2()) apply(const T1& lhs, const T2& rhs)
+    static auto apply(const T1& lhs, const T2& rhs) -> decltype(lhs + rhs)
     { return lhs + rhs; }
   };
 
@@ -167,7 +168,7 @@ namespace pyQCD
   struct Minus
   {
     template <typename T1, typename T2>
-    static decltype(T1() - T2()) apply(const T1& lhs, const T2& rhs)
+    static auto apply(const T1& lhs, const T2& rhs) -> decltype(lhs - rhs)
     { return lhs - rhs; }
   };
 
@@ -175,7 +176,7 @@ namespace pyQCD
   struct Multiplies
   {
     template <typename T1, typename T2>
-    static decltype(T1() * T2()) apply(const T1& lhs, const T2& rhs)
+    static auto apply(const T1& lhs, const T2& rhs) -> decltype(lhs * rhs)
     { return lhs * rhs; }
   };
 
@@ -183,7 +184,7 @@ namespace pyQCD
   struct Divides
   {
     template <typename T1, typename T2>
-    static decltype(T1() / T2()) apply(const T1& lhs, const T2& rhs)
+    static auto apply(const T1& lhs, const T2& rhs) -> decltype(lhs / rhs)
     { return lhs / rhs; }
   };
 
