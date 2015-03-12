@@ -111,15 +111,18 @@ namespace pyQCD
   {
     // Expression subclass for const operations
   public:
-    ArrayConst(const T& scalar)
-      : scalar_(scalar)
+    ArrayConst(const T& scalar, const unsigned long size, const Layout* layout)
+      : scalar_(scalar), size_(size), layout_(layout)
     { }
-    // Here we denote the actual arithmetic operation.
     const T& operator[](const unsigned long i) const
     { return scalar_; }
+    unsigned long size() const { return size_; }
+    const Layout* layout() const { return layout_; }
 
   private:
     const T& scalar_;
+    unsigned long size_;
+    const Layout* layout_;
   };
 
 
@@ -206,7 +209,7 @@ namespace pyQCD
   operator op(const ArrayExpr<T1, T2>& array, const T3& scalar)       \
   {                                                                   \
     return ArrayBinary<T1, ArrayConst<T3>, T2, T3, trait>             \
-      (array, ArrayConst<T3>(scalar));                                \
+      (array, ArrayConst<T3>(scalar, array.size(), array.layout()));  \
   }
 
   // This macro is for the + and * operators where the scalar can
@@ -214,13 +217,13 @@ namespace pyQCD
 #define ARRAY_EXPR_OPERATOR_REVERSE_SCALAR(op, trait)                 \
   template <typename T1, typename T2, typename T3,                    \
     typename std::enable_if<                                          \
-      !is_instance_of_type_temp<T3, pyQCD::ArrayExpr>::value>::type*  \
+      !is_instance_of_type_temp<T1, pyQCD::ArrayExpr>::value>::type*  \
       = nullptr>                                                      \
-  const ArrayBinary<T1, ArrayConst<T3>, T2, T3, trait>                \
-  operator op(const T3& scalar, const ArrayExpr<T1, T2>& array)       \
+  const ArrayBinary<ArrayConst<T1>, T2, T1, T3, trait>                \
+  operator op(const T1& scalar, const ArrayExpr<T2, T3>& array)       \
   {                                                                   \
-    return ArrayBinary<T1, ArrayConst<T3>, T2, T3, trait>             \
-      (array, ArrayConst<T3>(scalar));                                \
+    return ArrayBinary<ArrayConst<T1>, T2, T1, T3, trait>             \
+      (ArrayConst<T1>(scalar, array.size(), array.layout()), array);  \
   }
 
 
