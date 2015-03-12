@@ -27,7 +27,7 @@ TEST_CASE("Lattice test") {
     for (auto val : lattice3) {
       REQUIRE(val == 3.0);
     }
-    REQUIRE_THROWS(lattice1 + bad_lattice);
     REQUIRE(lattice3.layout() == lattice1.layout());
+    REQUIRE_THROWS(lattice1 + bad_lattice);
   }
 }
