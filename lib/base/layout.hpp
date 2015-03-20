@@ -55,7 +55,7 @@ namespace pyQCD
   private:
     unsigned int num_dims_, lattice_volume_;
     std::vector<unsigned int> lattice_shape_;
-    // indices_[site_index] -> array_index
+    // array_indices_[site_index] -> array_index
     std::vector<unsigned int> array_indices_;
     // site_indices_[array_index] -> site_index
     std::vector<unsigned int> site_indices_;
