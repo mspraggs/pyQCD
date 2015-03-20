@@ -18,6 +18,14 @@ namespace pyQCD {
   public:
     typedef Eigen::Matrix<std::complex<T>, NC, NC> colour_matrix_type;
     using Array<colour_matrix_type, Eigen::aligned_allocator>::Array;
+
+    const ArrayUnary<Array<colour_matrix_type, Eigen::aligned_allocator>,
+      colour_matrix_type, Adjoint>
+    adjoint() const
+    {
+      return ArrayUnary<Array<colour_matrix_type, Eigen::aligned_allocator>,
+        colour_matrix_type, Adjoint>(*this);
+    }
   };
 }
 #endif

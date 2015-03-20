@@ -35,4 +35,12 @@ struct Divides
   { return lhs / rhs; }
 };
 
+
+struct Adjoint
+{
+  template <typename T>
+  static auto apply(const T& operand) -> decltype(operand.adjoint())
+  { return operand.adjoint(); }
+};
+
 #endif
