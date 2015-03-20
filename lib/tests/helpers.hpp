@@ -30,10 +30,11 @@ struct Compare
 };
 
 
-template <typename MatrixType, typename T>
+template <typename MatrixType>
 struct MatrixCompare
 {
-  MatrixCompare(const T percent_tolerance, const T absolute_tolerance)
+  MatrixCompare(const typename MatrixType::RealScalar percent_tolerance,
+    const typename MatrixType::RealScalar absolute_tolerance)
     : percent_tolerance_(percent_tolerance),
       absolute_tolerance_(absolute_tolerance)
   {
@@ -50,8 +51,8 @@ struct MatrixCompare
       > percent_tolerance_ * lhs.array().abs() + absolute_tolerance_).any();
   }
 
-  T percent_tolerance_;
-  T absolute_tolerance_;
+  typename MatrixType::RealScalar percent_tolerance_;
+  typename MatrixType::RealScalar absolute_tolerance_;
 };
 
 
