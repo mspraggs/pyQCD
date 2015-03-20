@@ -3,7 +3,8 @@
 
 /* This file declares and defines the Lattice class. This is basically an Array
  * but with a Layout member specifying the relationship between the sites and
- * the Array index.
+ * the Array index. In addition, there are operator() implementations to access
+ * elements using site coordinates or a lexicographic index.
  */
 
 #include <cassert>
