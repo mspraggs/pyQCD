@@ -127,6 +127,27 @@ namespace pyQCD
   };
 
 
+  template <typename T1, typename T2, typename Op>
+  class ArrayUnary
+    : public ArrayExpr<ArrayUnary<T1, T2>,
+        decltype(Op::apply(std::declval<T2>()))>
+  {
+  public:
+    ArrayUnary(const ArrayExpr<T1, T2>& operand) : operand_(operand)
+    { }
+
+    const decltype(Op::apply(std::declval<T2>()))
+    operator[](const unsigned int) const
+    { return Op::apply(operand_); }
+
+    unsigned long size() const { return operand_.size(); }
+    const Layout* layout() const { return operand_.layout(); }
+
+  private:
+    typename BinaryOperandTraits<T1>::type operand_;
+  };
+
+
   template <typename T1, typename T2, typename T3, typename T4, typename Op>
   class ArrayBinary
     : public ArrayExpr<ArrayBinary<T1, T2, T3, T4, Op>,
