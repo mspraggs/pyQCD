@@ -42,7 +42,7 @@ namespace pyQCD
     virtual ~Layout() = default;
 
     template <typename T,
-      typename std::enable_if<not std::is_scalar<T>::value>::type* = nullptr>
+      typename std::enable_if<not std::is_integral<T>::value>::type* = nullptr>
     unsigned int get_array_index(const T& site) const;
     unsigned int get_array_index(const unsigned int site_index) const
     { return array_indices_[site_index]; }
@@ -72,7 +72,7 @@ namespace pyQCD
 
 
   template <typename T,
-    typename std::enable_if<not std::is_scalar<T>::value>::type*>
+    typename std::enable_if<not std::is_integral<T>::value>::type*>
   unsigned int Layout::get_array_index(const T& site) const
   {
     // Compute the lexicographic index of the specified site and use it to
