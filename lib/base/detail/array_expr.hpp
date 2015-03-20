@@ -134,7 +134,6 @@ namespace pyQCD
         decltype(Op::apply(std::declval<T2>()))>
   {
   public:
-    template <typename Fn>
     ArrayUnary(const ArrayExpr<T1, T2>& operand) : operand_(operand)
     { }
 
