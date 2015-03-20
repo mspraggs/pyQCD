@@ -39,9 +39,11 @@ namespace pyQCD
     { return this->data_[layout_->get_array_index(i)]; }
     const T& operator()(const int i) const
     { return this->data_[layout_->get_array_index(i)]; }
-    T& operator()(const std::vector<unsigned int>& site)
+    template <typename U>
+    T& operator()(const U& site)
     { return this->data_[layout_->get_array_index(site)]; }
-    const T& operator()(const std::vector<unsigned int>& site) const
+    template <typename U>
+    const T& operator()(const U& site) const
     { return this->data_[layout_->get_array_index(site)]; }
 
     Lattice<T, Alloc>& operator=(const Lattice<T, Alloc>& lattice);
