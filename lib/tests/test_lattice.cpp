@@ -30,4 +30,10 @@ TEST_CASE("Lattice test") {
     REQUIRE(lattice3.layout() == lattice1.layout());
     REQUIRE_THROWS(lattice1 + bad_lattice);
   }
+
+  SECTION("Test accessors") {
+    lattice1[0] = 500.0;
+    REQUIRE(lattice1(0) == 500.0);
+    REQUIRE(lattice1(std::vector<unsigned int>{0, 0, 0, 0}) == 500.0);
+  }
 }
