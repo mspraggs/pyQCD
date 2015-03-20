@@ -43,10 +43,10 @@ namespace pyQCD
 
     template <typename T,
       typename std::enable_if<not std::is_integral<T>::value>::type* = nullptr>
-    unsigned int get_array_index(const T& site) const;
-    unsigned int get_array_index(const unsigned int site_index) const
+    inline unsigned int get_array_index(const T& site) const;
+    inline unsigned int get_array_index(const unsigned int site_index) const
     { return array_indices_[site_index]; }
-    unsigned int get_site_index(const unsigned int array_index) const
+    inline unsigned int get_site_index(const unsigned int array_index) const
     { return site_indices_[array_index]; }
 
     unsigned int volume() const { return lattice_volume_; }
@@ -73,7 +73,7 @@ namespace pyQCD
 
   template <typename T,
     typename std::enable_if<not std::is_integral<T>::value>::type*>
-  unsigned int Layout::get_array_index(const T& site) const
+  inline unsigned int Layout::get_array_index(const T& site) const
   {
     // Compute the lexicographic index of the specified site and use it to
     // to get the array index (coordinate at site[0] varies slowest, that at
