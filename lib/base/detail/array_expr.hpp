@@ -11,7 +11,8 @@
 #include <utils/macros.hpp>
 #include <utils/templates.hpp>
 
-#include "layout.hpp"
+#include "../layout.hpp"
+#include "operators.hpp"
 
 
 namespace pyQCD
@@ -47,14 +48,14 @@ namespace pyQCD
   // These traits classes allow us to switch between a const ref and simple
   // value in expression subclasses, avoiding returning dangling references.
   template <typename T>
-  struct BinaryOperandTraits
+  struct OperandTraits
   {
     typedef const T& type;
   };
 
 
   template <typename T>
-  struct BinaryOperandTraits<ArrayConst<T> >
+  struct OperandTraits<ArrayConst<T> >
   {
     typedef ArrayConst<T> type;
   };
@@ -129,22 +130,23 @@ namespace pyQCD
 
   template <typename T1, typename T2, typename Op>
   class ArrayUnary
-    : public ArrayExpr<ArrayUnary<T1, T2>,
+    : public ArrayExpr<ArrayUnary<T1, T2, Op>,
         decltype(Op::apply(std::declval<T2>()))>
   {
   public:
+    template <typename Fn>
     ArrayUnary(const ArrayExpr<T1, T2>& operand) : operand_(operand)
     { }
 
     const decltype(Op::apply(std::declval<T2>()))
-    operator[](const unsigned int) const
-    { return Op::apply(operand_); }
+    operator[](const unsigned int i) const
+    { return Op::apply(operand_[i]); }
 
     unsigned long size() const { return operand_.size(); }
     const Layout* layout() const { return operand_.layout(); }
 
   private:
-    typename BinaryOperandTraits<T1>::type operand_;
+    typename OperandTraits<T1>::type operand_;
   };
 
 
@@ -173,40 +175,8 @@ namespace pyQCD
 
   private:
     // The members - the inputs to the binary operation
-    typename BinaryOperandTraits<T1>::type lhs_;
-    typename BinaryOperandTraits<T2>::type rhs_;
-  };
-
-
-  struct Plus
-  {
-    template <typename T1, typename T2>
-    static auto apply(const T1& lhs, const T2& rhs) -> decltype(lhs + rhs)
-    { return lhs + rhs; }
-  };
-
-
-  struct Minus
-  {
-    template <typename T1, typename T2>
-    static auto apply(const T1& lhs, const T2& rhs) -> decltype(lhs - rhs)
-    { return lhs - rhs; }
-  };
-
-
-  struct Multiplies
-  {
-    template <typename T1, typename T2>
-    static auto apply(const T1& lhs, const T2& rhs) -> decltype(lhs * rhs)
-    { return lhs * rhs; }
-  };
-
-
-  struct Divides
-  {
-    template <typename T1, typename T2>
-    static auto apply(const T1& lhs, const T2& rhs) -> decltype(lhs / rhs)
-    { return lhs / rhs; }
+    typename OperandTraits<T1>::type lhs_;
+    typename OperandTraits<T2>::type rhs_;
   };
 
   // Some macros for the operator overloads, as the code is almost

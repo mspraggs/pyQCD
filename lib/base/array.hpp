@@ -19,7 +19,7 @@
 
 #include <utils/macros.hpp>
 #include <utils/templates.hpp>
-#include "array_expr.hpp"
+#include "detail/array_expr.hpp"
 
 
 namespace pyQCD
