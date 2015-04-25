@@ -46,9 +46,9 @@ struct MatrixCompare
   bool operator()(const MatrixType& rhs, const MatrixType& lhs) const
   {
     return ((rhs.array() - lhs.array()).abs()
-      > percent_tolerance_ * rhs.array().abs() + absolute_tolerance_).any()
-      || ((rhs.array() - lhs.array()).abs()
-      > percent_tolerance_ * lhs.array().abs() + absolute_tolerance_).any();
+      < percent_tolerance_ * rhs.array().abs() + absolute_tolerance_).all()
+      and ((rhs.array() - lhs.array()).abs()
+      < percent_tolerance_ * lhs.array().abs() + absolute_tolerance_).all();
   }
 
   typename MatrixType::RealScalar percent_tolerance_;
