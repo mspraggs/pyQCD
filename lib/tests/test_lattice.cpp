@@ -22,9 +22,9 @@ TEST_CASE("Lattice test") {
   pyQCD::LexicoLayout layout(std::vector<unsigned int>{8, 4, 4, 4});
   TestLayout another_layout(std::vector<unsigned int>{8, 4, 4, 4});
 
-  Lattice lattice1(&layout, 1.0);
-  Lattice lattice2(&layout, 2.0);
-  Lattice bad_lattice(&another_layout);
+  Lattice lattice1(layout, 1.0);
+  Lattice lattice2(layout, 2.0);
+  Lattice bad_lattice(another_layout);
   for (unsigned int i = 0; i < bad_lattice.volume(); ++i) {
     bad_lattice[i] = i;
   }
