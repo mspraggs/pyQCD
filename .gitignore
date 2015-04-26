@@ -1,6 +1,7 @@
 *~
 *.pyc
 *.html
+.idea
 CTestTestfile.cmake
 Testing/*
 lib/CMakeFiles/*
@@ -26,9 +27,9 @@ docs/_static/*
 docs/_templates/*
 pyQCDcache/*
 *.o
-/*.npz
-/*.zip
-/*.npy
+*.npz
+*.zip
+*.npy
 pyQCD/core/*.npz
 pyQCD/core/*.zip
 pyQCD/core/*.npy
