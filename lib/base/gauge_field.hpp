@@ -3,6 +3,7 @@
 
 /* This file contains the implementation for GaugeField, which is basically
  * an instance of Array with the element type being an NC x NC Eigen matrix.
+ * This object represents the field that resides on links between lattice sites.
  */
 
 #include <Eigen/Dense>
