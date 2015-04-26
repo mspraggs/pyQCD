@@ -15,6 +15,7 @@ set (TEST_DIR tests)
 
 set (test_SRC
   ${TEST_DIR}/test_array.cpp
+  ${TEST_DIR}/test_fermion.cpp
   ${TEST_DIR}/test_gauge_field.cpp
   ${TEST_DIR}/test_lattice.cpp
   ${TEST_DIR}/test_layout.cpp)
