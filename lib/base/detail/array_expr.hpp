@@ -40,10 +40,8 @@ namespace pyQCD
     const Layout* layout() const
     { return CrtpLayoutTraits<T1>::get_layout(static_cast<const T1&>(*this)); }
 
-    operator T1&()
-    { return static_cast<T1&>(*this); }
-    operator T1 const&() const
-    { return static_cast<const T1&>(*this); }
+    operator T1&() { return static_cast<T1&>(*this); }
+    operator T1 const&() const { return static_cast<const T1&>(*this); }
   };
 
 
@@ -56,8 +54,7 @@ namespace pyQCD
     ArrayConst(const T& scalar, const unsigned long size, const Layout* layout)
       : scalar_(scalar), size_(size), layout_(layout)
     { }
-    const T& operator[](const unsigned long i) const
-    { return scalar_; }
+    const T& operator[](const unsigned long i) const { return scalar_; }
     unsigned long size() const { return size_; }
     const Layout* layout() const { return layout_; }
 
@@ -74,12 +71,10 @@ namespace pyQCD
         decltype(Op::apply(std::declval<T2>()))>
   {
   public:
-    ArrayUnary(const ArrayExpr<T1, T2>& operand) : operand_(operand)
-    { }
+    ArrayUnary(const ArrayExpr<T1, T2>& operand) : operand_(operand) { }
 
     const decltype(Op::apply(std::declval<T2>()))
-    operator[](const unsigned int i) const
-    { return Op::apply(operand_[i]); }
+    operator[](const unsigned int i) const { return Op::apply(operand_[i]); }
 
     unsigned long size() const { return operand_.size(); }
     const Layout* layout() const { return operand_.layout(); }
