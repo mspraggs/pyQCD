@@ -18,9 +18,11 @@
 
 namespace pyQCD
 {
+  class ArrayObj { };
+
   // TODO: Eliminate need for second template parameter
   template <typename T1, typename T2>
-  class ArrayExpr
+  class ArrayExpr : public ArrayObj
   {
     // This is the main expression class from which all others are derived. It
     // uses CRTP to escape inheritance. Parameter T1 is the expression type
@@ -129,8 +131,7 @@ namespace pyQCD
                                                                       \
   template <typename T1, typename T2, typename T3,                    \
     typename std::enable_if<                                          \
-      !is_instance_of_type_temp<T3, pyQCD::ArrayExpr>::value>::type*  \
-      = nullptr>                                                      \
+      not std::is_base_of<ArrayObj, T3>::value>::type* = nullptr>     \
   const ArrayBinary<T1, ArrayConst<T3>, T2, T3, trait>                \
   operator op(const ArrayExpr<T1, T2>& array, const T3& scalar)       \
   {                                                                   \
@@ -143,8 +144,7 @@ namespace pyQCD
 #define ARRAY_EXPR_OPERATOR_REVERSE_SCALAR(op, trait)                 \
   template <typename T1, typename T2, typename T3,                    \
     typename std::enable_if<                                          \
-      !is_instance_of_type_temp<T1, pyQCD::ArrayExpr>::value>::type*  \
-      = nullptr>                                                      \
+      not std::is_base_of<ArrayObj, T1>::value>::type* = nullptr>     \
   const ArrayBinary<ArrayConst<T1>, T2, T1, T3, trait>                \
   operator op(const T1& scalar, const ArrayExpr<T2, T3>& array)       \
   {                                                                   \

@@ -82,8 +82,8 @@ namespace pyQCD
 
 #define ARRAY_OPERATOR_ASSIGN_DECL(op)				                             \
     template <typename U,                                                  \
-              typename std::enable_if<                                     \
-		!is_instance_of_Array<U, pyQCD::Array>::value>::type* = nullptr>       \
+      typename std::enable_if<                                             \
+		    not std::is_base_of<ArrayObj, U>::value>::type* = nullptr>         \
     Array<T1, Alloc, T2>& operator op ## =(const U& rhs);	                 \
     template <typename U>                                                  \
     Array<T1, Alloc, T2>& operator op ## =(const Array<U, Alloc, T2>& rhs);
@@ -104,7 +104,7 @@ namespace pyQCD
   template <typename T1, template <typename> class Alloc, typename T2>      \
   template <typename U,                                                     \
     typename std::enable_if<                                                \
-      !is_instance_of_Array<U, pyQCD::Array>::value>::type*>                \
+      not std::is_base_of<ArrayObj, U>::value>::type*>                      \
   Array<T1, Alloc, T2>& Array<T1, Alloc, T2>::operator op ## =(const U& rhs)\
   {                                                                         \
     for (auto& item : data_) {                                              \
