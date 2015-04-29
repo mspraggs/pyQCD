@@ -16,10 +16,9 @@ set (BENCH_DIR benchmarks)
 
 set (test_SRC
   ${TEST_DIR}/test_array.cpp
-  ${TEST_DIR}/test_fermion.cpp
-  ${TEST_DIR}/test_gauge_field.cpp
   ${TEST_DIR}/test_lattice.cpp
-  ${TEST_DIR}/test_layout.cpp)
+  ${TEST_DIR}/test_layout.cpp
+  ${TEST_DIR}/test_matrix_array.cpp)
 
 set (benchmark_SRC
   ${BENCH_DIR}/bench_array.cpp)

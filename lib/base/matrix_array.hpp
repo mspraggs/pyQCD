@@ -11,13 +11,13 @@
 
 namespace pyQCD
 {
-  template <int NC, typename T = double>
-  class Fermion
-    : public Array<Eigen::Matrix<std::complex<T>, NC, 1>,
+  template <int N, int M, typename T = double>
+  class MatrixArray
+    : public Array<Eigen::Matrix<std::complex<T>, N, M>,
       Eigen::aligned_allocator>
   {
   public:
-    typedef Eigen::Matrix<std::complex<T>, NC, 1> colour_vector_type;
+    typedef Eigen::Matrix<std::complex<T>, N, M> colour_vector_type;
     using Array<colour_vector_type, Eigen::aligned_allocator>::Array;
 
     const ArrayUnary<Array<colour_vector_type, Eigen::aligned_allocator>,
