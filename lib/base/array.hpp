@@ -56,7 +56,7 @@ namespace pyQCD
     template <typename U1, typename U2>
     Array(const ArrayExpr<U1, U2>& expr)
     {
-      this->data_.resize(expr.size());
+      data_.resize(expr.size());
       for (unsigned long i = 0; i < expr.size(); ++i) {
         this->data_[i] = static_cast<T1>(expr[i]);
       }
