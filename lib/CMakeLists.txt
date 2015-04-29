@@ -12,6 +12,7 @@ set(CMAKE_CXX_FLAGS "-g -Wall -std=c++11")
 set (SRC_DIR .)
 set (INC_DIR .)
 set (TEST_DIR tests)
+set (BENCH_DIR benchmarks)
 
 set (test_SRC
   ${TEST_DIR}/test_array.cpp
@@ -19,6 +20,9 @@ set (test_SRC
   ${TEST_DIR}/test_gauge_field.cpp
   ${TEST_DIR}/test_lattice.cpp
   ${TEST_DIR}/test_layout.cpp)
+
+set (benchmark_SRC
+  ${BENCH_DIR}/bench_array.cpp)
 
 set (utils_SRC
   ${SRC_DIR}/utils/math.cpp)
@@ -45,4 +49,11 @@ foreach ( testsourcefile ${test_SRC} )
   add_executable( ${testname} ${testsourcefile} )
   target_link_libraries( ${testname} pyQCDutils )
   add_test( NAME ${testname} COMMAND ${testname} --log_level=all)
-endforeach ( testsourcefile ${test_SRC} )
+endforeach()
+
+foreach ( benchsourcefile ${benchmark_SRC} )
+  string( REPLACE ".cpp" "" benchname ${benchsourcefile} )
+  get_filename_component( benchname ${benchname} NAME )
+  add_executable( ${benchname} ${benchsourcefile} )
+  target_link_libraries( ${benchname} pyQCDutils )
+endforeach()
