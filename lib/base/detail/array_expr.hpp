@@ -96,10 +96,12 @@ namespace pyQCD
     ArrayBinary(const ArrayExpr<T1, T3>& lhs, const ArrayExpr<T2, T4>& rhs)
       : lhs_(lhs), rhs_(rhs)
     {
+#ifndef NDEBUG
       if (lhs.layout() != nullptr and rhs.layout() != nullptr) {
         pyQCDassert ((typeid(*(lhs.layout())) == typeid(*(rhs.layout()))),
           std::bad_cast());
       }
+#endif
     }
     // Here we denote the actual arithmetic operation.
     const decltype(Op::apply(std::declval<T3>(), std::declval<T4>()))
