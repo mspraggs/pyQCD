@@ -57,8 +57,9 @@ namespace pyQCD
     Array(const ArrayExpr<U1, U2>& expr)
     {
       data_.resize(expr.size());
+      T1* ptr = &data_[0];
       for (unsigned long i = 0; i < expr.size(); ++i) {
-        this->data_[i] = static_cast<T1>(expr[i]);
+        ptr[i] = static_cast<T1>(expr[i]);
       }
     }
     virtual ~Array() = default;
@@ -77,6 +78,17 @@ namespace pyQCD
     Array<T1, Alloc, T2>& operator=(const T1& rhs)
     {
       data_.assign(data_.size(), rhs);
+      return *this;
+    }
+    template <typename U1, typename U2>
+    Array<T1, Alloc, T2>& operator=(const ArrayExpr<U1, U2>& expr)
+    {
+      pyQCDassert ((data_.size() == expr.size()),
+                   std::out_of_range("Array::data_"));
+      T1* ptr = &data_[0];
+      for (unsigned long i = 0; i < expr.size(); ++i) {
+        ptr[i] = static_cast<T1>(expr[i]);
+      }
       return *this;
     }
 
