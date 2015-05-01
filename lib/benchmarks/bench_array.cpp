@@ -32,12 +32,16 @@ void profile_for_type(const T& elem, const std::string& type,
   benchmark([&] () {
     result = array1 * array2 + array3;
   }, (add_flops + multiply_flops) * n, 100000);
+  
+  std::cout << std::endl;
 }
 
 
 int main(int argc, char* argv[])
 {
   profile_for_type(1.0, "double", 2, 2);
+  profile_for_type(std::complex<double>(1.0, 0.0), "std::complex<double>",
+                   4, 12);
   profile_for_type<Eigen::Matrix2d, Eigen::aligned_allocator>(
     Eigen::Matrix2d::Random(), "Eigen::Matrix2d", 8, 24
   );
