@@ -63,6 +63,20 @@ namespace pyQCD
     static const Layout* get_layout(const Array<T1, A, T2>& lat)
     { return nullptr; }
   };
+
+  // Traits to allow passing of inheriting member types to ArrayExpr
+  template <typename T1, typename T2, template <typename> class Alloc>
+  struct ArrayCrtpTrait
+  {
+    typedef T1 type;
+  };
+
+
+  template <typename T, template <typename> class Alloc>
+  struct ArrayCrtpTrait<EmptyType, T, Alloc>
+  {
+    typedef Array<T, Alloc, EmptyType> type;
+  };
 }
 
 #endif
