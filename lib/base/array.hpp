@@ -24,10 +24,6 @@
 
 namespace pyQCD
 {
-  template <typename T1, template <typename> class Alloc, typename T2>
-  class Array;
-
-
   template <typename T1, template <typename> class Alloc = std::allocator,
     typename T2 = EmptyType>
   class Array
