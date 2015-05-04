@@ -4,7 +4,7 @@
 
 #include "helpers.hpp"
 
-#include <base/array.hpp>
+#include <core/array.hpp>
 
 
 template <typename T, template <typename> class Alloc = std::allocator>

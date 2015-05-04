@@ -2,7 +2,7 @@
 
 #include <Eigen/Dense>
 
-#include <base/array.hpp>
+#include <core/array.hpp>
 
 #include "helpers.hpp"
 

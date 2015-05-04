@@ -1,10 +1,9 @@
 from setuptools import setup, find_packages
 from itertools import product
-import os
 
-data_dirs = ["lib", "templates"]
-include_subdirs = ["base",
-                   "base/detail",
+data_dirs = ["pyQCD", "pyQCD/templates"]
+include_subdirs = ["core",
+                   "core/detail",
                    "fermion_actions",
                    "gauge_actions",
                    "linear_operators",

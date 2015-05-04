@@ -1,6 +1,6 @@
 #define CATCH_CONFIG_MAIN
 
-#include <base/matrix_array.hpp>
+#include <core/matrix_array.hpp>
 
 #include "helpers.hpp"
 

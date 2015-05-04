@@ -1,7 +1,7 @@
 #define CATCH_CONFIG_MAIN
 
-#include <base/array.hpp>
-#include <base/lattice.hpp>
+#include <core/array.hpp>
+#include <core/lattice.hpp>
 
 #include "helpers.hpp"
 

@@ -1,6 +1,6 @@
 #define CATCH_CONFIG_MAIN
 
-#include <base/layout.hpp>
+#include <core/layout.hpp>
 
 #include "helpers.hpp"
 
