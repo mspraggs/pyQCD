@@ -1,5 +1,6 @@
 #define CATCH_CONFIG_MAIN
 
+#include <base/array.hpp>
 #include <base/lattice.hpp>
 
 #include "helpers.hpp"
@@ -28,6 +29,9 @@ TEST_CASE("Lattice test") {
   for (unsigned int i = 0; i < bad_lattice.volume(); ++i) {
     bad_lattice[i] = i;
   }
+
+  pyQCD::Array<double> arr(4, 2.0);
+  pyQCD::Lattice<pyQCD::Array<double> > lattice_array(layout, arr);
 
   SECTION("Test arithmetic operators") {
     Lattice lattice3 = lattice1 + lattice2;
@@ -58,5 +62,16 @@ TEST_CASE("Lattice test") {
     REQUIRE(lattice1.layout() == &layout);
     REQUIRE(lattice1.volume() == 512);
     REQUIRE(lattice1.num_dims() == 4);
+  }
+
+  SECTION("Test non-scalar site types") {
+    decltype(lattice_array) result
+      = lattice_array * arr.broadcast(lattice_array.size());
+    REQUIRE(result.volume() == lattice_array.volume());
+    for (auto& site_array : result) {
+      for (auto val : site_array) {
+        REQUIRE(val == 4.0);
+      }
+    }
   }
 }
