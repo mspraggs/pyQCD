@@ -2,17 +2,7 @@
 *.pyc
 *.html
 .idea
-CTestTestfile.cmake
-Testing/*
-lib/CMakeFiles/*
-pyQCD/core/kernel/CTestTestfile.cmake
-pyQCD/core/kernel/CMakeCache.txt
-pyQCD/core/kernel/CMakeFiles/*
-pyQCD/core/kernel/Makefile
-pyQCD/core/kernel/cmake_install.cmake
-pyQCD/core/kernel/lattice.so
-pyQCD/core/kernel/libcudainverters.a
-pyQCD/core/kernel/test_lattice
+pyQCDold*
 pyQCD.egg-info/*
 build/*
 dist/*
@@ -25,13 +15,9 @@ install_manifest.txt
 docs/_build/*
 docs/_static/*
 docs/_templates/*
-pyQCDcache/*
 *.o
 *.npz
 *.zip
 *.npy
-pyQCD/core/*.npz
-pyQCD/core/*.zip
-pyQCD/core/*.npy
 
 *grind.out.*
