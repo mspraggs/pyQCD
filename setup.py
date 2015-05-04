@@ -22,33 +22,27 @@ with open("README.md") as f:
 
 # Exclude the lattice.py and simulation.py files if lattice.so
 # hasn't been built.
-try:
-    os.symlink("../lib", "pyQCD/lib")
-    os.symlink("../templates", "pyQCD/templates")
-    setup(
-        name='pyQCD',
-        version='',
-        packages=find_packages(exclude=["*test*"]),
-        url='http://github.com/mspraggs/pyqcd/',
-        author='Matt Spraggs',
-        author_email='matthew.spraggs@gmail.com',
-        description='pyQCD provides a Python library for running lattice field '
-                    'theory simulations on desktop and workstation computers.',
-        long_description=long_description,
-        package_dir={'': '.'},
-        package_data={'pyQCD': data_paths},
-        classifiers = [
-            'Programming Language :: C++',
-            'Programming Language :: Cython',
-            'Programming Language :: Python',
-            'Development Status :: 3 - Alpha',
-            'Natural Language :: English',
-            'Intended Audience :: Science/Research',
-            'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
-            'Operating System :: OS Independent',
-            'Topic :: Scientific/Engineering :: Physics',
-            ],
-    )
-finally:
-    os.unlink("pyQCD/lib")
-    os.unlink("pyQCD/templates")
+setup(
+    name='pyQCD',
+    version='',
+    packages=find_packages(exclude=["*test*"]),
+    url='http://github.com/mspraggs/pyqcd/',
+    author='Matt Spraggs',
+    author_email='matthew.spraggs@gmail.com',
+    description='pyQCD provides a Python library for running lattice field '
+                'theory simulations on desktop and workstation computers.',
+    long_description=long_description,
+    package_dir={'': '.'},
+    package_data={'pyQCD': data_paths},
+    classifiers = [
+        'Programming Language :: C++',
+        'Programming Language :: Cython',
+        'Programming Language :: Python',
+        'Development Status :: 3 - Alpha',
+        'Natural Language :: English',
+        'Intended Audience :: Science/Research',
+        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+        'Operating System :: OS Independent',
+        'Topic :: Scientific/Engineering :: Physics',
+        ],
+)
