@@ -66,7 +66,7 @@ TEST_CASE("Lattice test") {
 
   SECTION("Test non-scalar site types") {
     decltype(lattice_array) result
-      = lattice_array * arr.broadcast(lattice_array.size());
+      = lattice_array * arr.broadcast();
     REQUIRE(result.volume() == lattice_array.volume());
     for (auto& site_array : result) {
       for (auto val : site_array) {

@@ -51,6 +51,8 @@ namespace pyQCD
     const T1& operator[](const unsigned long i) const { return data_[i]; }
 
     void resize(const int size) { data_.resize(size); }
+    ArrayConst<Array<T1, Alloc, T2> > broadcast() const
+    { return ArrayConst<Array<T1, Alloc, T2> >(*this); }
 
     typename std::vector<T1>::iterator begin() { return data_.begin(); }
     typename std::vector<T1>::const_iterator begin() const
