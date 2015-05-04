@@ -53,17 +53,14 @@ namespace pyQCD
   {
     // Expression subclass for const operations
   public:
-    ArrayConst(const T& scalar, const unsigned long size, const Layout* layout)
-      : scalar_(scalar), size_(size), layout_(layout)
-    { }
+    // Need some SFINAE here to ensure no clash with copy/move constructor
+    template <typename std::enable_if<
+      not std::is_same<T, ArrayConst<T> >::value>::type* = nullptr>
+    ArrayConst(const T& scalar) : scalar_(scalar) { }
     const T& operator[](const unsigned long i) const { return scalar_; }
-    unsigned long size() const { return size_; }
-    const Layout* layout() const { return layout_; }
 
   private:
     const T& scalar_;
-    unsigned long size_;
-    const Layout* layout_;
   };
 
 
@@ -96,20 +93,20 @@ namespace pyQCD
     ArrayBinary(const ArrayExpr<T1, T3>& lhs, const ArrayExpr<T2, T4>& rhs)
       : lhs_(lhs), rhs_(rhs)
     {
-#ifndef NDEBUG
-      if (lhs.layout() != nullptr and rhs.layout() != nullptr) {
-        pyQCDassert ((typeid(*(lhs.layout())) == typeid(*(rhs.layout()))),
-          std::bad_cast());
-      }
-#endif
+      pyQCDassert((BinaryOperandTraits<T1, T2>::equal_size(lhs_, rhs_)),
+        std::out_of_range("ArrayBinary: lhs.size() != rhs.size()"));
+      pyQCDassert((BinaryOperandTraits<T1, T2>::equal_layout(lhs_, rhs_)),
+        std::bad_cast());
     }
     // Here we denote the actual arithmetic operation.
     const decltype(Op::apply(std::declval<T3>(), std::declval<T4>()))
     operator[](const unsigned long i) const
     { return Op::apply(lhs_[i], rhs_[i]); }
 
-    unsigned long size() const { return lhs_.size(); }
-    const Layout* layout() const { return lhs_.layout(); }
+    unsigned long size() const
+    { return BinaryOperandTraits<T1, T2>::size(lhs_, rhs_); }
+    const Layout* layout() const
+    { return BinaryOperandTraits<T1, T2>::layout(lhs_, rhs_); }
 
   private:
     // The members - the inputs to the binary operation
@@ -138,7 +135,7 @@ namespace pyQCD
   operator op(const ArrayExpr<T1, T2>& array, const T3& scalar)       \
   {                                                                   \
     return ArrayBinary<T1, ArrayConst<T3>, T2, T3, trait>             \
-      (array, ArrayConst<T3>(scalar, array.size(), array.layout()));  \
+      (array, ArrayConst<T3>(scalar));  \
   }
 
   // This macro is for the + and * operators where the scalar can
@@ -151,7 +148,7 @@ namespace pyQCD
   operator op(const T1& scalar, const ArrayExpr<T2, T3>& array)       \
   {                                                                   \
     return ArrayBinary<ArrayConst<T1>, T2, T1, T3, trait>             \
-      (ArrayConst<T1>(scalar, array.size(), array.layout()), array);  \
+      (ArrayConst<T1>(scalar), array);  \
   }
 
 

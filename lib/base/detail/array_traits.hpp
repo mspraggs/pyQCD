@@ -77,6 +77,57 @@ namespace pyQCD
   {
     typedef Array<T, Alloc, EmptyType> type;
   };
+
+
+  template <typename T1, typename T2>
+  struct BinaryOperandTraits
+  {
+    static unsigned long size(const T1& lhs, const T2& rhs)
+    { return lhs.size(); }
+    static bool equal_size(const T1& lhs, const T2& rhs)
+    { return lhs.size() == rhs.size(); }
+    static const Layout* layout(const T1& lhs, const T2& rhs)
+    { return CrtpLayoutTraits<T1>::get_layout(lhs); }
+    static bool equal_layout(const T1& lhs, const T2& rhs)
+    {
+      const Layout* layout_rhs = CrtpLayoutTraits<T1>::get_layout(lhs);
+      const Layout* layout_lhs = CrtpLayoutTraits<T2>::get_layout(rhs);
+      if (layout_rhs != nullptr and layout_lhs != nullptr) {
+        return typeid(*layout_rhs) == typeid(*layout_lhs);
+      }
+      else {
+        return true;
+      }
+    }
+  };
+
+
+  template <typename T1, typename T2>
+  struct BinaryOperandTraits<T1, ArrayConst<T2> >
+  {
+    static unsigned long size(const T1& lhs, const ArrayConst<T2>& rhs)
+    { return lhs.size(); }
+    static bool equal_size(const T1& lhs, const ArrayConst<T2>& rhs)
+    { return true; }
+    static const Layout* layout(const T1& lhs, const ArrayConst<T2>& rhs)
+    { return CrtpLayoutTraits<T1>::get_layout(lhs); }
+    static bool equal_layout(const T1& lhs, const ArrayConst<T2>& rhs)
+    { return true; }
+  };
+
+
+  template <typename T1, typename T2>
+  struct BinaryOperandTraits<ArrayConst<T1>, T2>
+  {
+    static unsigned long size(const ArrayConst<T1>& lhs, const T2& rhs)
+    { return rhs.size(); }
+    static bool equal_size(const ArrayConst<T1>& lhs, const T2& rhs)
+    { return true; }
+    static const Layout* layout(const ArrayConst<T1>& lhs, const T2& rhs)
+    { return CrtpLayoutTraits<T2>::get_layout(rhs); }
+    static bool equal_layout(const ArrayConst<T1>& lhs, const T2& rhs)
+    { return true; }
+  };
 }
 
 #endif
