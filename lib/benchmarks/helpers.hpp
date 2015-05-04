@@ -32,13 +32,13 @@ void benchmark(Fn func, const long num_flops = 0, const int num_trials = 100)
   auto end = std::chrono::system_clock::now();
 
   std::chrono::duration<double> elapsed_seconds = end - start;
-  double elapsed = elapsed_seconds.count() / num_trials;
-  std::cout << "Performed " << num_flops << " flops in " << elapsed
+  double elapsed = elapsed_seconds.count();
+  std::cout << "Performed " << num_flops * num_trials << " flops in " << elapsed
     << " seconds";
 
   if (num_flops > 0) {
-    std::cout << " => " << num_flops / elapsed / 1000000.0 << " Mflops."
-      << std::endl;
+    std::cout << " => " << num_trials * num_flops / elapsed / 1000000.0
+      << " Mflops." << std::endl;
   }
   else {
     std::cout << "." << std::endl;
