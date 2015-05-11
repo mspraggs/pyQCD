@@ -54,7 +54,7 @@ def main(num_colours, precision, representation, dest=None):
     else:
         dest = src
 
-    generate_cython_types(os.path.join(dest, "base"), precision,
+    generate_cython_types(os.path.join(dest, "core"), precision,
                           matrix_definitions)
 
 

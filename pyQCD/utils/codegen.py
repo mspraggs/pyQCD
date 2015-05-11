@@ -90,7 +90,7 @@ def generate_cython_types(output_path, precision, matrices):
                          for variant, fname in zip(variants, fnames)])
         for variant, fname in zip(variants, fnames):
             name = getattr(matrix, "{}_name".format(variant))
-            template = env.get_template("base/{}.pxd".format(variant))
+            template = env.get_template("core/{}.pxd".format(variant))
             operator_include_files.append(fname)
             print("Writing {} to {}".format(variant, fname))
             with open(os.path.join(output_path, fname + ".pxd"), 'w') as f:
@@ -133,7 +133,7 @@ def generate_cython_types(output_path, precision, matrices):
                     else:
                         non_broadcast_ops.append((op, lhs, rhs))
 
-    cython_operator_template = env.get_template("base/operators.pxd")
+    cython_operator_template = env.get_template("core/operators.pxd")
     with open(os.path.join(output_path, "operators.pxd"), 'w') as f:
         f.write(cython_operator_template.render(
             scalar_binary_ops=scalar_binary_ops,
@@ -142,6 +142,6 @@ def generate_cython_types(output_path, precision, matrices):
             includes=operator_include_files))
     # Here we generate some C++ code to wrap operators where one of the operands
     # is an array type and the other a lattice type.
-    cpp_operator_template = env.get_template("base/broadcast_operators.hpp")
+    cpp_operator_template = env.get_template("core/broadcast_operators.hpp")
     with open(os.path.join(output_path, "broadcast_operators.hpp"), 'w') as f:
         f.write(cpp_operator_template.render(ops=broadcast_ops))
