@@ -20,6 +20,7 @@ namespace pyQCD
   class Lattice : public Array<T, Alloc, Lattice<T, Alloc> >
   {
   public:
+    Lattice() { }
     Lattice(const Layout& layout)
       : Array<T, Alloc, Lattice<T, Alloc> >(), layout_(&layout)
     {
