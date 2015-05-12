@@ -99,17 +99,17 @@ def generate_cython_types(output_path, precision, matrices):
             # Add scalar binary operations to the list of possible operators
             for op in '+*-':
                 scalar_binary_ops.extend([
-                    (op, precision, name), (op, name, precision),
-                    (op, "std::<{}>".format(precision), name),
-                    (op, name, "std::<{}>".format(precision))
+                    (name, op, "Scalar", name), (name, op, name, "Scalar"),
+                    (name, op, "Complex", name), (name, op, name, "Complex")
                 ])
             scalar_binary_ops.extend([
-                ('/', name, precision),
-                ('/', name, "std::<{}>".format(precision))
+                (name, '/', name, "Scalar"), (name, '/', name, "Complex")
             ])
 
     broadcast_ops = []
     non_broadcast_ops = []
+
+    ret_lookup = dict(zip(matrix_shapes, matrices))
 
     for matrix_lhs, matrix_rhs in product(matrices, matrices):
         # Check that the operation is allowed
@@ -121,17 +121,25 @@ def generate_cython_types(output_path, precision, matrices):
                 name_rhs = getattr(matrix_rhs, "{}_name".format(variant_rhs))
                 # Now we need to check whether we need to broadcast an array
                 # against a lattice type.
+                array_lhs = 'array' in variant_lhs
+                array_rhs = 'array' in variant_rhs
                 lattice_lhs = 'lattice' in variant_lhs
                 lattice_rhs = 'lattice' in variant_rhs
                 lhs = {'name': name_lhs,
                        'broadcast': lattice_rhs and not lattice_lhs}
                 rhs = {'name': name_rhs,
                        'broadcast': lattice_lhs and not lattice_rhs}
+                ret = ret_lookup[matrix_lhs.num_rows, matrix_rhs.num_cols]
+                ret_array = array_lhs or array_rhs
+                ret_lattice = lattice_lhs or lattice_rhs
+                ret_variant = (('lattice_' if ret_lattice else '') +
+                               ('array' if ret_array else 'matrix'))
+                ret_name = getattr(ret, "{}_name".format(ret_variant))
                 for op in '*+-':
                     if lhs['broadcast'] or rhs['broadcast']:
-                        broadcast_ops.append((op, lhs, rhs))
+                        broadcast_ops.append((ret_name, op, lhs, rhs))
                     else:
-                        non_broadcast_ops.append((op, lhs, rhs))
+                        non_broadcast_ops.append((ret_name, op, lhs, rhs))
 
     types_template = env.get_template("core/types.hpp")
     with open(os.path.join(output_path, "types.hpp"), 'w') as f:
