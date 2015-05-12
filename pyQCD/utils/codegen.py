@@ -133,6 +133,10 @@ def generate_cython_types(output_path, precision, matrices):
                     else:
                         non_broadcast_ops.append((op, lhs, rhs))
 
+    types_template = env.get_template("core/types.hpp")
+    with open(os.path.join(output_path, "types.hpp"), 'w') as f:
+        f.write(types_template.render(matrices=matrices, precision=precision))
+
     cython_operator_template = env.get_template("core/operators.pxd")
     with open(os.path.join(output_path, "operators.pxd"), 'w') as f:
         f.write(cython_operator_template.render(
