@@ -81,7 +81,7 @@ def generate_cython_types(output_path, precision, matrices):
     # List of tuples of allowed binary operations
     scalar_binary_ops = []
     matrix_shapes = [(m.num_rows, m.num_cols) for m in matrices]
-    operator_include_files = []
+    operator_includes = []
 
     for matrix in matrices:
         fnames = [_camel2underscores(getattr(matrix, "{}_name".format(variant)))
@@ -91,7 +91,7 @@ def generate_cython_types(output_path, precision, matrices):
         for variant, fname in zip(variants, fnames):
             name = getattr(matrix, "{}_name".format(variant))
             template = env.get_template("core/{}.pxd".format(variant))
-            operator_include_files.append(fname)
+            operator_includes.append((fname, name))
             print("Writing {} to {}".format(variant, fname))
             with open(os.path.join(output_path, fname + ".pxd"), 'w') as f:
                 f.write(template.render(precision=precision, matrixdef=matrix,
@@ -151,7 +151,7 @@ def generate_cython_types(output_path, precision, matrices):
             scalar_binary_ops=scalar_binary_ops,
             non_broadcast_binary_ops=non_broadcast_ops,
             broadcast_binary_ops=broadcast_ops,
-            includes=operator_include_files))
+            includes=operator_includes))
     # Here we generate some C++ code to wrap operators where one of the operands
     # is an array type and the other a lattice type.
     cpp_operator_template = env.get_template("core/broadcast_operators.hpp")
