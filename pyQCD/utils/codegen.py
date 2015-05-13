@@ -157,3 +157,6 @@ def generate_cython_types(output_path, precision, matrices):
     cpp_operator_template = env.get_template("core/broadcast_operators.hpp")
     with open(os.path.join(output_path, "broadcast_operators.hpp"), 'w') as f:
         f.write(cpp_operator_template.render(ops=broadcast_ops))
+
+
+env.filters['to_underscores'] = _camel2underscores
