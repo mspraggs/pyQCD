@@ -1,6 +1,6 @@
-from scalar cimport Scalar
+from real cimport Real
 
 cdef extern from "types.hpp":
     cdef cppclass Complex:
         Complex() except +
-        Complex(const Scalar, const Scalar) except +
+        Complex(const Real, const Real) except +

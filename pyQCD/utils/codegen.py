@@ -99,11 +99,11 @@ def generate_cython_types(output_path, precision, matrices):
             # Add scalar binary operations to the list of possible operators
             for op in '+*-':
                 scalar_binary_ops.extend([
-                    (name, op, "Scalar", name), (name, op, name, "Scalar"),
+                    (name, op, "Real", name), (name, op, name, "Real"),
                     (name, op, "Complex", name), (name, op, name, "Complex")
                 ])
             scalar_binary_ops.extend([
-                (name, '/', name, "Scalar"), (name, '/', name, "Complex")
+                (name, '/', name, "Real"), (name, '/', name, "Complex")
             ])
 
     broadcast_ops = []
