@@ -1,4 +1,6 @@
+from {{ matrixdef.matrix_name|to_underscores }} cimport {{ matrixdef.matrix_name }}
 from layout cimport Layout
+
 
 cdef extern from "types.hpp":
     cdef cppclass {{ matrixdef.lattice_matrix_name }}:

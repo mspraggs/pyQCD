@@ -1,3 +1,9 @@
+from real cimport Real
+from complex cimport Complex
+{% for inc in includes %}
+from {{ inc.0 }} cimport {{ inc.1 }}
+{% endfor %}
+
 
 cdef extern from "types.hpp":
     {% for op in scalar_binary_ops %}

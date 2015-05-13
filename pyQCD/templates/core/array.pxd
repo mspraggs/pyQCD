@@ -1,3 +1,5 @@
+from {{ matrixdef.matrix_name|to_underscores }} cimport {{ matrixdef.matrix_name }}
+
 cdef extern from "types.hpp":
     cdef cppclass {{ matrixdef.array_name }}:
         {{ matrixdef.array_name }}() except +
