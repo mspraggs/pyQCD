@@ -10,3 +10,5 @@ cdef extern from "types.hpp":
         {% else %}
         const Complex& operator[](int) except +
         {% endif %}
+
+    cdef {{ matrixdef.matrix_name }} zeros "{{ matrixdef.matrix_name }}::Zero"()
