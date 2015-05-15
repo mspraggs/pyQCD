@@ -17,6 +17,7 @@ namespace pyQCD
   class Layout
   {
   public:
+    Layout() { }
     template <typename Fn>
     Layout(const std::vector<unsigned int>& lattice_shape,
       Fn compute_array_index)
@@ -65,6 +66,7 @@ namespace pyQCD
   class LexicoLayout : public Layout
   {
   public:
+    LexicoLayout() { }
     LexicoLayout(const std::vector<unsigned int>& shape)
       : Layout(shape, [] (const unsigned int i) { return i; })
     { }
