@@ -129,7 +129,7 @@ def make_lattice_binary_ops(matrices, matrix_lhs, matrix_rhs):
     return ops
 
 
-def make_scalar_binary_ops(matrix):
+def make_scalar_binary_ops(matrix, precision):
     """Create a list of tuples that define possible scalar binary operators
 
     Args:
@@ -146,7 +146,7 @@ def make_scalar_binary_ops(matrix):
         typename = getattr(matrix, "{}_name".format(variant))
 
         for op in "+*-":
-            for scalar in ["Real", "Complex"]:
+            for scalar in [precision, "Complex"]:
                 ops.extend([
                     (typename, op, scalar, typename),
                     (typename, op, typename, scalar)])
