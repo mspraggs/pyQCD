@@ -4,13 +4,14 @@
 etc.
 """
 
+from __future__ import absolute_import, print_function
+
 import os
 from collections import namedtuple
 from itertools import product
 from string import lowercase
 
-from jinja2 import Environment, PackageLoader, FileSystemLoader
-from pkg_resources import Requirement, resource_filename
+from jinja2 import Environment, PackageLoader
 
 
 # Create the jinja2 template environment. If we're installed, then look for
