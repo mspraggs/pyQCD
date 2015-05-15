@@ -55,6 +55,18 @@ namespace pyQCD
 
     Lattice<T, Alloc>& operator=(const Lattice<T, Alloc>& lattice);
     Lattice<T, Alloc>& operator=(Lattice<T, Alloc>&& lattice) = default;
+    template <typename U1, typename U2>
+    Lattice<T, Alloc>& operator=(const ArrayExpr<U1, U2>& expr)
+    {
+      pyQCDassert ((this->data_.size() == expr.size()),
+                   std::out_of_range("Array::data_"));
+      T* ptr = &(this->data_)[0];
+      for (unsigned long i = 0; i < expr.size(); ++i) {
+        ptr[i] = static_cast<T>(expr[i]);
+      }
+      layout_ = expr.layout();
+      return *this;
+    }
 
     unsigned int volume() const { return layout_->volume(); }
     unsigned int num_dims() const { return layout_->num_dims(); }
