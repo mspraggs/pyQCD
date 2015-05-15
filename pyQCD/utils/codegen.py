@@ -153,12 +153,13 @@ def make_scalar_binary_ops(matrix, precision):
     return ops
 
 
-def write_core_template(filename, output_path, **template_args):
+def write_core_template(template_fname, output_fname, output_path,
+                        **template_args):
     """Load the specified template from templates/core and render it to core"""
 
-    template = env.get_template("core/{}".format(filename))
-    path = os.path.join(output_path, filename)
-    print("Writing pyQCD/templates/core/{} to {}".format(filename, path))
+    template = env.get_template("core/{}".format(template_fname))
+    path = os.path.join(output_path, output_fname)
+    print("Writing pyQCD/templates/core/{} to {}".format(template_fname, path))
     with open(path, 'w') as f:
         f.write(template.render(**template_args))
 
@@ -192,7 +193,7 @@ def generate_cython_types(output_path, precision, matrices):
         for variant, fname in zip(variants, fnames):
             name = getattr(matrix, "{}_name".format(variant))
             operator_includes.append((fname, name))
-            write_core_template(fname + ".pxd", output_path,
+            write_core_template(variant + ".pxd", fname + ".pxd", output_path,
                                 precision=precision, matrixdef=matrix,
                                 includes=includes)
 
@@ -202,10 +203,11 @@ def generate_cython_types(output_path, precision, matrices):
         lattice_binary_ops.extend(
             make_lattice_binary_ops(matrices, matrix_lhs, matrix_rhs))
 
-    write_core_template("types.hpp", output_path, matrices=matrices,
+    write_core_template("types.hpp", "types.hpp", output_path,
+                        matrices=matrices, precision=precision)
+    write_core_template("complex.pxd", "complex.pxd", output_path,
                         precision=precision)
-    write_core_template("complex.pxd", output_path, precision=precision)
-    write_core_template("operators.pxd", output_path,
+    write_core_template("operators.pxd", "operators.pxd", output_path,
                         scalar_binary_ops=scalar_binary_ops,
                         lattice_binary_ops=lattice_binary_ops,
                         includes=operator_includes)
