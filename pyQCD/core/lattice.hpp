@@ -81,7 +81,13 @@ namespace pyQCD
   Lattice<T, Alloc>& Lattice<T, Alloc>::operator=(
     const Lattice<T, Alloc>& lattice)
   {
-    assert (lattice.volume() == volume());
+    if (layout_) {
+      pyQCDassert (lattice.volume() == volume(),
+        std::invalid_argument("lattice.volume() != volume()"));
+    }
+    else {
+      layout_ = lattice.layout_;
+    }
     if (&lattice != this) {
       for (unsigned int i = 0; i < volume(); ++i) {
         (*this)(lattice.layout_->get_site_index(i)) = lattice[i];
