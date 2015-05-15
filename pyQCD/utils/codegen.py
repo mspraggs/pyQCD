@@ -183,8 +183,10 @@ def generate_cython_types(output_path, precision, matrices):
             name = getattr(matrix, "{}_name".format(variant))
             template = env.get_template("core/{}.pxd".format(variant))
             operator_includes.append((fname, name))
-            print("Writing {} to {}".format(variant, fname))
-            with open(os.path.join(output_path, fname + ".pxd"), 'w') as f:
+            path = os.path.join(output_path, fname + ".pxd")
+            print("Writing pyQCD/templates/core/{}.pxd to {}"
+                  .format(variant, path))
+            with open(path, 'w') as f:
                 f.write(template.render(precision=precision, matrixdef=matrix,
                                         includes=includes))
 
@@ -194,12 +196,16 @@ def generate_cython_types(output_path, precision, matrices):
         lattice_binary_ops.extend(
             make_lattice_binary_ops(matrices, matrix_lhs, matrix_rhs))
 
+    path = os.path.join(output_path, "types.hpp")
     types_template = env.get_template("core/types.hpp")
-    with open(os.path.join(output_path, "types.hpp"), 'w') as f:
+    print("Writing pyQCD/templates/core/types.hpp to {}".format(path))
+    with open(path, 'w') as f:
         f.write(types_template.render(matrices=matrices, precision=precision))
 
+    path = os.path.join(output_path, "operators.pxd")
     cython_operator_template = env.get_template("core/operators.pxd")
-    with open(os.path.join(output_path, "operators.pxd"), 'w') as f:
+    print("Writing pyQCD/templates/core/operators.pxd to {}".format(path))
+    with open(path, 'w') as f:
         f.write(cython_operator_template.render(
             scalar_binary_ops=scalar_binary_ops,
             lattice_binary_ops=lattice_binary_ops,
