@@ -10,6 +10,6 @@ cdef extern from "types.hpp":
     {{ op.0 }} operator{{ op.1 }}(const {{ op.2 }}&, const {{ op.3 }}&) except +
     {% endfor %}
 
-    {% for op in non_broadcast_binary_ops %}
-    {{ op.0 }} operator{{ op.1 }}(const {{ op.2.name }}&, const {{ op.3.name }}&) except +
+    {% for op in lattice_binary_ops %}
+    {{ op.0 }} operator{{ op.1 }}(const {{ op.2 }}&, const {{ op.3 }}&) except +
     {% endfor %}

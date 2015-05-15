@@ -62,6 +62,96 @@ def create_matrix_definition(num_rows, num_cols, matrix_name, array_name=None,
         lattice_array_name or "Lattice{}Array".format(matrix_name))
 
 
+def get_compatible_variants(matrix_lhs, matrix_rhs):
+    """Returns triplets of compatible variants and return variants
+
+    Args:
+      matrix_lhs (MatrixDefinition): The matrix on the left hand side of the
+        binary operator.
+      matrix_rhs (MatrixDefinition): The matrix on the right hand side of the
+        binary operator.
+
+    Returns:
+      list: List of three-tuples containing compatible types and return types
+    """
+
+    if matrix_lhs.num_cols != matrix_rhs.num_rows:
+        return (-1, -1), []
+    else:
+        result_shape = (matrix_lhs.num_rows, matrix_rhs.num_cols)
+
+    variants = ['matrix', 'array', 'lattice_matrix', 'lattice_array']
+    pairs = []
+    for variant_lhs, variant_rhs in product(variants, variants):
+        lattice_lhs = 'lattice' in variant_lhs
+        lattice_rhs = 'lattice' in variant_rhs
+        ret_array = 'array' in variant_lhs or 'array' in variant_rhs
+        ret_lattice = lattice_lhs or lattice_rhs
+        ret_variant = (("lattice_" if ret_lattice else "") +
+                       ("array" if ret_array else "matrix"))
+        if lattice_lhs == lattice_rhs:
+            pairs.append((variant_lhs, variant_rhs, ret_variant))
+        elif variant_lhs == 'matrix' or variant_rhs == 'matrix':
+            pairs.append((variant_lhs, variant_rhs, ret_variant))
+
+    return result_shape, pairs
+
+
+def make_lattice_binary_ops(matrices, matrix_lhs, matrix_rhs):
+    """Create a list of tuples that define possible lattice binary operators
+
+    Args:
+      matrices (list): A list of MatrixDefinition instances.
+      matrix_lhs (MatrixDefinition): The matrix on the lhs of the operation.
+      matrix_rhs (MatrixDefinition): The matrix on the rhs of the operation.
+
+    Returns:
+      list: List of four-tuples containing return value, operands and operator
+    """
+    ops = []
+    ret_shape, variant_triplets = get_compatible_variants(matrix_lhs,
+                                                          matrix_rhs)
+    ret_lookup = dict([((m.num_rows, m.num_cols), m) for m in matrices])
+    try:
+        matrix_ret = ret_lookup[ret_shape]
+    except KeyError:
+        return []
+    for variant_triplet in variant_triplets:
+        lhs_name, rhs_name, ret_name = tuple([
+            "{}_name".format(var) for var in variant_triplet
+        ])
+        for op in '*+-':
+            ops.append((getattr(matrix_ret, ret_name), op,
+                        getattr(matrix_lhs, lhs_name),
+                        getattr(matrix_rhs, rhs_name)))
+
+    return ops
+
+
+def make_scalar_binary_ops(matrix):
+    """Create a list of tuples that define possible scalar binary operators
+
+    Args:
+      matrix (MatrixDefinition): The matrix to create binary operators for.
+
+    Returns:
+      list: List of four-tuples containing return value, operands and operator
+    """
+
+    variants = ['matrix', 'array', 'lattice_matrix', 'lattice_array']
+    ops = []
+
+    for variant in variants:
+        typename = getattr(matrix, "{}_name".format(variant))
+
+        for op in "+*-":
+            for scalar in ["Real", "Complex"]:
+                ops.extend([
+                    (typename, op, scalar, typename),
+                    (typename, op, typename, scalar)])
+    return ops
+
+
 def generate_cython_types(output_path, precision, matrices):
     """Generate Cython matrix, array and lattice types.
 
@@ -80,7 +170,6 @@ def generate_cython_types(output_path, precision, matrices):
     variants = ['matrix', 'array', 'lattice_matrix', 'lattice_array']
     # List of tuples of allowed binary operations
     scalar_binary_ops = []
-    matrix_shapes = [(m.num_rows, m.num_cols) for m in matrices]
     operator_includes = []
 
     for matrix in matrices:
@@ -88,6 +177,7 @@ def generate_cython_types(output_path, precision, matrices):
                   for variant in variants]
         includes = dict([("{}_include".format(variant), fname)
                          for variant, fname in zip(variants, fnames)])
+        scalar_binary_ops.extend(make_scalar_binary_ops(matrix))
         for variant, fname in zip(variants, fnames):
             name = getattr(matrix, "{}_name".format(variant))
             template = env.get_template("core/{}.pxd".format(variant))
@@ -96,50 +186,12 @@ def generate_cython_types(output_path, precision, matrices):
             with open(os.path.join(output_path, fname + ".pxd"), 'w') as f:
                 f.write(template.render(precision=precision, matrixdef=matrix,
                                         includes=includes))
-            # Add scalar binary operations to the list of possible operators
-            for op in '+*-':
-                scalar_binary_ops.extend([
-                    (name, op, "Real", name), (name, op, name, "Real"),
-                    (name, op, "Complex", name), (name, op, name, "Complex")
-                ])
-            scalar_binary_ops.extend([
-                (name, '/', name, "Real"), (name, '/', name, "Complex")
-            ])
 
-    broadcast_ops = []
-    non_broadcast_ops = []
-
-    ret_lookup = dict(zip(matrix_shapes, matrices))
+    lattice_binary_ops = []
 
     for matrix_lhs, matrix_rhs in product(matrices, matrices):
-        # Check that the operation is allowed
-        if (matrix_lhs.num_cols == matrix_rhs.num_rows
-            and (matrix_lhs.num_rows, matrix_rhs.num_cols) in matrix_shapes):
-
-            for variant_lhs, variant_rhs in product(variants, variants):
-                name_lhs = getattr(matrix_lhs, "{}_name".format(variant_lhs))
-                name_rhs = getattr(matrix_rhs, "{}_name".format(variant_rhs))
-                # Now we need to check whether we need to broadcast an array
-                # against a lattice type.
-                array_lhs = 'array' in variant_lhs
-                array_rhs = 'array' in variant_rhs
-                lattice_lhs = 'lattice' in variant_lhs
-                lattice_rhs = 'lattice' in variant_rhs
-                lhs = {'name': name_lhs,
-                       'broadcast': lattice_rhs and not lattice_lhs}
-                rhs = {'name': name_rhs,
-                       'broadcast': lattice_lhs and not lattice_rhs}
-                ret = ret_lookup[matrix_lhs.num_rows, matrix_rhs.num_cols]
-                ret_array = array_lhs or array_rhs
-                ret_lattice = lattice_lhs or lattice_rhs
-                ret_variant = (('lattice_' if ret_lattice else '') +
-                               ('array' if ret_array else 'matrix'))
-                ret_name = getattr(ret, "{}_name".format(ret_variant))
-                for op in '*+-':
-                    if lhs['broadcast'] or rhs['broadcast']:
-                        broadcast_ops.append((ret_name, op, lhs, rhs))
-                    else:
-                        non_broadcast_ops.append((ret_name, op, lhs, rhs))
+        lattice_binary_ops.extend(
+            make_lattice_binary_ops(matrices, matrix_lhs, matrix_rhs))
 
     types_template = env.get_template("core/types.hpp")
     with open(os.path.join(output_path, "types.hpp"), 'w') as f:
@@ -149,14 +201,8 @@ def generate_cython_types(output_path, precision, matrices):
     with open(os.path.join(output_path, "operators.pxd"), 'w') as f:
         f.write(cython_operator_template.render(
             scalar_binary_ops=scalar_binary_ops,
-            non_broadcast_binary_ops=non_broadcast_ops,
-            broadcast_binary_ops=broadcast_ops,
+            lattice_binary_ops=lattice_binary_ops,
             includes=operator_includes))
-    # Here we generate some C++ code to wrap operators where one of the operands
-    # is an array type and the other a lattice type.
-    cpp_operator_template = env.get_template("core/broadcast_operators.hpp")
-    with open(os.path.join(output_path, "broadcast_operators.hpp"), 'w') as f:
-        f.write(cpp_operator_template.render(ops=broadcast_ops))
 
 
 env.filters['to_underscores'] = _camel2underscores
