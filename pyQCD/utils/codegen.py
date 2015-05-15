@@ -153,6 +153,16 @@ def make_scalar_binary_ops(matrix, precision):
     return ops
 
 
+def write_core_template(filename, output_path, **template_args):
+    """Load the specified template from templates/core and render it to core"""
+
+    template = env.get_template("core/{}".format(filename))
+    path = os.path.join(output_path, filename)
+    print("Writing pyQCD/templates/core/{} to {}".format(filename, path))
+    with open(path, 'w') as f:
+        f.write(template.render(**template_args))
+
+
 def generate_cython_types(output_path, precision, matrices):
     """Generate Cython matrix, array and lattice types.
 
@@ -178,17 +188,13 @@ def generate_cython_types(output_path, precision, matrices):
                   for variant in variants]
         includes = dict([("{}_include".format(variant), fname)
                          for variant, fname in zip(variants, fnames)])
-        scalar_binary_ops.extend(make_scalar_binary_ops(matrix))
+        scalar_binary_ops.extend(make_scalar_binary_ops(matrix, precision))
         for variant, fname in zip(variants, fnames):
             name = getattr(matrix, "{}_name".format(variant))
-            template = env.get_template("core/{}.pxd".format(variant))
             operator_includes.append((fname, name))
-            path = os.path.join(output_path, fname + ".pxd")
-            print("Writing pyQCD/templates/core/{}.pxd to {}"
-                  .format(variant, path))
-            with open(path, 'w') as f:
-                f.write(template.render(precision=precision, matrixdef=matrix,
-                                        includes=includes))
+            write_core_template(fname + ".pxd", output_path,
+                                precision=precision, matrixdef=matrix,
+                                includes=includes)
 
     lattice_binary_ops = []
 
@@ -196,20 +202,13 @@ def generate_cython_types(output_path, precision, matrices):
         lattice_binary_ops.extend(
             make_lattice_binary_ops(matrices, matrix_lhs, matrix_rhs))
 
-    path = os.path.join(output_path, "types.hpp")
-    types_template = env.get_template("core/types.hpp")
-    print("Writing pyQCD/templates/core/types.hpp to {}".format(path))
-    with open(path, 'w') as f:
-        f.write(types_template.render(matrices=matrices, precision=precision))
-
-    path = os.path.join(output_path, "operators.pxd")
-    cython_operator_template = env.get_template("core/operators.pxd")
-    print("Writing pyQCD/templates/core/operators.pxd to {}".format(path))
-    with open(path, 'w') as f:
-        f.write(cython_operator_template.render(
-            scalar_binary_ops=scalar_binary_ops,
-            lattice_binary_ops=lattice_binary_ops,
-            includes=operator_includes))
+    write_core_template("types.hpp", output_path, matrices=matrices,
+                        precision=precision)
+    write_core_template("complex.pxd", output_path, precision=precision)
+    write_core_template("operators.pxd", output_path,
+                        scalar_binary_ops=scalar_binary_ops,
+                        lattice_binary_ops=lattice_binary_ops,
+                        includes=operator_includes)
 
 
 env.filters['to_underscores'] = _camel2underscores
