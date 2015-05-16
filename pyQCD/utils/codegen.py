@@ -204,7 +204,7 @@ def generate_cython_types(output_path, precision, matrices):
             make_lattice_binary_ops(matrices, matrix_lhs, matrix_rhs))
 
     write_core_template("types.hpp", "types.hpp", output_path,
-                        matrices=matrices, precision=precision)
+                        matrixdefs=matrices, precision=precision)
     write_core_template("complex.pxd", "complex.pxd", output_path,
                         precision=precision)
     write_core_template("operators.pxd", "operators.pxd", output_path,
