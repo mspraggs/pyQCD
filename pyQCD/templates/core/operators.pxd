@@ -1,7 +1,6 @@
-from real cimport Real
-from complex cimport Complex
+cimport complex
 {% for inc in includes %}
-from {{ inc.0 }} cimport {{ inc.1 }}
+cimport {{ inc.0 }}
 {% endfor %}
 
 

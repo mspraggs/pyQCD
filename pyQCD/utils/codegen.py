@@ -117,14 +117,16 @@ def make_lattice_binary_ops(matrices, matrix_lhs, matrix_rhs):
         matrix_ret = ret_lookup[ret_shape]
     except KeyError:
         return []
-    for variant_triplet in variant_triplets:
+    for vartrip in variant_triplets:
         lhs_name, rhs_name, ret_name = tuple([
-            "{}_name".format(var) for var in variant_triplet
+            getattr(mat, "{}_name".format(var))
+            for mat, var in zip([matrix_lhs, matrix_rhs, matrix_ret], vartrip)
         ])
+        lhs_name = "{}.{}".format(_camel2underscores(lhs_name), lhs_name)
+        rhs_name = "{}.{}".format(_camel2underscores(rhs_name), rhs_name)
+        ret_name = "{}.{}".format(_camel2underscores(ret_name), ret_name)
         for op in '*+-':
-            ops.append((getattr(matrix_ret, ret_name), op,
-                        getattr(matrix_lhs, lhs_name),
-                        getattr(matrix_rhs, rhs_name)))
+            ops.append((ret_name, op, lhs_name, rhs_name))
 
     return ops
 
@@ -144,9 +146,10 @@ def make_scalar_binary_ops(matrix, precision):
 
     for variant in variants:
         typename = getattr(matrix, "{}_name".format(variant))
+        typename = "{}.{}".format(_camel2underscores(typename), typename)
 
         for op in "+*-":
-            for scalar in [precision, "Complex"]:
+            for scalar in [precision, "complex.Complex"]:
                 ops.extend([
                     (typename, op, scalar, typename),
                     (typename, op, typename, scalar)])
