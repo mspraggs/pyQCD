@@ -214,6 +214,8 @@ def generate_cython_types(output_path, precision, matrices):
                         scalar_binary_ops=scalar_binary_ops,
                         lattice_binary_ops=lattice_binary_ops,
                         includes=operator_includes)
+    write_core_template("core.pyx", "core.pyx", output_path,
+                        matrixdefs=matrices)
 
 
 env.filters['to_underscores'] = _camel2underscores
