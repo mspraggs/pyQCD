@@ -66,8 +66,10 @@ cdef class {{ matrix.lattice_matrix_name }}:
     def __init__(self):
         pass
 
+
 cdef class {{ matrix.lattice_array_name }}:
     def __init__(self):
         pass
+
 
 {% endfor %}
