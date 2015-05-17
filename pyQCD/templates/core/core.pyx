@@ -16,7 +16,7 @@ cdef class Complex:
 
 {% for matrix in matrixdefs %}
 cdef class {{ matrix.matrix_name }}:
-    cdef {{matrix.matrix_name|to_underscores }}.{{ matrix.matrix_name }} instance
+    cdef {{ matrix.matrix_name|to_underscores }}.{{ matrix.matrix_name }} instance
 
     def __getitem__(self, index):
         out = Complex()
@@ -34,6 +34,18 @@ cdef class {{ matrix.matrix_name }}:
         cdef complex.Complex* z = &self.instance[index]
     {% endif %}
         z[0] = value.instance
+
+    def adjoint(self):
+        out = {{ matrix.matrix_name }}()
+        out.instance = self.instance.adjoint()
+        return out
+
+    @staticmethod
+    def zeros():
+        out = {{ matrix.matrix_name }}()
+        out.instance = {{ matrix.matrix_name|to_underscores }}.zeros()
+        return out
+
 
 cdef class {{ matrix.array_name }}:
     def __init__(self):
