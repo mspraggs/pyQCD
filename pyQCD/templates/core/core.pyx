@@ -48,8 +48,19 @@ cdef class {{ matrix.matrix_name }}:
 
 
 cdef class {{ matrix.array_name }}:
-    def __init__(self):
-        pass
+    cdef {{ matrix.array_name|to_underscores }}.{{ matrix.array_name }} instance
+
+    def _init_with_args_(self, unsigned int N, {{ matrix.matrix_name }} value):
+        self.instance = {{ matrix.array_name|to_underscores }}.{{ matrix.array_name }}(N, value.instance)
+
+    def __init__(self, *args):
+        if not args:
+            pass
+        elif len(args) == 2 and isinstance(args[0], int) and isinstance(args[1], {{ matrix.matrix_name }}):
+            self._init_with_args_(args[0], args[1])
+        else:
+            raise TypeError
+
 
 cdef class {{ matrix.lattice_matrix_name }}:
     def __init__(self):
