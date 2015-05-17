@@ -14,9 +14,7 @@ from string import lowercase
 from jinja2 import Environment, PackageLoader
 
 
-# Create the jinja2 template environment. If we're installed, then look for
-# templates in the packages installation tree. Otherwise, look for it in the
-# root of the project source tree.th
+# Create the jinja2 template environment.
 env = Environment(loader=PackageLoader('pyQCD', 'templates'),
                   trim_blocks=True, lstrip_blocks=True)
 
@@ -185,6 +183,7 @@ def generate_cython_types(output_path, precision, matrices):
     variants = ['matrix', 'array', 'lattice_matrix', 'lattice_array']
     # List of tuples of allowed binary operations
     scalar_binary_ops = []
+    lattice_binary_ops = []
     operator_includes = []
 
     for matrix in matrices:
@@ -199,8 +198,6 @@ def generate_cython_types(output_path, precision, matrices):
             write_core_template(variant + ".pxd", fname + ".pxd", output_path,
                                 precision=precision, matrixdef=matrix,
                                 includes=includes)
-
-    lattice_binary_ops = []
 
     for matrix_lhs, matrix_rhs in product(matrices, matrices):
         lattice_binary_ops.extend(
