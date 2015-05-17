@@ -27,8 +27,6 @@ extensions = [Extension("pyQCD.core.core", ["pyQCD/core/core.pyx"],
                         extra_compile_args=["-std=c++11"])]
 
 
-# Exclude the lattice.py and simulation.py files if lattice.so
-# hasn't been built.
 setup(
     name='pyQCD',
     version='',
