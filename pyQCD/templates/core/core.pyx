@@ -27,6 +27,14 @@ cdef class {{ matrix.matrix_name }}:
     {% endif %}
         return out
 
+    def __setitem__(self, index, Complex value):
+    {% if matrix.num_cols > 1 %}
+        cdef complex.Complex* z = &self.instance(index[0], index[1])
+    {% else %}
+        cdef complex.Complex* z = &self.instance[index]
+    {% endif %}
+        z[0] = value.instance
+
 cdef class {{ matrix.array_name }}:
     def __init__(self):
         pass
