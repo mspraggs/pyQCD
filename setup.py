@@ -1,5 +1,7 @@
-from setuptools import setup, find_packages
+from setuptools import Extension, setup, find_packages
 from itertools import product
+
+from Cython.Build import cythonize
 
 data_dirs = ["pyQCD", "pyQCD/templates"]
 include_subdirs = ["core",
@@ -19,12 +21,19 @@ with open("README.md") as f:
     long_description = f.read()
 
 
+extensions = [Extension("core", ["pyQCD/core/core.pyx"],
+                        language="c++",
+                        include_dirs=["./pyQCD", "/usr/include/eigen3"],
+                        extra_compile_args=["-std=c++11"])]
+
+
 # Exclude the lattice.py and simulation.py files if lattice.so
 # hasn't been built.
 setup(
     name='pyQCD',
     version='',
     packages=find_packages(exclude=["*test*"]),
+    ext_modules=cythonize(extensions),
     url='http://github.com/mspraggs/pyqcd/',
     author='Matt Spraggs',
     author_email='matthew.spraggs@gmail.com',
