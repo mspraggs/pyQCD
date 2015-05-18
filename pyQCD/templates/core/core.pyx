@@ -15,11 +15,15 @@ cdef class Complex:
         self.instance = z
 
 {% for matrix in matrixdefs %}
+{% set cmatrix = matrix.matrix_name|to_underscores + "." + matrix.matrix_name %}
+{% set carray = matrix.array_name|to_underscores + "." + matrix.array_name %}
+{% set clattice_matrix = matrix.lattice_matrix_name|to_underscores + "." + matrix.lattice_matrix_name %}
+{% set clattice_array = matrix.lattice_array_name|to_underscores + "." + matrix.lattice_array_name %}
 cdef class {{ matrix.matrix_name }}:
-    cdef {{ matrix.matrix_name|to_underscores }}.{{ matrix.matrix_name }} instance
+    cdef {{ cmatrix }} instance
 
     def __getitem__(self, index):
-        out = Complex()
+        out = Complex(0.0, 0.0)
     {% if matrix.num_cols > 1 %}
         out.instance = self.instance(index[0], index[1])
     {% else %}
@@ -48,7 +52,7 @@ cdef class {{ matrix.matrix_name }}:
 
 
 cdef class {{ matrix.array_name }}:
-    cdef {{ matrix.array_name|to_underscores }}.{{ matrix.array_name }} instance
+    cdef {{ carray }} instance
 
     def _init_with_args_(self, unsigned int N, {{ matrix.matrix_name }} value):
         self.instance = {{ matrix.array_name|to_underscores }}.{{ matrix.array_name }}(N, value.instance)
@@ -68,12 +72,19 @@ cdef class {{ matrix.array_name }}:
         return out
 
     def __setitem__(self, index, {{ matrix.matrix_name }} value):
-        cdef {{ matrix.matrix_name|to_underscores }}.{{ matrix.matrix_name }}* m = &self.instance[index]
+        cdef {{ cmatrix }}* m = &self.instance[index]
         m[0] = value.instance
 
     def adjoint(self):
         out = {{ matrix.array_name }}()
         out.instance = self.instance.adjoint()
+        return out
+
+    @staticmethod
+    def zeros(int num_elements):
+        cdef {{ cmatrix }} mat = {{ matrix.matrix_name|to_underscores }}.zeros()
+        out = {{ matrix.array_name }}()
+        out.instance = {{ carray }}(num_elements, mat)
         return out
 
 
