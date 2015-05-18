@@ -62,6 +62,20 @@ cdef class {{ matrix.array_name }}:
             raise TypeError("{{ matrix.array_name }} constructor expects "
                             "either zero or two arguments")
 
+    def __getitem__(self, index):
+        out = {{ matrix.matrix_name }}()
+        out.instance = self.instance[index]
+        return out
+
+    def __setitem__(self, index, {{ matrix.matrix_name }} value):
+        cdef {{ matrix.matrix_name|to_underscores }}.{{ matrix.matrix_name }}* m = &self.instance[index]
+        m[0] = value.instance
+
+    def adjoint(self):
+        out = {{ matrix.array_name }}()
+        out.instance = self.instance.adjoint()
+        return out
+
 
 cdef class {{ matrix.lattice_matrix_name }}:
     def __init__(self):
