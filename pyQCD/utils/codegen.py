@@ -259,7 +259,8 @@ def generate_qcd(num_colours, precision, representation, dest=None):
     else:
         raise ValueError("Unknown representation")
 
-    src = os.path.normpath(os.path.join(os.path.dirname(__file__), "../../pyQCD"))
+    src = os.path.normpath(os.path.join(os.path.dirname(__file__),
+                                        "../../pyQCD"))
     if dest:
         shutil.copytree(src, dest, ignore=_filter_lib)
     else:
