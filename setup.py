@@ -1,7 +1,9 @@
-from setuptools import Extension, setup, find_packages
 from itertools import product
+import sys
 
 from Cython.Build import cythonize
+from Cython.Compiler.Errors import CompileError
+from setuptools import Extension, setup, find_packages
 
 from pyQCD.utils.codegen import CodeGen
 
@@ -28,12 +30,19 @@ extensions = [Extension("pyQCD.core.core", ["pyQCD/core/core.pyx"],
                         include_dirs=["./pyQCD", "/usr/include/eigen3"],
                         extra_compile_args=["-std=c++11"])]
 
+# Do not rebuild on change of extension module in the case where we're
+# regenerating the code (in case of errors)
+if "codegen" in sys.argv:
+    ext_modules = []
+else:
+    ext_modules = cythonize(extensions)
+
 
 setup(
     name='pyQCD',
     version='',
     packages=find_packages(exclude=["*test*"]),
-    ext_modules=cythonize(extensions),
+    ext_modules=ext_modules,
     url='http://github.com/mspraggs/pyqcd/',
     author='Matt Spraggs',
     author_email='matthew.spraggs@gmail.com',
