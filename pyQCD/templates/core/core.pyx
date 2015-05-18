@@ -14,6 +14,17 @@ cdef class Complex:
         cdef complex.Complex z = complex.Complex(x, y)
         self.instance = z
 
+    @property
+    def real(self):
+        return self.instance.real()
+
+    @property
+    def imag(self):
+        return self.instance.imag()
+
+    def __repr__(self):
+        return "(%d, %d)" % (self.real, self.imag)
+
 {% for matrix in matrixdefs %}
 {% set cmatrix = matrix.matrix_name|to_underscores + "." + matrix.matrix_name %}
 {% set carray = matrix.array_name|to_underscores + "." + matrix.array_name %}
