@@ -7,5 +7,5 @@ cdef extern from "types.hpp":
         {{ matrixdef.array_name }}() except +
         {{ matrixdef.array_name }}(int, {{ matrixdef.matrix_name }})
         {{ matrixdef.array_name }} adjoint()
-        const {{ matrixdef.matrix_name }}& operator[](const int) except +
+        {{ matrixdef.matrix_name }}& operator[](const int) except +
         const {{ matrixdef.lattice_array_name }} broadcast()
