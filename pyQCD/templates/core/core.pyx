@@ -59,7 +59,8 @@ cdef class {{ matrix.array_name }}:
         elif len(args) == 2 and isinstance(args[0], int) and isinstance(args[1], {{ matrix.matrix_name }}):
             self._init_with_args_(args[0], args[1])
         else:
-            raise TypeError
+            raise TypeError("{{ matrix.array_name }} constructor expects "
+                            "either zero or two arguments")
 
 
 cdef class {{ matrix.lattice_matrix_name }}:
