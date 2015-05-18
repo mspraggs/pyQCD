@@ -3,6 +3,8 @@ from itertools import product
 
 from Cython.Build import cythonize
 
+from pyQCD.utils.codegen import CodeGen
+
 data_dirs = ["pyQCD", "pyQCD/templates"]
 include_subdirs = ["core",
                    "core/detail",
@@ -35,6 +37,7 @@ setup(
     url='http://github.com/mspraggs/pyqcd/',
     author='Matt Spraggs',
     author_email='matthew.spraggs@gmail.com',
+    cmdclass={'codegen': CodeGen},
     description='pyQCD provides a Python library for running lattice field '
                 'theory simulations on desktop and workstation computers.',
     long_description=long_description,

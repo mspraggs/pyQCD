@@ -9,9 +9,11 @@ from __future__ import absolute_import, print_function
 import os
 from collections import namedtuple
 from itertools import product
+import shutil
 from string import lowercase
 
 from jinja2 import Environment, PackageLoader
+import setuptools
 
 
 # Create the jinja2 template environment.
@@ -22,6 +24,20 @@ MatrixDefinition = namedtuple("MatrixDefinition",
                               ["num_rows", "num_cols", "matrix_name",
                                "array_name", "lattice_matrix_name",
                                "lattice_array_name"])
+
+
+def _filter_lib(src, names):
+    """Filters out C++ and Cython files from list of names"""
+
+    out = []
+    for name in names:
+        if name in ["build", "cmake", "CMakeFiles"]:
+            out.append(name)
+        elif os.path.isdir(os.path.join(src, name)):
+            pass
+        elif name[-4:] not in ['.hpp', '.cpp', '.pxd', '.pyx']:
+            out.append(name)
+    return out
 
 
 def _camel2underscores(string):
@@ -213,6 +229,69 @@ def generate_cython_types(output_path, precision, matrices):
                         includes=operator_includes)
     write_core_template("core.pyx", "core.pyx", output_path,
                         matrixdefs=matrices)
+
+
+def generate_qcd(num_colours, precision, representation, dest=None):
+    """Main script entry point
+
+    Builds MatrixDefinition instances and passes them to generate_cython_types.
+
+    Arguments:
+      num_colours (int): Number of colours to use in matrix definitions.
+      precision (str): The fundamental floating point type to use in
+        calculations, e.g. "single", "double", etc.
+      representation (str): The gauge field representation to use. Currently
+        only 'fundamental' is supported.
+      lib_dest (str): The root path in which to output the cython code.
+        Defaults to the lib directory in the project root directory.
+    """
+
+    matrix_definitions = []
+    if representation == "fundamental":
+        matrix_definitions.append(create_matrix_definition(
+            num_colours, num_colours, "ColourMatrix",
+            lattice_array_name="GaugeField"
+        ))
+        matrix_definitions.append(create_matrix_definition(
+            num_colours, 1, "ColourVector", array_name="Fermion",
+            lattice_array_name="FermionField"
+        ))
+    else:
+        raise ValueError("Unknown representation")
+
+    src = os.path.normpath(os.path.join(os.path.dirname(__file__), "../../pyQCD"))
+    if dest:
+        shutil.copytree(src, dest, ignore=_filter_lib)
+    else:
+        dest = src
+
+    generate_cython_types(os.path.join(dest, "core"), precision,
+                          matrix_definitions)
+
+
+class CodeGen(setuptools.Command):
+
+    description = "Generate Cython code."
+    user_options = [
+        ("num-colours=", "c", "Number of colours (defaults to 3)"),
+        ("precision=", "p", "Fundamental type for real numbers "
+                            "(defaults to double)"),
+        ("representation=", "r", "Representation (defaults to fundamental)")]
+
+    def initialize_options(self):
+        """Initialize options to their default values"""
+        self.num_colours = 3
+        self.precision = "double"
+        self.representation = "fundamental"
+
+    def finalize_options(self):
+        """Finalize options - convert num_colours to int"""
+        if isinstance(self.num_colours, str):
+            self.num_colours = int(self.num_colours)
+
+    def run(self):
+        """Run - pass execution to generate_qcd"""
+        generate_qcd(self.num_colours, self.precision, self.representation)
 
 
 env.filters['to_underscores'] = _camel2underscores
