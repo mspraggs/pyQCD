@@ -257,7 +257,7 @@ def generate_qcd(num_colours, precision, representation, dest=None):
             lattice_array_name="FermionField"
         ))
     else:
-        raise ValueError("Unknown representation")
+        raise ValueError("Unknown representation: {}".format(representation))
 
     src = os.path.normpath(os.path.join(os.path.dirname(__file__),
                                         "../../pyQCD"))
