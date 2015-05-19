@@ -44,11 +44,19 @@ cdef class {{ matrix.matrix_name }}:
 
     def __setitem__(self, index, Complex value):
     {% if matrix.num_cols > 1 %}
-        cdef complex.Complex* z = &(self.instance(index[0], index[1]))
+        self.assign_elem(index[0], index[1], value.instance)
     {% else %}
-        cdef complex.Complex* z = &(self.instance[index])
+        self.assign_elem(index, value.instance)
     {% endif %}
-        z[0] = value.instance
+
+    {% if matrix.num_cols > 1 %}
+    cdef void assign_elem(self, int i, int j, complex.Complex value):
+        {{ matrix.matrix_name|to_underscores }}.mat_assign(self.instance, i, j, value)
+    {% else %}
+    cdef void assign_elem(self, int i, complex.Complex value):
+        cdef complex.Complex* z = &(self.instance[i])
+        z[0] = value
+    {% endif %}
 
     def adjoint(self):
         out = {{ matrix.matrix_name }}()

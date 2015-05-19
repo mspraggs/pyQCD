@@ -12,3 +12,4 @@ cdef extern from "types.hpp":
         {% endif %}
 
     cdef {{ matrixdef.matrix_name }} zeros "{{ matrixdef.matrix_name }}::Zero"()
+    cdef void mat_assign({{ matrixdef.matrix_name }}&, const int, const int, const Complex)

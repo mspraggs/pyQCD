@@ -18,4 +18,12 @@ typedef pyQCD::Lattice<Eigen::Matrix<Complex, {{ matrix.num_rows }}, {{ matrix.n
 typedef pyQCD::Lattice<pyQCD::MatrixArray<{{ matrix.num_rows }}, {{ matrix.num_cols }}, {{ precision }}> > {{ matrix.lattice_array_name }};
 {% endfor %}
 
+{% for matrix in matrixdefs %}
+{% if matrix.num_cols > 1 %}
+inline void mat_assign({{ matrix.matrix_name }}& mat, const int i, const int j, const Complex value)
+{ mat(i, j) = value; }
+
+{% endif %}
+{% endfor %}
+
 #endif
