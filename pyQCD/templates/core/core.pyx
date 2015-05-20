@@ -23,7 +23,10 @@ cdef class Complex:
         return self.instance.imag()
 
     def __repr__(self):
-        return "(%d, %d)" % (self.real, self.imag)
+        if self.real == 0:
+            return "%dj" % self.imag
+        else:
+            return "(%d+%d)" % (self.real, self.imag)
 
 {% for matrix in matrixdefs %}
 {% set cmatrix = matrix.matrix_name|to_underscores + "." + matrix.matrix_name %}
