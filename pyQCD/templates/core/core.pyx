@@ -91,8 +91,11 @@ cdef class {{ matrix.array_name }}:
         return out
 
     def __setitem__(self, index, {{ matrix.matrix_name }} value):
-        cdef {{ cmatrix }}* m = &(self.instance[index])
-        m[0] = value.instance
+        self.assign_elem(index, value.instance)
+
+    cdef void assign_elem(self, int i, {{ cmatrix }} value):
+        cdef {{ cmatrix }}* m = &(self.instance[i])
+        m[0] = value
 
     def adjoint(self):
         out = {{ matrix.array_name }}()
