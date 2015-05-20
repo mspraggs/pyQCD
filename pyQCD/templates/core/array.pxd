@@ -9,3 +9,4 @@ cdef extern from "types.hpp":
         {{ matrixdef.array_name }} adjoint()
         {{ matrixdef.matrix_name }}& operator[](const int) except +
         const {{ matrixdef.lattice_array_name }} broadcast()
+        {{ matrixdef.lattice_array_name }} broadcast() except +

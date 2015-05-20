@@ -1,4 +1,5 @@
 from complex cimport Complex
+from {{ matrixdef.lattice_matrix_name|to_underscores }} cimport {{ matrixdef.lattice_matrix_name }}
 
 
 cdef extern from "types.hpp":
@@ -10,6 +11,8 @@ cdef extern from "types.hpp":
         {% else %}
         Complex& operator[](int) except +
         {% endif %}
+        {{ matrixdef.lattice_matrix_name }} broadcast() except +
+
 
     cdef {{ matrixdef.matrix_name }} zeros "{{ matrixdef.matrix_name }}::Zero"()
     cdef void mat_assign({{ matrixdef.matrix_name }}&, const int, const int, const Complex)
