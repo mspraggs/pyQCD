@@ -189,20 +189,21 @@ def make_cython_ops(matrices, cpp_ops, precision):
         code (e.g. 'double' or 'float').
     """
 
-    func_lookup = {'+': '__add__', '-': '__sub__',
-                   '*': '__mul__', '/': '__div__'}
+    func_lookup = {'+': 'add', '-': 'sub',
+                   '*': 'mul', '/': 'div'}
 
-    out = dict([(getattr(mat, "{}_name".format(var)), [])
-                for mat in matrices for var in variants])
+    out = dict([((getattr(mat, "{}_name".format(var)), op), [])
+                for mat in matrices for var in variants
+                for op in func_lookup.values()])
     for ret_type, op, lhs_type, rhs_type in cpp_ops:
         ret_type = ret_type.split('.')[-1]
         lhs_type = lhs_type.split('.')[-1]
         lhs_type = 'float' if lhs_type == precision else lhs_type
         rhs_type = rhs_type.split('.')[-1]
         rhs_type = 'float' if rhs_type == precision else rhs_type
-        func = func_lookup[op]
-        key = lhs_type if lhs_type not in ['float', 'Complex'] else rhs_type
-        out[key].append((ret_type, func, lhs_type, rhs_type))
+        key = (lhs_type if lhs_type not in ['float', 'Complex'] else rhs_type,
+               func_lookup[op])
+        out[key].append((ret_type, lhs_type, rhs_type))
 
     return out
 
