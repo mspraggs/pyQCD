@@ -114,11 +114,13 @@ cdef class {{ matrix.array_name }}:
 
 
 cdef class {{ matrix.lattice_matrix_name }}:
+    cdef {{ clattice_matrix }} instance
     def __init__(self):
         pass
 
 
 cdef class {{ matrix.lattice_array_name }}:
+    cdef {{ clattice_array }} instance
     def __init__(self):
         pass
 
