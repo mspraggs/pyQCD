@@ -172,6 +172,41 @@ def make_scalar_binary_ops(matrix, precision):
     return ops
 
 
+def make_cython_ops(matrices, cpp_ops, precision):
+    """Convert a list of operator tuples from C++ to Cython description
+
+    This means partitionining the list according the matrix type of the
+    operands, in addition to converting the character defining the arithmetic
+    operator to the appropriate Python function name.
+
+    Args:
+      matrices (list): A list of MatrixDefinition instances defining the
+        matrices that the operators should be build for.
+      cpp_ops (list): List of four-tuples specifying the arithmetic operators,
+        as returned by the make_scalar_binary_ops and make_lattice_binary_ops
+        functions.
+      precision (str): The fundamental machine type to be used throughout the
+        code (e.g. 'double' or 'float').
+    """
+
+    func_lookup = {'+': '__add__', '-': '__sub__',
+                   '*': '__mul__', '/': '__div__'}
+
+    out = dict([(getattr(mat, "{}_name".format(var)), [])
+                for mat in matrices for var in variants])
+    for ret_type, op, lhs_type, rhs_type in cpp_ops:
+        ret_type = ret_type.split('.')[-1]
+        lhs_type = lhs_type.split('.')[-1]
+        lhs_type = 'float' if lhs_type == precision else lhs_type
+        rhs_type = rhs_type.split('.')[-1]
+        rhs_type = 'float' if rhs_type == precision else rhs_type
+        func = func_lookup[op]
+        key = lhs_type if lhs_type not in ['float', 'Complex'] else rhs_type
+        out[key].append((ret_type, func, lhs_type, rhs_type))
+
+    return out
+
+
 def write_core_template(template_fname, output_fname, output_path,
                         **template_args):
     """Load the specified template from templates/core and render it to core"""
@@ -220,6 +255,9 @@ def generate_cython_types(output_path, precision, matrices):
         lattice_binary_ops.extend(
             make_lattice_binary_ops(matrices, matrix_lhs, matrix_rhs))
 
+    cython_ops = make_cython_ops(
+        matrices, scalar_binary_ops + lattice_binary_ops, precision)
+
     write_core_template("types.hpp", "types.hpp", output_path,
                         matrixdefs=matrices, precision=precision)
     write_core_template("complex.pxd", "complex.pxd", output_path,
@@ -229,7 +267,7 @@ def generate_cython_types(output_path, precision, matrices):
                         lattice_binary_ops=lattice_binary_ops,
                         includes=operator_includes)
     write_core_template("core.pyx", "core.pyx", output_path,
-                        matrixdefs=matrices)
+                        matrixdefs=matrices, operators=cython_ops)
 
 
 def generate_qcd(num_colours, precision, representation, dest=None):
