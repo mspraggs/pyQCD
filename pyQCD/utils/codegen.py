@@ -25,6 +25,8 @@ MatrixDefinition = namedtuple("MatrixDefinition",
                                "array_name", "lattice_matrix_name",
                                "lattice_array_name"])
 
+variants = ['matrix', 'array', 'lattice_matrix', 'lattice_array']
+
 
 def _filter_lib(src, names):
     """Filters out C++ and Cython files from list of names"""
@@ -95,7 +97,6 @@ def get_compatible_variants(matrix_lhs, matrix_rhs):
     else:
         result_shape = (matrix_lhs.num_rows, matrix_rhs.num_cols)
 
-    variants = ['matrix', 'array', 'lattice_matrix', 'lattice_array']
     pairs = []
     for variant_lhs, variant_rhs in product(variants, variants):
         lattice_lhs = 'lattice' in variant_lhs
@@ -155,7 +156,6 @@ def make_scalar_binary_ops(matrix, precision):
       list: List of four-tuples containing return value, operands and operator
     """
 
-    variants = ['matrix', 'array', 'lattice_matrix', 'lattice_array']
     ops = []
 
     for variant in variants:
@@ -196,7 +196,6 @@ def generate_cython_types(output_path, precision, matrices):
         MatrixDefinition.
     """
 
-    variants = ['matrix', 'array', 'lattice_matrix', 'lattice_array']
     # List of tuples of allowed binary operations
     scalar_binary_ops = []
     lattice_binary_ops = []
