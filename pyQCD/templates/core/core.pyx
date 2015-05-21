@@ -72,6 +72,25 @@ cdef class {{ matrix.matrix_name }}:
         out.instance = {{ matrix.matrix_name|to_underscores }}.zeros()
         return out
 
+    def __add__(self, other):
+        {% set ops = operators[(matrix.matrix_name, 'add')] %}
+        {% for ret, lhs, rhs in ops %}
+        if type(self) is {{ lhs }} and type(other) is {{ rhs }}:
+            out = {{ ret }}()
+            out.instance = {% if lhs != 'float' %}(<{{ lhs }}>{% endif %}self{% if lhs != 'float' %}).instance{% endif %} + {% if rhs != 'float' %}(<{{ rhs }}>{% endif %}other{% if rhs != 'float' %}).instance{% endif %}
+
+            return out
+        {% endfor %}
+
+
+{% for ret, func, lhs, rhs in operators[matrix.matrix_name] %}
+    cdef {{ func }}({{ lhs }} self, {{ rhs }} other):
+        out = {{ ret }}()
+        out.instance = self{% if lhs != "float" %}.instance{% endif %} * other{% if rhs != "float" %}.instance{% endif %}
+
+        return out
+
+{% endfor %}
 
 cdef class {{ matrix.array_name }}:
     cdef {{ carray }} instance
