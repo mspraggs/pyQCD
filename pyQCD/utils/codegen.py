@@ -167,6 +167,8 @@ def make_scalar_binary_ops(matrix, precision):
                 ops.extend([
                     (typename, op, scalar, typename),
                     (typename, op, typename, scalar)])
+        for scalar in [precision, "complex.Complex"]:
+            ops.extend([(typename, '/', typename, scalar)])
     return ops
 
 
