@@ -72,16 +72,28 @@ cdef class {{ matrix.matrix_name }}:
         out.instance = {{ matrix.matrix_name|to_underscores }}.zeros()
         return out
 
-    def __add__(self, other):
-        {% set ops = operators[(matrix.matrix_name, 'add')] %}
+{% for funcname, op in zip(["add", "sub", "mul", "div"], "+-*/") %}
+    def __{{ funcname }}__(self, other):
+        {% set ops = operators[(matrix.matrix_name, funcname)] %}
         {% for ret, lhs, rhs in ops %}
         if type(self) is {{ lhs }} and type(other) is {{ rhs }}:
             out = {{ ret }}()
-            out.instance = {% if lhs != 'float' %}(<{{ lhs }}>{% endif %}self{% if lhs != 'float' %}).instance{% endif %} + {% if rhs != 'float' %}(<{{ rhs }}>{% endif %}other{% if rhs != 'float' %}).instance{% endif %}
+            {% set lhs_prefix = "<" + lhs + ">" if lhs != "float" else "<double>" %}
+            {% set rhs_prefix = "<" + rhs + ">" if rhs != "float" else "<double>" %}
+            {% set lhs_suffix = ".instance" if lhs != "float" else "" %}
+            {% set rhs_suffix = ".instance" if rhs != "float" else "" %}
+            {% if (lhs in ["float", "Complex"] or rhs in ["float", "Complex"]) and (matrix.num_cols == 1 or funcname == "div") %}
+            out.instance = ({{ lhs_prefix }}self){{ lhs_suffix }} {{ op }} ({{ rhs_prefix }}other){{ rhs_suffix }}
+            {% else %}
+            out.instance = {{ lhs_prefix }}self{{ lhs_suffix }} {{ op }} {{ rhs_prefix }}other{{ rhs_suffix }}
+            {% endif %}
 
             return out
+        {% else %}
+        raise NotImplementedError
         {% endfor %}
 
+{% endfor %}
 
 {% for ret, func, lhs, rhs in operators[matrix.matrix_name] %}
     cdef {{ func }}({{ lhs }} self, {{ rhs }} other):
