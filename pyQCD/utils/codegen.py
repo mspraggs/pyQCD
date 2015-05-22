@@ -89,11 +89,19 @@ def get_compatible_variants(matrix_lhs, matrix_rhs):
         binary operator.
 
     Returns:
-      list: List of three-tuples containing compatible types and return types
+      tuple: Resulting matrix shape, allowed variants and permitted operations
+
+      The first element in the tuple will be the shape of the resulting matrix,
+      the second will be a list of three-tuple containing the permitted
+      lhs and rhs types and the corresponding return type.
     """
 
-    if matrix_lhs.num_cols != matrix_rhs.num_rows:
-        return (-1, -1), []
+    can_sum = ((matrix_lhs.num_cols == matrix_rhs.num_cols)
+               and (matrix_lhs.num_rows == matrix_rhs.num_rows))
+    can_mult = matrix_lhs.num_cols == matrix_rhs.num_rows
+
+    if not (can_mult or can_sum):
+        return (-1, -1), [], False, False
     else:
         result_shape = (matrix_lhs.num_rows, matrix_rhs.num_cols)
 
@@ -110,7 +118,7 @@ def get_compatible_variants(matrix_lhs, matrix_rhs):
         elif variant_lhs == 'matrix' or variant_rhs == 'matrix':
             pairs.append((variant_lhs, variant_rhs, ret_variant))
 
-    return result_shape, pairs
+    return result_shape, pairs, can_sum, can_mult
 
 
 def make_lattice_binary_ops(matrices, matrix_lhs, matrix_rhs):
@@ -125,8 +133,8 @@ def make_lattice_binary_ops(matrices, matrix_lhs, matrix_rhs):
       list: List of four-tuples containing return value, operands and operator
     """
     ops = []
-    ret_shape, variant_triplets = get_compatible_variants(matrix_lhs,
-                                                          matrix_rhs)
+    ret_shape, variant_triplets, can_sum, can_mult \
+        = get_compatible_variants(matrix_lhs, matrix_rhs)
     ret_lookup = dict([((m.num_rows, m.num_cols), m) for m in matrices])
     try:
         matrix_ret = ret_lookup[ret_shape]
@@ -140,9 +148,9 @@ def make_lattice_binary_ops(matrices, matrix_lhs, matrix_rhs):
         lhs_name = "{}.{}".format(_camel2underscores(lhs_name), lhs_name)
         rhs_name = "{}.{}".format(_camel2underscores(rhs_name), rhs_name)
         ret_name = "{}.{}".format(_camel2underscores(ret_name), ret_name)
-        for op in '*+-':
+        opcodes = ('*' if can_mult else '') + ('+-' if can_sum else '')
+        for op in opcodes:
             ops.append((ret_name, op, lhs_name, rhs_name))
-
     return ops
 
 
@@ -162,13 +170,11 @@ def make_scalar_binary_ops(matrix, precision):
         typename = getattr(matrix, "{}_name".format(variant))
         typename = "{}.{}".format(_camel2underscores(typename), typename)
 
-        for op in "+*-":
-            for scalar in [precision, "complex.Complex"]:
-                ops.extend([
-                    (typename, op, scalar, typename),
-                    (typename, op, typename, scalar)])
         for scalar in [precision, "complex.Complex"]:
-            ops.extend([(typename, '/', typename, scalar)])
+            ops.extend([
+                (typename, "*", scalar, typename),
+                (typename, "*", typename, scalar),
+                (typename, '/', typename, scalar)])
     return ops
 
 
@@ -337,3 +343,4 @@ class CodeGen(setuptools.Command):
 
 
 env.filters['to_underscores'] = _camel2underscores
+env.globals.update(zip=zip)
