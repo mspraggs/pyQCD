@@ -268,7 +268,8 @@ def generate_cython_types(output_path, precision, matrices):
                         lattice_binary_ops=lattice_binary_ops,
                         includes=operator_includes)
     write_core_template("core.pyx", "core.pyx", output_path,
-                        matrixdefs=matrices, operators=cython_ops)
+                        matrixdefs=matrices, operators=cython_ops,
+                        precision=precision)
 
 
 def generate_qcd(num_colours, precision, representation, dest=None):

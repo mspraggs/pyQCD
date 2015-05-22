@@ -78,8 +78,8 @@ cdef class {{ matrix.matrix_name }}:
         {% for ret, lhs, rhs in ops %}
         if type(self) is {{ lhs }} and type(other) is {{ rhs }}:
             out = {{ ret }}()
-            {% set lhs_prefix = "<" + lhs + ">" if lhs != "float" else "<double>" %}
-            {% set rhs_prefix = "<" + rhs + ">" if rhs != "float" else "<double>" %}
+            {% set lhs_prefix = "<" + lhs + ">" if lhs != "float" else "<" + precision + ">" %}
+            {% set rhs_prefix = "<" + rhs + ">" if rhs != "float" else "<" + precision + ">" %}
             {% set lhs_suffix = ".instance" if lhs != "float" else "" %}
             {% set rhs_suffix = ".instance" if rhs != "float" else "" %}
             {% if (lhs in ["float", "Complex"] or rhs in ["float", "Complex"]) and (matrix.num_cols == 1 or funcname == "div") %}
