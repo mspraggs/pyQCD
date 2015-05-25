@@ -145,12 +145,20 @@ def make_lattice_binary_ops(matrices, matrix_lhs, matrix_rhs):
             getattr(mat, "{}_name".format(var))
             for mat, var in zip([matrix_lhs, matrix_rhs, matrix_ret], vartrip)
         ])
+        can_sub = (
+            ("lattice" in vartrip[0] if "lattice" in vartrip[1] else True) and
+            ("array" in vartrip[0] if "array" in vartrip[1] else True)
+            and can_sum
+        )
         lhs_name = "{}.{}".format(_camel2underscores(lhs_name), lhs_name)
         rhs_name = "{}.{}".format(_camel2underscores(rhs_name), rhs_name)
         ret_name = "{}.{}".format(_camel2underscores(ret_name), ret_name)
-        opcodes = ('*' if can_mult else '') + ('+-' if can_sum else '')
+        opcodes = (('*' if can_mult else '') + ('+' if can_sum else '') +
+                   ('-' if can_sub else ''))
         for op in opcodes:
+            print(ret_name, "=", lhs_name, op, rhs_name)
             ops.append((ret_name, op, lhs_name, rhs_name))
+
     return ops
 
 
