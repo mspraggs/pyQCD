@@ -46,11 +46,20 @@ cdef class {{ matrix.matrix_name }}:
     {% endif %}
         return out
 
-    def __setitem__(self, index, Complex value):
+    def __setitem__(self, index, value):
+        if type(value) == Complex:
+            pass
+        elif type(value) == complex:
+            value = Complex(value.real, value.imag)
+        elif type(value) == float:
+            value = Complex(value, 0.0)
+        else:
+            raise TypeError("Invalid value type in {{ matrix.matrix_name }}.__setitem__: "
+                            "{}".format(type(value)))
     {% if matrix.num_cols > 1 %}
-        self.assign_elem(index[0], index[1], value.instance)
+        self.assign_elem(index[0], index[1], (<Complex>value).instance)
     {% else %}
-        self.assign_elem(index, value.instance)
+        self.assign_elem(index, (<Complex>value).instance)
     {% endif %}
 
     {% if matrix.num_cols > 1 %}
