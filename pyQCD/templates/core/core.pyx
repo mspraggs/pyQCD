@@ -26,7 +26,8 @@ cdef class Complex:
         if self.real == 0:
             return "%dj" % self.imag
         else:
-            return "(%d+%d)" % (self.real, self.imag)
+            return "(%d%s%dj)" % (self.real, ('+' if self.imag >= 0 else ''),
+                                  self.imag)
 
 {% for matrix in matrixdefs %}
 {% set cmatrix = matrix.matrix_name|to_underscores + "." + matrix.matrix_name %}
