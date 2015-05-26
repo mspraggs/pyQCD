@@ -156,7 +156,6 @@ def make_lattice_binary_ops(matrices, matrix_lhs, matrix_rhs):
         opcodes = (('*' if can_mult else '') + ('+' if can_sum else '') +
                    ('-' if can_sub else ''))
         for op in opcodes:
-            print(ret_name, "=", lhs_name, op, rhs_name)
             ops.append((ret_name, op, lhs_name, rhs_name))
 
     return ops
