@@ -73,34 +73,29 @@ cdef class {{ matrix.matrix_name }}:
         return out
 
 {% for funcname, op in zip(["add", "sub", "mul", "div"], "+-*/") %}
+{% set ops = operators[(matrix.matrix_name, funcname)] %}
     def __{{ funcname }}__(self, other):
-        {% set ops = operators[(matrix.matrix_name, funcname)] %}
-        {% for ret, lhs, rhs in ops %}
+{% for ret, lhs, rhs in ops %}
         if type(self) is {{ lhs }} and type(other) is {{ rhs }}:
-            out = {{ ret }}()
-            {% set lhs_prefix = "<" + lhs + ">" if lhs != "float" else "<" + precision + ">" %}
-            {% set rhs_prefix = "<" + rhs + ">" if rhs != "float" else "<" + precision + ">" %}
-            {% set lhs_suffix = ".instance" if lhs != "float" else "" %}
-            {% set rhs_suffix = ".instance" if rhs != "float" else "" %}
-            {% if (lhs in ["float", "Complex"] or rhs in ["float", "Complex"]) and (matrix.num_cols == 1 or funcname == "div") %}
-            out.instance = ({{ lhs_prefix }}self){{ lhs_suffix }} {{ op }} ({{ rhs_prefix }}other){{ rhs_suffix }}
-            {% else %}
-            out.instance = {{ lhs_prefix }}self{{ lhs_suffix }} {{ op }} {{ rhs_prefix }}other{{ rhs_suffix }}
-            {% endif %}
-
-            return out
-        {% else %}
-        raise NotImplementedError
-        {% endfor %}
-
+{% if lhs == "float" or lhs == "Complex" %}
+            return other._{{ funcname }}_{{ rhs }}_{{ lhs }}(<{{ lhs }}>self)
+{% else %}
+            return self._{{ funcname }}_{{ lhs }}_{{ rhs }}(<{{ rhs }}>other)
+{% endif %}
 {% endfor %}
+        raise TypeError("Unsupported operand types for {{ matrix.matrix_name }}.__{{ funcname }}__: "
+                        "{} and {}".format(type(self), type(other)))
 
-{% for ret, func, lhs, rhs in operators[matrix.matrix_name] %}
-    cdef {{ func }}({{ lhs }} self, {{ rhs }} other):
+{% for ret, lhs, rhs in ops %}
+{% if lhs != "float" and lhs != "Complex" %}
+    cpdef {{ ret }} _{{ funcname }}_{{ lhs }}_{{ rhs }}({{ lhs }} self, {{ rhs }} other):
         out = {{ ret }}()
-        out.instance = self{% if lhs != "float" %}.instance{% endif %} * other{% if rhs != "float" %}.instance{% endif %}
+        out.instance = self.instance {{ op }} other{% if rhs != "float" %}.instance{% endif %}
 
         return out
+
+{% endif %}
+{% endfor %}
 
 {% endfor %}
 
