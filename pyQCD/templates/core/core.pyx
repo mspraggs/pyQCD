@@ -82,6 +82,20 @@ cdef class {{ matrix.matrix_name }}:
         out.instance = {{ matrix.matrix_name|to_underscores }}.zeros()
         return out
 
+    @staticmethod
+    def ones():
+        out = {{ matrix.matrix_name }}()
+        out.instance = {{ matrix.matrix_name|to_underscores }}.ones()
+        return out
+
+{% if matrix.num_cols == matrix.num_rows %}
+    @staticmethod
+    def ones():
+        out = {{ matrix.matrix_name }}()
+        out.instance = {{ matrix.matrix_name|to_underscores }}.ones()
+        return out
+{% endif %}
+
 {% for funcname, op in zip(["add", "sub", "mul", "div"], "+-*/") %}
 {% set ops = operators[(matrix.matrix_name, funcname)] %}
     def __{{ funcname }}__(self, other):
