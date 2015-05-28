@@ -145,18 +145,25 @@ def make_lattice_binary_ops(matrices, matrix_lhs, matrix_rhs):
             getattr(mat, "{}_name".format(var))
             for mat, var in zip([matrix_lhs, matrix_rhs, matrix_ret], vartrip)
         ])
+        lhs_lattice = "lattice" in vartrip[0]
+        lhs_array = "array" in vartrip[0]
+        rhs_lattice = "lattice" in vartrip[1]
+        rhs_array = "array" in vartrip[1]
         can_sub = (
-            ("lattice" in vartrip[0] if "lattice" in vartrip[1] else True) and
-            ("array" in vartrip[0] if "array" in vartrip[1] else True)
+            (lhs_lattice if rhs_lattice else True) and
+            (lhs_array if rhs_array else True)
             and can_sum
         )
+        lhs_broadcast = lhs_array and (rhs_lattice and not lhs_lattice)
+        rhs_broadcast = rhs_array and (lhs_lattice and not rhs_lattice)
         lhs_name = "{}.{}".format(_camel2underscores(lhs_name), lhs_name)
         rhs_name = "{}.{}".format(_camel2underscores(rhs_name), rhs_name)
         ret_name = "{}.{}".format(_camel2underscores(ret_name), ret_name)
         opcodes = (('*' if can_mult else '') + ('+' if can_sum else '') +
                    ('-' if can_sub else ''))
         for op in opcodes:
-            ops.append((ret_name, op, lhs_name, rhs_name))
+            ops.append((ret_name, op, lhs_name, rhs_name,
+                        lhs_broadcast, rhs_broadcast))
 
     return ops
 
@@ -179,9 +186,9 @@ def make_scalar_binary_ops(matrix, precision):
 
         for scalar in [precision, "complex.Complex"]:
             ops.extend([
-                (typename, "*", scalar, typename),
-                (typename, "*", typename, scalar),
-                (typename, '/', typename, scalar)])
+                (typename, "*", scalar, typename, False, False),
+                (typename, "*", typename, scalar, False, False),
+                (typename, '/', typename, scalar, False, False)])
     return ops
 
 
@@ -208,7 +215,7 @@ def make_cython_ops(matrices, cpp_ops, precision):
     out = dict([((getattr(mat, "{}_name".format(var)), op), [])
                 for mat in matrices for var in variants
                 for op in func_lookup.values()])
-    for ret_type, op, lhs_type, rhs_type in cpp_ops:
+    for ret_type, op, lhs_type, rhs_type, lhs_bcast, rhs_bcast in cpp_ops:
         ret_type = ret_type.split('.')[-1]
         lhs_type = lhs_type.split('.')[-1]
         lhs_type = 'float' if lhs_type == precision else lhs_type
@@ -216,7 +223,7 @@ def make_cython_ops(matrices, cpp_ops, precision):
         rhs_type = 'float' if rhs_type == precision else rhs_type
         key = (lhs_type if lhs_type not in ['float', 'Complex'] else rhs_type,
                func_lookup[op])
-        out[key].append((ret_type, lhs_type, rhs_type))
+        out[key].append((ret_type, lhs_type, rhs_type, lhs_bcast, rhs_bcast))
 
     return out
 

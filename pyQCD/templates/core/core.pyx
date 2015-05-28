@@ -99,7 +99,7 @@ cdef class {{ matrix.matrix_name }}:
 {% for funcname, op in zip(["add", "sub", "mul", "div"], "+-*/") %}
 {% set ops = operators[(matrix.matrix_name, funcname)] %}
     def __{{ funcname }}__(self, other):
-{% for ret, lhs, rhs in ops %}
+{% for ret, lhs, rhs, lhs_bcast, rhs_bcast in ops %}
         if type(self) is {{ lhs }} and type(other) is {{ rhs }}:
 {% if lhs == "float" or lhs == "Complex" %}
             return other._{{ funcname }}_{{ rhs }}_{{ lhs }}(<{{ lhs }}>self)
@@ -110,11 +110,11 @@ cdef class {{ matrix.matrix_name }}:
         raise TypeError("Unsupported operand types for {{ matrix.matrix_name }}.__{{ funcname }}__: "
                         "{} and {}".format(type(self), type(other)))
 
-{% for ret, lhs, rhs in ops %}
+{% for ret, lhs, rhs, lhs_bcast, rhs_bcast in ops %}
 {% if lhs != "float" and lhs != "Complex" %}
     cpdef {{ ret }} _{{ funcname }}_{{ lhs }}_{{ rhs }}({{ lhs }} self, {{ rhs }} other):
         out = {{ ret }}()
-        out.instance = self.instance {{ op }} other{% if rhs != "float" %}.instance{% endif %}
+        out.instance = self.instance{% if lhs_bcast %}.broadcast(){% endif %} {{ op }} other{% if rhs != "float" %}.instance{% endif %}{% if rhs_bcast %}.broadcast(){% endif %}
 
         return out
 
