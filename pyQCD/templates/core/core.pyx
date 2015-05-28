@@ -90,9 +90,9 @@ cdef class {{ matrix.matrix_name }}:
 
 {% if matrix.num_cols == matrix.num_rows %}
     @staticmethod
-    def ones():
+    def identity():
         out = {{ matrix.matrix_name }}()
-        out.instance = {{ matrix.matrix_name|to_underscores }}.ones()
+        out.instance = {{ matrix.matrix_name|to_underscores }}.identity()
         return out
 {% endif %}
 
