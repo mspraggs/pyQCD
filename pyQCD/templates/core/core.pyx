@@ -25,6 +25,9 @@ cdef class Complex:
     def imag(self):
         return self.instance.imag()
 
+    def to_complex(self):
+        return complex(self.instance.real(), self.instance.imag())
+
     def __repr__(self):
         if self.real == 0:
             return "{}j".format(self.imag)
