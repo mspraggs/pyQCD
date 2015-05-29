@@ -162,6 +162,22 @@ cdef class {{ matrix.array_name }}:
         out.instance = {{ carray }}(num_elements, mat)
         return out
 
+    @staticmethod
+    def ones(int num_elements):
+        cdef {{ cmatrix }} mat = {{ matrix.matrix_name|to_underscores }}.ones()
+        out = {{ matrix.array_name }}()
+        out.instance = {{ carray }}(num_elements, mat)
+        return out
+
+{% if matrix.num_rows == matrix.num_cols %}
+    @staticmethod
+    def identity(int num_elements):
+        cdef {{ cmatrix }} mat = {{ matrix.matrix_name|to_underscores }}.identity()
+        out = {{ matrix.array_name }}()
+        out.instance = {{ carray }}(num_elements, mat)
+        return out
+{% endif %}
+
 {% for funcname, op in zip(["add", "sub", "mul", "div"], "+-*/") %}
 {% set ops = operators[(matrix.array_name, funcname)] %}
     def __{{ funcname }}__(self, other):
