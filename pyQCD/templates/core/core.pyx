@@ -190,9 +190,9 @@ cdef class {{ matrix.matrix_name }}:
 {% for ret, lhs, rhs, lhs_bcast, rhs_bcast in ops %}
         if type(self) is {{ lhs }} and type(other) is {{ rhs }}:
 {% if lhs == "float" or lhs == "Complex" %}
-            return other._{{ funcname }}_{{ rhs }}_{{ lhs }}(<{{ lhs }}>self)
+            return (<{{ matrix.matrix_name }}>other)._{{ funcname }}_{{ rhs }}_{{ lhs }}(<{{ lhs }}>self)
 {% else %}
-            return self._{{ funcname }}_{{ lhs }}_{{ rhs }}(<{{ rhs }}>other)
+            return (<{{ matrix.matrix_name }}>self)._{{ funcname }}_{{ lhs }}_{{ rhs }}(<{{ rhs }}>other)
 {% endif %}
 {% endfor %}
         raise TypeError("Unsupported operand types for {{ matrix.matrix_name }}.__{{ funcname }}__: "
@@ -200,7 +200,7 @@ cdef class {{ matrix.matrix_name }}:
 
 {% for ret, lhs, rhs, lhs_bcast, rhs_bcast in ops %}
 {% if lhs != "float" and lhs != "Complex" %}
-    cpdef {{ ret }} _{{ funcname }}_{{ lhs }}_{{ rhs }}({{ lhs }} self, {{ rhs }} other):
+    cdef {{ ret }} _{{ funcname }}_{{ lhs }}_{{ rhs }}({{ lhs }} self, {{ rhs }} other):
         out = {{ ret }}()
         out.instance = self.instance{% if lhs_bcast %}.broadcast(){% endif %} {{ op }} other{% if rhs != "float" %}.instance{% endif %}{% if rhs_bcast %}.broadcast(){% endif %}
 
@@ -272,9 +272,9 @@ cdef class {{ matrix.array_name }}:
 {% for ret, lhs, rhs, lhs_bcast, rhs_bcast in ops %}
         if type(self) is {{ lhs }} and type(other) is {{ rhs }}:
 {% if lhs == "float" or lhs == "Complex" %}
-            return other._{{ funcname }}_{{ rhs }}_{{ lhs }}(<{{ lhs }}>self)
+            return (<{{ matrix.array_name }}>other)._{{ funcname }}_{{ rhs }}_{{ lhs }}(<{{ lhs }}>self)
 {% else %}
-            return self._{{ funcname }}_{{ lhs }}_{{ rhs }}(<{{ rhs }}>other)
+            return (<{{ matrix.array_name }}>self)._{{ funcname }}_{{ lhs }}_{{ rhs }}(<{{ rhs }}>other)
 {% endif %}
 {% endfor %}
         raise TypeError("Unsupported operand types for {{ matrix.matrix_name }}.__{{ funcname }}__: "
@@ -282,7 +282,7 @@ cdef class {{ matrix.array_name }}:
 
 {% for ret, lhs, rhs, lhs_bcast, rhs_bcast in ops %}
 {% if lhs != "float" and lhs != "Complex" %}
-    cpdef {{ ret }} _{{ funcname }}_{{ lhs }}_{{ rhs }}({{ lhs }} self, {{ rhs }} other):
+    cdef {{ ret }} _{{ funcname }}_{{ lhs }}_{{ rhs }}({{ lhs }} self, {{ rhs }} other):
         out = {{ ret }}()
         out.instance = self.instance{% if lhs_bcast %}.broadcast(){% endif %} {{ op }} other{% if rhs != "float" %}.instance{% endif %}{% if rhs_bcast %}.broadcast(){% endif %}
 
