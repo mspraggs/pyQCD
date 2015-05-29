@@ -6,7 +6,9 @@ class TestLexicoLayout(object):
     def test_constructor(self):
         """Test constructor"""
         layout = LexicoLayout([4, 4, 4, 4])
+        assert isinstance(layout, LexicoLayout)
         layout = LexicoLayout((4, 4, 4, 4))
+        assert isinstance(layout, LexicoLayout)
 
     def test_get_array_index(self):
         """Test array index lookup"""
