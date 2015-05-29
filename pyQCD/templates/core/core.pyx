@@ -130,6 +130,7 @@ cdef class {{ matrix.matrix_name }}:
         out = {{ matrix.matrix_name }}()
         out.instance = {{ matrix.matrix_name|to_underscores }}.identity()
         return out
+
 {% endif %}
     @property
     def shape(self):
