@@ -76,13 +76,19 @@ cdef class {{ matrix.matrix_name }}:
     cdef {{ cmatrix }} instance
 
     def __init__(self, *args):
-
+        cdef int i, j
         if not args:
             pass
         if len(args) == 1 and hasattr(args[0], '__iter__'):
             for i, elem in enumerate(args[0]):
+                if i > {{ matrix.num_rows - 1 }}:
+                    raise ValueError("{{ matrix.matrix_name }}.__init__: "
+                                     "First dimension of iterable > {{ matrix.num_rows }}")
 {% if matrix.num_cols > 1 %}
                 for j, subelem in enumerate(elem):
+                    if j > {{ matrix.num_cols - 1 }}:
+                        raise ValueError("{{ matrix.matrix_name }}.__init__: "
+                                         "Second dimension of iterable > {{ matrix.num_cols }}")
                     self[i, j] = subelem
 {% else %}
                 self[i] = elem
