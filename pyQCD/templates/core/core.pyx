@@ -1,5 +1,7 @@
 from libcpp.vector cimport vector
 
+import numpy as np
+
 from operators cimport *
 cimport complex
 cimport layout
@@ -72,6 +74,19 @@ cdef class LexicoLayout(Layout):
 {% set clattice_array = matrix.lattice_array_name|to_underscores + "." + matrix.lattice_array_name %}
 cdef class {{ matrix.matrix_name }}:
     cdef {{ cmatrix }} instance
+
+    def __init__(self, *args):
+
+        if not args:
+            pass
+        if len(args) == 1 and hasattr(args[0], '__iter__'):
+            for i, elem in enumerate(args[0]):
+{% if matrix.num_cols > 1 %}
+                for j, subelem in enumerate(elem):
+                    self[i, j] = subelem
+{% else %}
+                self[i] = elem
+{% endif %}
 
     def __getitem__(self, index):
         out = Complex(0.0, 0.0)
