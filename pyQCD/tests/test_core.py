@@ -115,3 +115,20 @@ class TestColourMatrix(object):
         """Test numpy conversion function"""
         mat = ColourMatrix.zeros()
         assert np.allclose(mat.to_numpy(), np.zeros((3, 3)))
+
+    def test_mul(self):
+        """Test multiplications"""
+        mat1_data = np.random.rand(3, 3)
+        mat2_data = np.random.rand(3, 3)
+        mat3_data = np.dot(mat1_data, mat2_data)
+        mat1 = ColourMatrix(mat1_data)
+        mat2 = ColourMatrix(mat2_data)
+
+        mat3 = mat1 * mat2
+        assert np.allclose(mat3.to_numpy(), mat3_data)
+        mat3_data = mat1_data * 5.0
+        mat3 = mat1 * 5.0
+        assert np.allclose(mat3.to_numpy(), mat3_data)
+        mat3_data = mat1_data * (5.0 + 1.0j)
+        mat3 = mat1 * Complex(5, 1)
+        assert np.allclose(mat3.to_numpy(), mat3_data)
