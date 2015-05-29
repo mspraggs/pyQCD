@@ -28,3 +28,26 @@ class TestLexicoLayout(object):
         layout = LexicoLayout((4, 4, 4, 4))
         for i in range(layout.volume()):
             assert layout.get_site_index(i) == i
+
+
+class TestComplex(object):
+
+    def test_constructor(self):
+        """Test constructor"""
+        z = Complex(1.0, 2.0)
+        assert isinstance(z, Complex)
+
+    def test_real(self):
+        """Test real part property"""
+        z = Complex(1.0, 2.0)
+        assert z.real == 1.0
+
+    def test_imag(self):
+        """Test real part property"""
+        z = Complex(1.0, 2.0)
+        assert z.imag == 2.0
+
+    def test_to_complex(self):
+        """Test Complex to python complex conversion"""
+        z = Complex(1.0, 2.0)
+        assert z.to_complex() == 1.0 + 2.0j
