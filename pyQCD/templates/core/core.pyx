@@ -177,8 +177,8 @@ cdef class {{ matrix.array_name }}:
         out = {{ matrix.array_name }}()
         out.instance = {{ carray }}(num_elements, mat)
         return out
-{% endif %}
 
+{% endif %}
 {% for funcname, op in zip(["add", "sub", "mul", "div"], "+-*/") %}
 {% set ops = operators[(matrix.array_name, funcname)] %}
     def __{{ funcname }}__(self, other):
