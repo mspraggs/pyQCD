@@ -1,3 +1,5 @@
+import numpy as np
+
 from pyQCD.core import *
 
 
@@ -51,3 +53,35 @@ class TestComplex(object):
         """Test Complex to python complex conversion"""
         z = Complex(1.0, 2.0)
         assert z.to_complex() == 1.0 + 2.0j
+
+
+class TestColourMatrix(object):
+
+    def test_constructor(self):
+        """Test matrix"""
+        mat = ColourMatrix()
+        assert isinstance(mat, ColourMatrix)
+
+    def test_zeros(self):
+        """Test zeros static function"""
+        mat = ColourMatrix.zeros()
+        assert isinstance(mat, ColourMatrix)
+
+        for index in np.ndindex(mat.shape):
+            assert mat[index] == 0.0j
+
+    def test_ones(self):
+        """Test ones static function"""
+        mat = ColourMatrix.ones()
+        assert isinstance(mat, ColourMatrix)
+
+        for index in np.ndindex(mat.shape):
+            assert mat[index] == 1.0 + 0.0j
+
+    def test_identity(self):
+        """Test identity static function"""
+        mat = ColourMatrix.identity()
+        assert isinstance(mat, ColourMatrix)
+
+        for index in np.ndindex(mat.shape):
+            assert mat[index] == (1.0 + 0.0j if index[0] == index[1] else 0.0j)
