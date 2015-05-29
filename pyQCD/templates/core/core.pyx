@@ -80,7 +80,7 @@ cdef class {{ matrix.matrix_name }}:
     {% else %}
         out.instance = self.instance[index]
     {% endif %}
-        return out
+        return out.to_complex()
 
     def __setitem__(self, index, value):
         if type(value) == Complex:
