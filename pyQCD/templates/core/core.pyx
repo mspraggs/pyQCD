@@ -76,16 +76,16 @@ cdef class {{ matrix.matrix_name }}:
     def __getitem__(self, index):
         out = Complex(0.0, 0.0)
         if type(index) == tuple:
-    {% if matrix.num_cols > 1 %}
+{% if matrix.num_cols > 1 %}
             out.instance = self.instance(index[0], index[1])
-    {% else %}
+{% else %}
             out.instance = self.instance[index[0]]
         elif type(index) == int:
             out.instance = self.instance[index]
+{% endif %}
         else:
             raise TypeError("Invalid index type in {{ matrix.matrix_name }}.__setitem__: "
                             "{}".format(type(index)))
-    {% endif %}
         return out.to_complex()
 
     def __setitem__(self, index, value):
@@ -99,25 +99,25 @@ cdef class {{ matrix.matrix_name }}:
             raise TypeError("Invalid value type in {{ matrix.matrix_name }}.__setitem__: "
                             "{}".format(type(value)))
         if type(index) == tuple:
-    {% if matrix.num_cols > 1 %}
+{% if matrix.num_cols > 1 %}
             self.assign_elem(index[0], index[1], (<Complex>value).instance)
-    {% else %}
+{% else %}
             self.assign_elem(index[0], (<Complex>value).instance)
         elif type(index) == int:
             self.assign_elem(index, (<Complex>value).instance)
-    {% endif %}
+{% endif %}
         else:
             raise TypeError("Invalid index type in {{ matrix.matrix_name }}.__setitem__: "
                             "{}".format(type(index)))
 
-    {% if matrix.num_cols > 1 %}
+{% if matrix.num_cols > 1 %}
     cdef void assign_elem(self, int i, int j, complex.Complex value):
         {{ matrix.matrix_name|to_underscores }}.mat_assign(self.instance, i, j, value)
-    {% else %}
+{% else %}
     cdef void assign_elem(self, int i, complex.Complex value):
         cdef complex.Complex* z = &(self.instance[i])
         z[0] = value
-    {% endif %}
+{% endif %}
 
     def adjoint(self):
         out = {{ matrix.matrix_name }}()
@@ -256,7 +256,6 @@ cdef class {{ matrix.array_name }}:
 {% endfor %}
 
 {% endfor %}
-
 
 cdef class {{ matrix.lattice_matrix_name }}:
     cdef {{ clattice_matrix }} instance
