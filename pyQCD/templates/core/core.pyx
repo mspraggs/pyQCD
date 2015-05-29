@@ -131,6 +131,9 @@ cdef class {{ matrix.matrix_name }}:
         out.instance = {{ matrix.matrix_name|to_underscores }}.identity()
         return out
 {% endif %}
+    @property
+    def shape(self):
+        return ({{ matrix.num_rows}},{% if matrix.num_cols > 0 %} {{matrix.num_cols}}{% endif %})
 
 {% for funcname, op in zip(["add", "sub", "mul", "div"], "+-*/") %}
 {% set ops = operators[(matrix.matrix_name, funcname)] %}
