@@ -174,6 +174,12 @@ cdef class {{ matrix.matrix_name }}:
         return out
 
 {% endif %}
+    def to_numpy(self):
+        out = np.zeros(self.shape, dtype=np.complex)
+        for index in np.ndindex(self.shape):
+            out[index] = self[index]
+        return out
+
     @property
     def shape(self):
         return ({{ matrix.num_rows}},{% if matrix.num_cols > 0 %} {{matrix.num_cols}}{% endif %})

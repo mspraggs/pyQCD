@@ -110,3 +110,8 @@ class TestColourMatrix(object):
 
         for index in np.ndindex(mat.shape):
             assert mat[index] == (1.0 + 0.0j if index[0] == index[1] else 0.0j)
+
+    def test_to_numpy(self):
+        """Test numpy conversion function"""
+        mat = ColourMatrix.zeros()
+        assert np.allclose(mat.to_numpy(), np.zeros((3, 3)))
