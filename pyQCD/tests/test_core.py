@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 
 from pyQCD.core import *
 
@@ -74,6 +75,9 @@ class TestColourMatrix(object):
 
         for index in np.ndindex(mat.shape):
             assert mat[index] == mat_values[index]
+
+        with pytest.raises(ValueError):
+            mat = ColourMatrix(np.zeros((20, 20)))
 
     def test_zeros(self):
         """Test zeros static function"""

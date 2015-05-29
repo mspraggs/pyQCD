@@ -75,6 +75,11 @@ cdef class LexicoLayout(Layout):
 cdef class {{ matrix.matrix_name }}:
     cdef {{ cmatrix }} instance
 
+    cdef validate_indices(self, int i{% if matrix.num_cols > 1 %}, int j{% endif %}):
+        if i > {{ matrix.num_rows - 1}}{% if matrix.num_cols > 1 %} or j > {{ matrix.num_cols - 1 }}{% endif %}:
+            raise IndexError("Indices in {{ matrix.matrix_name }} element access out of bounds: "
+                             "{}".format((i{% if matrix.num_cols > 1 %}, j{% endif %})))
+
     def __init__(self, *args):
         cdef int i, j
         if not args:
@@ -98,10 +103,13 @@ cdef class {{ matrix.matrix_name }}:
         out = Complex(0.0, 0.0)
         if type(index) == tuple:
 {% if matrix.num_cols > 1 %}
+            self.validate_indices(index[0], index[1])
             out.instance = self.instance(index[0], index[1])
 {% else %}
+            self.validate_indices(index[0])
             out.instance = self.instance[index[0]]
         elif type(index) == int:
+            self.validate_indices(index)
             out.instance = self.instance[index]
 {% endif %}
         else:
@@ -119,10 +127,13 @@ cdef class {{ matrix.matrix_name }}:
             value = Complex(<{{ precision }}?>value, 0.0)
         if type(index) == tuple:
 {% if matrix.num_cols > 1 %}
+            self.validate_indices(index[0], index[1])
             self.assign_elem(index[0], index[1], (<Complex>value).instance)
 {% else %}
+            self.validate_indices(index[0])
             self.assign_elem(index[0], (<Complex>value).instance)
         elif type(index) == int:
+            self.validate_indices(index)
             self.assign_elem(index, (<Complex>value).instance)
 {% endif %}
         else:
