@@ -75,10 +75,16 @@ cdef class {{ matrix.matrix_name }}:
 
     def __getitem__(self, index):
         out = Complex(0.0, 0.0)
+        if type(index) == tuple:
     {% if matrix.num_cols > 1 %}
-        out.instance = self.instance(index[0], index[1])
+            out.instance = self.instance(index[0], index[1])
     {% else %}
-        out.instance = self.instance[index]
+            out.instance = self.instance[index[0]]
+        elif type(index) == int:
+            out.instance = self.instance[index]
+        else:
+            raise TypeError("Invalid index type in {{ matrix.matrix_name }}.__setitem__: "
+                            "{}".format(type(index)))
     {% endif %}
         return out.to_complex()
 
@@ -101,7 +107,7 @@ cdef class {{ matrix.matrix_name }}:
             self.assign_elem(index, (<Complex>value).instance)
     {% endif %}
         else:
-            raise TypeError("Invalid type in {{ matrix.matrix_name }}.__setitem__: "
+            raise TypeError("Invalid index type in {{ matrix.matrix_name }}.__setitem__: "
                             "{}".format(type(index)))
 
     {% if matrix.num_cols > 1 %}
