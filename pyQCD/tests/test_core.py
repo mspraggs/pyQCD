@@ -79,6 +79,14 @@ class TestColourMatrix(object):
         with pytest.raises(ValueError):
             mat = ColourMatrix(np.zeros((20, 20)))
 
+    def test_boundscheck(self):
+        """Test bounds checking for matrix"""
+        mat = ColourMatrix()
+        with pytest.raises(IndexError):
+            x = mat[3, 3]
+        with pytest.raises(IndexError):
+            mat[3, 3] = 4
+
     def test_zeros(self):
         """Test zeros static function"""
         mat = ColourMatrix.zeros()
