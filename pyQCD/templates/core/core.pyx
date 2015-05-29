@@ -91,13 +91,11 @@ cdef class {{ matrix.matrix_name }}:
     def __setitem__(self, index, value):
         if type(value) == Complex:
             pass
-        elif type(value) == complex:
-            value = Complex(value.real, value.imag)
-        elif type(value) == float:
-            value = Complex(value, 0.0)
+        elif hasattr(value, 'real') and hasattr(value, 'imag'):
+            value = Complex(<{{ precision }}?>(value.real),
+                            <{{ precision }}?>(value.imag))
         else:
-            raise TypeError("Invalid value type in {{ matrix.matrix_name }}.__setitem__: "
-                            "{}".format(type(value)))
+            value = Complex(<{{ precision }}?>value, 0.0)
         if type(index) == tuple:
 {% if matrix.num_cols > 1 %}
             self.assign_elem(index[0], index[1], (<Complex>value).instance)
