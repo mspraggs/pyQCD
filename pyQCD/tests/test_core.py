@@ -61,6 +61,19 @@ class TestColourMatrix(object):
         """Test matrix"""
         mat = ColourMatrix()
         assert isinstance(mat, ColourMatrix)
+        mat_values = np.arange(np.prod(mat.shape)).reshape(mat.shape).tolist()
+        mat = ColourMatrix(mat_values)
+        assert isinstance(mat, ColourMatrix)
+
+        for i, j in np.ndindex(mat.shape):
+            assert mat[i, j] == mat_values[i][j] + 0j
+
+        mat_values = np.arange(np.prod(mat.shape)).reshape(mat.shape)
+        mat = ColourMatrix(mat_values)
+        assert isinstance(mat, ColourMatrix)
+
+        for index in np.ndindex(mat.shape):
+            assert mat[index] == mat_values[index]
 
     def test_zeros(self):
         """Test zeros static function"""
