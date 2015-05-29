@@ -130,5 +130,5 @@ class TestColourMatrix(object):
         mat3 = mat1 * 5.0
         assert np.allclose(mat3.to_numpy(), mat3_data)
         mat3_data = mat1_data * (5.0 + 1.0j)
-        mat3 = mat1 * Complex(5, 1)
+        mat3 = mat1 * (5.0 + 1.0j)
         assert np.allclose(mat3.to_numpy(), mat3_data)
