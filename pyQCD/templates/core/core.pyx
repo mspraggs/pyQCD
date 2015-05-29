@@ -37,11 +37,14 @@ cdef class Complex:
 cdef class Layout:
     cdef layout.Layout instance
 
-    def get_array_index(self, unsigned int site_index):
-        return self.instance.get_array_index(site_index)
+    def get_array_index(self, site_label):
 
-    def get_array_index(self, list site):
-        return self.instance.get_array_index(<vector[unsigned int]>site)
+        if type(site_label) == int:
+            return self.instance.get_array_index(<unsigned int>site_label)
+        if type(site_label) == list or type(site_label) == tuple:
+            return self.instance.get_array_index(<vector[unsigned int]>site_label)
+        raise TypeError("Unknown type in Layout.get_array_index: {}"
+                        .format(type(site_label)))
 
     def get_site_index(self, unsigned int array_index):
         return self.instance.get_site_index(array_index)
@@ -55,8 +58,8 @@ cdef class Layout:
 
 cdef class LexicoLayout(Layout):
 
-    def __init__(self, list shape):
-        self.instance = layout.LexicoLayout(<vector[unsigned int]>shape)
+    def __init__(self, shape):
+        self.instance = layout.LexicoLayout(<vector[unsigned int]?>shape)
 
 
 {% for matrix in matrixdefs %}
