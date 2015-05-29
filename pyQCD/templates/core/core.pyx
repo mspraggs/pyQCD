@@ -92,11 +92,17 @@ cdef class {{ matrix.matrix_name }}:
         else:
             raise TypeError("Invalid value type in {{ matrix.matrix_name }}.__setitem__: "
                             "{}".format(type(value)))
+        if type(index) == tuple:
     {% if matrix.num_cols > 1 %}
-        self.assign_elem(index[0], index[1], (<Complex>value).instance)
+            self.assign_elem(index[0], index[1], (<Complex>value).instance)
     {% else %}
-        self.assign_elem(index, (<Complex>value).instance)
+            self.assign_elem(index[0], (<Complex>value).instance)
+        elif type(index) == int:
+            self.assign_elem(index, (<Complex>value).instance)
     {% endif %}
+        else:
+            raise TypeError("Invalid type in {{ matrix.matrix_name }}.__setitem__: "
+                            "{}".format(type(index)))
 
     {% if matrix.num_cols > 1 %}
     cdef void assign_elem(self, int i, int j, complex.Complex value):
