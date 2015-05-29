@@ -270,6 +270,7 @@ cdef class {{ matrix.array_name }}:
 {% set ops = operators[(matrix.array_name, funcname)] %}
     def __{{ funcname }}__(self, other):
 {% for ret, lhs, rhs, lhs_bcast, rhs_bcast in ops %}
+# TODO: generalise this for arbitary numeric types (complex, int, numpy types etc.)
         if type(self) is {{ lhs }} and type(other) is {{ rhs }}:
 {% if lhs == "float" or lhs == "Complex" %}
             return (<{{ matrix.array_name }}>other)._{{ funcname }}_{{ rhs }}_{{ lhs }}(<{{ lhs }}>self)
