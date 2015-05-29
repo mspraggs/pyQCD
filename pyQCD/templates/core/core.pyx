@@ -1,5 +1,8 @@
+from libcpp.vector cimport vector
+
 from operators cimport *
 cimport complex
+cimport layout
 {% for matrix in matrixdefs %}
 cimport {{ matrix.matrix_name|to_underscores }}
 cimport {{ matrix.array_name|to_underscores }}
@@ -29,6 +32,32 @@ cdef class Complex:
             return "({}{}{}j)".format(self.real,
                                       ('+' if self.imag >= 0 else ''),
                                       self.imag)
+
+
+cdef class Layout:
+    cdef layout.Layout instance
+
+    def get_array_index(self, unsigned int site_index):
+        return self.instance.get_array_index(site_index)
+
+    def get_array_index(self, list site):
+        return self.instance.get_array_index(<vector[unsigned int]>site)
+
+    def get_site_index(self, unsigned int array_index):
+        return self.instance.get_site_index(array_index)
+
+    def num_dims(self):
+        return self.instance.num_dims()
+
+    def volume(self):
+        return self.instance.volume()
+
+
+cdef class LexicoLayout(Layout):
+
+    def __init__(self, list shape):
+        self.instance = layout.LexicoLayout(<vector[unsigned int]>shape)
+
 
 {% for matrix in matrixdefs %}
 {% set cmatrix = matrix.matrix_name|to_underscores + "." + matrix.matrix_name %}
