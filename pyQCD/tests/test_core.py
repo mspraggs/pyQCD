@@ -132,3 +132,51 @@ class TestColourMatrix(object):
         mat3_data = mat1_data * (5.0 + 1.0j)
         mat3 = mat1 * (5.0 + 1.0j)
         assert np.allclose(mat3.to_numpy(), mat3_data)
+
+
+class TestColourVector(object):
+
+    def test_constructor(self):
+        """Test vector constructor"""
+        vec = ColourVector()
+        assert isinstance(vec, ColourVector)
+        vec_values = np.arange(np.prod(vec.shape)).reshape(vec.shape).tolist()
+        vec = ColourVector(vec_values)
+        assert isinstance(vec, ColourVector)
+
+        for i, in np.ndindex(vec.shape):
+            assert vec[i] == vec_values[i] + 0j
+
+        vec_values = np.arange(np.prod(vec.shape)).reshape(vec.shape)
+        vec = ColourVector(vec_values)
+        assert isinstance(vec, ColourVector)
+
+        for index in np.ndindex(vec.shape):
+            assert vec[index] == vec_values[index]
+
+        with pytest.raises(ValueError):
+            vec = ColourVector(np.zeros(20))
+
+    def test_boundscheck(self):
+        """Test bounds checking for matrix"""
+        vec = ColourVector()
+        with pytest.raises(IndexError):
+            x = vec[3]
+        with pytest.raises(IndexError):
+            vec[3] = 4
+
+    def test_zeros(self):
+        """Test zeros static function"""
+        vec = ColourVector.zeros()
+        assert isinstance(vec, ColourVector)
+
+        for index in np.ndindex(vec.shape):
+            assert vec[index] == 0.0j
+
+    def test_ones(self):
+        """Test ones static function"""
+        vec = ColourVector.ones()
+        assert isinstance(vec, ColourVector)
+
+        for index in np.ndindex(vec.shape):
+            assert vec[index] == 1.0 + 0.0j
