@@ -20,3 +20,4 @@ cdef extern from "types.hpp":
     cdef {{ matrixdef.matrix_name }} identity "{{ matrixdef.matrix_name }}::Identity"()
 {% endif %}
     cdef void mat_assign({{ matrixdef.matrix_name }}&, const int, const int, const Complex)
+    cdef void mat_assign({{ matrixdef.matrix_name }}*, const int, const int, const Complex)

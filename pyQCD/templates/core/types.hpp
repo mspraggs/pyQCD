@@ -23,6 +23,9 @@ typedef pyQCD::Lattice<pyQCD::MatrixArray<{{ matrix.num_rows }}, {{ matrix.num_c
 inline void mat_assign({{ matrix.matrix_name }}& mat, const int i, const int j, const Complex value)
 { mat(i, j) = value; }
 
+inline void mat_assign({{ matrix.matrix_name }}* mat, const int i, const int j, const Complex value)
+{ (*mat)(i, j) = value; }
+
 {% endif %}
 {% endfor %}
 

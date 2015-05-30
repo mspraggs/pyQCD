@@ -2,9 +2,9 @@ from libcpp.vector cimport vector
 
 import numpy as np
 
-from operators cimport *
 cimport complex
 cimport layout
+from operators cimport *
 {% for matrix in matrixdefs %}
 cimport {{ matrix.matrix_name|to_underscores }}
 cimport {{ matrix.array_name|to_underscores }}
@@ -21,8 +21,7 @@ cdef class Complex:
     cdef complex.Complex instance
 
     def __init__(self, x, y):
-        cdef complex.Complex z = complex.Complex(x, y)
-        self.instance = z
+        self.instance = complex.Complex(x, y)
 
     @property
     def real(self):
@@ -45,7 +44,7 @@ cdef class Complex:
 
 
 cdef class Layout:
-    cdef layout.Layout instance
+    cdef layout.Layout* instance
 
     def get_array_index(self, site_label):
 
@@ -69,7 +68,7 @@ cdef class Layout:
 cdef class LexicoLayout(Layout):
 
     def __init__(self, shape):
-        self.instance = layout.LexicoLayout(<vector[unsigned int]?>shape)
+        self.instance = <layout.Layout*>layout.LexicoLayout(<vector[unsigned int]?>shape)
 
 
 {% for matrix in matrixdefs %}
@@ -78,12 +77,15 @@ cdef class LexicoLayout(Layout):
 {% set clattice_matrix = matrix.lattice_matrix_name|to_underscores + "." + matrix.lattice_matrix_name %}
 {% set clattice_array = matrix.lattice_array_name|to_underscores + "." + matrix.lattice_array_name %}
 cdef class {{ matrix.matrix_name }}:
-    cdef {{ cmatrix }} instance
+    cdef {{ cmatrix }}* instance
 
     cdef validate_indices(self, int i{% if matrix.num_cols > 1 %}, int j{% endif %}):
         if i > {{ matrix.num_rows - 1}}{% if matrix.num_cols > 1 %} or j > {{ matrix.num_cols - 1 }}{% endif %}:
             raise IndexError("Indices in {{ matrix.matrix_name }} element access out of bounds: "
                              "{}".format((i{% if matrix.num_cols > 1 %}, j{% endif %})))
+
+    def __cinit__(self):
+        self.instance = new {{ cmatrix }}()
 
     def __init__(self, *args):
         cdef int i, j
@@ -104,18 +106,21 @@ cdef class {{ matrix.matrix_name }}:
                 self[i] = elem
 {% endif %}
 
+    def __dealloc__(self):
+        del self.instance
+
     def __getitem__(self, index):
         out = Complex(0.0, 0.0)
         if type(index) == tuple:
 {% if matrix.num_cols > 1 %}
             self.validate_indices(index[0], index[1])
-            out.instance = self.instance(index[0], index[1])
+            out.instance = self.instance[0](index[0], index[1])
 {% else %}
             self.validate_indices(index[0])
-            out.instance = self.instance[index[0]]
+            out.instance = self.instance[0][index[0]]
         elif type(index) == int:
             self.validate_indices(index)
-            out.instance = self.instance[index]
+            out.instance = self.instance[0][index]
 {% endif %}
         else:
             raise TypeError("Invalid index type in {{ matrix.matrix_name }}.__setitem__: "
@@ -150,32 +155,32 @@ cdef class {{ matrix.matrix_name }}:
         {{ matrix.matrix_name|to_underscores }}.mat_assign(self.instance, i, j, value)
 {% else %}
     cdef void assign_elem(self, int i, complex.Complex value):
-        cdef complex.Complex* z = &(self.instance[i])
+        cdef complex.Complex* z = &(self.instance[0][i])
         z[0] = value
 {% endif %}
 
     def adjoint(self):
         out = {{ matrix.matrix_name }}()
-        out.instance = self.instance.adjoint()
+        out.instance[0] = self.instance[0].adjoint()
         return out
 
     @staticmethod
     def zeros():
         out = {{ matrix.matrix_name }}()
-        out.instance = {{ matrix.matrix_name|to_underscores }}.zeros()
+        out.instance[0] = {{ matrix.matrix_name|to_underscores }}.zeros()
         return out
 
     @staticmethod
     def ones():
         out = {{ matrix.matrix_name }}()
-        out.instance = {{ matrix.matrix_name|to_underscores }}.ones()
+        out.instance[0] = {{ matrix.matrix_name|to_underscores }}.ones()
         return out
 
 {% if matrix.num_cols == matrix.num_rows %}
     @staticmethod
     def identity():
         out = {{ matrix.matrix_name }}()
-        out.instance = {{ matrix.matrix_name|to_underscores }}.identity()
+        out.instance[0] = {{ matrix.matrix_name|to_underscores }}.identity()
         return out
 
 {% endif %}
@@ -214,8 +219,13 @@ cdef class {{ matrix.matrix_name }}:
 {% for ret, lhs, rhs, lhs_bcast, rhs_bcast in ops %}
 {% if lhs != "float" and lhs != "Complex" %}
     cdef {{ ret }} _{{ funcname }}_{{ lhs }}_{{ rhs }}({{ lhs }} self, {{ rhs }} other):
+{% set lhs_op = "self.instance" + (".broadcast()" if lhs_bcast else "[0]") %}
+{% set rhs_op = "other" + (".instance" if rhs != "float" else "") + (("[0]" if not rhs_bcast else ".broadcast()") if rhs not in ["Complex", "float"] else "") %}
+{% set ret_cpp = ret|to_underscores + "." + ret %}
         out = {{ ret }}()
-        out.instance = self.instance{% if lhs_bcast %}.broadcast(){% endif %} {{ op }} other{% if rhs != "float" %}.instance{% endif %}{% if rhs_bcast %}.broadcast(){% endif %}
+        cdef {{ ret_cpp }}* cpp_out = new {{ ret_cpp }}()
+        cpp_out[0] = {{ lhs_op }} {{ op }} {{ rhs_op }}
+        out.instance = cpp_out#self.instance{% if lhs_bcast %}.broadcast(){% endif %} {{ op }} other{% if rhs != "float" %}.instance{% endif %}{% if rhs_bcast %}.broadcast(){% endif %}
 
         return out
 
@@ -225,10 +235,13 @@ cdef class {{ matrix.matrix_name }}:
 {% endfor %}
 
 cdef class {{ matrix.array_name }}:
-    cdef {{ carray }} instance
+    cdef {{ carray }}* instance
 
     def _init_with_args_(self, unsigned int N, {{ matrix.matrix_name }} value):
-        self.instance = {{ matrix.array_name|to_underscores }}.{{ matrix.array_name }}(N, value.instance)
+        self.instance[0] = {{ matrix.array_name|to_underscores }}.{{ matrix.array_name }}(N, value.instance[0])
+
+    def __cinit__(self):
+        self.instance = new {{ carray }}()
 
     def __init__(self, *args):
         if not args:
@@ -239,35 +252,38 @@ cdef class {{ matrix.array_name }}:
             raise TypeError("{{ matrix.array_name }} constructor expects "
                             "either zero or two arguments")
 
+    def __dealloc__(self):
+        del self.instance
+
     def __getitem__(self, index):
         out = {{ matrix.matrix_name }}()
-        out.instance = self.instance[index]
+        out.instance[0] = self.instance[0][index]
         return out
 
     def __setitem__(self, index, {{ matrix.matrix_name }} value):
         self.assign_elem(index, value.instance)
 
     cdef void assign_elem(self, int i, {{ cmatrix }} value):
-        cdef {{ cmatrix }}* m = &(self.instance[i])
+        cdef {{ cmatrix }}* m = &(self.instance[0][i])
         m[0] = value
 
     def adjoint(self):
         out = {{ matrix.array_name }}()
-        out.instance = self.instance.adjoint()
+        out.instance[0] = self.instance[0].adjoint()
         return out
 
     @staticmethod
     def zeros(int num_elements):
         cdef {{ cmatrix }} mat = {{ matrix.matrix_name|to_underscores }}.zeros()
         out = {{ matrix.array_name }}()
-        out.instance = {{ carray }}(num_elements, mat)
+        out.instance[0] = {{ carray }}(num_elements, mat)
         return out
 
     @staticmethod
     def ones(int num_elements):
         cdef {{ cmatrix }} mat = {{ matrix.matrix_name|to_underscores }}.ones()
         out = {{ matrix.array_name }}()
-        out.instance = {{ carray }}(num_elements, mat)
+        out.instance[0] = {{ carray }}(num_elements, mat)
         return out
 
 {% if matrix.num_rows == matrix.num_cols %}
@@ -275,7 +291,7 @@ cdef class {{ matrix.array_name }}:
     def identity(int num_elements):
         cdef {{ cmatrix }} mat = {{ matrix.matrix_name|to_underscores }}.identity()
         out = {{ matrix.array_name }}()
-        out.instance = {{ carray }}(num_elements, mat)
+        out.instance[0] = {{ carray }}(num_elements, mat)
         return out
 
 {% endif %}
@@ -304,8 +320,19 @@ cdef class {{ matrix.array_name }}:
 {% for ret, lhs, rhs, lhs_bcast, rhs_bcast in ops %}
 {% if lhs != "float" and lhs != "Complex" %}
     cdef {{ ret }} _{{ funcname }}_{{ lhs }}_{{ rhs }}({{ lhs }} self, {{ rhs }} other):
+{% set lhs_op = "self.instance" + (".broadcast()" if lhs_bcast else "[0]") %}
+{% set rhs_op = "other" + (".instance" if rhs != "float" else "") + (("[0]" if not rhs_bcast else ".broadcast()") if rhs not in ["Complex", "float"] else "") %}
+{% set ret_cpp = ret|to_underscores + "." + ret %}
         out = {{ ret }}()
-        out.instance = self.instance{% if lhs_bcast %}.broadcast(){% endif %} {{ op }} other{% if rhs != "float" %}.instance{% endif %}{% if rhs_bcast %}.broadcast(){% endif %}
+        cdef {{ ret_cpp }}* cpp_out = new {{ ret_cpp }}()
+        cpp_out[0] = {{ lhs_op }} {{ op }} {{ rhs_op }}
+        out.instance = cpp_out
+        #out = {{ ret }}()
+        #out.instance = shared_ptr[{{ ret_cpp }}](new {{ ret_cpp }}({{ lhs_op }} {{ op }} {{ rhs_op }}))#self.instance{% if lhs_bcast %}.broadcast(){% endif %} {{ op }} other{% if rhs != "float" %}.instance{% endif %}{% if rhs_bcast %}.broadcast(){% endif %}
+
+        return out
+        out = {{ ret }}()
+        #out.instance = self.instance{% if lhs_bcast %}.broadcast(){% endif %} {{ op }} other{% if rhs != "float" %}.instance{% endif %}{% if rhs_bcast %}.broadcast(){% endif %}
 
         return out
 
@@ -315,13 +342,13 @@ cdef class {{ matrix.array_name }}:
 {% endfor %}
 
 cdef class {{ matrix.lattice_matrix_name }}:
-    cdef {{ clattice_matrix }} instance
+    cdef {{ clattice_matrix }}* instance
     def __init__(self):
         pass
 
 
 cdef class {{ matrix.lattice_array_name }}:
-    cdef {{ clattice_array }} instance
+    cdef {{ clattice_array }}* instance
     def __init__(self):
         pass
 
