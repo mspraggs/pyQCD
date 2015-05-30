@@ -1,5 +1,6 @@
+{% macro arithmetic_ops(operators, matrix, typename) %}
 {% for funcname, op in zip(["add", "sub", "mul", "div"], "+-*/") %}
-{% set ops = operators[(matrix.matrix_name, funcname)] %}
+{% set ops = operators[(typename, funcname)] %}
     def __{{ funcname }}__(self, other):
         if isinstance(self, scalar_types):
             self = float(self)
@@ -36,3 +37,4 @@
 {% endfor %}
 
 {% endfor %}
+{% endmacro %}
