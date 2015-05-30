@@ -239,6 +239,8 @@ cdef class {{ matrix.array_name }}:
         if type(value) == {{ matrix.matrix_name }}:
             self.assign_elem(index, (<{{ matrix.matrix_name }}>value).instance[0])
             return
+        elif type(value) == Complex:
+            pass
         elif hasattr(value, "real") and hasattr(value, "imag") and isinstance(index, tuple):
             value = Complex(value.real, value.imag)
         else:
