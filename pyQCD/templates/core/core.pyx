@@ -72,6 +72,8 @@ cdef class LexicoLayout(Layout):
 
 
 {% for matrix in matrixdefs %}
+{% set is_matrix = matrix.num_cols > 1 %}
+{% set is_square = matrix.num_cols == matrix.num_rows %}
 {% set cmatrix = matrix.matrix_name|to_underscores + "." + matrix.matrix_name %}
 {% set carray = matrix.array_name|to_underscores + "." + matrix.array_name %}
 {% set clattice_matrix = matrix.lattice_matrix_name|to_underscores + "." + matrix.lattice_matrix_name %}
@@ -79,10 +81,10 @@ cdef class LexicoLayout(Layout):
 cdef class {{ matrix.matrix_name }}:
     cdef {{ cmatrix }}* instance
 
-    cdef validate_indices(self, int i{% if matrix.num_cols > 1 %}, int j{% endif %}):
-        if i > {{ matrix.num_rows - 1}}{% if matrix.num_cols > 1 %} or j > {{ matrix.num_cols - 1 }}{% endif %}:
+    cdef validate_indices(self, int i{% if is_matrix %}, int j {% endif %}):
+        if i > {{ matrix.num_rows - 1}}{% if is_matrix %} or j > {{ matrix.num_cols - 1 }}{% endif %}:
             raise IndexError("Indices in {{ matrix.matrix_name }} element access out of bounds: "
-                             "{}".format((i{% if matrix.num_cols > 1 %}, j{% endif %})))
+                             "{}".format((i{% if is_matrix %}, j{% endif %})))
 
     def __cinit__(self):
         self.instance = new {{ cmatrix }}()
@@ -96,7 +98,7 @@ cdef class {{ matrix.matrix_name }}:
                 if i > {{ matrix.num_rows - 1 }}:
                     raise ValueError("{{ matrix.matrix_name }}.__init__: "
                                      "First dimension of iterable > {{ matrix.num_rows }}")
-{% if matrix.num_cols > 1 %}
+{% if is_matrix %}
                 for j, subelem in enumerate(elem):
                     if j > {{ matrix.num_cols - 1 }}:
                         raise ValueError("{{ matrix.matrix_name }}.__init__: "
@@ -112,7 +114,7 @@ cdef class {{ matrix.matrix_name }}:
     def __getitem__(self, index):
         out = Complex(0.0, 0.0)
         if type(index) == tuple:
-{% if matrix.num_cols > 1 %}
+{% if is_matrix %}
             self.validate_indices(index[0], index[1])
             out.instance = self.instance[0](index[0], index[1])
 {% else %}
@@ -136,7 +138,7 @@ cdef class {{ matrix.matrix_name }}:
         else:
             value = Complex(<{{ precision }}?>value, 0.0)
         if type(index) == tuple:
-{% if matrix.num_cols > 1 %}
+{% if is_matrix %}
             self.validate_indices(index[0], index[1])
             self.assign_elem(index[0], index[1], (<Complex>value).instance)
 {% else %}
@@ -150,7 +152,7 @@ cdef class {{ matrix.matrix_name }}:
             raise TypeError("Invalid index type in {{ matrix.matrix_name }}.__setitem__: "
                             "{}".format(type(index)))
 
-{% if matrix.num_cols > 1 %}
+{% if is_matrix %}
     cdef void assign_elem(self, int i, int j, complex.Complex value):
         {{ matrix.matrix_name|to_underscores }}.mat_assign(self.instance, i, j, value)
 {% else %}
@@ -176,7 +178,7 @@ cdef class {{ matrix.matrix_name }}:
         out.instance[0] = {{ matrix.matrix_name|to_underscores }}.ones()
         return out
 
-{% if matrix.num_cols == matrix.num_rows %}
+{% if is_square %}
     @staticmethod
     def identity():
         out = {{ matrix.matrix_name }}()
@@ -192,47 +194,9 @@ cdef class {{ matrix.matrix_name }}:
 
     @property
     def shape(self):
-        return ({{ matrix.num_rows}},{% if matrix.num_cols > 0 %} {{matrix.num_cols}}{% endif %})
+        return ({{ matrix.num_rows}},{% if is_matrix %} {{matrix.num_cols}}{% endif %})
 
-{% for funcname, op in zip(["add", "sub", "mul", "div"], "+-*/") %}
-{% set ops = operators[(matrix.matrix_name, funcname)] %}
-    def __{{ funcname }}__(self, other):
-        if isinstance(self, scalar_types):
-            self = float(self)
-        if isinstance(other, scalar_types):
-            other = float(other)
-        if isinstance(self, complex_types):
-            self = Complex(self.real, self.imag)
-        if isinstance(other, complex_types):
-            other = Complex(other.real, other.imag)
-{% for ret, lhs, rhs, lhs_bcast, rhs_bcast in ops %}
-        if type(self) is {{ lhs }} and type(other) is {{ rhs }}:
-{% if lhs == "float" or lhs == "Complex" %}
-            return (<{{ matrix.matrix_name }}>other)._{{ funcname }}_{{ rhs }}_{{ lhs }}(<{{ lhs }}>self)
-{% else %}
-            return (<{{ matrix.matrix_name }}>self)._{{ funcname }}_{{ lhs }}_{{ rhs }}(<{{ rhs }}>other)
-{% endif %}
-{% endfor %}
-        raise TypeError("Unsupported operand types for {{ matrix.matrix_name }}.__{{ funcname }}__: "
-                        "{} and {}".format(type(self), type(other)))
-
-{% for ret, lhs, rhs, lhs_bcast, rhs_bcast in ops %}
-{% if lhs != "float" and lhs != "Complex" %}
-    cdef {{ ret }} _{{ funcname }}_{{ lhs }}_{{ rhs }}({{ lhs }} self, {{ rhs }} other):
-{% set lhs_op = "self.instance" + (".broadcast()" if lhs_bcast else "[0]") %}
-{% set rhs_op = "other" + (".instance" if rhs != "float" else "") + (("[0]" if not rhs_bcast else ".broadcast()") if rhs not in ["Complex", "float"] else "") %}
-{% set ret_cpp = ret|to_underscores + "." + ret %}
-        out = {{ ret }}()
-        cdef {{ ret_cpp }}* cpp_out = new {{ ret_cpp }}()
-        cpp_out[0] = {{ lhs_op }} {{ op }} {{ rhs_op }}
-        out.instance = cpp_out#self.instance{% if lhs_bcast %}.broadcast(){% endif %} {{ op }} other{% if rhs != "float" %}.instance{% endif %}{% if rhs_bcast %}.broadcast(){% endif %}
-
-        return out
-
-{% endif %}
-{% endfor %}
-
-{% endfor %}
+{% include "core/arithmetic.pyx" %}
 
 cdef class {{ matrix.array_name }}:
     cdef {{ carray }}* instance
@@ -270,7 +234,7 @@ cdef class {{ matrix.array_name }}:
             value = Complex(<{{ precision }}?>value, 0.0)
 
         cdef {{ cmatrix }}* mat = &(self.instance[0][<int?>index[0]])
-{% if matrix.num_cols > 1 %}
+{% if is_matrix %}
         {{ matrix.matrix_name|to_underscores }}.mat_assign(mat, <int?>index[1], <int?>index[2], (<Complex?>value).instance)
 {% else %}
         cdef complex.Complex* z = &(mat[0][<int?>index[1]])
@@ -300,7 +264,7 @@ cdef class {{ matrix.array_name }}:
         out.instance[0] = {{ carray }}(num_elements, mat)
         return out
 
-{% if matrix.num_rows == matrix.num_cols %}
+{% if is_square %}
     @staticmethod
     def identity(int num_elements):
         cdef {{ cmatrix }} mat = {{ matrix.matrix_name|to_underscores }}.identity()
@@ -309,51 +273,8 @@ cdef class {{ matrix.array_name }}:
         return out
 
 {% endif %}
-{% for funcname, op in zip(["add", "sub", "mul", "div"], "+-*/") %}
-{% set ops = operators[(matrix.array_name, funcname)] %}
-    def __{{ funcname }}__(self, other):
-        if isinstance(self, scalar_types):
-            self = float(self)
-        if isinstance(other, scalar_types):
-            other = float(other)
-        if isinstance(self, complex_types):
-            self = Complex(self.real, self.imag)
-        if isinstance(other, complex_types):
-            other = Complex(other.real, other.imag)
-{% for ret, lhs, rhs, lhs_bcast, rhs_bcast in ops %}
-        if type(self) is {{ lhs }} and type(other) is {{ rhs }}:
-{% if lhs == "float" or lhs == "Complex" %}
-            return (<{{ matrix.array_name }}>other)._{{ funcname }}_{{ rhs }}_{{ lhs }}(<{{ lhs }}>self)
-{% else %}
-            return (<{{ matrix.array_name }}>self)._{{ funcname }}_{{ lhs }}_{{ rhs }}(<{{ rhs }}>other)
-{% endif %}
-{% endfor %}
-        raise TypeError("Unsupported operand types for {{ matrix.matrix_name }}.__{{ funcname }}__: "
-                        "{} and {}".format(type(self), type(other)))
 
-{% for ret, lhs, rhs, lhs_bcast, rhs_bcast in ops %}
-{% if lhs != "float" and lhs != "Complex" %}
-    cdef {{ ret }} _{{ funcname }}_{{ lhs }}_{{ rhs }}({{ lhs }} self, {{ rhs }} other):
-{% set lhs_op = "self.instance" + (".broadcast()" if lhs_bcast else "[0]") %}
-{% set rhs_op = "other" + (".instance" if rhs != "float" else "") + (("[0]" if not rhs_bcast else ".broadcast()") if rhs not in ["Complex", "float"] else "") %}
-{% set ret_cpp = ret|to_underscores + "." + ret %}
-        out = {{ ret }}()
-        cdef {{ ret_cpp }}* cpp_out = new {{ ret_cpp }}()
-        cpp_out[0] = {{ lhs_op }} {{ op }} {{ rhs_op }}
-        out.instance = cpp_out
-        #out = {{ ret }}()
-        #out.instance = shared_ptr[{{ ret_cpp }}](new {{ ret_cpp }}({{ lhs_op }} {{ op }} {{ rhs_op }}))#self.instance{% if lhs_bcast %}.broadcast(){% endif %} {{ op }} other{% if rhs != "float" %}.instance{% endif %}{% if rhs_bcast %}.broadcast(){% endif %}
-
-        return out
-        out = {{ ret }}()
-        #out.instance = self.instance{% if lhs_bcast %}.broadcast(){% endif %} {{ op }} other{% if rhs != "float" %}.instance{% endif %}{% if rhs_bcast %}.broadcast(){% endif %}
-
-        return out
-
-{% endif %}
-{% endfor %}
-
-{% endfor %}
+{% include "core/arithmetic.pyx" %}
 
 cdef class {{ matrix.lattice_matrix_name }}:
     cdef {{ clattice_matrix }}* instance
