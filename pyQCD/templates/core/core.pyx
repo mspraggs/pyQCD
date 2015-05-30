@@ -219,8 +219,14 @@ cdef class {{ matrix.array_name }}:
         self.instance = new {{ carray }}()
 
     def __init__(self, *args):
+        cdef int i, N
         if not args:
             pass
+        elif len(args) == 1 and hasattr(args[0], "__len__"):
+            N = len(args[0])
+            self.instance.resize(N)
+            for i in range(N):
+                self[i] = {{ matrix.matrix_name }}(args[0][i])
         elif len(args) == 2 and isinstance(args[0], int) and isinstance(args[1], {{ matrix.matrix_name }}):
             self._init_with_args_(args[0], args[1])
         else:
