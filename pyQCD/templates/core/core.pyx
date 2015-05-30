@@ -260,8 +260,22 @@ cdef class {{ matrix.array_name }}:
         out.instance[0] = self.instance[0][index]
         return out
 
-    def __setitem__(self, index, {{ matrix.matrix_name }} value):
-        self.assign_elem(index, value.instance)
+    def __setitem__(self, index, value):
+        if type(value) == {{ matrix.matrix_name }}:
+            self.assign_elem(index, (<{{ matrix.matrix_name }}>value).instance[0])
+            return
+        elif hasattr(value, "real") and hasattr(value, "imag") and isinstance(index, tuple):
+            value = Complex(value.real, value.imag)
+        else:
+            value = Complex(<{{ precision }}?>value, 0.0)
+
+        cdef {{ cmatrix }}* mat = &(self.instance[0][<int?>index[0]])
+{% if matrix.num_cols > 1 %}
+        {{ matrix.matrix_name|to_underscores }}.mat_assign(mat, <int?>index[1], <int?>index[2], (<Complex?>value).instance)
+{% else %}
+        cdef complex.Complex* z = &(mat[0][<int?>index[1]])
+        z[0] = (<Complex>value).instance
+{% endif %}
 
     cdef void assign_elem(self, int i, {{ cmatrix }} value):
         cdef {{ cmatrix }}* m = &(self.instance[0][i])
