@@ -10,3 +10,5 @@ cdef extern from "types.hpp":
         {{ matrixdef.matrix_name }}& operator[](const int) except +
         const {{ matrixdef.lattice_array_name }} broadcast()
         {{ matrixdef.lattice_array_name }} broadcast() except +
+        void resize(unsigned int) except +
+        unsigned int size()
