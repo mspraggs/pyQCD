@@ -86,6 +86,9 @@ cdef class LexicoLayout(Layout):
 cdef class {{ matrix.matrix_name }}:
     cdef {{ cmatrix }}* instance
 
+    cdef {{ cmatrix }} cppobj(self):
+        return self.instance[0]
+
     cdef validate_indices(self, int i{% if is_matrix %}, int j {% endif %}):
         if i > {{ matrix.num_rows - 1}}{% if is_matrix %} or j > {{ matrix.num_cols - 1 }}{% endif %}:
             raise IndexError("Indices in {{ matrix.matrix_name }} element access out of bounds: "
@@ -205,6 +208,9 @@ cdef class {{ matrix.matrix_name }}:
 
 cdef class {{ matrix.array_name }}:
     cdef {{ carray }}* instance
+
+    cdef {{ carray }} cppobj(self):
+        return self.instance[0]
 
     def _init_with_args_(self, unsigned int N, {{ matrix.matrix_name }} value):
         self.instance[0] = {{ matrix.array_name|to_underscores }}.{{ matrix.array_name }}(N, value.instance[0])
