@@ -271,24 +271,21 @@ cdef class {{ matrix.array_name }}:
 
     @staticmethod
     def zeros(int num_elements):
-        cdef {{ cmatrix }} mat = {{ matrix.matrix_name|to_underscores }}.zeros()
         out = {{ matrix.array_name }}()
-        out.instance[0] = {{ carray }}(num_elements, mat)
+        out.instance[0] = {{ carray }}(num_elements, {{ matrix.matrix_name|to_underscores }}.zeros())
         return out
 
     @staticmethod
     def ones(int num_elements):
-        cdef {{ cmatrix }} mat = {{ matrix.matrix_name|to_underscores }}.ones()
         out = {{ matrix.array_name }}()
-        out.instance[0] = {{ carray }}(num_elements, mat)
+        out.instance[0] = {{ carray }}(num_elements, {{ matrix.matrix_name|to_underscores }}.ones())
         return out
 
 {% if is_square %}
     @staticmethod
     def identity(int num_elements):
-        cdef {{ cmatrix }} mat = {{ matrix.matrix_name|to_underscores }}.identity()
         out = {{ matrix.array_name }}()
-        out.instance[0] = {{ carray }}(num_elements, mat)
+        out.instance[0] = {{ carray }}(num_elements, {{ matrix.matrix_name|to_underscores }}.identity())
         return out
 
 {% endif %}
