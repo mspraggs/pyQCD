@@ -286,6 +286,20 @@ cdef class {{ matrix.array_name }}:
         return out
 
 {% endif %}
+    def to_numpy(self):
+        cdef int i
+        out = np.zeros(self.shape, dtype=np.complex)
+        for i in range(self.size):
+            out[i] = self[i].to_numpy()
+        return out
+
+    @property
+    def size(self):
+        return self.instance.size()
+
+    @property
+    def shape(self):
+        return (self.size, {{ matrix.num_rows}},{% if is_matrix %} {{matrix.num_cols}}{% endif %})
 
 {{ arithmetic.arithmetic_ops(operators, matrix, matrix.array_name) }}
 
