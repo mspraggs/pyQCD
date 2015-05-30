@@ -12,6 +12,8 @@ cimport {{ matrix.lattice_matrix_name|to_underscores }}
 cimport {{ matrix.lattice_array_name|to_underscores }}
 {% endfor %}
 
+{% import "core/arithmetic.pyx" as arithmetic %}
+
 scalar_types = (int, float, np.single, np.double,
                 np.float16, np.float32, np.float64, np.float128)
 complex_types = (complex, np.complex, np.complex64, np.complex128,
@@ -196,7 +198,7 @@ cdef class {{ matrix.matrix_name }}:
     def shape(self):
         return ({{ matrix.num_rows}},{% if is_matrix %} {{matrix.num_cols}}{% endif %})
 
-{% include "core/arithmetic.pyx" %}
+{{ arithmetic.arithmetic_ops(operators, matrix, matrix.matrix_name) }}
 
 cdef class {{ matrix.array_name }}:
     cdef {{ carray }}* instance
@@ -274,7 +276,7 @@ cdef class {{ matrix.array_name }}:
 
 {% endif %}
 
-{% include "core/arithmetic.pyx" %}
+{{ arithmetic.arithmetic_ops(operators, matrix, matrix.array_name) }}
 
 cdef class {{ matrix.lattice_matrix_name }}:
     cdef {{ clattice_matrix }}* instance
