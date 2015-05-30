@@ -212,7 +212,7 @@ cdef class {{ matrix.array_name }}:
     cdef {{ carray }} cppobj(self):
         return self.instance[0]
 
-    def _init_with_args_(self, unsigned int N, {{ matrix.matrix_name }} value):
+    cdef _init_with_args_(self, unsigned int N, {{ matrix.matrix_name }} value):
         self.instance[0] = {{ matrix.array_name|to_underscores }}.{{ matrix.array_name }}(N, value.instance[0])
 
     def __cinit__(self):
