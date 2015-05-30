@@ -132,6 +132,8 @@ class TestColourMatrix(object):
         mat3_data = mat1_data * (5.0 + 1.0j)
         mat3 = mat1 * (5.0 + 1.0j)
         assert np.allclose(mat3.to_numpy(), mat3_data)
+        mat3 = (5.0 + 1.0j) * mat1
+        assert np.allclose(mat3.to_numpy(), mat3_data)
 
 
 class TestColourVector(object):
