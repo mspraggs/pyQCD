@@ -135,6 +135,18 @@ class TestColourMatrix(object):
         mat3 = (5.0 + 1.0j) * mat1
         assert np.allclose(mat3.to_numpy(), mat3_data)
 
+    def test_div(self):
+        """Test division"""
+        # TODO: Implement
+
+    def test_add(self):
+        """Test addition"""
+        # TODO: Implement
+
+    def test_sub(self):
+        """Test subtraction"""
+        # TODO: Implement
+
 
 class TestColourVector(object):
 
