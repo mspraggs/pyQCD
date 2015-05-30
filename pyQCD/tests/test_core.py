@@ -114,7 +114,7 @@ class TestColourMatrix(object):
     def test_to_numpy(self):
         """Test numpy conversion function"""
         mat = ColourMatrix.zeros()
-        assert np.allclose(mat.to_numpy(), np.zeros((3, 3)))
+        assert np.allclose(mat.to_numpy(), np.zeros(mat.shape))
 
     def test_mul(self):
         """Test multiplications"""
@@ -180,3 +180,8 @@ class TestColourVector(object):
 
         for index in np.ndindex(vec.shape):
             assert vec[index] == 1.0 + 0.0j
+
+    def test_to_numpy(self):
+        """Test numpy conversion function"""
+        vec = ColourMatrix.zeros()
+        assert np.allclose(vec.to_numpy(), np.zeros(vec.shape))
