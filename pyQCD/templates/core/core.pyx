@@ -70,7 +70,10 @@ cdef class Layout:
 cdef class LexicoLayout(Layout):
 
     def __init__(self, shape):
-        self.instance = <layout.Layout*>layout.LexicoLayout(<vector[unsigned int]?>shape)
+        self.instance = <layout.Layout*>new layout.LexicoLayout(<vector[unsigned int]?>shape)
+
+    def __dealloc__(self):
+        del self.instance
 
 
 {% for matrix in matrixdefs %}
