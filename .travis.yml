@@ -13,6 +13,7 @@ install:
   - cd build
   - cmake .. -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
   - make
+  - cd ..
 script: 
-  - for f in pyQCD/test_*; do ./$f; done
+  - for f in build/pyQCD/test_*; do ./$f; done
   - py.test -vl
