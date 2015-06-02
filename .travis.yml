@@ -1,22 +1,10 @@
-language: cpp
-compiler:
-  - gcc
-  - clang
+language: python
+python:
+  - "2.7"
 before_install:
-  - sudo apt-get update -qq  
+  - sudo apt-get update -qq
+  - sudo apt-get install libeigen3-dev
 install:
-  - wget http://www.cmake.org/files/v2.8/cmake-2.8.11.2-Linux-i386.sh
-  - wget http://bitbucket.org/eigen/eigen/get/3.1.4.tar.gz
-  - tar xvfz 3.1.4.tar.gz
-  - chmod +x cmake-2.8.11.2-Linux-i386.sh
-  - ./cmake-2.8.11.2-Linux-i386.sh --prefix=/home/travis/build/mspraggs/pyQCD --include-subdir
-  - mv eigen-eigen-36bf2ceaf8f5 /home/travis/build/eigen-eigen-36bf2ceaf8f5
-  - sudo apt-get install -qq libboost-python-dev libboost-test-dev libboost-random-dev
-  - sudo apt-get install -qq python-setuptools
-script:
-  - ls /home/travis/build/mspraggs/pyQCD/cmake-2.8.11.2-Linux-i386 -l
-  - ls /home/travis/build/mspraggs/pyQCD/cmake-2.8.11.2-Linux-i386/bin -l
-  - ./cmake-2.8.11.2-Linux-i386/bin/cmake
-  - ./cmake-2.8.11.2-Linux-i386/bin/cmake . -DEIGEN3_INCLUDE_DIR=/home/travis/build/eigen-eigen-36bf2ceaf8f5
-  - make lattice
-  - make
+  - "pip install ."
+  - "pip install -r requirements.txt"
+script: py.test
