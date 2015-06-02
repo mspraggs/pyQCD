@@ -26,7 +26,7 @@ set (benchmark_SRC
 set (utils_SRC
   ${SRC_DIR}/utils/math.cpp)
 
-find_package (Eigen3 3.1.3 REQUIRED)
+find_package (Eigen3 3.0.5 REQUIRED)
 
 include_directories (
   ${EIGEN3_INCLUDE_DIR}
