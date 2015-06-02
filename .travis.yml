@@ -1,4 +1,6 @@
 language: python
+compiler:
+  - clang
 python:
   - "2.7"
 before_install:
