@@ -76,7 +76,7 @@ class TestColourMatrix(object):
         for index in np.ndindex(mat.shape):
             assert mat[index] == mat_values[index]
 
-        with pytest.raises(ValueError):
+        with pytest.raises(IndexError):
             mat = ColourMatrix(np.zeros((20, 20)))
 
     def test_boundscheck(self):
@@ -168,7 +168,7 @@ class TestColourVector(object):
         for index in np.ndindex(vec.shape):
             assert vec[index] == vec_values[index]
 
-        with pytest.raises(ValueError):
+        with pytest.raises(IndexError):
             vec = ColourVector(np.zeros(20))
 
     def test_boundscheck(self):
