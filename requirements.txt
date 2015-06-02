@@ -1,0 +1,11 @@
+Cython==0.22
+Jinja2==2.7.3
+MarkupSafe==0.23
+argparse==1.2.1
+-e git+git@github.com:mspraggs/autowrap.git@f34f20e1579db0cb8d1768ed67508f669195acb7#egg=autowrap-master
+ipython==3.1.0
+numpy==1.9.2
+py==1.4.27
+-e git+git@github.com:mspraggs/pyQCD.git@e4079bac9965369c6ad9ebeeba87d5421bb77f97#egg=pyQCD-origin/master
+pytest==2.7.0
+wsgiref==0.1.2
