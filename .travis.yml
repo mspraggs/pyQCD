@@ -11,8 +11,8 @@ install:
 #  - "CC=clang CXX=clang++ pip install ."
   - mkdir build
   - cd build
-  - cmake ..
-  - CC=clang CXX=clang++ make VERBOSE=1
+  - cmake .. -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+  - make
 script: 
   - for f in pyQCD/test_*; do ./$f; done
   - py.test -vl
