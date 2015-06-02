@@ -5,8 +5,13 @@ python:
   - "2.7"
 before_install:
   - sudo apt-get update -qq
-  - sudo apt-get install libeigen3-dev
+  - sudo apt-get install libeigen3-dev cmake
 install:
   - "pip install -r requirements.txt"
   - "CC=clang CXX=clang++ pip install ."
-script: py.test
+  - cd build
+  - cmake ..
+  - CC=clang CXX=clang++ make
+script: 
+  - for f in pyQCD/test_*; do ./$f; done
+  - py.test -vl
