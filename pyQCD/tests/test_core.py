@@ -59,7 +59,7 @@ class TestComplex(object):
 
 
 @pytest.mark.parametrize("Matrix", [ColourMatrix, ColourVector])
-class TestColourMatrix(object):
+class TestMatrixType(object):
 
     def test_constructor(self, Matrix):
         """Test matrix"""
