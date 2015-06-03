@@ -144,12 +144,28 @@ class TestMatrixType(object):
 
     def test_div(self, Matrix):
         """Test division"""
-        # TODO: Implement
+        mat1_data = np.random.rand(*Matrix.shape)
+        mat2_data = mat1_data / (4.0 - 2.0j)
+        mat1 = Matrix(mat1_data)
+        mat2 = mat1 / (4.0 - 2.0j)
+        assert np.allclose(mat2.to_numpy(), mat2_data)
 
     def test_add(self, Matrix):
         """Test addition"""
-        # TODO: Implement
+        mat1_data = np.random.rand(*Matrix.shape)
+        mat2_data = np.random.rand(*Matrix.shape)
+        mat3_data = mat1_data + mat2_data
+        mat1 = Matrix(mat1_data)
+        mat2 = Matrix(mat2_data)
+        mat3 = mat1 + mat2
+        assert np.allclose(mat3.to_numpy(), mat3_data)
 
     def test_sub(self, Matrix):
         """Test subtraction"""
-        # TODO: Implement
+        mat1_data = np.random.rand(*Matrix.shape)
+        mat2_data = np.random.rand(*Matrix.shape)
+        mat3_data = mat1_data - mat2_data
+        mat1 = Matrix(mat1_data)
+        mat2 = Matrix(mat2_data)
+        mat3 = mat1 - mat2
+        assert np.allclose(mat3.to_numpy(), mat3_data)
