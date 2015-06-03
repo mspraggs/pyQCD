@@ -85,6 +85,7 @@ cdef class LexicoLayout(Layout):
 {% set clattice_array = matrix.lattice_array_name|to_underscores + "." + matrix.lattice_array_name %}
 cdef class {{ matrix.matrix_name }}:
     cdef {{ cmatrix }}* instance
+    cdef tuple shape = ({{ matrix.num_rows}},{% if is_matrix %} {{matrix.num_cols}}{% endif %})
 
     cdef {{ cmatrix }} cppobj(self):
         return self.instance[0]
@@ -195,10 +196,6 @@ cdef class {{ matrix.matrix_name }}:
         for index in np.ndindex(self.shape):
             out[index] = self[index]
         return out
-
-    @property
-    def shape(self):
-        return ({{ matrix.num_rows}},{% if is_matrix %} {{matrix.num_cols}}{% endif %})
 
 {{ arithmetic.arithmetic_ops(operators, matrix, matrix.matrix_name) }}
 
