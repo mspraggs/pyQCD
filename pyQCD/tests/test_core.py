@@ -58,76 +58,81 @@ class TestComplex(object):
         assert z.to_complex() == 1.0 + 2.0j
 
 
+@pytest.mark.parametrize("Matrix", [ColourMatrix, ColourVector])
 class TestColourMatrix(object):
 
-    def test_constructor(self):
+    def test_constructor(self, Matrix):
         """Test matrix"""
-        mat = ColourMatrix()
-        assert isinstance(mat, ColourMatrix)
+        mat = Matrix()
+        assert isinstance(mat, Matrix)
         mat_values = np.arange(np.prod(mat.shape)).reshape(mat.shape).tolist()
-        mat = ColourMatrix(mat_values)
-        assert isinstance(mat, ColourMatrix)
+        mat = Matrix(mat_values)
+        mat_values = np.array(mat_values)
+        assert isinstance(mat, Matrix)
 
-        for i, j in np.ndindex(mat.shape):
-            assert mat[i, j] == mat_values[i][j] + 0j
+        for index in np.ndindex(mat.shape):
+            assert mat[index] == mat_values[index] + 0j
 
         mat_values = np.arange(np.prod(mat.shape)).reshape(mat.shape)
-        mat = ColourMatrix(mat_values)
-        assert isinstance(mat, ColourMatrix)
+        mat = Matrix(mat_values)
+        assert isinstance(mat, Matrix)
 
         for index in np.ndindex(mat.shape):
             assert mat[index] == mat_values[index]
 
         with pytest.raises(IndexError):
-            mat = ColourMatrix(np.zeros((20, 20)))
+            mat = Matrix(np.zeros(tuple(20 for i in mat.shape)))
 
-    def test_boundscheck(self):
+    def test_boundscheck(self, Matrix):
         """Test bounds checking for matrix"""
-        mat = ColourMatrix()
+        mat = Matrix()
         with pytest.raises(IndexError):
             x = mat[3, 3]
         with pytest.raises(IndexError):
             mat[3, 3] = 4
 
-    def test_zeros(self):
+    def test_zeros(self, Matrix):
         """Test zeros static function"""
-        mat = ColourMatrix.zeros()
-        assert isinstance(mat, ColourMatrix)
+        mat = Matrix.zeros()
+        assert isinstance(mat, Matrix)
 
         for index in np.ndindex(mat.shape):
             assert mat[index] == 0.0j
 
-    def test_ones(self):
+    def test_ones(self, Matrix):
         """Test ones static function"""
-        mat = ColourMatrix.ones()
-        assert isinstance(mat, ColourMatrix)
+        mat = Matrix.ones()
+        assert isinstance(mat, Matrix)
 
         for index in np.ndindex(mat.shape):
             assert mat[index] == 1.0 + 0.0j
 
-    def test_identity(self):
+    def test_identity(self, Matrix):
         """Test identity static function"""
-        mat = ColourMatrix.identity()
-        assert isinstance(mat, ColourMatrix)
+        if len(Matrix.shape) == 1 or Matrix.shape[0] != Matrix.shape[1]:
+            return
+        mat = Matrix.identity()
+        assert isinstance(mat, Matrix)
 
         for index in np.ndindex(mat.shape):
             assert mat[index] == (1.0 + 0.0j if index[0] == index[1] else 0.0j)
 
-    def test_to_numpy(self):
+    def test_to_numpy(self, Matrix):
         """Test numpy conversion function"""
-        mat = ColourMatrix.zeros()
+        mat = Matrix.zeros()
         assert np.allclose(mat.to_numpy(), np.zeros(mat.shape))
 
-    def test_mul(self):
+    def test_mul(self, Matrix):
         """Test multiplications"""
-        mat1_data = np.random.rand(3, 3)
-        mat2_data = np.random.rand(3, 3)
+        mat1_data = np.random.rand(*Matrix.shape)
+        mat2_data = np.random.rand(*Matrix.shape)
         mat3_data = np.dot(mat1_data, mat2_data)
-        mat1 = ColourMatrix(mat1_data)
-        mat2 = ColourMatrix(mat2_data)
+        mat1 = Matrix(mat1_data)
+        mat2 = Matrix(mat2_data)
 
-        mat3 = mat1 * mat2
-        assert np.allclose(mat3.to_numpy(), mat3_data)
+        if len(Matrix.shape) > 1 and Matrix.shape[0] == Matrix.shape[1]:
+            mat3 = mat1 * mat2
+            assert np.allclose(mat3.to_numpy(), mat3_data)
         mat3_data = mat1_data * 5.0
         mat3 = mat1 * 5.0
         assert np.allclose(mat3.to_numpy(), mat3_data)
@@ -137,67 +142,14 @@ class TestColourMatrix(object):
         mat3 = (5.0 + 1.0j) * mat1
         assert np.allclose(mat3.to_numpy(), mat3_data)
 
-    def test_div(self):
+    def test_div(self, Matrix):
         """Test division"""
         # TODO: Implement
 
-    def test_add(self):
+    def test_add(self, Matrix):
         """Test addition"""
         # TODO: Implement
 
-    def test_sub(self):
+    def test_sub(self, Matrix):
         """Test subtraction"""
         # TODO: Implement
-
-
-class TestColourVector(object):
-
-    def test_constructor(self):
-        """Test vector constructor"""
-        vec = ColourVector()
-        assert isinstance(vec, ColourVector)
-        vec_values = np.arange(np.prod(vec.shape)).reshape(vec.shape).tolist()
-        vec = ColourVector(vec_values)
-        assert isinstance(vec, ColourVector)
-
-        for i, in np.ndindex(vec.shape):
-            assert vec[i] == vec_values[i] + 0j
-
-        vec_values = np.arange(np.prod(vec.shape)).reshape(vec.shape)
-        vec = ColourVector(vec_values)
-        assert isinstance(vec, ColourVector)
-
-        for index in np.ndindex(vec.shape):
-            assert vec[index] == vec_values[index]
-
-        with pytest.raises(IndexError):
-            vec = ColourVector(np.zeros(20))
-
-    def test_boundscheck(self):
-        """Test bounds checking for matrix"""
-        vec = ColourVector()
-        with pytest.raises(IndexError):
-            x = vec[3]
-        with pytest.raises(IndexError):
-            vec[3] = 4
-
-    def test_zeros(self):
-        """Test zeros static function"""
-        vec = ColourVector.zeros()
-        assert isinstance(vec, ColourVector)
-
-        for index in np.ndindex(vec.shape):
-            assert vec[index] == 0.0j
-
-    def test_ones(self):
-        """Test ones static function"""
-        vec = ColourVector.ones()
-        assert isinstance(vec, ColourVector)
-
-        for index in np.ndindex(vec.shape):
-            assert vec[index] == 1.0 + 0.0j
-
-    def test_to_numpy(self):
-        """Test numpy conversion function"""
-        vec = ColourMatrix.zeros()
-        assert np.allclose(vec.to_numpy(), np.zeros(vec.shape))
