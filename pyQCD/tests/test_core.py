@@ -169,3 +169,29 @@ class TestMatrixType(object):
         mat2 = Matrix(mat2_data)
         mat3 = mat1 - mat2
         assert np.allclose(mat3.to_numpy(), mat3_data)
+
+
+@pytest.mark.parametrize("MatrixArray,Matrix",
+                         [(ColourMatrixArray, ColourMatrix),
+                          (Fermion, ColourVector)])
+class TestMatrixArrayType(object):
+
+    def test_constructor(self, MatrixArray, Matrix):
+        """Test constructor"""
+        mat_arr = MatrixArray()
+        assert isinstance(mat_arr, MatrixArray)
+        mat_arr = MatrixArray(4, Matrix.zeros())
+        assert isinstance(mat_arr, MatrixArray)
+        assert mat_arr.size == 4
+        assert mat_arr.shape == (4,) + Matrix.shape
+
+        mat_arr_data = np.arange(np.prod(mat_arr.shape)).reshape(mat_arr.shape)
+        mat_arr = MatrixArray(mat_arr_data.tolist())
+        assert isinstance(mat_arr, MatrixArray)
+        for index in np.ndindex(mat_arr.shape):
+            assert mat_arr[index[0]][index[1:]] == mat_arr_data[index]
+
+        mat_arr = MatrixArray(mat_arr_data)
+        assert isinstance(mat_arr, MatrixArray)
+        for index in np.ndindex(mat_arr.shape):
+            assert mat_arr[index[0]][index[1:]] == mat_arr_data[index]
