@@ -85,7 +85,7 @@ cdef class LexicoLayout(Layout):
 {% set clattice_array = matrix.lattice_array_name|to_underscores + "." + matrix.lattice_array_name %}
 cdef class {{ matrix.matrix_name }}:
     cdef {{ cmatrix }}* instance
-    cdef readonly tuple shape
+    shape = ({{ matrix.num_rows}},{% if is_matrix %} {{matrix.num_cols}}{% endif %})
 
     cdef {{ cmatrix }} cppobj(self):
         return self.instance[0]
@@ -96,7 +96,6 @@ cdef class {{ matrix.matrix_name }}:
                              "{}".format((i{% if is_matrix %}, j{% endif %})))
 
     def __cinit__(self):
-        self.shape = ({{ matrix.num_rows}},{% if is_matrix %} {{matrix.num_cols}}{% endif %})
         self.instance = new {{ cmatrix }}()
 
     def __init__(self, *args):

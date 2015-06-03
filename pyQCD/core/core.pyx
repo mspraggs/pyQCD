@@ -79,7 +79,7 @@ cdef class LexicoLayout(Layout):
 
 cdef class ColourMatrix:
     cdef colour_matrix.ColourMatrix* instance
-    cdef readonly tuple shape
+    shape = (3, 3)
 
     cdef colour_matrix.ColourMatrix cppobj(self):
         return self.instance[0]
@@ -90,7 +90,6 @@ cdef class ColourMatrix:
                              "{}".format((i, j)))
 
     def __cinit__(self):
-        self.shape = (3, 3)
         self.instance = new colour_matrix.ColourMatrix()
 
     def __init__(self, *args):
@@ -645,7 +644,7 @@ cdef class GaugeField:
 
 cdef class ColourVector:
     cdef colour_vector.ColourVector* instance
-    cdef readonly tuple shape
+    shape = (3,)
 
     cdef colour_vector.ColourVector cppobj(self):
         return self.instance[0]
@@ -656,7 +655,6 @@ cdef class ColourVector:
                              "{}".format((i)))
 
     def __cinit__(self):
-        self.shape = (3,)
         self.instance = new colour_vector.ColourVector()
 
     def __init__(self, *args):
