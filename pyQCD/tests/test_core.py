@@ -87,9 +87,9 @@ class TestMatrixType(object):
         """Test bounds checking for matrix"""
         mat = Matrix()
         with pytest.raises(IndexError):
-            x = mat[3, 3]
+            x = mat[mat.shape]
         with pytest.raises(IndexError):
-            mat[3, 3] = 4
+            mat[mat.shape] = 4
 
     def test_adjoint(self, Matrix):
         """Test adjoint function for matrix"""
