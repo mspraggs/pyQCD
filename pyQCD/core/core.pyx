@@ -530,10 +530,8 @@ cdef class ColourMatrixArray:
         return out
 
     def to_numpy(self):
-        cdef int i
-        out = np.zeros(self.shape, dtype=np.complex)
-        for i in range(self.size):
-            out[i] = self[i].to_numpy()
+        out = np.asarray(self)
+        out.dtype = complex
         return out
 
     @property
@@ -1093,10 +1091,8 @@ cdef class Fermion:
         return out
 
     def to_numpy(self):
-        cdef int i
-        out = np.zeros(self.shape, dtype=np.complex)
-        for i in range(self.size):
-            out[i] = self[i].to_numpy()
+        out = np.asarray(self)
+        out.dtype = complex
         return out
 
     @property
