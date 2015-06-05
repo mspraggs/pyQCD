@@ -270,9 +270,9 @@ cdef class {{ array_name }}:
     def __getitem__(self, index):
         if type(index) == tuple and len(index) == 1:
             self.validate_index(index[0])
-
             out = {{ matrix_name }}()
             (<{{ matrix_name }}>out).instance[0] = (self.instance[0])[<int?>(index[0])]
+            return out
         elif type(index) == tuple:
             self.validate_index(index[0])
             out = Complex(0.0, 0.0)
@@ -283,12 +283,12 @@ cdef class {{ array_name }}:
             validate_{{ matrix_name }}_indices(index[1])
             (<Complex>out).instance = self.instance[0][<int?>index[0]][<int?>index[1]]
 {% endif %}
+            return out.to_complex()
         else:
             self.validate_index(index)
             out = {{ matrix_name }}()
             (<{{ matrix_name }}>out).instance[0] = self.instance[0][<int?>index]
-
-        return out
+            return out
 
     def __setitem__(self, index, value):
         if type(value) == {{ matrix_name }}:
