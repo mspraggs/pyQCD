@@ -229,3 +229,12 @@ class TestMatrixArrayType(object):
             mat_arr[4] = mat
         with pytest.raises(IndexError):
             mat_arr[mat_arr.shape] = 4
+
+    def test_adjoint(self, Matrix, MatrixArray):
+        """Test adjoint function for matrix"""
+        mat = Matrix()
+        mat_arr = MatrixArray(4, mat)
+        index = tuple(0 for i in mat_arr.shape)
+        mat_arr[index] = 1 + 1j
+        mat_arr_adjoint = mat_arr.adjoint()
+        assert mat_arr_adjoint[index] == 1.0 - 1.0j
