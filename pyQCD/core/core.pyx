@@ -438,7 +438,7 @@ cdef class ColourMatrixArray:
         del self.instance
 
     def __getitem__(self, index):
-        if type(index) == tuple and len(tuple) == 1:
+        if type(index) == tuple and len(index) == 1:
             self.validate_index(index[0])
 
             out = ColourMatrix()
@@ -977,7 +977,7 @@ cdef class Fermion:
         del self.instance
 
     def __getitem__(self, index):
-        if type(index) == tuple and len(tuple) == 1:
+        if type(index) == tuple and len(index) == 1:
             self.validate_index(index[0])
 
             out = ColourVector()
