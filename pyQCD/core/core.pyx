@@ -78,7 +78,7 @@ cdef class LexicoLayout(Layout):
         del self.instance
 
 
-cdef inline void validate_ColourMatrix_indices(int i, int j):
+cdef inline int validate_ColourMatrix_indices(int i, int j) except -1:
     if i > 2 or j > 2:
         raise IndexError("Indices in ColourMatrix element access out of bounds: "
                          "{}".format((i, j)))
@@ -691,7 +691,7 @@ cdef class GaugeField:
         pass
 
 
-cdef inline void validate_ColourVector_indices(int i):
+cdef inline int validate_ColourVector_indices(int i) except -1:
     if i > 2:
         raise IndexError("Indices in ColourVector element access out of bounds: "
                          "{}".format((i)))

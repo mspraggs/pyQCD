@@ -84,7 +84,7 @@ cdef class LexicoLayout(Layout):
 {% set carray = matrix.array_name|to_underscores + "." + matrix.array_name %}
 {% set clattice_matrix = matrix.lattice_matrix_name|to_underscores + "." + matrix.lattice_matrix_name %}
 {% set clattice_array = matrix.lattice_array_name|to_underscores + "." + matrix.lattice_array_name %}
-cdef inline void validate_{{ matrix.matrix_name }}_indices(int i{% if is_matrix %}, int j{% endif %}):
+cdef inline int validate_{{ matrix.matrix_name }}_indices(int i{% if is_matrix %}, int j{% endif %}) except -1:
     if i > {{ matrix.num_rows - 1}}{% if is_matrix %} or j > {{ matrix.num_cols - 1 }}{% endif %}:
         raise IndexError("Indices in {{ matrix.matrix_name }} element access out of bounds: "
                          "{}".format((i{% if is_matrix %}, j{% endif %})))
