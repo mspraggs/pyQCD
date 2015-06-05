@@ -289,3 +289,51 @@ class TestMatrixArrayType(object):
         np_mat[index] = 5.0
         assert np_mat[index] == 5.0 + 0j
         assert mat_arr[index] == 5.0 + 0j
+
+    def test_mul(self, Matrix, MatrixArray):
+        """Test multiplications"""
+        mat1_data = np.random.rand(4, *Matrix.shape)
+        mat2_data = np.random.rand(4, *Matrix.shape)
+        mat1 = MatrixArray(mat1_data)
+        mat2 = MatrixArray(mat2_data)
+
+        if len(Matrix.shape) > 1 and Matrix.shape[0] == Matrix.shape[1]:
+            mat3 = mat1 * mat2
+            mat3_data = np.einsum('ijk,ikl->ijl', mat1_data, mat2_data)
+            assert np.allclose(mat3.to_numpy(), mat3_data)
+        mat3_data = mat1_data * 5.0
+        mat3 = mat1 * 5.0
+        assert np.allclose(mat3.to_numpy(), mat3_data)
+        mat3_data = mat1_data * (5.0 + 1.0j)
+        mat3 = mat1 * (5.0 + 1.0j)
+        assert np.allclose(mat3.to_numpy(), mat3_data)
+        mat3 = (5.0 + 1.0j) * mat1
+        assert np.allclose(mat3.to_numpy(), mat3_data)
+
+    def test_div(self, Matrix, MatrixArray):
+        """Test division"""
+        mat1_data = np.random.rand(4, *Matrix.shape)
+        mat2_data = mat1_data / (4.0 - 2.0j)
+        mat1 = MatrixArray(mat1_data)
+        mat2 = mat1 / (4.0 - 2.0j)
+        assert np.allclose(mat2.to_numpy(), mat2_data)
+
+    def test_add(self, Matrix, MatrixArray):
+        """Test addition"""
+        mat1_data = np.random.rand(4, *Matrix.shape)
+        mat2_data = np.random.rand(4, *Matrix.shape)
+        mat3_data = mat1_data + mat2_data
+        mat1 = MatrixArray(mat1_data)
+        mat2 = MatrixArray(mat2_data)
+        mat3 = mat1 + mat2
+        assert np.allclose(mat3.to_numpy(), mat3_data)
+
+    def test_sub(self, Matrix, MatrixArray):
+        """Test subtraction"""
+        mat1_data = np.random.rand(4, *Matrix.shape)
+        mat2_data = np.random.rand(4, *Matrix.shape)
+        mat3_data = mat1_data - mat2_data
+        mat1 = MatrixArray(mat1_data)
+        mat2 = MatrixArray(mat2_data)
+        mat3 = mat1 - mat2
+        assert np.allclose(mat3.to_numpy(), mat3_data)
