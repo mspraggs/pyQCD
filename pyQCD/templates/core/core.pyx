@@ -234,6 +234,9 @@ cdef class {{ matrix_name }}:
 
 cdef class {{ array_name }}:
     cdef {{ carray }}* instance
+    cdef Py_ssize_t buffer_shape[{% if is_matrix %}3{% else %}2{% endif %}]
+    cdef Py_ssize_t buffer_strides[{% if is_matrix %}3{% else %}2{% endif %}]
+    cdef int view_count
 
     cdef {{ carray }} cppobj(self):
         return self.instance[0]
@@ -248,6 +251,7 @@ cdef class {{ array_name }}:
 
     def __cinit__(self):
         self.instance = new {{ carray }}()
+        self.view_count = 0
 
     def __init__(self, *args):
         cdef int i, N
@@ -266,6 +270,37 @@ cdef class {{ array_name }}:
 
     def __dealloc__(self):
         del self.instance
+
+    def __getbuffer__(self, Py_buffer* buffer, int flags):
+        cdef Py_ssize_t itemsize = sizeof(complex.Complex)
+
+        self.buffer_shape[0] = self.instance.size()
+        self.buffer_strides[0] = itemsize * {{ num_rows * num_cols }}
+        self.buffer_shape[1] = {{ num_rows }}
+        self.buffer_strides[1] = itemsize
+        {% if is_matrix %}
+        self.buffer_shape[2] = {{ num_cols }}
+        self.buffer_strides[2] = {{ num_cols }} * itemsize
+        {% endif %}
+
+        buffer.buf = <char*>&(self.instance[0][0])
+        {% set num_format = "d" if precision == "double" else "f" %}
+        buffer.format = "{{ num_format + num_format }}"
+        buffer.internal = NULL
+        buffer.itemsize = itemsize
+        buffer.len = {{ num_rows }} * {{ num_cols }} * itemsize
+        buffer.ndim = {% if is_matrix %}3{% else %}2{% endif %}
+
+        buffer.obj = self
+        buffer.readonly = 0
+        buffer.shape = self.buffer_shape
+        buffer.strides = self.buffer_strides
+        buffer.suboffsets = NULL
+
+        self.view_count += 1
+
+    def __releasebuffer__(self, Py_buffer* buffer):
+        self.view_count -= 1
 
     def __getitem__(self, index):
         if type(index) == tuple and len(index) == 1:

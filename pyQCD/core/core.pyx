@@ -404,6 +404,9 @@ cdef class ColourMatrix:
 
 cdef class ColourMatrixArray:
     cdef colour_matrix_array.ColourMatrixArray* instance
+    cdef Py_ssize_t buffer_shape[3]
+    cdef Py_ssize_t buffer_strides[3]
+    cdef int view_count
 
     cdef colour_matrix_array.ColourMatrixArray cppobj(self):
         return self.instance[0]
@@ -418,6 +421,7 @@ cdef class ColourMatrixArray:
 
     def __cinit__(self):
         self.instance = new colour_matrix_array.ColourMatrixArray()
+        self.view_count = 0
 
     def __init__(self, *args):
         cdef int i, N
@@ -436,6 +440,33 @@ cdef class ColourMatrixArray:
 
     def __dealloc__(self):
         del self.instance
+
+    def __getbuffer__(self, Py_buffer* buffer, int flags):
+        cdef Py_ssize_t itemsize = sizeof(complex.Complex)
+
+        self.buffer_shape[0] = self.instance.size()
+        self.buffer_strides[0] = itemsize * 9
+        self.buffer_shape[1] = 3
+        self.buffer_strides[1] = itemsize
+        self.buffer_shape[2] = 3
+        self.buffer_strides[2] = 3 * itemsize
+
+        buffer.buf = <char*>&(self.instance[0][0])
+        buffer.format = "dd"
+        buffer.internal = NULL
+        buffer.itemsize = itemsize
+        buffer.len = 3 * 3 * itemsize
+        buffer.ndim = 3
+        buffer.obj = self
+        buffer.readonly = 0
+        buffer.shape = self.buffer_shape
+        buffer.strides = self.buffer_strides
+        buffer.suboffsets = NULL
+
+        self.view_count += 1
+
+    def __releasebuffer__(self, Py_buffer* buffer):
+        self.view_count -= 1
 
     def __getitem__(self, index):
         if type(index) == tuple and len(index) == 1:
@@ -943,6 +974,9 @@ cdef class ColourVector:
 
 cdef class Fermion:
     cdef fermion.Fermion* instance
+    cdef Py_ssize_t buffer_shape[2]
+    cdef Py_ssize_t buffer_strides[2]
+    cdef int view_count
 
     cdef fermion.Fermion cppobj(self):
         return self.instance[0]
@@ -957,6 +991,7 @@ cdef class Fermion:
 
     def __cinit__(self):
         self.instance = new fermion.Fermion()
+        self.view_count = 0
 
     def __init__(self, *args):
         cdef int i, N
@@ -975,6 +1010,31 @@ cdef class Fermion:
 
     def __dealloc__(self):
         del self.instance
+
+    def __getbuffer__(self, Py_buffer* buffer, int flags):
+        cdef Py_ssize_t itemsize = sizeof(complex.Complex)
+
+        self.buffer_shape[0] = self.instance.size()
+        self.buffer_strides[0] = itemsize * 3
+        self.buffer_shape[1] = 3
+        self.buffer_strides[1] = itemsize
+
+        buffer.buf = <char*>&(self.instance[0][0])
+        buffer.format = "dd"
+        buffer.internal = NULL
+        buffer.itemsize = itemsize
+        buffer.len = 3 * 1 * itemsize
+        buffer.ndim = 2
+        buffer.obj = self
+        buffer.readonly = 0
+        buffer.shape = self.buffer_shape
+        buffer.strides = self.buffer_strides
+        buffer.suboffsets = NULL
+
+        self.view_count += 1
+
+    def __releasebuffer__(self, Py_buffer* buffer):
+        self.view_count -= 1
 
     def __getitem__(self, index):
         if type(index) == tuple and len(index) == 1:

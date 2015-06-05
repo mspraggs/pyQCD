@@ -275,3 +275,17 @@ class TestMatrixArrayType(object):
         """Test numpy conversion function"""
         mat_arr = MatrixArray.zeros(4)
         assert np.allclose(mat_arr.to_numpy(), np.zeros(mat_arr.shape))
+
+    def test_buffer_protocol(self, Matrix, MatrixArray):
+        """Test buffer protocol implementation"""
+        mat_arr = MatrixArray.zeros(4)
+        np_mat = np.asarray(mat_arr)
+        np_mat.dtype = complex
+        for index in np.ndindex(mat_arr.shape):
+            assert np_mat[index] == 0j
+
+        index = tuple(s - 1 if i == 0 else 0
+                      for i, s in enumerate(mat_arr.shape))
+        np_mat[index] = 5.0
+        assert np_mat[index] == 5.0 + 0j
+        assert mat_arr[index] == 5.0 + 0j
