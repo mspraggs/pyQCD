@@ -1,4 +1,4 @@
-{% macro arithmetic_ops(operators, matrix, typename) %}
+{% macro arithmetic_ops(operators, typename) %}
 {% for funcname, op in zip(["add", "sub", "mul", "div"], "+-*/") %}
 {% set ops = operators[(typename, funcname)] %}
     def __{{ funcname }}__(self, other):
@@ -13,12 +13,12 @@
 {% for ret, lhs, rhs, lhs_bcast, rhs_bcast in ops %}
         if type(self) is {{ lhs }} and type(other) is {{ rhs }}:
 {% if lhs == "float" or lhs == "Complex" %}
-            return (<{{ matrix.matrix_name }}>other)._{{ funcname }}_{{ rhs }}_{{ lhs }}(<{{ lhs }}>self)
+            return (<{{ typename }}>other)._{{ funcname }}_{{ rhs }}_{{ lhs }}(<{{ lhs }}>self)
 {% else %}
-            return (<{{ matrix.matrix_name }}>self)._{{ funcname }}_{{ lhs }}_{{ rhs }}(<{{ rhs }}>other)
+            return (<{{ typename }}>self)._{{ funcname }}_{{ lhs }}_{{ rhs }}(<{{ rhs }}>other)
 {% endif %}
 {% endfor %}
-        raise TypeError("Unsupported operand types for {{ matrix.matrix_name }}.__{{ funcname }}__: "
+        raise TypeError("Unsupported operand types for {{ typename }}.__{{ funcname }}__: "
                         "{} and {}".format(type(self), type(other)))
 
 {% for ret, lhs, rhs, lhs_bcast, rhs_bcast in ops %}

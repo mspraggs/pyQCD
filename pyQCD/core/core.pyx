@@ -523,10 +523,10 @@ cdef class ColourMatrixArray:
         if isinstance(other, complex_types):
             other = Complex(other.real, other.imag)
         if type(self) is ColourMatrixArray and type(other) is ColourMatrix:
-            return (<ColourMatrix>self)._add_ColourMatrixArray_ColourMatrix(<ColourMatrix>other)
+            return (<ColourMatrixArray>self)._add_ColourMatrixArray_ColourMatrix(<ColourMatrix>other)
         if type(self) is ColourMatrixArray and type(other) is ColourMatrixArray:
-            return (<ColourMatrix>self)._add_ColourMatrixArray_ColourMatrixArray(<ColourMatrixArray>other)
-        raise TypeError("Unsupported operand types for ColourMatrix.__add__: "
+            return (<ColourMatrixArray>self)._add_ColourMatrixArray_ColourMatrixArray(<ColourMatrixArray>other)
+        raise TypeError("Unsupported operand types for ColourMatrixArray.__add__: "
                         "{} and {}".format(type(self), type(other)))
 
     cdef ColourMatrixArray _add_ColourMatrixArray_ColourMatrix(ColourMatrixArray self, ColourMatrix other):
@@ -554,10 +554,10 @@ cdef class ColourMatrixArray:
         if isinstance(other, complex_types):
             other = Complex(other.real, other.imag)
         if type(self) is ColourMatrixArray and type(other) is ColourMatrix:
-            return (<ColourMatrix>self)._sub_ColourMatrixArray_ColourMatrix(<ColourMatrix>other)
+            return (<ColourMatrixArray>self)._sub_ColourMatrixArray_ColourMatrix(<ColourMatrix>other)
         if type(self) is ColourMatrixArray and type(other) is ColourMatrixArray:
-            return (<ColourMatrix>self)._sub_ColourMatrixArray_ColourMatrixArray(<ColourMatrixArray>other)
-        raise TypeError("Unsupported operand types for ColourMatrix.__sub__: "
+            return (<ColourMatrixArray>self)._sub_ColourMatrixArray_ColourMatrixArray(<ColourMatrixArray>other)
+        raise TypeError("Unsupported operand types for ColourMatrixArray.__sub__: "
                         "{} and {}".format(type(self), type(other)))
 
     cdef ColourMatrixArray _sub_ColourMatrixArray_ColourMatrix(ColourMatrixArray self, ColourMatrix other):
@@ -585,22 +585,22 @@ cdef class ColourMatrixArray:
         if isinstance(other, complex_types):
             other = Complex(other.real, other.imag)
         if type(self) is float and type(other) is ColourMatrixArray:
-            return (<ColourMatrix>other)._mul_ColourMatrixArray_float(<float>self)
+            return (<ColourMatrixArray>other)._mul_ColourMatrixArray_float(<float>self)
         if type(self) is ColourMatrixArray and type(other) is float:
-            return (<ColourMatrix>self)._mul_ColourMatrixArray_float(<float>other)
+            return (<ColourMatrixArray>self)._mul_ColourMatrixArray_float(<float>other)
         if type(self) is Complex and type(other) is ColourMatrixArray:
-            return (<ColourMatrix>other)._mul_ColourMatrixArray_Complex(<Complex>self)
+            return (<ColourMatrixArray>other)._mul_ColourMatrixArray_Complex(<Complex>self)
         if type(self) is ColourMatrixArray and type(other) is Complex:
-            return (<ColourMatrix>self)._mul_ColourMatrixArray_Complex(<Complex>other)
+            return (<ColourMatrixArray>self)._mul_ColourMatrixArray_Complex(<Complex>other)
         if type(self) is ColourMatrixArray and type(other) is ColourMatrix:
-            return (<ColourMatrix>self)._mul_ColourMatrixArray_ColourMatrix(<ColourMatrix>other)
+            return (<ColourMatrixArray>self)._mul_ColourMatrixArray_ColourMatrix(<ColourMatrix>other)
         if type(self) is ColourMatrixArray and type(other) is ColourMatrixArray:
-            return (<ColourMatrix>self)._mul_ColourMatrixArray_ColourMatrixArray(<ColourMatrixArray>other)
+            return (<ColourMatrixArray>self)._mul_ColourMatrixArray_ColourMatrixArray(<ColourMatrixArray>other)
         if type(self) is ColourMatrixArray and type(other) is ColourVector:
-            return (<ColourMatrix>self)._mul_ColourMatrixArray_ColourVector(<ColourVector>other)
+            return (<ColourMatrixArray>self)._mul_ColourMatrixArray_ColourVector(<ColourVector>other)
         if type(self) is ColourMatrixArray and type(other) is Fermion:
-            return (<ColourMatrix>self)._mul_ColourMatrixArray_Fermion(<Fermion>other)
-        raise TypeError("Unsupported operand types for ColourMatrix.__mul__: "
+            return (<ColourMatrixArray>self)._mul_ColourMatrixArray_Fermion(<Fermion>other)
+        raise TypeError("Unsupported operand types for ColourMatrixArray.__mul__: "
                         "{} and {}".format(type(self), type(other)))
 
     cdef ColourMatrixArray _mul_ColourMatrixArray_float(ColourMatrixArray self, float other):
@@ -656,10 +656,10 @@ cdef class ColourMatrixArray:
         if isinstance(other, complex_types):
             other = Complex(other.real, other.imag)
         if type(self) is ColourMatrixArray and type(other) is float:
-            return (<ColourMatrix>self)._div_ColourMatrixArray_float(<float>other)
+            return (<ColourMatrixArray>self)._div_ColourMatrixArray_float(<float>other)
         if type(self) is ColourMatrixArray and type(other) is Complex:
-            return (<ColourMatrix>self)._div_ColourMatrixArray_Complex(<Complex>other)
-        raise TypeError("Unsupported operand types for ColourMatrix.__div__: "
+            return (<ColourMatrixArray>self)._div_ColourMatrixArray_Complex(<Complex>other)
+        raise TypeError("Unsupported operand types for ColourMatrixArray.__div__: "
                         "{} and {}".format(type(self), type(other)))
 
     cdef ColourMatrixArray _div_ColourMatrixArray_float(ColourMatrixArray self, float other):
@@ -1057,10 +1057,10 @@ cdef class Fermion:
         if isinstance(other, complex_types):
             other = Complex(other.real, other.imag)
         if type(self) is Fermion and type(other) is ColourVector:
-            return (<ColourVector>self)._add_Fermion_ColourVector(<ColourVector>other)
+            return (<Fermion>self)._add_Fermion_ColourVector(<ColourVector>other)
         if type(self) is Fermion and type(other) is Fermion:
-            return (<ColourVector>self)._add_Fermion_Fermion(<Fermion>other)
-        raise TypeError("Unsupported operand types for ColourVector.__add__: "
+            return (<Fermion>self)._add_Fermion_Fermion(<Fermion>other)
+        raise TypeError("Unsupported operand types for Fermion.__add__: "
                         "{} and {}".format(type(self), type(other)))
 
     cdef Fermion _add_Fermion_ColourVector(Fermion self, ColourVector other):
@@ -1088,10 +1088,10 @@ cdef class Fermion:
         if isinstance(other, complex_types):
             other = Complex(other.real, other.imag)
         if type(self) is Fermion and type(other) is ColourVector:
-            return (<ColourVector>self)._sub_Fermion_ColourVector(<ColourVector>other)
+            return (<Fermion>self)._sub_Fermion_ColourVector(<ColourVector>other)
         if type(self) is Fermion and type(other) is Fermion:
-            return (<ColourVector>self)._sub_Fermion_Fermion(<Fermion>other)
-        raise TypeError("Unsupported operand types for ColourVector.__sub__: "
+            return (<Fermion>self)._sub_Fermion_Fermion(<Fermion>other)
+        raise TypeError("Unsupported operand types for Fermion.__sub__: "
                         "{} and {}".format(type(self), type(other)))
 
     cdef Fermion _sub_Fermion_ColourVector(Fermion self, ColourVector other):
@@ -1119,14 +1119,14 @@ cdef class Fermion:
         if isinstance(other, complex_types):
             other = Complex(other.real, other.imag)
         if type(self) is float and type(other) is Fermion:
-            return (<ColourVector>other)._mul_Fermion_float(<float>self)
+            return (<Fermion>other)._mul_Fermion_float(<float>self)
         if type(self) is Fermion and type(other) is float:
-            return (<ColourVector>self)._mul_Fermion_float(<float>other)
+            return (<Fermion>self)._mul_Fermion_float(<float>other)
         if type(self) is Complex and type(other) is Fermion:
-            return (<ColourVector>other)._mul_Fermion_Complex(<Complex>self)
+            return (<Fermion>other)._mul_Fermion_Complex(<Complex>self)
         if type(self) is Fermion and type(other) is Complex:
-            return (<ColourVector>self)._mul_Fermion_Complex(<Complex>other)
-        raise TypeError("Unsupported operand types for ColourVector.__mul__: "
+            return (<Fermion>self)._mul_Fermion_Complex(<Complex>other)
+        raise TypeError("Unsupported operand types for Fermion.__mul__: "
                         "{} and {}".format(type(self), type(other)))
 
     cdef Fermion _mul_Fermion_float(Fermion self, float other):
@@ -1154,10 +1154,10 @@ cdef class Fermion:
         if isinstance(other, complex_types):
             other = Complex(other.real, other.imag)
         if type(self) is Fermion and type(other) is float:
-            return (<ColourVector>self)._div_Fermion_float(<float>other)
+            return (<Fermion>self)._div_Fermion_float(<float>other)
         if type(self) is Fermion and type(other) is Complex:
-            return (<ColourVector>self)._div_Fermion_Complex(<Complex>other)
-        raise TypeError("Unsupported operand types for ColourVector.__div__: "
+            return (<Fermion>self)._div_Fermion_Complex(<Complex>other)
+        raise TypeError("Unsupported operand types for Fermion.__div__: "
                         "{} and {}".format(type(self), type(other)))
 
     cdef Fermion _div_Fermion_float(Fermion self, float other):
