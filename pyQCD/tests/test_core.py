@@ -91,6 +91,14 @@ class TestMatrixType(object):
         with pytest.raises(IndexError):
             mat[3, 3] = 4
 
+    def test_adjoint(self, Matrix):
+        """Test adjoint function for matrix"""
+        mat = Matrix()
+        index = tuple(0 for i in mat.shape)
+        mat[index] = 1 + 1j
+        mat_adjoint = mat.adjoint()
+        assert mat_adjoint[index] == 1 - 1j
+
     def test_zeros(self, Matrix):
         """Test zeros static function"""
         mat = Matrix.zeros()
