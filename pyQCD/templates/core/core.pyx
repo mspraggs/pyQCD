@@ -222,9 +222,8 @@ cdef class {{ matrix.matrix_name }}:
 
 {% endif %}
     def to_numpy(self):
-        out = np.zeros(self.shape, dtype=np.complex)
-        for index in np.ndindex(self.shape):
-            out[index] = self[index]
+        out = np.asarray(self)
+        out.dtype = complex
         return out
 
 {{ arithmetic.arithmetic_ops(operators, matrix, matrix.matrix_name) }}

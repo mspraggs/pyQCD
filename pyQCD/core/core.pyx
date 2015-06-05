@@ -183,9 +183,8 @@ cdef class ColourMatrix:
         return out
 
     def to_numpy(self):
-        out = np.zeros(self.shape, dtype=np.complex)
-        for index in np.ndindex(self.shape):
-            out[index] = self[index]
+        out = np.asarray(self)
+        out.dtype = complex
         return out
 
     def __add__(self, other):
@@ -771,9 +770,8 @@ cdef class ColourVector:
         return out
 
     def to_numpy(self):
-        out = np.zeros(self.shape, dtype=np.complex)
-        for index in np.ndindex(self.shape):
-            out[index] = self[index]
+        out = np.asarray(self)
+        out.dtype = complex
         return out
 
     def __add__(self, other):
