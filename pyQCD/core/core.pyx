@@ -78,6 +78,12 @@ cdef class LexicoLayout(Layout):
         del self.instance
 
 
+cdef inline void validate_ColourMatrix_indices(int i, int j):
+    if i > 2 or j > 2:
+        raise IndexError("Indices in ColourMatrix element access out of bounds: "
+                         "{}".format((i, j)))
+
+
 cdef class ColourMatrix:
     cdef colour_matrix.ColourMatrix* instance
     cdef Py_ssize_t buffer_shape[2]
@@ -88,9 +94,7 @@ cdef class ColourMatrix:
         return self.instance[0]
 
     cdef validate_indices(self, int i, int j ):
-        if i > 2 or j > 2:
-            raise IndexError("Indices in ColourMatrix element access out of bounds: "
-                             "{}".format((i, j)))
+        validate_ColourMatrix_indices(i, j)
 
     def __cinit__(self):
         self.instance = new colour_matrix.ColourMatrix()
@@ -407,6 +411,11 @@ cdef class ColourMatrixArray:
     cdef _init_with_args_(self, unsigned int N, ColourMatrix value):
         self.instance[0] = colour_matrix_array.ColourMatrixArray(N, value.instance[0])
 
+    cdef validate_index(self, int i):
+        if i >= self.instance.size():
+            raise IndexError("Index in ColourMatrixArray element access out of bounds: "
+                             "{}".format(i))
+
     def __cinit__(self):
         self.instance = new colour_matrix_array.ColourMatrixArray()
 
@@ -430,12 +439,17 @@ cdef class ColourMatrixArray:
 
     def __getitem__(self, index):
         if type(index) == tuple and len(tuple) == 1:
+            self.validate_index(index[0])
+
             out = ColourMatrix()
             (<ColourMatrix>out).instance[0] = (self.instance[0])[<int?>(index[0])]
         elif type(index) == tuple:
+            self.validate_index(index[0])
             out = Complex(0.0, 0.0)
+            validate_ColourMatrix_indices(index[1], index[2])
             (<Complex>out).instance = self.instance[0][<int?>index[0]](<int?>index[1], <int?>index[2])
         else:
+            self.validate_index(index)
             out = ColourMatrix()
             (<ColourMatrix>out).instance[0] = self.instance[0][<int?>index]
 
@@ -443,7 +457,8 @@ cdef class ColourMatrixArray:
 
     def __setitem__(self, index, value):
         if type(value) == ColourMatrix:
-            self.assign_elem(index, (<ColourMatrix>value).instance[0])
+            self.validate_index(index[0] if type(index) == tuple else index)
+            self.assign_elem(index[0] if type(index) == tuple else index, (<ColourMatrix>value).instance[0])
             return
         elif type(value) == Complex:
             pass
@@ -453,6 +468,7 @@ cdef class ColourMatrixArray:
             value = Complex(<double?>value, 0.0)
 
         cdef colour_matrix.ColourMatrix* mat = &(self.instance[0][<int?>index[0]])
+        validate_ColourMatrix_indices(index[1], index[2])
         colour_matrix.mat_assign(mat, <int?>index[1], <int?>index[2], (<Complex?>value).instance)
 
     cdef void assign_elem(self, int i, colour_matrix.ColourMatrix value):
@@ -675,6 +691,12 @@ cdef class GaugeField:
         pass
 
 
+cdef inline void validate_ColourVector_indices(int i):
+    if i > 2:
+        raise IndexError("Indices in ColourVector element access out of bounds: "
+                         "{}".format((i)))
+
+
 cdef class ColourVector:
     cdef colour_vector.ColourVector* instance
     cdef Py_ssize_t buffer_shape[1]
@@ -685,9 +707,7 @@ cdef class ColourVector:
         return self.instance[0]
 
     cdef validate_indices(self, int i):
-        if i > 2:
-            raise IndexError("Indices in ColourVector element access out of bounds: "
-                             "{}".format((i)))
+        validate_ColourVector_indices(i)
 
     def __cinit__(self):
         self.instance = new colour_vector.ColourVector()
@@ -930,6 +950,11 @@ cdef class Fermion:
     cdef _init_with_args_(self, unsigned int N, ColourVector value):
         self.instance[0] = fermion.Fermion(N, value.instance[0])
 
+    cdef validate_index(self, int i):
+        if i >= self.instance.size():
+            raise IndexError("Index in Fermion element access out of bounds: "
+                             "{}".format(i))
+
     def __cinit__(self):
         self.instance = new fermion.Fermion()
 
@@ -953,12 +978,17 @@ cdef class Fermion:
 
     def __getitem__(self, index):
         if type(index) == tuple and len(tuple) == 1:
+            self.validate_index(index[0])
+
             out = ColourVector()
             (<ColourVector>out).instance[0] = (self.instance[0])[<int?>(index[0])]
         elif type(index) == tuple:
+            self.validate_index(index[0])
             out = Complex(0.0, 0.0)
+            validate_ColourVector_indices(index[1])
             (<Complex>out).instance = self.instance[0][<int?>index[0]][<int?>index[1]]
         else:
+            self.validate_index(index)
             out = ColourVector()
             (<ColourVector>out).instance[0] = self.instance[0][<int?>index]
 
@@ -966,7 +996,8 @@ cdef class Fermion:
 
     def __setitem__(self, index, value):
         if type(value) == ColourVector:
-            self.assign_elem(index, (<ColourVector>value).instance[0])
+            self.validate_index(index[0] if type(index) == tuple else index)
+            self.assign_elem(index[0] if type(index) == tuple else index, (<ColourVector>value).instance[0])
             return
         elif type(value) == Complex:
             pass
@@ -976,6 +1007,7 @@ cdef class Fermion:
             value = Complex(<double?>value, 0.0)
 
         cdef colour_vector.ColourVector* mat = &(self.instance[0][<int?>index[0]])
+        validate_ColourVector_indices(index[1])
         cdef complex.Complex* z = &(mat[0][<int?>index[1]])
         z[0] = (<Complex>value).instance
 
