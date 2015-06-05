@@ -216,3 +216,16 @@ class TestMatrixArrayType(object):
         assert isinstance(mat_arr, MatrixArray)
         for index in np.ndindex(mat_arr.shape):
             assert mat_arr[index[0]][index[1:]] == mat_arr_data[index]
+
+    def test_boundscheck(self, Matrix, MatrixArray):
+        """Test bounds checking for matrix array type"""
+        mat = Matrix.zeros()
+        mat_arr = MatrixArray(4, mat)
+        with pytest.raises(IndexError):
+            x = mat_arr[4]
+        with pytest.raises(IndexError):
+            x = mat_arr[mat_arr.shape]
+        with pytest.raises(IndexError):
+            mat_arr[4] = mat
+        with pytest.raises(IndexError):
+            mat_arr[mat_arr.shape] = 4
