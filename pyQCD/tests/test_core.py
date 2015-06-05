@@ -238,3 +238,40 @@ class TestMatrixArrayType(object):
         mat_arr[index] = 1 + 1j
         mat_arr_adjoint = mat_arr.adjoint()
         assert mat_arr_adjoint[index] == 1.0 - 1.0j
+
+    def test_zeros(self, Matrix, MatrixArray):
+        """Test zeros static function"""
+        mat_arr = MatrixArray.zeros(4)
+        assert isinstance(mat_arr, MatrixArray)
+        assert mat_arr.size == 4
+        assert mat_arr.shape == (4,) + Matrix.shape
+
+        for index in np.ndindex(mat_arr.shape):
+            assert mat_arr[index] == 0.0j
+
+    def test_ones(self, Matrix, MatrixArray):
+        """Test ones static function"""
+        mat_arr = MatrixArray.ones(4)
+        assert isinstance(mat_arr, MatrixArray)
+        assert mat_arr.size == 4
+        assert mat_arr.shape == (4,) + Matrix.shape
+
+        for index in np.ndindex(mat_arr.shape):
+            assert mat_arr[index] == 1.0 + 0.0j
+
+    def test_identity(self, Matrix, MatrixArray):
+        """Test identity static function"""
+        if len(Matrix.shape) == 1 or Matrix.shape[0] != Matrix.shape[1]:
+            return
+        mat_arr = MatrixArray.identity(4)
+        assert isinstance(mat_arr, MatrixArray)
+        assert mat_arr.size == 4
+        assert mat_arr.shape == (4,) + Matrix.shape
+
+        for index in np.ndindex(mat_arr.shape):
+            assert mat_arr[index] == (1.0 + 0.0j if index[1] == index[2] else 0.0j)
+
+    def test_to_numpy(self, Matrix, MatrixArray):
+        """Test numpy conversion function"""
+        mat_arr = MatrixArray.zeros(4)
+        assert np.allclose(mat_arr.to_numpy(), np.zeros(mat_arr.shape))
