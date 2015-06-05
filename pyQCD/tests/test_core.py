@@ -122,6 +122,19 @@ class TestMatrixType(object):
         mat = Matrix.zeros()
         assert np.allclose(mat.to_numpy(), np.zeros(mat.shape))
 
+    def test_buffer_protocol(self, Matrix):
+        """Test buffer protocol implementation"""
+        mat = Matrix.zeros()
+        np_mat = np.asarray(mat)
+        np_mat.dtype = complex
+        for index in np.ndindex(mat.shape):
+            assert np_mat[index] == 0j
+
+        index = tuple(s - 1 if i == 0 else 0 for i, s in enumerate(mat.shape))
+        np_mat[index] = 5.0
+        assert np_mat[index] == 5.0 + 0j
+        assert mat[index] == 5.0 + 0j
+
     def test_mul(self, Matrix):
         """Test multiplications"""
         mat1_data = np.random.rand(*Matrix.shape)

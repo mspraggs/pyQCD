@@ -1,3 +1,4 @@
+from cpython cimport Py_buffer
 from libcpp.vector cimport vector
 
 import numpy as np
@@ -79,6 +80,8 @@ cdef class LexicoLayout(Layout):
 
 cdef class ColourMatrix:
     cdef colour_matrix.ColourMatrix* instance
+    cdef Py_ssize_t buffer_shape[2]
+    cdef Py_ssize_t buffer_strides[2]
     shape = (3, 3)
 
     cdef colour_matrix.ColourMatrix cppobj(self):
@@ -104,6 +107,29 @@ cdef class ColourMatrix:
 
     def __dealloc__(self):
         del self.instance
+
+    def __getbuffer__(self, Py_buffer* buffer, int flags):
+        cdef Py_ssize_t itemsize = sizeof(complex.Complex)
+
+        self.buffer_shape[0] = 3
+        self.buffer_strides[0] = itemsize
+        self.buffer_shape[1] = 3
+        self.buffer_strides[1] = 3 * itemsize
+
+        buffer.buf = <char*>self.instance
+        buffer.format = "dd"
+        buffer.internal = NULL
+        buffer.itemsize = itemsize
+        buffer.len = 3 * 3 * itemsize
+        buffer.ndim = 2
+        buffer.obj = self
+        buffer.readonly = 0
+        buffer.shape = self.buffer_shape
+        buffer.strides = self.buffer_strides
+        buffer.suboffsets = NULL
+
+    def __releasebuffer__(self, Py_buffer* buffer):
+        pass
 
     def __getitem__(self, index):
         out = Complex(0.0, 0.0)
@@ -644,6 +670,8 @@ cdef class GaugeField:
 
 cdef class ColourVector:
     cdef colour_vector.ColourVector* instance
+    cdef Py_ssize_t buffer_shape[1]
+    cdef Py_ssize_t buffer_strides[1]
     shape = (3,)
 
     cdef colour_vector.ColourVector cppobj(self):
@@ -668,6 +696,27 @@ cdef class ColourVector:
 
     def __dealloc__(self):
         del self.instance
+
+    def __getbuffer__(self, Py_buffer* buffer, int flags):
+        cdef Py_ssize_t itemsize = sizeof(complex.Complex)
+
+        self.buffer_shape[0] = 3
+        self.buffer_strides[0] = itemsize
+
+        buffer.buf = <char*>self.instance
+        buffer.format = "dd"
+        buffer.internal = NULL
+        buffer.itemsize = itemsize
+        buffer.len = 3 * 1 * itemsize
+        buffer.ndim = 1
+        buffer.obj = self
+        buffer.readonly = 0
+        buffer.shape = self.buffer_shape
+        buffer.strides = self.buffer_strides
+        buffer.suboffsets = NULL
+
+    def __releasebuffer__(self, Py_buffer* buffer):
+        pass
 
     def __getitem__(self, index):
         out = Complex(0.0, 0.0)

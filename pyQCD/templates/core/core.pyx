@@ -1,3 +1,4 @@
+from cpython cimport Py_buffer
 from libcpp.vector cimport vector
 
 import numpy as np
@@ -85,6 +86,8 @@ cdef class LexicoLayout(Layout):
 {% set clattice_array = matrix.lattice_array_name|to_underscores + "." + matrix.lattice_array_name %}
 cdef class {{ matrix.matrix_name }}:
     cdef {{ cmatrix }}* instance
+    cdef Py_ssize_t buffer_shape[{% if is_matrix %}2{% else %}1{% endif %}]
+    cdef Py_ssize_t buffer_strides[{% if is_matrix %}2{% else %}1{% endif %}]
     shape = ({{ matrix.num_rows}},{% if is_matrix %} {{matrix.num_cols}}{% endif %})
 
     cdef {{ cmatrix }} cppobj(self):
@@ -115,6 +118,33 @@ cdef class {{ matrix.matrix_name }}:
 
     def __dealloc__(self):
         del self.instance
+
+    def __getbuffer__(self, Py_buffer* buffer, int flags):
+        cdef Py_ssize_t itemsize = sizeof(complex.Complex)
+
+        self.buffer_shape[0] = {{ matrix.num_rows }}
+        self.buffer_strides[0] = itemsize
+        {% if is_matrix %}
+        self.buffer_shape[1] = {{ matrix.num_cols }}
+        self.buffer_strides[1] = {{ matrix.num_cols }} * itemsize
+        {% endif %}
+
+        buffer.buf = <char*>self.instance
+        {% set num_format = "d" if precision == "double" else "f" %}
+        buffer.format = "{{ num_format + num_format }}"
+        buffer.internal = NULL
+        buffer.itemsize = itemsize
+        buffer.len = {{ matrix.num_rows }} * {{ matrix.num_cols }} * itemsize
+        buffer.ndim = {% if is_matrix %}2{% else %}1{% endif %}
+
+        buffer.obj = self
+        buffer.readonly = 0
+        buffer.shape = self.buffer_shape
+        buffer.strides = self.buffer_strides
+        buffer.suboffsets = NULL
+
+    def __releasebuffer__(self, Py_buffer* buffer):
+        pass
 
     def __getitem__(self, index):
         out = Complex(0.0, 0.0)
