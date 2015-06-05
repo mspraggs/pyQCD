@@ -429,8 +429,16 @@ cdef class ColourMatrixArray:
         del self.instance
 
     def __getitem__(self, index):
-        out = ColourMatrix()
-        out.instance[0] = self.instance[0][index]
+        if type(index) == tuple and len(tuple) == 1:
+            out = ColourMatrix()
+            (<ColourMatrix>out).instance[0] = (self.instance[0])[<int?>(index[0])]
+        elif type(index) == tuple:
+            out = Complex(0.0, 0.0)
+            (<Complex>out).instance = self.instance[0][<int?>index[0]](<int?>index[1], <int?>index[2])
+        else:
+            out = ColourMatrix()
+            (<ColourMatrix>out).instance[0] = self.instance[0][<int?>index]
+
         return out
 
     def __setitem__(self, index, value):
@@ -944,8 +952,16 @@ cdef class Fermion:
         del self.instance
 
     def __getitem__(self, index):
-        out = ColourVector()
-        out.instance[0] = self.instance[0][index]
+        if type(index) == tuple and len(tuple) == 1:
+            out = ColourVector()
+            (<ColourVector>out).instance[0] = (self.instance[0])[<int?>(index[0])]
+        elif type(index) == tuple:
+            out = Complex(0.0, 0.0)
+            (<Complex>out).instance = self.instance[0][<int?>index[0]][<int?>index[1]]
+        else:
+            out = ColourVector()
+            (<ColourVector>out).instance[0] = self.instance[0][<int?>index]
+
         return out
 
     def __setitem__(self, index, value):

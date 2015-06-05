@@ -259,8 +259,20 @@ cdef class {{ matrix.array_name }}:
         del self.instance
 
     def __getitem__(self, index):
-        out = {{ matrix.matrix_name }}()
-        out.instance[0] = self.instance[0][index]
+        if type(index) == tuple and len(tuple) == 1:
+            out = {{ matrix.matrix_name }}()
+            (<{{ matrix.matrix_name }}>out).instance[0] = (self.instance[0])[<int?>(index[0])]
+        elif type(index) == tuple:
+            out = Complex(0.0, 0.0)
+{% if is_matrix %}
+            (<Complex>out).instance = self.instance[0][<int?>index[0]](<int?>index[1], <int?>index[2])
+{% else %}
+            (<Complex>out).instance = self.instance[0][<int?>index[0]][<int?>index[1]]
+{% endif %}
+        else:
+            out = {{ matrix.matrix_name }}()
+            (<{{ matrix.matrix_name }}>out).instance[0] = self.instance[0][<int?>index]
+
         return out
 
     def __setitem__(self, index, value):
