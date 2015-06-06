@@ -1,3 +1,5 @@
+from libcpp.vector cimport vector
+
 from {{ matrixdef.matrix_name|to_underscores }} cimport {{ matrixdef.matrix_name }}
 from layout cimport Layout
 
@@ -9,3 +11,4 @@ cdef extern from "types.hpp":
         {{ matrixdef.matrix_name }}& operator[](const unsigned int)
         unsigned int volume()
         unsigned int num_dims()
+        const vector[unsigned int]& lattice_shape()

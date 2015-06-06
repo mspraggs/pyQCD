@@ -1,3 +1,5 @@
+from libcpp.vector cimport vector
+
 from {{ matrixdef.array_name|to_underscores }} cimport {{ matrixdef.array_name }}
 from layout cimport Layout
 
@@ -7,3 +9,5 @@ cdef extern from "types.hpp":
         {{ matrixdef.lattice_array_name }}() except +
         {{ matrixdef.lattice_array_name }}(const Layout&, const {{ matrixdef.array_name }}) except +
         unsigned int volume()
+        unsigned int num_dims()
+        const vector[unsigned int]& lattice_shape()

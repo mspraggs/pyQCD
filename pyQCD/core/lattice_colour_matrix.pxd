@@ -1,3 +1,5 @@
+from libcpp.vector cimport vector
+
 from colour_matrix cimport ColourMatrix
 from layout cimport Layout
 
@@ -9,3 +11,4 @@ cdef extern from "types.hpp":
         ColourMatrix& operator[](const unsigned int)
         unsigned int volume()
         unsigned int num_dims()
+        const vector[unsigned int]& lattice_shape()

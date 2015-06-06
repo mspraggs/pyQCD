@@ -70,6 +70,8 @@ namespace pyQCD
 
     unsigned int volume() const { return layout_->volume(); }
     unsigned int num_dims() const { return layout_->num_dims(); }
+    const std::vector<unsigned int>& lattice_shape() const
+    { return layout_->lattice_shape(); }
     const Layout* layout() const { return layout_; }
 
   protected:
