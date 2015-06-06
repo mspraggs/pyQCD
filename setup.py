@@ -36,7 +36,7 @@ extensions = [Extension("pyQCD.core.core", ["pyQCD/core/core.pyx"],
 if "codegen" in sys.argv:
     ext_modules = []
 else:
-    ext_modules = cythonize(extensions, annotate=True, gdb_debug=True)
+    ext_modules = cythonize(extensions)
 
 
 # Test command for interfacing with py.test
