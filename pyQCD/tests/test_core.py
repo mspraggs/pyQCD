@@ -337,3 +337,17 @@ class TestMatrixArrayType(object):
         mat2 = MatrixArray(mat2_data)
         mat3 = mat1 - mat2
         assert np.allclose(mat3.to_numpy(), mat3_data)
+
+
+@pytest.mark.parametrize("Matrix,LatticeMatrix",
+                         [(ColourMatrix, LatticeColourMatrix),
+                          (ColourVector, LatticeColourVector)])
+class TestLatticeMatrixType(object):
+
+    def test_constructor(self, Matrix, LatticeMatrix):
+        """Test constructor"""
+        layout = LexicoLayout([8, 4, 4, 4])
+        lattice = LatticeMatrix(layout)
+        assert isinstance(lattice, LatticeMatrix)
+        lattice = LatticeMatrix(layout, Matrix.zeros())
+        assert isinstance(lattice, LatticeMatrix)

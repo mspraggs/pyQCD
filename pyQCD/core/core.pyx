@@ -710,7 +710,19 @@ cdef class ColourMatrixArray:
 
 cdef class LatticeColourMatrix:
     cdef lattice_colour_matrix.LatticeColourMatrix* instance
-    def __init__(self):
+
+    def __cinit__(self, Layout layout, *args):
+        self.instance = new lattice_colour_matrix.LatticeColourMatrix(layout.instance[0], colour_matrix.ColourMatrix())
+
+    def __init__(self, Layout layout, *args):
+        cdef int i, volume
+        volume = layout.volume()
+        if len(args) == 1 and isinstance(args[0], ColourMatrix):
+            for i in range(volume):
+                self.instance[0][i] = (<ColourMatrix>args[0]).instance[0]
+
+    def __dealloc__(self):
+        del self.instance
         pass
 
 
@@ -1235,7 +1247,19 @@ cdef class Fermion:
 
 cdef class LatticeColourVector:
     cdef lattice_colour_vector.LatticeColourVector* instance
-    def __init__(self):
+
+    def __cinit__(self, Layout layout, *args):
+        self.instance = new lattice_colour_vector.LatticeColourVector(layout.instance[0], colour_vector.ColourVector())
+
+    def __init__(self, Layout layout, *args):
+        cdef int i, volume
+        volume = layout.volume()
+        if len(args) == 1 and isinstance(args[0], ColourVector):
+            for i in range(volume):
+                self.instance[0][i] = (<ColourVector>args[0]).instance[0]
+
+    def __dealloc__(self):
+        del self.instance
         pass
 
 

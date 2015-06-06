@@ -393,7 +393,19 @@ cdef class {{ array_name }}:
 
 cdef class {{ lattice_matrix_name }}:
     cdef {{ clattice_matrix }}* instance
-    def __init__(self):
+
+    def __cinit__(self, Layout layout, *args):
+        self.instance = new {{ clattice_matrix }}(layout.instance[0], {{ cmatrix }}())
+
+    def __init__(self, Layout layout, *args):
+        cdef int i, volume
+        volume = layout.volume()
+        if len(args) == 1 and isinstance(args[0], {{ matrix_name }}):
+            for i in range(volume):
+                self.instance[0][i] = (<{{ matrix_name }}>args[0]).instance[0]
+
+    def __dealloc__(self):
+        del self.instance
         pass
 
 
