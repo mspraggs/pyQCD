@@ -16,4 +16,4 @@ install:
   - cd ..
 script: 
   - for f in build/pyQCD/test_*; do ./$f; done
-  - py.test -vl
+  - python setup.py test -a -vl
