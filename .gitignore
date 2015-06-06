@@ -16,6 +16,7 @@ docs/_build/*
 docs/_static/*
 docs/_templates/*
 *.o
+*.so
 *.npz
 *.zip
 *.npy
