@@ -406,7 +406,48 @@ cdef class {{ lattice_matrix_name }}:
 
     def __dealloc__(self):
         del self.instance
+
+    def __getbuffer__(self, Py_buffer* buffer, int flags):
         pass
+
+    def __releasebuffer__(self, Py_buffer* buffer):
+        pass
+
+    def __getitem__(self, index):
+        pass
+
+    def __setitem__(self, index, value):
+        pass
+
+    def adjoint(self):
+        pass
+
+    @staticmethod
+    def zeros():
+        pass
+
+    @staticmethod
+    def ones():
+        pass
+
+{% if is_square %}
+    @staticmethod
+    def identity():
+        pass
+    
+{% endif %}
+    def to_numpy(self):
+        pass
+
+    @property
+    def volume(self):
+        pass
+
+    @property
+    def shape(self):
+        pass
+
+{{ arithmetic.arithmetic_ops(operators, lattice_matrix_name) }}
 
 
 cdef class {{ lattice_array_name }}:
