@@ -8,6 +8,7 @@ cdef extern from "layout.hpp" namespace "pyQCD":
         unsigned int get_site_index(const unsigned int)
         unsigned int num_dims()
         unsigned int volume()
+        const vector[unsigned int]& lattice_shape()
 
     cdef cppclass LexicoLayout(Layout):
         LexicoLayout() except+

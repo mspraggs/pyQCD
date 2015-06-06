@@ -16,4 +16,5 @@ TEST_CASE("LexicoLayout test") {
              == 313);
   REQUIRE (layout.volume() == 512);
   REQUIRE (layout.num_dims() == 4);
+  REQUIRE ((layout.lattice_shape() == std::vector<unsigned int>{8, 4, 4, 4}));
 }

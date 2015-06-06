@@ -61,11 +61,17 @@ cdef class Layout:
     def get_site_index(self, unsigned int array_index):
         return self.instance.get_site_index(array_index)
 
+    @property
     def num_dims(self):
         return self.instance.num_dims()
 
+    @property
     def volume(self):
         return self.instance.volume()
+
+    @property
+    def lattice_shape(self):
+        return tuple(self.instance.lattice_shape())
 
 
 cdef class LexicoLayout(Layout):

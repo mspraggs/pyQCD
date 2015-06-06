@@ -52,6 +52,8 @@ namespace pyQCD
 
     unsigned int volume() const { return lattice_volume_; }
     unsigned int num_dims() const { return num_dims_; }
+    const std::vector<unsigned int>& lattice_shape() const
+    { return lattice_shape_; }
 
   private:
     unsigned int num_dims_, lattice_volume_;
