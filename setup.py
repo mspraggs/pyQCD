@@ -4,6 +4,7 @@ import sys
 from Cython.Build import cythonize
 from Cython.Compiler.Errors import CompileError
 from setuptools import Extension, setup, find_packages
+from setuptools.command.test import test as TestCommand
 
 from pyQCD.utils.codegen import CodeGen
 
@@ -26,7 +27,7 @@ with open("README.md") as f:
 
 
 extensions = [Extension("pyQCD.core.core", ["pyQCD/core/core.pyx"],
-                        language="c++",
+                        language="c++", undef_macros=["NDEBUG"],
                         include_dirs=["./pyQCD", "/usr/include/eigen3"],
                         extra_compile_args=["-std=c++11"])]
 
@@ -35,7 +36,26 @@ extensions = [Extension("pyQCD.core.core", ["pyQCD/core/core.pyx"],
 if "codegen" in sys.argv:
     ext_modules = []
 else:
-    ext_modules = cythonize(extensions)
+    ext_modules = cythonize(extensions, annotate=True, gdb_debug=True)
+
+
+# Test command for interfacing with py.test
+class PyTest(TestCommand):
+    user_options = [('pytest-args=', 'a', "Arguments for py.test")]
+
+    def initialize_options(self):
+        TestCommand.initialize_options(self)
+        self.pytest_args = []
+
+    def finalize_options(self):
+        TestCommand.finalize_options(self)
+        self.test_args = []
+        self.test_suite = True
+
+    def run_tests(self):
+        import pytest
+        errno = pytest.main(self.pytest_args)
+        sys.exit(errno)
 
 
 setup(
@@ -46,10 +66,11 @@ setup(
     url='http://github.com/mspraggs/pyqcd/',
     author='Matt Spraggs',
     author_email='matthew.spraggs@gmail.com',
-    cmdclass={'codegen': CodeGen},
+    cmdclass={'codegen': CodeGen, 'test': PyTest},
     description='pyQCD provides a Python library for running lattice field '
                 'theory simulations on desktop and workstation computers.',
     long_description=long_description,
+    tests_require=['pytest'],
     package_dir={'': '.'},
     package_data={'pyQCD': data_paths},
     classifiers = [
