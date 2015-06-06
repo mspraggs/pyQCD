@@ -10,7 +10,7 @@ import os
 from collections import namedtuple
 from itertools import product
 import shutil
-from string import lowercase
+from string import ascii_lowercase
 
 from jinja2 import Environment, PackageLoader
 import setuptools
@@ -44,7 +44,7 @@ def _filter_lib(src, names):
 
 def _camel2underscores(string):
     """Converts a string in titlecase or camelcase to underscores"""
-    for char in lowercase:
+    for char in ascii_lowercase:
         string = string.replace(char.upper(), '_' + char)
     return string.lstrip('_')
 
