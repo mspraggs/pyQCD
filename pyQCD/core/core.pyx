@@ -720,6 +720,20 @@ cdef class LatticeColourMatrix:
     cdef lattice_colour_matrix.LatticeColourMatrix cppobj(self):
         return self.instance[0]
 
+    cdef validate_index(self, index):
+        cdef int i
+        cdef int num_dims = self.instance.num_dims()
+        cdef vector[unsigned int] shape = self.instance.lattice_shape()
+        if type(index) == tuple:
+            for i in range(num_dims):
+                if index[i] >= shape[i] or index[i] < 0:
+                    raise IndexError("Index in LatticeColourMatrix element access "
+                                     "out of bounds: {}".format(index))
+        elif type(index) == int:
+            if index < 0 or index >= self.instance.volume():
+                raise IndexError("Index in LatticeColourMatrix element access "
+                                 "out of bounds: {}".format(index))
+
     def __cinit__(self, Layout layout, *args):
         self.instance = new lattice_colour_matrix.LatticeColourMatrix(layout.instance[0], colour_matrix.ColourMatrix())
 
@@ -1489,6 +1503,20 @@ cdef class LatticeColourVector:
 
     cdef lattice_colour_vector.LatticeColourVector cppobj(self):
         return self.instance[0]
+
+    cdef validate_index(self, index):
+        cdef int i
+        cdef int num_dims = self.instance.num_dims()
+        cdef vector[unsigned int] shape = self.instance.lattice_shape()
+        if type(index) == tuple:
+            for i in range(num_dims):
+                if index[i] >= shape[i] or index[i] < 0:
+                    raise IndexError("Index in LatticeColourVector element access "
+                                     "out of bounds: {}".format(index))
+        elif type(index) == int:
+            if index < 0 or index >= self.instance.volume():
+                raise IndexError("Index in LatticeColourVector element access "
+                                 "out of bounds: {}".format(index))
 
     def __cinit__(self, Layout layout, *args):
         self.instance = new lattice_colour_vector.LatticeColourVector(layout.instance[0], colour_vector.ColourVector())

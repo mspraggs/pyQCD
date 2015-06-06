@@ -403,6 +403,20 @@ cdef class {{ lattice_matrix_name }}:
     cdef {{ clattice_matrix }} cppobj(self):
         return self.instance[0]
 
+    cdef validate_index(self, index):
+        cdef int i
+        cdef int num_dims = self.instance.num_dims()
+        cdef vector[unsigned int] shape = self.instance.lattice_shape()
+        if type(index) == tuple:
+            for i in range(num_dims):
+                if index[i] >= shape[i] or index[i] < 0:
+                    raise IndexError("Index in {{ lattice_matrix_name }} element access "
+                                     "out of bounds: {}".format(index))
+        elif type(index) == int:
+            if index < 0 or index >= self.instance.volume():
+                raise IndexError("Index in {{ lattice_matrix_name }} element access "
+                                 "out of bounds: {}".format(index))
+
     def __cinit__(self, Layout layout, *args):
         self.instance = new {{ clattice_matrix }}(layout.instance[0], {{ cmatrix }}())
 
