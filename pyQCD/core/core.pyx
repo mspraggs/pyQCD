@@ -85,7 +85,7 @@ cdef class LexicoLayout(Layout):
 
 
 cdef inline int validate_ColourMatrix_indices(int i, int j) except -1:
-    if i > 2 or j > 2:
+    if i > 2 or i < 0 or j > 2 or j < 0:
         raise IndexError("Indices in ColourMatrix element access out of bounds: "
                          "{}".format((i, j)))
 
@@ -421,7 +421,7 @@ cdef class ColourMatrixArray:
         self.instance[0] = colour_matrix_array.ColourMatrixArray(N, value.instance[0])
 
     cdef validate_index(self, int i):
-        if i >= self.instance.size():
+        if i >= self.instance.size() or i < 0:
             raise IndexError("Index in ColourMatrixArray element access out of bounds: "
                              "{}".format(i))
 
@@ -969,7 +969,7 @@ cdef class GaugeField:
 
 
 cdef inline int validate_ColourVector_indices(int i) except -1:
-    if i > 2:
+    if i > 2 or i < 0:
         raise IndexError("Indices in ColourVector element access out of bounds: "
                          "{}".format((i)))
 
@@ -1231,7 +1231,7 @@ cdef class Fermion:
         self.instance[0] = fermion.Fermion(N, value.instance[0])
 
     cdef validate_index(self, int i):
-        if i >= self.instance.size():
+        if i >= self.instance.size() or i < 0:
             raise IndexError("Index in Fermion element access out of bounds: "
                              "{}".format(i))
 
