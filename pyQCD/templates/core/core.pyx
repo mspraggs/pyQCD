@@ -400,6 +400,9 @@ cdef class {{ array_name }}:
 cdef class {{ lattice_matrix_name }}:
     cdef {{ clattice_matrix }}* instance
 
+    cdef {{ clattice_matrix }} cppobj(self):
+        return self.instance[0]
+
     def __cinit__(self, Layout layout, *args):
         self.instance = new {{ clattice_matrix }}(layout.instance[0], {{ cmatrix }}())
 

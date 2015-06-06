@@ -717,6 +717,9 @@ cdef class ColourMatrixArray:
 cdef class LatticeColourMatrix:
     cdef lattice_colour_matrix.LatticeColourMatrix* instance
 
+    cdef lattice_colour_matrix.LatticeColourMatrix cppobj(self):
+        return self.instance[0]
+
     def __cinit__(self, Layout layout, *args):
         self.instance = new lattice_colour_matrix.LatticeColourMatrix(layout.instance[0], colour_matrix.ColourMatrix())
 
@@ -1483,6 +1486,9 @@ cdef class Fermion:
 
 cdef class LatticeColourVector:
     cdef lattice_colour_vector.LatticeColourVector* instance
+
+    cdef lattice_colour_vector.LatticeColourVector cppobj(self):
+        return self.instance[0]
 
     def __cinit__(self, Layout layout, *args):
         self.instance = new lattice_colour_vector.LatticeColourVector(layout.instance[0], colour_vector.ColourVector())
