@@ -676,7 +676,24 @@ cdef class LatticeColourMatrix:
         pass
 
     def __getitem__(self, index):
-        pass
+        cdef int num_dims = self.instance.num_dims()
+        if type(index) is tuple and len(index) == self.instance.num_dims():
+            out = ColourMatrix()
+            self.validate_index(index)
+            (<ColourMatrix>out).instance[0] = (<LatticeColourMatrix>self).instance[0](<vector[unsigned int]>index)
+            return out
+        if type(index) is tuple and len(index) == num_dims + 2:
+            out = Complex()
+            self.validate_index(index)
+            validate_ColourMatrix_indices(index[num_dims], index[num_dims + 1])
+            (<Complex>out).instance = (<LatticeColourMatrix>self).instance[0](<vector[unsigned int]>index[:num_dims])(index[num_dims], index[num_dims + 1])
+            return out
+        if type(index) is int:
+            out = ColourMatrix()
+            self.validate_index(index)
+            (<ColourMatrix>out).instance[0] = (<LatticeColourMatrix>self).instance[0](<int>index)
+            return out
+        raise TypeError("Invalid index type in LatticeColourMatrix.__getitem__")
 
     def __setitem__(self, index, value):
         pass
@@ -1374,7 +1391,24 @@ cdef class LatticeColourVector:
         pass
 
     def __getitem__(self, index):
-        pass
+        cdef int num_dims = self.instance.num_dims()
+        if type(index) is tuple and len(index) == self.instance.num_dims():
+            out = ColourVector()
+            self.validate_index(index)
+            (<ColourVector>out).instance[0] = (<LatticeColourVector>self).instance[0](<vector[unsigned int]>index)
+            return out
+        if type(index) is tuple and len(index) == num_dims + 1:
+            out = Complex()
+            self.validate_index(index)
+            validate_ColourVector_indices(index[num_dims])
+            (<Complex>out).instance = (<LatticeColourVector>self).instance[0](<vector[unsigned int]>index[:num_dims])[index[num_dims]]
+            return out
+        if type(index) is int:
+            out = ColourVector()
+            self.validate_index(index)
+            (<ColourVector>out).instance[0] = (<LatticeColourVector>self).instance[0](<int>index)
+            return out
+        raise TypeError("Invalid index type in LatticeColourVector.__getitem__")
 
     def __setitem__(self, index, value):
         pass

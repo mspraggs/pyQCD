@@ -437,7 +437,28 @@ cdef class {{ lattice_matrix_name }}:
         pass
 
     def __getitem__(self, index):
-        pass
+        cdef int num_dims = self.instance.num_dims()
+        if type(index) is tuple and len(index) == self.instance.num_dims():
+            out = {{ matrix_name }}()
+            self.validate_index(index)
+            (<{{ matrix_name }}>out).instance[0] = (<{{ lattice_matrix_name }}>self).instance[0](<vector[unsigned int]>index)
+            return out
+        if type(index) is tuple and len(index) == num_dims + {% if is_matrix %}2{% else %}1{% endif %}:
+            out = Complex()
+            self.validate_index(index)
+            validate_{{ matrix_name }}_indices(index[num_dims]{% if is_matrix %}, index[num_dims + 1]{% endif %})
+{% if is_matrix %}
+            (<Complex>out).instance = (<{{ lattice_matrix_name }}>self).instance[0](<vector[unsigned int]>index[:num_dims])(index[num_dims], index[num_dims + 1])
+{% else %}
+            (<Complex>out).instance = (<{{ lattice_matrix_name }}>self).instance[0](<vector[unsigned int]>index[:num_dims])[index[num_dims]]
+{% endif %}
+            return out
+        if type(index) is int:
+            out = {{ matrix_name }}()
+            self.validate_index(index)
+            (<{{ matrix_name }}>out).instance[0] = (<{{ lattice_matrix_name }}>self).instance[0](<int>index)
+            return out
+        raise TypeError("Invalid index type in {{ lattice_matrix_name }}.__getitem__")
 
     def __setitem__(self, index, value):
         pass
