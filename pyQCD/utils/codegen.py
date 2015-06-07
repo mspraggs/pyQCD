@@ -217,13 +217,11 @@ def make_cython_ops(matrices, cpp_ops, precision, scalar_types):
         operations for (e.g. float, int, etc.).
     """
 
-    func_lookup = {'+': 'add', '-': 'sub',
-                   '*': 'mul', '/': 'div'}
     scalar_complex_types = scalar_types + ["Complex"]
 
     out = dict([((getattr(mat, "{}_name".format(var)), op), [])
                 for mat in matrices for var in variants
-                for op in func_lookup.values()])
+                for op in '+-*/'])
     for ret_type, op, lhs_type, rhs_type, lhs_bcast, rhs_bcast in cpp_ops:
         ret_type = ret_type.split('.')[-1]
         lhs_type = lhs_type.split('.')[-1]
@@ -231,7 +229,7 @@ def make_cython_ops(matrices, cpp_ops, precision, scalar_types):
         rhs_type = rhs_type.split('.')[-1]
         rhs_type = 'float' if rhs_type == precision else rhs_type
         key = (lhs_type if lhs_type not in scalar_complex_types else rhs_type,
-               func_lookup[op])
+               op)
         out[key].append((ret_type, lhs_type, rhs_type, lhs_bcast, rhs_bcast))
 
     return out
@@ -265,6 +263,12 @@ def generate_cython_types(output_path, precision, matrices):
 
     # List of tuples of allowed binary operations
     scalar_types = ["float", "int"]
+    # Map that specifies the Python member function(s) that handle the
+    # specified operator. Leading/trailing underscores are removed. Multiple
+    # operators are possible since Python 3 uses a different function for
+    # division.
+    operator_map = {'+': ['add'], '-': ['sub'], '*': ['mul'],
+                    '/': ['div', 'truediv']}
     scalar_binary_ops = []
     lattice_binary_ops = []
     operator_includes = []
@@ -300,8 +304,9 @@ def generate_cython_types(output_path, precision, matrices):
                         lattice_binary_ops=lattice_binary_ops,
                         includes=operator_includes)
     write_core_template("core.pyx", "core.pyx", output_path,
-                        matrixdefs=matrices, operators=cython_ops,
-                        precision=precision, scalar_types=scalar_types)
+                        matrixdefs=matrices, operator_map=operator_map,
+                        operators=cython_ops, precision=precision,
+                        scalar_types=scalar_types)
 
 
 def generate_qcd(num_colours, precision, representation, dest=None):
