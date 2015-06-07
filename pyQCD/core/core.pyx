@@ -683,11 +683,11 @@ cdef class LatticeColourMatrix:
             (<ColourMatrix>out).instance[0] = (<LatticeColourMatrix>self).instance[0](<vector[unsigned int]>index)
             return out
         if type(index) is tuple and len(index) == num_dims + 2:
-            out = Complex()
+            out = Complex(0.0, 0.0)
             self.validate_index(index)
             validate_ColourMatrix_indices(index[num_dims], index[num_dims + 1])
             (<Complex>out).instance = (<LatticeColourMatrix>self).instance[0](<vector[unsigned int]>index[:num_dims])(index[num_dims], index[num_dims + 1])
-            return out
+            return out.to_complex()
         if type(index) is int:
             out = ColourMatrix()
             self.validate_index(index)
@@ -1424,11 +1424,11 @@ cdef class LatticeColourVector:
             (<ColourVector>out).instance[0] = (<LatticeColourVector>self).instance[0](<vector[unsigned int]>index)
             return out
         if type(index) is tuple and len(index) == num_dims + 1:
-            out = Complex()
+            out = Complex(0.0, 0.0)
             self.validate_index(index)
             validate_ColourVector_indices(index[num_dims])
             (<Complex>out).instance = (<LatticeColourVector>self).instance[0](<vector[unsigned int]>index[:num_dims])[index[num_dims]]
-            return out
+            return out.to_complex()
         if type(index) is int:
             out = ColourVector()
             self.validate_index(index)

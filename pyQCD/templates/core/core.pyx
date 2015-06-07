@@ -444,7 +444,7 @@ cdef class {{ lattice_matrix_name }}:
             (<{{ matrix_name }}>out).instance[0] = (<{{ lattice_matrix_name }}>self).instance[0](<vector[unsigned int]>index)
             return out
         if type(index) is tuple and len(index) == num_dims + {% if is_matrix %}2{% else %}1{% endif %}:
-            out = Complex()
+            out = Complex(0.0, 0.0)
             self.validate_index(index)
             validate_{{ matrix_name }}_indices(index[num_dims]{% if is_matrix %}, index[num_dims + 1]{% endif %})
 {% if is_matrix %}
@@ -452,7 +452,7 @@ cdef class {{ lattice_matrix_name }}:
 {% else %}
             (<Complex>out).instance = (<{{ lattice_matrix_name }}>self).instance[0](<vector[unsigned int]>index[:num_dims])[index[num_dims]]
 {% endif %}
-            return out
+            return out.to_complex()
         if type(index) is int:
             out = {{ matrix_name }}()
             self.validate_index(index)
