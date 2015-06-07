@@ -463,12 +463,20 @@ cdef class {{ lattice_matrix_name }}:
         pass
 
     @property
+    def num_dims(self):
+        return self.instance.num_dims()
+
+    @property
     def volume(self):
-        pass
+        return self.instance.volume()
+
+    @property
+    def lattice_shape(self):
+        return tuple(self.instance.lattice_shape())
 
     @property
     def shape(self):
-        pass
+        return tuple(self.instance.lattice_shape()) + {{ matrix_name }}.shape
 
 {{ arithmetic.arithmetic_ops(operators, lattice_matrix_name, scalar_types) }}
 

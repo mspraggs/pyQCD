@@ -700,12 +700,20 @@ cdef class LatticeColourMatrix:
         pass
 
     @property
+    def num_dims(self):
+        return self.instance.num_dims()
+
+    @property
     def volume(self):
-        pass
+        return self.instance.volume()
+
+    @property
+    def lattice_shape(self):
+        return tuple(self.instance.lattice_shape())
 
     @property
     def shape(self):
-        pass
+        return tuple(self.instance.lattice_shape()) + ColourMatrix.shape
 
     def __add__(self, other):
         if type(self) is LatticeColourMatrix and type(other) is ColourMatrix:
@@ -1386,12 +1394,20 @@ cdef class LatticeColourVector:
         pass
 
     @property
+    def num_dims(self):
+        return self.instance.num_dims()
+
+    @property
     def volume(self):
-        pass
+        return self.instance.volume()
+
+    @property
+    def lattice_shape(self):
+        return tuple(self.instance.lattice_shape())
 
     @property
     def shape(self):
-        pass
+        return tuple(self.instance.lattice_shape()) + ColourVector.shape
 
     def __add__(self, other):
         if type(self) is LatticeColourVector and type(other) is ColourVector:
