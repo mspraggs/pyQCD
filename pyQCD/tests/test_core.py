@@ -219,7 +219,7 @@ class TestMatrixArrayType(object):
         for index in np.ndindex(mat_arr.shape):
             assert mat_arr[index[0]][index[1:]] == mat_arr_data[index]
 
-    def test_setitem_getitem(self, MatrixArray, Matrix):
+    def test_setitem_getitem(self, Matrix, MatrixArray):
         """Test value setting and getting"""
         mat = Matrix.zeros()
         mat_index = tuple(0 for i in Matrix.shape)
@@ -374,3 +374,15 @@ class TestLatticeMatrixType(object):
         assert isinstance(lat_mat, LatticeMatrix)
         for index in np.ndindex(lat_mat.shape):
             assert lat_mat[index[:4]][index[4:]] == lat_mat_data[index[4:]]
+
+    def test_setitem_getitem(self, Matrix, LatticeMatrix):
+        """Test value setting and getting"""
+        mat = Matrix.zeros()
+        mat_index = tuple(0 for i in Matrix.shape)
+        mat[mat_index] = 5.0
+        layout = LexicoLayout([8, 4, 4, 4])
+        lat_mat = LatticeMatrix(layout, Matrix.zeros())
+        lat_mat[0, 0, 0, 0] = mat
+        assert lat_mat[0, 0, 0, 0][mat_index] == 5.0 + 0.0j
+        lat_mat[(0, 0, 0, 0) + mat_index] = 3.0
+        assert lat_mat[(0, 0, 0, 0) + mat_index] == 3.0 + 0.0j
