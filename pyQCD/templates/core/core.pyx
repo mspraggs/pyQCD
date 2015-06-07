@@ -51,9 +51,9 @@ cdef class Layout:
 
     def get_array_index(self, site_label):
 
-        if type(site_label) == int:
+        if type(site_label) is int:
             return self.instance.get_array_index(<unsigned int>site_label)
-        if type(site_label) == list or type(site_label) == tuple:
+        if type(site_label) is list or type(site_label) is tuple:
             return self.instance.get_array_index(<vector[unsigned int]>site_label)
         raise TypeError("Unknown type in Layout.get_array_index: {}"
                         .format(type(site_label)))
@@ -158,14 +158,14 @@ cdef class {{ matrix_name }}:
 
     def __getitem__(self, index):
         out = Complex(0.0, 0.0)
-        if type(index) == tuple:
+        if type(index) is tuple:
 {% if is_matrix %}
             self.validate_indices(index[0], index[1])
             out.instance = self.instance[0](index[0], index[1])
 {% else %}
             self.validate_indices(index[0])
             out.instance = self.instance[0][index[0]]
-        elif type(index) == int:
+        elif type(index) is int:
             self.validate_indices(index)
             out.instance = self.instance[0][index]
 {% endif %}
@@ -175,21 +175,21 @@ cdef class {{ matrix_name }}:
         return out.to_complex()
 
     def __setitem__(self, index, value):
-        if type(value) == Complex:
+        if type(value) is Complex:
             pass
         elif hasattr(value, 'real') and hasattr(value, 'imag'):
             value = Complex(<{{ precision }}?>(value.real),
                             <{{ precision }}?>(value.imag))
         else:
             value = Complex(<{{ precision }}?>value, 0.0)
-        if type(index) == tuple:
+        if type(index) is tuple:
 {% if is_matrix %}
             self.validate_indices(index[0], index[1])
             self.assign_elem(index[0], index[1], (<Complex>value).instance)
 {% else %}
             self.validate_indices(index[0])
             self.assign_elem(index[0], (<Complex>value).instance)
-        elif type(index) == int:
+        elif type(index) is int:
             self.validate_indices(index)
             self.assign_elem(index, (<Complex>value).instance)
 {% endif %}
@@ -309,12 +309,12 @@ cdef class {{ array_name }}:
         self.view_count -= 1
 
     def __getitem__(self, index):
-        if type(index) == tuple and len(index) == 1:
+        if type(index) is tuple and len(index) is 1:
             self.validate_index(index[0])
             out = {{ matrix_name }}()
             (<{{ matrix_name }}>out).instance[0] = (self.instance[0])[<int?>(index[0])]
             return out
-        elif type(index) == tuple:
+        elif type(index) is tuple:
             self.validate_index(index[0])
             out = Complex(0.0, 0.0)
 {% if is_matrix %}
@@ -332,11 +332,11 @@ cdef class {{ array_name }}:
             return out
 
     def __setitem__(self, index, value):
-        if type(value) == {{ matrix_name }}:
-            self.validate_index(index[0] if type(index) == tuple else index)
-            self.assign_elem(index[0] if type(index) == tuple else index, (<{{ matrix_name }}>value).instance[0])
+        if type(value) is {{ matrix_name }}:
+            self.validate_index(index[0] if type(index) is tuple else index)
+            self.assign_elem(index[0] if type(index) is tuple else index, (<{{ matrix_name }}>value).instance[0])
             return
-        elif type(value) == Complex:
+        elif type(value) is Complex:
             pass
         elif hasattr(value, "real") and hasattr(value, "imag") and isinstance(index, tuple):
             value = Complex(value.real, value.imag)
@@ -407,12 +407,12 @@ cdef class {{ lattice_matrix_name }}:
         cdef int i
         cdef int num_dims = self.instance.num_dims()
         cdef vector[unsigned int] shape = self.instance.lattice_shape()
-        if type(index) == tuple:
+        if type(index) is tuple:
             for i in range(num_dims):
                 if index[i] >= shape[i] or index[i] < 0:
                     raise IndexError("Index in {{ lattice_matrix_name }} element access "
                                      "out of bounds: {}".format(index))
-        elif type(index) == int:
+        elif type(index) is int:
             if index < 0 or index >= self.instance.volume():
                 raise IndexError("Index in {{ lattice_matrix_name }} element access "
                                  "out of bounds: {}".format(index))

@@ -52,9 +52,9 @@ cdef class Layout:
 
     def get_array_index(self, site_label):
 
-        if type(site_label) == int:
+        if type(site_label) is int:
             return self.instance.get_array_index(<unsigned int>site_label)
-        if type(site_label) == list or type(site_label) == tuple:
+        if type(site_label) is list or type(site_label) is tuple:
             return self.instance.get_array_index(<vector[unsigned int]>site_label)
         raise TypeError("Unknown type in Layout.get_array_index: {}"
                         .format(type(site_label)))
@@ -143,7 +143,7 @@ cdef class ColourMatrix:
 
     def __getitem__(self, index):
         out = Complex(0.0, 0.0)
-        if type(index) == tuple:
+        if type(index) is tuple:
             self.validate_indices(index[0], index[1])
             out.instance = self.instance[0](index[0], index[1])
         else:
@@ -152,14 +152,14 @@ cdef class ColourMatrix:
         return out.to_complex()
 
     def __setitem__(self, index, value):
-        if type(value) == Complex:
+        if type(value) is Complex:
             pass
         elif hasattr(value, 'real') and hasattr(value, 'imag'):
             value = Complex(<double?>(value.real),
                             <double?>(value.imag))
         else:
             value = Complex(<double?>value, 0.0)
-        if type(index) == tuple:
+        if type(index) is tuple:
             self.validate_indices(index[0], index[1])
             self.assign_elem(index[0], index[1], (<Complex>value).instance)
         else:
@@ -431,12 +431,12 @@ cdef class ColourMatrixArray:
         self.view_count -= 1
 
     def __getitem__(self, index):
-        if type(index) == tuple and len(index) == 1:
+        if type(index) is tuple and len(index) is 1:
             self.validate_index(index[0])
             out = ColourMatrix()
             (<ColourMatrix>out).instance[0] = (self.instance[0])[<int?>(index[0])]
             return out
-        elif type(index) == tuple:
+        elif type(index) is tuple:
             self.validate_index(index[0])
             out = Complex(0.0, 0.0)
             validate_ColourMatrix_indices(index[1], index[2])
@@ -449,11 +449,11 @@ cdef class ColourMatrixArray:
             return out
 
     def __setitem__(self, index, value):
-        if type(value) == ColourMatrix:
-            self.validate_index(index[0] if type(index) == tuple else index)
-            self.assign_elem(index[0] if type(index) == tuple else index, (<ColourMatrix>value).instance[0])
+        if type(value) is ColourMatrix:
+            self.validate_index(index[0] if type(index) is tuple else index)
+            self.assign_elem(index[0] if type(index) is tuple else index, (<ColourMatrix>value).instance[0])
             return
-        elif type(value) == Complex:
+        elif type(value) is Complex:
             pass
         elif hasattr(value, "real") and hasattr(value, "imag") and isinstance(index, tuple):
             value = Complex(value.real, value.imag)
@@ -646,12 +646,12 @@ cdef class LatticeColourMatrix:
         cdef int i
         cdef int num_dims = self.instance.num_dims()
         cdef vector[unsigned int] shape = self.instance.lattice_shape()
-        if type(index) == tuple:
+        if type(index) is tuple:
             for i in range(num_dims):
                 if index[i] >= shape[i] or index[i] < 0:
                     raise IndexError("Index in LatticeColourMatrix element access "
                                      "out of bounds: {}".format(index))
-        elif type(index) == int:
+        elif type(index) is int:
             if index < 0 or index >= self.instance.volume():
                 raise IndexError("Index in LatticeColourMatrix element access "
                                  "out of bounds: {}".format(index))
@@ -923,10 +923,10 @@ cdef class ColourVector:
 
     def __getitem__(self, index):
         out = Complex(0.0, 0.0)
-        if type(index) == tuple:
+        if type(index) is tuple:
             self.validate_indices(index[0])
             out.instance = self.instance[0][index[0]]
-        elif type(index) == int:
+        elif type(index) is int:
             self.validate_indices(index)
             out.instance = self.instance[0][index]
         else:
@@ -935,17 +935,17 @@ cdef class ColourVector:
         return out.to_complex()
 
     def __setitem__(self, index, value):
-        if type(value) == Complex:
+        if type(value) is Complex:
             pass
         elif hasattr(value, 'real') and hasattr(value, 'imag'):
             value = Complex(<double?>(value.real),
                             <double?>(value.imag))
         else:
             value = Complex(<double?>value, 0.0)
-        if type(index) == tuple:
+        if type(index) is tuple:
             self.validate_indices(index[0])
             self.assign_elem(index[0], (<Complex>value).instance)
-        elif type(index) == int:
+        elif type(index) is int:
             self.validate_indices(index)
             self.assign_elem(index, (<Complex>value).instance)
         else:
@@ -1154,12 +1154,12 @@ cdef class Fermion:
         self.view_count -= 1
 
     def __getitem__(self, index):
-        if type(index) == tuple and len(index) == 1:
+        if type(index) is tuple and len(index) is 1:
             self.validate_index(index[0])
             out = ColourVector()
             (<ColourVector>out).instance[0] = (self.instance[0])[<int?>(index[0])]
             return out
-        elif type(index) == tuple:
+        elif type(index) is tuple:
             self.validate_index(index[0])
             out = Complex(0.0, 0.0)
             validate_ColourVector_indices(index[1])
@@ -1172,11 +1172,11 @@ cdef class Fermion:
             return out
 
     def __setitem__(self, index, value):
-        if type(value) == ColourVector:
-            self.validate_index(index[0] if type(index) == tuple else index)
-            self.assign_elem(index[0] if type(index) == tuple else index, (<ColourVector>value).instance[0])
+        if type(value) is ColourVector:
+            self.validate_index(index[0] if type(index) is tuple else index)
+            self.assign_elem(index[0] if type(index) is tuple else index, (<ColourVector>value).instance[0])
             return
-        elif type(value) == Complex:
+        elif type(value) is Complex:
             pass
         elif hasattr(value, "real") and hasattr(value, "imag") and isinstance(index, tuple):
             value = Complex(value.real, value.imag)
@@ -1336,12 +1336,12 @@ cdef class LatticeColourVector:
         cdef int i
         cdef int num_dims = self.instance.num_dims()
         cdef vector[unsigned int] shape = self.instance.lattice_shape()
-        if type(index) == tuple:
+        if type(index) is tuple:
             for i in range(num_dims):
                 if index[i] >= shape[i] or index[i] < 0:
                     raise IndexError("Index in LatticeColourVector element access "
                                      "out of bounds: {}".format(index))
-        elif type(index) == int:
+        elif type(index) is int:
             if index < 0 or index >= self.instance.volume():
                 raise IndexError("Index in LatticeColourVector element access "
                                  "out of bounds: {}".format(index))
