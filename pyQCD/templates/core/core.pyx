@@ -461,7 +461,39 @@ cdef class {{ lattice_matrix_name }}:
         raise TypeError("Invalid index type in {{ lattice_matrix_name }}.__getitem__")
 
     def __setitem__(self, index, value):
-        pass
+        cdef int num_dims = self.instance.num_dims()
+        if type(value) is {{ matrix_name }}:
+            self.validate_index(index[:num_dims] if type(index) is tuple else index)
+            self.assign_elem(index[:num_dims] if type(index) is tuple else index, (<{{ matrix_name }}>value).instance[0])
+            return
+        elif type(value) is Complex:
+            pass
+        elif hasattr(value, "real") and hasattr(value, "imag") and isinstance(index, tuple):
+            value = Complex(value.real, value.imag)
+        else:
+            value = Complex(<{{ precision }}?>value, 0.0)
+
+        cdef {{ cmatrix }}* mat
+        if type(index) is tuple:
+            mat = &(self.instance[0](<vector[unsigned int]?>index[:num_dims]))
+        else:
+            mat = &(self.instance[0](<int?>index))
+{% if is_matrix %}
+        validate_{{ matrix_name }}_indices(index[num_dims], index[num_dims + 1])
+        {{ matrix_name|to_underscores }}.mat_assign(mat, <int?>index[num_dims], <int?>index[num_dims + 1], (<Complex?>value).instance)
+{% else %}
+        validate_{{ matrix_name }}_indices(index[num_dims])
+        cdef complex.Complex* z = &(mat[0][<int?>index[num_dims]])
+        z[0] = (<Complex>value).instance
+{% endif %}
+
+    cdef assign_elem(self, index, {{ cmatrix }} value):
+        cdef {{ cmatrix }}* m
+        if type(index) is tuple:
+            m = &(self.instance[0](<vector[unsigned int]>index))
+        else:
+            m = &(self.instance[0](<int?>index))
+        m[0] = value
 
     def adjoint(self):
         pass

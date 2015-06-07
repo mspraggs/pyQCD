@@ -696,7 +696,33 @@ cdef class LatticeColourMatrix:
         raise TypeError("Invalid index type in LatticeColourMatrix.__getitem__")
 
     def __setitem__(self, index, value):
-        pass
+        cdef int num_dims = self.instance.num_dims()
+        if type(value) is ColourMatrix:
+            self.validate_index(index[:num_dims] if type(index) is tuple else index)
+            self.assign_elem(index[:num_dims] if type(index) is tuple else index, (<ColourMatrix>value).instance[0])
+            return
+        elif type(value) is Complex:
+            pass
+        elif hasattr(value, "real") and hasattr(value, "imag") and isinstance(index, tuple):
+            value = Complex(value.real, value.imag)
+        else:
+            value = Complex(<double?>value, 0.0)
+
+        cdef colour_matrix.ColourMatrix* mat
+        if type(index) is tuple:
+            mat = &(self.instance[0](<vector[unsigned int]?>index[:num_dims]))
+        else:
+            mat = &(self.instance[0](<int?>index))
+        validate_ColourMatrix_indices(index[num_dims], index[num_dims + 1])
+        colour_matrix.mat_assign(mat, <int?>index[num_dims], <int?>index[num_dims + 1], (<Complex?>value).instance)
+
+    cdef assign_elem(self, index, colour_matrix.ColourMatrix value):
+        cdef colour_matrix.ColourMatrix* m
+        if type(index) is tuple:
+            m = &(self.instance[0](<vector[unsigned int]>index))
+        else:
+            m = &(self.instance[0](<int?>index))
+        m[0] = value
 
     def adjoint(self):
         pass
@@ -1411,7 +1437,34 @@ cdef class LatticeColourVector:
         raise TypeError("Invalid index type in LatticeColourVector.__getitem__")
 
     def __setitem__(self, index, value):
-        pass
+        cdef int num_dims = self.instance.num_dims()
+        if type(value) is ColourVector:
+            self.validate_index(index[:num_dims] if type(index) is tuple else index)
+            self.assign_elem(index[:num_dims] if type(index) is tuple else index, (<ColourVector>value).instance[0])
+            return
+        elif type(value) is Complex:
+            pass
+        elif hasattr(value, "real") and hasattr(value, "imag") and isinstance(index, tuple):
+            value = Complex(value.real, value.imag)
+        else:
+            value = Complex(<double?>value, 0.0)
+
+        cdef colour_vector.ColourVector* mat
+        if type(index) is tuple:
+            mat = &(self.instance[0](<vector[unsigned int]?>index[:num_dims]))
+        else:
+            mat = &(self.instance[0](<int?>index))
+        validate_ColourVector_indices(index[num_dims])
+        cdef complex.Complex* z = &(mat[0][<int?>index[num_dims]])
+        z[0] = (<Complex>value).instance
+
+    cdef assign_elem(self, index, colour_vector.ColourVector value):
+        cdef colour_vector.ColourVector* m
+        if type(index) is tuple:
+            m = &(self.instance[0](<vector[unsigned int]>index))
+        else:
+            m = &(self.instance[0](<int?>index))
+        m[0] = value
 
     def adjoint(self):
         pass
