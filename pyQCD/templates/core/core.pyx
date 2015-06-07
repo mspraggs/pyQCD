@@ -423,7 +423,7 @@ cdef class {{ lattice_matrix_name }}:
     def __init__(self, Layout layout, *args):
         cdef int i, volume
         volume = layout.instance.volume()
-        if len(args) == 1 and isinstance(args[0], {{ matrix_name }}):
+        if len(args) is 1 and type(args[0]) is {{ matrix_name }}:
             for i in range(volume):
                 self.instance[0][i] = (<{{ matrix_name }}>args[0]).instance[0]
 

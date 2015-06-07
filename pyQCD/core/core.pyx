@@ -662,7 +662,7 @@ cdef class LatticeColourMatrix:
     def __init__(self, Layout layout, *args):
         cdef int i, volume
         volume = layout.instance.volume()
-        if len(args) == 1 and isinstance(args[0], ColourMatrix):
+        if len(args) is 1 and type(args[0]) is ColourMatrix:
             for i in range(volume):
                 self.instance[0][i] = (<ColourMatrix>args[0]).instance[0]
 
@@ -1352,7 +1352,7 @@ cdef class LatticeColourVector:
     def __init__(self, Layout layout, *args):
         cdef int i, volume
         volume = layout.instance.volume()
-        if len(args) == 1 and isinstance(args[0], ColourVector):
+        if len(args) is 1 and type(args[0]) is ColourVector:
             for i in range(volume):
                 self.instance[0][i] = (<ColourVector>args[0]).instance[0]
 
