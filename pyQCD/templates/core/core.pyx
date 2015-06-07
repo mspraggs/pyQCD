@@ -236,7 +236,7 @@ cdef class {{ matrix_name }}:
         out.dtype = complex
         return out
 
-{{ arithmetic.arithmetic_ops(operators, matrix_name) }}
+{{ arithmetic.arithmetic_ops(operators, matrix_name, scalar_types) }}
 
 cdef class {{ array_name }}:
     cdef {{ carray }}* instance
@@ -395,7 +395,7 @@ cdef class {{ array_name }}:
     def shape(self):
         return (self.size, {{ num_rows}},{% if is_matrix %} {{num_cols}}{% endif %})
 
-{{ arithmetic.arithmetic_ops(operators, array_name) }}
+{{ arithmetic.arithmetic_ops(operators, array_name, scalar_types) }}
 
 cdef class {{ lattice_matrix_name }}:
     cdef {{ clattice_matrix }}* instance
@@ -470,7 +470,7 @@ cdef class {{ lattice_matrix_name }}:
     def shape(self):
         pass
 
-{{ arithmetic.arithmetic_ops(operators, lattice_matrix_name) }}
+{{ arithmetic.arithmetic_ops(operators, lattice_matrix_name, scalar_types) }}
 
 
 cdef class {{ lattice_array_name }}:

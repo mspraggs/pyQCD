@@ -168,23 +168,29 @@ def make_lattice_binary_ops(matrices, matrix_lhs, matrix_rhs):
     return ops
 
 
-def make_scalar_binary_ops(matrix, precision):
+def make_scalar_binary_ops(matrix, precision, scalar_types):
     """Create a list of tuples that define possible scalar binary operators
 
     Args:
       matrix (MatrixDefinition): The matrix to create binary operators for.
+      precision (str): The fundamental machine type used to represent real
+        numbers (e.g. single, float, double).
+      scalar_types (list): The Python numerical types to generate binary
+        operations for (e.g. float, int, etc.).
 
     Returns:
       list: List of four-tuples containing return value, operands and operator
     """
 
     ops = []
+    cpp_scalar_types = [precision if t == "float" else t for t in scalar_types]
+    cpp_scalar_types.append("complex.Complex")
 
     for variant in variants:
         typename = getattr(matrix, "{}_name".format(variant))
         typename = "{}.{}".format(_camel2underscores(typename), typename)
 
-        for scalar in [precision, "complex.Complex"]:
+        for scalar in cpp_scalar_types:
             ops.extend([
                 (typename, "*", scalar, typename, False, False),
                 (typename, "*", typename, scalar, False, False),
@@ -192,7 +198,7 @@ def make_scalar_binary_ops(matrix, precision):
     return ops
 
 
-def make_cython_ops(matrices, cpp_ops, precision):
+def make_cython_ops(matrices, cpp_ops, precision, scalar_types):
     """Convert a list of operator tuples from C++ to Cython description
 
     This means partitionining the list according the matrix type of the
@@ -207,10 +213,13 @@ def make_cython_ops(matrices, cpp_ops, precision):
         functions.
       precision (str): The fundamental machine type to be used throughout the
         code (e.g. 'double' or 'float').
+      scalar_types (list): The Python numerical types to generate binary
+        operations for (e.g. float, int, etc.).
     """
 
     func_lookup = {'+': 'add', '-': 'sub',
                    '*': 'mul', '/': 'div'}
+    scalar_complex_types = scalar_types + ["Complex"]
 
     out = dict([((getattr(mat, "{}_name".format(var)), op), [])
                 for mat in matrices for var in variants
@@ -221,7 +230,7 @@ def make_cython_ops(matrices, cpp_ops, precision):
         lhs_type = 'float' if lhs_type == precision else lhs_type
         rhs_type = rhs_type.split('.')[-1]
         rhs_type = 'float' if rhs_type == precision else rhs_type
-        key = (lhs_type if lhs_type not in ['float', 'Complex'] else rhs_type,
+        key = (lhs_type if lhs_type not in scalar_complex_types else rhs_type,
                func_lookup[op])
         out[key].append((ret_type, lhs_type, rhs_type, lhs_bcast, rhs_bcast))
 
@@ -255,6 +264,7 @@ def generate_cython_types(output_path, precision, matrices):
     """
 
     # List of tuples of allowed binary operations
+    scalar_types = ["float", "int"]
     scalar_binary_ops = []
     lattice_binary_ops = []
     operator_includes = []
@@ -264,7 +274,8 @@ def generate_cython_types(output_path, precision, matrices):
                   for variant in variants]
         includes = dict([("{}_include".format(variant), fname)
                          for variant, fname in zip(variants, fnames)])
-        scalar_binary_ops.extend(make_scalar_binary_ops(matrix, precision))
+        scalar_binary_ops.extend(make_scalar_binary_ops(matrix, precision,
+                                                        scalar_types))
         for variant, fname in zip(variants, fnames):
             name = getattr(matrix, "{}_name".format(variant))
             operator_includes.append((fname, name))
@@ -277,7 +288,8 @@ def generate_cython_types(output_path, precision, matrices):
             make_lattice_binary_ops(matrices, matrix_lhs, matrix_rhs))
 
     cython_ops = make_cython_ops(
-        matrices, scalar_binary_ops + lattice_binary_ops, precision)
+        matrices, scalar_binary_ops + lattice_binary_ops, precision,
+        scalar_types)
 
     write_core_template("types.hpp", "types.hpp", output_path,
                         matrixdefs=matrices, precision=precision)
@@ -289,7 +301,7 @@ def generate_cython_types(output_path, precision, matrices):
                         includes=operator_includes)
     write_core_template("core.pyx", "core.pyx", output_path,
                         matrixdefs=matrices, operators=cython_ops,
-                        precision=precision)
+                        precision=precision, scalar_types=scalar_types)
 
 
 def generate_qcd(num_colours, precision, representation, dest=None):

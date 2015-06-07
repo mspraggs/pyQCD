@@ -198,14 +198,6 @@ cdef class ColourMatrix:
         return out
 
     def __add__(self, other):
-        if isinstance(self, scalar_types):
-            self = float(self)
-        if isinstance(other, scalar_types):
-            other = float(other)
-        if isinstance(self, complex_types):
-            self = Complex(self.real, self.imag)
-        if isinstance(other, complex_types):
-            other = Complex(other.real, other.imag)
         if type(self) is ColourMatrix and type(other) is ColourMatrix:
             return (<ColourMatrix>self)._add_ColourMatrix_ColourMatrix(<ColourMatrix>other)
         if type(self) is ColourMatrix and type(other) is ColourMatrixArray:
@@ -217,70 +209,56 @@ cdef class ColourMatrix:
         raise TypeError("Unsupported operand types for ColourMatrix.__add__: "
                         "{} and {}".format(type(self), type(other)))
 
-    cdef ColourMatrix _add_ColourMatrix_ColourMatrix(ColourMatrix self, ColourMatrix other):
-        out = ColourMatrix()
-        cdef colour_matrix.ColourMatrix* cpp_out = new colour_matrix.ColourMatrix()
-        cpp_out[0] = self.instance[0] + other.instance[0]
-        out.instance = cpp_out
+    cdef inline ColourMatrix _add_ColourMatrix_ColourMatrix(ColourMatrix self, ColourMatrix other):
+        cdef ColourMatrix out = ColourMatrix()
+        out.instance[0] = self.instance[0] + other.instance[0]
         return out
 
-    cdef ColourMatrixArray _add_ColourMatrix_ColourMatrixArray(ColourMatrix self, ColourMatrixArray other):
-        out = ColourMatrixArray()
-        cdef colour_matrix_array.ColourMatrixArray* cpp_out = new colour_matrix_array.ColourMatrixArray()
-        cpp_out[0] = self.instance[0] + other.instance[0]
-        out.instance = cpp_out
+    cdef inline ColourMatrixArray _add_ColourMatrix_ColourMatrixArray(ColourMatrix self, ColourMatrixArray other):
+        cdef ColourMatrixArray out = ColourMatrixArray()
+        out.instance[0] = self.instance[0] + other.instance[0]
         return out
 
-    cdef LatticeColourMatrix _add_ColourMatrix_LatticeColourMatrix(ColourMatrix self, LatticeColourMatrix other):
-        out = LatticeColourMatrix()
-        cdef lattice_colour_matrix.LatticeColourMatrix* cpp_out = new lattice_colour_matrix.LatticeColourMatrix()
-        cpp_out[0] = self.instance[0] + other.instance[0]
-        out.instance = cpp_out
+    cdef inline LatticeColourMatrix _add_ColourMatrix_LatticeColourMatrix(ColourMatrix self, LatticeColourMatrix other):
+        cdef LatticeColourMatrix out = LatticeColourMatrix()
+        out.instance[0] = self.instance[0] + other.instance[0]
         return out
 
-    cdef GaugeField _add_ColourMatrix_GaugeField(ColourMatrix self, GaugeField other):
-        out = GaugeField()
-        cdef gauge_field.GaugeField* cpp_out = new gauge_field.GaugeField()
-        cpp_out[0] = self.instance[0] + other.instance[0]
-        out.instance = cpp_out
+    cdef inline GaugeField _add_ColourMatrix_GaugeField(ColourMatrix self, GaugeField other):
+        cdef GaugeField out = GaugeField()
+        out.instance[0] = self.instance[0] + other.instance[0]
         return out
 
 
     def __sub__(self, other):
-        if isinstance(self, scalar_types):
-            self = float(self)
-        if isinstance(other, scalar_types):
-            other = float(other)
-        if isinstance(self, complex_types):
-            self = Complex(self.real, self.imag)
-        if isinstance(other, complex_types):
-            other = Complex(other.real, other.imag)
         if type(self) is ColourMatrix and type(other) is ColourMatrix:
             return (<ColourMatrix>self)._sub_ColourMatrix_ColourMatrix(<ColourMatrix>other)
         raise TypeError("Unsupported operand types for ColourMatrix.__sub__: "
                         "{} and {}".format(type(self), type(other)))
 
-    cdef ColourMatrix _sub_ColourMatrix_ColourMatrix(ColourMatrix self, ColourMatrix other):
-        out = ColourMatrix()
-        cdef colour_matrix.ColourMatrix* cpp_out = new colour_matrix.ColourMatrix()
-        cpp_out[0] = self.instance[0] - other.instance[0]
-        out.instance = cpp_out
+    cdef inline ColourMatrix _sub_ColourMatrix_ColourMatrix(ColourMatrix self, ColourMatrix other):
+        cdef ColourMatrix out = ColourMatrix()
+        out.instance[0] = self.instance[0] - other.instance[0]
         return out
 
 
     def __mul__(self, other):
-        if isinstance(self, scalar_types):
-            self = float(self)
-        if isinstance(other, scalar_types):
-            other = float(other)
-        if isinstance(self, complex_types):
-            self = Complex(self.real, self.imag)
-        if isinstance(other, complex_types):
-            other = Complex(other.real, other.imag)
+        #if isinstance(self, scalar_types):
+        #    self = <double>(self)
+        #if isinstance(other, scalar_types):
+        #    other = <double>(other)
+        #if hasattr(self, 'real') and hasattr(self, 'imag'):
+        #    self = Complex(self.real, self.imag)
+        #if isinstance(other, complex_types):
+        #    other = Complex(other.real, other.imag)
         if type(self) is float and type(other) is ColourMatrix:
             return (<ColourMatrix>other)._mul_ColourMatrix_float(<float>self)
         if type(self) is ColourMatrix and type(other) is float:
             return (<ColourMatrix>self)._mul_ColourMatrix_float(<float>other)
+        if type(self) is int and type(other) is ColourMatrix:
+            return (<ColourMatrix>other)._mul_ColourMatrix_int(<int>self)
+        if type(self) is ColourMatrix and type(other) is int:
+            return (<ColourMatrix>self)._mul_ColourMatrix_int(<int>other)
         if type(self) is Complex and type(other) is ColourMatrix:
             return (<ColourMatrix>other)._mul_ColourMatrix_Complex(<Complex>self)
         if type(self) is ColourMatrix and type(other) is Complex:
@@ -304,105 +282,93 @@ cdef class ColourMatrix:
         raise TypeError("Unsupported operand types for ColourMatrix.__mul__: "
                         "{} and {}".format(type(self), type(other)))
 
-    cdef ColourMatrix _mul_ColourMatrix_float(ColourMatrix self, float other):
-        out = ColourMatrix()
-        cdef colour_matrix.ColourMatrix* cpp_out = new colour_matrix.ColourMatrix()
-        cpp_out[0] = self.instance[0] * other
-        out.instance = cpp_out
+    cdef inline ColourMatrix _mul_ColourMatrix_float(ColourMatrix self, float other):
+        cdef ColourMatrix out = ColourMatrix()
+        out.instance[0] = self.instance[0] * other
         return out
 
-    cdef ColourMatrix _mul_ColourMatrix_Complex(ColourMatrix self, Complex other):
-        out = ColourMatrix()
-        cdef colour_matrix.ColourMatrix* cpp_out = new colour_matrix.ColourMatrix()
-        cpp_out[0] = self.instance[0] * other.instance
-        out.instance = cpp_out
+    cdef inline ColourMatrix _mul_ColourMatrix_int(ColourMatrix self, int other):
+        cdef ColourMatrix out = ColourMatrix()
+        out.instance[0] = self.instance[0] * other
         return out
 
-    cdef ColourMatrix _mul_ColourMatrix_ColourMatrix(ColourMatrix self, ColourMatrix other):
-        out = ColourMatrix()
-        cdef colour_matrix.ColourMatrix* cpp_out = new colour_matrix.ColourMatrix()
-        cpp_out[0] = self.instance[0] * other.instance[0]
-        out.instance = cpp_out
+    cdef inline ColourMatrix _mul_ColourMatrix_Complex(ColourMatrix self, Complex other):
+        cdef ColourMatrix out = ColourMatrix()
+        out.instance[0] = self.instance[0] * other.instance
         return out
 
-    cdef ColourMatrixArray _mul_ColourMatrix_ColourMatrixArray(ColourMatrix self, ColourMatrixArray other):
-        out = ColourMatrixArray()
-        cdef colour_matrix_array.ColourMatrixArray* cpp_out = new colour_matrix_array.ColourMatrixArray()
-        cpp_out[0] = self.instance[0] * other.instance[0]
-        out.instance = cpp_out
+    cdef inline ColourMatrix _mul_ColourMatrix_ColourMatrix(ColourMatrix self, ColourMatrix other):
+        cdef ColourMatrix out = ColourMatrix()
+        out.instance[0] = self.instance[0] * other.instance[0]
         return out
 
-    cdef LatticeColourMatrix _mul_ColourMatrix_LatticeColourMatrix(ColourMatrix self, LatticeColourMatrix other):
-        out = LatticeColourMatrix()
-        cdef lattice_colour_matrix.LatticeColourMatrix* cpp_out = new lattice_colour_matrix.LatticeColourMatrix()
-        cpp_out[0] = self.instance[0] * other.instance[0]
-        out.instance = cpp_out
+    cdef inline ColourMatrixArray _mul_ColourMatrix_ColourMatrixArray(ColourMatrix self, ColourMatrixArray other):
+        cdef ColourMatrixArray out = ColourMatrixArray()
+        out.instance[0] = self.instance[0] * other.instance[0]
         return out
 
-    cdef GaugeField _mul_ColourMatrix_GaugeField(ColourMatrix self, GaugeField other):
-        out = GaugeField()
-        cdef gauge_field.GaugeField* cpp_out = new gauge_field.GaugeField()
-        cpp_out[0] = self.instance[0] * other.instance[0]
-        out.instance = cpp_out
+    cdef inline LatticeColourMatrix _mul_ColourMatrix_LatticeColourMatrix(ColourMatrix self, LatticeColourMatrix other):
+        cdef LatticeColourMatrix out = LatticeColourMatrix()
+        out.instance[0] = self.instance[0] * other.instance[0]
         return out
 
-    cdef ColourVector _mul_ColourMatrix_ColourVector(ColourMatrix self, ColourVector other):
-        out = ColourVector()
-        cdef colour_vector.ColourVector* cpp_out = new colour_vector.ColourVector()
-        cpp_out[0] = self.instance[0] * other.instance[0]
-        out.instance = cpp_out
+    cdef inline GaugeField _mul_ColourMatrix_GaugeField(ColourMatrix self, GaugeField other):
+        cdef GaugeField out = GaugeField()
+        out.instance[0] = self.instance[0] * other.instance[0]
         return out
 
-    cdef Fermion _mul_ColourMatrix_Fermion(ColourMatrix self, Fermion other):
-        out = Fermion()
-        cdef fermion.Fermion* cpp_out = new fermion.Fermion()
-        cpp_out[0] = self.instance[0] * other.instance[0]
-        out.instance = cpp_out
+    cdef inline ColourVector _mul_ColourMatrix_ColourVector(ColourMatrix self, ColourVector other):
+        cdef ColourVector out = ColourVector()
+        out.instance[0] = self.instance[0] * other.instance[0]
         return out
 
-    cdef LatticeColourVector _mul_ColourMatrix_LatticeColourVector(ColourMatrix self, LatticeColourVector other):
-        out = LatticeColourVector()
-        cdef lattice_colour_vector.LatticeColourVector* cpp_out = new lattice_colour_vector.LatticeColourVector()
-        cpp_out[0] = self.instance[0] * other.instance[0]
-        out.instance = cpp_out
+    cdef inline Fermion _mul_ColourMatrix_Fermion(ColourMatrix self, Fermion other):
+        cdef Fermion out = Fermion()
+        out.instance[0] = self.instance[0] * other.instance[0]
         return out
 
-    cdef FermionField _mul_ColourMatrix_FermionField(ColourMatrix self, FermionField other):
-        out = FermionField()
-        cdef fermion_field.FermionField* cpp_out = new fermion_field.FermionField()
-        cpp_out[0] = self.instance[0] * other.instance[0]
-        out.instance = cpp_out
+    cdef inline LatticeColourVector _mul_ColourMatrix_LatticeColourVector(ColourMatrix self, LatticeColourVector other):
+        cdef LatticeColourVector out = LatticeColourVector()
+        out.instance[0] = self.instance[0] * other.instance[0]
+        return out
+
+    cdef inline FermionField _mul_ColourMatrix_FermionField(ColourMatrix self, FermionField other):
+        cdef FermionField out = FermionField()
+        out.instance[0] = self.instance[0] * other.instance[0]
         return out
 
 
     def __div__(self, other):
-        if isinstance(self, scalar_types):
-            self = float(self)
-        if isinstance(other, scalar_types):
-            other = float(other)
-        if isinstance(self, complex_types):
-            self = Complex(self.real, self.imag)
-        if isinstance(other, complex_types):
-            other = Complex(other.real, other.imag)
+        #if isinstance(self, scalar_types):
+        #    self = <double>(self)
+        #if isinstance(other, scalar_types):
+        #    other = <double>(other)
+        #if hasattr(self, 'real') and hasattr(self, 'imag'):
+        #    self = Complex(self.real, self.imag)
+        #if isinstance(other, complex_types):
+        #    other = Complex(other.real, other.imag)
         if type(self) is ColourMatrix and type(other) is float:
             return (<ColourMatrix>self)._div_ColourMatrix_float(<float>other)
+        if type(self) is ColourMatrix and type(other) is int:
+            return (<ColourMatrix>self)._div_ColourMatrix_int(<int>other)
         if type(self) is ColourMatrix and type(other) is Complex:
             return (<ColourMatrix>self)._div_ColourMatrix_Complex(<Complex>other)
         raise TypeError("Unsupported operand types for ColourMatrix.__div__: "
                         "{} and {}".format(type(self), type(other)))
 
-    cdef ColourMatrix _div_ColourMatrix_float(ColourMatrix self, float other):
-        out = ColourMatrix()
-        cdef colour_matrix.ColourMatrix* cpp_out = new colour_matrix.ColourMatrix()
-        cpp_out[0] = self.instance[0] / other
-        out.instance = cpp_out
+    cdef inline ColourMatrix _div_ColourMatrix_float(ColourMatrix self, float other):
+        cdef ColourMatrix out = ColourMatrix()
+        out.instance[0] = self.instance[0] / other
         return out
 
-    cdef ColourMatrix _div_ColourMatrix_Complex(ColourMatrix self, Complex other):
-        out = ColourMatrix()
-        cdef colour_matrix.ColourMatrix* cpp_out = new colour_matrix.ColourMatrix()
-        cpp_out[0] = self.instance[0] / other.instance
-        out.instance = cpp_out
+    cdef inline ColourMatrix _div_ColourMatrix_int(ColourMatrix self, int other):
+        cdef ColourMatrix out = ColourMatrix()
+        out.instance[0] = self.instance[0] / other
+        return out
+
+    cdef inline ColourMatrix _div_ColourMatrix_Complex(ColourMatrix self, Complex other):
+        cdef ColourMatrix out = ColourMatrix()
+        out.instance[0] = self.instance[0] / other.instance
         return out
 
 
@@ -549,14 +515,6 @@ cdef class ColourMatrixArray:
         return (self.size, 3, 3)
 
     def __add__(self, other):
-        if isinstance(self, scalar_types):
-            self = float(self)
-        if isinstance(other, scalar_types):
-            other = float(other)
-        if isinstance(self, complex_types):
-            self = Complex(self.real, self.imag)
-        if isinstance(other, complex_types):
-            other = Complex(other.real, other.imag)
         if type(self) is ColourMatrixArray and type(other) is ColourMatrix:
             return (<ColourMatrixArray>self)._add_ColourMatrixArray_ColourMatrix(<ColourMatrix>other)
         if type(self) is ColourMatrixArray and type(other) is ColourMatrixArray:
@@ -564,30 +522,18 @@ cdef class ColourMatrixArray:
         raise TypeError("Unsupported operand types for ColourMatrixArray.__add__: "
                         "{} and {}".format(type(self), type(other)))
 
-    cdef ColourMatrixArray _add_ColourMatrixArray_ColourMatrix(ColourMatrixArray self, ColourMatrix other):
-        out = ColourMatrixArray()
-        cdef colour_matrix_array.ColourMatrixArray* cpp_out = new colour_matrix_array.ColourMatrixArray()
-        cpp_out[0] = self.instance[0] + other.instance[0]
-        out.instance = cpp_out
+    cdef inline ColourMatrixArray _add_ColourMatrixArray_ColourMatrix(ColourMatrixArray self, ColourMatrix other):
+        cdef ColourMatrixArray out = ColourMatrixArray()
+        out.instance[0] = self.instance[0] + other.instance[0]
         return out
 
-    cdef ColourMatrixArray _add_ColourMatrixArray_ColourMatrixArray(ColourMatrixArray self, ColourMatrixArray other):
-        out = ColourMatrixArray()
-        cdef colour_matrix_array.ColourMatrixArray* cpp_out = new colour_matrix_array.ColourMatrixArray()
-        cpp_out[0] = self.instance[0] + other.instance[0]
-        out.instance = cpp_out
+    cdef inline ColourMatrixArray _add_ColourMatrixArray_ColourMatrixArray(ColourMatrixArray self, ColourMatrixArray other):
+        cdef ColourMatrixArray out = ColourMatrixArray()
+        out.instance[0] = self.instance[0] + other.instance[0]
         return out
 
 
     def __sub__(self, other):
-        if isinstance(self, scalar_types):
-            self = float(self)
-        if isinstance(other, scalar_types):
-            other = float(other)
-        if isinstance(self, complex_types):
-            self = Complex(self.real, self.imag)
-        if isinstance(other, complex_types):
-            other = Complex(other.real, other.imag)
         if type(self) is ColourMatrixArray and type(other) is ColourMatrix:
             return (<ColourMatrixArray>self)._sub_ColourMatrixArray_ColourMatrix(<ColourMatrix>other)
         if type(self) is ColourMatrixArray and type(other) is ColourMatrixArray:
@@ -595,34 +541,34 @@ cdef class ColourMatrixArray:
         raise TypeError("Unsupported operand types for ColourMatrixArray.__sub__: "
                         "{} and {}".format(type(self), type(other)))
 
-    cdef ColourMatrixArray _sub_ColourMatrixArray_ColourMatrix(ColourMatrixArray self, ColourMatrix other):
-        out = ColourMatrixArray()
-        cdef colour_matrix_array.ColourMatrixArray* cpp_out = new colour_matrix_array.ColourMatrixArray()
-        cpp_out[0] = self.instance[0] - other.instance[0]
-        out.instance = cpp_out
+    cdef inline ColourMatrixArray _sub_ColourMatrixArray_ColourMatrix(ColourMatrixArray self, ColourMatrix other):
+        cdef ColourMatrixArray out = ColourMatrixArray()
+        out.instance[0] = self.instance[0] - other.instance[0]
         return out
 
-    cdef ColourMatrixArray _sub_ColourMatrixArray_ColourMatrixArray(ColourMatrixArray self, ColourMatrixArray other):
-        out = ColourMatrixArray()
-        cdef colour_matrix_array.ColourMatrixArray* cpp_out = new colour_matrix_array.ColourMatrixArray()
-        cpp_out[0] = self.instance[0] - other.instance[0]
-        out.instance = cpp_out
+    cdef inline ColourMatrixArray _sub_ColourMatrixArray_ColourMatrixArray(ColourMatrixArray self, ColourMatrixArray other):
+        cdef ColourMatrixArray out = ColourMatrixArray()
+        out.instance[0] = self.instance[0] - other.instance[0]
         return out
 
 
     def __mul__(self, other):
-        if isinstance(self, scalar_types):
-            self = float(self)
-        if isinstance(other, scalar_types):
-            other = float(other)
-        if isinstance(self, complex_types):
-            self = Complex(self.real, self.imag)
-        if isinstance(other, complex_types):
-            other = Complex(other.real, other.imag)
+        #if isinstance(self, scalar_types):
+        #    self = <double>(self)
+        #if isinstance(other, scalar_types):
+        #    other = <double>(other)
+        #if hasattr(self, 'real') and hasattr(self, 'imag'):
+        #    self = Complex(self.real, self.imag)
+        #if isinstance(other, complex_types):
+        #    other = Complex(other.real, other.imag)
         if type(self) is float and type(other) is ColourMatrixArray:
             return (<ColourMatrixArray>other)._mul_ColourMatrixArray_float(<float>self)
         if type(self) is ColourMatrixArray and type(other) is float:
             return (<ColourMatrixArray>self)._mul_ColourMatrixArray_float(<float>other)
+        if type(self) is int and type(other) is ColourMatrixArray:
+            return (<ColourMatrixArray>other)._mul_ColourMatrixArray_int(<int>self)
+        if type(self) is ColourMatrixArray and type(other) is int:
+            return (<ColourMatrixArray>self)._mul_ColourMatrixArray_int(<int>other)
         if type(self) is Complex and type(other) is ColourMatrixArray:
             return (<ColourMatrixArray>other)._mul_ColourMatrixArray_Complex(<Complex>self)
         if type(self) is ColourMatrixArray and type(other) is Complex:
@@ -638,77 +584,73 @@ cdef class ColourMatrixArray:
         raise TypeError("Unsupported operand types for ColourMatrixArray.__mul__: "
                         "{} and {}".format(type(self), type(other)))
 
-    cdef ColourMatrixArray _mul_ColourMatrixArray_float(ColourMatrixArray self, float other):
-        out = ColourMatrixArray()
-        cdef colour_matrix_array.ColourMatrixArray* cpp_out = new colour_matrix_array.ColourMatrixArray()
-        cpp_out[0] = self.instance[0] * other
-        out.instance = cpp_out
+    cdef inline ColourMatrixArray _mul_ColourMatrixArray_float(ColourMatrixArray self, float other):
+        cdef ColourMatrixArray out = ColourMatrixArray()
+        out.instance[0] = self.instance[0] * other
         return out
 
-    cdef ColourMatrixArray _mul_ColourMatrixArray_Complex(ColourMatrixArray self, Complex other):
-        out = ColourMatrixArray()
-        cdef colour_matrix_array.ColourMatrixArray* cpp_out = new colour_matrix_array.ColourMatrixArray()
-        cpp_out[0] = self.instance[0] * other.instance
-        out.instance = cpp_out
+    cdef inline ColourMatrixArray _mul_ColourMatrixArray_int(ColourMatrixArray self, int other):
+        cdef ColourMatrixArray out = ColourMatrixArray()
+        out.instance[0] = self.instance[0] * other
         return out
 
-    cdef ColourMatrixArray _mul_ColourMatrixArray_ColourMatrix(ColourMatrixArray self, ColourMatrix other):
-        out = ColourMatrixArray()
-        cdef colour_matrix_array.ColourMatrixArray* cpp_out = new colour_matrix_array.ColourMatrixArray()
-        cpp_out[0] = self.instance[0] * other.instance[0]
-        out.instance = cpp_out
+    cdef inline ColourMatrixArray _mul_ColourMatrixArray_Complex(ColourMatrixArray self, Complex other):
+        cdef ColourMatrixArray out = ColourMatrixArray()
+        out.instance[0] = self.instance[0] * other.instance
         return out
 
-    cdef ColourMatrixArray _mul_ColourMatrixArray_ColourMatrixArray(ColourMatrixArray self, ColourMatrixArray other):
-        out = ColourMatrixArray()
-        cdef colour_matrix_array.ColourMatrixArray* cpp_out = new colour_matrix_array.ColourMatrixArray()
-        cpp_out[0] = self.instance[0] * other.instance[0]
-        out.instance = cpp_out
+    cdef inline ColourMatrixArray _mul_ColourMatrixArray_ColourMatrix(ColourMatrixArray self, ColourMatrix other):
+        cdef ColourMatrixArray out = ColourMatrixArray()
+        out.instance[0] = self.instance[0] * other.instance[0]
         return out
 
-    cdef Fermion _mul_ColourMatrixArray_ColourVector(ColourMatrixArray self, ColourVector other):
-        out = Fermion()
-        cdef fermion.Fermion* cpp_out = new fermion.Fermion()
-        cpp_out[0] = self.instance[0] * other.instance[0]
-        out.instance = cpp_out
+    cdef inline ColourMatrixArray _mul_ColourMatrixArray_ColourMatrixArray(ColourMatrixArray self, ColourMatrixArray other):
+        cdef ColourMatrixArray out = ColourMatrixArray()
+        out.instance[0] = self.instance[0] * other.instance[0]
         return out
 
-    cdef Fermion _mul_ColourMatrixArray_Fermion(ColourMatrixArray self, Fermion other):
-        out = Fermion()
-        cdef fermion.Fermion* cpp_out = new fermion.Fermion()
-        cpp_out[0] = self.instance[0] * other.instance[0]
-        out.instance = cpp_out
+    cdef inline Fermion _mul_ColourMatrixArray_ColourVector(ColourMatrixArray self, ColourVector other):
+        cdef Fermion out = Fermion()
+        out.instance[0] = self.instance[0] * other.instance[0]
+        return out
+
+    cdef inline Fermion _mul_ColourMatrixArray_Fermion(ColourMatrixArray self, Fermion other):
+        cdef Fermion out = Fermion()
+        out.instance[0] = self.instance[0] * other.instance[0]
         return out
 
 
     def __div__(self, other):
-        if isinstance(self, scalar_types):
-            self = float(self)
-        if isinstance(other, scalar_types):
-            other = float(other)
-        if isinstance(self, complex_types):
-            self = Complex(self.real, self.imag)
-        if isinstance(other, complex_types):
-            other = Complex(other.real, other.imag)
+        #if isinstance(self, scalar_types):
+        #    self = <double>(self)
+        #if isinstance(other, scalar_types):
+        #    other = <double>(other)
+        #if hasattr(self, 'real') and hasattr(self, 'imag'):
+        #    self = Complex(self.real, self.imag)
+        #if isinstance(other, complex_types):
+        #    other = Complex(other.real, other.imag)
         if type(self) is ColourMatrixArray and type(other) is float:
             return (<ColourMatrixArray>self)._div_ColourMatrixArray_float(<float>other)
+        if type(self) is ColourMatrixArray and type(other) is int:
+            return (<ColourMatrixArray>self)._div_ColourMatrixArray_int(<int>other)
         if type(self) is ColourMatrixArray and type(other) is Complex:
             return (<ColourMatrixArray>self)._div_ColourMatrixArray_Complex(<Complex>other)
         raise TypeError("Unsupported operand types for ColourMatrixArray.__div__: "
                         "{} and {}".format(type(self), type(other)))
 
-    cdef ColourMatrixArray _div_ColourMatrixArray_float(ColourMatrixArray self, float other):
-        out = ColourMatrixArray()
-        cdef colour_matrix_array.ColourMatrixArray* cpp_out = new colour_matrix_array.ColourMatrixArray()
-        cpp_out[0] = self.instance[0] / other
-        out.instance = cpp_out
+    cdef inline ColourMatrixArray _div_ColourMatrixArray_float(ColourMatrixArray self, float other):
+        cdef ColourMatrixArray out = ColourMatrixArray()
+        out.instance[0] = self.instance[0] / other
         return out
 
-    cdef ColourMatrixArray _div_ColourMatrixArray_Complex(ColourMatrixArray self, Complex other):
-        out = ColourMatrixArray()
-        cdef colour_matrix_array.ColourMatrixArray* cpp_out = new colour_matrix_array.ColourMatrixArray()
-        cpp_out[0] = self.instance[0] / other.instance
-        out.instance = cpp_out
+    cdef inline ColourMatrixArray _div_ColourMatrixArray_int(ColourMatrixArray self, int other):
+        cdef ColourMatrixArray out = ColourMatrixArray()
+        out.instance[0] = self.instance[0] / other
+        return out
+
+    cdef inline ColourMatrixArray _div_ColourMatrixArray_Complex(ColourMatrixArray self, Complex other):
+        cdef ColourMatrixArray out = ColourMatrixArray()
+        out.instance[0] = self.instance[0] / other.instance
         return out
 
 
@@ -786,14 +728,6 @@ cdef class LatticeColourMatrix:
         pass
 
     def __add__(self, other):
-        if isinstance(self, scalar_types):
-            self = float(self)
-        if isinstance(other, scalar_types):
-            other = float(other)
-        if isinstance(self, complex_types):
-            self = Complex(self.real, self.imag)
-        if isinstance(other, complex_types):
-            other = Complex(other.real, other.imag)
         if type(self) is LatticeColourMatrix and type(other) is ColourMatrix:
             return (<LatticeColourMatrix>self)._add_LatticeColourMatrix_ColourMatrix(<ColourMatrix>other)
         if type(self) is LatticeColourMatrix and type(other) is LatticeColourMatrix:
@@ -803,37 +737,23 @@ cdef class LatticeColourMatrix:
         raise TypeError("Unsupported operand types for LatticeColourMatrix.__add__: "
                         "{} and {}".format(type(self), type(other)))
 
-    cdef LatticeColourMatrix _add_LatticeColourMatrix_ColourMatrix(LatticeColourMatrix self, ColourMatrix other):
-        out = LatticeColourMatrix()
-        cdef lattice_colour_matrix.LatticeColourMatrix* cpp_out = new lattice_colour_matrix.LatticeColourMatrix()
-        cpp_out[0] = self.instance[0] + other.instance[0]
-        out.instance = cpp_out
+    cdef inline LatticeColourMatrix _add_LatticeColourMatrix_ColourMatrix(LatticeColourMatrix self, ColourMatrix other):
+        cdef LatticeColourMatrix out = LatticeColourMatrix()
+        out.instance[0] = self.instance[0] + other.instance[0]
         return out
 
-    cdef LatticeColourMatrix _add_LatticeColourMatrix_LatticeColourMatrix(LatticeColourMatrix self, LatticeColourMatrix other):
-        out = LatticeColourMatrix()
-        cdef lattice_colour_matrix.LatticeColourMatrix* cpp_out = new lattice_colour_matrix.LatticeColourMatrix()
-        cpp_out[0] = self.instance[0] + other.instance[0]
-        out.instance = cpp_out
+    cdef inline LatticeColourMatrix _add_LatticeColourMatrix_LatticeColourMatrix(LatticeColourMatrix self, LatticeColourMatrix other):
+        cdef LatticeColourMatrix out = LatticeColourMatrix()
+        out.instance[0] = self.instance[0] + other.instance[0]
         return out
 
-    cdef GaugeField _add_LatticeColourMatrix_GaugeField(LatticeColourMatrix self, GaugeField other):
-        out = GaugeField()
-        cdef gauge_field.GaugeField* cpp_out = new gauge_field.GaugeField()
-        cpp_out[0] = self.instance[0] + other.instance[0]
-        out.instance = cpp_out
+    cdef inline GaugeField _add_LatticeColourMatrix_GaugeField(LatticeColourMatrix self, GaugeField other):
+        cdef GaugeField out = GaugeField()
+        out.instance[0] = self.instance[0] + other.instance[0]
         return out
 
 
     def __sub__(self, other):
-        if isinstance(self, scalar_types):
-            self = float(self)
-        if isinstance(other, scalar_types):
-            other = float(other)
-        if isinstance(self, complex_types):
-            self = Complex(self.real, self.imag)
-        if isinstance(other, complex_types):
-            other = Complex(other.real, other.imag)
         if type(self) is LatticeColourMatrix and type(other) is ColourMatrix:
             return (<LatticeColourMatrix>self)._sub_LatticeColourMatrix_ColourMatrix(<ColourMatrix>other)
         if type(self) is LatticeColourMatrix and type(other) is LatticeColourMatrix:
@@ -841,34 +761,34 @@ cdef class LatticeColourMatrix:
         raise TypeError("Unsupported operand types for LatticeColourMatrix.__sub__: "
                         "{} and {}".format(type(self), type(other)))
 
-    cdef LatticeColourMatrix _sub_LatticeColourMatrix_ColourMatrix(LatticeColourMatrix self, ColourMatrix other):
-        out = LatticeColourMatrix()
-        cdef lattice_colour_matrix.LatticeColourMatrix* cpp_out = new lattice_colour_matrix.LatticeColourMatrix()
-        cpp_out[0] = self.instance[0] - other.instance[0]
-        out.instance = cpp_out
+    cdef inline LatticeColourMatrix _sub_LatticeColourMatrix_ColourMatrix(LatticeColourMatrix self, ColourMatrix other):
+        cdef LatticeColourMatrix out = LatticeColourMatrix()
+        out.instance[0] = self.instance[0] - other.instance[0]
         return out
 
-    cdef LatticeColourMatrix _sub_LatticeColourMatrix_LatticeColourMatrix(LatticeColourMatrix self, LatticeColourMatrix other):
-        out = LatticeColourMatrix()
-        cdef lattice_colour_matrix.LatticeColourMatrix* cpp_out = new lattice_colour_matrix.LatticeColourMatrix()
-        cpp_out[0] = self.instance[0] - other.instance[0]
-        out.instance = cpp_out
+    cdef inline LatticeColourMatrix _sub_LatticeColourMatrix_LatticeColourMatrix(LatticeColourMatrix self, LatticeColourMatrix other):
+        cdef LatticeColourMatrix out = LatticeColourMatrix()
+        out.instance[0] = self.instance[0] - other.instance[0]
         return out
 
 
     def __mul__(self, other):
-        if isinstance(self, scalar_types):
-            self = float(self)
-        if isinstance(other, scalar_types):
-            other = float(other)
-        if isinstance(self, complex_types):
-            self = Complex(self.real, self.imag)
-        if isinstance(other, complex_types):
-            other = Complex(other.real, other.imag)
+        #if isinstance(self, scalar_types):
+        #    self = <double>(self)
+        #if isinstance(other, scalar_types):
+        #    other = <double>(other)
+        #if hasattr(self, 'real') and hasattr(self, 'imag'):
+        #    self = Complex(self.real, self.imag)
+        #if isinstance(other, complex_types):
+        #    other = Complex(other.real, other.imag)
         if type(self) is float and type(other) is LatticeColourMatrix:
             return (<LatticeColourMatrix>other)._mul_LatticeColourMatrix_float(<float>self)
         if type(self) is LatticeColourMatrix and type(other) is float:
             return (<LatticeColourMatrix>self)._mul_LatticeColourMatrix_float(<float>other)
+        if type(self) is int and type(other) is LatticeColourMatrix:
+            return (<LatticeColourMatrix>other)._mul_LatticeColourMatrix_int(<int>self)
+        if type(self) is LatticeColourMatrix and type(other) is int:
+            return (<LatticeColourMatrix>self)._mul_LatticeColourMatrix_int(<int>other)
         if type(self) is Complex and type(other) is LatticeColourMatrix:
             return (<LatticeColourMatrix>other)._mul_LatticeColourMatrix_Complex(<Complex>self)
         if type(self) is LatticeColourMatrix and type(other) is Complex:
@@ -888,91 +808,83 @@ cdef class LatticeColourMatrix:
         raise TypeError("Unsupported operand types for LatticeColourMatrix.__mul__: "
                         "{} and {}".format(type(self), type(other)))
 
-    cdef LatticeColourMatrix _mul_LatticeColourMatrix_float(LatticeColourMatrix self, float other):
-        out = LatticeColourMatrix()
-        cdef lattice_colour_matrix.LatticeColourMatrix* cpp_out = new lattice_colour_matrix.LatticeColourMatrix()
-        cpp_out[0] = self.instance[0] * other
-        out.instance = cpp_out
+    cdef inline LatticeColourMatrix _mul_LatticeColourMatrix_float(LatticeColourMatrix self, float other):
+        cdef LatticeColourMatrix out = LatticeColourMatrix()
+        out.instance[0] = self.instance[0] * other
         return out
 
-    cdef LatticeColourMatrix _mul_LatticeColourMatrix_Complex(LatticeColourMatrix self, Complex other):
-        out = LatticeColourMatrix()
-        cdef lattice_colour_matrix.LatticeColourMatrix* cpp_out = new lattice_colour_matrix.LatticeColourMatrix()
-        cpp_out[0] = self.instance[0] * other.instance
-        out.instance = cpp_out
+    cdef inline LatticeColourMatrix _mul_LatticeColourMatrix_int(LatticeColourMatrix self, int other):
+        cdef LatticeColourMatrix out = LatticeColourMatrix()
+        out.instance[0] = self.instance[0] * other
         return out
 
-    cdef LatticeColourMatrix _mul_LatticeColourMatrix_ColourMatrix(LatticeColourMatrix self, ColourMatrix other):
-        out = LatticeColourMatrix()
-        cdef lattice_colour_matrix.LatticeColourMatrix* cpp_out = new lattice_colour_matrix.LatticeColourMatrix()
-        cpp_out[0] = self.instance[0] * other.instance[0]
-        out.instance = cpp_out
+    cdef inline LatticeColourMatrix _mul_LatticeColourMatrix_Complex(LatticeColourMatrix self, Complex other):
+        cdef LatticeColourMatrix out = LatticeColourMatrix()
+        out.instance[0] = self.instance[0] * other.instance
         return out
 
-    cdef LatticeColourMatrix _mul_LatticeColourMatrix_LatticeColourMatrix(LatticeColourMatrix self, LatticeColourMatrix other):
-        out = LatticeColourMatrix()
-        cdef lattice_colour_matrix.LatticeColourMatrix* cpp_out = new lattice_colour_matrix.LatticeColourMatrix()
-        cpp_out[0] = self.instance[0] * other.instance[0]
-        out.instance = cpp_out
+    cdef inline LatticeColourMatrix _mul_LatticeColourMatrix_ColourMatrix(LatticeColourMatrix self, ColourMatrix other):
+        cdef LatticeColourMatrix out = LatticeColourMatrix()
+        out.instance[0] = self.instance[0] * other.instance[0]
         return out
 
-    cdef GaugeField _mul_LatticeColourMatrix_GaugeField(LatticeColourMatrix self, GaugeField other):
-        out = GaugeField()
-        cdef gauge_field.GaugeField* cpp_out = new gauge_field.GaugeField()
-        cpp_out[0] = self.instance[0] * other.instance[0]
-        out.instance = cpp_out
+    cdef inline LatticeColourMatrix _mul_LatticeColourMatrix_LatticeColourMatrix(LatticeColourMatrix self, LatticeColourMatrix other):
+        cdef LatticeColourMatrix out = LatticeColourMatrix()
+        out.instance[0] = self.instance[0] * other.instance[0]
         return out
 
-    cdef LatticeColourVector _mul_LatticeColourMatrix_ColourVector(LatticeColourMatrix self, ColourVector other):
-        out = LatticeColourVector()
-        cdef lattice_colour_vector.LatticeColourVector* cpp_out = new lattice_colour_vector.LatticeColourVector()
-        cpp_out[0] = self.instance[0] * other.instance[0]
-        out.instance = cpp_out
+    cdef inline GaugeField _mul_LatticeColourMatrix_GaugeField(LatticeColourMatrix self, GaugeField other):
+        cdef GaugeField out = GaugeField()
+        out.instance[0] = self.instance[0] * other.instance[0]
         return out
 
-    cdef LatticeColourVector _mul_LatticeColourMatrix_LatticeColourVector(LatticeColourMatrix self, LatticeColourVector other):
-        out = LatticeColourVector()
-        cdef lattice_colour_vector.LatticeColourVector* cpp_out = new lattice_colour_vector.LatticeColourVector()
-        cpp_out[0] = self.instance[0] * other.instance[0]
-        out.instance = cpp_out
+    cdef inline LatticeColourVector _mul_LatticeColourMatrix_ColourVector(LatticeColourMatrix self, ColourVector other):
+        cdef LatticeColourVector out = LatticeColourVector()
+        out.instance[0] = self.instance[0] * other.instance[0]
         return out
 
-    cdef FermionField _mul_LatticeColourMatrix_FermionField(LatticeColourMatrix self, FermionField other):
-        out = FermionField()
-        cdef fermion_field.FermionField* cpp_out = new fermion_field.FermionField()
-        cpp_out[0] = self.instance[0] * other.instance[0]
-        out.instance = cpp_out
+    cdef inline LatticeColourVector _mul_LatticeColourMatrix_LatticeColourVector(LatticeColourMatrix self, LatticeColourVector other):
+        cdef LatticeColourVector out = LatticeColourVector()
+        out.instance[0] = self.instance[0] * other.instance[0]
+        return out
+
+    cdef inline FermionField _mul_LatticeColourMatrix_FermionField(LatticeColourMatrix self, FermionField other):
+        cdef FermionField out = FermionField()
+        out.instance[0] = self.instance[0] * other.instance[0]
         return out
 
 
     def __div__(self, other):
-        if isinstance(self, scalar_types):
-            self = float(self)
-        if isinstance(other, scalar_types):
-            other = float(other)
-        if isinstance(self, complex_types):
-            self = Complex(self.real, self.imag)
-        if isinstance(other, complex_types):
-            other = Complex(other.real, other.imag)
+        #if isinstance(self, scalar_types):
+        #    self = <double>(self)
+        #if isinstance(other, scalar_types):
+        #    other = <double>(other)
+        #if hasattr(self, 'real') and hasattr(self, 'imag'):
+        #    self = Complex(self.real, self.imag)
+        #if isinstance(other, complex_types):
+        #    other = Complex(other.real, other.imag)
         if type(self) is LatticeColourMatrix and type(other) is float:
             return (<LatticeColourMatrix>self)._div_LatticeColourMatrix_float(<float>other)
+        if type(self) is LatticeColourMatrix and type(other) is int:
+            return (<LatticeColourMatrix>self)._div_LatticeColourMatrix_int(<int>other)
         if type(self) is LatticeColourMatrix and type(other) is Complex:
             return (<LatticeColourMatrix>self)._div_LatticeColourMatrix_Complex(<Complex>other)
         raise TypeError("Unsupported operand types for LatticeColourMatrix.__div__: "
                         "{} and {}".format(type(self), type(other)))
 
-    cdef LatticeColourMatrix _div_LatticeColourMatrix_float(LatticeColourMatrix self, float other):
-        out = LatticeColourMatrix()
-        cdef lattice_colour_matrix.LatticeColourMatrix* cpp_out = new lattice_colour_matrix.LatticeColourMatrix()
-        cpp_out[0] = self.instance[0] / other
-        out.instance = cpp_out
+    cdef inline LatticeColourMatrix _div_LatticeColourMatrix_float(LatticeColourMatrix self, float other):
+        cdef LatticeColourMatrix out = LatticeColourMatrix()
+        out.instance[0] = self.instance[0] / other
         return out
 
-    cdef LatticeColourMatrix _div_LatticeColourMatrix_Complex(LatticeColourMatrix self, Complex other):
-        out = LatticeColourMatrix()
-        cdef lattice_colour_matrix.LatticeColourMatrix* cpp_out = new lattice_colour_matrix.LatticeColourMatrix()
-        cpp_out[0] = self.instance[0] / other.instance
-        out.instance = cpp_out
+    cdef inline LatticeColourMatrix _div_LatticeColourMatrix_int(LatticeColourMatrix self, int other):
+        cdef LatticeColourMatrix out = LatticeColourMatrix()
+        out.instance[0] = self.instance[0] / other
+        return out
+
+    cdef inline LatticeColourMatrix _div_LatticeColourMatrix_Complex(LatticeColourMatrix self, Complex other):
+        cdef LatticeColourMatrix out = LatticeColourMatrix()
+        out.instance[0] = self.instance[0] / other.instance
         return out
 
 
@@ -1097,14 +1009,6 @@ cdef class ColourVector:
         return out
 
     def __add__(self, other):
-        if isinstance(self, scalar_types):
-            self = float(self)
-        if isinstance(other, scalar_types):
-            other = float(other)
-        if isinstance(self, complex_types):
-            self = Complex(self.real, self.imag)
-        if isinstance(other, complex_types):
-            other = Complex(other.real, other.imag)
         if type(self) is ColourVector and type(other) is ColourVector:
             return (<ColourVector>self)._add_ColourVector_ColourVector(<ColourVector>other)
         if type(self) is ColourVector and type(other) is Fermion:
@@ -1116,70 +1020,56 @@ cdef class ColourVector:
         raise TypeError("Unsupported operand types for ColourVector.__add__: "
                         "{} and {}".format(type(self), type(other)))
 
-    cdef ColourVector _add_ColourVector_ColourVector(ColourVector self, ColourVector other):
-        out = ColourVector()
-        cdef colour_vector.ColourVector* cpp_out = new colour_vector.ColourVector()
-        cpp_out[0] = self.instance[0] + other.instance[0]
-        out.instance = cpp_out
+    cdef inline ColourVector _add_ColourVector_ColourVector(ColourVector self, ColourVector other):
+        cdef ColourVector out = ColourVector()
+        out.instance[0] = self.instance[0] + other.instance[0]
         return out
 
-    cdef Fermion _add_ColourVector_Fermion(ColourVector self, Fermion other):
-        out = Fermion()
-        cdef fermion.Fermion* cpp_out = new fermion.Fermion()
-        cpp_out[0] = self.instance[0] + other.instance[0]
-        out.instance = cpp_out
+    cdef inline Fermion _add_ColourVector_Fermion(ColourVector self, Fermion other):
+        cdef Fermion out = Fermion()
+        out.instance[0] = self.instance[0] + other.instance[0]
         return out
 
-    cdef LatticeColourVector _add_ColourVector_LatticeColourVector(ColourVector self, LatticeColourVector other):
-        out = LatticeColourVector()
-        cdef lattice_colour_vector.LatticeColourVector* cpp_out = new lattice_colour_vector.LatticeColourVector()
-        cpp_out[0] = self.instance[0] + other.instance[0]
-        out.instance = cpp_out
+    cdef inline LatticeColourVector _add_ColourVector_LatticeColourVector(ColourVector self, LatticeColourVector other):
+        cdef LatticeColourVector out = LatticeColourVector()
+        out.instance[0] = self.instance[0] + other.instance[0]
         return out
 
-    cdef FermionField _add_ColourVector_FermionField(ColourVector self, FermionField other):
-        out = FermionField()
-        cdef fermion_field.FermionField* cpp_out = new fermion_field.FermionField()
-        cpp_out[0] = self.instance[0] + other.instance[0]
-        out.instance = cpp_out
+    cdef inline FermionField _add_ColourVector_FermionField(ColourVector self, FermionField other):
+        cdef FermionField out = FermionField()
+        out.instance[0] = self.instance[0] + other.instance[0]
         return out
 
 
     def __sub__(self, other):
-        if isinstance(self, scalar_types):
-            self = float(self)
-        if isinstance(other, scalar_types):
-            other = float(other)
-        if isinstance(self, complex_types):
-            self = Complex(self.real, self.imag)
-        if isinstance(other, complex_types):
-            other = Complex(other.real, other.imag)
         if type(self) is ColourVector and type(other) is ColourVector:
             return (<ColourVector>self)._sub_ColourVector_ColourVector(<ColourVector>other)
         raise TypeError("Unsupported operand types for ColourVector.__sub__: "
                         "{} and {}".format(type(self), type(other)))
 
-    cdef ColourVector _sub_ColourVector_ColourVector(ColourVector self, ColourVector other):
-        out = ColourVector()
-        cdef colour_vector.ColourVector* cpp_out = new colour_vector.ColourVector()
-        cpp_out[0] = self.instance[0] - other.instance[0]
-        out.instance = cpp_out
+    cdef inline ColourVector _sub_ColourVector_ColourVector(ColourVector self, ColourVector other):
+        cdef ColourVector out = ColourVector()
+        out.instance[0] = self.instance[0] - other.instance[0]
         return out
 
 
     def __mul__(self, other):
-        if isinstance(self, scalar_types):
-            self = float(self)
-        if isinstance(other, scalar_types):
-            other = float(other)
-        if isinstance(self, complex_types):
-            self = Complex(self.real, self.imag)
-        if isinstance(other, complex_types):
-            other = Complex(other.real, other.imag)
+        #if isinstance(self, scalar_types):
+        #    self = <double>(self)
+        #if isinstance(other, scalar_types):
+        #    other = <double>(other)
+        #if hasattr(self, 'real') and hasattr(self, 'imag'):
+        #    self = Complex(self.real, self.imag)
+        #if isinstance(other, complex_types):
+        #    other = Complex(other.real, other.imag)
         if type(self) is float and type(other) is ColourVector:
             return (<ColourVector>other)._mul_ColourVector_float(<float>self)
         if type(self) is ColourVector and type(other) is float:
             return (<ColourVector>self)._mul_ColourVector_float(<float>other)
+        if type(self) is int and type(other) is ColourVector:
+            return (<ColourVector>other)._mul_ColourVector_int(<int>self)
+        if type(self) is ColourVector and type(other) is int:
+            return (<ColourVector>self)._mul_ColourVector_int(<int>other)
         if type(self) is Complex and type(other) is ColourVector:
             return (<ColourVector>other)._mul_ColourVector_Complex(<Complex>self)
         if type(self) is ColourVector and type(other) is Complex:
@@ -1187,49 +1077,53 @@ cdef class ColourVector:
         raise TypeError("Unsupported operand types for ColourVector.__mul__: "
                         "{} and {}".format(type(self), type(other)))
 
-    cdef ColourVector _mul_ColourVector_float(ColourVector self, float other):
-        out = ColourVector()
-        cdef colour_vector.ColourVector* cpp_out = new colour_vector.ColourVector()
-        cpp_out[0] = self.instance[0] * other
-        out.instance = cpp_out
+    cdef inline ColourVector _mul_ColourVector_float(ColourVector self, float other):
+        cdef ColourVector out = ColourVector()
+        out.instance[0] = self.instance[0] * other
         return out
 
-    cdef ColourVector _mul_ColourVector_Complex(ColourVector self, Complex other):
-        out = ColourVector()
-        cdef colour_vector.ColourVector* cpp_out = new colour_vector.ColourVector()
-        cpp_out[0] = self.instance[0] * other.instance
-        out.instance = cpp_out
+    cdef inline ColourVector _mul_ColourVector_int(ColourVector self, int other):
+        cdef ColourVector out = ColourVector()
+        out.instance[0] = self.instance[0] * other
+        return out
+
+    cdef inline ColourVector _mul_ColourVector_Complex(ColourVector self, Complex other):
+        cdef ColourVector out = ColourVector()
+        out.instance[0] = self.instance[0] * other.instance
         return out
 
 
     def __div__(self, other):
-        if isinstance(self, scalar_types):
-            self = float(self)
-        if isinstance(other, scalar_types):
-            other = float(other)
-        if isinstance(self, complex_types):
-            self = Complex(self.real, self.imag)
-        if isinstance(other, complex_types):
-            other = Complex(other.real, other.imag)
+        #if isinstance(self, scalar_types):
+        #    self = <double>(self)
+        #if isinstance(other, scalar_types):
+        #    other = <double>(other)
+        #if hasattr(self, 'real') and hasattr(self, 'imag'):
+        #    self = Complex(self.real, self.imag)
+        #if isinstance(other, complex_types):
+        #    other = Complex(other.real, other.imag)
         if type(self) is ColourVector and type(other) is float:
             return (<ColourVector>self)._div_ColourVector_float(<float>other)
+        if type(self) is ColourVector and type(other) is int:
+            return (<ColourVector>self)._div_ColourVector_int(<int>other)
         if type(self) is ColourVector and type(other) is Complex:
             return (<ColourVector>self)._div_ColourVector_Complex(<Complex>other)
         raise TypeError("Unsupported operand types for ColourVector.__div__: "
                         "{} and {}".format(type(self), type(other)))
 
-    cdef ColourVector _div_ColourVector_float(ColourVector self, float other):
-        out = ColourVector()
-        cdef colour_vector.ColourVector* cpp_out = new colour_vector.ColourVector()
-        cpp_out[0] = self.instance[0] / other
-        out.instance = cpp_out
+    cdef inline ColourVector _div_ColourVector_float(ColourVector self, float other):
+        cdef ColourVector out = ColourVector()
+        out.instance[0] = self.instance[0] / other
         return out
 
-    cdef ColourVector _div_ColourVector_Complex(ColourVector self, Complex other):
-        out = ColourVector()
-        cdef colour_vector.ColourVector* cpp_out = new colour_vector.ColourVector()
-        cpp_out[0] = self.instance[0] / other.instance
-        out.instance = cpp_out
+    cdef inline ColourVector _div_ColourVector_int(ColourVector self, int other):
+        cdef ColourVector out = ColourVector()
+        out.instance[0] = self.instance[0] / other
+        return out
+
+    cdef inline ColourVector _div_ColourVector_Complex(ColourVector self, Complex other):
+        cdef ColourVector out = ColourVector()
+        out.instance[0] = self.instance[0] / other.instance
         return out
 
 
@@ -1369,14 +1263,6 @@ cdef class Fermion:
         return (self.size, 3,)
 
     def __add__(self, other):
-        if isinstance(self, scalar_types):
-            self = float(self)
-        if isinstance(other, scalar_types):
-            other = float(other)
-        if isinstance(self, complex_types):
-            self = Complex(self.real, self.imag)
-        if isinstance(other, complex_types):
-            other = Complex(other.real, other.imag)
         if type(self) is Fermion and type(other) is ColourVector:
             return (<Fermion>self)._add_Fermion_ColourVector(<ColourVector>other)
         if type(self) is Fermion and type(other) is Fermion:
@@ -1384,30 +1270,18 @@ cdef class Fermion:
         raise TypeError("Unsupported operand types for Fermion.__add__: "
                         "{} and {}".format(type(self), type(other)))
 
-    cdef Fermion _add_Fermion_ColourVector(Fermion self, ColourVector other):
-        out = Fermion()
-        cdef fermion.Fermion* cpp_out = new fermion.Fermion()
-        cpp_out[0] = self.instance[0] + other.instance[0]
-        out.instance = cpp_out
+    cdef inline Fermion _add_Fermion_ColourVector(Fermion self, ColourVector other):
+        cdef Fermion out = Fermion()
+        out.instance[0] = self.instance[0] + other.instance[0]
         return out
 
-    cdef Fermion _add_Fermion_Fermion(Fermion self, Fermion other):
-        out = Fermion()
-        cdef fermion.Fermion* cpp_out = new fermion.Fermion()
-        cpp_out[0] = self.instance[0] + other.instance[0]
-        out.instance = cpp_out
+    cdef inline Fermion _add_Fermion_Fermion(Fermion self, Fermion other):
+        cdef Fermion out = Fermion()
+        out.instance[0] = self.instance[0] + other.instance[0]
         return out
 
 
     def __sub__(self, other):
-        if isinstance(self, scalar_types):
-            self = float(self)
-        if isinstance(other, scalar_types):
-            other = float(other)
-        if isinstance(self, complex_types):
-            self = Complex(self.real, self.imag)
-        if isinstance(other, complex_types):
-            other = Complex(other.real, other.imag)
         if type(self) is Fermion and type(other) is ColourVector:
             return (<Fermion>self)._sub_Fermion_ColourVector(<ColourVector>other)
         if type(self) is Fermion and type(other) is Fermion:
@@ -1415,34 +1289,34 @@ cdef class Fermion:
         raise TypeError("Unsupported operand types for Fermion.__sub__: "
                         "{} and {}".format(type(self), type(other)))
 
-    cdef Fermion _sub_Fermion_ColourVector(Fermion self, ColourVector other):
-        out = Fermion()
-        cdef fermion.Fermion* cpp_out = new fermion.Fermion()
-        cpp_out[0] = self.instance[0] - other.instance[0]
-        out.instance = cpp_out
+    cdef inline Fermion _sub_Fermion_ColourVector(Fermion self, ColourVector other):
+        cdef Fermion out = Fermion()
+        out.instance[0] = self.instance[0] - other.instance[0]
         return out
 
-    cdef Fermion _sub_Fermion_Fermion(Fermion self, Fermion other):
-        out = Fermion()
-        cdef fermion.Fermion* cpp_out = new fermion.Fermion()
-        cpp_out[0] = self.instance[0] - other.instance[0]
-        out.instance = cpp_out
+    cdef inline Fermion _sub_Fermion_Fermion(Fermion self, Fermion other):
+        cdef Fermion out = Fermion()
+        out.instance[0] = self.instance[0] - other.instance[0]
         return out
 
 
     def __mul__(self, other):
-        if isinstance(self, scalar_types):
-            self = float(self)
-        if isinstance(other, scalar_types):
-            other = float(other)
-        if isinstance(self, complex_types):
-            self = Complex(self.real, self.imag)
-        if isinstance(other, complex_types):
-            other = Complex(other.real, other.imag)
+        #if isinstance(self, scalar_types):
+        #    self = <double>(self)
+        #if isinstance(other, scalar_types):
+        #    other = <double>(other)
+        #if hasattr(self, 'real') and hasattr(self, 'imag'):
+        #    self = Complex(self.real, self.imag)
+        #if isinstance(other, complex_types):
+        #    other = Complex(other.real, other.imag)
         if type(self) is float and type(other) is Fermion:
             return (<Fermion>other)._mul_Fermion_float(<float>self)
         if type(self) is Fermion and type(other) is float:
             return (<Fermion>self)._mul_Fermion_float(<float>other)
+        if type(self) is int and type(other) is Fermion:
+            return (<Fermion>other)._mul_Fermion_int(<int>self)
+        if type(self) is Fermion and type(other) is int:
+            return (<Fermion>self)._mul_Fermion_int(<int>other)
         if type(self) is Complex and type(other) is Fermion:
             return (<Fermion>other)._mul_Fermion_Complex(<Complex>self)
         if type(self) is Fermion and type(other) is Complex:
@@ -1450,49 +1324,53 @@ cdef class Fermion:
         raise TypeError("Unsupported operand types for Fermion.__mul__: "
                         "{} and {}".format(type(self), type(other)))
 
-    cdef Fermion _mul_Fermion_float(Fermion self, float other):
-        out = Fermion()
-        cdef fermion.Fermion* cpp_out = new fermion.Fermion()
-        cpp_out[0] = self.instance[0] * other
-        out.instance = cpp_out
+    cdef inline Fermion _mul_Fermion_float(Fermion self, float other):
+        cdef Fermion out = Fermion()
+        out.instance[0] = self.instance[0] * other
         return out
 
-    cdef Fermion _mul_Fermion_Complex(Fermion self, Complex other):
-        out = Fermion()
-        cdef fermion.Fermion* cpp_out = new fermion.Fermion()
-        cpp_out[0] = self.instance[0] * other.instance
-        out.instance = cpp_out
+    cdef inline Fermion _mul_Fermion_int(Fermion self, int other):
+        cdef Fermion out = Fermion()
+        out.instance[0] = self.instance[0] * other
+        return out
+
+    cdef inline Fermion _mul_Fermion_Complex(Fermion self, Complex other):
+        cdef Fermion out = Fermion()
+        out.instance[0] = self.instance[0] * other.instance
         return out
 
 
     def __div__(self, other):
-        if isinstance(self, scalar_types):
-            self = float(self)
-        if isinstance(other, scalar_types):
-            other = float(other)
-        if isinstance(self, complex_types):
-            self = Complex(self.real, self.imag)
-        if isinstance(other, complex_types):
-            other = Complex(other.real, other.imag)
+        #if isinstance(self, scalar_types):
+        #    self = <double>(self)
+        #if isinstance(other, scalar_types):
+        #    other = <double>(other)
+        #if hasattr(self, 'real') and hasattr(self, 'imag'):
+        #    self = Complex(self.real, self.imag)
+        #if isinstance(other, complex_types):
+        #    other = Complex(other.real, other.imag)
         if type(self) is Fermion and type(other) is float:
             return (<Fermion>self)._div_Fermion_float(<float>other)
+        if type(self) is Fermion and type(other) is int:
+            return (<Fermion>self)._div_Fermion_int(<int>other)
         if type(self) is Fermion and type(other) is Complex:
             return (<Fermion>self)._div_Fermion_Complex(<Complex>other)
         raise TypeError("Unsupported operand types for Fermion.__div__: "
                         "{} and {}".format(type(self), type(other)))
 
-    cdef Fermion _div_Fermion_float(Fermion self, float other):
-        out = Fermion()
-        cdef fermion.Fermion* cpp_out = new fermion.Fermion()
-        cpp_out[0] = self.instance[0] / other
-        out.instance = cpp_out
+    cdef inline Fermion _div_Fermion_float(Fermion self, float other):
+        cdef Fermion out = Fermion()
+        out.instance[0] = self.instance[0] / other
         return out
 
-    cdef Fermion _div_Fermion_Complex(Fermion self, Complex other):
-        out = Fermion()
-        cdef fermion.Fermion* cpp_out = new fermion.Fermion()
-        cpp_out[0] = self.instance[0] / other.instance
-        out.instance = cpp_out
+    cdef inline Fermion _div_Fermion_int(Fermion self, int other):
+        cdef Fermion out = Fermion()
+        out.instance[0] = self.instance[0] / other
+        return out
+
+    cdef inline Fermion _div_Fermion_Complex(Fermion self, Complex other):
+        cdef Fermion out = Fermion()
+        out.instance[0] = self.instance[0] / other.instance
         return out
 
 
@@ -1566,14 +1444,6 @@ cdef class LatticeColourVector:
         pass
 
     def __add__(self, other):
-        if isinstance(self, scalar_types):
-            self = float(self)
-        if isinstance(other, scalar_types):
-            other = float(other)
-        if isinstance(self, complex_types):
-            self = Complex(self.real, self.imag)
-        if isinstance(other, complex_types):
-            other = Complex(other.real, other.imag)
         if type(self) is LatticeColourVector and type(other) is ColourVector:
             return (<LatticeColourVector>self)._add_LatticeColourVector_ColourVector(<ColourVector>other)
         if type(self) is LatticeColourVector and type(other) is LatticeColourVector:
@@ -1583,37 +1453,23 @@ cdef class LatticeColourVector:
         raise TypeError("Unsupported operand types for LatticeColourVector.__add__: "
                         "{} and {}".format(type(self), type(other)))
 
-    cdef LatticeColourVector _add_LatticeColourVector_ColourVector(LatticeColourVector self, ColourVector other):
-        out = LatticeColourVector()
-        cdef lattice_colour_vector.LatticeColourVector* cpp_out = new lattice_colour_vector.LatticeColourVector()
-        cpp_out[0] = self.instance[0] + other.instance[0]
-        out.instance = cpp_out
+    cdef inline LatticeColourVector _add_LatticeColourVector_ColourVector(LatticeColourVector self, ColourVector other):
+        cdef LatticeColourVector out = LatticeColourVector()
+        out.instance[0] = self.instance[0] + other.instance[0]
         return out
 
-    cdef LatticeColourVector _add_LatticeColourVector_LatticeColourVector(LatticeColourVector self, LatticeColourVector other):
-        out = LatticeColourVector()
-        cdef lattice_colour_vector.LatticeColourVector* cpp_out = new lattice_colour_vector.LatticeColourVector()
-        cpp_out[0] = self.instance[0] + other.instance[0]
-        out.instance = cpp_out
+    cdef inline LatticeColourVector _add_LatticeColourVector_LatticeColourVector(LatticeColourVector self, LatticeColourVector other):
+        cdef LatticeColourVector out = LatticeColourVector()
+        out.instance[0] = self.instance[0] + other.instance[0]
         return out
 
-    cdef FermionField _add_LatticeColourVector_FermionField(LatticeColourVector self, FermionField other):
-        out = FermionField()
-        cdef fermion_field.FermionField* cpp_out = new fermion_field.FermionField()
-        cpp_out[0] = self.instance[0] + other.instance[0]
-        out.instance = cpp_out
+    cdef inline FermionField _add_LatticeColourVector_FermionField(LatticeColourVector self, FermionField other):
+        cdef FermionField out = FermionField()
+        out.instance[0] = self.instance[0] + other.instance[0]
         return out
 
 
     def __sub__(self, other):
-        if isinstance(self, scalar_types):
-            self = float(self)
-        if isinstance(other, scalar_types):
-            other = float(other)
-        if isinstance(self, complex_types):
-            self = Complex(self.real, self.imag)
-        if isinstance(other, complex_types):
-            other = Complex(other.real, other.imag)
         if type(self) is LatticeColourVector and type(other) is ColourVector:
             return (<LatticeColourVector>self)._sub_LatticeColourVector_ColourVector(<ColourVector>other)
         if type(self) is LatticeColourVector and type(other) is LatticeColourVector:
@@ -1621,34 +1477,34 @@ cdef class LatticeColourVector:
         raise TypeError("Unsupported operand types for LatticeColourVector.__sub__: "
                         "{} and {}".format(type(self), type(other)))
 
-    cdef LatticeColourVector _sub_LatticeColourVector_ColourVector(LatticeColourVector self, ColourVector other):
-        out = LatticeColourVector()
-        cdef lattice_colour_vector.LatticeColourVector* cpp_out = new lattice_colour_vector.LatticeColourVector()
-        cpp_out[0] = self.instance[0] - other.instance[0]
-        out.instance = cpp_out
+    cdef inline LatticeColourVector _sub_LatticeColourVector_ColourVector(LatticeColourVector self, ColourVector other):
+        cdef LatticeColourVector out = LatticeColourVector()
+        out.instance[0] = self.instance[0] - other.instance[0]
         return out
 
-    cdef LatticeColourVector _sub_LatticeColourVector_LatticeColourVector(LatticeColourVector self, LatticeColourVector other):
-        out = LatticeColourVector()
-        cdef lattice_colour_vector.LatticeColourVector* cpp_out = new lattice_colour_vector.LatticeColourVector()
-        cpp_out[0] = self.instance[0] - other.instance[0]
-        out.instance = cpp_out
+    cdef inline LatticeColourVector _sub_LatticeColourVector_LatticeColourVector(LatticeColourVector self, LatticeColourVector other):
+        cdef LatticeColourVector out = LatticeColourVector()
+        out.instance[0] = self.instance[0] - other.instance[0]
         return out
 
 
     def __mul__(self, other):
-        if isinstance(self, scalar_types):
-            self = float(self)
-        if isinstance(other, scalar_types):
-            other = float(other)
-        if isinstance(self, complex_types):
-            self = Complex(self.real, self.imag)
-        if isinstance(other, complex_types):
-            other = Complex(other.real, other.imag)
+        #if isinstance(self, scalar_types):
+        #    self = <double>(self)
+        #if isinstance(other, scalar_types):
+        #    other = <double>(other)
+        #if hasattr(self, 'real') and hasattr(self, 'imag'):
+        #    self = Complex(self.real, self.imag)
+        #if isinstance(other, complex_types):
+        #    other = Complex(other.real, other.imag)
         if type(self) is float and type(other) is LatticeColourVector:
             return (<LatticeColourVector>other)._mul_LatticeColourVector_float(<float>self)
         if type(self) is LatticeColourVector and type(other) is float:
             return (<LatticeColourVector>self)._mul_LatticeColourVector_float(<float>other)
+        if type(self) is int and type(other) is LatticeColourVector:
+            return (<LatticeColourVector>other)._mul_LatticeColourVector_int(<int>self)
+        if type(self) is LatticeColourVector and type(other) is int:
+            return (<LatticeColourVector>self)._mul_LatticeColourVector_int(<int>other)
         if type(self) is Complex and type(other) is LatticeColourVector:
             return (<LatticeColourVector>other)._mul_LatticeColourVector_Complex(<Complex>self)
         if type(self) is LatticeColourVector and type(other) is Complex:
@@ -1656,49 +1512,53 @@ cdef class LatticeColourVector:
         raise TypeError("Unsupported operand types for LatticeColourVector.__mul__: "
                         "{} and {}".format(type(self), type(other)))
 
-    cdef LatticeColourVector _mul_LatticeColourVector_float(LatticeColourVector self, float other):
-        out = LatticeColourVector()
-        cdef lattice_colour_vector.LatticeColourVector* cpp_out = new lattice_colour_vector.LatticeColourVector()
-        cpp_out[0] = self.instance[0] * other
-        out.instance = cpp_out
+    cdef inline LatticeColourVector _mul_LatticeColourVector_float(LatticeColourVector self, float other):
+        cdef LatticeColourVector out = LatticeColourVector()
+        out.instance[0] = self.instance[0] * other
         return out
 
-    cdef LatticeColourVector _mul_LatticeColourVector_Complex(LatticeColourVector self, Complex other):
-        out = LatticeColourVector()
-        cdef lattice_colour_vector.LatticeColourVector* cpp_out = new lattice_colour_vector.LatticeColourVector()
-        cpp_out[0] = self.instance[0] * other.instance
-        out.instance = cpp_out
+    cdef inline LatticeColourVector _mul_LatticeColourVector_int(LatticeColourVector self, int other):
+        cdef LatticeColourVector out = LatticeColourVector()
+        out.instance[0] = self.instance[0] * other
+        return out
+
+    cdef inline LatticeColourVector _mul_LatticeColourVector_Complex(LatticeColourVector self, Complex other):
+        cdef LatticeColourVector out = LatticeColourVector()
+        out.instance[0] = self.instance[0] * other.instance
         return out
 
 
     def __div__(self, other):
-        if isinstance(self, scalar_types):
-            self = float(self)
-        if isinstance(other, scalar_types):
-            other = float(other)
-        if isinstance(self, complex_types):
-            self = Complex(self.real, self.imag)
-        if isinstance(other, complex_types):
-            other = Complex(other.real, other.imag)
+        #if isinstance(self, scalar_types):
+        #    self = <double>(self)
+        #if isinstance(other, scalar_types):
+        #    other = <double>(other)
+        #if hasattr(self, 'real') and hasattr(self, 'imag'):
+        #    self = Complex(self.real, self.imag)
+        #if isinstance(other, complex_types):
+        #    other = Complex(other.real, other.imag)
         if type(self) is LatticeColourVector and type(other) is float:
             return (<LatticeColourVector>self)._div_LatticeColourVector_float(<float>other)
+        if type(self) is LatticeColourVector and type(other) is int:
+            return (<LatticeColourVector>self)._div_LatticeColourVector_int(<int>other)
         if type(self) is LatticeColourVector and type(other) is Complex:
             return (<LatticeColourVector>self)._div_LatticeColourVector_Complex(<Complex>other)
         raise TypeError("Unsupported operand types for LatticeColourVector.__div__: "
                         "{} and {}".format(type(self), type(other)))
 
-    cdef LatticeColourVector _div_LatticeColourVector_float(LatticeColourVector self, float other):
-        out = LatticeColourVector()
-        cdef lattice_colour_vector.LatticeColourVector* cpp_out = new lattice_colour_vector.LatticeColourVector()
-        cpp_out[0] = self.instance[0] / other
-        out.instance = cpp_out
+    cdef inline LatticeColourVector _div_LatticeColourVector_float(LatticeColourVector self, float other):
+        cdef LatticeColourVector out = LatticeColourVector()
+        out.instance[0] = self.instance[0] / other
         return out
 
-    cdef LatticeColourVector _div_LatticeColourVector_Complex(LatticeColourVector self, Complex other):
-        out = LatticeColourVector()
-        cdef lattice_colour_vector.LatticeColourVector* cpp_out = new lattice_colour_vector.LatticeColourVector()
-        cpp_out[0] = self.instance[0] / other.instance
-        out.instance = cpp_out
+    cdef inline LatticeColourVector _div_LatticeColourVector_int(LatticeColourVector self, int other):
+        cdef LatticeColourVector out = LatticeColourVector()
+        out.instance[0] = self.instance[0] / other
+        return out
+
+    cdef inline LatticeColourVector _div_LatticeColourVector_Complex(LatticeColourVector self, Complex other):
+        cdef LatticeColourVector out = LatticeColourVector()
+        out.instance[0] = self.instance[0] / other.instance
         return out
 
 

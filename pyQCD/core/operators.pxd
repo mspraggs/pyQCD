@@ -13,48 +13,72 @@ cdef extern from "types.hpp":
     colour_matrix.ColourMatrix operator*(const double&, const colour_matrix.ColourMatrix&) except +
     colour_matrix.ColourMatrix operator*(const colour_matrix.ColourMatrix&, const double&) except +
     colour_matrix.ColourMatrix operator/(const colour_matrix.ColourMatrix&, const double&) except +
+    colour_matrix.ColourMatrix operator*(const int&, const colour_matrix.ColourMatrix&) except +
+    colour_matrix.ColourMatrix operator*(const colour_matrix.ColourMatrix&, const int&) except +
+    colour_matrix.ColourMatrix operator/(const colour_matrix.ColourMatrix&, const int&) except +
     colour_matrix.ColourMatrix operator*(const complex.Complex&, const colour_matrix.ColourMatrix&) except +
     colour_matrix.ColourMatrix operator*(const colour_matrix.ColourMatrix&, const complex.Complex&) except +
     colour_matrix.ColourMatrix operator/(const colour_matrix.ColourMatrix&, const complex.Complex&) except +
     colour_matrix_array.ColourMatrixArray operator*(const double&, const colour_matrix_array.ColourMatrixArray&) except +
     colour_matrix_array.ColourMatrixArray operator*(const colour_matrix_array.ColourMatrixArray&, const double&) except +
     colour_matrix_array.ColourMatrixArray operator/(const colour_matrix_array.ColourMatrixArray&, const double&) except +
+    colour_matrix_array.ColourMatrixArray operator*(const int&, const colour_matrix_array.ColourMatrixArray&) except +
+    colour_matrix_array.ColourMatrixArray operator*(const colour_matrix_array.ColourMatrixArray&, const int&) except +
+    colour_matrix_array.ColourMatrixArray operator/(const colour_matrix_array.ColourMatrixArray&, const int&) except +
     colour_matrix_array.ColourMatrixArray operator*(const complex.Complex&, const colour_matrix_array.ColourMatrixArray&) except +
     colour_matrix_array.ColourMatrixArray operator*(const colour_matrix_array.ColourMatrixArray&, const complex.Complex&) except +
     colour_matrix_array.ColourMatrixArray operator/(const colour_matrix_array.ColourMatrixArray&, const complex.Complex&) except +
     lattice_colour_matrix.LatticeColourMatrix operator*(const double&, const lattice_colour_matrix.LatticeColourMatrix&) except +
     lattice_colour_matrix.LatticeColourMatrix operator*(const lattice_colour_matrix.LatticeColourMatrix&, const double&) except +
     lattice_colour_matrix.LatticeColourMatrix operator/(const lattice_colour_matrix.LatticeColourMatrix&, const double&) except +
+    lattice_colour_matrix.LatticeColourMatrix operator*(const int&, const lattice_colour_matrix.LatticeColourMatrix&) except +
+    lattice_colour_matrix.LatticeColourMatrix operator*(const lattice_colour_matrix.LatticeColourMatrix&, const int&) except +
+    lattice_colour_matrix.LatticeColourMatrix operator/(const lattice_colour_matrix.LatticeColourMatrix&, const int&) except +
     lattice_colour_matrix.LatticeColourMatrix operator*(const complex.Complex&, const lattice_colour_matrix.LatticeColourMatrix&) except +
     lattice_colour_matrix.LatticeColourMatrix operator*(const lattice_colour_matrix.LatticeColourMatrix&, const complex.Complex&) except +
     lattice_colour_matrix.LatticeColourMatrix operator/(const lattice_colour_matrix.LatticeColourMatrix&, const complex.Complex&) except +
     gauge_field.GaugeField operator*(const double&, const gauge_field.GaugeField&) except +
     gauge_field.GaugeField operator*(const gauge_field.GaugeField&, const double&) except +
     gauge_field.GaugeField operator/(const gauge_field.GaugeField&, const double&) except +
+    gauge_field.GaugeField operator*(const int&, const gauge_field.GaugeField&) except +
+    gauge_field.GaugeField operator*(const gauge_field.GaugeField&, const int&) except +
+    gauge_field.GaugeField operator/(const gauge_field.GaugeField&, const int&) except +
     gauge_field.GaugeField operator*(const complex.Complex&, const gauge_field.GaugeField&) except +
     gauge_field.GaugeField operator*(const gauge_field.GaugeField&, const complex.Complex&) except +
     gauge_field.GaugeField operator/(const gauge_field.GaugeField&, const complex.Complex&) except +
     colour_vector.ColourVector operator*(const double&, const colour_vector.ColourVector&) except +
     colour_vector.ColourVector operator*(const colour_vector.ColourVector&, const double&) except +
     colour_vector.ColourVector operator/(const colour_vector.ColourVector&, const double&) except +
+    colour_vector.ColourVector operator*(const int&, const colour_vector.ColourVector&) except +
+    colour_vector.ColourVector operator*(const colour_vector.ColourVector&, const int&) except +
+    colour_vector.ColourVector operator/(const colour_vector.ColourVector&, const int&) except +
     colour_vector.ColourVector operator*(const complex.Complex&, const colour_vector.ColourVector&) except +
     colour_vector.ColourVector operator*(const colour_vector.ColourVector&, const complex.Complex&) except +
     colour_vector.ColourVector operator/(const colour_vector.ColourVector&, const complex.Complex&) except +
     fermion.Fermion operator*(const double&, const fermion.Fermion&) except +
     fermion.Fermion operator*(const fermion.Fermion&, const double&) except +
     fermion.Fermion operator/(const fermion.Fermion&, const double&) except +
+    fermion.Fermion operator*(const int&, const fermion.Fermion&) except +
+    fermion.Fermion operator*(const fermion.Fermion&, const int&) except +
+    fermion.Fermion operator/(const fermion.Fermion&, const int&) except +
     fermion.Fermion operator*(const complex.Complex&, const fermion.Fermion&) except +
     fermion.Fermion operator*(const fermion.Fermion&, const complex.Complex&) except +
     fermion.Fermion operator/(const fermion.Fermion&, const complex.Complex&) except +
     lattice_colour_vector.LatticeColourVector operator*(const double&, const lattice_colour_vector.LatticeColourVector&) except +
     lattice_colour_vector.LatticeColourVector operator*(const lattice_colour_vector.LatticeColourVector&, const double&) except +
     lattice_colour_vector.LatticeColourVector operator/(const lattice_colour_vector.LatticeColourVector&, const double&) except +
+    lattice_colour_vector.LatticeColourVector operator*(const int&, const lattice_colour_vector.LatticeColourVector&) except +
+    lattice_colour_vector.LatticeColourVector operator*(const lattice_colour_vector.LatticeColourVector&, const int&) except +
+    lattice_colour_vector.LatticeColourVector operator/(const lattice_colour_vector.LatticeColourVector&, const int&) except +
     lattice_colour_vector.LatticeColourVector operator*(const complex.Complex&, const lattice_colour_vector.LatticeColourVector&) except +
     lattice_colour_vector.LatticeColourVector operator*(const lattice_colour_vector.LatticeColourVector&, const complex.Complex&) except +
     lattice_colour_vector.LatticeColourVector operator/(const lattice_colour_vector.LatticeColourVector&, const complex.Complex&) except +
     fermion_field.FermionField operator*(const double&, const fermion_field.FermionField&) except +
     fermion_field.FermionField operator*(const fermion_field.FermionField&, const double&) except +
     fermion_field.FermionField operator/(const fermion_field.FermionField&, const double&) except +
+    fermion_field.FermionField operator*(const int&, const fermion_field.FermionField&) except +
+    fermion_field.FermionField operator*(const fermion_field.FermionField&, const int&) except +
+    fermion_field.FermionField operator/(const fermion_field.FermionField&, const int&) except +
     fermion_field.FermionField operator*(const complex.Complex&, const fermion_field.FermionField&) except +
     fermion_field.FermionField operator*(const fermion_field.FermionField&, const complex.Complex&) except +
     fermion_field.FermionField operator/(const fermion_field.FermionField&, const complex.Complex&) except +
