@@ -219,6 +219,17 @@ class TestMatrixArrayType(object):
         for index in np.ndindex(mat_arr.shape):
             assert mat_arr[index[0]][index[1:]] == mat_arr_data[index]
 
+    def test_setitem_getitem(self, MatrixArray, Matrix):
+        """Test value setting and getting"""
+        mat = Matrix.zeros()
+        mat_index = tuple(0 for i in Matrix.shape)
+        mat[mat_index] = 5.0
+        mat_arr = MatrixArray(4, Matrix.zeros())
+        mat_arr[0] = mat
+        assert mat_arr[0][mat_index] == 5.0 + 0.0j
+        mat_arr[(0,) + mat_index] = 3.0
+        assert mat_arr[(0,) + mat_index] == 3.0 + 0.0j
+
     def test_boundscheck(self, Matrix, MatrixArray):
         """Test bounds checking for matrix array type"""
         mat = Matrix.zeros()
