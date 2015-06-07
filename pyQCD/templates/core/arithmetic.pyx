@@ -1,12 +1,18 @@
+{# TODO: Refactor this so it's less of an eyesore #}
 {% macro arithmetic_ops(operators, typename, scalar_types, operator_map) %}
 {% for op, funcnames in operator_map.items() %}
-{% set ops = operators[(typename, op)] %}
+{# Set a couple of flags to determine if we have a complex lhs or rhs in our
+ # list of operators. #}
 {% set lhs_complex = False %}
 {% set rhs_complex = False %}
 {% for funcname in funcnames %}
     def __{{ funcname }}__(self, other):
-{% for ret, lhs, rhs, lhs_bcast, rhs_bcast in ops %}
+{# Loop through list of operations and use each item to write out type checking
+ # code and function calls #}
+{% for ret, lhs, rhs, lhs_bcast, rhs_bcast in operators[(typename, op)] %}
         if type(self) is {{ lhs }} and type(other) is {{ rhs }}:
+{# If self is a scalar type (e.g. float, Complex, etc.), switch lhs and rhs to
+ # call function where other is scalar #}
 {% if lhs in scalar_types or lhs == "Complex" %}
             return (<{{ typename }}>other)._{{ funcnames[0] }}_{{ rhs }}_{{ lhs }}(<{{ lhs }}>self)
 {% else %}
@@ -15,6 +21,8 @@
 {% set lhs_complex = True if op in "*/" and lhs == "Complex" else lhs_complex %}
 {% set rhs_complex = True if op in "*/" and rhs == "Complex" else rhs_complex %}
 {% if loop.last %}
+{# If we have complex types in the list of operations, tack on some code to
+ # handle general complex data types, such as the Python complex type #}
 {% if lhs_complex %}
         if hasattr(self, "real") and hasattr(self, "imag") and type(other) is {{ typename }}:
             return (<{{ typename }}>other)._{{ funcnames[0] }}_{{ typename }}_Complex(Complex(self.real, self.imag))
@@ -29,7 +37,9 @@
 {% endfor %}
 
 {% endfor %}
-{% for ret, lhs, rhs, lhs_bcast, rhs_bcast in ops %}
+{# Now write out the C functions to handle the above operations #}
+{% for ret, lhs, rhs, lhs_bcast, rhs_bcast in operators[(typename, op)] %}
+{# Don't bother with functions where self is scalar, as this is basically code duplication #}
 {% if lhs not in scalar_types and lhs != "Complex" %}
     cdef inline {{ ret }} _{{ funcnames[0] }}_{{ lhs }}_{{ rhs }}({{ lhs }} self, {{ rhs }} other):
 {% set lhs_op = "self.instance" + (".broadcast()" if lhs_bcast else "[0]") %}
