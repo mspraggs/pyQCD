@@ -15,6 +15,9 @@ install:
   - cmake .. -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
   - make
   - cd ..
+cache:
+  directories:
+    - /home/travis/virtualenv/python2.7/lib/python2.7/site-packages
 script: 
   - for f in build/pyQCD/test_*; do ./$f; done
   - py.test -vl
