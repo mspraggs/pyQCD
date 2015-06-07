@@ -20,7 +20,7 @@
             return (<{{ typename }}>other)._{{ funcnames[0] }}_{{ typename }}_Complex(Complex(self.real, self.imag))
 {% endif %}
 {% if rhs_complex %}
-        if type(self) is {{ lhs }} and hasattr(other, "real") and hasattr(other, "imag"):
+        if type(self) is {{ typename }} and hasattr(other, "real") and hasattr(other, "imag"):
             return (<{{ typename }}>self)._{{ funcnames[0] }}_{{ typename }}_Complex(Complex(other.real, other.imag))
 {% endif %}
         raise TypeError("Unsupported operand types for {{ typename }}.__{{ funcname }}__: "
