@@ -349,7 +349,17 @@ class TestLatticeMatrixType(object):
     def test_constructor(self, Matrix, LatticeMatrix):
         """Test constructor"""
         layout = LexicoLayout([8, 4, 4, 4])
-        lattice = LatticeMatrix(layout)
-        assert isinstance(lattice, LatticeMatrix)
-        lattice = LatticeMatrix(layout, Matrix.zeros())
-        assert isinstance(lattice, LatticeMatrix)
+        lat_mat = LatticeMatrix(layout)
+        assert isinstance(lat_mat, LatticeMatrix)
+        lat_mat = LatticeMatrix(layout, Matrix.zeros())
+        assert isinstance(lat_mat, LatticeMatrix)
+        assert lat_mat.num_dims == 4
+        assert lat_mat.volume == 8 * 4**3
+        assert lat_mat.lattice_shape == layout.lattice_shape
+        assert lat_mat.shape == layout.lattice_shape + Matrix.shape
+
+        lat_mat_data = np.arange(np.prod(Matrix.shape)).reshape(Matrix.shape)
+        lat_mat = LatticeMatrix(layout, Matrix(lat_mat_data))
+        assert isinstance(lat_mat, LatticeMatrix)
+        for index in np.ndindex(lat_mat.shape):
+            assert lat_mat[index[:4]][index[4:]] == lat_mat_data[index[4:]]
