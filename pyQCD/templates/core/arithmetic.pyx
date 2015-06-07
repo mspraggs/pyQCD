@@ -12,12 +12,8 @@
 {% else %}
             return (<{{ typename }}>self)._{{ funcnames[0] }}_{{ lhs }}_{{ rhs }}(<{{ rhs }}>other)
 {% endif %}
-{% if op in "*/" and lhs == "Complex" %}
-{% set lhs_complex = True %}
-{% endif %}
-{% if op in "*/" and rhs == "Complex" %}
-{% set rhs_complex = True %}
-{% endif %}
+{% set lhs_complex = True if op in "*/" and lhs == "Complex" else lhs_complex %}
+{% set rhs_complex = True if op in "*/" and rhs == "Complex" else rhs_complex %}
 {% if loop.last %}
 {% if lhs_complex %}
         if hasattr(self, "real") and hasattr(self, "imag") and type(other) is {{ typename }}:
