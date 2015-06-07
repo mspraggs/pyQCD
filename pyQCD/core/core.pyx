@@ -200,10 +200,13 @@ cdef class ColourMatrix:
     def __add__(self, other):
         if type(self) is ColourMatrix and type(other) is ColourMatrix:
             return (<ColourMatrix>self)._add_ColourMatrix_ColourMatrix(<ColourMatrix>other)
+
         if type(self) is ColourMatrix and type(other) is ColourMatrixArray:
             return (<ColourMatrix>self)._add_ColourMatrix_ColourMatrixArray(<ColourMatrixArray>other)
+
         if type(self) is ColourMatrix and type(other) is LatticeColourMatrix:
             return (<ColourMatrix>self)._add_ColourMatrix_LatticeColourMatrix(<LatticeColourMatrix>other)
+
         if type(self) is ColourMatrix and type(other) is GaugeField:
             return (<ColourMatrix>self)._add_ColourMatrix_GaugeField(<GaugeField>other)
         raise TypeError("Unsupported operand types for ColourMatrix.__add__: "
@@ -229,7 +232,6 @@ cdef class ColourMatrix:
         out.instance[0] = self.instance[0] + other.instance[0]
         return out
 
-
     def __sub__(self, other):
         if type(self) is ColourMatrix and type(other) is ColourMatrix:
             return (<ColourMatrix>self)._sub_ColourMatrix_ColourMatrix(<ColourMatrix>other)
@@ -241,34 +243,46 @@ cdef class ColourMatrix:
         out.instance[0] = self.instance[0] - other.instance[0]
         return out
 
-
     def __mul__(self, other):
         if type(self) is float and type(other) is ColourMatrix:
             return (<ColourMatrix>other)._mul_ColourMatrix_float(<float>self)
+
         if type(self) is ColourMatrix and type(other) is float:
             return (<ColourMatrix>self)._mul_ColourMatrix_float(<float>other)
+
         if type(self) is int and type(other) is ColourMatrix:
             return (<ColourMatrix>other)._mul_ColourMatrix_int(<int>self)
+
         if type(self) is ColourMatrix and type(other) is int:
             return (<ColourMatrix>self)._mul_ColourMatrix_int(<int>other)
+
         if type(self) is Complex and type(other) is ColourMatrix:
             return (<ColourMatrix>other)._mul_ColourMatrix_Complex(<Complex>self)
+
         if type(self) is ColourMatrix and type(other) is Complex:
             return (<ColourMatrix>self)._mul_ColourMatrix_Complex(<Complex>other)
+
         if type(self) is ColourMatrix and type(other) is ColourMatrix:
             return (<ColourMatrix>self)._mul_ColourMatrix_ColourMatrix(<ColourMatrix>other)
+
         if type(self) is ColourMatrix and type(other) is ColourMatrixArray:
             return (<ColourMatrix>self)._mul_ColourMatrix_ColourMatrixArray(<ColourMatrixArray>other)
+
         if type(self) is ColourMatrix and type(other) is LatticeColourMatrix:
             return (<ColourMatrix>self)._mul_ColourMatrix_LatticeColourMatrix(<LatticeColourMatrix>other)
+
         if type(self) is ColourMatrix and type(other) is GaugeField:
             return (<ColourMatrix>self)._mul_ColourMatrix_GaugeField(<GaugeField>other)
+
         if type(self) is ColourMatrix and type(other) is ColourVector:
             return (<ColourMatrix>self)._mul_ColourMatrix_ColourVector(<ColourVector>other)
+
         if type(self) is ColourMatrix and type(other) is Fermion:
             return (<ColourMatrix>self)._mul_ColourMatrix_Fermion(<Fermion>other)
+
         if type(self) is ColourMatrix and type(other) is LatticeColourVector:
             return (<ColourMatrix>self)._mul_ColourMatrix_LatticeColourVector(<LatticeColourVector>other)
+
         if type(self) is ColourMatrix and type(other) is FermionField:
             return (<ColourMatrix>self)._mul_ColourMatrix_FermionField(<FermionField>other)
         if hasattr(self, "real") and hasattr(self, "imag") and type(other) is ColourMatrix:
@@ -333,12 +347,13 @@ cdef class ColourMatrix:
         out.instance[0] = self.instance[0] * other.instance[0]
         return out
 
-
     def __div__(self, other):
         if type(self) is ColourMatrix and type(other) is float:
             return (<ColourMatrix>self)._div_ColourMatrix_float(<float>other)
+
         if type(self) is ColourMatrix and type(other) is int:
             return (<ColourMatrix>self)._div_ColourMatrix_int(<int>other)
+
         if type(self) is ColourMatrix and type(other) is Complex:
             return (<ColourMatrix>self)._div_ColourMatrix_Complex(<Complex>other)
         if type(self) is ColourMatrix and hasattr(other, "real") and hasattr(other, "imag"):
@@ -360,8 +375,6 @@ cdef class ColourMatrix:
         cdef ColourMatrix out = ColourMatrix()
         out.instance[0] = self.instance[0] / other.instance
         return out
-
-
 
 
 cdef class ColourMatrixArray:
@@ -507,6 +520,7 @@ cdef class ColourMatrixArray:
     def __add__(self, other):
         if type(self) is ColourMatrixArray and type(other) is ColourMatrix:
             return (<ColourMatrixArray>self)._add_ColourMatrixArray_ColourMatrix(<ColourMatrix>other)
+
         if type(self) is ColourMatrixArray and type(other) is ColourMatrixArray:
             return (<ColourMatrixArray>self)._add_ColourMatrixArray_ColourMatrixArray(<ColourMatrixArray>other)
         raise TypeError("Unsupported operand types for ColourMatrixArray.__add__: "
@@ -522,10 +536,10 @@ cdef class ColourMatrixArray:
         out.instance[0] = self.instance[0] + other.instance[0]
         return out
 
-
     def __sub__(self, other):
         if type(self) is ColourMatrixArray and type(other) is ColourMatrix:
             return (<ColourMatrixArray>self)._sub_ColourMatrixArray_ColourMatrix(<ColourMatrix>other)
+
         if type(self) is ColourMatrixArray and type(other) is ColourMatrixArray:
             return (<ColourMatrixArray>self)._sub_ColourMatrixArray_ColourMatrixArray(<ColourMatrixArray>other)
         raise TypeError("Unsupported operand types for ColourMatrixArray.__sub__: "
@@ -541,26 +555,34 @@ cdef class ColourMatrixArray:
         out.instance[0] = self.instance[0] - other.instance[0]
         return out
 
-
     def __mul__(self, other):
         if type(self) is float and type(other) is ColourMatrixArray:
             return (<ColourMatrixArray>other)._mul_ColourMatrixArray_float(<float>self)
+
         if type(self) is ColourMatrixArray and type(other) is float:
             return (<ColourMatrixArray>self)._mul_ColourMatrixArray_float(<float>other)
+
         if type(self) is int and type(other) is ColourMatrixArray:
             return (<ColourMatrixArray>other)._mul_ColourMatrixArray_int(<int>self)
+
         if type(self) is ColourMatrixArray and type(other) is int:
             return (<ColourMatrixArray>self)._mul_ColourMatrixArray_int(<int>other)
+
         if type(self) is Complex and type(other) is ColourMatrixArray:
             return (<ColourMatrixArray>other)._mul_ColourMatrixArray_Complex(<Complex>self)
+
         if type(self) is ColourMatrixArray and type(other) is Complex:
             return (<ColourMatrixArray>self)._mul_ColourMatrixArray_Complex(<Complex>other)
+
         if type(self) is ColourMatrixArray and type(other) is ColourMatrix:
             return (<ColourMatrixArray>self)._mul_ColourMatrixArray_ColourMatrix(<ColourMatrix>other)
+
         if type(self) is ColourMatrixArray and type(other) is ColourMatrixArray:
             return (<ColourMatrixArray>self)._mul_ColourMatrixArray_ColourMatrixArray(<ColourMatrixArray>other)
+
         if type(self) is ColourMatrixArray and type(other) is ColourVector:
             return (<ColourMatrixArray>self)._mul_ColourMatrixArray_ColourVector(<ColourVector>other)
+
         if type(self) is ColourMatrixArray and type(other) is Fermion:
             return (<ColourMatrixArray>self)._mul_ColourMatrixArray_Fermion(<Fermion>other)
         if hasattr(self, "real") and hasattr(self, "imag") and type(other) is ColourMatrixArray:
@@ -605,12 +627,13 @@ cdef class ColourMatrixArray:
         out.instance[0] = self.instance[0] * other.instance[0]
         return out
 
-
     def __div__(self, other):
         if type(self) is ColourMatrixArray and type(other) is float:
             return (<ColourMatrixArray>self)._div_ColourMatrixArray_float(<float>other)
+
         if type(self) is ColourMatrixArray and type(other) is int:
             return (<ColourMatrixArray>self)._div_ColourMatrixArray_int(<int>other)
+
         if type(self) is ColourMatrixArray and type(other) is Complex:
             return (<ColourMatrixArray>self)._div_ColourMatrixArray_Complex(<Complex>other)
         if type(self) is ColourMatrixArray and hasattr(other, "real") and hasattr(other, "imag"):
@@ -632,8 +655,6 @@ cdef class ColourMatrixArray:
         cdef ColourMatrixArray out = ColourMatrixArray()
         out.instance[0] = self.instance[0] / other.instance
         return out
-
-
 
 
 cdef class LatticeColourMatrix:
@@ -761,8 +782,10 @@ cdef class LatticeColourMatrix:
     def __add__(self, other):
         if type(self) is LatticeColourMatrix and type(other) is ColourMatrix:
             return (<LatticeColourMatrix>self)._add_LatticeColourMatrix_ColourMatrix(<ColourMatrix>other)
+
         if type(self) is LatticeColourMatrix and type(other) is LatticeColourMatrix:
             return (<LatticeColourMatrix>self)._add_LatticeColourMatrix_LatticeColourMatrix(<LatticeColourMatrix>other)
+
         if type(self) is LatticeColourMatrix and type(other) is GaugeField:
             return (<LatticeColourMatrix>self)._add_LatticeColourMatrix_GaugeField(<GaugeField>other)
         raise TypeError("Unsupported operand types for LatticeColourMatrix.__add__: "
@@ -783,10 +806,10 @@ cdef class LatticeColourMatrix:
         out.instance[0] = self.instance[0] + other.instance[0]
         return out
 
-
     def __sub__(self, other):
         if type(self) is LatticeColourMatrix and type(other) is ColourMatrix:
             return (<LatticeColourMatrix>self)._sub_LatticeColourMatrix_ColourMatrix(<ColourMatrix>other)
+
         if type(self) is LatticeColourMatrix and type(other) is LatticeColourMatrix:
             return (<LatticeColourMatrix>self)._sub_LatticeColourMatrix_LatticeColourMatrix(<LatticeColourMatrix>other)
         raise TypeError("Unsupported operand types for LatticeColourMatrix.__sub__: "
@@ -802,30 +825,40 @@ cdef class LatticeColourMatrix:
         out.instance[0] = self.instance[0] - other.instance[0]
         return out
 
-
     def __mul__(self, other):
         if type(self) is float and type(other) is LatticeColourMatrix:
             return (<LatticeColourMatrix>other)._mul_LatticeColourMatrix_float(<float>self)
+
         if type(self) is LatticeColourMatrix and type(other) is float:
             return (<LatticeColourMatrix>self)._mul_LatticeColourMatrix_float(<float>other)
+
         if type(self) is int and type(other) is LatticeColourMatrix:
             return (<LatticeColourMatrix>other)._mul_LatticeColourMatrix_int(<int>self)
+
         if type(self) is LatticeColourMatrix and type(other) is int:
             return (<LatticeColourMatrix>self)._mul_LatticeColourMatrix_int(<int>other)
+
         if type(self) is Complex and type(other) is LatticeColourMatrix:
             return (<LatticeColourMatrix>other)._mul_LatticeColourMatrix_Complex(<Complex>self)
+
         if type(self) is LatticeColourMatrix and type(other) is Complex:
             return (<LatticeColourMatrix>self)._mul_LatticeColourMatrix_Complex(<Complex>other)
+
         if type(self) is LatticeColourMatrix and type(other) is ColourMatrix:
             return (<LatticeColourMatrix>self)._mul_LatticeColourMatrix_ColourMatrix(<ColourMatrix>other)
+
         if type(self) is LatticeColourMatrix and type(other) is LatticeColourMatrix:
             return (<LatticeColourMatrix>self)._mul_LatticeColourMatrix_LatticeColourMatrix(<LatticeColourMatrix>other)
+
         if type(self) is LatticeColourMatrix and type(other) is GaugeField:
             return (<LatticeColourMatrix>self)._mul_LatticeColourMatrix_GaugeField(<GaugeField>other)
+
         if type(self) is LatticeColourMatrix and type(other) is ColourVector:
             return (<LatticeColourMatrix>self)._mul_LatticeColourMatrix_ColourVector(<ColourVector>other)
+
         if type(self) is LatticeColourMatrix and type(other) is LatticeColourVector:
             return (<LatticeColourMatrix>self)._mul_LatticeColourMatrix_LatticeColourVector(<LatticeColourVector>other)
+
         if type(self) is LatticeColourMatrix and type(other) is FermionField:
             return (<LatticeColourMatrix>self)._mul_LatticeColourMatrix_FermionField(<FermionField>other)
         if hasattr(self, "real") and hasattr(self, "imag") and type(other) is LatticeColourMatrix:
@@ -880,12 +913,13 @@ cdef class LatticeColourMatrix:
         out.instance[0] = self.instance[0] * other.instance[0]
         return out
 
-
     def __div__(self, other):
         if type(self) is LatticeColourMatrix and type(other) is float:
             return (<LatticeColourMatrix>self)._div_LatticeColourMatrix_float(<float>other)
+
         if type(self) is LatticeColourMatrix and type(other) is int:
             return (<LatticeColourMatrix>self)._div_LatticeColourMatrix_int(<int>other)
+
         if type(self) is LatticeColourMatrix and type(other) is Complex:
             return (<LatticeColourMatrix>self)._div_LatticeColourMatrix_Complex(<Complex>other)
         if type(self) is LatticeColourMatrix and hasattr(other, "real") and hasattr(other, "imag"):
@@ -907,9 +941,6 @@ cdef class LatticeColourMatrix:
         cdef LatticeColourMatrix out = LatticeColourMatrix()
         out.instance[0] = self.instance[0] / other.instance
         return out
-
-
-
 
 
 cdef class GaugeField:
@@ -1032,10 +1063,13 @@ cdef class ColourVector:
     def __add__(self, other):
         if type(self) is ColourVector and type(other) is ColourVector:
             return (<ColourVector>self)._add_ColourVector_ColourVector(<ColourVector>other)
+
         if type(self) is ColourVector and type(other) is Fermion:
             return (<ColourVector>self)._add_ColourVector_Fermion(<Fermion>other)
+
         if type(self) is ColourVector and type(other) is LatticeColourVector:
             return (<ColourVector>self)._add_ColourVector_LatticeColourVector(<LatticeColourVector>other)
+
         if type(self) is ColourVector and type(other) is FermionField:
             return (<ColourVector>self)._add_ColourVector_FermionField(<FermionField>other)
         raise TypeError("Unsupported operand types for ColourVector.__add__: "
@@ -1061,7 +1095,6 @@ cdef class ColourVector:
         out.instance[0] = self.instance[0] + other.instance[0]
         return out
 
-
     def __sub__(self, other):
         if type(self) is ColourVector and type(other) is ColourVector:
             return (<ColourVector>self)._sub_ColourVector_ColourVector(<ColourVector>other)
@@ -1073,18 +1106,22 @@ cdef class ColourVector:
         out.instance[0] = self.instance[0] - other.instance[0]
         return out
 
-
     def __mul__(self, other):
         if type(self) is float and type(other) is ColourVector:
             return (<ColourVector>other)._mul_ColourVector_float(<float>self)
+
         if type(self) is ColourVector and type(other) is float:
             return (<ColourVector>self)._mul_ColourVector_float(<float>other)
+
         if type(self) is int and type(other) is ColourVector:
             return (<ColourVector>other)._mul_ColourVector_int(<int>self)
+
         if type(self) is ColourVector and type(other) is int:
             return (<ColourVector>self)._mul_ColourVector_int(<int>other)
+
         if type(self) is Complex and type(other) is ColourVector:
             return (<ColourVector>other)._mul_ColourVector_Complex(<Complex>self)
+
         if type(self) is ColourVector and type(other) is Complex:
             return (<ColourVector>self)._mul_ColourVector_Complex(<Complex>other)
         if hasattr(self, "real") and hasattr(self, "imag") and type(other) is ColourVector:
@@ -1109,12 +1146,13 @@ cdef class ColourVector:
         out.instance[0] = self.instance[0] * other.instance
         return out
 
-
     def __div__(self, other):
         if type(self) is ColourVector and type(other) is float:
             return (<ColourVector>self)._div_ColourVector_float(<float>other)
+
         if type(self) is ColourVector and type(other) is int:
             return (<ColourVector>self)._div_ColourVector_int(<int>other)
+
         if type(self) is ColourVector and type(other) is Complex:
             return (<ColourVector>self)._div_ColourVector_Complex(<Complex>other)
         if type(self) is ColourVector and hasattr(other, "real") and hasattr(other, "imag"):
@@ -1136,8 +1174,6 @@ cdef class ColourVector:
         cdef ColourVector out = ColourVector()
         out.instance[0] = self.instance[0] / other.instance
         return out
-
-
 
 
 cdef class Fermion:
@@ -1276,6 +1312,7 @@ cdef class Fermion:
     def __add__(self, other):
         if type(self) is Fermion and type(other) is ColourVector:
             return (<Fermion>self)._add_Fermion_ColourVector(<ColourVector>other)
+
         if type(self) is Fermion and type(other) is Fermion:
             return (<Fermion>self)._add_Fermion_Fermion(<Fermion>other)
         raise TypeError("Unsupported operand types for Fermion.__add__: "
@@ -1291,10 +1328,10 @@ cdef class Fermion:
         out.instance[0] = self.instance[0] + other.instance[0]
         return out
 
-
     def __sub__(self, other):
         if type(self) is Fermion and type(other) is ColourVector:
             return (<Fermion>self)._sub_Fermion_ColourVector(<ColourVector>other)
+
         if type(self) is Fermion and type(other) is Fermion:
             return (<Fermion>self)._sub_Fermion_Fermion(<Fermion>other)
         raise TypeError("Unsupported operand types for Fermion.__sub__: "
@@ -1310,18 +1347,22 @@ cdef class Fermion:
         out.instance[0] = self.instance[0] - other.instance[0]
         return out
 
-
     def __mul__(self, other):
         if type(self) is float and type(other) is Fermion:
             return (<Fermion>other)._mul_Fermion_float(<float>self)
+
         if type(self) is Fermion and type(other) is float:
             return (<Fermion>self)._mul_Fermion_float(<float>other)
+
         if type(self) is int and type(other) is Fermion:
             return (<Fermion>other)._mul_Fermion_int(<int>self)
+
         if type(self) is Fermion and type(other) is int:
             return (<Fermion>self)._mul_Fermion_int(<int>other)
+
         if type(self) is Complex and type(other) is Fermion:
             return (<Fermion>other)._mul_Fermion_Complex(<Complex>self)
+
         if type(self) is Fermion and type(other) is Complex:
             return (<Fermion>self)._mul_Fermion_Complex(<Complex>other)
         if hasattr(self, "real") and hasattr(self, "imag") and type(other) is Fermion:
@@ -1346,12 +1387,13 @@ cdef class Fermion:
         out.instance[0] = self.instance[0] * other.instance
         return out
 
-
     def __div__(self, other):
         if type(self) is Fermion and type(other) is float:
             return (<Fermion>self)._div_Fermion_float(<float>other)
+
         if type(self) is Fermion and type(other) is int:
             return (<Fermion>self)._div_Fermion_int(<int>other)
+
         if type(self) is Fermion and type(other) is Complex:
             return (<Fermion>self)._div_Fermion_Complex(<Complex>other)
         if type(self) is Fermion and hasattr(other, "real") and hasattr(other, "imag"):
@@ -1373,8 +1415,6 @@ cdef class Fermion:
         cdef Fermion out = Fermion()
         out.instance[0] = self.instance[0] / other.instance
         return out
-
-
 
 
 cdef class LatticeColourVector:
@@ -1499,8 +1539,10 @@ cdef class LatticeColourVector:
     def __add__(self, other):
         if type(self) is LatticeColourVector and type(other) is ColourVector:
             return (<LatticeColourVector>self)._add_LatticeColourVector_ColourVector(<ColourVector>other)
+
         if type(self) is LatticeColourVector and type(other) is LatticeColourVector:
             return (<LatticeColourVector>self)._add_LatticeColourVector_LatticeColourVector(<LatticeColourVector>other)
+
         if type(self) is LatticeColourVector and type(other) is FermionField:
             return (<LatticeColourVector>self)._add_LatticeColourVector_FermionField(<FermionField>other)
         raise TypeError("Unsupported operand types for LatticeColourVector.__add__: "
@@ -1521,10 +1563,10 @@ cdef class LatticeColourVector:
         out.instance[0] = self.instance[0] + other.instance[0]
         return out
 
-
     def __sub__(self, other):
         if type(self) is LatticeColourVector and type(other) is ColourVector:
             return (<LatticeColourVector>self)._sub_LatticeColourVector_ColourVector(<ColourVector>other)
+
         if type(self) is LatticeColourVector and type(other) is LatticeColourVector:
             return (<LatticeColourVector>self)._sub_LatticeColourVector_LatticeColourVector(<LatticeColourVector>other)
         raise TypeError("Unsupported operand types for LatticeColourVector.__sub__: "
@@ -1540,18 +1582,22 @@ cdef class LatticeColourVector:
         out.instance[0] = self.instance[0] - other.instance[0]
         return out
 
-
     def __mul__(self, other):
         if type(self) is float and type(other) is LatticeColourVector:
             return (<LatticeColourVector>other)._mul_LatticeColourVector_float(<float>self)
+
         if type(self) is LatticeColourVector and type(other) is float:
             return (<LatticeColourVector>self)._mul_LatticeColourVector_float(<float>other)
+
         if type(self) is int and type(other) is LatticeColourVector:
             return (<LatticeColourVector>other)._mul_LatticeColourVector_int(<int>self)
+
         if type(self) is LatticeColourVector and type(other) is int:
             return (<LatticeColourVector>self)._mul_LatticeColourVector_int(<int>other)
+
         if type(self) is Complex and type(other) is LatticeColourVector:
             return (<LatticeColourVector>other)._mul_LatticeColourVector_Complex(<Complex>self)
+
         if type(self) is LatticeColourVector and type(other) is Complex:
             return (<LatticeColourVector>self)._mul_LatticeColourVector_Complex(<Complex>other)
         if hasattr(self, "real") and hasattr(self, "imag") and type(other) is LatticeColourVector:
@@ -1576,12 +1622,13 @@ cdef class LatticeColourVector:
         out.instance[0] = self.instance[0] * other.instance
         return out
 
-
     def __div__(self, other):
         if type(self) is LatticeColourVector and type(other) is float:
             return (<LatticeColourVector>self)._div_LatticeColourVector_float(<float>other)
+
         if type(self) is LatticeColourVector and type(other) is int:
             return (<LatticeColourVector>self)._div_LatticeColourVector_int(<int>other)
+
         if type(self) is LatticeColourVector and type(other) is Complex:
             return (<LatticeColourVector>self)._div_LatticeColourVector_Complex(<Complex>other)
         if type(self) is LatticeColourVector and hasattr(other, "real") and hasattr(other, "imag"):
@@ -1603,9 +1650,6 @@ cdef class LatticeColourVector:
         cdef LatticeColourVector out = LatticeColourVector()
         out.instance[0] = self.instance[0] / other.instance
         return out
-
-
-
 
 
 cdef class FermionField:

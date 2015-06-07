@@ -29,8 +29,8 @@
         raise TypeError("Unsupported operand types for {{ typename }}.__{{ funcname }}__: "
                         "{} and {}".format(type(self), type(other)))
 {% endif %}
-{% endfor %}
 
+{% endfor %}
 {% for ret, lhs, rhs, lhs_bcast, rhs_bcast in ops %}
 {% if lhs not in scalar_types and lhs != "Complex" %}
     cdef inline {{ ret }} _{{ funcname }}_{{ lhs }}_{{ rhs }}({{ lhs }} self, {{ rhs }} other):
@@ -43,6 +43,5 @@
 
 {% endif %}
 {% endfor %}
-
 {% endfor %}
 {% endmacro %}
