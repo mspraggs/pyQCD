@@ -243,14 +243,6 @@ cdef class ColourMatrix:
 
 
     def __mul__(self, other):
-        #if isinstance(self, scalar_types):
-        #    self = <double>(self)
-        #if isinstance(other, scalar_types):
-        #    other = <double>(other)
-        #if hasattr(self, 'real') and hasattr(self, 'imag'):
-        #    self = Complex(self.real, self.imag)
-        #if isinstance(other, complex_types):
-        #    other = Complex(other.real, other.imag)
         if type(self) is float and type(other) is ColourMatrix:
             return (<ColourMatrix>other)._mul_ColourMatrix_float(<float>self)
         if type(self) is ColourMatrix and type(other) is float:
@@ -279,6 +271,10 @@ cdef class ColourMatrix:
             return (<ColourMatrix>self)._mul_ColourMatrix_LatticeColourVector(<LatticeColourVector>other)
         if type(self) is ColourMatrix and type(other) is FermionField:
             return (<ColourMatrix>self)._mul_ColourMatrix_FermionField(<FermionField>other)
+        if hasattr(self, "real") and hasattr(self, "imag") and type(other) is ColourMatrix:
+            return (<ColourMatrix>other)._mul_ColourMatrix_Complex(Complex(self.real, self.imag))
+        if type(self) is ColourMatrix and hasattr(other, "real") and hasattr(other, "imag"):
+            return (<ColourMatrix>self)._mul_ColourMatrix_Complex(Complex(other.real, other.imag))
         raise TypeError("Unsupported operand types for ColourMatrix.__mul__: "
                         "{} and {}".format(type(self), type(other)))
 
@@ -339,20 +335,14 @@ cdef class ColourMatrix:
 
 
     def __div__(self, other):
-        #if isinstance(self, scalar_types):
-        #    self = <double>(self)
-        #if isinstance(other, scalar_types):
-        #    other = <double>(other)
-        #if hasattr(self, 'real') and hasattr(self, 'imag'):
-        #    self = Complex(self.real, self.imag)
-        #if isinstance(other, complex_types):
-        #    other = Complex(other.real, other.imag)
         if type(self) is ColourMatrix and type(other) is float:
             return (<ColourMatrix>self)._div_ColourMatrix_float(<float>other)
         if type(self) is ColourMatrix and type(other) is int:
             return (<ColourMatrix>self)._div_ColourMatrix_int(<int>other)
         if type(self) is ColourMatrix and type(other) is Complex:
             return (<ColourMatrix>self)._div_ColourMatrix_Complex(<Complex>other)
+        if type(self) is ColourMatrix and hasattr(other, "real") and hasattr(other, "imag"):
+            return (<ColourMatrix>self)._div_ColourMatrix_Complex(Complex(other.real, other.imag))
         raise TypeError("Unsupported operand types for ColourMatrix.__div__: "
                         "{} and {}".format(type(self), type(other)))
 
@@ -553,14 +543,6 @@ cdef class ColourMatrixArray:
 
 
     def __mul__(self, other):
-        #if isinstance(self, scalar_types):
-        #    self = <double>(self)
-        #if isinstance(other, scalar_types):
-        #    other = <double>(other)
-        #if hasattr(self, 'real') and hasattr(self, 'imag'):
-        #    self = Complex(self.real, self.imag)
-        #if isinstance(other, complex_types):
-        #    other = Complex(other.real, other.imag)
         if type(self) is float and type(other) is ColourMatrixArray:
             return (<ColourMatrixArray>other)._mul_ColourMatrixArray_float(<float>self)
         if type(self) is ColourMatrixArray and type(other) is float:
@@ -581,6 +563,10 @@ cdef class ColourMatrixArray:
             return (<ColourMatrixArray>self)._mul_ColourMatrixArray_ColourVector(<ColourVector>other)
         if type(self) is ColourMatrixArray and type(other) is Fermion:
             return (<ColourMatrixArray>self)._mul_ColourMatrixArray_Fermion(<Fermion>other)
+        if hasattr(self, "real") and hasattr(self, "imag") and type(other) is ColourMatrixArray:
+            return (<ColourMatrixArray>other)._mul_ColourMatrixArray_Complex(Complex(self.real, self.imag))
+        if type(self) is ColourMatrixArray and hasattr(other, "real") and hasattr(other, "imag"):
+            return (<ColourMatrixArray>self)._mul_ColourMatrixArray_Complex(Complex(other.real, other.imag))
         raise TypeError("Unsupported operand types for ColourMatrixArray.__mul__: "
                         "{} and {}".format(type(self), type(other)))
 
@@ -621,20 +607,14 @@ cdef class ColourMatrixArray:
 
 
     def __div__(self, other):
-        #if isinstance(self, scalar_types):
-        #    self = <double>(self)
-        #if isinstance(other, scalar_types):
-        #    other = <double>(other)
-        #if hasattr(self, 'real') and hasattr(self, 'imag'):
-        #    self = Complex(self.real, self.imag)
-        #if isinstance(other, complex_types):
-        #    other = Complex(other.real, other.imag)
         if type(self) is ColourMatrixArray and type(other) is float:
             return (<ColourMatrixArray>self)._div_ColourMatrixArray_float(<float>other)
         if type(self) is ColourMatrixArray and type(other) is int:
             return (<ColourMatrixArray>self)._div_ColourMatrixArray_int(<int>other)
         if type(self) is ColourMatrixArray and type(other) is Complex:
             return (<ColourMatrixArray>self)._div_ColourMatrixArray_Complex(<Complex>other)
+        if type(self) is ColourMatrixArray and hasattr(other, "real") and hasattr(other, "imag"):
+            return (<ColourMatrixArray>self)._div_ColourMatrixArray_Complex(Complex(other.real, other.imag))
         raise TypeError("Unsupported operand types for ColourMatrixArray.__div__: "
                         "{} and {}".format(type(self), type(other)))
 
@@ -773,14 +753,6 @@ cdef class LatticeColourMatrix:
 
 
     def __mul__(self, other):
-        #if isinstance(self, scalar_types):
-        #    self = <double>(self)
-        #if isinstance(other, scalar_types):
-        #    other = <double>(other)
-        #if hasattr(self, 'real') and hasattr(self, 'imag'):
-        #    self = Complex(self.real, self.imag)
-        #if isinstance(other, complex_types):
-        #    other = Complex(other.real, other.imag)
         if type(self) is float and type(other) is LatticeColourMatrix:
             return (<LatticeColourMatrix>other)._mul_LatticeColourMatrix_float(<float>self)
         if type(self) is LatticeColourMatrix and type(other) is float:
@@ -805,6 +777,10 @@ cdef class LatticeColourMatrix:
             return (<LatticeColourMatrix>self)._mul_LatticeColourMatrix_LatticeColourVector(<LatticeColourVector>other)
         if type(self) is LatticeColourMatrix and type(other) is FermionField:
             return (<LatticeColourMatrix>self)._mul_LatticeColourMatrix_FermionField(<FermionField>other)
+        if hasattr(self, "real") and hasattr(self, "imag") and type(other) is LatticeColourMatrix:
+            return (<LatticeColourMatrix>other)._mul_LatticeColourMatrix_Complex(Complex(self.real, self.imag))
+        if type(self) is LatticeColourMatrix and hasattr(other, "real") and hasattr(other, "imag"):
+            return (<LatticeColourMatrix>self)._mul_LatticeColourMatrix_Complex(Complex(other.real, other.imag))
         raise TypeError("Unsupported operand types for LatticeColourMatrix.__mul__: "
                         "{} and {}".format(type(self), type(other)))
 
@@ -855,20 +831,14 @@ cdef class LatticeColourMatrix:
 
 
     def __div__(self, other):
-        #if isinstance(self, scalar_types):
-        #    self = <double>(self)
-        #if isinstance(other, scalar_types):
-        #    other = <double>(other)
-        #if hasattr(self, 'real') and hasattr(self, 'imag'):
-        #    self = Complex(self.real, self.imag)
-        #if isinstance(other, complex_types):
-        #    other = Complex(other.real, other.imag)
         if type(self) is LatticeColourMatrix and type(other) is float:
             return (<LatticeColourMatrix>self)._div_LatticeColourMatrix_float(<float>other)
         if type(self) is LatticeColourMatrix and type(other) is int:
             return (<LatticeColourMatrix>self)._div_LatticeColourMatrix_int(<int>other)
         if type(self) is LatticeColourMatrix and type(other) is Complex:
             return (<LatticeColourMatrix>self)._div_LatticeColourMatrix_Complex(<Complex>other)
+        if type(self) is LatticeColourMatrix and hasattr(other, "real") and hasattr(other, "imag"):
+            return (<LatticeColourMatrix>self)._div_LatticeColourMatrix_Complex(Complex(other.real, other.imag))
         raise TypeError("Unsupported operand types for LatticeColourMatrix.__div__: "
                         "{} and {}".format(type(self), type(other)))
 
@@ -1054,14 +1024,6 @@ cdef class ColourVector:
 
 
     def __mul__(self, other):
-        #if isinstance(self, scalar_types):
-        #    self = <double>(self)
-        #if isinstance(other, scalar_types):
-        #    other = <double>(other)
-        #if hasattr(self, 'real') and hasattr(self, 'imag'):
-        #    self = Complex(self.real, self.imag)
-        #if isinstance(other, complex_types):
-        #    other = Complex(other.real, other.imag)
         if type(self) is float and type(other) is ColourVector:
             return (<ColourVector>other)._mul_ColourVector_float(<float>self)
         if type(self) is ColourVector and type(other) is float:
@@ -1074,6 +1036,10 @@ cdef class ColourVector:
             return (<ColourVector>other)._mul_ColourVector_Complex(<Complex>self)
         if type(self) is ColourVector and type(other) is Complex:
             return (<ColourVector>self)._mul_ColourVector_Complex(<Complex>other)
+        if hasattr(self, "real") and hasattr(self, "imag") and type(other) is ColourVector:
+            return (<ColourVector>other)._mul_ColourVector_Complex(Complex(self.real, self.imag))
+        if type(self) is ColourVector and hasattr(other, "real") and hasattr(other, "imag"):
+            return (<ColourVector>self)._mul_ColourVector_Complex(Complex(other.real, other.imag))
         raise TypeError("Unsupported operand types for ColourVector.__mul__: "
                         "{} and {}".format(type(self), type(other)))
 
@@ -1094,20 +1060,14 @@ cdef class ColourVector:
 
 
     def __div__(self, other):
-        #if isinstance(self, scalar_types):
-        #    self = <double>(self)
-        #if isinstance(other, scalar_types):
-        #    other = <double>(other)
-        #if hasattr(self, 'real') and hasattr(self, 'imag'):
-        #    self = Complex(self.real, self.imag)
-        #if isinstance(other, complex_types):
-        #    other = Complex(other.real, other.imag)
         if type(self) is ColourVector and type(other) is float:
             return (<ColourVector>self)._div_ColourVector_float(<float>other)
         if type(self) is ColourVector and type(other) is int:
             return (<ColourVector>self)._div_ColourVector_int(<int>other)
         if type(self) is ColourVector and type(other) is Complex:
             return (<ColourVector>self)._div_ColourVector_Complex(<Complex>other)
+        if type(self) is ColourVector and hasattr(other, "real") and hasattr(other, "imag"):
+            return (<ColourVector>self)._div_ColourVector_Complex(Complex(other.real, other.imag))
         raise TypeError("Unsupported operand types for ColourVector.__div__: "
                         "{} and {}".format(type(self), type(other)))
 
@@ -1301,14 +1261,6 @@ cdef class Fermion:
 
 
     def __mul__(self, other):
-        #if isinstance(self, scalar_types):
-        #    self = <double>(self)
-        #if isinstance(other, scalar_types):
-        #    other = <double>(other)
-        #if hasattr(self, 'real') and hasattr(self, 'imag'):
-        #    self = Complex(self.real, self.imag)
-        #if isinstance(other, complex_types):
-        #    other = Complex(other.real, other.imag)
         if type(self) is float and type(other) is Fermion:
             return (<Fermion>other)._mul_Fermion_float(<float>self)
         if type(self) is Fermion and type(other) is float:
@@ -1321,6 +1273,10 @@ cdef class Fermion:
             return (<Fermion>other)._mul_Fermion_Complex(<Complex>self)
         if type(self) is Fermion and type(other) is Complex:
             return (<Fermion>self)._mul_Fermion_Complex(<Complex>other)
+        if hasattr(self, "real") and hasattr(self, "imag") and type(other) is Fermion:
+            return (<Fermion>other)._mul_Fermion_Complex(Complex(self.real, self.imag))
+        if type(self) is Fermion and hasattr(other, "real") and hasattr(other, "imag"):
+            return (<Fermion>self)._mul_Fermion_Complex(Complex(other.real, other.imag))
         raise TypeError("Unsupported operand types for Fermion.__mul__: "
                         "{} and {}".format(type(self), type(other)))
 
@@ -1341,20 +1297,14 @@ cdef class Fermion:
 
 
     def __div__(self, other):
-        #if isinstance(self, scalar_types):
-        #    self = <double>(self)
-        #if isinstance(other, scalar_types):
-        #    other = <double>(other)
-        #if hasattr(self, 'real') and hasattr(self, 'imag'):
-        #    self = Complex(self.real, self.imag)
-        #if isinstance(other, complex_types):
-        #    other = Complex(other.real, other.imag)
         if type(self) is Fermion and type(other) is float:
             return (<Fermion>self)._div_Fermion_float(<float>other)
         if type(self) is Fermion and type(other) is int:
             return (<Fermion>self)._div_Fermion_int(<int>other)
         if type(self) is Fermion and type(other) is Complex:
             return (<Fermion>self)._div_Fermion_Complex(<Complex>other)
+        if type(self) is Fermion and hasattr(other, "real") and hasattr(other, "imag"):
+            return (<Fermion>self)._div_Fermion_Complex(Complex(other.real, other.imag))
         raise TypeError("Unsupported operand types for Fermion.__div__: "
                         "{} and {}".format(type(self), type(other)))
 
@@ -1489,14 +1439,6 @@ cdef class LatticeColourVector:
 
 
     def __mul__(self, other):
-        #if isinstance(self, scalar_types):
-        #    self = <double>(self)
-        #if isinstance(other, scalar_types):
-        #    other = <double>(other)
-        #if hasattr(self, 'real') and hasattr(self, 'imag'):
-        #    self = Complex(self.real, self.imag)
-        #if isinstance(other, complex_types):
-        #    other = Complex(other.real, other.imag)
         if type(self) is float and type(other) is LatticeColourVector:
             return (<LatticeColourVector>other)._mul_LatticeColourVector_float(<float>self)
         if type(self) is LatticeColourVector and type(other) is float:
@@ -1509,6 +1451,10 @@ cdef class LatticeColourVector:
             return (<LatticeColourVector>other)._mul_LatticeColourVector_Complex(<Complex>self)
         if type(self) is LatticeColourVector and type(other) is Complex:
             return (<LatticeColourVector>self)._mul_LatticeColourVector_Complex(<Complex>other)
+        if hasattr(self, "real") and hasattr(self, "imag") and type(other) is LatticeColourVector:
+            return (<LatticeColourVector>other)._mul_LatticeColourVector_Complex(Complex(self.real, self.imag))
+        if type(self) is LatticeColourVector and hasattr(other, "real") and hasattr(other, "imag"):
+            return (<LatticeColourVector>self)._mul_LatticeColourVector_Complex(Complex(other.real, other.imag))
         raise TypeError("Unsupported operand types for LatticeColourVector.__mul__: "
                         "{} and {}".format(type(self), type(other)))
 
@@ -1529,20 +1475,14 @@ cdef class LatticeColourVector:
 
 
     def __div__(self, other):
-        #if isinstance(self, scalar_types):
-        #    self = <double>(self)
-        #if isinstance(other, scalar_types):
-        #    other = <double>(other)
-        #if hasattr(self, 'real') and hasattr(self, 'imag'):
-        #    self = Complex(self.real, self.imag)
-        #if isinstance(other, complex_types):
-        #    other = Complex(other.real, other.imag)
         if type(self) is LatticeColourVector and type(other) is float:
             return (<LatticeColourVector>self)._div_LatticeColourVector_float(<float>other)
         if type(self) is LatticeColourVector and type(other) is int:
             return (<LatticeColourVector>self)._div_LatticeColourVector_int(<int>other)
         if type(self) is LatticeColourVector and type(other) is Complex:
             return (<LatticeColourVector>self)._div_LatticeColourVector_Complex(<Complex>other)
+        if type(self) is LatticeColourVector and hasattr(other, "real") and hasattr(other, "imag"):
+            return (<LatticeColourVector>self)._div_LatticeColourVector_Complex(Complex(other.real, other.imag))
         raise TypeError("Unsupported operand types for LatticeColourVector.__div__: "
                         "{} and {}".format(type(self), type(other)))
 

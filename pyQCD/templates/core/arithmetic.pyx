@@ -1,9 +1,9 @@
 {% macro arithmetic_ops(operators, typename, scalar_types) %}
 {% for funcname, op in zip(["add", "sub", "mul", "div"], "+-*/") %}
 {% set ops = operators[(typename, funcname)] %}
+{% set lhs_complex = False %}
+{% set rhs_complex = False %}
     def __{{ funcname }}__(self, other):
-{% if funcname in ["mul", "div"] %}
-{% endif %}
 {% for ret, lhs, rhs, lhs_bcast, rhs_bcast in ops %}
         if type(self) is {{ lhs }} and type(other) is {{ rhs }}:
 {% if lhs in scalar_types or lhs == "Complex" %}
@@ -11,9 +11,25 @@
 {% else %}
             return (<{{ typename }}>self)._{{ funcname }}_{{ lhs }}_{{ rhs }}(<{{ rhs }}>other)
 {% endif %}
-{% endfor %}
+{% if funcname in ["mul", "div"] and lhs == "Complex" %}
+{% set lhs_complex = True %}
+{% endif %}
+{% if funcname in ["mul", "div"] and rhs == "Complex" %}
+{% set rhs_complex = True %}
+{% endif %}
+{% if loop.last %}
+{% if lhs_complex %}
+        if hasattr(self, "real") and hasattr(self, "imag") and type(other) is {{ typename }}:
+            return (<{{ typename }}>other)._{{ funcname }}_{{ typename }}_Complex(Complex(self.real, self.imag))
+{% endif %}
+{% if rhs_complex %}
+        if type(self) is {{ lhs }} and hasattr(other, "real") and hasattr(other, "imag"):
+            return (<{{ typename }}>self)._{{ funcname }}_{{ typename }}_Complex(Complex(other.real, other.imag))
+{% endif %}
         raise TypeError("Unsupported operand types for {{ typename }}.__{{ funcname }}__: "
                         "{} and {}".format(type(self), type(other)))
+{% endif %}
+{% endfor %}
 
 {% for ret, lhs, rhs, lhs_bcast, rhs_bcast in ops %}
 {% if lhs not in scalar_types and lhs != "Complex" %}
