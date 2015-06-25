@@ -386,3 +386,13 @@ class TestLatticeMatrixType(object):
         assert lat_mat[0, 0, 0, 0][mat_index] == 5.0 + 0.0j
         lat_mat[(0, 0, 0, 0) + mat_index] = 3.0
         assert lat_mat[(0, 0, 0, 0) + mat_index] == 3.0 + 0.0j
+
+    def test_boundscheck(self, Matrix, LatticeMatrix):
+        """Test bounds checking for matrix array type"""
+        layout = LexicoLayout((8, 4, 4, 4))
+        mat = Matrix.zeros()
+        lat_mat = LatticeMatrix(layout, mat)
+        with pytest.raises(IndexError):
+            x = lat_mat[layout.lattice_shape]
+        with pytest.raises(IndexError):
+            lat_mat[layout.lattice_shape] = Matrix.zeros()
