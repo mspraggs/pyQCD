@@ -739,19 +739,21 @@ cdef class LatticeColourMatrix:
         m[0] = value
 
     def adjoint(self):
-        pass
+        out = LatticeColourMatrix()
+        out.instance[0] = self.instance[0].adjoint()
+        return out
 
     @staticmethod
-    def zeros():
-        pass
+    def zeros(Layout layout):
+        return LatticeColourMatrix(layout, ColourMatrix.zeros())
 
     @staticmethod
     def ones():
-        pass
+        return (layout, ColourMatrix.ones())
 
     @staticmethod
     def identity():
-        pass
+        return (layout, ColourMatrix.identity())
     
     def to_numpy(self):
         pass
@@ -1501,15 +1503,17 @@ cdef class LatticeColourVector:
         m[0] = value
 
     def adjoint(self):
-        pass
+        out = LatticeColourVector()
+        out.instance[0] = self.instance[0].adjoint()
+        return out
 
     @staticmethod
-    def zeros():
-        pass
+    def zeros(Layout layout):
+        return LatticeColourVector(layout, ColourVector.zeros())
 
     @staticmethod
     def ones():
-        pass
+        return (layout, ColourVector.ones())
 
     def to_numpy(self):
         pass

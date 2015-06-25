@@ -494,20 +494,22 @@ cdef class {{ lattice_matrix_name }}:
         m[0] = value
 
     def adjoint(self):
-        pass
+        out = {{ lattice_matrix_name }}()
+        out.instance[0] = self.instance[0].adjoint()
+        return out
 
     @staticmethod
-    def zeros():
-        pass
+    def zeros(Layout layout):
+        return {{ lattice_matrix_name }}(layout, {{ matrix_name }}.zeros())
 
     @staticmethod
     def ones():
-        pass
+        return {{ latrix_matrix_name }}(layout, {{ matrix_name }}.ones())
 
 {% if is_square %}
     @staticmethod
     def identity():
-        pass
+        return {{ latrix_matrix_name }}(layout, {{ matrix_name }}.identity())
     
 {% endif %}
     def to_numpy(self):
