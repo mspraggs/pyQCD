@@ -396,3 +396,53 @@ class TestLatticeMatrixType(object):
             x = lat_mat[layout.lattice_shape]
         with pytest.raises(IndexError):
             lat_mat[layout.lattice_shape] = Matrix.zeros()
+
+    def test_adjoint(self, Matrix, LatticeMatrix):
+        """Test adjoint function for matrix"""
+        return
+        layout = LexicoLayout((8, 4, 4, 4))
+        lat_mat = LatticeMatrix(4, (1 + 1j) * Matrix.ones())
+        index = tuple(0 for i in Matrix.shape)
+        lat_mat_adjoint = lat_mat.adjoint()
+        assert lat_mat_adjoint[0, 0, 0, 0][index] == 1.0 - 1.0j
+
+    def test_zeros(self, Matrix, LatticeMatrix):
+        """Test zeros static function"""
+        layout = LexicoLayout((8, 4, 4, 4))
+        lat_mat = LatticeMatrix.zeros(layout)
+        assert isinstance(lat_mat, LatticeMatrix)
+        assert lat_mat.num_dims == 4
+        assert lat_mat.volume == 8 * 4**3
+        assert lat_mat.lattice_shape == layout.lattice_shape
+        assert lat_mat.shape == layout.lattice_shape + Matrix.shape
+
+        for index in np.ndindex(lat_mat.shape):
+            assert lat_mat[index] == 0.0j
+
+    def test_ones(self, Matrix, LatticeMatrix):
+        """Test ones static function"""
+        layout = LexicoLayout((8, 4, 4, 4))
+        lat_mat = LatticeMatrix.ones(layout)
+        assert isinstance(lat_mat, LatticeMatrix)
+        assert lat_mat.num_dims == 4
+        assert lat_mat.volume == 8 * 4**3
+        assert lat_mat.lattice_shape == layout.lattice_shape
+        assert lat_mat.shape == layout.lattice_shape + Matrix.shape
+
+        for index in np.ndindex(lat_mat.shape):
+            assert lat_mat[index] == 1.0 + 0.0j
+
+    def test_identity(self, Matrix, LatticeMatrix):
+        """Test identity static function"""
+        if len(Matrix.shape) == 1 or Matrix.shape[0] != Matrix.shape[1]:
+            return
+        layout = LexicoLayout((8, 4, 4, 4))
+        lat_mat = LatticeMatrix.identity(layout)
+        assert isinstance(lat_mat, LatticeMatrix)
+        assert lat_mat.num_dims == 4
+        assert lat_mat.volume == 8 * 4**3
+        assert lat_mat.lattice_shape == layout.lattice_shape
+        assert lat_mat.shape == layout.lattice_shape + Matrix.shape
+
+        for index in np.ndindex(lat_mat.shape):
+            assert lat_mat[index] == (1.0 + 0.0j if index[-1] == index[-2] else 0.0j)

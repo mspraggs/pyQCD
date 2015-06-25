@@ -494,6 +494,7 @@ cdef class {{ lattice_matrix_name }}:
         m[0] = value
 
     def adjoint(self):
+        raise NotImplementedError
         out = {{ lattice_matrix_name }}()
         out.instance[0] = self.instance[0].adjoint()
         return out
@@ -503,13 +504,13 @@ cdef class {{ lattice_matrix_name }}:
         return {{ lattice_matrix_name }}(layout, {{ matrix_name }}.zeros())
 
     @staticmethod
-    def ones():
-        return {{ latrix_matrix_name }}(layout, {{ matrix_name }}.ones())
+    def ones(Layout layout):
+        return {{ lattice_matrix_name }}(layout, {{ matrix_name }}.ones())
 
 {% if is_square %}
     @staticmethod
-    def identity():
-        return {{ latrix_matrix_name }}(layout, {{ matrix_name }}.identity())
+    def identity(Layout layout):
+        return {{ lattice_matrix_name }}(layout, {{ matrix_name }}.identity())
     
 {% endif %}
     def to_numpy(self):
