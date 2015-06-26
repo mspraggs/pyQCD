@@ -293,7 +293,7 @@ cdef class {{ array_name }}:
         buffer.format = "{{ num_format + num_format }}"
         buffer.internal = NULL
         buffer.itemsize = itemsize
-        buffer.len = {{ num_rows }} * {{ num_cols }} * itemsize
+        buffer.len = {{ num_rows * num_cols }} * itemsize * self.instance.size()
         buffer.ndim = {% if is_matrix %}3{% else %}2{% endif %}
 
         buffer.obj = self
@@ -397,6 +397,9 @@ cdef class {{ array_name }}:
 {{ arithmetic.arithmetic_ops(operators, array_name, scalar_types, operator_map) }}
 cdef class {{ lattice_matrix_name }}:
     cdef {{ clattice_matrix }}* instance
+    cdef Py_ssize_t buffer_shape[{% if is_matrix %}3{% else %}2{% endif %}]
+    cdef Py_ssize_t buffer_strides[{% if is_matrix %}3{% else %}2{% endif %}]
+    cdef int view_count
 
     cdef {{ clattice_matrix }} cppobj(self):
         return self.instance[0]
@@ -417,6 +420,7 @@ cdef class {{ lattice_matrix_name }}:
 
     def __cinit__(self, Layout layout, *args):
         self.instance = new {{ clattice_matrix }}(layout.instance[0], {{ cmatrix }}())
+        self.view_count = 0
 
     def __init__(self, Layout layout, *args):
         cdef int i, volume
@@ -429,10 +433,35 @@ cdef class {{ lattice_matrix_name }}:
         del self.instance
 
     def __getbuffer__(self, Py_buffer* buffer, int flags):
-        pass
+        cdef Py_ssize_t itemsize = sizeof(complex.Complex)
+
+        self.buffer_shape[0] = self.instance.volume()
+        self.buffer_strides[0] = itemsize * {{ num_rows * num_cols }}
+        self.buffer_shape[1] = {{ num_rows }}
+        self.buffer_strides[1] = itemsize
+        {% if is_matrix %}
+        self.buffer_shape[2] = {{ num_cols }}
+        self.buffer_strides[2] = {{ num_cols }} * itemsize
+        {% endif %}
+
+        buffer.buf = <char*>&(self.instance[0][0])
+        {% set num_format = "d" if precision == "double" else "f" %}
+        buffer.format = "{{ num_format + num_format }}"
+        buffer.internal = NULL
+        buffer.itemsize = itemsize
+        buffer.len = {{ num_rows * num_cols }} * itemsize * self.instance.volume()
+        buffer.ndim = {% if is_matrix %}3{% else %}2{% endif %}
+
+        buffer.obj = self
+        buffer.readonly = 0
+        buffer.shape = self.buffer_shape
+        buffer.strides = self.buffer_strides
+        buffer.suboffsets = NULL
+
+        self.view_count += 1
 
     def __releasebuffer__(self, Py_buffer* buffer):
-        pass
+        self.view_count -= 1
 
     def __getitem__(self, index):
         cdef int num_dims = self.instance.num_dims()
@@ -514,7 +543,9 @@ cdef class {{ lattice_matrix_name }}:
     
 {% endif %}
     def to_numpy(self):
-        pass
+        out = np.asarray(self)
+        out.dtype = complex
+        return out
 
     @property
     def num_dims(self):

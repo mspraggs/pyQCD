@@ -446,3 +446,28 @@ class TestLatticeMatrixType(object):
 
         for index in np.ndindex(lat_mat.shape):
             assert lat_mat[index] == (1.0 + 0.0j if index[-1] == index[-2] else 0.0j)
+
+    def test_to_numpy(self, Matrix, LatticeMatrix):
+        """Test numpy conversion function"""
+        layout = LexicoLayout((8, 4, 4, 4))
+        lat_mat = LatticeMatrix.zeros(layout)
+        arr_shape = (lat_mat.volume,) + Matrix.shape
+        assert np.allclose(lat_mat.to_numpy(), np.zeros(arr_shape))
+
+    def test_buffer_protocol(self, Matrix, LatticeMatrix):
+        """Test buffer protocol implementation"""
+        layout = LexicoLayout((8, 4, 4, 4))
+        lat_mat = LatticeMatrix.zeros(layout)
+        arr_shape = (lat_mat.volume,) + Matrix.shape
+        np_lat = np.asarray(lat_mat)
+        np_lat.dtype = complex
+        for index in np.ndindex(arr_shape):
+            assert np_lat[index] == 0j
+
+        arr_index = tuple(s - 1 if i == 0 else 0
+                          for i, s in enumerate(arr_shape))
+        lat_index = (tuple(s - 1 for i, s in enumerate(lat_mat.lattice_shape)) +
+                     tuple(0 for s in Matrix.shape))
+        np_lat[arr_index] = 5.0
+        assert np_lat[arr_index] == 5.0 + 0j
+        assert lat_mat[lat_index] == 5.0 + 0j

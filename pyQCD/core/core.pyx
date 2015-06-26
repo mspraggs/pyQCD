@@ -424,7 +424,7 @@ cdef class ColourMatrixArray:
         buffer.format = "dd"
         buffer.internal = NULL
         buffer.itemsize = itemsize
-        buffer.len = 3 * 3 * itemsize
+        buffer.len = 9 * itemsize * self.instance.size()
         buffer.ndim = 3
         buffer.obj = self
         buffer.readonly = 0
@@ -652,6 +652,9 @@ cdef class ColourMatrixArray:
 
 cdef class LatticeColourMatrix:
     cdef lattice_colour_matrix.LatticeColourMatrix* instance
+    cdef Py_ssize_t buffer_shape[3]
+    cdef Py_ssize_t buffer_strides[3]
+    cdef int view_count
 
     cdef lattice_colour_matrix.LatticeColourMatrix cppobj(self):
         return self.instance[0]
@@ -672,6 +675,7 @@ cdef class LatticeColourMatrix:
 
     def __cinit__(self, Layout layout, *args):
         self.instance = new lattice_colour_matrix.LatticeColourMatrix(layout.instance[0], colour_matrix.ColourMatrix())
+        self.view_count = 0
 
     def __init__(self, Layout layout, *args):
         cdef int i, volume
@@ -684,10 +688,31 @@ cdef class LatticeColourMatrix:
         del self.instance
 
     def __getbuffer__(self, Py_buffer* buffer, int flags):
-        pass
+        cdef Py_ssize_t itemsize = sizeof(complex.Complex)
+
+        self.buffer_shape[0] = self.instance.volume()
+        self.buffer_strides[0] = itemsize * 9
+        self.buffer_shape[1] = 3
+        self.buffer_strides[1] = itemsize
+        self.buffer_shape[2] = 3
+        self.buffer_strides[2] = 3 * itemsize
+
+        buffer.buf = <char*>&(self.instance[0][0])
+        buffer.format = "dd"
+        buffer.internal = NULL
+        buffer.itemsize = itemsize
+        buffer.len = 9 * itemsize * self.instance.volume()
+        buffer.ndim = 3
+        buffer.obj = self
+        buffer.readonly = 0
+        buffer.shape = self.buffer_shape
+        buffer.strides = self.buffer_strides
+        buffer.suboffsets = NULL
+
+        self.view_count += 1
 
     def __releasebuffer__(self, Py_buffer* buffer):
-        pass
+        self.view_count -= 1
 
     def __getitem__(self, index):
         cdef int num_dims = self.instance.num_dims()
@@ -757,7 +782,9 @@ cdef class LatticeColourMatrix:
         return LatticeColourMatrix(layout, ColourMatrix.identity())
     
     def to_numpy(self):
-        pass
+        out = np.asarray(self)
+        out.dtype = complex
+        return out
 
     @property
     def num_dims(self):
@@ -1221,7 +1248,7 @@ cdef class Fermion:
         buffer.format = "dd"
         buffer.internal = NULL
         buffer.itemsize = itemsize
-        buffer.len = 3 * 1 * itemsize
+        buffer.len = 3 * itemsize * self.instance.size()
         buffer.ndim = 2
         buffer.obj = self
         buffer.readonly = 0
@@ -1416,6 +1443,9 @@ cdef class Fermion:
 
 cdef class LatticeColourVector:
     cdef lattice_colour_vector.LatticeColourVector* instance
+    cdef Py_ssize_t buffer_shape[2]
+    cdef Py_ssize_t buffer_strides[2]
+    cdef int view_count
 
     cdef lattice_colour_vector.LatticeColourVector cppobj(self):
         return self.instance[0]
@@ -1436,6 +1466,7 @@ cdef class LatticeColourVector:
 
     def __cinit__(self, Layout layout, *args):
         self.instance = new lattice_colour_vector.LatticeColourVector(layout.instance[0], colour_vector.ColourVector())
+        self.view_count = 0
 
     def __init__(self, Layout layout, *args):
         cdef int i, volume
@@ -1448,10 +1479,29 @@ cdef class LatticeColourVector:
         del self.instance
 
     def __getbuffer__(self, Py_buffer* buffer, int flags):
-        pass
+        cdef Py_ssize_t itemsize = sizeof(complex.Complex)
+
+        self.buffer_shape[0] = self.instance.volume()
+        self.buffer_strides[0] = itemsize * 3
+        self.buffer_shape[1] = 3
+        self.buffer_strides[1] = itemsize
+
+        buffer.buf = <char*>&(self.instance[0][0])
+        buffer.format = "dd"
+        buffer.internal = NULL
+        buffer.itemsize = itemsize
+        buffer.len = 3 * itemsize * self.instance.volume()
+        buffer.ndim = 2
+        buffer.obj = self
+        buffer.readonly = 0
+        buffer.shape = self.buffer_shape
+        buffer.strides = self.buffer_strides
+        buffer.suboffsets = NULL
+
+        self.view_count += 1
 
     def __releasebuffer__(self, Py_buffer* buffer):
-        pass
+        self.view_count -= 1
 
     def __getitem__(self, index):
         cdef int num_dims = self.instance.num_dims()
@@ -1518,7 +1568,9 @@ cdef class LatticeColourVector:
         return LatticeColourVector(layout, ColourVector.ones())
 
     def to_numpy(self):
-        pass
+        out = np.asarray(self)
+        out.dtype = complex
+        return out
 
     @property
     def num_dims(self):
