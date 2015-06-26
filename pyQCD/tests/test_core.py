@@ -471,3 +471,58 @@ class TestLatticeMatrixType(object):
         np_lat[arr_index] = 5.0
         assert np_lat[arr_index] == 5.0 + 0j
         assert lat_mat[lat_index] == 5.0 + 0j
+
+    def test_mul(self, Matrix, LatticeMatrix):
+        """Test multiplications"""
+        layout = LexicoLayout((8, 4, 4, 4))
+        mat1_data = np.random.rand(*Matrix.shape)
+        mat2_data = np.random.rand(*Matrix.shape)
+        lat_mat1 = LatticeMatrix(layout, Matrix(mat1_data))
+        lat_mat2 = LatticeMatrix(layout, Matrix(mat2_data))
+
+        if len(Matrix.shape) > 1 and Matrix.shape[0] == Matrix.shape[1]:
+            lat3 = lat_mat1 * lat_mat2
+            mat3_data = np.dot(mat1_data, mat2_data)
+            assert np.allclose(lat3.to_numpy(), mat3_data[None, :, :])
+        mat3_data = mat1_data * 5.0
+        lat_mat3 = lat_mat1 * 5.0
+        assert np.allclose(lat_mat3.to_numpy(), mat3_data)
+        mat3_data = mat1_data * (5.0 + 1.0j)
+        lat_mat3 = lat_mat1 * (5.0 + 1.0j)
+        assert np.allclose(lat_mat3.to_numpy(), mat3_data)
+        lat_mat3 = (5.0 + 1.0j) * lat_mat1
+        assert np.allclose(lat_mat3.to_numpy(), mat3_data)
+
+    def test_div(self, Matrix, LatticeMatrix):
+        """Test division"""
+        layout = LexicoLayout((8, 4, 4, 4))
+        mat1_data = np.random.rand(*Matrix.shape)
+        mat2_data = mat1_data / (4.0 - 2.0j)
+        lat_mat1 = LatticeMatrix(layout, Matrix(mat1_data))
+        lat_mat2 = lat_mat1 / (4.0 - 2.0j)
+        broadcast = (None,) + (slice(None),) * len(Matrix.shape)
+        assert np.allclose(lat_mat2.to_numpy(), mat2_data[broadcast])
+
+    def test_add(self, Matrix, LatticeMatrix):
+        """Test addition"""
+        layout = LexicoLayout((8, 4, 4, 4))
+        mat1_data = np.random.rand(*Matrix.shape)
+        mat2_data = np.random.rand(*Matrix.shape)
+        mat3_data = mat1_data + mat2_data
+        lat_mat1 = LatticeMatrix(layout, Matrix(mat1_data))
+        lat_mat2 = LatticeMatrix(layout, Matrix(mat2_data))
+        lat_mat3 = lat_mat1 + lat_mat2
+        broadcast = (None,) + (slice(None),) * len(Matrix.shape)
+        assert np.allclose(lat_mat3.to_numpy(), mat3_data[broadcast])
+
+    def test_sub(self, Matrix, LatticeMatrix):
+        """Test addition"""
+        layout = LexicoLayout((8, 4, 4, 4))
+        mat1_data = np.random.rand(*Matrix.shape)
+        mat2_data = np.random.rand(*Matrix.shape)
+        mat3_data = mat1_data - mat2_data
+        lat_mat1 = LatticeMatrix(layout, Matrix(mat1_data))
+        lat_mat2 = LatticeMatrix(layout, Matrix(mat2_data))
+        lat_mat3 = lat_mat1 - lat_mat2
+        broadcast = (None,) + (slice(None),) * len(Matrix.shape)
+        assert np.allclose(lat_mat3.to_numpy(), mat3_data[broadcast])

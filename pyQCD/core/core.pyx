@@ -652,6 +652,7 @@ cdef class ColourMatrixArray:
 
 cdef class LatticeColourMatrix:
     cdef lattice_colour_matrix.LatticeColourMatrix* instance
+    cdef Layout layout
     cdef Py_ssize_t buffer_shape[3]
     cdef Py_ssize_t buffer_strides[3]
     cdef int view_count
@@ -675,6 +676,7 @@ cdef class LatticeColourMatrix:
 
     def __cinit__(self, Layout layout, *args):
         self.instance = new lattice_colour_matrix.LatticeColourMatrix(layout.instance[0], colour_matrix.ColourMatrix())
+        self.layout = layout
         self.view_count = 0
 
     def __init__(self, Layout layout, *args):
@@ -813,17 +815,17 @@ cdef class LatticeColourMatrix:
                         "{} and {}".format(type(self), type(other)))
 
     cdef inline LatticeColourMatrix _add_LatticeColourMatrix_ColourMatrix(LatticeColourMatrix self, ColourMatrix other):
-        cdef LatticeColourMatrix out = LatticeColourMatrix()
+        cdef LatticeColourMatrix out = LatticeColourMatrix(self.layout)
         out.instance[0] = self.instance[0] + other.instance[0]
         return out
 
     cdef inline LatticeColourMatrix _add_LatticeColourMatrix_LatticeColourMatrix(LatticeColourMatrix self, LatticeColourMatrix other):
-        cdef LatticeColourMatrix out = LatticeColourMatrix()
+        cdef LatticeColourMatrix out = LatticeColourMatrix(self.layout)
         out.instance[0] = self.instance[0] + other.instance[0]
         return out
 
     cdef inline GaugeField _add_LatticeColourMatrix_GaugeField(LatticeColourMatrix self, GaugeField other):
-        cdef GaugeField out = GaugeField()
+        cdef GaugeField out = GaugeField(self.layout)
         out.instance[0] = self.instance[0] + other.instance[0]
         return out
 
@@ -860,47 +862,47 @@ cdef class LatticeColourMatrix:
                         "{} and {}".format(type(self), type(other)))
 
     cdef inline LatticeColourMatrix _mul_LatticeColourMatrix_float(LatticeColourMatrix self, float other):
-        cdef LatticeColourMatrix out = LatticeColourMatrix()
+        cdef LatticeColourMatrix out = LatticeColourMatrix(self.layout)
         out.instance[0] = self.instance[0] * other
         return out
 
     cdef inline LatticeColourMatrix _mul_LatticeColourMatrix_int(LatticeColourMatrix self, int other):
-        cdef LatticeColourMatrix out = LatticeColourMatrix()
+        cdef LatticeColourMatrix out = LatticeColourMatrix(self.layout)
         out.instance[0] = self.instance[0] * other
         return out
 
     cdef inline LatticeColourMatrix _mul_LatticeColourMatrix_Complex(LatticeColourMatrix self, Complex other):
-        cdef LatticeColourMatrix out = LatticeColourMatrix()
+        cdef LatticeColourMatrix out = LatticeColourMatrix(self.layout)
         out.instance[0] = self.instance[0] * other.instance
         return out
 
     cdef inline LatticeColourMatrix _mul_LatticeColourMatrix_ColourMatrix(LatticeColourMatrix self, ColourMatrix other):
-        cdef LatticeColourMatrix out = LatticeColourMatrix()
+        cdef LatticeColourMatrix out = LatticeColourMatrix(self.layout)
         out.instance[0] = self.instance[0] * other.instance[0]
         return out
 
     cdef inline LatticeColourMatrix _mul_LatticeColourMatrix_LatticeColourMatrix(LatticeColourMatrix self, LatticeColourMatrix other):
-        cdef LatticeColourMatrix out = LatticeColourMatrix()
+        cdef LatticeColourMatrix out = LatticeColourMatrix(self.layout)
         out.instance[0] = self.instance[0] * other.instance[0]
         return out
 
     cdef inline GaugeField _mul_LatticeColourMatrix_GaugeField(LatticeColourMatrix self, GaugeField other):
-        cdef GaugeField out = GaugeField()
+        cdef GaugeField out = GaugeField(self.layout)
         out.instance[0] = self.instance[0] * other.instance[0]
         return out
 
     cdef inline LatticeColourVector _mul_LatticeColourMatrix_ColourVector(LatticeColourMatrix self, ColourVector other):
-        cdef LatticeColourVector out = LatticeColourVector()
+        cdef LatticeColourVector out = LatticeColourVector(self.layout)
         out.instance[0] = self.instance[0] * other.instance[0]
         return out
 
     cdef inline LatticeColourVector _mul_LatticeColourMatrix_LatticeColourVector(LatticeColourMatrix self, LatticeColourVector other):
-        cdef LatticeColourVector out = LatticeColourVector()
+        cdef LatticeColourVector out = LatticeColourVector(self.layout)
         out.instance[0] = self.instance[0] * other.instance[0]
         return out
 
     cdef inline FermionField _mul_LatticeColourMatrix_FermionField(LatticeColourMatrix self, FermionField other):
-        cdef FermionField out = FermionField()
+        cdef FermionField out = FermionField(self.layout)
         out.instance[0] = self.instance[0] * other.instance[0]
         return out
 
@@ -913,12 +915,12 @@ cdef class LatticeColourMatrix:
                         "{} and {}".format(type(self), type(other)))
 
     cdef inline LatticeColourMatrix _sub_LatticeColourMatrix_ColourMatrix(LatticeColourMatrix self, ColourMatrix other):
-        cdef LatticeColourMatrix out = LatticeColourMatrix()
+        cdef LatticeColourMatrix out = LatticeColourMatrix(self.layout)
         out.instance[0] = self.instance[0] - other.instance[0]
         return out
 
     cdef inline LatticeColourMatrix _sub_LatticeColourMatrix_LatticeColourMatrix(LatticeColourMatrix self, LatticeColourMatrix other):
-        cdef LatticeColourMatrix out = LatticeColourMatrix()
+        cdef LatticeColourMatrix out = LatticeColourMatrix(self.layout)
         out.instance[0] = self.instance[0] - other.instance[0]
         return out
 
@@ -947,17 +949,17 @@ cdef class LatticeColourMatrix:
                         "{} and {}".format(type(self), type(other)))
 
     cdef inline LatticeColourMatrix _div_LatticeColourMatrix_float(LatticeColourMatrix self, float other):
-        cdef LatticeColourMatrix out = LatticeColourMatrix()
+        cdef LatticeColourMatrix out = LatticeColourMatrix(self.layout)
         out.instance[0] = self.instance[0] / other
         return out
 
     cdef inline LatticeColourMatrix _div_LatticeColourMatrix_int(LatticeColourMatrix self, int other):
-        cdef LatticeColourMatrix out = LatticeColourMatrix()
+        cdef LatticeColourMatrix out = LatticeColourMatrix(self.layout)
         out.instance[0] = self.instance[0] / other
         return out
 
     cdef inline LatticeColourMatrix _div_LatticeColourMatrix_Complex(LatticeColourMatrix self, Complex other):
-        cdef LatticeColourMatrix out = LatticeColourMatrix()
+        cdef LatticeColourMatrix out = LatticeColourMatrix(self.layout)
         out.instance[0] = self.instance[0] / other.instance
         return out
 
@@ -1443,6 +1445,7 @@ cdef class Fermion:
 
 cdef class LatticeColourVector:
     cdef lattice_colour_vector.LatticeColourVector* instance
+    cdef Layout layout
     cdef Py_ssize_t buffer_shape[2]
     cdef Py_ssize_t buffer_strides[2]
     cdef int view_count
@@ -1466,6 +1469,7 @@ cdef class LatticeColourVector:
 
     def __cinit__(self, Layout layout, *args):
         self.instance = new lattice_colour_vector.LatticeColourVector(layout.instance[0], colour_vector.ColourVector())
+        self.layout = layout
         self.view_count = 0
 
     def __init__(self, Layout layout, *args):
@@ -1599,17 +1603,17 @@ cdef class LatticeColourVector:
                         "{} and {}".format(type(self), type(other)))
 
     cdef inline LatticeColourVector _add_LatticeColourVector_ColourVector(LatticeColourVector self, ColourVector other):
-        cdef LatticeColourVector out = LatticeColourVector()
+        cdef LatticeColourVector out = LatticeColourVector(self.layout)
         out.instance[0] = self.instance[0] + other.instance[0]
         return out
 
     cdef inline LatticeColourVector _add_LatticeColourVector_LatticeColourVector(LatticeColourVector self, LatticeColourVector other):
-        cdef LatticeColourVector out = LatticeColourVector()
+        cdef LatticeColourVector out = LatticeColourVector(self.layout)
         out.instance[0] = self.instance[0] + other.instance[0]
         return out
 
     cdef inline FermionField _add_LatticeColourVector_FermionField(LatticeColourVector self, FermionField other):
-        cdef FermionField out = FermionField()
+        cdef FermionField out = FermionField(self.layout)
         out.instance[0] = self.instance[0] + other.instance[0]
         return out
 
@@ -1634,17 +1638,17 @@ cdef class LatticeColourVector:
                         "{} and {}".format(type(self), type(other)))
 
     cdef inline LatticeColourVector _mul_LatticeColourVector_float(LatticeColourVector self, float other):
-        cdef LatticeColourVector out = LatticeColourVector()
+        cdef LatticeColourVector out = LatticeColourVector(self.layout)
         out.instance[0] = self.instance[0] * other
         return out
 
     cdef inline LatticeColourVector _mul_LatticeColourVector_int(LatticeColourVector self, int other):
-        cdef LatticeColourVector out = LatticeColourVector()
+        cdef LatticeColourVector out = LatticeColourVector(self.layout)
         out.instance[0] = self.instance[0] * other
         return out
 
     cdef inline LatticeColourVector _mul_LatticeColourVector_Complex(LatticeColourVector self, Complex other):
-        cdef LatticeColourVector out = LatticeColourVector()
+        cdef LatticeColourVector out = LatticeColourVector(self.layout)
         out.instance[0] = self.instance[0] * other.instance
         return out
 
@@ -1657,12 +1661,12 @@ cdef class LatticeColourVector:
                         "{} and {}".format(type(self), type(other)))
 
     cdef inline LatticeColourVector _sub_LatticeColourVector_ColourVector(LatticeColourVector self, ColourVector other):
-        cdef LatticeColourVector out = LatticeColourVector()
+        cdef LatticeColourVector out = LatticeColourVector(self.layout)
         out.instance[0] = self.instance[0] - other.instance[0]
         return out
 
     cdef inline LatticeColourVector _sub_LatticeColourVector_LatticeColourVector(LatticeColourVector self, LatticeColourVector other):
-        cdef LatticeColourVector out = LatticeColourVector()
+        cdef LatticeColourVector out = LatticeColourVector(self.layout)
         out.instance[0] = self.instance[0] - other.instance[0]
         return out
 
@@ -1691,17 +1695,17 @@ cdef class LatticeColourVector:
                         "{} and {}".format(type(self), type(other)))
 
     cdef inline LatticeColourVector _div_LatticeColourVector_float(LatticeColourVector self, float other):
-        cdef LatticeColourVector out = LatticeColourVector()
+        cdef LatticeColourVector out = LatticeColourVector(self.layout)
         out.instance[0] = self.instance[0] / other
         return out
 
     cdef inline LatticeColourVector _div_LatticeColourVector_int(LatticeColourVector self, int other):
-        cdef LatticeColourVector out = LatticeColourVector()
+        cdef LatticeColourVector out = LatticeColourVector(self.layout)
         out.instance[0] = self.instance[0] / other
         return out
 
     cdef inline LatticeColourVector _div_LatticeColourVector_Complex(LatticeColourVector self, Complex other):
-        cdef LatticeColourVector out = LatticeColourVector()
+        cdef LatticeColourVector out = LatticeColourVector(self.layout)
         out.instance[0] = self.instance[0] / other.instance
         return out
 

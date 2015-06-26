@@ -236,7 +236,7 @@ cdef class {{ matrix_name }}:
         out.dtype = complex
         return out
 
-{{ arithmetic.arithmetic_ops(operators, matrix_name, scalar_types, operator_map) }}
+{{ arithmetic.arithmetic_ops(operators, matrix_name, scalar_types, operator_map, False) }}
 cdef class {{ array_name }}:
     cdef {{ carray }}* instance
     cdef Py_ssize_t buffer_shape[{% if is_matrix %}3{% else %}2{% endif %}]
@@ -394,9 +394,10 @@ cdef class {{ array_name }}:
     def shape(self):
         return (self.size, {{ num_rows}},{% if is_matrix %} {{num_cols}}{% endif %})
 
-{{ arithmetic.arithmetic_ops(operators, array_name, scalar_types, operator_map) }}
+{{ arithmetic.arithmetic_ops(operators, array_name, scalar_types, operator_map, False) }}
 cdef class {{ lattice_matrix_name }}:
     cdef {{ clattice_matrix }}* instance
+    cdef Layout layout
     cdef Py_ssize_t buffer_shape[{% if is_matrix %}3{% else %}2{% endif %}]
     cdef Py_ssize_t buffer_strides[{% if is_matrix %}3{% else %}2{% endif %}]
     cdef int view_count
@@ -420,6 +421,7 @@ cdef class {{ lattice_matrix_name }}:
 
     def __cinit__(self, Layout layout, *args):
         self.instance = new {{ clattice_matrix }}(layout.instance[0], {{ cmatrix }}())
+        self.layout = layout
         self.view_count = 0
 
     def __init__(self, Layout layout, *args):
@@ -563,7 +565,7 @@ cdef class {{ lattice_matrix_name }}:
     def shape(self):
         return tuple(self.instance.lattice_shape()) + {{ matrix_name }}.shape
 
-{{ arithmetic.arithmetic_ops(operators, lattice_matrix_name, scalar_types, operator_map) }}
+{{ arithmetic.arithmetic_ops(operators, lattice_matrix_name, scalar_types, operator_map, True) }}
 cdef class {{ lattice_array_name }}:
     cdef {{ clattice_array }}* instance
     def __init__(self):

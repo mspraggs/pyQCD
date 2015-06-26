@@ -1,5 +1,5 @@
 {# TODO: Refactor this so it's less of an eyesore #}
-{% macro arithmetic_ops(operators, typename, scalar_types, operator_map) %}
+{% macro arithmetic_ops(operators, typename, scalar_types, operator_map, is_lattice) %}
 {% for op, funcnames in operator_map.items() %}
 {# Set a couple of flags to determine if we have a complex lhs or rhs in our
  # list of operators. #}
@@ -44,7 +44,7 @@
     cdef inline {{ ret }} _{{ funcnames[0] }}_{{ lhs }}_{{ rhs }}({{ lhs }} self, {{ rhs }} other):
 {% set lhs_op = "self.instance" + (".broadcast()" if lhs_bcast else "[0]") %}
 {% set rhs_op = "other" + (".instance" if rhs not in scalar_types else "") + (("[0]" if not rhs_bcast else ".broadcast()") if rhs != "Complex" and rhs not in scalar_types else "") %}
-        cdef {{ ret }} out = {{ ret }}()
+        cdef {{ ret }} out = {{ ret }}({% if is_lattice %}self.layout{% endif %})
         out.instance[0] = {{ lhs_op }} {{ op }} {{ rhs_op }}
         return out
 
