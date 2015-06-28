@@ -14,6 +14,7 @@ cimport {{ matrix.lattice_array_name|to_underscores }}
 {% endfor %}
 
 {% import "core/arithmetic.pyx" as arithmetic %}
+{% import "core/core_macros.pyx" as macros %}
 
 scalar_types = (int, float, np.single, np.double,
                 np.float16, np.float32, np.float64, np.float128)
@@ -142,32 +143,7 @@ cdef class {{ matrix_name }}:
     def __dealloc__(self):
         del self.instance
 
-    def __getbuffer__(self, Py_buffer* buffer, int flags):
-        cdef Py_ssize_t itemsize = sizeof(complex.Complex)
-
-        self.buffer_shape[0] = {{ num_rows }}
-        self.buffer_strides[0] = itemsize
-        {% if is_matrix %}
-        self.buffer_shape[1] = {{ num_cols }}
-        self.buffer_strides[1] = {{ num_cols }} * itemsize
-        {% endif %}
-
-        buffer.buf = <char*>self.instance
-        {% set num_format = "d" if precision == "double" else "f" %}
-        buffer.format = "{{ num_format + num_format }}"
-        buffer.internal = NULL
-        buffer.itemsize = itemsize
-        buffer.len = {{ num_rows }} * {{ num_cols }} * itemsize
-        buffer.ndim = {% if is_matrix %}2{% else %}1{% endif %}
-
-        buffer.obj = self
-        buffer.readonly = 0
-        buffer.shape = self.buffer_shape
-        buffer.strides = self.buffer_strides
-        buffer.suboffsets = NULL
-
-    def __releasebuffer__(self, Py_buffer* buffer):
-        pass
+{{ macros.make_buffer_code(num_rows, num_cols, precision, is_matrix, False, False) }}
 
     def __getitem__(self, index):
         out = Complex(0.0, 0.0)
@@ -289,36 +265,7 @@ cdef class {{ array_name }}:
     def __dealloc__(self):
         del self.instance
 
-    def __getbuffer__(self, Py_buffer* buffer, int flags):
-        cdef Py_ssize_t itemsize = sizeof(complex.Complex)
-
-        self.buffer_shape[0] = self.instance.size()
-        self.buffer_strides[0] = itemsize * {{ num_rows * num_cols }}
-        self.buffer_shape[1] = {{ num_rows }}
-        self.buffer_strides[1] = itemsize
-        {% if is_matrix %}
-        self.buffer_shape[2] = {{ num_cols }}
-        self.buffer_strides[2] = {{ num_cols }} * itemsize
-        {% endif %}
-
-        buffer.buf = <char*>&(self.instance[0][0])
-        {% set num_format = "d" if precision == "double" else "f" %}
-        buffer.format = "{{ num_format + num_format }}"
-        buffer.internal = NULL
-        buffer.itemsize = itemsize
-        buffer.len = {{ num_rows * num_cols }} * itemsize * self.instance.size()
-        buffer.ndim = {% if is_matrix %}3{% else %}2{% endif %}
-
-        buffer.obj = self
-        buffer.readonly = 0
-        buffer.shape = self.buffer_shape
-        buffer.strides = self.buffer_strides
-        buffer.suboffsets = NULL
-
-        self.view_count += 1
-
-    def __releasebuffer__(self, Py_buffer* buffer):
-        self.view_count -= 1
+{{ macros.make_buffer_code(num_rows, num_cols, precision, is_matrix, True, False) }}
 
     def __getitem__(self, index):
         if type(index) is tuple and len(index) is 1:
@@ -438,36 +385,7 @@ cdef class {{ lattice_matrix_name }}:
     def __dealloc__(self):
         del self.instance
 
-    def __getbuffer__(self, Py_buffer* buffer, int flags):
-        cdef Py_ssize_t itemsize = sizeof(complex.Complex)
-
-        self.buffer_shape[0] = self.instance.volume()
-        self.buffer_strides[0] = itemsize * {{ num_rows * num_cols }}
-        self.buffer_shape[1] = {{ num_rows }}
-        self.buffer_strides[1] = itemsize
-        {% if is_matrix %}
-        self.buffer_shape[2] = {{ num_cols }}
-        self.buffer_strides[2] = {{ num_cols }} * itemsize
-        {% endif %}
-
-        buffer.buf = <char*>&(self.instance[0][0])
-        {% set num_format = "d" if precision == "double" else "f" %}
-        buffer.format = "{{ num_format + num_format }}"
-        buffer.internal = NULL
-        buffer.itemsize = itemsize
-        buffer.len = {{ num_rows * num_cols }} * itemsize * self.instance.volume()
-        buffer.ndim = {% if is_matrix %}3{% else %}2{% endif %}
-
-        buffer.obj = self
-        buffer.readonly = 0
-        buffer.shape = self.buffer_shape
-        buffer.strides = self.buffer_strides
-        buffer.suboffsets = NULL
-
-        self.view_count += 1
-
-    def __releasebuffer__(self, Py_buffer* buffer):
-        self.view_count -= 1
+{{ macros.make_buffer_code(num_rows, num_cols, precision, is_matrix, False, True) }}
 
     def __getitem__(self, index):
         cdef int num_dims = self.instance.num_dims()

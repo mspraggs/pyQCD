@@ -18,7 +18,8 @@ import setuptools
 
 # Create the jinja2 template environment.
 env = Environment(loader=PackageLoader('pyQCD', 'templates'),
-                  trim_blocks=True, lstrip_blocks=True)
+                  trim_blocks=True, lstrip_blocks=True,
+                  extensions=["jinja2.ext.do"])
 
 MatrixDefinition = namedtuple("MatrixDefinition",
                               ["num_rows", "num_cols", "matrix_name",
@@ -374,4 +375,4 @@ class CodeGen(setuptools.Command):
 
 
 env.filters['to_underscores'] = _camel2underscores
-env.globals.update(zip=zip)
+env.globals.update(zip=zip, len=len)
