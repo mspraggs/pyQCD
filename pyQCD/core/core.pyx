@@ -90,6 +90,19 @@ cdef inline int validate_ColourMatrix_indices(int i, int j) except -1:
                          "{}".format((i, j)))
 
 
+cdef inline int validate_LatticeColourMatrix_index(index, vector[unsigned int] shape, unsigned int num_dims, unsigned int volume) except -1:
+    cdef int i
+    if type(index) is tuple:
+        for i in range(num_dims):
+            if index[i] >= shape[i] or index[i] < 0:
+                raise IndexError("Index in LatticeColourMatrix element access "
+                                 "out of bounds: {}".format(index))
+    elif type(index) is int:
+        if index < 0 or index >= volume:
+            raise IndexError("Index in LatticeColourMatrix element access "
+                             "out of bounds: {}".format(index))
+
+
 cdef class ColourMatrix:
     cdef colour_matrix.ColourMatrix* instance
     cdef Py_ssize_t buffer_shape[2]
@@ -661,18 +674,9 @@ cdef class LatticeColourMatrix:
         return self.instance[0]
 
     cdef validate_index(self, index):
-        cdef int i
-        cdef int num_dims = self.instance.num_dims()
-        cdef vector[unsigned int] shape = self.instance.lattice_shape()
-        if type(index) is tuple:
-            for i in range(num_dims):
-                if index[i] >= shape[i] or index[i] < 0:
-                    raise IndexError("Index in LatticeColourMatrix element access "
-                                     "out of bounds: {}".format(index))
-        elif type(index) is int:
-            if index < 0 or index >= self.instance.volume():
-                raise IndexError("Index in LatticeColourMatrix element access "
-                                 "out of bounds: {}".format(index))
+        validate_LatticeColourMatrix_index(
+            index, self.instance.lattice_shape(), self.instance.num_dims(),
+            self.instance.volume())
 
     def __cinit__(self, Layout layout, *args):
         self.instance = new lattice_colour_matrix.LatticeColourMatrix(layout.instance[0], colour_matrix.ColourMatrix())
@@ -974,6 +978,19 @@ cdef inline int validate_ColourVector_indices(int i) except -1:
     if i > 2 or i < 0:
         raise IndexError("Indices in ColourVector element access out of bounds: "
                          "{}".format((i)))
+
+
+cdef inline int validate_LatticeColourVector_index(index, vector[unsigned int] shape, unsigned int num_dims, unsigned int volume) except -1:
+    cdef int i
+    if type(index) is tuple:
+        for i in range(num_dims):
+            if index[i] >= shape[i] or index[i] < 0:
+                raise IndexError("Index in LatticeColourVector element access "
+                                 "out of bounds: {}".format(index))
+    elif type(index) is int:
+        if index < 0 or index >= volume:
+            raise IndexError("Index in LatticeColourVector element access "
+                             "out of bounds: {}".format(index))
 
 
 cdef class ColourVector:
@@ -1454,18 +1471,9 @@ cdef class LatticeColourVector:
         return self.instance[0]
 
     cdef validate_index(self, index):
-        cdef int i
-        cdef int num_dims = self.instance.num_dims()
-        cdef vector[unsigned int] shape = self.instance.lattice_shape()
-        if type(index) is tuple:
-            for i in range(num_dims):
-                if index[i] >= shape[i] or index[i] < 0:
-                    raise IndexError("Index in LatticeColourVector element access "
-                                     "out of bounds: {}".format(index))
-        elif type(index) is int:
-            if index < 0 or index >= self.instance.volume():
-                raise IndexError("Index in LatticeColourVector element access "
-                                 "out of bounds: {}".format(index))
+        validate_LatticeColourVector_index(
+            index, self.instance.lattice_shape(), self.instance.num_dims(),
+            self.instance.volume())
 
     def __cinit__(self, Layout layout, *args):
         self.instance = new lattice_colour_vector.LatticeColourVector(layout.instance[0], colour_vector.ColourVector())

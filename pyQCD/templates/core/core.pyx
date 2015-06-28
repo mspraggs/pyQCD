@@ -96,6 +96,19 @@ cdef inline int validate_{{ matrix_name }}_indices(int i{% if is_matrix %}, int 
                          "{}".format((i{% if is_matrix %}, j{% endif %})))
 
 
+cdef inline int validate_{{ lattice_matrix_name }}_index(index, vector[unsigned int] shape, unsigned int num_dims, unsigned int volume) except -1:
+    cdef int i
+    if type(index) is tuple:
+        for i in range(num_dims):
+            if index[i] >= shape[i] or index[i] < 0:
+                raise IndexError("Index in {{ lattice_matrix_name }} element access "
+                                 "out of bounds: {}".format(index))
+    elif type(index) is int:
+        if index < 0 or index >= volume:
+            raise IndexError("Index in {{ lattice_matrix_name }} element access "
+                             "out of bounds: {}".format(index))
+
+
 cdef class {{ matrix_name }}:
     cdef {{ cmatrix }}* instance
     cdef Py_ssize_t buffer_shape[{% if is_matrix %}2{% else %}1{% endif %}]
@@ -406,18 +419,9 @@ cdef class {{ lattice_matrix_name }}:
         return self.instance[0]
 
     cdef validate_index(self, index):
-        cdef int i
-        cdef int num_dims = self.instance.num_dims()
-        cdef vector[unsigned int] shape = self.instance.lattice_shape()
-        if type(index) is tuple:
-            for i in range(num_dims):
-                if index[i] >= shape[i] or index[i] < 0:
-                    raise IndexError("Index in {{ lattice_matrix_name }} element access "
-                                     "out of bounds: {}".format(index))
-        elif type(index) is int:
-            if index < 0 or index >= self.instance.volume():
-                raise IndexError("Index in {{ lattice_matrix_name }} element access "
-                                 "out of bounds: {}".format(index))
+        validate_{{ lattice_matrix_name }}_index(
+            index, self.instance.lattice_shape(), self.instance.num_dims(),
+            self.instance.volume())
 
     def __cinit__(self, Layout layout, *args):
         self.instance = new {{ clattice_matrix }}(layout.instance[0], {{ cmatrix }}())
