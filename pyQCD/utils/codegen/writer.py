@@ -19,3 +19,10 @@ class CodeWriter(BaseWriter):
         self.indent()
         self.visit(node.body)
         self.dedent()
+
+    def visit_CFuncDeclaratorNode(self, node):
+        # TODO: except, gil, etc.
+        self.visit(node.base)
+        self.put(u'(')
+        self.comma_separated_list(node.args)
+        self.endline(u'):')
