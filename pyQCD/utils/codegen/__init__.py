@@ -1,7 +1,5 @@
-"""This module contains various utility functions. Specifically:
-
-- Functions to generate Cython code a specific number of colours, representation
-etc.
+"""This module contains the main entry point for the Cython code generator. It
+calls various other utilities within the codegen package.
 """
 
 from __future__ import absolute_import, print_function
@@ -339,7 +337,7 @@ def generate_qcd(num_colours, precision, representation, dest=None):
         raise ValueError("Unknown representation: {}".format(representation))
 
     src = os.path.normpath(os.path.join(os.path.dirname(__file__),
-                                        "../../pyQCD"))
+                                        "../../../pyQCD"))
     if dest:
         shutil.copytree(src, dest, ignore=_filter_lib)
     else:
