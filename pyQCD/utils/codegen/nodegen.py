@@ -43,9 +43,13 @@ class Builder(object):
         """Create cppobj member function to return instance"""
         ret = ExprNodes.AttributeNode(None, attribute="instance",
                                       obj=ExprNodes.NameNode(None, name="self"))
+
+    def instance_val_accessor(self):
         if self.wrap_ptr:
             ret = ExprNodes.IndexNode(
                 None, index=ExprNodes.IntNode(None, value='0'), base=ret)
+
+    def build_cppobj(self, typedef):
         declarator = Nodes.CFuncDeclaratorNode(
             None, args=[Nodes.CArgDeclNode(
                 None,
@@ -59,9 +63,30 @@ class Builder(object):
             None, overridable=False, visibility="private", api=0,
             declarator=declarator, body=Nodes.ReturnStatNode(None, value=ret))
 
+    def build_cinit(self, typedef):
+
 
 class ContainerBuilder(Builder):
     """Builder subclass for Container types."""
 
     def build_getitem(self, typedef):
         pass
+def generate_simple_array_def(typename, varname, ndims):
+    """Generate a CVarDefNode using the specified parameters"""
+    name_declarator = Nodes.CNameDeclaratorNode(None, name=varname)
+    array_declarator = Nodes.CArrayDeclaratorNode(
+        None, base=name_declarator,
+        dimension=ExprNodes.IntNode(None, value=ndims))
+    return Nodes.CVarDefNode(
+        None, declarators=[array_declarator],
+        base_type=Nodes.CSimpleBaseTypeNode(None, name=typename))
+
+
+def generate_simple_args(*args):
+    """Generate a list of CArgDeclNode objects for simple positional args"""
+    out = []
+    for arg in args:
+        out.append(Nodes.CArgDeclNode(
+            None, declarator=Nodes.CNameDeclaratorNode(None, name=arg),
+            default=None, base_type=Nodes.CSimpleBaseTypeNode(None, name=None)))
+    return out
