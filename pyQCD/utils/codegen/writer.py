@@ -40,3 +40,9 @@ class CodeWriter(BaseWriter):
         """Handler for NewExprNode types"""
         self.put("new ")
         self.visit(node.cppclass)
+
+    def visit_DelStatNode(self, node):
+        """Handler for NewExprNode types"""
+        self.startline("del ")
+        self.comma_separated_list(node.args)
+        self.endline()
