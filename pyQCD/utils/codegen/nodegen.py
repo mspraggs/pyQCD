@@ -39,29 +39,30 @@ class Builder(object):
             None, declarators=declarators,
             base_type=Nodes.CSimpleBaseTypeNode(None, name=typedef.cname))
 
-    def build_cppobj(self, typedef):
-        """Create cppobj member function to return instance"""
+    def instance_raw_accessor(self):
+        """Generate node for instance raw access, whatever that is"""
         ret = ExprNodes.AttributeNode(None, attribute="instance",
                                       obj=ExprNodes.NameNode(None, name="self"))
+        return ret
 
     def instance_val_accessor(self):
+        """Generate node for instance access"""
+        ret = self.instance_raw_accessor()
         if self.wrap_ptr:
             ret = ExprNodes.IndexNode(
                 None, index=ExprNodes.IntNode(None, value='0'), base=ret)
+        return ret
 
     def build_cppobj(self, typedef):
+        """Create cppobj member function to return instance"""
         declarator = Nodes.CFuncDeclaratorNode(
-            None, args=[Nodes.CArgDeclNode(
-                None,
-                base_type=Nodes.CSimpleBaseTypeNode(None, name="self"),
-                declarator=Nodes.CNameDeclaratorNode(None, name=""),
-                default=None
-            )],
+            None, args=generate_simple_args("self"),
             base=Nodes.CNameDeclaratorNode(None, name="cppobj")
         )
         return Nodes.CFuncDefNode(
             None, overridable=False, visibility="private", api=0,
-            declarator=declarator, body=Nodes.ReturnStatNode(None, value=ret))
+            declarator=declarator,
+            body=Nodes.ReturnStatNode(None, value=self.instance_raw_accessor()))
 
     def build_cinit(self, typedef):
 
