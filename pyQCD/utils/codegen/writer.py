@@ -31,4 +31,7 @@ class CodeWriter(BaseWriter):
 
     def visit_IndexNode(self, node):
         """Handler for visit_IndexNode types"""
+        self.visit(node.base)
         self.put("[")
+        self.visit(node.index)
+        self.put("]")
