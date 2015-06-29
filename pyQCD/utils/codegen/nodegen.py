@@ -82,8 +82,17 @@ class Builder(object):
 class ContainerBuilder(Builder):
     """Builder subclass for Container types."""
 
-    def build_getitem(self, typedef):
-        pass
+    def build_buffer_shape(self, typedef):
+        """Create a buffer_shape attribute for use with buffer protocol"""
+        return generate_simple_array_def("Py_ssize_t", "buffer_shape",
+                                         str(typedef.num_dims))
+
+    def build_buffer_strides(self, typedef):
+        """Create a buffer_shape attribute for use with buffer protocol"""
+        return generate_simple_array_def("Py_ssize_t", "buffer_strides",
+                                         str(typedef.num_dims))
+
+
 def generate_simple_array_def(typename, varname, ndims):
     """Generate a CVarDefNode using the specified parameters"""
     name_declarator = Nodes.CNameDeclaratorNode(None, name=varname)
