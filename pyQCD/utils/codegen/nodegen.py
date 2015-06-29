@@ -3,7 +3,7 @@ node types"""
 
 from __future__ import absolute_import
 
-from Cython.Compiler import Nodes
+from Cython.Compiler import ExprNodes, Nodes
 
 
 def generate_type_node(typedef, builder):
@@ -41,18 +41,27 @@ class Builder(object):
 
     def build_cppobj(self, typedef):
         """Create cppobj member function to return instance"""
+        ret = ExprNodes.AttributeNode(None, attribute="instance",
+                                      obj=ExprNodes.NameNode(None, name="self"))
+        if self.wrap_ptr:
+            ret = ExprNodes.IndexNode(None,
+                                      index=ExprNodes.IntNode(None, value='0'),
+                                      base=ret)
+        declarator = Nodes.CFuncDeclaratorNode(
+            None, args=[
+                Nodes.CArgDeclNode(
+                    None,
+                    base_type=Nodes.CSimpleBaseTypeNode(None, name="self"),
+                    declarator=Nodes.CNameDeclaratorNode(None, name=""),
+                    default=None
+                )
+            ],
+            base=Nodes.CNameDeclaratorNode(None, name="cppobj")
+        )
         return Nodes.CFuncDefNode(
             None, overridable=False, visibility="private", api=0,
-            declarator=Nodes.CFuncDeclaratorNode(None,
-                args=[Nodes.CArgDeclNode(None,
-                        base_type=Nodes.CSimpleBaseTypeNode(None, name="self"),
-                        declarator=Nodes.CNameDeclaratorNode(None, name=""),
-                        default=None
-                    )
-                ],
-                base=Nodes.CNameDeclaratorNode(None, name="cppobj")
-            ),
-            body=Nodes.PassStatNode(None),
+            declarator=declarator,
+            body=Nodes.ReturnStatNode(None, value=ret),
         )
 
 
