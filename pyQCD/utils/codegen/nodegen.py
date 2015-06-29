@@ -6,11 +6,12 @@ from __future__ import absolute_import
 from Cython.Compiler import ExprNodes, Nodes
 
 
-def generate_type_node(typedef, funcs):
+def generate_type_node(typedef, builder):
     """Iterate through builder functions and build a Cython Node instance."""
 
     stats = []
-    for func in funcs:
+    for feature in builder.features:
+        func = getattr(builder, "build_{}".format(feature))
         stats.append(func(typedef))
 
     return Nodes.CClassDefNode(None, class_name=typedef.name,
