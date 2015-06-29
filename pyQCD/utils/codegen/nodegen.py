@@ -50,10 +50,9 @@ class Builder(object):
         declarator = Nodes.CFuncDeclaratorNode(
             None, args=[
                 Nodes.CArgDeclNode(
-                    None,
+                    None, default=None,
                     base_type=Nodes.CSimpleBaseTypeNode(None, name="self"),
-                    declarator=Nodes.CNameDeclaratorNode(None, name=""),
-                    default=None
+                    declarator=Nodes.CNameDeclaratorNode(None, name="")
                 )
             ],
             base=Nodes.CNameDeclaratorNode(None, name="cppobj")
