@@ -24,7 +24,7 @@ class Builder(object):
 
     def __init__(self, wrap_ptr=True):
         """Constructor for Builder. See help(Builder)."""
-        self.wrap_ptr = True
+        self.wrap_ptr = wrap_ptr
         self.features = [attr[6:] for attr in dir(self)
                          if attr.startswith("build_")]
 
