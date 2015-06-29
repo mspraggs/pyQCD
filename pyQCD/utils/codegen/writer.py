@@ -30,8 +30,13 @@ class CodeWriter(BaseWriter):
         self.endline(u'):')
 
     def visit_IndexNode(self, node):
-        """Handler for visit_IndexNode types"""
+        """Handler for IndexNode types"""
         self.visit(node.base)
         self.put("[")
         self.visit(node.index)
         self.put("]")
+
+    def visit_NewExprNode(self, node):
+        """Handler for NewExprNode types"""
+        self.put("new ")
+        self.visit(node.cppclass)
