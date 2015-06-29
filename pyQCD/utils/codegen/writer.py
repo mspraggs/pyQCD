@@ -16,3 +16,6 @@ class CodeWriter(BaseWriter):
         if node.api:
             self.put(u'api ')
         self.visit(node.declarator)
+        self.indent()
+        self.visit(node.body)
+        self.dedent()
