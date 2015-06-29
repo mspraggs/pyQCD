@@ -29,8 +29,7 @@ class ContainerDef(TypeDef):
 class MatrixDef(ContainerDef):
     """Specialise container definition for matrix type"""
 
-    def __init__(self, name, cname, element_type, num_rows, num_cols):
+    def __init__(self, name, cname, shape, element_type=None):
         """Constructor for MatrixDef object. See help(MatrixDef)"""
-        super(MatrixDef, self).__init__(name, cname, element_type)
-        self.num_rows = num_rows
-        self.num_cols = num_cols
+        super(MatrixDef, self).__init__(name, cname, element_type, len(shape))
+        self.shape = shape
