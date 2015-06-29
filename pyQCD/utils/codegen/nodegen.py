@@ -43,25 +43,20 @@ class Builder(object):
         ret = ExprNodes.AttributeNode(None, attribute="instance",
                                       obj=ExprNodes.NameNode(None, name="self"))
         if self.wrap_ptr:
-            ret = ExprNodes.IndexNode(None,
-                                      index=ExprNodes.IntNode(None, value='0'),
-                                      base=ret)
+            ret = ExprNodes.IndexNode(
+                None, index=ExprNodes.IntNode(None, value='0'), base=ret)
         declarator = Nodes.CFuncDeclaratorNode(
-            None, args=[
-                Nodes.CArgDeclNode(
-                    None,
-                    base_type=Nodes.CSimpleBaseTypeNode(None, name="self"),
-                    declarator=Nodes.CNameDeclaratorNode(None, name=""),
-                    default=None
-                )
-            ],
+            None, args=[Nodes.CArgDeclNode(
+                None,
+                base_type=Nodes.CSimpleBaseTypeNode(None, name="self"),
+                declarator=Nodes.CNameDeclaratorNode(None, name=""),
+                default=None
+            )],
             base=Nodes.CNameDeclaratorNode(None, name="cppobj")
         )
         return Nodes.CFuncDefNode(
             None, overridable=False, visibility="private", api=0,
-            declarator=declarator,
-            body=Nodes.ReturnStatNode(None, value=ret),
-        )
+            declarator=declarator, body=Nodes.ReturnStatNode(None, value=ret))
 
 
 class ContainerBuilder(Builder):
