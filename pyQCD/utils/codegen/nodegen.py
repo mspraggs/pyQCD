@@ -73,7 +73,20 @@ class Builder(object):
         lhs_node = self.instance_raw_accessor()
         body = Nodes.SingleAssignmentNode(None, lhs=lhs_node, rhs=rhs_node)
         return Nodes.DefNode(None, body=body, name="__cinit__",
-                             args=generate_simple_args("self"), default=None)
+                             args=generate_simple_args("self"))
+
+    def build_dealloc(self, typedef):
+        """Create __dealloc__ method"""
+        if self.wrap_ptr:
+            body = Nodes.DelStatNode(None, args=[
+                ExprNodes.AttributeNode(
+                    None, attribute="instance",
+                    obj=ExprNodes.NameNode(None, name="self"))
+            ])
+        else:
+            body = Nodes.PassStatNode(None)
+        return Nodes.DefNode(None, body=body, name="__dealloc__",
+                             args=generate_simple_args("self"))
 
 
 class ContainerBuilder(Builder):
