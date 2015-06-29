@@ -19,10 +19,11 @@ class ContainerDef(TypeDef):
     """Encapsulates container definition and facilitates cython node generation.
     """
 
-    def __init__(self, name, cname, element_type):
+    def __init__(self, name, cname, num_dims, element_type=None):
         """Constructor for ContainerDef object. See help(ContainerDef)"""
         super(ContainerDef, self).__init__(name, cname)
         self.element_type = element_type
+        self.num_dims = num_dims
 
 
 class MatrixDef(ContainerDef):
