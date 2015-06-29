@@ -67,12 +67,9 @@ class Builder(object):
     def build_cinit(self, typedef):
         """Create __cinit__ method"""
         type_node = Nodes.CSimpleBaseTypeNode(None, name=typedef.cname)
-        if self.wrap_ptr:
-            rhs_node = ExprNodes.SimpleCallNode(
-                None, function=ExprNodes.NewExprNode(None, cppclass=type_node),
-                args=[])
-        else:
-            rhs_node = ExprNodes.SimpleCallNode(None, function=type_node)
+        func = (ExprNodes.NewExprNode(None, cppclass=type_node)
+                if self.wrap_ptr else type_node)
+        rhs_node = ExprNodes.SimpleCallNode(None, function=func, args=[])
         lhs_node = self.instance_raw_accessor()
         body = Nodes.SingleAssignmentNode(None, lhs=lhs_node, rhs=rhs_node)
         return Nodes.DefNode(None, body=body, name="__cinit__",
