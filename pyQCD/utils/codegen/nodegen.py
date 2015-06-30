@@ -108,6 +108,15 @@ class ContainerBuilder(Builder):
         return generate_simple_array_def("Py_ssize_t", "buffer_strides",
                                          str(typedef.num_dims))
 
+    def build_to_numpy(self, typedef):
+        """Create member function to return numpy buffer accessor"""
+        src = ("arr = np.asarray(self)\n"
+               "arr.dtype = complex\n"
+               "return arr")
+        body = parse_string(src)
+        return Nodes.DefNode(None, body=body, name="to_numpy",
+                             args=generate_simple_args("self"))
+
 
 def parse_string(src):
     """Parse a string into a Cython node tree, then return it"""
