@@ -3,6 +3,8 @@ which is used to produce Cython syntax trees for the various types."""
 
 from __future__ import absolute_import
 
+from Cython.Compiler import ExprNodes
+
 from . import nodegen
 
 
@@ -19,11 +21,23 @@ class ContainerDef(TypeDef):
     """Encapsulates container definition and facilitates cython node generation.
     """
 
-    def __init__(self, name, cname, num_dims, element_type=None):
+    def __init__(self, name, cname, ndims_expr, element_type=None):
         """Constructor for ContainerDef object. See help(ContainerDef)"""
         super(ContainerDef, self).__init__(name, cname)
         self.element_type = element_type
-        self.num_dims = num_dims
+        self.ndims_expr = ndims_expr
+
+    @property
+    def buffer_ndims(self):
+        """Calculate the number of dimensions a buffer object must use"""
+        self_ndims = (int(self.ndims_expr.value)
+                      if isinstance(self.ndims_expr, ExprNodes.IntNode)
+                      else 1)
+        try:
+            child_ndims = self.element_type.buffer_ndims
+        except AttributeError:
+            child_ndims = 0
+        return self_ndims + child_ndims
 
 
 class MatrixDef(ContainerDef):
@@ -31,5 +45,6 @@ class MatrixDef(ContainerDef):
 
     def __init__(self, name, cname, shape, element_type=None):
         """Constructor for MatrixDef object. See help(MatrixDef)"""
-        super(MatrixDef, self).__init__(name, cname, element_type, len(shape))
+        ndims_expr = ExprNodes.IntNode(None, value=str(len(shape)))
+        super(MatrixDef, self).__init__(name, cname, ndims_expr, element_type)
         self.shape = shape

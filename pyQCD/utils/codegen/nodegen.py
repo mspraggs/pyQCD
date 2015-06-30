@@ -101,12 +101,12 @@ class ContainerBuilder(Builder):
     def build_buffer_shape(self, typedef):
         """Create a buffer_shape attribute for use with buffer protocol"""
         return generate_simple_array_def("Py_ssize_t", "buffer_shape",
-                                         str(typedef.num_dims))
+                                         str(typedef.buffer_ndims))
 
     def build_buffer_strides(self, typedef):
         """Create a buffer_shape attribute for use with buffer protocol"""
         return generate_simple_array_def("Py_ssize_t", "buffer_strides",
-                                         str(typedef.num_dims))
+                                         str(typedef.buffer_ndims))
 
     def build_to_numpy(self, typedef):
         """Create member function to return numpy buffer accessor"""
