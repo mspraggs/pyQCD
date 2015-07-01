@@ -21,11 +21,13 @@ class ContainerDef(TypeDef):
     """Encapsulates container definition and facilitates cython node generation.
     """
 
-    def __init__(self, name, cname, ndims_expr, element_type=None):
+    def __init__(self, name, cname, ndims_expr, size_expr, element_type=None):
         """Constructor for ContainerDef object. See help(ContainerDef)"""
         super(ContainerDef, self).__init__(name, cname)
         self.element_type = element_type
         self.ndims_expr = ndims_expr
+        self.size_expr = size_expr
+        self.is_static = isinstance(size_expr, ExprNodes.IntNode)
 
     @property
     def buffer_ndims(self):
@@ -45,6 +47,9 @@ class MatrixDef(ContainerDef):
 
     def __init__(self, name, cname, shape, element_type=None):
         """Constructor for MatrixDef object. See help(MatrixDef)"""
+        size = reduce(lambda x, y: x * y, shape)
         ndims_expr = ExprNodes.IntNode(None, value=str(len(shape)))
-        super(MatrixDef, self).__init__(name, cname, ndims_expr, element_type)
+        size_expr = ExprNodes.IntNode(None, value=str(size))
+        super(MatrixDef, self).__init__(name, cname, ndims_expr, size_expr,
+                                        element_type)
         self.shape = shape
