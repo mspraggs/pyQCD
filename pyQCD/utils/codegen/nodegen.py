@@ -117,6 +117,29 @@ class ContainerBuilder(Builder):
         return Nodes.DefNode(None, body=body, name="to_numpy",
                              args=generate_simple_args("self"))
 
+    def build_getitem(self, typedef):
+        """Create __getitem__ member function node"""
+        clauses = []
+        len_sum_expr = None
+        int_len_sum = 0
+        # Loop through num_dims and TypeDef descriptors
+        # l is expression node giving the length of the tuple required
+        # in order to return the type specified by TypeDef t.
+        for l, t in typedef.accessor_info:
+            lengths = generate_lookup_lengths(int_len_sum, len_sum_expr, l)
+            int_len_sum, len_sum_expr, total_sum_expr = lengths
+            condition = parse_string("type(index) is tuple and "
+                                     "len(index) is x").expr
+            condition.operand2.operand2 = total_sum_expr
+            if_body = parse_string("out = Foo()\n"
+                                   "return out")
+            if_body.stats[0].rhs.function.name = t.name
+            clauses.append(Nodes.IfClauseNode(None, condition=condition,
+                                              body=if_body))
+        body = Nodes.IfStatNode(None, if_clauses=clauses, else_clause=None)
+        return Nodes.DefNode(None, body=body, name="__getitem__",
+                             args=generate_simple_args("self", "index"))
+
 
 def parse_string(src):
     """Parse a string into a Cython node tree, then return it"""
@@ -151,3 +174,31 @@ def generate_simple_args(*args):
             None, declarator=Nodes.CNameDeclaratorNode(None, name=arg),
             default=None, base_type=Nodes.CSimpleBaseTypeNode(None, name=None)))
     return out
+
+
+def generate_lookup_lengths(int_len_sum, len_sum_expr, length):
+    """Examine expression node length and return updated length expressions."""
+    # Keep track of when length is an IntNode, as we can just add these
+    # values up
+    if isinstance(length, ExprNodes.IntNode):
+        int_len_sum += int(length.value)
+    else:
+        # If l is a different kind of expression, add it to len_sum_expr
+        if len_sum_expr is not None:
+            len_sum_expr = ExprNodes.AddNode(None, operator='+',
+                                             operand1=len_sum_expr,
+                                             operand2=length)
+        else:
+            len_sum_expr = length
+    int_len_sum_expr = ExprNodes.IntNode(None, value=str(int_len_sum))
+    # Now we need to determine whether to add the two length expressions
+    # together or not
+    if int_len_sum and len_sum_expr:
+        total_len_expr = ExprNodes.AddNode(
+            None, operator='+', operand1=len_sum_expr,
+            operand2=int_len_sum_expr)
+    elif int_len_sum:
+        total_len_expr = int_len_sum_expr
+    else:
+        total_len_expr = len_sum_expr
+    return int_len_sum, len_sum_expr, total_len_expr
