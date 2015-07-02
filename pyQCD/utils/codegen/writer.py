@@ -42,7 +42,19 @@ class CodeWriter(BaseWriter):
         self.visit(node.cppclass)
 
     def visit_DelStatNode(self, node):
-        """Handler for NewExprNode types"""
+        """Handler for DelExprNode types"""
         self.startline("del ")
         self.comma_separated_list(node.args)
         self.endline()
+
+    def visit_BoolBinopNode(self, node):
+        """Handler for BoolBinopNode"""
+        self.visit(node.operand1)
+        self.put(u" %s " % node.operator)
+        self.visit(node.operand2)
+
+    def visit_PrimaryCmpNode(self, node):
+        """Handler for PrimaryCmpNode"""
+        self.visit(node.operand1)
+        self.put(u" %s " % node.operator)
+        self.visit(node.operand2)
