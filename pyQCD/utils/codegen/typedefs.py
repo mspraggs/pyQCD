@@ -60,7 +60,7 @@ class ContainerDef(TypeDef):
         """
         out = [(self.ndims_expr, self.element_type)]
         try:
-            out.extend(self.element_type.accessor_triplets)
+            out.extend(self.element_type.accessor_info)
         except AttributeError:
             pass
         return out
