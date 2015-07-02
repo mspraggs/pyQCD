@@ -45,20 +45,6 @@ class Builder(object):
             None, declarators=declarators,
             base_type=Nodes.CSimpleBaseTypeNode(None, name=typedef.cname))
 
-    def instance_raw_accessor(self):
-        """Generate node for instance raw access, whatever that is"""
-        ret = ExprNodes.AttributeNode(None, attribute="instance",
-                                      obj=ExprNodes.NameNode(None, name="self"))
-        return ret
-
-    def instance_val_accessor(self):
-        """Generate node for instance access"""
-        ret = self.instance_raw_accessor()
-        if self.wrap_ptr:
-            ret = ExprNodes.IndexNode(
-                None, index=ExprNodes.IntNode(None, value='0'), base=ret)
-        return ret
-
     def build_cppobj(self, typedef):
         """Create cppobj member function to return instance"""
         declarator = Nodes.CFuncDeclaratorNode(
@@ -68,7 +54,8 @@ class Builder(object):
         return Nodes.CFuncDefNode(
             None, overridable=False, visibility="private", api=0,
             declarator=declarator,
-            body=Nodes.ReturnStatNode(None, value=self.instance_raw_accessor()))
+            body=Nodes.ReturnStatNode(None,
+                                      value=typedef.instance_raw_accessor))
 
     def build_cinit(self, typedef):
         """Create __cinit__ method"""
@@ -76,7 +63,7 @@ class Builder(object):
         func = (ExprNodes.NewExprNode(None, cppclass=type_node)
                 if self.wrap_ptr else type_node)
         rhs_node = ExprNodes.SimpleCallNode(None, function=func, args=[])
-        lhs_node = self.instance_raw_accessor()
+        lhs_node = typedef.instance_raw_accessor
         body = Nodes.SingleAssignmentNode(None, lhs=lhs_node, rhs=rhs_node)
         return Nodes.DefNode(None, body=body, name="__cinit__",
                              args=generate_simple_args("self"))

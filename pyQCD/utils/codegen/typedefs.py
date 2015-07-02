@@ -11,10 +11,27 @@ from . import nodegen
 class TypeDef(object):
     """Encapsulates type defintion and facilitates cython node generation."""
 
-    def __init__(self, name, cname):
+    def __init__(self, name, cname, wrap_ptr):
         """Constructor for TypeDef object, See help(TypeDef)."""
         self.name = name
         self.cname = cname
+        self.wrap_ptr = wrap_ptr
+
+    @property
+    def instance_raw_accessor(self):
+        """Generate node for instance raw access, whatever that is"""
+        ret = ExprNodes.AttributeNode(None, attribute="instance",
+                                      obj=ExprNodes.NameNode(None, name="self"))
+        return ret
+
+    @property
+    def instance_val_accessor(self):
+        """Generate node for instance access"""
+        ret = self.instance_raw_accessor
+        if self.wrap_ptr:
+            ret = ExprNodes.IndexNode(
+                None, index=ExprNodes.IntNode(None, value='0'), base=ret)
+        return ret
 
 
 class ContainerDef(TypeDef):
@@ -23,7 +40,7 @@ class ContainerDef(TypeDef):
 
     def __init__(self, name, cname, ndims_expr, size_expr, element_type=None):
         """Constructor for ContainerDef object. See help(ContainerDef)"""
-        super(ContainerDef, self).__init__(name, cname)
+        super(ContainerDef, self).__init__(name, cname, True)
         self.element_type = element_type
         self.ndims_expr = ndims_expr
         self.size_expr = size_expr
