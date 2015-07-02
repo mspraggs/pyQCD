@@ -55,11 +55,10 @@ class ContainerDef(TypeDef):
         return out
 
     @property
-    def accessor_triplets(self):
+    def accessor_info(self):
         """Generates a list of tuples of lengths and types for accessor checks
         """
-        out = [(self.ndims_expr, self.element_type.name,
-                self.element_type.cname)]
+        out = [(self.ndims_expr, self.element_type)]
         try:
             out.extend(self.element_type.accessor_triplets)
         except AttributeError:
