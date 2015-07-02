@@ -8,7 +8,7 @@ import io
 from Cython.Compiler import ExprNodes, Nodes
 from Cython.Compiler.Main import Context
 from Cython.Compiler.Parsing import p_module
-from Cython.Compiler.Scanning import FileSourceDescriptor, PyrexScanner
+from Cython.Compiler.Scanning import PyrexScanner, StringSourceDescriptor
 from Cython.Compiler.Symtab import ModuleScope
 
 
@@ -121,14 +121,15 @@ class ContainerBuilder(Builder):
 def parse_string(src):
     """Parse a string into a Cython node tree, then return it"""
 
-    desc = FileSourceDescriptor("", "")
+    desc = StringSourceDescriptor("", src)
     stream = io.StringIO(unicode(src))
     context = Context(["."], [])
     scope = ModuleScope("", None, context)
     scanner = PyrexScanner(stream, desc, source_encoding="UTF-8", scope=scope,
                            context=context)
-    tree = p_module(scanner, 0, "")
-    return tree.body
+    tree = p_module(scanner, 0, "").body
+    tree.pos = None
+    return tree
 
 
 def generate_simple_array_def(typename, varname, ndims):
