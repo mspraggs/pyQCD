@@ -54,8 +54,8 @@ class Builder(object):
         return Nodes.CFuncDefNode(
             None, overridable=False, visibility="private", api=0,
             declarator=declarator,
-            body=Nodes.ReturnStatNode(None,
-                                      value=typedef.instance_raw_accessor))
+            body=Nodes.ReturnStatNode(
+                None, value=typedef.instance_raw_accessor))
 
     def build_cinit(self, typedef):
         """Create __cinit__ method"""
