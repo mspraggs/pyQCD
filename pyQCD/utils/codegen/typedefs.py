@@ -81,6 +81,10 @@ class ContainerDef(TypeDef):
             pass
         return out
 
+    def ctype_elem_access(self, obj, index, begin):
+        """Generate element access code for underlying C object"""
+        raise NotImplementedError
+
 
 class MatrixDef(ContainerDef):
     """Specialise container definition for matrix type"""
@@ -93,3 +97,19 @@ class MatrixDef(ContainerDef):
         super(MatrixDef, self).__init__(name, cname, ndims_expr, size_expr,
                                         element_type)
         self.shape = shape
+
+    def ctype_elem_access(self, obj, index, begin):
+        """Generate element access code for underlying C object"""
+        if len(self.shape) > 1:
+            args = [ExprNodes.IndexNode(None, base=index, index=begin)]
+            for i, s in enumerate(self.shape[1:]):
+                index = ExprNodes.IndexNode(
+                    None, base=index, index=ExprNodes.AddNode(
+                        None, operator='+', operand1=begin,
+                        operand2=ExprNodes.IntNode(None, value=str(i + 1))))
+                args.append(index)
+            return ExprNodes.SimpleCallNode(None, function=obj, args=args)
+        else:
+            return ExprNodes.IndexNode(
+                None, base=index, index=ExprNodes.IndexNode(
+                    None, base=index, index=begin))
