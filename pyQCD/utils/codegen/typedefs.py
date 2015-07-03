@@ -17,17 +17,16 @@ class TypeDef(object):
         self.cname = cname
         self.wrap_ptr = wrap_ptr
 
-    @property
-    def instance_raw_accessor(self):
+    def instance_raw_accessor(self, varname):
         """Generate node for instance raw access, whatever that is"""
         ret = ExprNodes.AttributeNode(None, attribute="instance",
-                                      obj=ExprNodes.NameNode(None, name="self"))
+                                      obj=ExprNodes.NameNode(None,
+                                                             name=varname))
         return ret
 
-    @property
-    def instance_val_accessor(self):
+    def instance_val_accessor(self, varname):
         """Generate node for instance access"""
-        ret = self.instance_raw_accessor
+        ret = self.instance_raw_accessor(varname)
         if self.wrap_ptr:
             ret = ExprNodes.IndexNode(
                 None, index=ExprNodes.IntNode(None, value='0'), base=ret)

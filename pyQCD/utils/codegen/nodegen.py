@@ -55,7 +55,7 @@ class Builder(object):
             None, overridable=False, visibility="private", api=0,
             declarator=declarator,
             body=Nodes.ReturnStatNode(
-                None, value=typedef.instance_raw_accessor))
+                None, value=typedef.instance_raw_accessor("self")))
 
     def build_cinit(self, typedef):
         """Create __cinit__ method"""
@@ -63,7 +63,7 @@ class Builder(object):
         func = (ExprNodes.NewExprNode(None, cppclass=type_node)
                 if self.wrap_ptr else type_node)
         rhs_node = ExprNodes.SimpleCallNode(None, function=func, args=[])
-        lhs_node = typedef.instance_raw_accessor
+        lhs_node = typedef.instance_raw_accessor("self")
         body = Nodes.SingleAssignmentNode(None, lhs=lhs_node, rhs=rhs_node)
         return Nodes.DefNode(None, body=body, name="__cinit__",
                              args=generate_simple_args("self"))
