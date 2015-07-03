@@ -109,7 +109,7 @@ class ContainerBuilder(Builder):
         clauses = []
         len_sum_expr = None
         int_len_sum = 0
-        cobj = typedef.instance_val_accessor("out")
+        cobj = typedef.instance_val_accessor("self")
         parent_type = typedef
         parent_sum_expr = ExprNodes.IntNode(None, value='0')
         # Loop through num_dims and TypeDef descriptors

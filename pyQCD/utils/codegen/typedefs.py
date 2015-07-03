@@ -111,5 +111,5 @@ class MatrixDef(ContainerDef):
             return ExprNodes.SimpleCallNode(None, function=obj, args=args)
         else:
             return ExprNodes.IndexNode(
-                None, base=index, index=ExprNodes.IndexNode(
+                None, base=obj, index=ExprNodes.IndexNode(
                     None, base=index, index=begin))
