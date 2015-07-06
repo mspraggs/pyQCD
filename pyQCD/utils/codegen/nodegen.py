@@ -161,7 +161,7 @@ class ContainerBuilder(Builder):
             if_body = parse_string("cdef Foo* val\n"
                                    "val = &blah\n"
                                    "val[0] = blah")
-            if_body.stats[0].base_type.name = elemtype.name
+            if_body.stats[0].base_type.name = elemtype.cname
             if_body.stats[1].rhs.operand = parent_type.ctype_elem_access(
                 cobj, ExprNodes.NameNode(None, name="index"), parent_sum_expr
             )
