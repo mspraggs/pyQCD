@@ -113,7 +113,7 @@ class ContainerBuilder(Builder):
         parent_type = typedef
         parent_sum_expr = ExprNodes.IntNode(None, value='0')
         # Loop through num_dims and TypeDef descriptors
-        # l is expression node giving the length of the tuple required
+        # ndims is expression node giving the length of the tuple required
         # in order to return the type specified by TypeDef t.
         for ndims, elemtype in typedef.accessor_info:
             lengths = generate_lookup_lengths(int_len_sum, len_sum_expr, ndims)
