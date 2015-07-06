@@ -69,3 +69,16 @@ class CodeWriter(BaseWriter):
         if node.stop:
             self.visit(node.stop)
         self.put("]")
+
+    def visit_AmpersandNode(self, node):
+        """Handler for AmpersandNode"""
+        self.put("&")
+        self.visit(node.operand)
+
+    def visit_TypecastNode(self, node):
+        """Handler for TypecastNode"""
+        self.put("(<")
+        self.visit(node.base_type)
+        self.put(">")
+        self.visit(node.operand)
+        self.put(")")
