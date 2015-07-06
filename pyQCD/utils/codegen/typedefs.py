@@ -3,7 +3,7 @@ which is used to produce Cython syntax trees for the various types."""
 
 from __future__ import absolute_import
 
-from Cython.Compiler import ExprNodes
+from Cython.Compiler import ExprNodes, Nodes
 
 from . import nodegen
 
@@ -105,15 +105,24 @@ class MatrixDef(ContainerDef):
     def ctype_elem_access(self, obj, index, begin):
         """Generate element access code for underlying C object"""
         if len(self.shape) > 1:
-            args = [ExprNodes.IndexNode(None, base=index, index=begin)]
+            args = [ExprNodes.TypecastNode(
+                None, base_type=Nodes.CSimpleBaseTypeNode(None, name="int"),
+                operand=ExprNodes.IndexNode(None, base=index, index=begin)
+            )]
             for i, s in enumerate(self.shape[1:]):
-                index = ExprNodes.IndexNode(
-                    None, base=index, index=ExprNodes.AddNode(
-                        None, operator='+', operand1=begin,
-                        operand2=ExprNodes.IntNode(None, value=str(i + 1))))
+                index = ExprNodes.TypecastNode(
+                    None, base_type=Nodes.CSimpleBaseTypeNode(None, name="int"),
+                    operand=ExprNodes.IndexNode(
+                        None, base=index, index=ExprNodes.AddNode(
+                            None, operator='+', operand1=begin,
+                            operand2=ExprNodes.IntNode(None, value=str(i + 1)))
+                    )
+                )
                 args.append(index)
             return ExprNodes.SimpleCallNode(None, function=obj, args=args)
         else:
             return ExprNodes.IndexNode(
-                None, base=obj, index=ExprNodes.IndexNode(
-                    None, base=index, index=begin))
+                None, base=obj, index=ExprNodes.TypecastNode(
+                    None, base_type=Nodes.CSimpleBaseTypeNode(None, name="int"),
+                    operand=ExprNodes.IndexNode(None, base=index, index=begin))
+            )
