@@ -28,16 +28,15 @@ def generate_type_node(typedef, builder):
 class Builder(object):
     """Handles Cython context and provides functions to build Cython nodes."""
 
-    def __init__(self, wrap_ptr=True):
+    def __init__(self):
         """Constructor for Builder. See help(Builder)."""
-        self.wrap_ptr = wrap_ptr
         self.features = [attr[6:] for attr in dir(self)
                          if attr.startswith("build_")]
 
     def build_instance(self, typedef):
         """Create an instance attribute for cdef classes to wrap a C++ object"""
         name_declarator = Nodes.CNameDeclaratorNode(None, name="instance")
-        if self.wrap_ptr:
+        if typedef.wrap_ptr:
             declarators = [Nodes.CPtrDeclaratorNode(None, base=name_declarator)]
         else:
             declarators = [name_declarator]
@@ -61,7 +60,7 @@ class Builder(object):
         """Create __cinit__ method"""
         type_node = Nodes.CSimpleBaseTypeNode(None, name=typedef.cname)
         func = (ExprNodes.NewExprNode(None, cppclass=type_node)
-                if self.wrap_ptr else type_node)
+                if typedef.wrap_ptr else type_node)
         rhs_node = ExprNodes.SimpleCallNode(None, function=func, args=[])
         lhs_node = typedef.instance_raw_accessor("self")
         body = Nodes.SingleAssignmentNode(None, lhs=lhs_node, rhs=rhs_node)
@@ -70,7 +69,7 @@ class Builder(object):
 
     def build_dealloc(self, typedef):
         """Create __dealloc__ method"""
-        if self.wrap_ptr:
+        if typedef.wrap_ptr:
             body = Nodes.DelStatNode(None, args=[
                 ExprNodes.AttributeNode(
                     None, attribute="instance",
