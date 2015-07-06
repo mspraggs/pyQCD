@@ -106,6 +106,7 @@ class ContainerBuilder(Builder):
 
     def build_getitem(self, typedef):
         """Create __getitem__ member function node"""
+        # TODO: Need some index validation code in here somewhere
         clauses = []
         len_sum_expr = None
         int_len_sum = 0
@@ -140,6 +141,7 @@ class ContainerBuilder(Builder):
 
     def build_setitem(self, typedef):
         """Create __setitem__ member function node"""
+        # TODO: Need some index validation code in here somewhere
         clauses = []
         len_sum_expr = None
         int_len_sum = 0
