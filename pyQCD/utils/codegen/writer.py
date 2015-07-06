@@ -79,6 +79,8 @@ class CodeWriter(BaseWriter):
         """Handler for TypecastNode"""
         self.put("(<")
         self.visit(node.base_type)
+        if node.typecheck:
+            self.put("?")
         self.put(">")
         self.visit(node.operand)
         self.put(")")
