@@ -23,7 +23,7 @@ class TypeDef(object):
         if cast:
             obj = ExprNodes.TypecastNode(
                 None, base_type=Nodes.CSimpleBaseTypeNode(None, name=self.name),
-                operand=obj
+                operand=obj, typecheck=0
             )
         ret = ExprNodes.AttributeNode(None, attribute="instance", obj=obj)
         return ret
@@ -107,7 +107,8 @@ class MatrixDef(ContainerDef):
         if len(self.shape) > 1:
             args = [ExprNodes.TypecastNode(
                 None, base_type=Nodes.CSimpleBaseTypeNode(None, name="int"),
-                operand=ExprNodes.IndexNode(None, base=index, index=begin)
+                operand=ExprNodes.IndexNode(None, base=index, index=begin),
+                typecheck=0
             )]
             for i, s in enumerate(self.shape[1:]):
                 index = ExprNodes.TypecastNode(
@@ -116,7 +117,7 @@ class MatrixDef(ContainerDef):
                         None, base=index, index=ExprNodes.AddNode(
                             None, operator='+', operand1=begin,
                             operand2=ExprNodes.IntNode(None, value=str(i + 1)))
-                    )
+                    ), typecheck=0
                 )
                 args.append(index)
             return ExprNodes.SimpleCallNode(None, function=obj, args=args)
@@ -124,5 +125,7 @@ class MatrixDef(ContainerDef):
             return ExprNodes.IndexNode(
                 None, base=obj, index=ExprNodes.TypecastNode(
                     None, base_type=Nodes.CSimpleBaseTypeNode(None, name="int"),
-                    operand=ExprNodes.IndexNode(None, base=index, index=begin))
+                    operand=ExprNodes.IndexNode(None, base=index, index=begin),
+                    typecheck=0
+                )
             )
