@@ -138,6 +138,46 @@ class ContainerBuilder(Builder):
         return Nodes.DefNode(None, body=body, name="__getitem__",
                              args=generate_simple_args("self", "index"))
 
+    def build_setitem(self, typedef):
+        """Create __setitem__ member function node"""
+        clauses = []
+        len_sum_expr = None
+        int_len_sum = 0
+        cobj = typedef.instance_val_accessor("self")
+        parent_type = typedef
+        parent_sum_expr = ExprNodes.IntNode(None, value='0')
+        # Loop through num_dims and TypeDef descriptors
+        # ndims is expression node giving the length of the tuple required
+        # in order to return the type specified by TypeDef t.
+        for ndims, elemtype in typedef.accessor_info:
+            lengths = generate_lookup_lengths(int_len_sum, len_sum_expr, ndims)
+            int_len_sum, len_sum_expr, total_sum_expr = lengths
+            condition = parse_string("type(index) is tuple and "
+                                     "len(index) is x and "
+                                     "type(value) is y").expr
+            condition.operand2.operand1.operand2 = total_sum_expr
+            condition.operand2.operand2.operand2 = ExprNodes.NameNode(
+                None, name=elemtype.name)
+            if_body = parse_string("cdef Foo* val\n"
+                                   "val = &blah\n"
+                                   "val[0] = blah")
+            if_body.stats[0].base_type.name = elemtype.name
+            if_body.stats[1].rhs.operand = parent_type.ctype_elem_access(
+                cobj, ExprNodes.NameNode(None, name="index"), parent_sum_expr
+            )
+            if_body.stats[2].rhs = elemtype.instance_val_accessor("value", True)
+
+            cobj = parent_type.ctype_elem_access(
+                cobj, ExprNodes.NameNode(None, name="index"), parent_sum_expr)
+            clauses.append(Nodes.IfClauseNode(None, condition=condition,
+                                              body=if_body))
+            parent_type = elemtype
+            parent_sum_expr = total_sum_expr
+        body = Nodes.IfStatNode(None, if_clauses=clauses, else_clause=None)
+        return Nodes.DefNode(None, body=body, name="__setitem__",
+                             args=generate_simple_args("self", "index",
+                                                       "value"))
+
 
 def parse_string(src):
     """Parse a string into a Cython node tree, then return it"""
