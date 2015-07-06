@@ -103,6 +103,16 @@ class ContainerBuilder(Builder):
         return Nodes.DefNode(None, body=body, name="to_numpy",
                              args=generate_simple_args("self"))
 
+    def build_validate_index(self, typedef):
+        """Create cppobj member function to return instance"""
+        declarator = Nodes.CFuncDeclaratorNode(
+            None, args=generate_simple_args("self", "index"),
+            base=Nodes.CNameDeclaratorNode(None, name="validate_index")
+        )
+        return Nodes.CFuncDefNode(
+            None, overridable=False, visibility="private", api=0,
+            declarator=declarator, body=Nodes.PassStatNode(None))
+
     def build_getitem(self, typedef):
         """Create __getitem__ member function node"""
         # TODO: Need some index validation code in here somewhere
