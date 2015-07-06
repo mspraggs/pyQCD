@@ -17,16 +17,20 @@ class TypeDef(object):
         self.cname = cname
         self.wrap_ptr = wrap_ptr
 
-    def instance_raw_accessor(self, varname):
+    def instance_raw_accessor(self, varname, cast=False):
         """Generate node for instance raw access, whatever that is"""
-        ret = ExprNodes.AttributeNode(None, attribute="instance",
-                                      obj=ExprNodes.NameNode(None,
-                                                             name=varname))
+        obj = ExprNodes.NameNode(None, name=varname)
+        if cast:
+            obj = ExprNodes.TypecastNode(
+                None, base_type=Nodes.CSimpleBaseTypeNode(None, name=self.name),
+                operand=obj
+            )
+        ret = ExprNodes.AttributeNode(None, attribute="instance", obj=obj)
         return ret
 
-    def instance_val_accessor(self, varname):
+    def instance_val_accessor(self, varname, cast=False):
         """Generate node for instance access"""
-        ret = self.instance_raw_accessor(varname)
+        ret = self.instance_raw_accessor(varname, cast)
         if self.wrap_ptr:
             ret = ExprNodes.IndexNode(
                 None, index=ExprNodes.IntNode(None, value='0'), base=ret)
