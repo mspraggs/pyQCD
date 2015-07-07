@@ -11,68 +11,44 @@ from . import nodegen
 class TypeDef(object):
     """Encapsulates type defintion and facilitates cython node generation."""
 
-    def __init__(self, name, cname, wrap_ptr):
+    def __init__(self, name, cname, cmodule, wrap_ptr):
         """Constructor for TypeDef object, See help(TypeDef)."""
         self.name = name
         self.cname = cname
+        self.cmodule = cmodule
         self.wrap_ptr = wrap_ptr
-
-    def instance_raw_accessor(self, varname, cast=False):
-        """Generate node for instance raw access, whatever that is"""
-        obj = ExprNodes.NameNode(None, name=varname)
-        if cast:
-            obj = ExprNodes.TypecastNode(
-                None, base_type=Nodes.CSimpleBaseTypeNode(None, name=self.name),
-                operand=obj, typecheck=0
-            )
-        ret = ExprNodes.AttributeNode(None, attribute="instance", obj=obj)
-        return ret
-
-    def instance_val_accessor(self, varname, cast=False):
-        """Generate node for instance access"""
-        ret = self.instance_raw_accessor(varname, cast)
-        if self.wrap_ptr:
-            ret = ExprNodes.IndexNode(
-                None, index=ExprNodes.IntNode(None, value='0'), base=ret)
-        return ret
 
 
 class ContainerDef(TypeDef):
     """Encapsulates container definition and facilitates cython node generation.
     """
 
-    def __init__(self, name, cname, ndims_expr, size_expr, element_type=None):
+    def __init__(self, name, cname, cmodule, size_expr, shape_expr, ndims_expr,
+                 buffer_ndims, element_type):
         """Constructor for ContainerDef object. See help(ContainerDef)"""
-        super(ContainerDef, self).__init__(name, cname, True)
+        super(ContainerDef, self).__init__(name, cname, cmodule, True)
         self.element_type = element_type
-        self.ndims_expr = ndims_expr
         self.size_expr = size_expr
-        self.is_static = isinstance(size_expr, ExprNodes.IntNode)
-
-    @property
-    def buffer_ndims(self):
-        """Calculate the number of dimensions a buffer object must use"""
-        self_ndims = (int(self.ndims_expr.value)
-                      if isinstance(self.ndims_expr, ExprNodes.IntNode)
-                      else 1)
+        self.ndims_expr = ndims_expr
+        self.structure = [self.__class__.__name__[:-3]]
+        if isinstance(element_type, ContainerDef):
+            self.structure.extend(element_type.structure)
         try:
-            child_ndims = self.element_type.buffer_ndims
+            self.buffer_ndims = element_type.buffer_ndims + buffer_ndims
         except AttributeError:
-            child_ndims = 0
-        return self_ndims + child_ndims
+            self.buffer_ndims = buffer_ndims
+        try:
+            self.shape_expr = "{} + {}".format(shape_expr,
+                                               element_type.shape_expr)
+        except AttributeError:
+            self.shape_expr = shape_expr
 
-    @property
-    def buffer_shape_expr(self):
-        """Generates an expression describing the shape of the buffer"""
-        if self.is_static:
-            out = [ExprNodes.IntNode(None, value=str(s)) for s in self.shape]
+        try:
+            int(size_expr)
+        except ValueError:
+            self.is_static = False
         else:
-            out = [self.size_expr]
-        try:
-            out.extend(self.element_type.buffer_shape_expr)
-        except AttributeError:
-            pass
-        return out
+            self.is_static = True
 
     @property
     def accessor_info(self):
@@ -85,47 +61,36 @@ class ContainerDef(TypeDef):
             pass
         return out
 
-    def ctype_elem_access(self, obj, index, begin):
-        """Generate element access code for underlying C object"""
-        raise NotImplementedError
-
 
 class MatrixDef(ContainerDef):
     """Specialise container definition for matrix type"""
 
-    def __init__(self, name, cname, shape, element_type=None):
+    def __init__(self, name, cname, cmodule, shape, element_type):
         """Constructor for MatrixDef object. See help(MatrixDef)"""
         size = reduce(lambda x, y: x * y, shape)
-        ndims_expr = ExprNodes.IntNode(None, value=str(len(shape)))
-        size_expr = ExprNodes.IntNode(None, value=str(size))
-        super(MatrixDef, self).__init__(name, cname, ndims_expr, size_expr,
-                                        element_type)
+        super(MatrixDef, self).__init__(name, cname, cmodule, str(size),
+                                        str(shape), str(len(shape)),
+                                        len(shape), element_type)
         self.shape = shape
 
-    def ctype_elem_access(self, obj, index, begin):
-        """Generate element access code for underlying C object"""
-        if len(self.shape) > 1:
-            args = [ExprNodes.TypecastNode(
-                None, base_type=Nodes.CSimpleBaseTypeNode(None, name="int"),
-                operand=ExprNodes.IndexNode(None, base=index, index=begin),
-                typecheck=0
-            )]
-            for i, s in enumerate(self.shape[1:]):
-                index = ExprNodes.TypecastNode(
-                    None, base_type=Nodes.CSimpleBaseTypeNode(None, name="int"),
-                    operand=ExprNodes.IndexNode(
-                        None, base=index, index=ExprNodes.AddNode(
-                            None, operator='+', operand1=begin,
-                            operand2=ExprNodes.IntNode(None, value=str(i + 1)))
-                    ), typecheck=0
-                )
-                args.append(index)
-            return ExprNodes.SimpleCallNode(None, function=obj, args=args)
-        else:
-            return ExprNodes.IndexNode(
-                None, base=obj, index=ExprNodes.TypecastNode(
-                    None, base_type=Nodes.CSimpleBaseTypeNode(None, name="int"),
-                    operand=ExprNodes.IndexNode(None, base=index, index=begin),
-                    typecheck=0
-                )
-            )
+
+class ArrayDef(ContainerDef):
+    """Specialise container definition for array type"""
+
+    def __init__(self, name, cname, cmodule, element_type):
+        """Constructor for ArrayDef object. See help(ArrayDef)."""
+        super(ArrayDef, self).__init__(name, cname, cmodule,
+                                        "self.instance.size()", "(1,)", "1", 1,
+                                        element_type)
+
+
+class LatticeDef(ContainerDef):
+    """Specialise container definition for lattice type"""
+
+    def __init__(self, name, cname, cmodule, element_type):
+        """Constructor for LatticeDef object. See help(LatticeDef)"""
+        super(LatticeDef, self).__init__(name, cname, cmodule,
+                                         "self.instance.volume()",
+                                         "tuple(self.instance.lattice_shape())",
+                                         "self.instance.num_dims()", 1,
+                                         element_type)

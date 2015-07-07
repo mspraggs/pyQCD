@@ -13,6 +13,8 @@ from string import ascii_lowercase
 from jinja2 import Environment, PackageLoader
 import setuptools
 
+from . import typedefs
+
 
 # Create the jinja2 template environment.
 env = Environment(loader=PackageLoader('pyQCD', 'templates'),
@@ -48,9 +50,9 @@ def _camel2underscores(string):
     return string.lstrip('_')
 
 
-def create_matrix_definition(num_rows, num_cols, matrix_name, array_name=None,
-                             lattice_matrix_name=None, lattice_array_name=None):
-    """Create a MatrixDefinition namedtuple using the supplied arguments.
+def create_type_definitions(num_rows, num_cols, matrix_name, array_name=None,
+                            lattice_matrix_name=None, lattice_array_name=None):
+    """Create container type definitions based on matrix type
 
     This function sets up default values for array_name and lattice_name
     if necessary.
@@ -68,14 +70,34 @@ def create_matrix_definition(num_rows, num_cols, matrix_name, array_name=None,
         arrays of these matrix objects. Defaults to Lattice{matrix_name}Array.
 
     Returns:
-      MatrixDefinition: A named tuple containing the supplied parameters.
+      list: A named tuple containing the supplied parameters.
     """
 
-    return MatrixDefinition(
-        num_rows, num_cols, matrix_name,
-        array_name or "{}Array".format(matrix_name),
-        lattice_matrix_name or "Lattice{}".format(matrix_name),
-        lattice_array_name or "Lattice{}Array".format(matrix_name))
+    array_name = array_name or "{}Array".format(matrix_name)
+    lattice_matrix_name = lattice_matrix_name or "Lattice{}".format(matrix_name)
+    lattice_array_name = (lattice_array_name or
+                          "Lattice{}Array".format(matrix_name))
+
+    complex_type = typedefs.TypeDef("Complex", "Complex", "complex", False)
+    shape = (num_rows, num_cols) if num_cols > 1 else (num_rows,)
+
+    matrix_def = typedefs.MatrixDef(
+        matrix_name, matrix_name, _camel2underscores(matrix_name), shape,
+        complex_type)
+
+    matrix_array_def = typedefs.ArrayDef(
+        array_name, array_name, _camel2underscores(array_name), matrix_def)
+
+    lattice_matrix_def = typedefs.LatticeDef(
+        lattice_matrix_name, lattice_matrix_name,
+        _camel2underscores(lattice_matrix_name), matrix_def)
+
+    lattice_matrix_array_def = typedefs.LatticeDef(
+        lattice_array_name, lattice_array_name,
+        _camel2underscores(lattice_array_name), matrix_array_def)
+
+    return [matrix_def, matrix_array_def, lattice_matrix_def,
+            lattice_matrix_array_def]
 
 
 def get_compatible_variants(matrix_lhs, matrix_rhs):
@@ -245,8 +267,8 @@ def write_core_template(template_fname, output_fname, output_path,
         f.write(template.render(**template_args))
 
 
-def generate_cython_types(output_path, precision, matrices):
-    """Generate Cython matrix, array and lattice types.
+def generate_cython_types(output_path, precision, typedefs):
+    """Generate Cython source code for matrix, array and lattice types.
 
     This function gathers all jinja2 templates in the package templates
     directory and
@@ -256,56 +278,26 @@ def generate_cython_types(output_path, precision, matrices):
         code.
       precision (str): The fundamental machine type to be used throughout the
         code (e.g. 'double' or 'float').
-      matrices (iterable): An iterable object containing instances of
-        MatrixDefinition.
+      typdefs (iterable): An iterable object containing instances of TypeDef.
     """
 
-    # List of tuples of allowed binary operations
-    scalar_types = ["float", "int"]
-    # Map that specifies the Python member function(s) that handle the
-    # specified operator. Leading/trailing underscores are removed. Multiple
-    # operators are possible since Python 3 uses a different function for
-    # division.
-    operator_map = {'+': ['add'], '-': ['sub'], '*': ['mul'],
-                    '/': ['div', 'truediv']}
-    scalar_binary_ops = []
-    lattice_binary_ops = []
-    operator_includes = []
-
-    for matrix in matrices:
-        fnames = [_camel2underscores(getattr(matrix, "{}_name".format(variant)))
-                  for variant in variants]
+    for typedef in typedefs:
+        fnames = [typedef.cmodule for typedef in typedefs]
         includes = dict([("{}_include".format(variant), fname)
                          for variant, fname in zip(variants, fnames)])
-        scalar_binary_ops.extend(make_scalar_binary_ops(matrix, precision,
-                                                        scalar_types))
-        for variant, fname in zip(variants, fnames):
-            name = getattr(matrix, "{}_name".format(variant))
-            operator_includes.append((fname, name))
-            write_core_template(variant + ".pxd", fname + ".pxd", output_path,
-                                precision=precision, matrixdef=matrix,
-                                includes=includes)
-
-    for matrix_lhs, matrix_rhs in product(matrices, matrices):
-        lattice_binary_ops.extend(
-            make_lattice_binary_ops(matrices, matrix_lhs, matrix_rhs))
-
-    cython_ops = make_cython_ops(
-        matrices, scalar_binary_ops + lattice_binary_ops, precision,
-        scalar_types)
+        template_fname = "_".join([c.lower() for c in typedef.structure])
+        write_core_template(template_fname + ".pxd", typedef.cmodule + ".pxd",
+                            output_path, precision=precision, typedef=typedef,
+                            includes=includes)
 
     write_core_template("types.hpp", "types.hpp", output_path,
-                        matrixdefs=matrices, precision=precision)
+                        typedefs=typedefs, precision=precision)
     write_core_template("complex.pxd", "complex.pxd", output_path,
                         precision=precision)
-    write_core_template("operators.pxd", "operators.pxd", output_path,
-                        scalar_binary_ops=scalar_binary_ops,
-                        lattice_binary_ops=lattice_binary_ops,
-                        includes=operator_includes)
+    #write_core_template("operators.pxd", "operators.pxd", output_path,
+    #                    typedefs=typedefs, precision=precision)
     write_core_template("core.pyx", "core.pyx", output_path,
-                        matrixdefs=matrices, operator_map=operator_map,
-                        operators=cython_ops, precision=precision,
-                        scalar_types=scalar_types)
+                        typedefs=typedefs, precision=precision)
 
 
 def generate_qcd(num_colours, precision, representation, dest=None):
@@ -323,13 +315,13 @@ def generate_qcd(num_colours, precision, representation, dest=None):
         Defaults to the lib directory in the project root directory.
     """
 
-    matrix_definitions = []
+    type_definitions = []
     if representation == "fundamental":
-        matrix_definitions.append(create_matrix_definition(
+        type_definitions.extend(create_type_definitions(
             num_colours, num_colours, "ColourMatrix",
             lattice_array_name="GaugeField"
         ))
-        matrix_definitions.append(create_matrix_definition(
+        type_definitions.extend(create_type_definitions(
             num_colours, 1, "ColourVector", array_name="Fermion",
             lattice_array_name="FermionField"
         ))
@@ -344,7 +336,7 @@ def generate_qcd(num_colours, precision, representation, dest=None):
         dest = src
 
     generate_cython_types(os.path.join(dest, "core"), precision,
-                          matrix_definitions)
+                          type_definitions)
 
 
 class CodeGen(setuptools.Command):
