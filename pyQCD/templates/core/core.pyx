@@ -90,5 +90,10 @@ cdef class {{ typedef.name }}:
     cdef {{ typedef.cmodule }}.{{ typedef.cname }} cppobj(self):
         return self.instance[0]
 
+    def to_numpy(self):
+        out = np.asarray(self)
+        out.dtype = complex
+        return out
+
 
 {% endfor %}
