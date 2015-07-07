@@ -1,6 +1,5 @@
 from libcpp.vector cimport vector
 
-from {{ typedef.cmodule }} cimport {{ typedef.cname }}
 from {{ typedef.element_type.cmodule }} cimport {{ typedef.element_type.cname }}
 from layout cimport Layout
 

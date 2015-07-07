@@ -1,4 +1,4 @@
-from {{ typedef.cmodule }} cimport {{ typedef.cname }}
+from {{ typedef.element_type.cmodule }} cimport {{ typedef.element_type.cname }}
 {# from {{ matrixdef.lattice_array_name|to_underscores }} cimport {{ matrixdef.lattice_array_name }} #}
 
 
