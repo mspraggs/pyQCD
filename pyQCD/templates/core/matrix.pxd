@@ -1,23 +1,23 @@
-from complex cimport Complex
-from {{ matrixdef.lattice_matrix_name|to_underscores }} cimport {{ matrixdef.lattice_matrix_name }}
+from {{ typedef.element_type.cmodule }} cimport {{ typedef.element_type.cname }}
+{#from {{ typedef.cmodule }} cimport {{ matrixdef.lattice_matrix_name }} #}
 
 
 cdef extern from "types.hpp":
-    cdef cppclass {{ matrixdef.matrix_name }}:
-        {{ matrixdef.matrix_name }}() except +
-        {{ matrixdef.matrix_name }} adjoint()
-        {% if matrixdef.num_cols > 1 %}
-        Complex& operator()(int, int) except +
+    cdef cppclass {{ typedef.cname }}:
+        {{ typedef.cname }}() except +
+        {{ typedef.cname }} adjoint()
+        {% if typedef.shape|length > 1 %}
+        {{ typedef.element_type.cname }}& operator()(int, int) except +
         {% else %}
-        Complex& operator[](int) except +
+        {{ typedef.element_type.cname }}& operator[](int) except +
         {% endif %}
-        {{ matrixdef.lattice_matrix_name }} broadcast() except +
+        {#{{ matrixdef.lattice_matrix_name }} broadcast() except +#}
 
 
-    cdef {{ matrixdef.matrix_name }} zeros "{{ matrixdef.matrix_name }}::Zero"()
-    cdef {{ matrixdef.matrix_name }} ones "{{ matrixdef.matrix_name }}::Ones"()
-{% if matrixdef.num_cols == matrixdef.num_rows %}
-    cdef {{ matrixdef.matrix_name }} identity "{{ matrixdef.matrix_name }}::Identity"()
+    cdef {{ typedef.cname }} zeros "{{ typedef.cname }}::Zero"()
+    cdef {{ typedef.cname }} ones "{{ typedef.cname }}::Ones"()
+{% if typedef.is_square %}
+    cdef {{ typedef.cname }} identity "{{ typedef.cname }}::Identity"()
 {% endif %}
-    cdef void mat_assign({{ matrixdef.matrix_name }}&, const int, const int, const Complex)
-    cdef void mat_assign({{ matrixdef.matrix_name }}*, const int, const int, const Complex)
+    cdef void mat_assign({{ typedef.cname }}&, const int, const int, const Complex)
+    cdef void mat_assign({{ typedef.cname }}*, const int, const int, const Complex)

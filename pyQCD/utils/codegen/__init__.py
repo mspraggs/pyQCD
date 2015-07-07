@@ -282,10 +282,10 @@ def generate_cython_types(output_path, precision, typedefs):
     """
 
     for typedef in typedefs:
-        fnames = [typedef.cmodule for typedef in typedefs]
+        fnames = [td.cmodule for td in typedefs]
         includes = dict([("{}_include".format(variant), fname)
                          for variant, fname in zip(variants, fnames)])
-        template_fname = "_".join([c.lower() for c in typedef.structure])
+        template_fname = typedef.structure[0].lower()
         write_core_template(template_fname + ".pxd", typedef.cmodule + ".pxd",
                             output_path, precision=precision, typedef=typedef,
                             includes=includes)
