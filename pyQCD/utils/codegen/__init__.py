@@ -13,8 +13,7 @@ from string import ascii_lowercase
 from jinja2 import Environment, PackageLoader
 import setuptools
 
-from . import ctags
-from . import typedefs
+from . import coretags, ctags, typedefs
 
 
 # Create the jinja2 template environment.
@@ -367,8 +366,8 @@ class CodeGen(setuptools.Command):
 
 env.filters['to_underscores'] = _camel2underscores
 env.filters['cpptype'] = ctags.cpptype
-env.filters['allocation_code'] = lambda t: ""
-env.filters['setget_code'] = lambda t: ""
-env.filters['buffer_code'] = lambda t: ""
-env.filters['static_func_code'] = lambda t: ""
+env.filters['allocation_code'] = coretags.allocation_code
+env.filters['setget_code'] = coretags.setget_code
+env.filters['buffer_code'] = coretags.buffer_code
+env.filters['static_func_code'] = coretags.static_func_code
 env.globals.update(zip=zip, len=len)
