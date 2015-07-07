@@ -1,3 +1,6 @@
+"""This module contains template tags to generate code snippets for the various
+pxd and C++ header templates"""
+
 
 def cpptype(typedef, precision):
     """Create C++ type declaration for the supplied type definition.
