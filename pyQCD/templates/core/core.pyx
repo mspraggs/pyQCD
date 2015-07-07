@@ -5,7 +5,7 @@ import numpy as np
 
 cimport complex
 cimport layout
-from operators cimport *
+#from operators cimport *
 {% for typedef in typedefs %}
 cimport {{ typedef.cmodule }}
 {% endfor %}
@@ -86,6 +86,9 @@ cdef class {{ typedef.name }}:
     cdef {{typedef.cmodule }}.{{ typedef.cname }}* instance
     cdef Py_ssize_t buffer_shape[{{ typedef.buffer_ndims }}]
     cdef Py_ssize_t buffer_strides[{{ typedef.buffer_ndims }}]
+
+    cdef {{ typedef.cmodule }}.{{ typedef.cname }} cppobj(self):
+        return self.instance[0]
 
 
 {% endfor %}
