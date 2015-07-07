@@ -68,7 +68,8 @@ class MatrixDef(ContainerDef):
                                         str(shape), str(len(shape)),
                                         len(shape), element_type)
         self.shape = shape
-        self.is_square = len(self.shape) == 2 and self.shape[0] == self.shape[1]
+        self.is_matrix = len(self.shape) == 2
+        self.is_square = self.is_matrix and self.shape[0] == self.shape[1]
 
 
 class ArrayDef(ContainerDef):

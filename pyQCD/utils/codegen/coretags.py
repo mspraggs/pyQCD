@@ -9,7 +9,9 @@ def allocation_code(typedef):
       typedef (ContainerDef): A ContainerDef instance specifying the type to
         generate code for.
     """
-    return ""
+    from . import env
+    template = env.get_template("core/allocation.pyx")
+    return template.render(typedef=typedef)
 
 
 def setget_code(typedef):
@@ -19,6 +21,7 @@ def setget_code(typedef):
       typedef (ContainerDef): A ContainerDef instance specifying the type to
         generate code for.
     """
+    from . import env
     return ""
 
 
@@ -29,6 +32,7 @@ def buffer_code(typedef):
       typedef (ContainerDef): A ContainerDef instance specifying the type to
         generate code for.
     """
+    from . import env
     return ""
 
 
@@ -39,4 +43,5 @@ def static_func_code(typedef):
       typedef (ContainerDef): A ContainerDef instance specifying the type to
         generate code for.
     """
+    from . import env
     return ""
