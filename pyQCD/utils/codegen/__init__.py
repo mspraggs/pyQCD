@@ -367,4 +367,8 @@ class CodeGen(setuptools.Command):
 
 env.filters['to_underscores'] = _camel2underscores
 env.filters['cpptype'] = ctags.cpptype
+env.filters['allocation_code'] = lambda t: ""
+env.filters['setget_code'] = lambda t: ""
+env.filters['buffer_code'] = lambda t: ""
+env.filters['static_func_code'] = lambda t: ""
 env.globals.update(zip=zip, len=len)

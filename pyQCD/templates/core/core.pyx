@@ -90,6 +90,14 @@ cdef class {{ typedef.name }}:
     cdef {{ typedef.cmodule }}.{{ typedef.cname }} cppobj(self):
         return self.instance[0]
 
+{{ typedef|allocation_code }}
+
+{{ typedef|setget_code }}
+
+{{ typedef|buffer_code }}
+
+{{ typedef|static_func_code }}
+
     def to_numpy(self):
         out = np.asarray(self)
         out.dtype = complex
