@@ -3,10 +3,6 @@ which is used to produce Cython syntax trees for the various types."""
 
 from __future__ import absolute_import
 
-from Cython.Compiler import ExprNodes, Nodes
-
-from . import nodegen
-
 
 class TypeDef(object):
     """Encapsulates type defintion and facilitates cython node generation."""
