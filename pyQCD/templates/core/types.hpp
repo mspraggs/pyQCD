@@ -15,14 +15,16 @@ typedef pyQCD::Lattice<pyQCD::Array<Complex> > LatticeComplexArray;
 typedef {{ typedef|cpptype(precision) }} {{ typedef.cname }};
 {% endfor %}
 
-{% for matrix in matrixdefs %}
-{% if matrix.num_cols > 1 %}
-inline void mat_assign({{ matrix.matrix_name }}& mat, const int i, const int j, const Complex value)
+{% for typedef in typedefs %}
+{% if typedef.structure[0] == "Matrix" %}
+{% if typedef.is_matrix %}
+inline void mat_assign({{ typedef.cname }}& mat, const int i, const int j, const Complex value)
 { mat(i, j) = value; }
 
-inline void mat_assign({{ matrix.matrix_name }}* mat, const int i, const int j, const Complex value)
+inline void mat_assign({{ typedef.cname }}* mat, const int i, const int j, const Complex value)
 { (*mat)(i, j) = value; }
 
+{% endif %}
 {% endif %}
 {% endfor %}
 

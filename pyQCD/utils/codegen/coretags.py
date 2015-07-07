@@ -14,7 +14,7 @@ def allocation_code(typedef):
     return template.render(typedef=typedef)
 
 
-def setget_code(typedef):
+def setget_code(typedef, precision):
     """Generate code for __setitem__ and __getitem__ member functions.
 
     Args:
@@ -22,7 +22,8 @@ def setget_code(typedef):
         generate code for.
     """
     from . import env
-    return ""
+    template = env.get_template("core/setget.pyx")
+    return template.render(typedef=typedef, precision=precision)
 
 
 def buffer_code(typedef):

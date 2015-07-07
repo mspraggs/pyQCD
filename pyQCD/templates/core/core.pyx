@@ -92,7 +92,7 @@ cdef class {{ typedef.name }}:
 
 {{ typedef|allocation_code }}
 
-{{ typedef|setget_code }}
+{{ typedef|setget_code(precision) }}
 
 {{ typedef|buffer_code }}
 
