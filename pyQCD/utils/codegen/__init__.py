@@ -13,6 +13,7 @@ from string import ascii_lowercase
 from jinja2 import Environment, PackageLoader
 import setuptools
 
+from . import ctags
 from . import typedefs
 
 
@@ -365,4 +366,5 @@ class CodeGen(setuptools.Command):
 
 
 env.filters['to_underscores'] = _camel2underscores
+env.filters['cpptype'] = ctags.cpptype
 env.globals.update(zip=zip, len=len)

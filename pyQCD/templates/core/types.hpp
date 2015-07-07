@@ -11,11 +11,8 @@ typedef std::complex<{{ precision }}> Complex;
 typedef pyQCD::Array<Complex> ComplexArray;
 typedef pyQCD::Lattice<Complex> LatticeComplex;
 typedef pyQCD::Lattice<pyQCD::Array<Complex> > LatticeComplexArray;
-{% for matrix in matrixdefs %}
-typedef Eigen::Matrix<Complex, {{ matrix.num_rows }}, {{ matrix.num_cols }}> {{ matrix.matrix_name }};
-typedef pyQCD::MatrixArray<{{ matrix.num_rows }}, {{ matrix.num_cols }}, {{ precision }}> {{ matrix.array_name }};
-typedef pyQCD::Lattice<Eigen::Matrix<Complex, {{ matrix.num_rows }}, {{ matrix.num_cols }}>, Eigen::aligned_allocator> {{ matrix.lattice_matrix_name }};
-typedef pyQCD::Lattice<pyQCD::MatrixArray<{{ matrix.num_rows }}, {{ matrix.num_cols }}, {{ precision }}> > {{ matrix.lattice_array_name }};
+{% for typedef in typedefs %}
+typedef {{ typedef|cpptype(precision) }} {{ typedef.cname }};
 {% endfor %}
 
 {% for matrix in matrixdefs %}
