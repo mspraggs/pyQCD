@@ -26,7 +26,7 @@ def setget_code(typedef, precision):
     return template.render(typedef=typedef, precision=precision)
 
 
-def buffer_code(typedef):
+def buffer_code(typedef, precision):
     """Generate code for __getbuffer__ and __releasebuffer__ member functions.
 
     Args:
@@ -34,7 +34,8 @@ def buffer_code(typedef):
         generate code for.
     """
     from . import env
-    return ""
+    template = env.get_template("core/buffer.pyx")
+    return template.render(typedef=typedef, precision=precision)
 
 
 def static_func_code(typedef):

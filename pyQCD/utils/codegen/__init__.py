@@ -370,4 +370,4 @@ env.filters['allocation_code'] = coretags.allocation_code
 env.filters['setget_code'] = coretags.setget_code
 env.filters['buffer_code'] = coretags.buffer_code
 env.filters['static_func_code'] = coretags.static_func_code
-env.globals.update(zip=zip, len=len)
+env.globals.update(zip=zip, len=len, hasattr=hasattr)

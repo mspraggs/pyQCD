@@ -94,7 +94,7 @@ cdef class {{ typedef.name }}:
 
 {{ typedef|setget_code(precision) }}
 
-{{ typedef|buffer_code }}
+{{ typedef|buffer_code(precision) }}
 
 {{ typedef|static_func_code }}
 
