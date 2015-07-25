@@ -26,7 +26,7 @@ class ContainerDef(TypeDef):
         self.element_type = element_type
         self.size_expr = size_expr
         self.ndims_expr = ndims_expr
-        self.structure = [self.__class__.__name__[:-3]]
+        self.structure = [self.__class__.__name__.replace("Def", "")]
         if isinstance(element_type, ContainerDef):
             self.structure.extend(element_type.structure)
         try:
