@@ -35,7 +35,15 @@ def buffer_code(typedef, precision):
     """
     from . import env
     template = env.get_template("core/buffer.pyx")
-    return template.render(typedef=typedef, precision=precision)
+    shape = typedef.matrix_shape
+    if len(shape) > 1:
+        num_rows, num_cols = shape
+    else:
+        num_rows, num_cols = shape[0], 1
+    return template.render(typedef=typedef, precision=precision,
+                           matrix_size=reduce(lambda x, y: x * y, shape, 1),
+                           num_rows=num_rows, num_cols=num_cols,
+                           is_matrix=num_rows == num_cols)
 
 
 def static_func_code(typedef):

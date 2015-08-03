@@ -57,6 +57,13 @@ class ContainerDef(TypeDef):
             pass
         return out
 
+    @property
+    def matrix_shape(self):
+        """The shape of the root child element type, if it exists"""
+        if isinstance(self, MatrixDef):
+            return self.shape
+        else:
+            return self.element_type.matrix_shape
 
 class MatrixDef(ContainerDef):
     """Specialise container definition for matrix type"""
