@@ -61,11 +61,15 @@
         elif type(index) is tuple:
             self.validate_index(index[0])
             out = Complex(0.0, 0.0)
-{% if typedef.is_matrix %}
-            validate_{{ typedef.element_type.name }}_indices(index[1], index[2])
+{% if len(typedef.matrix_shape) == 2 %}
+            if index[1] > {{ typedef.matrix_shape[0] - 1 }} or index[1] < 0 or index[2] > {{ typedef.matrix_shape[1] - 1 }} or index[2] < 0:
+                raise IndexError("Indices in {{ matrix_name }} element access out of bounds: "
+                                 "{}".format(index))
             (<Complex>out).instance = self.instance[0][<int?>index[0]](<int?>index[1], <int?>index[2])
 {% else %}
-            validate_{{ typedef.element_type.name }}_indices(index[1])
+            if index[1] > {{ typedef.matrix_shape[0] - 1 }} or index[1] < 0:
+                raise IndexError("Indices in {{ typedef.name }} element access out of bounds: "
+                                 "{}".format(index))
             (<Complex>out).instance = self.instance[0][<int?>index[0]][<int?>index[1]]
 {% endif %}
             return out.to_complex()
@@ -89,24 +93,35 @@
 
         cdef {{ typedef.element_type.cmodule }}.{{ typedef.element_type.cname }}* mat = &(self.instance[0][<int?>index[0]])
 {% if typedef.element_type.is_matrix %}
-        validate_{{ typedef.element_type.name }}_indices(index[1], index[2])
+        if index[1] > {{ typedef.matrix_shape[0] - 1 }} or index[1] < 0 or index[2] > {{ typedef.matrix_shape[1] - 1 }} or index[2] < 0:
+            raise IndexError("Indices in {{ typedef.name }} element access out of bounds: "
+                             "{}".format(*index))
         {{ typedef.element_type.cmodule }}.mat_assign(mat, <int?>index[1], <int?>index[2], (<Complex?>value).instance)
 {% else %}
-        validate_{{ typedef.element_type.name }}_indices(index[1])
+        if index[1] > {{ typedef.matrix_shape[0] - 1}} or index[1] < 0:
+            raise IndexError("Indices in {{ typedef.name }} element access out of bounds: "
+                             "{}".format(*index))
         cdef complex.Complex* z = &(mat[0][<int?>index[1]])
         z[0] = (<Complex>value).instance
 {% endif %}
 
-    cdef void assign_elem(self, int i, {{ typedef.element_type.cname }} value):
+    cdef void assign_elem(self, int i, {{ typedef.element_type.cmodule }}.{{ typedef.element_type.cname }} value):
         cdef {{ typedef.element_type.cmodule }}.{{ typedef.element_type.cname }}* m = &(self.instance[0][i])
         m[0] = value
 
 {% elif typedef.structure[0] == "Lattice" and typedef.structure[1] == "Matrix" %}
 
     cdef validate_index(self, index):
-        validate_{{ typedef.name }}_index(
-            index, self.instance.lattice_shape(), self.instance.num_dims(),
-            self.instance.volume())
+        cdef int i
+        if type(index) is tuple:
+            for i in range(self.instance.num_dims()):
+                if index[i] >= self.instance.lattice_shape()[i] or index[i] < 0:
+                    raise IndexError("Index in {{ lattice_matrix_name }} element access "
+                                     "out of bounds: {}".format(index))
+        elif type(index) is int:
+            if index < 0 or index >= self.instance.volume():
+                raise IndexError("Index in {{ lattice_matrix_name }} element access "
+                                 "out of bounds: {}".format(index))
 
     def __getitem__(self, index):
         cdef int num_dims = self.instance.num_dims()
@@ -118,7 +133,9 @@
         if type(index) is tuple and len(index) == num_dims + {% if is_matrix %}2{% else %}1{% endif %}:
             out = Complex(0.0, 0.0)
             self.validate_index(index)
-            validate_{{ typedef.element_type.name }}_indices(index[num_dims]{% if typedef.element_type.is_matrix %}, index[num_dims + 1]{% endif %})
+            if index[num_dims] > {{ typedef.matrix_shape[0] - 1 }} or index[self.instance.num_dims()] < 0{% if typedef.matrix_shape[1] %} or index[self.instance.num_dims() + 1] > {{ typedef.matrix_shape[1] - 1 }} or index[self.instance.num_dims() + 1] < 0{% endif %}:
+                raise IndexError("Indices in {{ typedef.name }} element access out of bounds: "
+                                 "{}".format(index))
 {% if typedef.element_type.is_matrix %}
             (<Complex>out).instance = (<{{ typedef.name }}>self).instance[0](<vector[unsigned int]>index[:num_dims])(index[num_dims], index[num_dims + 1])
 {% else %}
@@ -151,10 +168,14 @@
         else:
             mat = &(self.instance[0](<int?>index))
 {% if typedef.element_type.is_matrix %}
-        validate_{{ typedef.element_type.name }}_indices(index[num_dims], index[num_dims + 1])
+        if index[num_dims] > {{ typedef.matrix_shape[0] - 1}} or index[num_dims] < 0 or index[num_dims + 1] > {{ typedef.matrix_shape[1] - 1 }} or index[num_dims + 1] < 0:
+            raise IndexError("Indices in {{ matrix_name }} element access out of bounds: "
+                             "{}".format(index))
         {{ typedef.element_type.cmodule }}.mat_assign(mat, <int?>index[num_dims], <int?>index[num_dims + 1], (<Complex?>value).instance)
 {% else %}
-        validate_{{ typedef.element_type.name }}_indices(index[num_dims])
+        if index[num_dims] > {{ typedef.matrix_shape[0] - 1}} or index[num_dims] < 0:
+            raise IndexError("Indices in {{ matrix_name }} element access out of bounds: "
+                             "{}".format(index))
         cdef complex.Complex* z = &(mat[0][<int?>index[num_dims]])
         z[0] = (<Complex>value).instance
 {% endif %}
