@@ -79,7 +79,7 @@
             return out.to_complex()
         else:
             self.validate_index(index)
-            out = {{ matrix_name }}()
+            out = {{ typedef.element_type.name }}()
             (<{{ typedef.element_type.name }}>out).instance[0] = self.instance[0][<int?>index]
             return out
 
@@ -134,7 +134,7 @@
             self.validate_index(index)
             (<{{ typedef.element_type.name }}>out).instance[0] = (<{{ typedef.name }}>self).instance[0](<vector[unsigned int]>index)
             return out
-        if type(index) is tuple and len(index) == num_dims + {% if is_matrix %}2{% else %}1{% endif %}:
+        if type(index) is tuple and len(index) == num_dims + {{ len(typedef.element_type.shape) }}:
             out = Complex(0.0, 0.0)
             self.validate_index(index)
             if index[num_dims] > {{ typedef.matrix_shape[0] - 1 }} or index[self.instance.num_dims()] < 0{% if typedef.matrix_shape[1] %} or index[self.instance.num_dims() + 1] > {{ typedef.matrix_shape[1] - 1 }} or index[self.instance.num_dims() + 1] < 0{% endif %}:
@@ -151,7 +151,7 @@
             self.validate_index(index)
             (<{{ typedef.element_type.name }}>out).instance[0] = (<{{ typedef.name }}>self).instance[0](<int>index)
             return out
-        raise TypeError("Invalid index type in {{ lattice_matrix_name }}.__getitem__")
+        raise TypeError("Invalid index type in {{ typedef.name }}.__getitem__")
 
     def __setitem__(self, index, value):
         cdef int num_dims = self.instance.num_dims()

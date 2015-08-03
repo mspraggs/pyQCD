@@ -30,6 +30,9 @@
 
 {% endfor %}
 {% elif typedef.structure[0] == "Lattice" and typedef.structure[1] == "Matrix" %}
+    cdef Layout layout
+    cdef int view_count
+
     @property
     def volume(self):
         return self.instance.volume()
@@ -42,11 +45,15 @@
     def shape(self):
         return tuple(self.instance.lattice_shape()) + {{ typedef.matrix_shape }}
 
+    @property
+    def num_dims(self):
+        return self.instance.num_dims()
+
 {% for funcname in ["zeros", "ones"] + (["identity"] if is_square else []) %}
     @staticmethod
     def {{ funcname }}(Layout layout):
         elem = {{ typedef.element_type.cmodule }}.{{ funcname }}()
-        out = {{ typedef.name }}()
+        out = {{ typedef.name }}(layout)
         out.instance[0] = {{ typedef.cmodule }}.{{ typedef.cname }}(layout.instance[0], {{ typedef.element_type.cmodule }}.{{ funcname }}())
         return out
 
