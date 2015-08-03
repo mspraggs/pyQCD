@@ -1,5 +1,9 @@
 {% if typedef.structure[0] == "Matrix" %}
 
+    cdef validate_indices(self, int i{% if len(typedef.shape) == 2 %}, int j{% endif %}):
+        if i >= {{ typedef.matrix_shape[0] }} or i < 0{% if len(typedef.matrix_shape) == 2 %} or j >= {{ typedef.matrix_shape[1] }} or j < 0{% endif %}:
+            raise IndexError("Invalid index for type {{ typedef.name }}: {}".format((i{% if len(typedef.matrix_shape) == 2 %}, j{% endif %})))
+
     def __getitem__(self, index):
         out = Complex(0.0, 0.0)
         if type(index) is tuple:
