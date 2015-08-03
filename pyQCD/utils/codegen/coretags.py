@@ -54,5 +54,5 @@ def static_func_code(typedef):
         generate code for.
     """
     from . import env
-    template = env.get_template("core/static_funcs.pyx")
+    template = env.get_template("core/member_funcs.pyx")
     return template.render(typedef=typedef)

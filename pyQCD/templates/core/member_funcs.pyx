@@ -2,6 +2,11 @@
 {% if typedef.structure[0] == "Matrix" %}
     shape = {{ typedef.matrix_shape }}
 
+    def adjoint(self):
+        cdef {{ typedef.name }} out = {{ typedef.name }}()
+        out.instance[0] = self.instance.adjoint()
+        return out
+
 {% for funcname in ["zeros", "ones"] + (["identity"] if is_square else []) %}
     @staticmethod
     def {{ funcname }}():
@@ -20,6 +25,11 @@
     @property
     def shape(self):
         return (self.size,) + {{ typedef.matrix_shape }}
+
+    def adjoint(self):
+        cdef {{ typedef.name }} out = {{ typedef.name }}()
+        out.instance[0] = self.instance.adjoint()
+        return out
 
 {% for funcname in ["zeros", "ones"] + (["identity"] if is_square else []) %}
     @staticmethod
