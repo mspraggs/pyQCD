@@ -13,7 +13,7 @@ from string import ascii_lowercase
 from jinja2 import Environment, PackageLoader
 import setuptools
 
-from . import coretags, ctags, typedefs
+from . import arithmetictags, coretags, ctags, typedefs
 
 
 # Create the jinja2 template environment.
@@ -370,4 +370,5 @@ env.filters['allocation_code'] = coretags.allocation_code
 env.filters['setget_code'] = coretags.setget_code
 env.filters['buffer_code'] = coretags.buffer_code
 env.filters['static_func_code'] = coretags.static_func_code
+env.filters['arithmetic_code'] = arithmetictags.arithmetic_code
 env.globals.update(zip=zip, len=len, hasattr=hasattr)

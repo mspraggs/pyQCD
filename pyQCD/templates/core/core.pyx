@@ -103,5 +103,7 @@ cdef class {{ typedef.name }}:
         out.dtype = complex
         return out
 
+{{ typedef|arithmetic_code(typedefs, precision) }}
+
 
 {% endfor %}
