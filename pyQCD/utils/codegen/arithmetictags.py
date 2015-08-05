@@ -7,7 +7,8 @@ from .typedefs import ArrayDef, LatticeDef, TypeDef
 def filter_types(typedef, matrix_shape, is_array, is_lattice):
     """Determine whether supplied typedef fits the specified requirements"""
     correct_shape = typedef.matrix_shape == matrix_shape
-    is_array_correct = isinstance(typedef, ArrayDef) == is_array
+    is_array_correct = (isinstance(typedef, ArrayDef) == is_array or
+                        isinstance(typedef.element_type, ArrayDef))
     is_lattice_correct = isinstance(typedef, LatticeDef) == is_lattice
     return correct_shape and is_array_correct and is_lattice_correct
 
@@ -46,11 +47,13 @@ def generate_matrix_operations(lhs, rhss):
     """
     operations = []
     lhs_is_lattice = isinstance(lhs, LatticeDef)
-    lhs_is_array = isinstance(lhs, ArrayDef)
+    lhs_is_array = (isinstance(lhs, ArrayDef) or
+                    isinstance(lhs.element_type, ArrayDef))
 
     for rhs in rhss:
         rhs_is_lattice = isinstance(rhs, LatticeDef)
-        rhs_is_array = isinstance(rhs, ArrayDef)
+        rhs_is_array = (isinstance(rhs, ArrayDef) or
+                        isinstance(rhs.element_type, ArrayDef))
         result_is_lattice = lhs_is_lattice or rhs_is_lattice
         result_is_array = lhs_is_array or rhs_is_array
         try:
