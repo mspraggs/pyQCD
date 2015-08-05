@@ -7,12 +7,21 @@ from __future__ import absolute_import
 class TypeDef(object):
     """Encapsulates type defintion and facilitates cython node generation."""
 
-    def __init__(self, name, cname, cmodule, wrap_ptr):
+    def __init__(self, name, cname, cmodule, wrap_ptr, builtin=False):
         """Constructor for TypeDef object, See help(TypeDef)."""
         self.name = name
         self.cname = cname
         self.cmodule = cmodule
         self.wrap_ptr = wrap_ptr
+        self.builtin = builtin
+
+    def accessor(self, varname, broadcast=False):
+        if self.builtin:
+            return varname
+        else:
+            return "{}.instance{}{}".format(varname,
+                                            "[0]" if self.wrap_ptr else "",
+                                            ".broadcast()" if broadcast else "")
 
 
 class ContainerDef(TypeDef):
