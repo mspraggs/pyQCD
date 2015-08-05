@@ -13,7 +13,7 @@ def filter_types(typedef, matrix_shape, is_array, is_lattice):
     return correct_shape and is_array_correct and is_lattice_correct
 
 
-def generate_scalar_operations(typedef, scalar_typedefs):
+def generate_scalar_operations(operations, typedef, scalar_typedefs):
     """Generate a list of tuples specifying and operand types.
 
     Args:
@@ -25,15 +25,15 @@ def generate_scalar_operations(typedef, scalar_typedefs):
     Returns:
       list: list of tuples specifying the operation.
     """
-    operations = []
     for scalar_typedef in scalar_typedefs:
+        operations["*"].append((typedef, scalar_typedef, typedef, None))
         for op in "*/+-":
-            operations.append((op, typedef, typedef, scalar_typedef, None))
+            operations[op].append((typedef, typedef, scalar_typedef, None))
 
     return operations
 
 
-def generate_matrix_operations(lhs, rhss):
+def generate_matrix_operations(operations, lhs, rhss):
     """Generate a list of tuples specifying operations and operand types.
 
     Args:
@@ -45,7 +45,6 @@ def generate_matrix_operations(lhs, rhss):
     Returns:
       list: list of tuples specifying the operation
     """
-    operations = []
     lhs_is_lattice = isinstance(lhs, LatticeDef)
     lhs_is_array = (isinstance(lhs, ArrayDef) or
                     isinstance(lhs.element_type, ArrayDef))
@@ -77,10 +76,10 @@ def generate_matrix_operations(lhs, rhss):
             broadcast = None
 
         if can_multiply:
-            operations.append(("*", result_typedef, lhs, rhs, broadcast))
+            operations["*"].append((result_typedef, lhs, rhs, broadcast))
         if can_addsub:
             for op in "+-":
-                operations.append((op, result_typedef, lhs, rhs, broadcast))
+                operations[op].append((result_typedef, lhs, rhs, broadcast))
 
     return operations
 
@@ -94,11 +93,12 @@ def arithmetic_code(typedef, typedefs, precision):
       typedefs (iterable): An iterable of ContainerDef instances to compare
         the specified typedef to and .
     """
-    scalar_typedefs = [TypeDef("int", "int", "", True),
-                       TypeDef(precision, precision, "", True),
-                       TypeDef("Complex", "Complex", "complex", True)]
-    operations = generate_scalar_operations(typedef, scalar_typedefs)
-    operations.extend(generate_matrix_operations(typedef, typedefs))
+    scalar_typedefs = [TypeDef("int", "int", "", False, True),
+                       TypeDef(precision, precision, "", False, True),
+                       TypeDef("Complex", "Complex", "complex", False)]
+    operations = {'*': [], '/': [], '+': [], '-': []}
+    generate_scalar_operations(operations, typedef, scalar_typedefs)
+    generate_matrix_operations(operations, typedef, typedefs)
 
     from . import env
     template = env.get_template("core/arithmetic.pyx")
