@@ -93,6 +93,8 @@ def arithmetic_code(typedef, typedefs, precision):
       typedefs (iterable): An iterable of ContainerDef instances to compare
         the specified typedef to and .
     """
+    operator_map = {"*": ["mul"], "/": ["div", "truediv"],
+                    "+": ["add"], "-": ["sub"]}
     scalar_typedefs = [TypeDef("int", "int", "", False, True),
                        TypeDef(precision, precision, "", False, True),
                        TypeDef("Complex", "Complex", "complex", False)]
@@ -102,4 +104,5 @@ def arithmetic_code(typedef, typedefs, precision):
 
     from . import env
     template = env.get_template("core/arithmetic.pyx")
-    return template.render(typedef=typedef, operations=operations)
+    return template.render(typedef=typedef, operations=operations,
+                           operator_map=operator_map)
