@@ -34,7 +34,7 @@ def generate_scalar_operations(operations, typedef, scalar_typedefs):
     """
     for scalar_typedef in scalar_typedefs:
         operations["*"].append((typedef, scalar_typedef, typedef, None))
-        for op in "*/+-":
+        for op in "*/":
             operations[op].append((typedef, typedef, scalar_typedef, None))
 
     return operations
