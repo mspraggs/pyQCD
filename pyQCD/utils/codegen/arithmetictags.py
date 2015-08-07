@@ -72,7 +72,10 @@ def generate_matrix_operations(operations, lhs, rhss):
                               if filter_types(e, *filter_args)][0]
         except IndexError:
             continue
-        can_multiply = lhs.matrix_shape[-1] == rhs.matrix_shape[0]
+        try:
+            can_multiply = lhs.matrix_shape[1] == rhs.matrix_shape[0]
+        except IndexError:
+            can_multiply = False
         can_addsub = (lhs.matrix_shape == rhs.matrix_shape and
                       lhs_is_lattice == rhs_is_lattice and
                       lhs_is_array == rhs_is_array)
