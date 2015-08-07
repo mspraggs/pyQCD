@@ -280,6 +280,7 @@ def generate_cython_types(output_path, precision, typedefs):
         code (e.g. 'double' or 'float').
       typdefs (iterable): An iterable object containing instances of TypeDef.
     """
+    operations = {'*': [], '/': [], '+': [], '-': []}
 
     for typedef in typedefs:
         fnames = [td.cmodule for td in typedefs]
@@ -289,13 +290,17 @@ def generate_cython_types(output_path, precision, typedefs):
         write_core_template(template_fname + ".pxd", typedef.cmodule + ".pxd",
                             output_path, precision=precision, typedef=typedef,
                             includes=includes)
+        arithmetictags.generate_scalar_operations(
+            operations, typedef, arithmetictags.scalar_typedefs(precision))
+        arithmetictags.generate_matrix_operations(operations, typedef, typedefs)
 
     write_core_template("types.hpp", "types.hpp", output_path,
                         typedefs=typedefs, precision=precision)
     write_core_template("complex.pxd", "complex.pxd", output_path,
                         precision=precision)
-    #write_core_template("operators.pxd", "operators.pxd", output_path,
-    #                    typedefs=typedefs, precision=precision)
+    write_core_template("operators.pxd", "operators.pxd", output_path,
+                        operations=operations, typedefs=typedefs,
+                        precision=precision)
     write_core_template("core.pyx", "core.pyx", output_path,
                         typedefs=typedefs, precision=precision)
 
