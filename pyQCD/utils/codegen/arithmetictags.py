@@ -4,6 +4,13 @@ for the specified Cython types."""
 from .typedefs import ArrayDef, LatticeDef, TypeDef
 
 
+def scalar_typedefs(precision):
+    """Generate scalar type definitions for use in operator overloading"""
+    return [TypeDef("int", "int", "", False, True),
+            TypeDef("float", precision, "", False, True),
+            TypeDef("Complex", "Complex", "complex", False)]
+
+
 def filter_types(typedef, matrix_shape, is_array, is_lattice):
     """Determine whether supplied typedef fits the specified requirements"""
     correct_shape = typedef.matrix_shape == matrix_shape
@@ -94,11 +101,8 @@ def arithmetic_code(typedef, typedefs, precision):
     """
     operator_map = {"*": ["mul"], "/": ["div", "truediv"],
                     "+": ["add"], "-": ["sub"]}
-    scalar_typedefs = [TypeDef("int", "int", "", False, True),
-                       TypeDef(precision, precision, "", False, True),
-                       TypeDef("Complex", "Complex", "complex", False)]
     operations = {'*': [], '/': [], '+': [], '-': []}
-    generate_scalar_operations(operations, typedef, scalar_typedefs)
+    generate_scalar_operations(operations, typedef, scalar_typedefs(precision))
     generate_matrix_operations(operations, typedef, typedefs)
 
     from . import env
