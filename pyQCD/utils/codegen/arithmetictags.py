@@ -108,10 +108,12 @@ def arithmetic_code(typedef, typedefs, precision):
     operator_map = {"*": ["mul"], "/": ["div", "truediv"],
                     "+": ["add"], "-": ["sub"]}
     operations = {'*': [], '/': [], '+': [], '-': []}
+    complex_types = {'*': True, '/': True, '+': False, '-': False}
     generate_scalar_operations(operations, typedef, scalar_typedefs(precision))
     generate_matrix_operations(operations, typedef, typedefs)
 
     from . import env
     template = env.get_template("core/arithmetic.pyx")
     return template.render(typedef=typedef, operations=operations,
-                           operator_map=operator_map)
+                           operator_map=operator_map,
+                           lhs_complex=complex_types, rhs_complex=complex_types)
