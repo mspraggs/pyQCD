@@ -73,7 +73,9 @@ def generate_matrix_operations(operations, lhs, rhss):
         except IndexError:
             continue
         can_multiply = lhs.matrix_shape[-1] == rhs.matrix_shape[0]
-        can_addsub = lhs.matrix_shape == rhs.matrix_shape
+        can_addsub = (lhs.matrix_shape == rhs.matrix_shape and
+                      lhs_is_lattice == rhs_is_lattice and
+                      lhs_is_array == rhs_is_array)
 
         need_broadcast = (lhs_is_lattice != rhs_is_lattice) and result_is_array
         if need_broadcast:
