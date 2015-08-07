@@ -97,7 +97,8 @@ def arithmetic_code(typedef, typedefs, precision):
       typedef (ContainerDef): A ContainerDef instance specifying the type to
         generate code for.
       typedefs (iterable): An iterable of ContainerDef instances to compare
-        the specified typedef to and .
+        the specified typedef to.
+      precision (str): String specifying the fundamental real numerical type.
     """
     operator_map = {"*": ["mul"], "/": ["div", "truediv"],
                     "+": ["add"], "-": ["sub"]}
