@@ -1,14 +1,13 @@
 cimport complex
-{% for inc in includes %}
-cimport {{ inc.0 }}
+{% for typedef in typedefs %}
+cimport {{ typedef.cmodule }}
 {% endfor %}
 
 
 cdef extern from "types.hpp":
-    {% for op in scalar_binary_ops %}
-    {{ op.0 }} operator{{ op.1 }}(const {{ op.2 }}&, const {{ op.3 }}&) except +
-    {% endfor %}
-
-    {% for op in lattice_binary_ops %}
-    {{ op.0 }} operator{{ op.1 }}(const {{ op.2 }}&, const {{ op.3 }}&) except +
-    {% endfor %}
+{% for op in operations %}
+{% set opoperations = operations[op] %}
+{% for ret, lhs, rhs, bcast in opoperations %}
+    {{ ret.cmodule }}.{{ ret.cname }} operator{{ op }}(const {% if not lhs.builtin %}{{ lhs.cmodule }}.{% endif %}{{ lhs.cname }}{% if not lhs.builtin %}&{% endif %}, const {% if not rhs.builtin %}{{ rhs.cmodule }}.{% endif %}{{ rhs.cname }}{% if not rhs.builtin %}&{% endif %})
+{% endfor %}
+{% endfor %}
