@@ -5,7 +5,7 @@ import numpy as np
 
 cimport complex
 cimport layout
-#from operators cimport *
+from operators cimport *
 {% for typedef in typedefs %}
 cimport {{ typedef.cmodule }}
 {% endfor %}
