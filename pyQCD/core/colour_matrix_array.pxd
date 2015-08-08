@@ -8,7 +8,6 @@ cdef extern from "types.hpp":
         ColourMatrixArray(int, ColourMatrix)
         ColourMatrixArray adjoint()
         ColourMatrix& operator[](const int) except +
-        const GaugeField broadcast()
         GaugeField broadcast() except +
         void resize(unsigned int) except +
         unsigned int size()

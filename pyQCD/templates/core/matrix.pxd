@@ -1,5 +1,4 @@
 from {{ typedef.element_type.cmodule }} cimport {{ typedef.element_type.cname }}
-{#from {{ typedef.cmodule }} cimport {{ matrixdef.lattice_matrix_name }} #}
 
 
 cdef extern from "types.hpp":
@@ -11,7 +10,6 @@ cdef extern from "types.hpp":
         {% else %}
         {{ typedef.element_type.cname }}& operator[](int) except +
         {% endif %}
-        {#{{ matrixdef.lattice_matrix_name }} broadcast() except +#}
 
 
     cdef {{ typedef.cname }} zeros "{{ typedef.cname }}::Zero"()

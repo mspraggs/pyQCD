@@ -1,5 +1,4 @@
 from complex cimport Complex
-from lattice_colour_vector cimport LatticeColourVector
 
 
 cdef extern from "types.hpp":
@@ -7,7 +6,6 @@ cdef extern from "types.hpp":
         ColourVector() except +
         ColourVector adjoint()
         Complex& operator[](int) except +
-        LatticeColourVector broadcast() except +
 
 
     cdef ColourVector zeros "ColourVector::Zero"()

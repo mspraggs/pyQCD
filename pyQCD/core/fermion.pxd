@@ -8,7 +8,6 @@ cdef extern from "types.hpp":
         Fermion(int, ColourVector)
         Fermion adjoint()
         ColourVector& operator[](const int) except +
-        const FermionField broadcast()
         FermionField broadcast() except +
         void resize(unsigned int) except +
         unsigned int size()

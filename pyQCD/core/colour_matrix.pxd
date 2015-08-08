@@ -1,5 +1,4 @@
 from complex cimport Complex
-from lattice_colour_matrix cimport LatticeColourMatrix
 
 
 cdef extern from "types.hpp":
@@ -7,7 +6,6 @@ cdef extern from "types.hpp":
         ColourMatrix() except +
         ColourMatrix adjoint()
         Complex& operator()(int, int) except +
-        LatticeColourMatrix broadcast() except +
 
 
     cdef ColourMatrix zeros "ColourMatrix::Zero"()
