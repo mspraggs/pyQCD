@@ -16,12 +16,9 @@
                 self.validate_indices(i)
                 self[i] = elem
 {% endif %}
-
     def __dealloc__(self):
         del self.instance
-
 {% elif typedef.structure[0] == "Array" %}
-
     cdef _init_with_args_(self, unsigned int N, {{ typedef.element_type.name }} value):
         self.instance[0] = {{ typedef.cmodule }}.{{ typedef.cname }}(N, value.instance[0])
 
@@ -51,9 +48,7 @@
 
     def __dealloc__(self):
         del self.instance
-
 {% elif typedef.structure[0] == "Lattice" and typedef.structure[1] == "Matrix" %}
-
     def __cinit__(self, Layout layout, *args):
         self.instance = new {{ typedef.cmodule }}.{{ typedef.cname }}(layout.instance[0], {{ typedef.element_type.cmodule }}.{{ typedef.element_type.cname }}())
         self.layout = layout
@@ -68,7 +63,6 @@
 
     def __dealloc__(self):
         del self.instance
-
 {% elif typedef.structure[0] == "Lattice" and typedef.structure[1] == "Array" %}
 
 {% endif %}
