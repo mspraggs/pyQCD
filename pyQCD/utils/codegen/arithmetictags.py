@@ -83,6 +83,7 @@ def generate_matrix_operations(operations, lhs, rhss):
         need_broadcast = ((lhs_is_lattice and rhs_is_array and not rhs_is_lattice) or
                           (rhs_is_lattice and lhs_is_array and not lhs_is_lattice))
         if need_broadcast:
+            continue
             broadcast = "R" if lhs_is_lattice else "L"
         else:
             broadcast = None
