@@ -14,6 +14,7 @@ from jinja2 import Environment, PackageLoader
 import setuptools
 
 from . import arithmetictags, coretags, ctags, typedefs
+from .typedefs import LatticeDef
 
 
 # Create the jinja2 template environment.
@@ -283,13 +284,16 @@ def generate_cython_types(output_path, precision, typedefs):
     operations = {'*': [], '/': [], '+': [], '-': []}
 
     for typedef in typedefs:
-        fnames = [td.cmodule for td in typedefs]
-        includes = dict([("{}_include".format(variant), fname)
-                         for variant, fname in zip(variants, fnames)])
         template_fname = typedef.structure[0].lower()
+        try:
+            bcast_typedef = filter(
+                lambda t: (isinstance(t, LatticeDef) and
+                           t.element_type == typedef), typedefs)[0]
+        except IndexError:
+            bcast_typedef = None
         write_core_template(template_fname + ".pxd", typedef.cmodule + ".pxd",
                             output_path, precision=precision, typedef=typedef,
-                            includes=includes)
+                            bcast_typedef=bcast_typedef)
         arithmetictags.generate_scalar_operations(
             operations, typedef, arithmetictags.scalar_typedefs(precision))
         arithmetictags.generate_matrix_operations(operations, typedef, typedefs)
