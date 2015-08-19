@@ -8,6 +8,8 @@ def cpptype(typedef, precision):
     Args:
       typedef (ContainerDef): TypeDef instance specifying the nested type
         declaration.
+      precision (str): The fundamental machine type for representing real
+        numbers.
     """
 
     if typedef.structure[0] == "Matrix":
