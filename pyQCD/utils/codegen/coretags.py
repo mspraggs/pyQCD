@@ -20,6 +20,8 @@ def setget_code(typedef, precision):
     Args:
       typedef (ContainerDef): A ContainerDef instance specifying the type to
         generate code for.
+      precision (str): The fundamental machine type for representing real
+        numbers.
     """
     from . import env
     template = env.get_template("core/setget.pyx")
@@ -32,6 +34,8 @@ def buffer_code(typedef, precision):
     Args:
       typedef (ContainerDef): A ContainerDef instance specifying the type to
         generate code for.
+      precision (str): The fundamental machine type for representing real
+        numbers.
     """
     from . import env
     template = env.get_template("core/buffer.pyx")
