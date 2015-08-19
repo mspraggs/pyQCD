@@ -21,16 +21,15 @@ def filter_types(typedef, matrix_shape, is_array, is_lattice):
 
 
 def generate_scalar_operations(operations, typedef, scalar_typedefs):
-    """Generate a list of tuples specifying and operand types.
+    """Add scalar operations to the operations dictionary.
 
     Args:
+      operations (dict): A dictionary containing lists of tuples specifying
+        the arithmetic operations.
       typedef (ContainerDef): A ContainerDef instance specifying the type to
         generate operations for.
-      scalar_typedefs (iterable): An iterable of TypeDef instances to compare
-        the supplied typedef variable against.
-
-    Returns:
-      list: list of tuples specifying the operation.
+      scalar_typedefs (iterable): An iterable of TypeDef instances specifying
+        the scalar types to add operations for.
     """
     for scalar_typedef in scalar_typedefs:
         operations["*"].append((typedef, scalar_typedef, typedef, None))
@@ -44,13 +43,12 @@ def generate_matrix_operations(operations, lhs, rhss):
     """Generate a list of tuples specifying operations and operand types.
 
     Args:
+      operations (dict): A dictionary containing lists of tuples specifying
+        the arithmetic operations.
       typedef (ContainerDef): A ContainerDef instance specifying the type to
         generate operations for.
       other_typedefs (iterable): An iterable of ContainerDef instances to
         compare the supplied typedef variable against.
-
-    Returns:
-      list: list of tuples specifying the operation
     """
     lhs_is_lattice = isinstance(lhs, LatticeDef)
     lhs_is_array = (isinstance(lhs, ArrayDef) or
