@@ -74,6 +74,13 @@ class ContainerDef(TypeDef):
         else:
             return self.element_type.matrix_shape
 
+    def unpack(self):
+        """Returns a list of TypeDef instances"""
+        out = [self]
+        if isinstance(self.element_type, ContainerDef):
+            out.extend(self.element_type.unpack())
+        return out
+
 class MatrixDef(ContainerDef):
     """Specialise container definition for matrix type"""
 
@@ -94,7 +101,7 @@ class ArrayDef(ContainerDef):
     def __init__(self, name, cname, cmodule, element_type):
         """Constructor for ArrayDef object. See help(ArrayDef)."""
         super(ArrayDef, self).__init__(name, cname, cmodule,
-                                        "self.instance.size()", "(1,)", "1", 1,
+                                        "size()", "(1,)", "1", 1,
                                         element_type)
 
 
@@ -103,8 +110,6 @@ class LatticeDef(ContainerDef):
 
     def __init__(self, name, cname, cmodule, element_type):
         """Constructor for LatticeDef object. See help(LatticeDef)"""
-        super(LatticeDef, self).__init__(name, cname, cmodule,
-                                         "self.instance.volume()",
-                                         "tuple(self.instance.lattice_shape())",
-                                         "self.instance.num_dims()", 1,
+        super(LatticeDef, self).__init__(name, cname, cmodule, "volume()",
+                                         "lattice_shape()", "num_dims()", 1,
                                          element_type)

@@ -149,13 +149,13 @@ cdef class ColourMatrix:
         self.buffer_shape[0] = 3
         self.buffer_strides[0] = itemsize
         self.buffer_shape[1] = 3
-        self.buffer_strides[1] = 3 * itemsize
+        self.buffer_strides[1] = itemsize * 3
 
         buffer.buf = <char*>self.instance
         buffer.format = "dd"
         buffer.internal = NULL
         buffer.itemsize = itemsize
-        buffer.len = 9 * itemsize
+        buffer.len = itemsize * 9
         buffer.ndim = 2
 
         buffer.obj = self
@@ -446,18 +446,18 @@ cdef class ColourMatrixArray:
     def __getbuffer__(self, Py_buffer* buffer, int flags):
         cdef Py_ssize_t itemsize = sizeof(complex.Complex)
 
-        self.buffer_shape[0] = self.instance.size()
+        self.buffer_shape[0] = self.instance[0].size()
         self.buffer_strides[0] = itemsize * 9
         self.buffer_shape[1] = 3
         self.buffer_strides[1] = itemsize
         self.buffer_shape[2] = 3
-        self.buffer_strides[2] = 3 * itemsize
+        self.buffer_strides[2] = itemsize * 3
 
         buffer.buf = <char*>&(self.instance[0][0])
         buffer.format = "dd"
         buffer.internal = NULL
         buffer.itemsize = itemsize
-        buffer.len = 9 * self.instance.size() * itemsize
+        buffer.len = itemsize * 9 * self.instance[0].size()
         buffer.ndim = 3
 
         buffer.obj = self
@@ -737,18 +737,18 @@ cdef class LatticeColourMatrix:
     def __getbuffer__(self, Py_buffer* buffer, int flags):
         cdef Py_ssize_t itemsize = sizeof(complex.Complex)
 
-        self.buffer_shape[0] = self.instance.volume()
+        self.buffer_shape[0] = self.instance[0].volume()
         self.buffer_strides[0] = itemsize * 9
         self.buffer_shape[1] = 3
         self.buffer_strides[1] = itemsize
         self.buffer_shape[2] = 3
-        self.buffer_strides[2] = 3 * itemsize
+        self.buffer_strides[2] = itemsize * 3
 
         buffer.buf = <char*>&(self.instance[0][0])
         buffer.format = "dd"
         buffer.internal = NULL
         buffer.itemsize = itemsize
-        buffer.len = 9 * self.instance.volume() * itemsize
+        buffer.len = itemsize * 9 * self.instance[0].volume()
         buffer.ndim = 3
 
         buffer.obj = self
@@ -971,19 +971,20 @@ cdef class GaugeField:
     def __getbuffer__(self, Py_buffer* buffer, int flags):
         cdef Py_ssize_t itemsize = sizeof(complex.Complex)
 
-        self.buffer_shape[0] = self.instance.volume()
+        self.buffer_shape[0] = self.instance[0].volume()
         self.buffer_strides[0] = itemsize * 9 * self.instance[0][0].size()
         self.buffer_shape[1] = self.instance[0][0].size()
         self.buffer_strides[1] = itemsize * 9
         self.buffer_shape[2] = 3
         self.buffer_strides[2] = itemsize
         self.buffer_shape[3] = 3
-        self.buffer_strides[3] = 3 * itemsize
+        self.buffer_strides[3] = itemsize * 3
 
         buffer.buf = <char*>&(self.instance[0][0])
         buffer.format = "dd"
         buffer.internal = NULL
         buffer.itemsize = itemsize
+        buffer.len = itemsize * 9 * self.instance[0][0].size() * self.instance[0].volume()
         buffer.ndim = 4
 
         buffer.obj = self
@@ -1225,7 +1226,7 @@ cdef class ColourVector:
         buffer.format = "dd"
         buffer.internal = NULL
         buffer.itemsize = itemsize
-        buffer.len = 3 * itemsize
+        buffer.len = itemsize * 3
         buffer.ndim = 1
 
         buffer.obj = self
@@ -1455,7 +1456,7 @@ cdef class Fermion:
     def __getbuffer__(self, Py_buffer* buffer, int flags):
         cdef Py_ssize_t itemsize = sizeof(complex.Complex)
 
-        self.buffer_shape[0] = self.instance.size()
+        self.buffer_shape[0] = self.instance[0].size()
         self.buffer_strides[0] = itemsize * 3
         self.buffer_shape[1] = 3
         self.buffer_strides[1] = itemsize
@@ -1464,7 +1465,7 @@ cdef class Fermion:
         buffer.format = "dd"
         buffer.internal = NULL
         buffer.itemsize = itemsize
-        buffer.len = 3 * self.instance.size() * itemsize
+        buffer.len = itemsize * 3 * self.instance[0].size()
         buffer.ndim = 2
 
         buffer.obj = self
@@ -1711,7 +1712,7 @@ cdef class LatticeColourVector:
     def __getbuffer__(self, Py_buffer* buffer, int flags):
         cdef Py_ssize_t itemsize = sizeof(complex.Complex)
 
-        self.buffer_shape[0] = self.instance.volume()
+        self.buffer_shape[0] = self.instance[0].volume()
         self.buffer_strides[0] = itemsize * 3
         self.buffer_shape[1] = 3
         self.buffer_strides[1] = itemsize
@@ -1720,7 +1721,7 @@ cdef class LatticeColourVector:
         buffer.format = "dd"
         buffer.internal = NULL
         buffer.itemsize = itemsize
-        buffer.len = 3 * self.instance.volume() * itemsize
+        buffer.len = itemsize * 3 * self.instance[0].volume()
         buffer.ndim = 2
 
         buffer.obj = self
@@ -1894,7 +1895,7 @@ cdef class FermionField:
     def __getbuffer__(self, Py_buffer* buffer, int flags):
         cdef Py_ssize_t itemsize = sizeof(complex.Complex)
 
-        self.buffer_shape[0] = self.instance.volume()
+        self.buffer_shape[0] = self.instance[0].volume()
         self.buffer_strides[0] = itemsize * 3 * self.instance[0][0].size()
         self.buffer_shape[1] = self.instance[0][0].size()
         self.buffer_strides[1] = itemsize * 3
@@ -1905,6 +1906,7 @@ cdef class FermionField:
         buffer.format = "dd"
         buffer.internal = NULL
         buffer.itemsize = itemsize
+        buffer.len = itemsize * 3 * self.instance[0][0].size() * self.instance[0].volume()
         buffer.ndim = 3
 
         buffer.obj = self
