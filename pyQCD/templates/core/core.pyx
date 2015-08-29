@@ -18,6 +18,8 @@ scalar_types = (int, float, np.single, np.double,
 complex_types = (complex, np.complex, np.complex64, np.complex128,
                  np.complex256)
 
+ctypedef {{ precision }} Real
+
 cdef class Complex:
     cdef complex.Complex instance
 
