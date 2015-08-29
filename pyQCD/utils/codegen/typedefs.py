@@ -42,11 +42,13 @@ class ContainerDef(TypeDef):
             self.buffer_ndims = element_type.buffer_ndims + buffer_ndims
         except AttributeError:
             self.buffer_ndims = buffer_ndims
+        self._shape_expr = shape_expr
         try:
-            self.shape_expr = "{} + {}".format(shape_expr,
-                                               element_type.shape_expr)
-        except AttributeError:
-            self.shape_expr = shape_expr
+            eval(shape_expr)
+        except NameError:
+            self.shape_is_attr = True
+        else:
+            self.shape_is_attr = False
 
         try:
             int(size_expr)
@@ -81,6 +83,24 @@ class ContainerDef(TypeDef):
             out.extend(self.element_type.unpack())
         return out
 
+    @property
+    def shape_expr(self):
+        """Generate expression for the shape of this container"""
+        out = self._shape_expr
+        if self.shape_is_attr:
+            out = "self.instance[0].{}".format(out)
+        if isinstance(self, ArrayDef):
+            out = "({},)".format(out)
+        if isinstance(self, LatticeDef):
+            out = "tuple({})".format(out)
+        if isinstance(self.element_type, ContainerDef):
+            sub_shape_expr = self.element_type.shape_expr
+            sub_shape_expr = sub_shape_expr.replace("instance[0]",
+                                                    "instance[0][0]")
+            out = "{} + {}".format(out, sub_shape_expr)
+        return out
+
+
 class MatrixDef(ContainerDef):
     """Specialise container definition for matrix type"""
 
@@ -100,9 +120,8 @@ class ArrayDef(ContainerDef):
 
     def __init__(self, name, cname, cmodule, element_type):
         """Constructor for ArrayDef object. See help(ArrayDef)."""
-        super(ArrayDef, self).__init__(name, cname, cmodule,
-                                        "size()", "(1,)", "1", 1,
-                                        element_type)
+        super(ArrayDef, self).__init__(name, cname, cmodule, "size()",
+                                       "size()", "1", 1, element_type)
 
 
 class LatticeDef(ContainerDef):
