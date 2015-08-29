@@ -66,7 +66,7 @@ def buffer_code(typedef, precision):
                            buffer_size=stride_length)
 
 
-def static_func_code(typedef):
+def member_func_code(typedef):
     """Generate code for zeros, ones, identity and similar static initialisers.
 
     Args:

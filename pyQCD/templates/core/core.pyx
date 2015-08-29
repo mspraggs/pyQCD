@@ -96,7 +96,7 @@ cdef class {{ typedef.name }}:
 
 {{ typedef|buffer_code(precision) }}
 
-{{ typedef|static_func_code }}
+{{ typedef|member_func_code }}
 
     def to_numpy(self):
         out = np.asarray(self)
