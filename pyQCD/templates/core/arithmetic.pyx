@@ -11,11 +11,11 @@
 {% endif %}
 {% endfor %}
 {% if lhs_complex[op] %}
-        if hasattr(self, "real") and hasattr(self, "imag") and type(other) is {{ typedef.name }}:
+        if type(self) is complex and type(other) is {{ typedef.name }}:
             return (<{{ typedef.name }}>other)._{{ funcnames[0] }}_{{ typedef.name }}_Complex(Complex(self.real, self.imag))
 {% endif %}
 {% if rhs_complex[op] %}
-        if type(self) is {{ typedef.name }} and hasattr(other, "real") and hasattr(other, "imag"):
+        if type(self) is {{ typedef.name }} and type(other) is complex:
             return (<{{ typedef.name }}>self)._{{ funcnames[0] }}_{{ typedef.name }}_Complex(Complex(other.real, other.imag))
 {% endif %}
         raise TypeError("Unsupported operand types for {{ typedef.name }}.__{{ funcname }}__: "
