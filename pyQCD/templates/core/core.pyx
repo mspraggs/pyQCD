@@ -98,6 +98,4 @@ cdef class {{ typedef.name }}:
 {{ typedef|member_func_code }}
 
 {{ typedef|arithmetic_code(typedefs, precision) }}
-
-
 {% endfor %}

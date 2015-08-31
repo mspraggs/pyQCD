@@ -15,7 +15,6 @@ cimport fermion
 cimport lattice_colour_vector
 cimport fermion_field
 
-
 scalar_types = (int, float, np.single, np.double,
                 np.float16, np.float32, np.float64, np.float128)
 complex_types = (complex, np.complex, np.complex64, np.complex128,
@@ -194,8 +193,6 @@ cdef class ColourMatrix:
         out.instance[0] = colour_matrix.identity()
         return out
 
-
-
     def to_numpy(self):
         out = np.asarray(self)
         out.dtype = complex
@@ -358,8 +355,6 @@ cdef class ColourMatrix:
         return out
 
 
-
-
 cdef class ColourMatrixArray:
     cdef colour_matrix_array.ColourMatrixArray* instance
     cdef Py_ssize_t buffer_shape[3]
@@ -505,8 +500,6 @@ cdef class ColourMatrixArray:
         out.instance[0] = colour_matrix_array.ColourMatrixArray(size, colour_matrix.identity())
         return out
 
-
-
     def to_numpy(self):
         out = np.asarray(self)
         out.dtype = complex
@@ -639,8 +632,6 @@ cdef class ColourMatrixArray:
         cdef ColourMatrixArray out = ColourMatrixArray()
         out.instance[0] = self.instance[0] / other.instance
         return out
-
-
 
 
 cdef class LatticeColourMatrix:
@@ -800,8 +791,6 @@ cdef class LatticeColourMatrix:
         out.instance[0] = lattice_colour_matrix.LatticeColourMatrix(layout.instance[0], colour_matrix.identity())
         return out
 
-
-
     def to_numpy(self):
         out = np.asarray(self)
         out.dtype = complex
@@ -950,8 +939,6 @@ cdef class LatticeColourMatrix:
         return out
 
 
-
-
 cdef class GaugeField:
     cdef gauge_field.GaugeField* instance
     cdef Py_ssize_t buffer_shape[4]
@@ -1032,8 +1019,6 @@ cdef class GaugeField:
         cdef GaugeField out = GaugeField(layout)
         out.instance[0] = gauge_field.GaugeField(layout.instance[0], colour_matrix_array.ColourMatrixArray(size, colour_matrix.identity()))
         return out
-
-
 
     def to_numpy(self):
         out = np.asarray(self)
@@ -1183,8 +1168,6 @@ cdef class GaugeField:
         return out
 
 
-
-
 cdef class ColourVector:
     cdef colour_vector.ColourVector* instance
     cdef Py_ssize_t buffer_shape[1]
@@ -1291,8 +1274,6 @@ cdef class ColourVector:
         out.instance[0] = colour_vector.ones()
         return out
 
-
-
     def to_numpy(self):
         out = np.asarray(self)
         out.dtype = complex
@@ -1397,8 +1378,6 @@ cdef class ColourVector:
         cdef ColourVector out = ColourVector()
         out.instance[0] = self.instance[0] / other.instance
         return out
-
-
 
 
 cdef class Fermion:
@@ -1539,8 +1518,6 @@ cdef class Fermion:
         out.instance[0] = fermion.Fermion(size, colour_vector.ones())
         return out
 
-
-
     def to_numpy(self):
         out = np.asarray(self)
         out.dtype = complex
@@ -1645,8 +1622,6 @@ cdef class Fermion:
         cdef Fermion out = Fermion()
         out.instance[0] = self.instance[0] / other.instance
         return out
-
-
 
 
 cdef class LatticeColourVector:
@@ -1799,8 +1774,6 @@ cdef class LatticeColourVector:
         out.instance[0] = lattice_colour_vector.LatticeColourVector(layout.instance[0], colour_vector.ones())
         return out
 
-
-
     def to_numpy(self):
         out = np.asarray(self)
         out.dtype = complex
@@ -1907,8 +1880,6 @@ cdef class LatticeColourVector:
         return out
 
 
-
-
 cdef class FermionField:
     cdef fermion_field.FermionField* instance
     cdef Py_ssize_t buffer_shape[3]
@@ -1981,8 +1952,6 @@ cdef class FermionField:
         cdef FermionField out = FermionField(layout)
         out.instance[0] = fermion_field.FermionField(layout.instance[0], fermion.Fermion(size, colour_vector.ones()))
         return out
-
-
 
     def to_numpy(self):
         out = np.asarray(self)
@@ -2088,7 +2057,5 @@ cdef class FermionField:
         cdef FermionField out = FermionField(self.layout)
         out.instance[0] = self.instance[0] / other.instance
         return out
-
-
 
 
