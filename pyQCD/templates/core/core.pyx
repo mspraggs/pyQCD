@@ -10,9 +10,6 @@ from operators cimport *
 cimport {{ typedef.cmodule }}
 {% endfor %}
 
-{% import "core/arithmetic.pyx" as arithmetic %}
-{% import "core/core_macros.pyx" as macros %}
-
 scalar_types = (int, float, np.single, np.double,
                 np.float16, np.float32, np.float64, np.float128)
 complex_types = (complex, np.complex, np.complex64, np.complex128,
