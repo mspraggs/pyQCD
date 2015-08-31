@@ -97,11 +97,6 @@ cdef class {{ typedef.name }}:
 
 {{ typedef|member_func_code }}
 
-    def to_numpy(self):
-        out = np.asarray(self)
-        out.dtype = complex
-        return out
-
 {{ typedef|arithmetic_code(typedefs, precision) }}
 
 
