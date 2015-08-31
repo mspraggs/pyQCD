@@ -89,16 +89,17 @@ class ContainerDef(TypeDef):
         out = self._shape_expr
         if self.shape_is_attr:
             out = "self.instance[0].{}".format(out)
-        if isinstance(self, ArrayDef):
-            out = "({},)".format(out)
-        if isinstance(self, LatticeDef):
-            out = "tuple({})".format(out)
+        out = super(ContainerDef, self).wrap_shape_expr(out)
         if isinstance(self.element_type, ContainerDef):
             sub_shape_expr = self.element_type.shape_expr
             sub_shape_expr = sub_shape_expr.replace("instance[0]",
                                                     "instance[0][0]")
             out = "{} + {}".format(out, sub_shape_expr)
         return out
+
+    def wrap_shape_expr(self, expr):
+        """Wraps the shape expression to put it in the right format"""
+        raise NotImplementedError
 
 
 class MatrixDef(ContainerDef):
@@ -123,6 +124,10 @@ class ArrayDef(ContainerDef):
         super(ArrayDef, self).__init__(name, cname, cmodule, "size()",
                                        "size()", "1", 1, element_type)
 
+    def wrap_shape_expr(self, expr):
+        """Put shape expression into a tuple"""
+        return "({},)".format(expr)
+
 
 class LatticeDef(ContainerDef):
     """Specialise container definition for lattice type"""
@@ -132,3 +137,7 @@ class LatticeDef(ContainerDef):
         super(LatticeDef, self).__init__(name, cname, cmodule, "volume()",
                                          "lattice_shape()", "num_dims()", 1,
                                          element_type)
+
+    def wrap_shape_expr(self, expr):
+        """Ensure shape expression is a tuple"""
+        return "tuple({})".format(expr)
