@@ -89,7 +89,7 @@ class ContainerDef(TypeDef):
         out = self._shape_expr
         if self.shape_is_attr:
             out = "self.instance[0].{}".format(out)
-        out = super(ContainerDef, self).wrap_shape_expr(out)
+        out = self.wrap_shape_expr(self._shape_expr)
         if isinstance(self.element_type, ContainerDef):
             sub_shape_expr = self.element_type.shape_expr
             sub_shape_expr = sub_shape_expr.replace("instance[0]",
@@ -99,7 +99,7 @@ class ContainerDef(TypeDef):
 
     def wrap_shape_expr(self, expr):
         """Wraps the shape expression to put it in the right format"""
-        raise NotImplementedError
+        return expr
 
 
 class MatrixDef(ContainerDef):
