@@ -22,7 +22,7 @@
     cdef _init_with_args_(self, unsigned int N, {{ typedef.element_type.name }} value):
         self.instance[0] = {{ typedef.cmodule }}.{{ typedef.cname }}(N, value.instance[0])
 
-    cdef validate_index(self, int i):
+    cdef validate_index(self, unsigned int i):
         if i >= self.instance.size() or i < 0:
             raise IndexError("Index in {{ array_name }} element access out of bounds: "
                              "{}".format(i))

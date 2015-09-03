@@ -1,6 +1,6 @@
 {% if typedef.structure[0] == "Matrix" %}
 
-    cdef validate_indices(self, int i{% if len(typedef.shape) == 2 %}, int j{% endif %}):
+    cdef validate_indices(self, unsigned int i{% if len(typedef.shape) == 2 %}, unsigned int j{% endif %}):
         if i >= {{ typedef.matrix_shape[0] }} or i < 0{% if len(typedef.matrix_shape) == 2 %} or j >= {{ typedef.matrix_shape[1] }} or j < 0{% endif %}:
             raise IndexError("Invalid index for type {{ typedef.name }}: {}".format((i{% if len(typedef.matrix_shape) == 2 %}, j{% endif %})))
 
@@ -116,7 +116,7 @@
 {% elif typedef.structure[0] == "Lattice" and typedef.structure[1] == "Matrix" %}
 
     cdef validate_index(self, index):
-        cdef int i
+        cdef unsigned int i
         if type(index) is tuple:
             for i in range(self.instance.num_dims()):
                 if index[i] >= self.instance.lattice_shape()[i] or index[i] < 0:

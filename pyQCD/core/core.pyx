@@ -110,7 +110,7 @@ cdef class ColourMatrix:
 
 
 
-    cdef validate_indices(self, int i, int j):
+    cdef validate_indices(self, unsigned int i, unsigned int j):
         if i >= 3 or i < 0 or j >= 3 or j < 0:
             raise IndexError("Invalid index for type ColourMatrix: {}".format((i, j)))
 
@@ -366,7 +366,7 @@ cdef class ColourMatrixArray:
     cdef _init_with_args_(self, unsigned int N, ColourMatrix value):
         self.instance[0] = colour_matrix_array.ColourMatrixArray(N, value.instance[0])
 
-    cdef validate_index(self, int i):
+    cdef validate_index(self, unsigned int i):
         if i >= self.instance.size() or i < 0:
             raise IndexError("Index in  element access out of bounds: "
                              "{}".format(i))
@@ -660,7 +660,7 @@ cdef class LatticeColourMatrix:
 
 
     cdef validate_index(self, index):
-        cdef int i
+        cdef unsigned int i
         if type(index) is tuple:
             for i in range(self.instance.num_dims()):
                 if index[i] >= self.instance.lattice_shape()[i] or index[i] < 0:
@@ -1192,7 +1192,7 @@ cdef class ColourVector:
 
 
 
-    cdef validate_indices(self, int i):
+    cdef validate_indices(self, unsigned int i):
         if i >= 3 or i < 0:
             raise IndexError("Invalid index for type ColourVector: {}".format((i)))
 
@@ -1391,7 +1391,7 @@ cdef class Fermion:
     cdef _init_with_args_(self, unsigned int N, ColourVector value):
         self.instance[0] = fermion.Fermion(N, value.instance[0])
 
-    cdef validate_index(self, int i):
+    cdef validate_index(self, unsigned int i):
         if i >= self.instance.size() or i < 0:
             raise IndexError("Index in  element access out of bounds: "
                              "{}".format(i))
@@ -1650,7 +1650,7 @@ cdef class LatticeColourVector:
 
 
     cdef validate_index(self, index):
-        cdef int i
+        cdef unsigned int i
         if type(index) is tuple:
             for i in range(self.instance.num_dims()):
                 if index[i] >= self.instance.lattice_shape()[i] or index[i] < 0:
