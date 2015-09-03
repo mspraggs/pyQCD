@@ -66,8 +66,10 @@ class ContainerDef(TypeDef):
     def unpack(self):
         """Returns a list of TypeDef instances"""
         out = [self]
-        if isinstance(self.element_type, ContainerDef):
+        try:
             out.extend(self.element_type.unpack())
+        except AttributeError:
+            pass
         return out
 
     @property
