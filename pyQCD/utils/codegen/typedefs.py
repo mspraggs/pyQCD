@@ -42,31 +42,18 @@ class ContainerDef(TypeDef):
             self.buffer_ndims = element_type.buffer_ndims + buffer_ndims
         except AttributeError:
             self.buffer_ndims = buffer_ndims
-        self._shape_expr = shape_expr
         try:
             eval(shape_expr)
         except NameError:
-            self.shape_is_attr = True
+            self._shape_expr = "self.instance[0].{}".format(shape_expr)
         else:
-            self.shape_is_attr = False
-
+            self._shape_expr = shape_expr
         try:
             int(size_expr)
         except ValueError:
             self.is_static = False
         else:
             self.is_static = True
-
-    @property
-    def accessor_info(self):
-        """Generates a list of tuples of lengths and types for accessor checks
-        """
-        out = [(self.ndims_expr, self.element_type)]
-        try:
-            out.extend(self.element_type.accessor_info)
-        except AttributeError:
-            pass
-        return out
 
     @property
     def matrix_shape(self):
@@ -86,9 +73,6 @@ class ContainerDef(TypeDef):
     @property
     def shape_expr(self):
         """Generate expression for the shape of this container"""
-        out = self._shape_expr
-        if self.shape_is_attr:
-            out = "self.instance[0].{}".format(out)
         out = self.wrap_shape_expr(self._shape_expr)
         if isinstance(self.element_type, ContainerDef):
             sub_shape_expr = self.element_type.shape_expr
