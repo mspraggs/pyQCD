@@ -82,20 +82,7 @@ cdef class LexicoLayout(Layout):
 
 {% for typedef in typedefs %}
 cdef class {{ typedef.name }}:
-    cdef {{typedef.cmodule }}.{{ typedef.cname }}* instance
-    cdef Py_ssize_t buffer_shape[{{ typedef.buffer_ndims }}]
-    cdef Py_ssize_t buffer_strides[{{ typedef.buffer_ndims }}]
-
-    cdef {{ typedef.cmodule }}.{{ typedef.cname }} cppobj(self):
-        return self.instance[0]
-
 {{ typedef|allocation_code }}
 
-{{ typedef|setget_code(precision) }}
-
 {{ typedef|buffer_code(precision) }}
-
-{{ typedef|member_func_code }}
-
-{{ typedef|arithmetic_code(typedefs, precision) }}
 {% endfor %}

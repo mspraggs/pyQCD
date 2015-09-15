@@ -1,8 +1,9 @@
 #ifndef FERMION_HPP
 #define FERMION_HPP
 
-/* Here we implement a fermion for a single site, which is basically just an
- * array of Eigen vector objects. */
+/* Here we implement an array of matrix objects for a single lattice site site,
+ * which is basically just an array of Eigen vector objects.
+ */
 
 #include <Eigen/Dense>
 

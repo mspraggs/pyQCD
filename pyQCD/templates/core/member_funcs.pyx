@@ -47,7 +47,3 @@
         return out
 
 {% endfor %}
-    def to_numpy(self):
-        out = np.asarray(self)
-        out.dtype = complex
-        return out

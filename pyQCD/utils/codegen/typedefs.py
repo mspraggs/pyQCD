@@ -29,13 +29,14 @@ class ContainerDef(TypeDef):
     """
 
     def __init__(self, name, cname, cmodule, size_expr, shape_expr, ndims_expr,
-                 buffer_ndims, element_type):
+                 buffer_ndims, element_type, static_alloc_temp):
         """Constructor for ContainerDef object. See help(ContainerDef)"""
         super(ContainerDef, self).__init__(name, cname, cmodule, True)
         self.element_type = element_type
         self.size_expr = size_expr
         self.ndims_expr = ndims_expr
         self.structure = [self.__class__.__name__.replace("Def", "")]
+        self.static_alloc_temp = static_alloc_temp
         if isinstance(element_type, ContainerDef):
             self.structure.extend(element_type.structure)
         try:
@@ -48,6 +49,12 @@ class ContainerDef(TypeDef):
             self._shape_expr = "self.instance[0].{}".format(shape_expr)
         else:
             self._shape_expr = shape_expr
+        try:
+            eval(ndims_expr)
+        except NameError:
+            self.ndims_expr = "self.instance[0].{}".format(ndims_expr)
+        else:
+            self.ndims_expr = ndims_expr
         try:
             int(size_expr)
         except ValueError:
@@ -94,9 +101,10 @@ class MatrixDef(ContainerDef):
     def __init__(self, name, cname, cmodule, shape, element_type):
         """Constructor for MatrixDef object. See help(MatrixDef)"""
         size = reduce(lambda x, y: x * y, shape)
-        super(MatrixDef, self).__init__(name, cname, cmodule, str(size),
-                                        str(shape), str(len(shape)),
-                                        len(shape), element_type)
+        super(MatrixDef, self).__init__(
+            name, cname, cmodule, str(size), str(shape), str(len(shape)),
+            len(shape), element_type,
+            "{}.{}({}.{{}}())".format(cmodule, cname, cmodule))
         self.shape = shape
         self.is_matrix = len(self.shape) == 2
         self.is_square = self.is_matrix and self.shape[0] == self.shape[1]
@@ -107,8 +115,9 @@ class ArrayDef(ContainerDef):
 
     def __init__(self, name, cname, cmodule, element_type):
         """Constructor for ArrayDef object. See help(ArrayDef)."""
-        super(ArrayDef, self).__init__(name, cname, cmodule, "size()",
-                                       "size()", "1", 1, element_type)
+        super(ArrayDef, self).__init__(
+            name, cname, cmodule, "size()", "size()", "1", 1, element_type,
+            "{}.{}(size, {{}})".format(cmodule, cname))
 
     def wrap_shape_expr(self, expr):
         """Put shape expression into a tuple"""
@@ -120,9 +129,10 @@ class LatticeDef(ContainerDef):
 
     def __init__(self, name, cname, cmodule, element_type):
         """Constructor for LatticeDef object. See help(LatticeDef)"""
-        super(LatticeDef, self).__init__(name, cname, cmodule, "volume()",
-                                         "lattice_shape()", "num_dims()", 1,
-                                         element_type)
+        super(LatticeDef, self).__init__(
+            name, cname, cmodule, "volume()", "lattice_shape()", "num_dims()",
+            1, element_type,
+            "{}.{}(layout.instance[0], {{}})".format(cmodule, cname))
 
     def wrap_shape_expr(self, expr):
         """Ensure shape expression is a tuple"""

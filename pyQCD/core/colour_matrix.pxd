@@ -4,6 +4,7 @@ from complex cimport Complex
 cdef extern from "types.hpp":
     cdef cppclass ColourMatrix:
         ColourMatrix() except +
+        ColourMatrix(const ColourMatrix&) except +
         ColourMatrix adjoint()
         Complex& operator()(int, int) except +
 

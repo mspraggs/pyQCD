@@ -4,6 +4,7 @@ from {{ typedef.element_type.cmodule }} cimport {{ typedef.element_type.cname }}
 cdef extern from "types.hpp":
     cdef cppclass {{ typedef.cname }}:
         {{ typedef.cname }}() except +
+        {{ typedef.cname }}(const {{ typedef.cname }}&) except +
         {{ typedef.cname }} adjoint()
         {% if typedef.shape|length > 1 %}
         {{ typedef.element_type.cname }}& operator()(int, int) except +

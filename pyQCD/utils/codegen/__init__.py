@@ -324,6 +324,8 @@ def generate_qcd(num_colours, precision, representation, dest=None):
         Defaults to the lib directory in the project root directory.
     """
 
+    constants = [("constexpr int", "num_colours", 3)]
+
     type_definitions = []
     if representation == "fundamental":
         type_definitions.extend(create_type_definitions(
@@ -346,6 +348,8 @@ def generate_qcd(num_colours, precision, representation, dest=None):
 
     generate_cython_types(os.path.join(dest, "core"), precision,
                           type_definitions)
+    write_core_template("constants.hpp", "constants.hpp",
+                        os.path.join(dest, "core"), constants=constants)
 
 
 class CodeGen(setuptools.Command):

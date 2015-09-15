@@ -1,3 +1,7 @@
+    cdef int view_count
+    cdef Py_ssize_t buffer_shape[{{ typedef.buffer_ndims }}]
+    cdef Py_ssize_t buffer_strides[{{ typedef.buffer_ndims }}]
+
     def __getbuffer__(self, Py_buffer* buffer, int flags):
         cdef Py_ssize_t itemsize = sizeof(complex.Complex)
 
@@ -30,3 +34,9 @@
         self.view_count -= 1{% else %}
         pass
 {% endif %}
+
+    @property
+    def as_numpy(self):
+        out = np.asarray(self)
+        out.dtype = complex
+        return out

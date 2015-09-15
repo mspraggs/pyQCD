@@ -32,7 +32,7 @@ namespace pyQCD
   template <typename U1, typename U2, typename U3, typename U4, typename Op>
   friend class ArrayBinary;
   public:
-    Array() { }
+    Array() = default;
     Array(const int n, const T1& val) : data_(n, val) { }
     Array(const Array<T1, Alloc, T2>& array) = default;
     Array(Array<T1, Alloc, T2>&& array) = default;

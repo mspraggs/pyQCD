@@ -13,7 +13,24 @@ def allocation_code(typedef):
     """
     from . import env
     template = env.get_template("core/allocation.pyx")
-    return template.render(typedef=typedef)
+
+    args = []
+    if "Lattice" in typedef.structure:
+        args.append(("Layout", "layout", ".instance[0]"))
+    if "Array" in typedef.structure:
+        args.append(("int", "size", ""))
+
+    rhs = "zeros"
+
+    for i, tdef in enumerate(typedef.unpack()[::-1]):
+        rhs = tdef.static_alloc_temp.format(rhs)
+
+    argstring = ", ".join([" ".join(a[:2]) for a in args])
+    argpass = ", ".join([n + a for t, n, a in args if n != "size"])
+
+    return template.render(typedef=typedef,
+                           argstring=argstring, argpass=argpass,
+                           constructor_call=rhs)
 
 
 def setget_code(typedef, precision):
