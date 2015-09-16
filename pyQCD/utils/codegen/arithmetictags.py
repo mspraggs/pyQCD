@@ -58,6 +58,8 @@ def generate_matrix_operations(operations, lhs, rhss):
         rhs_is_lattice = isinstance(rhs, LatticeDef)
         rhs_is_array = (isinstance(rhs, ArrayDef) or
                         isinstance(rhs.element_type, ArrayDef))
+        if rhs_is_lattice != lhs_is_lattice:
+            continue
         result_is_lattice = lhs_is_lattice or rhs_is_lattice
         result_is_array = lhs_is_array or rhs_is_array
         try:
@@ -75,27 +77,18 @@ def generate_matrix_operations(operations, lhs, rhss):
         except IndexError:
             can_multiply = False
         can_addsub = (lhs.matrix_shape == rhs.matrix_shape and
-                      lhs_is_lattice == rhs_is_lattice and
                       lhs_is_array == rhs_is_array)
 
-        need_broadcast = ((lhs_is_lattice and rhs_is_array and not rhs_is_lattice) or
-                          (rhs_is_lattice and lhs_is_array and not lhs_is_lattice))
-        if need_broadcast:
-            continue
-            broadcast = "R" if lhs_is_lattice else "L"
-        else:
-            broadcast = None
-
         if can_multiply:
-            operations["*"].append((result_typedef, lhs, rhs, broadcast))
+            operations["*"].append((result_typedef, lhs, rhs, None))
         if can_addsub:
             for op in "+-":
-                operations[op].append((result_typedef, lhs, rhs, broadcast))
+                operations[op].append((result_typedef, lhs, rhs, None))
 
     return operations
 
 
-def arithmetic_code(typedef, typedefs, precision):
+def arithmetic_code(typedef, typedefs):
     """Generate code for constructors and destructors.
 
     Args:
@@ -109,7 +102,6 @@ def arithmetic_code(typedef, typedefs, precision):
                     "+": ["add"], "-": ["sub"]}
     operations = {'*': [], '/': [], '+': [], '-': []}
     complex_types = {'*': True, '/': True, '+': False, '-': False}
-    generate_scalar_operations(operations, typedef, scalar_typedefs(precision))
     generate_matrix_operations(operations, typedef, typedefs)
 
     from . import env

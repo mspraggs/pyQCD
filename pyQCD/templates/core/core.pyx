@@ -85,4 +85,6 @@ cdef class {{ typedef.name }}:
 {{ typedef|allocation_code }}
 
 {{ typedef|buffer_code(precision) }}
+
+{{ typedef|arithmetic_code(typedefs) }}
 {% endfor %}

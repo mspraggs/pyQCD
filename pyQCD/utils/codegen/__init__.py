@@ -294,8 +294,6 @@ def generate_cython_types(output_path, precision, typedefs):
         write_core_template(template_fname + ".pxd", typedef.cmodule + ".pxd",
                             output_path, precision=precision, typedef=typedef,
                             bcast_typedef=bcast_typedef)
-        arithmetictags.generate_scalar_operations(
-            operations, typedef, arithmetictags.scalar_typedefs(precision))
         arithmetictags.generate_matrix_operations(operations, typedef, typedefs)
 
     write_core_template("types.hpp", "types.hpp", output_path,
