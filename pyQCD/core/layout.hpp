@@ -19,21 +19,21 @@ namespace pyQCD
   public:
     Layout() { }
     template <typename Fn>
-    Layout(const std::vector<unsigned int>& lattice_shape,
+    Layout(const std::vector<unsigned int>& shape,
       Fn compute_array_index)
-      : num_dims_(static_cast<unsigned int>(lattice_shape.size())),
-        lattice_shape_(lattice_shape)
+      : num_dims_(static_cast<unsigned int>(shape.size())),
+        shape_(shape)
     {
       // Constructor create arrays of site/array indices
-      lattice_volume_ = std::accumulate(lattice_shape.begin(),
-                                        lattice_shape.end(),
+      volume_ = std::accumulate(shape.begin(),
+                                        shape.end(),
                                         unsigned(1),
                                         std::multiplies<unsigned int>());
 
-      array_indices_.resize(lattice_volume_);
-      site_indices_.resize(lattice_volume_);
+      array_indices_.resize(volume_);
+      site_indices_.resize(volume_);
       for (unsigned int site_index = 0;
-           site_index < lattice_volume_;
+           site_index < volume_;
            ++site_index) {
         unsigned int array_index = compute_array_index(site_index);
         array_indices_[site_index] = array_index;
@@ -42,6 +42,7 @@ namespace pyQCD
     }
     virtual ~Layout() = default;
 
+    // Functions to retrieve array indices and so on.
     template <typename T,
       typename std::enable_if<not std::is_integral<T>::value>::type* = nullptr>
     inline unsigned int get_array_index(const T& site) const;
@@ -50,14 +51,14 @@ namespace pyQCD
     inline unsigned int get_site_index(const unsigned int array_index) const
     { return site_indices_[array_index]; }
 
-    unsigned int volume() const { return lattice_volume_; }
+    unsigned int volume() const { return volume_; }
     unsigned int num_dims() const { return num_dims_; }
-    const std::vector<unsigned int>& lattice_shape() const
-    { return lattice_shape_; }
+    const std::vector<unsigned int>& shape() const
+    { return shape_; }
 
   private:
-    unsigned int num_dims_, lattice_volume_;
-    std::vector<unsigned int> lattice_shape_;
+    unsigned int num_dims_, volume_;
+    std::vector<unsigned int> shape_;
     // array_indices_[site_index] -> array_index
     std::vector<unsigned int> array_indices_;
     // site_indices_[array_index] -> site_index
@@ -68,7 +69,6 @@ namespace pyQCD
   class LexicoLayout : public Layout
   {
   public:
-    LexicoLayout() { }
     LexicoLayout(const std::vector<unsigned int>& shape)
       : Layout(shape, [] (const unsigned int i) { return i; })
     { }
@@ -84,7 +84,7 @@ namespace pyQCD
     // site[ndim - 1] varies fastest
     int site_index = 0;
     for (unsigned int i = 0; i < num_dims_; ++i) {
-      site_index *= lattice_shape_[i];
+      site_index *= shape_[i];
       site_index += site[i];
     }
     return array_indices_[site_index];

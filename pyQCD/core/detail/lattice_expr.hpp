@@ -1,7 +1,7 @@
-#ifndef ARRAY_EXPR_HPP
-#define ARRAY_EXPR_HPP
+#ifndef LATTICE_EXPR_HPP
+#define LATTICE_EXPR_HPP
 
-/* This file provides expression templates for the Array class, so that
+/* This file provides expression templates for the Lattice class, so that
  * temporaries do not need to be created when performing arithmetic operations.
  */
 
@@ -12,27 +12,27 @@
 #include <utils/templates.hpp>
 
 #include "../layout.hpp"
-#include "array_traits.hpp"
+#include "lattice_traits.hpp"
 #include "operators.hpp"
 
 
 namespace pyQCD
 {
-  class ArrayObj { };
+  class LatticeObj { };
 
   // TODO: Eliminate need for second template parameter
   template <typename T1, typename T2>
-  class ArrayExpr : public ArrayObj
+  class LatticeExpr : public LatticeObj
   {
     // This is the main expression class from which all others are derived. It
     // uses CRTP to escape inheritance. Parameter T1 is the expression type
-    // and T2 is the fundamental type contained in the Array. This allows
+    // and T2 is the fundamental type contained in the Lattice. This allows
     // expressions to be abstracted to a nested hierarchy of types. When the
     // compiler goes through and does it's thing, the definitions of the
     // operations within these template classes are all spliced together.
 
   public:
-    // CRTP magic - call functions in the Array class
+    // CRTP magic - call functions in the Lattice class
     typename ExprReturnTraits<T1, T2>::type operator[](const int i)
     { return static_cast<T1&>(*this)[i]; }
     const typename ExprReturnTraits<T1, T2>::type operator[](const int i) const
@@ -40,7 +40,7 @@ namespace pyQCD
 
     unsigned long size() const { return static_cast<const T1&>(*this).size(); }
     const Layout* layout() const
-    { return CrtpLayoutTraits<T1>::get_layout(static_cast<const T1&>(*this)); }
+    { return static_cast<const T1&>(*this).layout(); }
 
     operator T1&() { return static_cast<T1&>(*this); }
     operator T1 const&() const { return static_cast<const T1&>(*this); }
@@ -48,15 +48,15 @@ namespace pyQCD
 
 
   template <typename T>
-  class ArrayConst
-    : public ArrayExpr<ArrayConst<T>, T>
+  class LatticeConst
+    : public LatticeExpr<LatticeConst<T>, T>
   {
     // Expression subclass for const operations
   public:
     // Need some SFINAE here to ensure no clash with copy/move constructor
     template <typename std::enable_if<
-      not std::is_same<T, ArrayConst<T> >::value>::type* = nullptr>
-    ArrayConst(const T& scalar) : scalar_(scalar) { }
+      not std::is_same<T, LatticeConst<T> >::value>::type* = nullptr>
+    LatticeConst(const T& scalar) : scalar_(scalar) { }
     const T& operator[](const unsigned long i) const { return scalar_; }
 
   private:
@@ -65,12 +65,12 @@ namespace pyQCD
 
 
   template <typename T1, typename T2, typename Op>
-  class ArrayUnary
-    : public ArrayExpr<ArrayUnary<T1, T2, Op>,
+  class LatticeUnary
+    : public LatticeExpr<LatticeUnary<T1, T2, Op>,
         decltype(Op::apply(std::declval<T2>()))>
   {
   public:
-    ArrayUnary(const ArrayExpr<T1, T2>& operand) : operand_(operand) { }
+    LatticeUnary(const LatticeExpr<T1, T2>& operand) : operand_(operand) { }
 
     const decltype(Op::apply(std::declval<T2>()))
     operator[](const unsigned int i) const { return Op::apply(operand_[i]); }
@@ -84,17 +84,17 @@ namespace pyQCD
 
 
   template <typename T1, typename T2, typename T3, typename T4, typename Op>
-  class ArrayBinary
-    : public ArrayExpr<ArrayBinary<T1, T2, T3, T4, Op>,
+  class LatticeBinary
+    : public LatticeExpr<LatticeBinary<T1, T2, T3, T4, Op>,
         decltype(Op::apply(std::declval<T3>(), std::declval<T4>()))>
   {
   // Expression subclass for binary operations
   public:
-    ArrayBinary(const ArrayExpr<T1, T3>& lhs, const ArrayExpr<T2, T4>& rhs)
+    LatticeBinary(const LatticeExpr<T1, T3>& lhs, const LatticeExpr<T2, T4>& rhs)
       : lhs_(lhs), rhs_(rhs)
     {
       pyQCDassert((BinaryOperandTraits<T1, T2>::equal_size(lhs_, rhs_)),
-        std::out_of_range("ArrayBinary: lhs.size() != rhs.size()"));
+        std::out_of_range("LatticeBinary: lhs.size() != rhs.size()"));
       pyQCDassert((BinaryOperandTraits<T1, T2>::equal_layout(lhs_, rhs_)),
         std::bad_cast());
     }
@@ -114,50 +114,56 @@ namespace pyQCD
     typename OperandTraits<T2>::type rhs_;
   };
 
+  template <typename T>
+  class LatticeView : public LatticeExpr<LatticeView<T>, T>
+  {
+
+  };
+
   // Some macros for the operator overloads, as the code is almost
   // the same in each case. For the scalar multiplies I've used
   // some SFINAE to disable these more generalized functions when
-  // a ArrayExpr is used.
-#define ARRAY_EXPR_OPERATOR(op, trait)                                \
+  // a LatticeExpr is used.
+#define LATTICE_EXPR_OPERATOR(op, trait)                              \
   template <typename T1, typename T2, typename T3, typename T4>       \
-  const ArrayBinary<T1, T2, T3, T4, trait>                            \
-  operator op(const ArrayExpr<T1, T3>& lhs,                           \
-    const ArrayExpr<T2, T4>& rhs)                                     \
+  const LatticeBinary<T1, T2, T3, T4, trait>                          \
+  operator op(const LatticeExpr<T1, T3>& lhs,                         \
+    const LatticeExpr<T2, T4>& rhs)                                   \
   {                                                                   \
-    return ArrayBinary<T1, T2, T3, T4, trait>(lhs, rhs);              \
+    return LatticeBinary<T1, T2, T3, T4, trait>(lhs, rhs);            \
   }                                                                   \
                                                                       \
                                                                       \
   template <typename T1, typename T2, typename T3,                    \
     typename std::enable_if<                                          \
-      not std::is_base_of<ArrayObj, T3>::value>::type* = nullptr>     \
-  const ArrayBinary<T1, ArrayConst<T3>, T2, T3, trait>                \
-  operator op(const ArrayExpr<T1, T2>& array, const T3& scalar)       \
+      not std::is_base_of<LatticeObj, T3>::value>::type* = nullptr>   \
+  const LatticeBinary<T1, LatticeConst<T3>, T2, T3, trait>            \
+  operator op(const LatticeExpr<T1, T2>& lattice, const T3& scalar)   \
   {                                                                   \
-    return ArrayBinary<T1, ArrayConst<T3>, T2, T3, trait>             \
-      (array, ArrayConst<T3>(scalar));  \
+    return LatticeBinary<T1, LatticeConst<T3>, T2, T3, trait>         \
+      (lattice, LatticeConst<T3>(scalar));                            \
   }
 
   // This macro is for the + and * operators where the scalar can
   // be either side of the operator.
-#define ARRAY_EXPR_OPERATOR_REVERSE_SCALAR(op, trait)                 \
+#define LATTICE_EXPR_OPERATOR_REVERSE_SCALAR(op, trait)               \
   template <typename T1, typename T2, typename T3,                    \
     typename std::enable_if<                                          \
-      not std::is_base_of<ArrayObj, T1>::value>::type* = nullptr>     \
-  const ArrayBinary<ArrayConst<T1>, T2, T1, T3, trait>                \
-  operator op(const T1& scalar, const ArrayExpr<T2, T3>& array)       \
+      not std::is_base_of<LatticeObj, T1>::value>::type* = nullptr>   \
+  const LatticeBinary<LatticeConst<T1>, T2, T1, T3, trait>            \
+  operator op(const T1& scalar, const LatticeExpr<T2, T3>& lattice)   \
   {                                                                   \
-    return ArrayBinary<ArrayConst<T1>, T2, T1, T3, trait>             \
-      (ArrayConst<T1>(scalar), array);  \
+    return LatticeBinary<LatticeConst<T1>, T2, T1, T3, trait>         \
+      (LatticeConst<T1>(scalar), lattice);                            \
   }
 
 
-  ARRAY_EXPR_OPERATOR(+, Plus);
-  ARRAY_EXPR_OPERATOR_REVERSE_SCALAR(+, Plus);
-  ARRAY_EXPR_OPERATOR(-, Minus);
-  ARRAY_EXPR_OPERATOR(*, Multiplies);
-  ARRAY_EXPR_OPERATOR_REVERSE_SCALAR(*, Multiplies);
-  ARRAY_EXPR_OPERATOR(/, Divides);
+  LATTICE_EXPR_OPERATOR(+, Plus);
+  LATTICE_EXPR_OPERATOR_REVERSE_SCALAR(+, Plus);
+  LATTICE_EXPR_OPERATOR(-, Minus);
+  LATTICE_EXPR_OPERATOR(*, Multiplies);
+  LATTICE_EXPR_OPERATOR_REVERSE_SCALAR(*, Multiplies);
+  LATTICE_EXPR_OPERATOR(/, Divides);
 }
 
 #endif

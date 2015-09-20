@@ -10,29 +10,24 @@
 #include <cassert>
 #include <vector>
 
-#include "array.hpp"
+#include "detail/lattice_expr.hpp"
 #include "layout.hpp"
 
 
 namespace pyQCD
 {
   template <typename T, template <typename> class Alloc = std::allocator>
-  class Lattice : public Array<T, Alloc, Lattice<T, Alloc> >
+  class Lattice : public LatticeExpr<Lattice<T>, T>
   {
   public:
-    Lattice() : layout_(nullptr) { }
-    Lattice(const Layout& layout)
-      : Array<T, Alloc, Lattice<T, Alloc> >(), layout_(&layout)
-    {
-      this->data_.resize(layout.volume());
-    }
+    Lattice(const Layout& layout) : layout_(&layout)
+    { this->data_.resize(layout.volume()); }
     Lattice(const Layout& layout, const T& val)
-      : Array<T, Alloc, Lattice<T, Alloc> >(layout.volume(), val),
-        layout_(&layout)
+      : layout_(&layout), data_(layout.volume(), val)
     {}
     Lattice(const Lattice<T, Alloc>& lattice) = default;
     template <typename U1, typename U2>
-    Lattice(const ArrayExpr<U1, U2>& expr)
+    Lattice(const LatticeExpr<U1, U2>& expr)
     {
       this->data_.resize(expr.size());
       for (unsigned long i = 0; i < expr.size(); ++i) {
@@ -41,6 +36,15 @@ namespace pyQCD
       layout_ = expr.layout();
     }
     Lattice(Lattice<T, Alloc>&& lattice) = default;
+
+    T& operator[](const int i) { return data_[i]; }
+    const T& operator[](const int i) const { return data_[i]; }
+
+    typename std::vector<T>::iterator begin() { return data_.begin(); }
+    typename std::vector<T>::const_iterator begin() const
+    { return data_.begin(); }
+    typename std::vector<T>::iterator end() { return data_.end(); }
+    typename std::vector<T>::const_iterator end() const { return data_.end(); }
 
     T& operator()(const int i)
     { return this->data_[layout_->get_array_index(i)]; }
@@ -56,7 +60,7 @@ namespace pyQCD
     Lattice<T, Alloc>& operator=(const Lattice<T, Alloc>& lattice);
     Lattice<T, Alloc>& operator=(Lattice<T, Alloc>&& lattice) = default;
     template <typename U1, typename U2>
-    Lattice<T, Alloc>& operator=(const ArrayExpr<U1, U2>& expr)
+    Lattice<T, Alloc>& operator=(const LatticeExpr<U1, U2>& expr)
     {
       pyQCDassert ((this->data_.size() == expr.size()),
                    std::out_of_range("Array::data_"));
@@ -68,14 +72,35 @@ namespace pyQCD
       return *this;
     }
 
+    Lattice<T, Alloc>& operator=(const T& rhs)
+    {
+      data_.assign(data_.size(), rhs);
+      return *this;
+    }
+
+#define LATTICE_OPERATOR_ASSIGN_DECL(op)				                             \
+    template <typename U,                                                    \
+      typename std::enable_if<                                               \
+		    not std::is_base_of<LatticeObj, U>::value>::type* = nullptr>         \
+    Lattice<T, Alloc>& operator op ## =(const U& rhs);	                     \
+    template <typename U>                                                    \
+    Lattice<T, Alloc>& operator op ## =(const Lattice<U, Alloc>& rhs);
+
+    LATTICE_OPERATOR_ASSIGN_DECL(+);
+    LATTICE_OPERATOR_ASSIGN_DECL(-);
+    LATTICE_OPERATOR_ASSIGN_DECL(*);
+    LATTICE_OPERATOR_ASSIGN_DECL(/);
+
+    unsigned long size() const { return data_.size(); }
     unsigned int volume() const { return layout_->volume(); }
     unsigned int num_dims() const { return layout_->num_dims(); }
-    const std::vector<unsigned int>& lattice_shape() const
-    { return layout_->lattice_shape(); }
+    const std::vector<unsigned int>& shape() const
+    { return layout_->shape(); }
     const Layout* layout() const { return layout_; }
 
   protected:
     const Layout* layout_;
+    std::vector<T, Alloc<T> > data_;
   };
 
 
@@ -97,6 +122,40 @@ namespace pyQCD
     }
     return *this;
   }
+
+
+#define LATTICE_OPERATOR_ASSIGN_IMPL(op)                                    \
+  template <typename T, template <typename> class Alloc>                    \
+  template <typename U,                                                     \
+    typename std::enable_if<                                                \
+      not std::is_base_of<LatticeObj, U>::value>::type*>                    \
+  Lattice<T, Alloc>& Lattice<T, Alloc>::operator op ## =(                   \
+    const U& rhs)                                                           \
+  {                                                                         \
+    for (auto& item : data_) {                                              \
+      item op ## = rhs;                                                     \
+    }                                                                       \
+    return *this;                                                           \
+  }                                                                         \
+                                                                            \
+                                                                            \
+  template <typename T, template <typename> class Alloc>                    \
+  template <typename U>                                                     \
+  Lattice<T, Alloc>&                                                        \
+  Lattice<T, Alloc>::operator op ## =(const Lattice<U, Alloc>& rhs)         \
+  {                                                                         \
+    pyQCDassert (rhs.size() == data_.size(),                                \
+      std::out_of_range("Lattices must be the same size"));                 \
+    for (unsigned long i = 0; i < data_.size(); ++i) {                      \
+      data_[i] op ## = rhs[i];                                              \
+    }                                                                       \
+    return *this;                                                           \
+  }
+
+LATTICE_OPERATOR_ASSIGN_IMPL(+);
+LATTICE_OPERATOR_ASSIGN_IMPL(-);
+LATTICE_OPERATOR_ASSIGN_IMPL(*);
+LATTICE_OPERATOR_ASSIGN_IMPL(/);
 }
 
 #endif
