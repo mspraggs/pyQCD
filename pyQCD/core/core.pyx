@@ -59,9 +59,6 @@ cdef class Layout:
     def get_site_index(self, unsigned int array_index):
         return self.instance.get_site_index(array_index)
 
-    def get_slice(self, coordinates):
-        """Generate a slice object for XXX"""
-
     @property
     def num_dims(self):
         return self.instance.num_dims()
