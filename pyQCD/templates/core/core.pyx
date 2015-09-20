@@ -67,8 +67,8 @@ cdef class Layout:
         return self.instance.volume()
 
     @property
-    def lattice_shape(self):
-        return tuple(self.instance.lattice_shape())
+    def shape(self):
+        return tuple(self.instance.shape())
 
 
 cdef class LexicoLayout(Layout):
