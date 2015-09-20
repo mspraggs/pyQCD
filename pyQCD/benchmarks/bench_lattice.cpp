@@ -4,7 +4,8 @@
 
 #include "helpers.hpp"
 
-#include <core/array.hpp>
+#include <core/lattice.hpp>
+#include <core/layout.hpp>
 
 
 template <typename T, template <typename> class Alloc = std::allocator>
@@ -12,11 +13,13 @@ void profile_for_type(const T& elem, const std::string& type,
   const int add_flops, const int multiply_flops)
 {
   std::cout << "Profiling for array type " << type << "." << std::endl;
+
   int n = 100;
-  pyQCD::Array<T, Alloc> array1(n, elem);
-  decltype(array1) array2(n, elem);
-  decltype(array1) array3(n, elem);
-  decltype(array1) result(n, elem);
+  pyQCD::LexicoLayout layout(std::vector<unsigned int>{n});
+  pyQCD::Lattice<T, Alloc> array1(layout, elem);
+  decltype(array1) array2(layout, elem);
+  decltype(array1) array3(layout, elem);
+  decltype(array1) result(layout, elem);
 
   std::cout << "Profiling f(x, y, z) = x + y + z:" << std::endl;
   benchmark([&] () {
