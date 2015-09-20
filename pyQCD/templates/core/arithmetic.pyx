@@ -10,25 +10,16 @@
             return (<{{ lhs.name }}>self)._{{ funcnames[0] }}_{{ lhs.name }}_{{ rhs.name }}(<{{ rhs.name }}>other)
 {% endif %}
 {% endfor %}
-{% if lhs_complex[op] %}
-        if type(self) is complex and type(other) is {{ typedef.name }}:
-            return (<{{ typedef.name }}>other)._{{ funcnames[0] }}_{{ typedef.name }}_Complex(Complex(self.real, self.imag))
-{% endif %}
-{% if rhs_complex[op] %}
-        if type(self) is {{ typedef.name }} and type(other) is complex:
-            return (<{{ typedef.name }}>self)._{{ funcnames[0] }}_{{ typedef.name }}_Complex(Complex(other.real, other.imag))
-{% endif %}
         raise TypeError("Unsupported operand types for {{ typedef.name }}.__{{ funcname }}__: "
                         "{} and {}".format(type(self), type(other)))
 
 {% endfor %}
 {% for ret, lhs, rhs, bcast in operations[op] %}
-{% if not lhs.builtin and lhs.name != "Complex" %}
     cdef inline {{ ret.name }} _{{ funcnames[0] }}_{{ lhs.name }}_{{ rhs.name }}({{ lhs.name }} self, {{ rhs.name }} other):
-        cdef {{ ret.name }} out = {{ ret.name }}({% if "Lattice" in ret.structure %}self.layout{% endif %})
-        out.instance[0] = {{ lhs.accessor("self", bcast == 'L') }} {{ op }} {{ rhs.accessor("other", bcast == 'R') }}
+{% set layout_operand = "self" if "Lattice" in rhs.structure else ("other" if "Lattice" in lhs.structure else "") %}
+        cdef {{ ret.name }} out = {{ ret.name }}({% if "Lattice" in ret.structure %}{{ layout_operand }}.layout, {% endif %}{% if "Array" in ret.structure %}1{% endif %})
+        out.instance[0] = {{ lhs.accessor("self", False) }} {{ op }} {{ rhs.accessor("other", False) }}
         return out
 
-{% endif %}
 {% endfor %}
 {% endfor %}
