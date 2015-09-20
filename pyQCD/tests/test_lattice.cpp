@@ -1,7 +1,9 @@
 #define CATCH_CONFIG_MAIN
 
-#include <core/array.hpp>
+#include <Eigen/Dense>
+
 #include <core/lattice.hpp>
+#include <core/detail/operators.hpp>
 
 #include "helpers.hpp"
 
@@ -20,6 +22,12 @@ public:
 };
 
 TEST_CASE("Lattice test") {
+  std::vector<std::function<double(const double&, const double&)> >
+    scalar_operators{
+    Plus::apply<double, double>, Minus::apply<double, double>,
+    Multiplies::apply<double, double>, Divides::apply<double, double>
+  };
+
   pyQCD::LexicoLayout layout(std::vector<unsigned int>{8, 4, 4, 4});
   TestLayout another_layout(std::vector<unsigned int>{8, 4, 4, 4});
 
@@ -30,23 +38,82 @@ TEST_CASE("Lattice test") {
     bad_lattice[i] = i;
   }
 
-  pyQCD::Array<double> arr(4, 2.0);
-  pyQCD::Lattice<pyQCD::Array<double> > lattice_array(layout, arr);
+  pyQCD::Lattice<Eigen::Matrix3cd> lattice_matrix(
+    layout, Eigen::Matrix3cd::Identity() * 4.0);
 
-  SECTION("Test arithmetic operators") {
-    Lattice lattice3 = lattice1 + lattice2;
-    for (auto val : lattice3) {
-      REQUIRE(val == 3.0);
+  SECTION ("Testing array iterators") {
+    for (auto elem : lattice1) {
+      REQUIRE (elem == 1.0);
     }
-    REQUIRE(lattice3.layout() == lattice1.layout());
-    REQUIRE_THROWS(lattice1 + bad_lattice);
   }
 
-  SECTION("Test assignment operator") {
-    lattice1 = bad_lattice;
-    REQUIRE(lattice1[0] == bad_lattice[511]);
-    std::vector<unsigned int> site{0, 0, 0, 0};
-    REQUIRE(lattice1(site) == bad_lattice(site));
+  SECTION ("Testing scalar assign") {
+    lattice1 = 4.0;
+    for (unsigned int i = 0; i < lattice1.volume(); ++i) {
+      REQUIRE (lattice1[i] == 4.0);
+    }
+  }
+
+  SECTION ("Testing array-array binary ops") {
+    std::vector<std::function<Lattice(const Lattice&, const Lattice&)> >
+      lattice_operators{
+      Plus::apply<Lattice, Lattice>, Minus::apply<Lattice, Lattice>,
+      Multiplies::apply<Lattice, Lattice>, Divides::apply<Lattice, Lattice>
+    };
+    for (unsigned int i = 0; i < 4; ++i) {
+      Lattice array3 = lattice_operators[i](lattice1, lattice2);
+      for (unsigned int j = 0; j < lattice1.volume(); ++j) {
+        REQUIRE (array3[j] == scalar_operators[i](1.0, 2.0));
+      }
+    }
+  }
+
+  SECTION ("Testing array-scalar binary ops") {
+    std::vector<std::function<Lattice(const Lattice&, const double&)> >
+      lattice_operators{
+      Plus::apply<Lattice, double>, Minus::apply<Lattice, double>,
+      Multiplies::apply<Lattice, double>, Divides::apply<Lattice, double>
+    };
+    for (unsigned int i = 0; i < 4; ++i) {
+      Lattice array3 = lattice_operators[i](lattice1, 2.0);
+      for (unsigned int j = 0; j < lattice1.volume(); ++j) {
+        REQUIRE (array3[j] == scalar_operators[i](1.0, 2.0));
+      }
+    }
+  }
+
+  SECTION ("Testing array-array op-assigns") {
+    std::vector<std::function<void(Lattice&, const Lattice&)> >
+      lattice_operators{
+      [] (Lattice& lattice1, const Lattice& lattice2) { lattice1 += lattice2; },
+      [] (Lattice& lattice1, const Lattice& lattice2) { lattice1 -= lattice2; },
+      [] (Lattice& lattice1, const Lattice& lattice2) { lattice1 *= lattice2; },
+      [] (Lattice& lattice1, const Lattice& lattice2) { lattice1 /= lattice2; }
+    };
+    for (unsigned int i = 0; i < 4; ++i) {
+      auto lattice3 = lattice1;
+      lattice_operators[i](lattice3, lattice2);
+      for (unsigned int j = 0; j < lattice1.volume(); ++j) {
+        REQUIRE(lattice3[j] == scalar_operators[i](1.0, 2.0));
+      }
+    }
+  }
+
+  SECTION ("Testing array-scalar op-assigns") {
+    std::vector<std::function<void(Lattice&, const Lattice&)> >
+      lattice_operators{
+      [] (Lattice& lattice1, const Lattice& lattice2) { lattice1 += 2.0; },
+      [] (Lattice& lattice1, const Lattice& lattice2) { lattice1 -= 2.0; },
+      [] (Lattice& lattice1, const Lattice& lattice2) { lattice1 *= 2.0; },
+      [] (Lattice& lattice1, const Lattice& lattice2) { lattice1 /= 2.0; }
+    };
+    for (unsigned int i = 0; i < 4; ++i) {
+      auto lattice3 = lattice1;
+      lattice_operators[i](lattice3, lattice2);
+      for (unsigned int j = 0; j < lattice1.volume(); ++j) {
+        REQUIRE(lattice3[j] == scalar_operators[i](1.0, 2.0));
+      }
+    }
   }
 
   SECTION("Test accessors") {
@@ -65,13 +132,19 @@ TEST_CASE("Lattice test") {
   }
 
   SECTION("Test non-scalar site types") {
-    decltype(lattice_array) result
-      = lattice_array * arr.broadcast();
-    REQUIRE(result.volume() == lattice_array.volume());
-    for (auto& site_array : result) {
-      for (auto val : site_array) {
-        REQUIRE(val == 4.0);
-      }
+    MatrixCompare<Eigen::Matrix3cd> comparison(1e-5, 1e-8);
+    decltype(lattice_matrix) result
+      = lattice_matrix * (3.0 * Eigen::Matrix3cd::Identity());
+    REQUIRE(result.volume() == lattice_matrix.volume());
+    for (auto& site_matrix : result) {
+      comparison(site_matrix, Eigen::Matrix3cd::Identity() * 12.0);
     }
   }
+}
+
+TEST_CASE("Non-integral Array types test") {
+  pyQCD::LexicoLayout layout(std::vector<unsigned int>{8, 4, 4, 4});
+  pyQCD::Lattice<Eigen::Matrix3cd> array1(layout, Eigen::Matrix3cd::Identity());
+  Eigen::Vector3cd vec(1.0, 1.0, 1.0);
+  pyQCD::Lattice<Eigen::Vector3cd> vecs = array1 * vec;
 }
