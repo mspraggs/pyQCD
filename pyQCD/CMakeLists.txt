@@ -15,13 +15,11 @@ set (TEST_DIR tests)
 set (BENCH_DIR benchmarks)
 
 set (test_SRC
-  ${TEST_DIR}/test_array.cpp
   ${TEST_DIR}/test_lattice.cpp
-  ${TEST_DIR}/test_layout.cpp
-  ${TEST_DIR}/test_matrix_array.cpp)
+  ${TEST_DIR}/test_layout.cpp)
 
 set (benchmark_SRC
-  ${BENCH_DIR}/bench_array.cpp)
+  ${BENCH_DIR}/bench_lattice.cpp)
 
 set (utils_SRC
   ${SRC_DIR}/utils/math.cpp)
