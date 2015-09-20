@@ -5,6 +5,7 @@
  * temporaries do not need to be created when performing arithmetic operations.
  */
 
+#include <memory>
 #include <typeinfo>
 #include <type_traits>
 
@@ -114,10 +115,27 @@ namespace pyQCD
     typename OperandTraits<T2>::type rhs_;
   };
 
+
+  // This class allows for slicing of Lattice objects
   template <typename T>
   class LatticeView : public LatticeExpr<LatticeView<T>, T>
   {
+  public:
+    template <typename U, template <typename> class Alloc>
+    LatticeView<T>(const Lattice<T, Alloc>& lattice,
+                   const std::vector<unsigned int>& shape, const int dim)
+      : layout_(new U(shape))
+    { /* Initialize references_ here. */ }
 
+    template <typename U>
+    U create_layout() const { return U(); }
+    template <template <typename> class Alloc>
+    Lattice<T, Alloc> create_lattice(const Layout& layout) const
+    { return Lattice<T, Alloc>(layout); };
+
+  private:
+    std::unique_ptr<Layout> layout_;
+    std::vector<T*> references_;
   };
 
   // Some macros for the operator overloads, as the code is almost
