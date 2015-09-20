@@ -35,8 +35,14 @@
         pass
 {% endif %}
 
-    @property
-    def as_numpy(self):
-        out = np.asarray(self)
-        out.dtype = complex
-        return out
+    property as_numpy:
+        """Return a view to this object as a numpy array"""
+        def __get__(self):
+            out = np.asarray(self)
+            out.dtype = complex
+            return out
+
+        def __set__(self, value):
+            out = np.asarray(self)
+            out.dtype = complex
+            out[:] = value

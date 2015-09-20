@@ -103,10 +103,7 @@ cdef class ColourMatrix:
         self.buffer_shape[1] = 3
         self.buffer_strides[1] = itemsize * 3
 
-        print(self.buffer_shape)
         buffer.buf = <char*>self.instance
-        print("In cython: {}".format(hex(<long unsigned int>buffer.buf)))
-
         buffer.format = "dd"
         buffer.internal = NULL
         buffer.itemsize = itemsize
@@ -122,11 +119,17 @@ cdef class ColourMatrix:
     def __releasebuffer__(self, Py_buffer* buffer):
         pass
 
-    @property
-    def as_numpy(self):
-        out = np.asarray(self)
-        out.dtype = complex
-        return out
+    property as_numpy:
+        """Return a view to this object as a numpy array"""
+        def __get__(self):
+            out = np.asarray(self)
+            out.dtype = complex
+            return out
+
+        def __set__(self, value):
+            out = np.asarray(self)
+            out.dtype = complex
+            out[:] = value
 
     def __add__(self, other):
         if type(self) is ColourMatrix and type(other) is ColourMatrix:
@@ -202,10 +205,7 @@ cdef class LatticeColourMatrix:
         self.buffer_shape[2] = 3
         self.buffer_strides[2] = itemsize * 3
 
-        print(self.buffer_shape)
         buffer.buf = <char*>&(self.instance[0][0])
-        print("In cython: {}".format(hex(<long unsigned int>buffer.buf)))
-
         buffer.format = "dd"
         buffer.internal = NULL
         buffer.itemsize = itemsize
@@ -222,11 +222,17 @@ cdef class LatticeColourMatrix:
 
     def __releasebuffer__(self, Py_buffer* buffer):
         self.view_count -= 1
-    @property
-    def as_numpy(self):
-        out = np.asarray(self)
-        out.dtype = complex
-        return out
+    property as_numpy:
+        """Return a view to this object as a numpy array"""
+        def __get__(self):
+            out = np.asarray(self)
+            out.dtype = complex
+            return out
+
+        def __set__(self, value):
+            out = np.asarray(self)
+            out.dtype = complex
+            out[:] = value
 
     def __add__(self, other):
         if type(self) is LatticeColourMatrix and type(other) is LatticeColourMatrix:
@@ -297,10 +303,7 @@ cdef class ColourVector:
         self.buffer_shape[0] = 3
         self.buffer_strides[0] = itemsize
 
-        print(self.buffer_shape)
         buffer.buf = <char*>self.instance
-        print("In cython: {}".format(hex(<long unsigned int>buffer.buf)))
-
         buffer.format = "dd"
         buffer.internal = NULL
         buffer.itemsize = itemsize
@@ -316,11 +319,17 @@ cdef class ColourVector:
     def __releasebuffer__(self, Py_buffer* buffer):
         pass
 
-    @property
-    def as_numpy(self):
-        out = np.asarray(self)
-        out.dtype = complex
-        return out
+    property as_numpy:
+        """Return a view to this object as a numpy array"""
+        def __get__(self):
+            out = np.asarray(self)
+            out.dtype = complex
+            return out
+
+        def __set__(self, value):
+            out = np.asarray(self)
+            out.dtype = complex
+            out[:] = value
 
     def __add__(self, other):
         if type(self) is ColourVector and type(other) is ColourVector:
@@ -380,10 +389,7 @@ cdef class LatticeColourVector:
         self.buffer_shape[1] = 3
         self.buffer_strides[1] = itemsize
 
-        print(self.buffer_shape)
         buffer.buf = <char*>&(self.instance[0][0])
-        print("In cython: {}".format(hex(<long unsigned int>buffer.buf)))
-
         buffer.format = "dd"
         buffer.internal = NULL
         buffer.itemsize = itemsize
@@ -400,11 +406,17 @@ cdef class LatticeColourVector:
 
     def __releasebuffer__(self, Py_buffer* buffer):
         self.view_count -= 1
-    @property
-    def as_numpy(self):
-        out = np.asarray(self)
-        out.dtype = complex
-        return out
+    property as_numpy:
+        """Return a view to this object as a numpy array"""
+        def __get__(self):
+            out = np.asarray(self)
+            out.dtype = complex
+            return out
+
+        def __set__(self, value):
+            out = np.asarray(self)
+            out.dtype = complex
+            out[:] = value
 
     def __add__(self, other):
         if type(self) is LatticeColourVector and type(other) is LatticeColourVector:

@@ -100,8 +100,8 @@ class TestMatrixType(object):
         mat1_data = np.random.rand(*shape)
         mat2_data = np.random.rand(*shape)
         mat1, mat2 = Type(*args), Type(*args)
-        mat1.as_numpy[:] = mat1_data
-        mat2.as_numpy[:] = mat2_data
+        mat1.as_numpy = mat1_data
+        mat2.as_numpy = mat2_data
 
         if multiply:
             mat3_data = multiply(mat1_data, mat2_data)
@@ -116,7 +116,7 @@ class TestMatrixType(object):
         mat2_data = np.random.rand(*shape)
         mat3_data = op(mat1_data, mat2_data)
         mat1, mat2 = Type(*args), Type(*args)
-        mat1.as_numpy[:] = mat1_data
-        mat2.as_numpy[:] = mat2_data
+        mat1.as_numpy = mat1_data
+        mat2.as_numpy = mat2_data
         mat3 = op(mat1, mat2)
         assert np.allclose(mat3.as_numpy, mat3_data)
