@@ -51,8 +51,7 @@ def _camel2underscores(string):
     return string.lstrip('_')
 
 
-def create_type_definitions(num_rows, num_cols, matrix_name, array_name=None,
-                            lattice_matrix_name=None, lattice_array_name=None):
+def create_type_definitions(num_rows, num_cols, matrix_name):
     """Create container type definitions based on matrix type
 
     This function sets up default values for array_name and lattice_name
@@ -74,10 +73,7 @@ def create_type_definitions(num_rows, num_cols, matrix_name, array_name=None,
       list: A named tuple containing the supplied parameters.
     """
 
-    array_name = array_name or "{}Array".format(matrix_name)
-    lattice_matrix_name = lattice_matrix_name or "Lattice{}".format(matrix_name)
-    lattice_array_name = (lattice_array_name or
-                          "Lattice{}Array".format(matrix_name))
+    lattice_matrix_name = "Lattice{}".format(matrix_name)
 
     complex_type = typedefs.TypeDef("Complex", "Complex", "complex", False)
     shape = (num_rows, num_cols) if num_cols > 1 else (num_rows,)
@@ -86,19 +82,11 @@ def create_type_definitions(num_rows, num_cols, matrix_name, array_name=None,
         matrix_name, matrix_name, _camel2underscores(matrix_name), shape,
         complex_type)
 
-    matrix_array_def = typedefs.ArrayDef(
-        array_name, array_name, _camel2underscores(array_name), matrix_def)
-
     lattice_matrix_def = typedefs.LatticeDef(
         lattice_matrix_name, lattice_matrix_name,
         _camel2underscores(lattice_matrix_name), matrix_def)
 
-    lattice_matrix_array_def = typedefs.LatticeDef(
-        lattice_array_name, lattice_array_name,
-        _camel2underscores(lattice_array_name), matrix_array_def)
-
-    return [matrix_def, matrix_array_def, lattice_matrix_def,
-            lattice_matrix_array_def]
+    return [matrix_def, lattice_matrix_def]
 
 
 def get_compatible_variants(matrix_lhs, matrix_rhs):
@@ -327,12 +315,10 @@ def generate_qcd(num_colours, precision, representation, dest=None):
     type_definitions = []
     if representation == "fundamental":
         type_definitions.extend(create_type_definitions(
-            num_colours, num_colours, "ColourMatrix",
-            lattice_array_name="GaugeField"
+            num_colours, num_colours, "ColourMatrix"
         ))
         type_definitions.extend(create_type_definitions(
-            num_colours, 1, "ColourVector", array_name="Fermion",
-            lattice_array_name="FermionField"
+            num_colours, 1, "ColourVector"
         ))
     else:
         raise ValueError("Unknown representation: {}".format(representation))
