@@ -14,7 +14,7 @@ void profile_for_type(const T& elem, const std::string& type,
 {
   std::cout << "Profiling for array type " << type << "." << std::endl;
 
-  int n = 100;
+  unsigned int n = 100;
   pyQCD::LexicoLayout layout(std::vector<unsigned int>{n});
   pyQCD::Lattice<T, Alloc> array1(layout, elem);
   decltype(array1) array2(layout, elem);
