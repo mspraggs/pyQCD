@@ -10,6 +10,9 @@ addons:
     packages:
     - cmake
     - libeigen3-dev
+cache:
+  directories:
+  - $HOME/virtualenv
 install:
   - "pip install -r requirements.txt"
   - "CC=clang CXX=clang++ pip install ."
