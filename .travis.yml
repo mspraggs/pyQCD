@@ -10,9 +10,6 @@ addons:
     packages:
     - cmake
     - libeigen3-dev
-cache:
-  directories:
-  - $HOME/virtualenv
 install:
   - "pip install -r requirements.txt"
   - "CC=clang CXX=clang++ pip install ."
@@ -24,3 +21,6 @@ install:
 script: 
   - for f in build/pyQCD/test_*; do ./$f; done
   - py.test -vl
+cache:
+  directories:
+  - $HOME/virtualenv
