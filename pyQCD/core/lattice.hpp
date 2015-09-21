@@ -8,6 +8,7 @@
  */
 
 #include <cassert>
+#include <stdexcept>
 #include <vector>
 
 #include "detail/lattice_expr.hpp"
