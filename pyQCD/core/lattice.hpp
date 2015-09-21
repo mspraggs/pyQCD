@@ -47,6 +47,11 @@ namespace pyQCD
     typename std::vector<T>::iterator end() { return data_.end(); }
     typename std::vector<T>::const_iterator end() const { return data_.end(); }
 
+    template <typename U>
+    LatticeView<T, U> get_view(const std::vector<unsigned int>& slice,
+                               const unsigned int dim)
+    { return LatticeView<T, U>(*this, slice, dim); }
+
     T& operator()(const int i)
     { return this->data_[layout_->get_array_index(i)]; }
     const T& operator()(const int i) const

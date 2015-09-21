@@ -116,26 +116,57 @@ namespace pyQCD
   };
 
 
-  // This class allows for slicing of Lattice objects
-  template <typename T>
-  class LatticeView : public LatticeExpr<LatticeView<T>, T>
+  // This class allows for slicing of Lattice objects without copying data
+  template <typename T1, typename T2>
+  class LatticeView : public LatticeExpr<LatticeView<T1, T2>, T1>
   {
   public:
-    template <typename U, template <typename> class Alloc>
-    LatticeView<T>(const Lattice<T, Alloc>& lattice,
-                   const std::vector<unsigned int>& shape, const int dim)
-      : layout_(new U(shape))
-    { /* Initialize references_ here. */ }
-
-    template <typename U>
-    U create_layout() const { return U(); }
     template <template <typename> class Alloc>
-    Lattice<T, Alloc> create_lattice(const Layout& layout) const
-    { return Lattice<T, Alloc>(layout); };
+    LatticeView(Lattice<T1, Alloc>& lattice,
+                const std::vector<unsigned int>& slice, const unsigned int dim)
+      : layout_(std::vector<unsigned int>{lattice.shape()[dim]})
+    {
+      std::vector<unsigned int> site = slice;
+      site.insert(site.begin() + dim, 0);
+      references_.resize(lattice.shape()[dim]);
+      for (unsigned int i = 0; i < lattice.shape()[dim]; ++i) {
+        site[dim] = i;
+        references_[layout_.get_array_index(i)] = &lattice(site);
+      }
+    }
+
+    unsigned long size() const { return references_.size(); }
+    const Layout* layout() const { return &layout_; }
+
+    T1& operator[](const unsigned int i) { return *(references_[i]); }
+    const T1& operator[](const unsigned int i) const
+    { return *(references_[i]); }
+
+    T1& operator()(const unsigned int i)
+    { return *(references_[layout_.get_array_index(i)]); }
+    const T1& operator()(const unsigned int i) const
+    { return *(references_[layout_.get_array_index(i)]); }
+    template <typename U>
+    T1& operator()(const U& site)
+    { return *(references_[layout_.get_array_index(site)]); }
+    template <typename U>
+    const T1& operator()(const U& site) const
+    { return *(references_[layout_.get_array_index(site)]); }
+
+    T2 create_layout() const { return layout_; }
+    template <template <typename> class Alloc>
+    Lattice<T1, Alloc> create_lattice(const Layout& layout) const
+    {
+      auto out = Lattice<T1, Alloc>(layout);
+      for (unsigned int i = 0; i < layout.volume(); ++i) {
+        out(i) = (*this)(i);
+      }
+      return out;
+    };
 
   private:
-    std::unique_ptr<Layout> layout_;
-    std::vector<T*> references_;
+    T2 layout_;
+    std::vector<T1*> references_;
   };
 
   // Some macros for the operator overloads, as the code is almost

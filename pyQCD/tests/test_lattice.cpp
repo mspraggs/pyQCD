@@ -140,6 +140,19 @@ TEST_CASE("Lattice test") {
       comparison(site_matrix, Eigen::Matrix3cd::Identity() * 12.0);
     }
   }
+
+  SECTION("Test lattice view") {
+    for (unsigned int i = 0; i < 4; ++i) {
+      lattice1(i) = static_cast<double>(i);
+    }
+    auto view = lattice1.get_view<pyQCD::LexicoLayout>(
+      std::vector<unsigned int>{0, 0, 0}, 3
+    );
+    REQUIRE (view.size() == 4);
+    for (unsigned int i = 0; i < view.size(); ++i) {
+      REQUIRE(view(i) == i);
+    }
+  }
 }
 
 TEST_CASE("Non-integral Array types test") {
