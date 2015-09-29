@@ -7,5 +7,3 @@ cdef extern from "memory" namespace "std":
         T* get() nogil
         int unique()
         int use_count()
-
-    shared_ptr[T] make_shared[T](const T*)
