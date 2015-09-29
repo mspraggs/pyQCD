@@ -95,7 +95,6 @@ class TestMatrixType(object):
 
     def test_mul(self, Type, multiply, args):
         """Test multiplications"""
-        print(Type, args)
         shape = Type(*args).as_numpy.shape
         mat1_data = np.random.rand(*shape)
         mat2_data = np.random.rand(*shape)
