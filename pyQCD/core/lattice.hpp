@@ -48,9 +48,7 @@ namespace pyQCD
     typename std::vector<T>::const_iterator end() const { return data_.end(); }
 
     template <typename U>
-    LatticeView<T, U> get_view(const std::vector<unsigned int>& slice,
-                               const unsigned int dim)
-    { return LatticeView<T, U>(*this, slice, dim); }
+    LatticeView<T, U> slice(const std::vector<int>& slice_spec);
 
     T& operator()(const int i)
     { return this->data_[layout_->get_array_index(i)]; }
@@ -108,6 +106,28 @@ namespace pyQCD
     const Layout* layout_;
     std::vector<T, Alloc<T> > data_;
   };
+
+
+  template <typename T, template <typename> class Alloc>
+  template <typename U>
+  LatticeView<T, U> Lattice<T, Alloc>::slice(const std::vector<int>& slice_spec)
+  {
+    auto test_func = [&] (const Layout::Int index)
+    {
+      auto index_copy = index;
+      const unsigned int size = num_dims();
+      for (unsigned int i = 1; i <= size; ++i) {
+        auto rem = index_copy % shape()[size - i];
+        index_copy /= shape()[size - i];
+        if (rem != static_cast<unsigned int>(slice_spec[size - i])
+            and slice_spec[size - i] > -1) {
+          return false;
+        }
+      }
+      return true;
+    };
+    return LatticeView<T, U>(*this, std::move(test_func));
+  }
 
 
   template <typename T, template <typename> class Alloc>
