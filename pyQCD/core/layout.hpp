@@ -2,8 +2,9 @@
 #define LAYOUT_HPP
 
 /* This file provides a base Layout classes and derived classes that specify
- * the layout of lattice sites. These classes are then used in Lattice objects
- * and their derived types to specify the relationship between e
+ * the layout of lattice sites in memory. These classes are then used in Lattice
+ * objects to refer to the correct lattice site within the data_ member
+ * variable.
  */
 
 #include <functional>
