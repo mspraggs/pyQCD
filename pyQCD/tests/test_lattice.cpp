@@ -145,9 +145,7 @@ TEST_CASE("Lattice test") {
     for (unsigned int i = 0; i < 4; ++i) {
       lattice1(i) = static_cast<double>(i);
     }
-    auto view = lattice1.get_view<pyQCD::LexicoLayout>(
-      std::vector<unsigned int>{0, 0, 0}, 3
-    );
+    auto view = lattice1.slice<pyQCD::LexicoLayout>({0, 0, 0, -1});
     REQUIRE (view.size() == 4);
     for (unsigned int i = 0; i < view.size(); ++i) {
       REQUIRE(view(i) == i);
