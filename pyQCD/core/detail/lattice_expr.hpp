@@ -10,7 +10,6 @@
 #include <type_traits>
 
 #include <utils/macros.hpp>
-#include <utils/templates.hpp>
 
 #include "../layout.hpp"
 #include "lattice_traits.hpp"
@@ -116,22 +115,20 @@ namespace pyQCD
   };
 
 
-  // This class allows for slicing of Lattice objects without copying data
+  // This class allows views on existing lattice data to be created, without
+  // creating copies.
   template <typename T1, typename T2>
   class LatticeView : public LatticeExpr<LatticeView<T1, T2>, T1>
   {
   public:
-    template <template <typename> class Alloc>
-    LatticeView(Lattice<T1, Alloc>& lattice,
-                const std::vector<unsigned int>& slice, const unsigned int dim)
-      : layout_(std::vector<unsigned int>{lattice.shape()[dim]})
+    template <template <typename> class Alloc, typename... Args>
+    LatticeView(Lattice<T1, Alloc>& lattice, Args&&... args)
+      : layout_(lattice.layout()
+      ->template subset<T2>(std::forward<Args>(args)...))
     {
-      std::vector<unsigned int> site = slice;
-      site.insert(site.begin() + dim, 0);
-      references_.resize(lattice.shape()[dim]);
-      for (unsigned int i = 0; i < lattice.shape()[dim]; ++i) {
-        site[dim] = i;
-        references_[layout_.get_array_index(i)] = &lattice(site);
+      references_.resize(layout_.volume());
+      for (unsigned int i = 0; i < references_.size(); ++i) {
+        references_[i] = &lattice(layout_.get_site_index(i));
       }
     }
 
