@@ -22,24 +22,19 @@ namespace pyQCD
     typedef std::function<bool(const Int)> SubsetFunc;
 
     Layout() { }
-    template <typename Fn>
-    Layout(const std::vector<unsigned int>& shape,
-      Fn compute_array_index)
-      : num_dims_(static_cast<unsigned int>(shape.size())),
+    Layout(
+      const std::vector<Int>& shape, const ArrFunc& compute_array_index)
+      : num_dims_(static_cast<Int>(shape.size())),
         shape_(shape)
     {
       // Constructor create arrays of site/array indices
-      volume_ = std::accumulate(shape.begin(),
-                                        shape.end(),
-                                        unsigned(1),
-                                        std::multiplies<unsigned int>());
+      volume_ = std::accumulate(shape.begin(), shape.end(), 1u,
+        std::multiplies<Int>());
 
       array_indices_.resize(volume_);
       site_indices_.resize(volume_);
-      for (unsigned int site_index = 0;
-           site_index < volume_;
-           ++site_index) {
-        unsigned int array_index = compute_array_index(site_index);
+      for (Int site_index = 0; site_index < volume_; ++site_index) {
+        Int array_index = compute_array_index(site_index);
         array_indices_[site_index] = array_index;
         site_indices_[array_index] = site_index;
       }
@@ -49,24 +44,24 @@ namespace pyQCD
     // Functions to retrieve array indices and so on.
     template <typename T,
       typename std::enable_if<not std::is_integral<T>::value>::type* = nullptr>
-    inline unsigned int get_array_index(const T& site) const;
-    inline unsigned int get_array_index(const unsigned int site_index) const
+    inline Int get_array_index(const T& site) const;
+    inline Int get_array_index(const Int site_index) const
     { return array_indices_[site_index]; }
-    inline unsigned int get_site_index(const unsigned int array_index) const
+    inline Int get_site_index(const Int array_index) const
     { return site_indices_[array_index]; }
 
-    unsigned int volume() const { return volume_; }
-    unsigned int num_dims() const { return num_dims_; }
-    const std::vector<unsigned int>& shape() const
+    Int volume() const { return volume_; }
+    Int num_dims() const { return num_dims_; }
+    const std::vector<Int>& shape() const
     { return shape_; }
 
   private:
-    unsigned int num_dims_, volume_;
-    std::vector<unsigned int> shape_;
+    Int num_dims_, volume_;
+    std::vector<Int> shape_;
     // array_indices_[site_index] -> array_index
-    std::vector<unsigned int> array_indices_;
+    std::vector<Int> array_indices_;
     // site_indices_[array_index] -> site_index
-    std::vector<unsigned int> site_indices_;
+    std::vector<Int> site_indices_;
   };
 
 
@@ -81,13 +76,13 @@ namespace pyQCD
 
   template <typename T,
     typename std::enable_if<not std::is_integral<T>::value>::type*>
-  inline unsigned int Layout::get_array_index(const T& site) const
+  inline Layout::Int Layout::get_array_index(const T& site) const
   {
     // Compute the lexicographic index of the specified site and use it to
     // to get the array index (coordinate at site[0] varies slowest, that at
     // site[ndim - 1] varies fastest
     int site_index = 0;
-    for (unsigned int i = 0; i < num_dims_; ++i) {
+    for (Int i = 0; i < num_dims_; ++i) {
       site_index *= shape_[i];
       site_index += site[i];
     }
