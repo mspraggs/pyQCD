@@ -17,6 +17,10 @@ namespace pyQCD
   class Layout
   {
   public:
+    typedef unsigned int Int;
+    typedef std::function<Int(const Int)> ArrFunc;
+    typedef std::function<bool(const Int)> SubsetFunc;
+
     Layout() { }
     template <typename Fn>
     Layout(const std::vector<unsigned int>& shape,
