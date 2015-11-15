@@ -5,6 +5,15 @@
  * the layout of lattice sites in memory. These classes are then used in Lattice
  * objects to refer to the correct lattice site within the data_ member
  * variable.
+ *
+ * The majority of the code in this file belongs to the Layout class, which
+ * accepts a function in its constructor. This function takes a lexicographic
+ * site index and returns the array index corresponding to that site. This way
+ * a pair of std::vectors can be created that take one from memory space to
+ * lattice space, and vice versa.
+ *
+ * All sub-classes of the Layout class must pass a function to the delegated
+ * Layout constructor.
  */
 
 #include <functional>
