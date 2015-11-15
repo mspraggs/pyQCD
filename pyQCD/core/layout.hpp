@@ -68,8 +68,8 @@ namespace pyQCD
   class LexicoLayout : public Layout
   {
   public:
-    LexicoLayout(const std::vector<unsigned int>& shape)
-      : Layout(shape, [] (const unsigned int i) { return i; })
+    LexicoLayout(const std::vector<Int>& shape)
+      : Layout(shape, [] (const Int i) { return i; })
     { }
   };
 
