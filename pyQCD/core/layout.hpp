@@ -50,6 +50,11 @@ namespace pyQCD
     inline Int get_site_index(const Int array_index) const
     { return site_indices_[array_index]; }
 
+    template <typename T = Layout>
+    T subset(const SubsetFunc& func) const;
+    template <typename T = Layout>
+    T subset(const SubsetFunc& func, const Int size) const;
+
     Int volume() const { return volume_; }
     Int num_dims() const { return num_dims_; }
     const std::vector<Int>& shape() const
@@ -87,6 +92,43 @@ namespace pyQCD
       site_index += site[i];
     }
     return array_indices_[site_index];
+  }
+
+  template <typename T>
+  T Layout::subset(const SubsetFunc& func) const
+  {
+    // Create a layout for a subset of the sites contained within this instance
+    Layout ret;
+    Int j = 0;
+    for (unsigned int i = 0; i < site_indices_.size(); ++i) {
+      if (func(site_indices_[i])) {
+        ret.site_indices_.push_back(site_indices_[i]);
+        ret.array_indices_.push_back(j);
+        j++;
+      }
+    }
+    ret.volume_ = ret.site_indices_.size();
+    return *static_cast<T*>(&ret);
+  }
+
+
+  template <typename T>
+  T Layout::subset(const SubsetFunc& func, const Int size) const
+  {
+    // Create a layout for a subset of the sites contained within this instance
+    Layout ret;
+    ret.site_indices_.resize(size);
+    ret.array_indices_.resize(size);
+    ret.volume_ = size;
+    unsigned int j = 0;
+    for (unsigned int i = 0; i < site_indices_.size(); ++i) {
+      if (func(site_indices_[i])) {
+        ret.site_indices_[j] = site_indices_[i];
+        ret.array_indices_[j] = j;
+        j++;
+      }
+    }
+    return *static_cast<T*>(&ret);
   }
 }
 
