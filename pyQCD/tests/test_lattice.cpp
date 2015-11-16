@@ -28,8 +28,8 @@ TEST_CASE("Lattice test") {
     Multiplies::apply<double, double>, Divides::apply<double, double>
   };
 
-  pyQCD::LexicoLayout layout(std::vector<unsigned int>{8, 4, 4, 4});
-  TestLayout another_layout(std::vector<unsigned int>{8, 4, 4, 4});
+  pyQCD::LexicoLayout layout({8, 4, 4, 4});
+  TestLayout another_layout({8, 4, 4, 4});
 
   Lattice lattice1(layout, 1.0);
   Lattice lattice2(layout, 2.0);
@@ -141,7 +141,7 @@ TEST_CASE("Lattice test") {
     }
   }
 
-  SECTION("Test lattice view") {
+  SECTION("Test lattice views") {
     for (unsigned int i = 0; i < 4; ++i) {
       lattice1(i) = static_cast<double>(i);
     }
@@ -150,6 +150,9 @@ TEST_CASE("Lattice test") {
     for (unsigned int i = 0; i < view.size(); ++i) {
       REQUIRE(view(i) == i);
     }
+
+    auto evens
+      = lattice1.partition<pyQCD::Partition::EVEN, pyQCD::LexicoLayout>();
   }
 }
 
