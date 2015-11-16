@@ -147,7 +147,7 @@ namespace pyQCD
   {
     // Generates a LatticeView object for a specific partition of the lattice
     // sites.
-    unsigned int remainder = (P == Partition::EVEN) ? 0 : 1;
+    constexpr unsigned int remainder = (P == Partition::EVEN) ? 0 : 1;
 
     auto test_func = [&] (const Layout::Int index)
     {
