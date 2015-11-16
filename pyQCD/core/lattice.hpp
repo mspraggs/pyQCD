@@ -112,6 +112,12 @@ namespace pyQCD
   template <typename U>
   LatticeView<T, U> Lattice<T, Alloc>::slice(const std::vector<int>& slice_spec)
   {
+    // Creates a LatticeView object that references the slice specified by
+    // slice_spec. slice_spec is a vector with length equal to num_dims(),
+    // specifying how each dimension should be used in the slice. Positive
+    // integers denote a specific coordinate to slice on the given axis, whilst
+    // a negative value specifies that all the sites along the given axis should
+    // be incorporated into the slice.
     auto test_func = [&] (const Layout::Int index)
     {
       auto index_copy = index;
