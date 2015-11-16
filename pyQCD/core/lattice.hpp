@@ -17,6 +17,9 @@
 
 namespace pyQCD
 {
+  enum class Partition {EVEN, ODD};
+
+
   template <typename T, template <typename> class Alloc = std::allocator>
   class Lattice : public LatticeExpr<Lattice<T>, T>
   {
@@ -49,6 +52,8 @@ namespace pyQCD
 
     template <typename U>
     LatticeView<T, U> slice(const std::vector<int>& slice_spec);
+    template <Partition P, typename U>
+    LatticeView<T, U> partition();
 
     T& operator()(const int i)
     { return this->data_[layout_->get_array_index(i)]; }
@@ -131,6 +136,29 @@ namespace pyQCD
         }
       }
       return true;
+    };
+    return LatticeView<T, U>(*this, std::move(test_func));
+  }
+
+
+  template <typename T, template <typename> class Alloc>
+  template <Partition P, typename U>
+  LatticeView<T, U> Lattice<T, Alloc>::partition()
+  {
+    // Generates a LatticeView object for a specific partition of the lattice
+    // sites.
+    unsigned int remainder = (P == Partition::EVEN) ? 0 : 1;
+
+    auto test_func = [&] (const Layout::Int index)
+    {
+      auto index_copy = index;
+      const unsigned int size = num_dims();
+      unsigned int total = 0;
+      for (unsigned int i = 1; i <= size; ++i) {
+        total += index_copy % shape()[size - i];
+        index_copy /= shape()[size - i];
+      }
+      return (total % 2 == remainder) ? true : false;
     };
     return LatticeView<T, U>(*this, std::move(test_func));
   }
