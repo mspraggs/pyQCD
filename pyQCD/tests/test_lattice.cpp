@@ -142,7 +142,7 @@ TEST_CASE("Lattice test") {
   }
 
   SECTION("Test lattice views") {
-    for (unsigned int i = 0; i < 4; ++i) {
+    for (unsigned int i = 0; i < lattice1.volume(); ++i) {
       lattice1(i) = static_cast<double>(i);
     }
     auto view = lattice1.slice<pyQCD::LexicoLayout>({0, 0, 0, -1});
@@ -153,6 +153,27 @@ TEST_CASE("Lattice test") {
 
     auto evens
       = lattice1.partition<pyQCD::Partition::EVEN, pyQCD::LexicoLayout>();
+    REQUIRE (evens.size() == 256);
+    // Test the start of the view
+    for (unsigned int i = 0; i < 4; ++i) {
+      double offset = static_cast<double>(i % 2);
+      for (unsigned int j = 0; j < 2; ++j) {
+        auto index = 2 * i + j;
+        auto value = static_cast<double>(2 * index) + offset;
+        REQUIRE (evens[index] == value);
+      }
+    }
+    // Test the end of the view
+    for (unsigned int i = 124; i < 128; ++i) {
+      double offset = static_cast<double>(i % 2);
+      for (unsigned int j = 0; j < 2; ++j) {
+        auto index = 2 * i + j;
+        auto value = static_cast<double>(2 * index) + offset;
+        REQUIRE (evens[index] == value);
+      }
+    }
+    REQUIRE (evens[254] == 509.0);
+    REQUIRE (evens[255] == 511.0);
   }
 }
 
