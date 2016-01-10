@@ -254,9 +254,8 @@ class LatticeDef(ContainerDef):
 
         shape = element_type.matrix_shape
         self.add_ctor_arg("shape")
-        self.add_cmember(
-            "layout.Layout*", "lexico_layout",
-            "new layout.LexicoLayout(shape)")
+        self.add_cmember("layout.Layout*", "lexico_layout",
+                         "new layout.LexicoLayout(shape)")
         self.add_cmember("int", "view_count", "0")
         self.add_cmember("Py_ssize_t",
                          "buffer_shape[{}]".format(len(shape) + 1))

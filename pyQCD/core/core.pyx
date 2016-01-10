@@ -11,11 +11,6 @@ cimport lattice_colour_matrix
 cimport colour_vector
 cimport lattice_colour_vector
 
-scalar_types = (int, float, np.single, np.double,
-                np.float16, np.float32, np.float64, np.float128)
-complex_types = (complex, np.complex, np.complex64, np.complex128,
-                 np.complex256)
-
 
 cdef class ColourMatrix:
     cdef colour_matrix.ColourMatrix* instance
@@ -136,7 +131,7 @@ cdef class LatticeColourMatrix:
     cdef Py_ssize_t buffer_strides[3]
 
     def __cinit__(self, shape):
-        self.lexico_layout = new layout.LexicoLayout(<vector[unsigned int]?>shape)
+        self.lexico_layout = new layout.LexicoLayout(shape)
         self.view_count = 0
         self.instance = new lattice_colour_matrix.LatticeColourMatrix(self.lexico_layout[0], colour_matrix.ColourMatrix(colour_matrix.zeros()))
 
@@ -334,7 +329,7 @@ cdef class LatticeColourVector:
     cdef Py_ssize_t buffer_strides[2]
 
     def __cinit__(self, shape):
-        self.lexico_layout = new layout.LexicoLayout(<vector[unsigned int]?>shape)
+        self.lexico_layout = new layout.LexicoLayout(shape)
         self.view_count = 0
         self.instance = new lattice_colour_vector.LatticeColourVector(self.lexico_layout[0], colour_vector.ColourVector(colour_vector.zeros()))
 
