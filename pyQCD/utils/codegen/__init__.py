@@ -13,7 +13,7 @@ from string import ascii_lowercase
 from jinja2 import Environment, PackageLoader
 import setuptools
 
-from . import arithmetictags, coretags, ctags, typedefs
+from . import ctags, typedefs
 from .typedefs import LatticeDef
 
 
@@ -81,10 +81,21 @@ def create_type_definitions(num_rows, num_cols, matrix_name):
     matrix_def = typedefs.MatrixDef(
         matrix_name, matrix_name, _camel2underscores(matrix_name), shape,
         complex_type)
+    matrix_def.add_cmember("int", "view_count", "0")
+    matrix_def.add_cmember("Py_ssize_t", "buffer_shape[{}]".format(len(shape)))
+    matrix_def.add_cmember("Py_ssize_t",
+                           "buffer_strides[{}]".format(len(shape)))
 
     lattice_matrix_def = typedefs.LatticeDef(
         lattice_matrix_name, lattice_matrix_name,
         _camel2underscores(lattice_matrix_name), matrix_def)
+    lattice_matrix_def.add_ctor_arg("layout", "Layout")
+    lattice_matrix_def.add_cmember("Layout", "layout", "layout")
+    lattice_matrix_def.add_cmember("int", "view_count", "0")
+    lattice_matrix_def.add_cmember("Py_ssize_t",
+                                   "buffer_shape[{}]".format(len(shape) + 1))
+    lattice_matrix_def.add_cmember("Py_ssize_t",
+                                   "buffer_strides[{}]".format(len(shape) + 1))
 
     return [matrix_def, lattice_matrix_def]
 
@@ -256,7 +267,7 @@ def write_core_template(template_fname, output_fname, output_path,
         f.write(template.render(**template_args))
 
 
-def generate_cython_types(output_path, precision, typedefs):
+def generate_cython_types(output_path, precision, typedefs, operator_map):
     """Generate Cython source code for matrix, array and lattice types.
 
     This function gathers all jinja2 templates in the package templates
@@ -268,6 +279,8 @@ def generate_cython_types(output_path, precision, typedefs):
       precision (str): The fundamental machine type to be used throughout the
         code (e.g. 'double' or 'float').
       typdefs (iterable): An iterable object containing instances of TypeDef.
+      operator_map (dict): Dictionary relating arithmetic operator characters
+        to lists of Python function names that implement them.
     """
     operations = {'*': [], '/': [], '+': [], '-': []}
 
@@ -282,7 +295,8 @@ def generate_cython_types(output_path, precision, typedefs):
         write_core_template(template_fname + ".pxd", typedef.cmodule + ".pxd",
                             output_path, precision=precision, typedef=typedef,
                             bcast_typedef=bcast_typedef)
-        arithmetictags.generate_matrix_operations(operations, typedef, typedefs)
+        operations = typedef.generate_arithmetic_operations(typedefs,
+                                                            operations)
 
     write_core_template("types.hpp", "types.hpp", output_path,
                         typedefs=typedefs, precision=precision)
@@ -292,7 +306,8 @@ def generate_cython_types(output_path, precision, typedefs):
                         operations=operations, typedefs=typedefs,
                         precision=precision)
     write_core_template("core.pyx", "core.pyx", output_path,
-                        typedefs=typedefs, precision=precision)
+                        typedefs=typedefs, precision=precision,
+                        operator_map=operator_map)
 
 
 def generate_qcd(num_colours, precision, representation, dest=None):
@@ -310,7 +325,9 @@ def generate_qcd(num_colours, precision, representation, dest=None):
         Defaults to the lib directory in the project root directory.
     """
 
-    constants = [("constexpr int", "num_colours", 3)]
+    constants = [("constexpr int", "num_colours", num_colours)]
+    operator_map = {"*": ["mul"], "/": ["div", "truediv"],
+                    "+": ["add"], "-": ["sub"]}
 
     type_definitions = []
     if representation == "fundamental":
@@ -331,7 +348,7 @@ def generate_qcd(num_colours, precision, representation, dest=None):
         dest = src
 
     generate_cython_types(os.path.join(dest, "core"), precision,
-                          type_definitions)
+                          type_definitions, operator_map)
     write_core_template("constants.hpp", "constants.hpp",
                         os.path.join(dest, "core"), constants=constants)
 
@@ -361,11 +378,4 @@ class CodeGen(setuptools.Command):
         generate_qcd(self.num_colours, self.precision, self.representation)
 
 
-env.filters['to_underscores'] = _camel2underscores
 env.filters['cpptype'] = ctags.cpptype
-env.filters['allocation_code'] = coretags.allocation_code
-env.filters['setget_code'] = coretags.setget_code
-env.filters['buffer_code'] = coretags.buffer_code
-env.filters['member_func_code'] = coretags.member_func_code
-env.filters['arithmetic_code'] = arithmetictags.arithmetic_code
-env.globals.update(zip=zip, len=len, hasattr=hasattr)
