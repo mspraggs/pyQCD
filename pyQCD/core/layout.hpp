@@ -31,7 +31,7 @@ namespace pyQCD
     typedef std::function<Int(const Int)> ArrFunc;
     typedef std::function<bool(const Int)> SubsetFunc;
 
-    Layout() { }
+    Layout() = default;
     Layout(
       const std::vector<Int>& shape, const ArrFunc& compute_array_index)
       : num_dims_(static_cast<Int>(shape.size())),
