@@ -176,8 +176,6 @@ class ContainerDef(TypeDef):
 
         for other in typedefs:
             rhs_is_lattice = isinstance(other, LatticeDef)
-            if rhs_is_lattice != lhs_is_lattice:
-                continue
             result_is_lattice = lhs_is_lattice or rhs_is_lattice
             result_shape = self._result_shape(other)
             filter_args = result_shape, result_is_lattice

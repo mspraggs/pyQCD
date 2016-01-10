@@ -144,8 +144,12 @@ cdef class ColourMatrix:
     def __mul__(self, other):
         if type(self) is ColourMatrix and type(other) is ColourMatrix:
             return (<ColourMatrix>self)._mul_ColourMatrix_ColourMatrix(<ColourMatrix>other)
+        if type(self) is ColourMatrix and type(other) is LatticeColourMatrix:
+            return (<ColourMatrix>self)._mul_ColourMatrix_LatticeColourMatrix(<LatticeColourMatrix>other)
         if type(self) is ColourMatrix and type(other) is ColourVector:
             return (<ColourMatrix>self)._mul_ColourMatrix_ColourVector(<ColourVector>other)
+        if type(self) is ColourMatrix and type(other) is LatticeColourVector:
+            return (<ColourMatrix>self)._mul_ColourMatrix_LatticeColourVector(<LatticeColourVector>other)
         raise TypeError("Unsupported operand types for ColourMatrix.__mul__: "
                         "{} and {}".format(type(self), type(other)))
 
@@ -154,8 +158,18 @@ cdef class ColourMatrix:
         out.instance[0] = self.instance[0] * other.instance[0]
         return out
 
+    cdef inline LatticeColourMatrix _mul_ColourMatrix_LatticeColourMatrix(ColourMatrix self, LatticeColourMatrix other):
+        cdef LatticeColourMatrix out = LatticeColourMatrix(self.layout)
+        out.instance[0] = self.instance[0] * other.instance[0]
+        return out
+
     cdef inline ColourVector _mul_ColourMatrix_ColourVector(ColourMatrix self, ColourVector other):
         cdef ColourVector out = ColourVector()
+        out.instance[0] = self.instance[0] * other.instance[0]
+        return out
+
+    cdef inline LatticeColourVector _mul_ColourMatrix_LatticeColourVector(ColourMatrix self, LatticeColourVector other):
+        cdef LatticeColourVector out = LatticeColourVector(self.layout)
         out.instance[0] = self.instance[0] * other.instance[0]
         return out
 
@@ -244,15 +258,29 @@ cdef class LatticeColourMatrix:
         return out
 
     def __mul__(self, other):
+        if type(self) is LatticeColourMatrix and type(other) is ColourMatrix:
+            return (<LatticeColourMatrix>self)._mul_LatticeColourMatrix_ColourMatrix(<ColourMatrix>other)
         if type(self) is LatticeColourMatrix and type(other) is LatticeColourMatrix:
             return (<LatticeColourMatrix>self)._mul_LatticeColourMatrix_LatticeColourMatrix(<LatticeColourMatrix>other)
+        if type(self) is LatticeColourMatrix and type(other) is ColourVector:
+            return (<LatticeColourMatrix>self)._mul_LatticeColourMatrix_ColourVector(<ColourVector>other)
         if type(self) is LatticeColourMatrix and type(other) is LatticeColourVector:
             return (<LatticeColourMatrix>self)._mul_LatticeColourMatrix_LatticeColourVector(<LatticeColourVector>other)
         raise TypeError("Unsupported operand types for LatticeColourMatrix.__mul__: "
                         "{} and {}".format(type(self), type(other)))
 
+    cdef inline LatticeColourMatrix _mul_LatticeColourMatrix_ColourMatrix(LatticeColourMatrix self, ColourMatrix other):
+        cdef LatticeColourMatrix out = LatticeColourMatrix(other.layout)
+        out.instance[0] = self.instance[0] * other.instance[0]
+        return out
+
     cdef inline LatticeColourMatrix _mul_LatticeColourMatrix_LatticeColourMatrix(LatticeColourMatrix self, LatticeColourMatrix other):
         cdef LatticeColourMatrix out = LatticeColourMatrix(self.layout)
+        out.instance[0] = self.instance[0] * other.instance[0]
+        return out
+
+    cdef inline LatticeColourVector _mul_LatticeColourMatrix_ColourVector(LatticeColourMatrix self, ColourVector other):
+        cdef LatticeColourVector out = LatticeColourVector(other.layout)
         out.instance[0] = self.instance[0] * other.instance[0]
         return out
 
