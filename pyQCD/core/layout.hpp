@@ -24,6 +24,9 @@
 
 namespace pyQCD
 {
+  typedef unsigned int Int;
+  typedef std::vector<Int> Site;
+
   class Layout
   {
   public:
@@ -32,8 +35,7 @@ namespace pyQCD
     typedef std::function<bool(const Int)> SubsetFunc;
 
     Layout() = default;
-    Layout(
-      const std::vector<Int>& shape, const ArrFunc& compute_array_index)
+    Layout(const Site& shape, const ArrFunc& compute_array_index)
       : num_dims_(static_cast<Int>(shape.size())),
         shape_(shape)
     {
@@ -72,18 +74,18 @@ namespace pyQCD
 
   private:
     Int num_dims_, volume_;
-    std::vector<Int> shape_;
+    Site shape_;
     // array_indices_[site_index] -> array_index
-    std::vector<Int> array_indices_;
+    Site array_indices_;
     // site_indices_[array_index] -> site_index
-    std::vector<Int> site_indices_;
+    Site site_indices_;
   };
 
 
   class LexicoLayout : public Layout
   {
   public:
-    LexicoLayout(const std::vector<Int>& shape)
+    LexicoLayout(const Site& shape)
       : Layout(shape, [] (const Int i) { return i; })
     { }
   };
