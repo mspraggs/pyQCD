@@ -16,32 +16,50 @@ void profile_for_type(const T& elem, const std::string& type,
 
   unsigned int n = 100;
   pyQCD::LexicoLayout layout(std::vector<unsigned int>{n});
-  pyQCD::Lattice<T, Alloc> array1(layout, elem);
-  decltype(array1) array2(layout, elem);
-  decltype(array1) array3(layout, elem);
-  decltype(array1) result(layout, elem);
+  pyQCD::Lattice<T, Alloc> lattice1(layout, elem);
+  decltype(lattice1) lattice2(layout, elem);
+  decltype(lattice1) lattice3(layout, elem);
+  decltype(lattice1) result(layout, elem);
 
   std::cout << "Profiling f(x, y, z) = x + y + z:" << std::endl;
   benchmark([&] () {
-    result = array1 + array2 + array3;
+    result = lattice1 + lattice2 + lattice3;
   }, 2 * add_flops * n, 1000000);
 
   std::cout << "Profiling f(x, y) = 5.0 * x + y:" << std::endl;
   benchmark([&] () {
-    result = 5.0 * array1 + array2;
+    result = 5.0 * lattice1 + lattice2;
   }, 2 * add_flops * n, 1000000);
 
   std::cout << "Profiling f(x, y, z) = x * y + z:" << std::endl;
   benchmark([&] () {
-    result = array1 * array2 + array3;
+    result = lattice1 * lattice2 + lattice3;
   }, (add_flops + multiply_flops) * n, 1000000);
   
   std::cout << std::endl;
 }
 
 
+void profile_view_generation()
+{
+  std::cout << "Profiling partition view generation." << std::endl;
+
+  pyQCD::LexicoLayout layout({8, 4, 4, 4, 4});
+  pyQCD::Lattice<double> lattice(layout, 0.0);
+
+  benchmark([&] () {
+    auto view
+      = lattice.partition<pyQCD::Partition::EVEN, pyQCD::LexicoLayout>();
+  }, 0, 10000);
+
+  std::cout << std::endl;
+}
+
+
 int main(int argc, char* argv[])
 {
+  profile_view_generation();
+
   profile_for_type(1.0, "double", 2, 2);
   profile_for_type(std::complex<double>(1.0, 0.0), "std::complex<double>",
                    4, 12);
