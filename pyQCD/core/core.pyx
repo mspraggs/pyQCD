@@ -16,70 +16,6 @@ scalar_types = (int, float, np.single, np.double,
 complex_types = (complex, np.complex, np.complex64, np.complex128,
                  np.complex256)
 
-ctypedef double Real
-
-cdef class Complex:
-    cdef complex.Complex instance
-
-    def __init__(self, x, y):
-        self.instance = complex.Complex(x, y)
-
-    @property
-    def real(self):
-        return self.instance.real()
-
-    @property
-    def imag(self):
-        return self.instance.imag()
-
-    def to_complex(self):
-        return complex(self.instance.real(), self.instance.imag())
-
-    def __repr__(self):
-        if self.real == 0:
-            return "{}j".format(self.imag)
-        else:
-            return "({}{}{}j)".format(self.real,
-                                      ('+' if self.imag >= 0 else ''),
-                                      self.imag)
-
-
-cdef class Layout:
-    cdef layout.Layout* instance
-
-    def get_array_index(self, site_label):
-
-        if type(site_label) is int:
-            return self.instance.get_array_index(<unsigned int>site_label)
-        if type(site_label) is list or type(site_label) is tuple:
-            return self.instance.get_array_index(<vector[unsigned int]>site_label)
-        raise TypeError("Unknown type in Layout.get_array_index: {}"
-                        .format(type(site_label)))
-
-    def get_site_index(self, unsigned int array_index):
-        return self.instance.get_site_index(array_index)
-
-    @property
-    def num_dims(self):
-        return self.instance.num_dims()
-
-    @property
-    def volume(self):
-        return self.instance.volume()
-
-    @property
-    def shape(self):
-        return tuple(self.instance.shape())
-
-
-cdef class LexicoLayout(Layout):
-
-    def __init__(self, shape):
-        self.instance = <layout.Layout*>new layout.LexicoLayout(<vector[unsigned int]?>shape)
-
-    def __dealloc__(self):
-        del self.instance
-
 
 cdef class ColourMatrix:
     cdef colour_matrix.ColourMatrix* instance
@@ -88,8 +24,8 @@ cdef class ColourMatrix:
     cdef Py_ssize_t buffer_strides[2]
 
     def __cinit__(self, ):
-        self.instance = new colour_matrix.ColourMatrix(colour_matrix.zeros())
         self.view_count = 0
+        self.instance = new colour_matrix.ColourMatrix(colour_matrix.zeros())
 
     def __dealloc__(self):
         del self.instance
@@ -159,7 +95,7 @@ cdef class ColourMatrix:
         return out
 
     cdef inline LatticeColourMatrix _mul_ColourMatrix_LatticeColourMatrix(ColourMatrix self, LatticeColourMatrix other):
-        cdef LatticeColourMatrix out = LatticeColourMatrix(self.layout)
+        cdef LatticeColourMatrix out = LatticeColourMatrix(self.lexico_layout.shape())
         out.instance[0] = self.instance[0] * other.instance[0]
         return out
 
@@ -169,7 +105,7 @@ cdef class ColourMatrix:
         return out
 
     cdef inline LatticeColourVector _mul_ColourMatrix_LatticeColourVector(ColourMatrix self, LatticeColourVector other):
-        cdef LatticeColourVector out = LatticeColourVector(self.layout)
+        cdef LatticeColourVector out = LatticeColourVector(self.lexico_layout.shape())
         out.instance[0] = self.instance[0] * other.instance[0]
         return out
 
@@ -194,18 +130,19 @@ cdef class ColourMatrix:
 
 cdef class LatticeColourMatrix:
     cdef lattice_colour_matrix.LatticeColourMatrix* instance
-    cdef Layout layout
+    cdef layout.Layout* lexico_layout
     cdef int view_count
     cdef Py_ssize_t buffer_shape[3]
     cdef Py_ssize_t buffer_strides[3]
 
-    def __cinit__(self, Layout layout):
-        self.instance = new lattice_colour_matrix.LatticeColourMatrix(layout.instance[0], colour_matrix.ColourMatrix(colour_matrix.zeros()))
-        self.layout = layout
+    def __cinit__(self, shape):
+        self.lexico_layout = new layout.LexicoLayout(<vector[unsigned int]?>shape)
         self.view_count = 0
+        self.instance = new lattice_colour_matrix.LatticeColourMatrix(self.lexico_layout[0], colour_matrix.ColourMatrix(colour_matrix.zeros()))
 
     def __dealloc__(self):
         del self.instance
+        del self.lexico_layout
 
     def __getbuffer__(self, Py_buffer* buffer, int flags):
         cdef Py_ssize_t itemsize = sizeof(complex.Complex)
@@ -253,7 +190,7 @@ cdef class LatticeColourMatrix:
                         "{} and {}".format(type(self), type(other)))
 
     cdef inline LatticeColourMatrix _add_LatticeColourMatrix_LatticeColourMatrix(LatticeColourMatrix self, LatticeColourMatrix other):
-        cdef LatticeColourMatrix out = LatticeColourMatrix(self.layout)
+        cdef LatticeColourMatrix out = LatticeColourMatrix(self.lexico_layout.shape())
         out.instance[0] = self.instance[0] + other.instance[0]
         return out
 
@@ -270,22 +207,22 @@ cdef class LatticeColourMatrix:
                         "{} and {}".format(type(self), type(other)))
 
     cdef inline LatticeColourMatrix _mul_LatticeColourMatrix_ColourMatrix(LatticeColourMatrix self, ColourMatrix other):
-        cdef LatticeColourMatrix out = LatticeColourMatrix(other.layout)
+        cdef LatticeColourMatrix out = LatticeColourMatrix(other.lexico_layout.shape())
         out.instance[0] = self.instance[0] * other.instance[0]
         return out
 
     cdef inline LatticeColourMatrix _mul_LatticeColourMatrix_LatticeColourMatrix(LatticeColourMatrix self, LatticeColourMatrix other):
-        cdef LatticeColourMatrix out = LatticeColourMatrix(self.layout)
+        cdef LatticeColourMatrix out = LatticeColourMatrix(self.lexico_layout.shape())
         out.instance[0] = self.instance[0] * other.instance[0]
         return out
 
     cdef inline LatticeColourVector _mul_LatticeColourMatrix_ColourVector(LatticeColourMatrix self, ColourVector other):
-        cdef LatticeColourVector out = LatticeColourVector(other.layout)
+        cdef LatticeColourVector out = LatticeColourVector(other.lexico_layout.shape())
         out.instance[0] = self.instance[0] * other.instance[0]
         return out
 
     cdef inline LatticeColourVector _mul_LatticeColourMatrix_LatticeColourVector(LatticeColourMatrix self, LatticeColourVector other):
-        cdef LatticeColourVector out = LatticeColourVector(self.layout)
+        cdef LatticeColourVector out = LatticeColourVector(self.lexico_layout.shape())
         out.instance[0] = self.instance[0] * other.instance[0]
         return out
 
@@ -296,7 +233,7 @@ cdef class LatticeColourMatrix:
                         "{} and {}".format(type(self), type(other)))
 
     cdef inline LatticeColourMatrix _sub_LatticeColourMatrix_LatticeColourMatrix(LatticeColourMatrix self, LatticeColourMatrix other):
-        cdef LatticeColourMatrix out = LatticeColourMatrix(self.layout)
+        cdef LatticeColourMatrix out = LatticeColourMatrix(self.lexico_layout.shape())
         out.instance[0] = self.instance[0] - other.instance[0]
         return out
 
@@ -315,8 +252,8 @@ cdef class ColourVector:
     cdef Py_ssize_t buffer_strides[1]
 
     def __cinit__(self, ):
-        self.instance = new colour_vector.ColourVector(colour_vector.zeros())
         self.view_count = 0
+        self.instance = new colour_vector.ColourVector(colour_vector.zeros())
 
     def __dealloc__(self):
         del self.instance
@@ -391,18 +328,19 @@ cdef class ColourVector:
 
 cdef class LatticeColourVector:
     cdef lattice_colour_vector.LatticeColourVector* instance
-    cdef Layout layout
+    cdef layout.Layout* lexico_layout
     cdef int view_count
     cdef Py_ssize_t buffer_shape[2]
     cdef Py_ssize_t buffer_strides[2]
 
-    def __cinit__(self, Layout layout):
-        self.instance = new lattice_colour_vector.LatticeColourVector(layout.instance[0], colour_vector.ColourVector(colour_vector.zeros()))
-        self.layout = layout
+    def __cinit__(self, shape):
+        self.lexico_layout = new layout.LexicoLayout(<vector[unsigned int]?>shape)
         self.view_count = 0
+        self.instance = new lattice_colour_vector.LatticeColourVector(self.lexico_layout[0], colour_vector.ColourVector(colour_vector.zeros()))
 
     def __dealloc__(self):
         del self.instance
+        del self.lexico_layout
 
     def __getbuffer__(self, Py_buffer* buffer, int flags):
         cdef Py_ssize_t itemsize = sizeof(complex.Complex)
@@ -448,7 +386,7 @@ cdef class LatticeColourVector:
                         "{} and {}".format(type(self), type(other)))
 
     cdef inline LatticeColourVector _add_LatticeColourVector_LatticeColourVector(LatticeColourVector self, LatticeColourVector other):
-        cdef LatticeColourVector out = LatticeColourVector(self.layout)
+        cdef LatticeColourVector out = LatticeColourVector(self.lexico_layout.shape())
         out.instance[0] = self.instance[0] + other.instance[0]
         return out
 
@@ -463,7 +401,7 @@ cdef class LatticeColourVector:
                         "{} and {}".format(type(self), type(other)))
 
     cdef inline LatticeColourVector _sub_LatticeColourVector_LatticeColourVector(LatticeColourVector self, LatticeColourVector other):
-        cdef LatticeColourVector out = LatticeColourVector(self.layout)
+        cdef LatticeColourVector out = LatticeColourVector(self.lexico_layout.shape())
         out.instance[0] = self.instance[0] - other.instance[0]
         return out
 

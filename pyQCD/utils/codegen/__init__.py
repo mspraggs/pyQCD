@@ -81,21 +81,10 @@ def create_type_definitions(num_rows, num_cols, matrix_name):
     matrix_def = typedefs.MatrixDef(
         matrix_name, matrix_name, _camel2underscores(matrix_name), shape,
         complex_type)
-    matrix_def.add_cmember("int", "view_count", "0")
-    matrix_def.add_cmember("Py_ssize_t", "buffer_shape[{}]".format(len(shape)))
-    matrix_def.add_cmember("Py_ssize_t",
-                           "buffer_strides[{}]".format(len(shape)))
 
     lattice_matrix_def = typedefs.LatticeDef(
         lattice_matrix_name, lattice_matrix_name,
         _camel2underscores(lattice_matrix_name), matrix_def)
-    lattice_matrix_def.add_ctor_arg("layout", "Layout")
-    lattice_matrix_def.add_cmember("Layout", "layout", "layout")
-    lattice_matrix_def.add_cmember("int", "view_count", "0")
-    lattice_matrix_def.add_cmember("Py_ssize_t",
-                                   "buffer_shape[{}]".format(len(shape) + 1))
-    lattice_matrix_def.add_cmember("Py_ssize_t",
-                                   "buffer_strides[{}]".format(len(shape) + 1))
 
     return [matrix_def, lattice_matrix_def]
 

@@ -70,6 +70,34 @@ class ContainerDef(TypeDef):
         else:
             self.is_static = True
 
+    def get_lattice_name(self, other, self_name, other_name):
+        """Returns one of the supplied names if self or other are LatticeDefs
+
+        This function is used to retrieve a name to extract a shape attribute
+        from one of the operands in an arithmetic operation.
+
+        Args:
+          other (ContainerDef): TypeDef for the second operand in the operation.
+          self_name (str): String giving the name that refers to an instance of
+            the type defined by self.
+          other_name (str): String giving the name that refers to an instance of
+            the type defined by other.
+
+        Returns:
+          str or NoneType: self_name, other_name or None.
+
+          This function will return the first name that is associated with a
+          type described by a LatticeDef object. If neither self nor other are,
+          then None is returned.
+        """
+
+        if isinstance(self, LatticeDef):
+            return self_name
+        elif isinstance(other, LatticeDef):
+            return other_name
+        else:
+            return None
+
     @property
     def matrix_shape(self):
         """The shape of the root child element type, if it exists"""
@@ -209,6 +237,9 @@ class MatrixDef(ContainerDef):
         self.shape = shape
         self.is_matrix = len(self.shape) == 2
         self.is_square = self.is_matrix and self.shape[0] == self.shape[1]
+        self.add_cmember("int", "view_count", "0")
+        self.add_cmember("Py_ssize_t", "buffer_shape[{}]".format(len(shape)))
+        self.add_cmember("Py_ssize_t", "buffer_strides[{}]".format(len(shape)))
 
 
 class LatticeDef(ContainerDef):
@@ -218,8 +249,16 @@ class LatticeDef(ContainerDef):
         """Constructor for LatticeDef object. See help(LatticeDef)"""
         super(LatticeDef, self).__init__(
             name, cname, cmodule, "volume()", 1, element_type,
-            "{}.{}(layout.instance[0], {{}})".format(cmodule, cname))
+            "{}.{}(self.lexico_layout[0], {{}})"
+            .format(cmodule, cname))
 
-    def wrap_shape_expr(self, expr):
-        """Ensure shape expression is a tuple"""
-        return "tuple({})".format(expr)
+        shape = element_type.matrix_shape
+        self.add_ctor_arg("shape")
+        self.add_cmember(
+            "layout.Layout*", "lexico_layout",
+            "new layout.LexicoLayout(<vector[unsigned int]?>shape)")
+        self.add_cmember("int", "view_count", "0")
+        self.add_cmember("Py_ssize_t",
+                         "buffer_shape[{}]".format(len(shape) + 1))
+        self.add_cmember("Py_ssize_t",
+                         "buffer_strides[{}]".format(len(shape) + 1))
