@@ -50,13 +50,13 @@ class ContainerDef(TypeDef):
     """
 
     def __init__(self, name, cname, cmodule, size_expr, buffer_ndims,
-                 element_type, static_alloc_temp):
+                 element_type, init_template):
         """Constructor for ContainerDef object. See help(ContainerDef)"""
         super(ContainerDef, self).__init__(name, cname, cmodule, True)
         self.element_type = element_type
         self.size_expr = size_expr
         self.structure = [self.__class__.__name__.replace("Def", "")]
-        self.static_alloc_temp = static_alloc_temp
+        self.init_template = init_template
         if isinstance(element_type, ContainerDef):
             self.structure.extend(element_type.structure)
         try:
@@ -88,12 +88,12 @@ class ContainerDef(TypeDef):
         return out
 
     @property
-    def cpp_constructor_call(self):
+    def init_code(self):
         """Call to the underlying C++ constructor for this type"""
-        rhs = "zeros"
-        for i, tdef in enumerate(self.unpack()[::-1]):
-            rhs = tdef.static_alloc_temp.format(rhs)
-        return rhs
+        try:
+            return self.init_template.format(self.element_type.init_code)
+        except AttributeError:
+            return self.init_template
 
     def buffer_info(self, item_size_expr):
         """Generates information required to construct a __buffer__ function
@@ -198,10 +198,6 @@ class ContainerDef(TypeDef):
 
         return operations
 
-    def wrap_shape_expr(self, expr):
-        """Wraps the shape expression to put it in the right format"""
-        return expr
-
 
 class MatrixDef(ContainerDef):
     """Specialise container definition for matrix type"""
@@ -211,7 +207,7 @@ class MatrixDef(ContainerDef):
         size = reduce(lambda x, y: x * y, shape)
         super(MatrixDef, self).__init__(
             name, cname, cmodule, str(size), len(shape), element_type,
-            "{}.{}({}.{{}}())".format(cmodule, cname, cmodule))
+            "{}.{}({}.zeros())".format(cmodule, cname, cmodule))
         self.shape = shape
         self.is_matrix = len(self.shape) == 2
         self.is_square = self.is_matrix and self.shape[0] == self.shape[1]

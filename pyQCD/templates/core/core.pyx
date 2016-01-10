@@ -88,7 +88,7 @@ cdef class {{ typedef.name }}:
 {% endfor %}
 
     def __cinit__(self, {{ typedef.ctor_argstring }}):
-        self.instance = new {{ typedef.cpp_constructor_call }}
+        self.instance = new {{ typedef.init_code }}
 {% for type, name, init in typedef.cmembers %}
 {% if init %}
         self.{{ name }} = {{ init }}
@@ -151,19 +151,18 @@ cdef class {{ typedef.name }}:
 
 {% set operations = typedef.generate_arithmetic_operations(typedefs) %}
 {% for op in operator_map %}
-{% set funcnames = operator_map[op] %}
-{% for funcname in funcnames %}
+{% for funcname in operator_map[op] %}
     def __{{ funcname }}__(self, other):
 {% for ret, lhs, rhs in operations[op] %}
         if type(self) is {{ lhs.name }} and type(other) is {{ rhs.name }}:
-            return (<{{ lhs.name }}>self)._{{ funcnames[0] }}_{{ lhs.name }}_{{ rhs.name }}(<{{ rhs.name }}>other)
+            return (<{{ lhs.name }}>self)._{{ operator_map[op][0] }}_{{ lhs.name }}_{{ rhs.name }}(<{{ rhs.name }}>other)
 {% endfor %}
         raise TypeError("Unsupported operand types for {{ typedef.name }}.__{{ funcname }}__: "
                         "{} and {}".format(type(self), type(other)))
 
 {% endfor %}
 {% for ret, lhs, rhs in operations[op] %}
-    cdef inline {{ ret.name }} _{{ funcnames[0] }}_{{ lhs.name }}_{{ rhs.name }}({{ lhs.name }} self, {{ rhs.name }} other):
+    cdef inline {{ ret.name }} _{{ operator_map[op][0] }}_{{ lhs.name }}_{{ rhs.name }}({{ lhs.name }} self, {{ rhs.name }} other):
 {% set layout_operand = "self" if "Lattice" in rhs.structure else ("other" if "Lattice" in lhs.structure else "") %}
         cdef {{ ret.name }} out = {{ ret.name }}({% if "Lattice" in ret.structure %}{{ layout_operand }}.layout{% endif %})
         out.instance[0] = {{ lhs.accessor("self", False) }} {{ op }} {{ rhs.accessor("other", False) }}
