@@ -37,7 +37,7 @@ namespace pyQCD
       for (unsigned long i = 0; i < expr.size(); ++i) {
         this->data_[i] = static_cast<T>(expr[i]);
       }
-      layout_ = expr.layout();
+      layout_ = &expr.layout();
     }
     Lattice(Lattice<T, Alloc>&& lattice) = default;
 
@@ -77,7 +77,7 @@ namespace pyQCD
       for (unsigned long i = 0; i < expr.size(); ++i) {
         ptr[i] = static_cast<T>(expr[i]);
       }
-      layout_ = expr.layout();
+      layout_ = &expr.layout();
       return *this;
     }
 
@@ -105,7 +105,7 @@ namespace pyQCD
     unsigned int num_dims() const { return layout_->num_dims(); }
     const std::vector<unsigned int>& shape() const
     { return layout_->shape(); }
-    const Layout* layout() const { return layout_; }
+    const Layout& layout() const { return *layout_; }
 
   protected:
     const Layout* layout_;

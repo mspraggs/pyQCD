@@ -39,7 +39,7 @@ namespace pyQCD
     { return static_cast<const T1&>(*this)[i]; }
 
     unsigned long size() const { return static_cast<const T1&>(*this).size(); }
-    const Layout* layout() const
+    const Layout& layout() const
     { return static_cast<const T1&>(*this).layout(); }
 
     operator T1&() { return static_cast<T1&>(*this); }
@@ -76,7 +76,7 @@ namespace pyQCD
     operator[](const unsigned int i) const { return Op::apply(operand_[i]); }
 
     unsigned long size() const { return operand_.size(); }
-    const Layout* layout() const { return operand_.layout(); }
+    const Layout& layout() const { return operand_.layout(); }
 
   private:
     typename OperandTraits<T1>::type operand_;
@@ -105,7 +105,7 @@ namespace pyQCD
 
     unsigned long size() const
     { return BinaryOperandTraits<T1, T2>::size(lhs_, rhs_); }
-    const Layout* layout() const
+    const Layout& layout() const
     { return BinaryOperandTraits<T1, T2>::layout(lhs_, rhs_); }
 
   private:
@@ -124,7 +124,7 @@ namespace pyQCD
     template <template <typename> class Alloc, typename... Args>
     LatticeView(Lattice<T1, Alloc>& lattice, Args&&... args)
       : layout_(lattice.layout()
-      ->template subset<T2>(std::forward<Args>(args)...))
+        .template subset<T2>(std::forward<Args>(args)...))
     {
       references_.resize(layout_.volume());
       for (unsigned int i = 0; i < references_.size(); ++i) {
@@ -133,7 +133,7 @@ namespace pyQCD
     }
 
     unsigned long size() const { return references_.size(); }
-    const Layout* layout() const { return &layout_; }
+    const Layout& layout() const { return layout_; }
 
     T1& operator[](const unsigned int i) { return *(references_[i]); }
     const T1& operator[](const unsigned int i) const

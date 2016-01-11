@@ -52,12 +52,12 @@ namespace pyQCD
     { return lhs.size(); }
     static bool equal_size(const T1& lhs, const T2& rhs)
     { return lhs.size() == rhs.size(); }
-    static const Layout* layout(const T1& lhs, const T2& rhs)
+    static const Layout& layout(const T1& lhs, const T2& rhs)
     { return lhs.layout(); }
     static bool equal_layout(const T1& lhs, const T2& rhs)
     {
-      if (rhs.layout() != nullptr and lhs.layout() != nullptr) {
-        return typeid(*rhs.layout()) == typeid(*lhs.layout());
+      if (&rhs.layout() != nullptr and &lhs.layout() != nullptr) {
+        return typeid(rhs.layout()) == typeid(lhs.layout());
       }
       else {
         return true;
@@ -73,7 +73,7 @@ namespace pyQCD
     { return lhs.size(); }
     static bool equal_size(const T1& lhs, const LatticeConst<T2>& rhs)
     { return true; }
-    static const Layout* layout(const T1& lhs, const LatticeConst<T2>& rhs)
+    static const Layout& layout(const T1& lhs, const LatticeConst<T2>& rhs)
     { return lhs.layout(); }
     static bool equal_layout(const T1& lhs, const LatticeConst<T2>& rhs)
     { return true; }
@@ -87,7 +87,7 @@ namespace pyQCD
     { return rhs.size(); }
     static bool equal_size(const LatticeConst<T1>& lhs, const T2& rhs)
     { return true; }
-    static const Layout* layout(const LatticeConst<T1>& lhs, const T2& rhs)
+    static const Layout& layout(const LatticeConst<T1>& lhs, const T2& rhs)
     { return rhs.layout(); }
     static bool equal_layout(const LatticeConst<T1>& lhs, const T2& rhs)
     { return true; }
