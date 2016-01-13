@@ -12,6 +12,7 @@
 typedef {{ precision }} Real;
 typedef std::complex<Real> Complex;
 typedef pyQCD::Lattice<Complex> LatticeComplex;
+typedef Eigen::Matrix<Complex, 2, 2> SU2Matrix;
 {% for typedef in typedefs %}
 typedef {{ typedef|cpptype }} {{ typedef.cname }};
 {% endfor %}
