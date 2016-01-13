@@ -19,9 +19,9 @@ struct Compare
 
   bool operator()(const T rhs, const T lhs) const
   {
-    return abs(rhs - lhs) > (percent_tolerance_ * abs(rhs)
+    return std::abs(rhs - lhs) < (percent_tolerance_ * std::abs(rhs)
       + absolute_tolerance_)
-      || abs(rhs - lhs) > (percent_tolerance_ * abs(lhs)
+      and std::abs(rhs - lhs) < (percent_tolerance_ * std::abs(lhs)
       + absolute_tolerance_);
   }
 
