@@ -21,7 +21,7 @@ install:
   - make
   - cd ..
 script: 
-  - for f in build/pyQCD/test_*; do ./$f; done
+  - for f in build/pyQCD/test_*; do echo "Running test file ${f}"; ./$f; done
   - py.test -vl
 cache:
   directories:
