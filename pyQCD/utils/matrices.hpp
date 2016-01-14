@@ -26,6 +26,15 @@ namespace pyQCD {
                   + coefficients[2] * sigma2
                   + coefficients[3] * sigma3);
   }
+
+  void compute_su2_subgroup_pos(const unsigned int index,
+                                unsigned int& i, unsigned int& j);
+
+  SU2Matrix extract_su2(const ColourMatrix& colour_matrix,
+                        const unsigned int subgroup);
+
+  ColourMatrix insert_su2(const SU2Matrix& su2_matrix,
+                          const unsigned int subgroup);
 }
 
 #endif
