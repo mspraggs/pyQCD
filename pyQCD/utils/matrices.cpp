@@ -5,7 +5,7 @@ namespace pyQCD
   void compute_su2_subgroup_pos(const unsigned int index,
                                 unsigned int& i, unsigned int& j)
   {
-    pyQCDassert((assert (index < num_colours)),
+    pyQCDassert((index < num_colours),
       std::range_error("SU(2) subgroup index invalid"));
 
     unsigned int tmp = index;
