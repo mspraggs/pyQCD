@@ -23,7 +23,8 @@ set (benchmark_SRC
   ${BENCH_DIR}/bench_lattice.cpp)
 
 set (utils_SRC
-  ${SRC_DIR}/utils/math.cpp)
+  ${SRC_DIR}/utils/math.cpp
+  ${SRC_DIR}/utils/matrices.cpp)
 
 set (algorithms_SRC
   ${SRC_DIR}/algorithms/heatbath.cpp)
