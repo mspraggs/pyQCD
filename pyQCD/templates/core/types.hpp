@@ -8,13 +8,30 @@
 #include "lattice.hpp"
 #include "constants.hpp"
 
+namespace pyQCD {
 
-typedef {{ precision }} Real;
-typedef std::complex<Real> Complex;
-typedef pyQCD::Lattice<Complex> LatticeComplex;
-typedef Eigen::Matrix<Complex, 2, 2> SU2Matrix;
-{% for typedef in typedefs %}
-typedef {{ typedef|cpptype }} {{ typedef.cname }};
-{% endfor %}
+  template<typename T, int N>
+  using ColourMatrix = Eigen::Matrix<std::complex<T>, N, N>;
+  template <typename T, int N>
+  using ColourVector = Eigen::Matrix<std::complex<T>, N, 1>;
+  template <typename T, int N>
+  using LatticeColourMatrix
+    = pyQCD::Lattice<ColourMatrix<T, N>, Eigen::aligned_allocator>;
+  template <typename T, int N>
+  using LatticeColourVector
+    = pyQCD::Lattice<ColourVector<T, N>, Eigen::aligned_allocator>;
 
+  template <typename T>
+  using SU2Matrix = ColourMatrix<T, 2>;
+}
+
+namespace python {
+  typedef {{ precision }} Real;
+  typedef std::complex<Real> Complex;
+  typedef pyQCD::Lattice<Real> LatticeReal;
+  typedef pyQCD::Lattice<Complex> LatticeComplex;
+  {% for typedef in typedefs %}
+  typedef {{ typedef.cpptype }} {{ typedef.cname }};
+  {% endfor %}
+}
 #endif

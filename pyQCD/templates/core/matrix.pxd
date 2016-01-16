@@ -1,7 +1,7 @@
 from {{ typedef.element_type.cmodule }} cimport {{ typedef.element_type.cname }}
 
 
-cdef extern from "types.hpp":
+cdef extern from "types.hpp" namespace "python":
     cdef cppclass {{ typedef.cname }}:
         {{ typedef.cname }}() except +
         {{ typedef.cname }}(const {{ typedef.cname }}&) except +
@@ -13,10 +13,10 @@ cdef extern from "types.hpp":
         {% endif %}
 
 
-    cdef {{ typedef.cname }} zeros "{{ typedef.cname }}::Zero"()
-    cdef {{ typedef.cname }} ones "{{ typedef.cname }}::Ones"()
+    cdef {{ typedef.cname }} zeros "python::{{ typedef.cname }}::Zero"()
+    cdef {{ typedef.cname }} ones "python::{{ typedef.cname }}::Ones"()
 {% if typedef.is_square %}
-    cdef {{ typedef.cname }} identity "{{ typedef.cname }}::Identity"()
+    cdef {{ typedef.cname }} identity "python::{{ typedef.cname }}::Identity"()
 {% endif %}
     cdef void mat_assign({{ typedef.cname }}&, const int, const int, const Complex)
     cdef void mat_assign({{ typedef.cname }}*, const int, const int, const Complex)

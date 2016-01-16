@@ -8,14 +8,31 @@
 #include "lattice.hpp"
 #include "constants.hpp"
 
+namespace pyQCD {
 
-typedef double Real;
-typedef std::complex<Real> Complex;
-typedef pyQCD::Lattice<Complex> LatticeComplex;
-typedef Eigen::Matrix<Complex, 2, 2> SU2Matrix;
-typedef Eigen::Matrix<Complex, 3, 3> ColourMatrix;
-typedef pyQCD::Lattice<Eigen::Matrix<Complex, 3, 3>, Eigen::aligned_allocator> LatticeColourMatrix;
-typedef Eigen::Matrix<Complex, 3, 1> ColourVector;
-typedef pyQCD::Lattice<Eigen::Matrix<Complex, 3, 1>, Eigen::aligned_allocator> LatticeColourVector;
+  template<typename T, int N>
+  using ColourMatrix = Eigen::Matrix<std::complex<T>, N, N>;
+  template <typename T, int N>
+  using ColourVector = Eigen::Matrix<std::complex<T>, N, 1>;
+  template <typename T, int N>
+  using LatticeColourMatrix
+    = pyQCD::Lattice<ColourMatrix<T, N>, Eigen::aligned_allocator>;
+  template <typename T, int N>
+  using LatticeColourVector
+    = pyQCD::Lattice<ColourVector<T, N>, Eigen::aligned_allocator>;
 
+  template <typename T>
+  using SU2Matrix = ColourMatrix<T, 2>;
+}
+
+namespace python {
+  typedef double Real;
+  typedef std::complex<Real> Complex;
+  typedef pyQCD::Lattice<Real> LatticeReal;
+  typedef pyQCD::Lattice<Complex> LatticeComplex;
+  typedef pyQCD::ColourMatrix<Real, 3> ColourMatrix;
+  typedef pyQCD::LatticeColourMatrix<Real, 3> LatticeColourMatrix;
+  typedef pyQCD::ColourVector<Real, 3> ColourVector;
+  typedef pyQCD::LatticeColourVector<Real, 3> LatticeColourVector;
+}
 #endif

@@ -36,6 +36,11 @@ class TypeDef(object):
                 arglist.append(varname)
         return ", ".join(arglist)
 
+    @property
+    def cpptype(self):
+        """C++ string specifying the type"""
+        raise NotImplementedError
+
     def accessor(self, varname, broadcast=False):
         if self.builtin:
             return varname
@@ -241,6 +246,14 @@ class MatrixDef(ContainerDef):
         self.add_cmember("Py_ssize_t", "buffer_shape[{}]".format(len(shape)))
         self.add_cmember("Py_ssize_t", "buffer_strides[{}]".format(len(shape)))
 
+    @property
+    def cpptype(self):
+        num_colours = self.matrix_shape[0]
+        if self.is_matrix:
+            return "pyQCD::ColourMatrix<Real, {}>".format(num_colours)
+        else:
+            return "pyQCD::ColourVector<Real, {}>".format(num_colours)
+
 
 class LatticeDef(ContainerDef):
     """Specialise container definition for lattice type"""
@@ -261,3 +274,11 @@ class LatticeDef(ContainerDef):
                          "buffer_shape[{}]".format(len(shape) + 1))
         self.add_cmember("Py_ssize_t",
                          "buffer_strides[{}]".format(len(shape) + 1))
+
+    @property
+    def cpptype(self):
+        num_colours = self.matrix_shape[0]
+        if len(self.matrix_shape) > 1:
+            return "pyQCD::LatticeColourMatrix<Real, {}>".format(num_colours)
+        else:
+            return "pyQCD::LatticeColourVector<Real, {}>".format(num_colours)

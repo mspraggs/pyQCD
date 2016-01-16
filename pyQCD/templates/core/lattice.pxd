@@ -4,7 +4,7 @@ from {{ typedef.element_type.cmodule }} cimport {{ typedef.element_type.cname }}
 from layout cimport Layout
 
 
-cdef extern from "types.hpp":
+cdef extern from "types.hpp" namespace "python":
     cdef cppclass {{ typedef.cname }}:
         {{ typedef.cname }}() except +
         {{ typedef.cname }}(const Layout&, const {{ typedef.element_type.cname }}) except +

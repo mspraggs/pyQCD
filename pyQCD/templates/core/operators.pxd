@@ -4,7 +4,7 @@ cimport {{ typedef.cmodule }}
 {% endfor %}
 
 
-cdef extern from "types.hpp":
+cdef extern from "types.hpp" namespace "python":
 {% for op in operations %}
 {% set opoperations = operations[op] %}
 {% for ret, lhs, rhs in opoperations %}
