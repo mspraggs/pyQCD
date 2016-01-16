@@ -23,11 +23,7 @@ set (benchmark_SRC
   ${BENCH_DIR}/bench_lattice.cpp)
 
 set (utils_SRC
-  ${SRC_DIR}/utils/math.cpp
-  ${SRC_DIR}/utils/matrices.cpp)
-
-set (algorithms_SRC
-  ${SRC_DIR}/algorithms/heatbath.cpp)
+  ${SRC_DIR}/utils/math.cpp)
 
 find_package (Eigen3 3.0.5 REQUIRED)
 
@@ -42,9 +38,6 @@ add_custom_target(all_clion
   SOURCES ${clion_all_headers}
 )
 
-add_library(pyQCDalgorithms SHARED ${algorithms_SRC})
-target_link_libraries(pyQCDalgorithms)
-
 add_library(pyQCDutils SHARED ${utils_SRC})
 target_link_libraries(pyQCDutils)
 
@@ -52,7 +45,7 @@ foreach ( testsourcefile ${test_SRC} )
   string( REPLACE ".cpp" "" testname ${testsourcefile} )
   get_filename_component( testname ${testname} NAME )
   add_executable( ${testname} ${testsourcefile} )
-  target_link_libraries( ${testname} pyQCDutils pyQCDalgorithms )
+  target_link_libraries( ${testname} pyQCDutils )
   add_test( NAME ${testname} COMMAND ${testname} --log_level=all)
 endforeach()
 
