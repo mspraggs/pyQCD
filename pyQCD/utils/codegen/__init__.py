@@ -314,7 +314,6 @@ def generate_qcd(num_colours, precision, representation, dest=None):
         Defaults to the lib directory in the project root directory.
     """
 
-    constants = [("constexpr int", "num_colours", num_colours)]
     operator_map = {"*": ["mul"], "/": ["div", "truediv"],
                     "+": ["add"], "-": ["sub"]}
 
@@ -338,8 +337,6 @@ def generate_qcd(num_colours, precision, representation, dest=None):
 
     generate_cython_types(os.path.join(dest, "core"), precision,
                           type_definitions, operator_map)
-    write_core_template("constants.hpp", "constants.hpp",
-                        os.path.join(dest, "core"), constants=constants)
 
 
 class CodeGen(setuptools.Command):
