@@ -6,7 +6,6 @@
 #include <Eigen/Dense>
 
 #include "lattice.hpp"
-#include "constants.hpp"
 
 namespace pyQCD {
 
