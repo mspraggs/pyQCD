@@ -55,7 +55,7 @@ namespace pyQCD {
     coeffs[2] = three_vec_magnitude * sin_theta * std::sin(phi);
     coeffs[3] = three_vec_magnitude * cos_theta;
 
-    return construct_su2(coeffs);
+    return construct_su2<Real>(coeffs);
   }
 
   template <int Nc>
