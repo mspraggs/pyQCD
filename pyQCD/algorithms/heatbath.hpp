@@ -73,7 +73,7 @@ namespace pyQCD {
     auto& link = gauge_field(link_index);
     Real beta_prime = action.beta() / Nc;
 
-    constexpr int num_subgroups = (Nc * (Nc + 1)) / 2;
+    constexpr int num_subgroups = (Nc * (Nc - 1)) / 2;
 
     // Here we do the pseudo-heatbath over the subgroups of SU(N)
     for (unsigned int subgroup = 0; subgroup < num_subgroups; ++subgroup) {
