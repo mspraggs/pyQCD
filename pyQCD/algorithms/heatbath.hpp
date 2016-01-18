@@ -14,7 +14,7 @@
 namespace pyQCD {
 
   template <typename Real>
-  SU2Matrix<Real> gen_heatbath_su2(const Real weight, const Real beta)
+  SU2Matrix<Real> gen_heatbath_su2(const Real weight)
   {
     // Generate a random SU(2) matrix distributed according to the distribution
     // exp(0.5 * weight * beta * Re tr(X)). We use the algorithm specified in
@@ -42,7 +42,7 @@ namespace pyQCD {
       Real r1 = 1.0 - dis(gen);
       Real r2 = 1.0 - dis(gen);
       lambda_squared
-        = - 1.0 / (2.0 * weight * beta)
+        = - 1.0 / (2.0 * weight)
           * (std::log(r0) + std::pow(std::cos(2 * pi * r1), 2) * std::log(r2));
       uniform_squared = std::pow(dis(gen), 2);
     }
