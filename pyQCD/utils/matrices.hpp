@@ -87,11 +87,11 @@ namespace pyQCD {
     return ret;
   }
 
-  template <typename Real, int Nc>
+  template <int Nc, typename Real>
   ColourMatrix<Real, Nc> insert_su2(const SU2Matrix<Real>& su2_matrix,
                                     const unsigned int subgroup)
   {
-    ColourMatrix<Real, Nc> ret;
+    ColourMatrix<Real, Nc> ret = ColourMatrix<Real, Nc>::Identity();
     unsigned int i, j;
     compute_su2_subgroup_pos<Nc>(subgroup, i, j);
 
