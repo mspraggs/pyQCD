@@ -13,6 +13,8 @@ namespace pyQCD {
   class GaugeAction
   {
   public:
+    GaugeAction(const Real beta) : beta_(beta) { }
+  
     virtual ColourMatrix<Real, Nc> compute_staples(
       const LatticeColourMatrix<Real, Nc>& gauge_field,
       const Int& site_index) const = 0;
