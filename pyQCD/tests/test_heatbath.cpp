@@ -5,38 +5,109 @@
 
 #include "helpers.hpp"
 
+
+template <typename Real, int Nc>
+class TestAction : public pyQCD::GaugeAction<Real, Nc>
+{
+public:
+  TestAction(const Real beta) : pyQCD::GaugeAction<Real, Nc>(beta) { }
+
+  pyQCD::ColourMatrix<Real, Nc> compute_staples(
+    const pyQCD::LatticeColourMatrix<Real, Nc>& gauge_field,
+    const pyQCD::Int& site_index) const
+  {
+    return pyQCD::ColourMatrix<Real, Nc>::Identity();
+  };
+
+  Real local_action(
+    const pyQCD::LatticeColourMatrix<Real, Nc>& gauge_field,
+    const pyQCD::Int& site_index) const
+  { return 0.0; }
+};
+
+
+typedef double Real;
+
+
 TEST_CASE("Heatbath test")
 {
-  typedef double Real;
+  SECTION ("Test heatbath SU(2) generation") {
 
-  Compare<Real> comp(1.0e-5, 1.0e-8);
-  MatrixCompare<pyQCD::SU2Matrix<Real>> mat_comp(1.0e-5, 1.0e-8);
+    Compare<Real> comp(1.0e-5, 1.0e-8);
+    MatrixCompare<pyQCD::SU2Matrix<Real>> mat_comp(1.0e-5, 1.0e-8);
 
-  const unsigned int n = 10000;
-  std::vector<Real> x0s(n);
-  for (unsigned int i = 0; i < n; ++i) {
-    auto heatbath_su2 = pyQCD::gen_heatbath_su2(1.0, 5.0);
+    const unsigned int n = 10000;
+    std::vector<Real> x0s(n);
+    for (unsigned int i = 0; i < n; ++i) {
+      auto heatbath_su2 = pyQCD::gen_heatbath_su2(5.0);
 
-    REQUIRE(mat_comp(heatbath_su2 * heatbath_su2.adjoint(),
-      pyQCD::SU2Matrix<Real>::Identity()));
-    auto det = heatbath_su2.determinant();
+      REQUIRE(mat_comp(heatbath_su2 * heatbath_su2.adjoint(),
+        pyQCD::SU2Matrix<Real>::Identity()));
+      auto det = heatbath_su2.determinant();
+      REQUIRE(comp(det.real(), 1.0));
+      REQUIRE(comp(det.imag(), 0.0));
+
+      x0s[i] = heatbath_su2.trace().real() / 2.0;
+    }
+    // Compute the mean and the standard deviation of x0 (coefficient on
+    // sigma0).
+    Real mean = std::accumulate(x0s.begin(), x0s.end(), 0.0) / n;
+
+    std::vector<Real> square_devs(n);
+    std::transform(x0s.begin(), x0s.end(), square_devs.begin(),
+      [mean](const Real val) { return (val - mean) * (val - mean); });
+    Real sum_square_devs
+      = std::accumulate(square_devs.begin(), square_devs.end(), 0.0);
+    Real stddev = std::sqrt(sum_square_devs / n);
+
+    Compare<Real> comp_weak(0.005, 0.005);
+    REQUIRE(comp_weak(mean, 0.7193405813643129));
+    REQUIRE(comp_weak(stddev, 0.2257095017580442));
+  }
+
+  SECTION ("Testing SU(2) heatbath update") {
+
+    constexpr int Nc = 3;
+
+    typedef pyQCD::ColourMatrix<Real, Nc> ColourMatrix;
+
+    Compare<Real> comp(1.0e-5, 1.0e-8);
+    MatrixCompare<ColourMatrix> mat_comp(1.0e-5, 1.0e-8);
+
+    for (unsigned int subgroup = 0; subgroup < Nc; ++subgroup) {
+      ColourMatrix link = ColourMatrix::Identity();
+      ColourMatrix staple = ColourMatrix::Identity();
+
+      pyQCD::su2_heatbath_update(link, staple, 5.0, subgroup);
+
+      REQUIRE(comp(link(2 - subgroup, 2 - subgroup).real(), 1.0));
+      REQUIRE(comp(link(2 - subgroup, 2 - subgroup).imag(), 0.0));
+
+      REQUIRE(comp(link.determinant().real(), 1.0));
+      REQUIRE(comp(link.determinant().imag(), 0.0));
+      REQUIRE(mat_comp(link * link.adjoint(), ColourMatrix::Identity()));
+    }
+  }
+
+  SECTION ("Testing SU(N) heatbath update") {
+
+    typedef pyQCD::ColourMatrix<Real, 3> ColourMatrix;
+
+    auto layout = pyQCD::LexicoLayout({8, 4, 4, 4, 4});
+    auto gauge_field
+      = pyQCD::LatticeColourMatrix<Real, 3>(layout, ColourMatrix::Identity());
+
+    auto action = TestAction<Real, 3>(5.0);
+
+    pyQCD::heatbath_update(gauge_field, action, 0);
+
+    auto link = gauge_field(0);
+
+    Compare<Real> comp(1.0e-5, 1.0e-8);
+    MatrixCompare<ColourMatrix> mat_comp(1.0e-5, 1.0e-8);
+    auto det = link.determinant();
     REQUIRE(comp(det.real(), 1.0));
     REQUIRE(comp(det.imag(), 0.0));
-
-    x0s[i] = heatbath_su2.trace().real() / 2.0;
+    REQUIRE(mat_comp(link.adjoint() * link, ColourMatrix::Identity()));
   }
-  // Compute the mean and the standard deviation of x0 (coefficient on sigma0).
-  Real mean = std::accumulate(x0s.begin(), x0s.end(), 0.0) / n;
-
-  std::vector<Real> square_devs(n);
-  std::transform(x0s.begin(), x0s.end(), square_devs.begin(),
-                 [mean] (const Real val)
-                 { return (val - mean) * (val - mean); });
-  Real sum_square_devs
-    = std::accumulate(square_devs.begin(), square_devs.end(), 0.0);
-  Real stddev = std::sqrt(sum_square_devs / n);
-
-  Compare<Real> comp_weak(0.005, 0.005);
-  REQUIRE(comp_weak(mean, 0.7193405813643129));
-  REQUIRE(comp_weak(stddev, 0.2257095017580442));
 }
