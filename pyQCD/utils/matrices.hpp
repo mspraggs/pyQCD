@@ -75,7 +75,9 @@ namespace pyQCD {
   SU2Matrix<Real> extract_su2(const ColourMatrix<Real, Nc> colour_matrix,
                               const unsigned int subgroup)
   {
-    SU2Matrix<Real> ret;
+    typedef SU2Matrix<Real> Mat;
+    Mat ret;
+
     unsigned int i, j;
     compute_su2_subgroup_pos<Nc>(subgroup, i, j);
 
@@ -84,7 +86,7 @@ namespace pyQCD {
     ret(1, 0) = colour_matrix(j, i);
     ret(1, 1) = colour_matrix(j, j);
 
-    return ret;
+    return ret - ret.adjoint() + Mat::Identity() * std::conj(ret.trace());
   }
 
   template <int Nc, typename Real>
