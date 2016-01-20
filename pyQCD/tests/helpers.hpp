@@ -19,9 +19,9 @@ struct Compare
 
   bool operator()(const T rhs, const T lhs) const
   {
-    return std::abs(rhs - lhs) < (percent_tolerance_ * std::abs(rhs)
+    return std::abs(rhs - lhs) <= (percent_tolerance_ * std::abs(rhs)
       + absolute_tolerance_)
-      and std::abs(rhs - lhs) < (percent_tolerance_ * std::abs(lhs)
+      and std::abs(rhs - lhs) <= (percent_tolerance_ * std::abs(lhs)
       + absolute_tolerance_);
   }
 
@@ -46,9 +46,9 @@ struct MatrixCompare
   bool operator()(const MatrixType& rhs, const MatrixType& lhs) const
   {
     return ((rhs.array() - lhs.array()).abs()
-      < percent_tolerance_ * rhs.array().abs() + absolute_tolerance_).all()
+      <= percent_tolerance_ * rhs.array().abs() + absolute_tolerance_).all()
       and ((rhs.array() - lhs.array()).abs()
-      < percent_tolerance_ * lhs.array().abs() + absolute_tolerance_).all();
+      <= percent_tolerance_ * lhs.array().abs() + absolute_tolerance_).all();
   }
 
   typename MatrixType::RealScalar percent_tolerance_;
