@@ -71,7 +71,9 @@ namespace pyQCD {
     // Perform an SU(2) heatbath update on the given lattice link
     ColourMatrix<Real, Nc> W = link * staple;
     auto A = extract_su2(W, subgroup);
-    Real a = std::sqrt(A.determinant()).real();
+    auto detA = A.determinant();
+    A /= std::sqrt(detA);
+    Real a = detA.real();
     bool det_is_zero = a < 6.0 * std::numeric_limits<Real>::epsilon();
     auto X = det_is_zero ? random_su2<Real>() : gen_heatbath_su2(a * weight);
     auto N = insert_su2<Nc>((X * A.adjoint()).eval(), subgroup);
