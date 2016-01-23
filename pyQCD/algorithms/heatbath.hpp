@@ -9,6 +9,7 @@
 #include <core/types.hpp>
 #include <gauge/gauge_action.hpp>
 #include <utils/matrices.hpp>
+#include <utils/random.hpp>
 
 
 namespace pyQCD {
@@ -23,12 +24,6 @@ namespace pyQCD {
     // (See also page 87 of Gattringer and Lang for the source material for
     // this algorithm.)
 
-    // Random number generator setup
-    // TODO: Implement a proper random number generator
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_real_distribution<> dis(0.0, 1.0);
-
     // Coefficients for the SU(2) basis of Pauli matrices. This final vector
     // will need to be normalised.
     Real coeffs[4];
@@ -36,15 +31,15 @@ namespace pyQCD {
     // must be distributed according to
     //   sqrt(1 - x^2) * exp(weight * beta * x)
     Real lambda_squared = 2.0;
-    Real uniform_squared = std::pow(dis(gen), 2);
+    Real uniform_squared = std::pow(rng().generate_real<Real>(0.0, 1.0), 2);
     while (uniform_squared > 1 - lambda_squared) {
-      Real r0 = 1.0 - dis(gen);
-      Real r1 = 1.0 - dis(gen);
-      Real r2 = 1.0 - dis(gen);
+      Real r0 = 1.0 - rng().generate_real<Real>(0.0, 1.0);
+      Real r1 = 1.0 - rng().generate_real<Real>(0.0, 1.0);
+      Real r2 = 1.0 - rng().generate_real<Real>(0.0, 1.0);
       lambda_squared
         = - 1.0 / (2.0 * weight)
           * (std::log(r0) + std::pow(std::cos(2 * pi * r1), 2) * std::log(r2));
-      uniform_squared = std::pow(dis(gen), 2);
+      uniform_squared = std::pow(rng().generate_real<Real>(0.0, 1.0), 2);
     }
     coeffs[0] = 1 - 2 * lambda_squared;
     // With the first component determined, the magnitude of the remaining
@@ -52,9 +47,9 @@ namespace pyQCD {
     Real three_vec_magnitude = std::sqrt(1 - coeffs[0] * coeffs[0]);
     // The remaining three-vector should then be take from a uniform spherical
     // distribution.
-    Real cos_theta = 2.0 * dis(gen) - 1.0;
+    Real cos_theta = rng().generate_real<Real>(-1.0, 1.0);
     Real sin_theta = std::sqrt(1 - cos_theta * cos_theta);
-    Real phi = 2 * pi * dis(gen);
+    Real phi = rng().generate_real<Real>(0, 2 * pi);
 
     coeffs[1] = three_vec_magnitude * sin_theta * std::cos(phi);
     coeffs[2] = three_vec_magnitude * sin_theta * std::sin(phi);

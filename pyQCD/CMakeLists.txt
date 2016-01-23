@@ -23,7 +23,8 @@ set (benchmark_SRC
   ${BENCH_DIR}/bench_lattice.cpp)
 
 set (utils_SRC
-  ${SRC_DIR}/utils/math.cpp)
+  ${SRC_DIR}/utils/math.cpp
+  ${SRC_DIR}/utils/random.cpp)
 
 find_package (Eigen3 3.0.5 REQUIRED)
 
