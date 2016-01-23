@@ -4,6 +4,7 @@
 /* This file contains the random number generator used by the rest of the code.
  */
 
+#include <chrono>
 #include <random>
 #include <vector>
 

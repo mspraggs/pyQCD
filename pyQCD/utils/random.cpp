@@ -25,9 +25,10 @@ namespace pyQCD {
   Random::Random(const size_t num_threads) : num_threads_(num_threads)
   {
     // Initialise one generator for each thread
+    long seed = std::chrono::system_clock::now().time_since_epoch().count();
     engines_.resize(num_threads_);
     for (size_t i = 0; i < num_threads_; ++i) {
-      engines_[i] = std::ranlux48(i);
+      engines_[i] = std::ranlux48(seed + i);
     }
   }
 
