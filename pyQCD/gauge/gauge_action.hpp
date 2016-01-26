@@ -7,8 +7,8 @@
 #include <core/types.hpp>
 
 
-namespace pyQCD {
-
+namespace pyQCD
+{
   namespace Gauge
   {
     template <typename Real, int Nc>
