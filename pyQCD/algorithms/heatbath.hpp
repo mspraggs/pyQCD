@@ -77,7 +77,7 @@ namespace pyQCD {
 
   template <typename Real, int Nc>
   void heatbath_update(LatticeColourMatrix<Real, Nc>& gauge_field,
-                       const GaugeAction<Real, Nc>& action,
+                       const Gauge::Action<Real, Nc>& action,
                        const Int link_index)
   {
     // Perform SU(N) heatbath update on the specified lattice link

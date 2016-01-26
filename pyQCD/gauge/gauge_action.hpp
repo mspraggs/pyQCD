@@ -9,26 +9,31 @@
 
 namespace pyQCD {
 
-  template <typename Real, int Nc>
-  class GaugeAction
+  namespace Gauge
   {
-  public:
-    GaugeAction(const Real beta) : beta_(beta) { }
-  
-    virtual ColourMatrix<Real, Nc> compute_staples(
-      const LatticeColourMatrix<Real, Nc>& gauge_field,
-      const Int& site_index) const = 0;
+    template <typename Real, int Nc>
+    class Action
+    {
+    public:
+      typedef ColourMatrix <Real, Nc> GaugeLink;
+      typedef LatticeColourMatrix <Real, Nc> GaugeField;
 
-    virtual Real local_action(
-      const LatticeColourMatrix<Real, Nc>& gauge_field,
-      const Int& site_index) const = 0;
+      Action(const Real beta, const Layout& layout) : beta_(beta)
+      { }
 
-    Real beta() const { return beta_; }
+      virtual GaugeLink compute_staples(const GaugeField& gauge_field,
+                                        const Int& site_index) const = 0;
 
-  private:
-    Real beta_; // The inverse coupling
-  };
+      virtual Real local_action(const GaugeField& gauge_field,
+                                const Int& site_index) const = 0;
 
+      Real beta() const
+      { return beta_; }
+
+    private:
+      Real beta_; // The inverse coupling
+    };
+  }
 }
 
 #endif // GAUGE_ACTION_HPP

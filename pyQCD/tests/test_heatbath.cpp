@@ -7,21 +7,24 @@
 
 
 template <typename Real, int Nc>
-class TestAction : public pyQCD::GaugeAction<Real, Nc>
+class TestAction : public pyQCD::Gauge::Action<Real, Nc>
 {
 public:
-  TestAction(const Real beta) : pyQCD::GaugeAction<Real, Nc>(beta) { }
+  typedef typename pyQCD::Gauge::Action<Real, Nc>::GaugeLink GaugeLink;
+  typedef typename pyQCD::Gauge::Action<Real, Nc>::GaugeField GaugeField;
 
-  pyQCD::ColourMatrix<Real, Nc> compute_staples(
-    const pyQCD::LatticeColourMatrix<Real, Nc>& gauge_field,
-    const pyQCD::Int& site_index) const
+  TestAction(const Real beta)
+    : pyQCD::Gauge::Action<Real, Nc>(beta, pyQCD::LexicoLayout({8, 4, 4, 4, 4}))
+  { }
+
+  GaugeLink compute_staples(const GaugeField& gauge_field,
+                            const pyQCD::Int& site_index) const
   {
-    return pyQCD::ColourMatrix<Real, Nc>::Identity();
+    return GaugeLink::Identity();
   };
 
-  Real local_action(
-    const pyQCD::LatticeColourMatrix<Real, Nc>& gauge_field,
-    const pyQCD::Int& site_index) const
+  Real local_action(const GaugeField& gauge_field,
+                    const pyQCD::Int& site_index) const
   { return 0.0; }
 };
 
