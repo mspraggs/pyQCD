@@ -30,7 +30,6 @@ namespace pyQCD
   class Layout
   {
   public:
-    typedef unsigned int Int;
     typedef std::function<Int(const Int)> ArrFunc;
     typedef std::function<bool(const Int)> SubsetFunc;
 
@@ -93,7 +92,7 @@ namespace pyQCD
 
   template <typename T,
     typename std::enable_if<not std::is_integral<T>::value>::type*>
-  inline Layout::Int Layout::get_array_index(const T& site) const
+  inline Int Layout::get_array_index(const T& site) const
   {
     // Compute the lexicographic index of the specified site and use it to
     // to get the array index (coordinate at site[0] varies slowest, that at

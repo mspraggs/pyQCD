@@ -11,7 +11,7 @@ TEST_CASE("LexicoLayout test") {
 
   Layout layout({8, 4, 4, 4});
   auto subset = layout.subset<Layout>(
-    [] (const Layout::Int i)
+    [] (const pyQCD::Int i)
     {
       return (i % 2) ? false : true;
     });
@@ -20,11 +20,11 @@ TEST_CASE("LexicoLayout test") {
     REQUIRE (layout.get_array_index(i) == i);
     REQUIRE (layout.get_site_index(i) == i);
   }
-  REQUIRE (layout.get_array_index(std::vector<Layout::Int>{4, 3, 2, 1})
+  REQUIRE (layout.get_array_index(pyQCD::Site{4, 3, 2, 1})
              == 313);
   REQUIRE (layout.volume() == 512);
   REQUIRE (layout.num_dims() == 4);
-  REQUIRE ((layout.shape() == std::vector<unsigned int>{8, 4, 4, 4}));
+  REQUIRE ((layout.shape() == pyQCD::Site{8, 4, 4, 4}));
 
   for (int i = 0; i < 256; ++i) {
     REQUIRE (subset.get_site_index(i) == 2 * i);

@@ -123,7 +123,7 @@ namespace pyQCD
     // integers denote a specific coordinate to slice on the given axis, whilst
     // a negative value specifies that all the sites along the given axis should
     // be incorporated into the slice.
-    auto test_func = [&] (const Layout::Int index)
+    auto test_func = [&] (const Int index)
     {
       auto index_copy = index;
       const unsigned int size = num_dims();
@@ -149,7 +149,7 @@ namespace pyQCD
     // sites.
     constexpr unsigned int remainder = (P == Partition::EVEN) ? 0 : 1;
 
-    auto test_func = [&] (const Layout::Int index)
+    auto test_func = [&] (const Int index)
     {
       auto index_copy = index;
       const unsigned int size = num_dims();
