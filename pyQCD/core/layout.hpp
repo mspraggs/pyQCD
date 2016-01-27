@@ -21,6 +21,8 @@
 #include <type_traits>
 #include <vector>
 
+#include <utils/math.hpp>
+
 
 namespace pyQCD
 {
@@ -60,6 +62,7 @@ namespace pyQCD
     { return array_indices_[site_index]; }
     inline Int get_site_index(const Int array_index) const
     { return site_indices_[array_index]; }
+    inline Site compute_site_coords(const Int site_index) const;
 
     template <typename T = Layout>
     T subset(const SubsetFunc& func) const;
@@ -103,6 +106,18 @@ namespace pyQCD
       site_index += site[i];
     }
     return array_indices_[site_index];
+  }
+
+  inline Site Layout::compute_site_coords(const Int site_index) const
+  {
+    // Compute the coordinates of the site specified by the given index
+    auto site_index_copy = site_index;
+    Site ret(num_dims_);
+    for (int i = num_dims_ - 1; i > -1; --i) {
+      ret[i] = mod(site_index_copy, shape_[i]);
+      site_index_copy /= shape_[i];
+    }
+    return ret;
   }
 
   template <typename T>
