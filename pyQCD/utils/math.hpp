@@ -3,7 +3,7 @@
 
 /* This file provides basic mathematics functions */
 
-#include <core/types.hpp>
+#include <complex>
 
 
 namespace pyQCD
