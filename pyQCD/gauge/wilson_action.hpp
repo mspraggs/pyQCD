@@ -51,9 +51,8 @@ namespace pyQCD
         links_[site_index].resize(6 * (num_dims - 1));
 
         for (unsigned i = 0; i < num_dims - 1; ++i) {
-          std::vector<int> link_coords_copy(link_coords.size(), 0);
-          std::copy(link_coords_copy.begin(), link_coords_copy.end(),
-            link_coords.begin());
+          std::vector<int> link_coords_copy(
+            link_coords.begin(), link_coords.end());
 
           /* First compute the loop above the link. Essentially we're interested
            * in:
