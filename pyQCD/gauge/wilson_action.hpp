@@ -32,6 +32,77 @@ namespace pyQCD
     WilsonAction<Real, Nc>::WilsonAction(const Real beta, const Layout& layout)
       : Action<Real, Nc>(beta, layout)
     {
+      // Determine which link indices belong to which link staples
+      links_.resize(layout.volume());
+      for (unsigned site_index = 0; site_index < layout.volume(); ++site_index)
+      {
+        Site link_coords = layout.compute_site_coords(site_index);
+        auto num_dims = layout.num_dims() - 1;
+
+        // Determine which plane the link does not contribute to.
+        Site planes(num_dims - 1);
+        int j = 0;
+        for (unsigned i = 0; i < num_dims; ++i) {
+          if (link_coords[num_dims] != i) {
+            planes[j++] = i;
+          }
+        }
+
+        links_[site_index].resize(6 * (num_dims - 1));
+
+        for (unsigned i = 0; i < num_dims - 1; ++i) {
+          std::vector<int> link_coords_copy(link_coords.size(), 0);
+          std::copy(link_coords_copy.begin(), link_coords_copy.end(),
+            link_coords.begin());
+
+          /* First compute the loop above the link. Essentially we're interested
+           * in:
+           *
+           * U_\nu (x + \mu) U^\dagger_\mu (x + \nu) U^\dagger_\nu (x)
+           */
+          // First link in U_\nu (x + \mu)
+          link_coords_copy[num_dims] = planes[i];
+          link_coords_copy[link_coords[num_dims]]++;
+          layout.sanitize_site_coords(link_coords_copy);
+          links_[site_index][6 * i] = layout.get_array_index(link_coords_copy);
+          // Next link is U^\dagger_\mu (x + \nu)
+          link_coords_copy[num_dims] = link_coords[num_dims];
+          link_coords_copy[link_coords[num_dims]]--;
+          link_coords_copy[planes[i]]++;
+          layout.sanitize_site_coords(link_coords_copy);
+          links_[site_index][6 * i + 1]
+            = layout.get_array_index(link_coords_copy);
+          // Next link is U^\dagger_\nu (x)
+          link_coords_copy[planes[i]]--;
+          link_coords_copy[num_dims] = planes[i];
+          layout.sanitize_site_coords(link_coords_copy);
+          links_[site_index][6 * i + 2]
+            = layout.get_array_index(link_coords_copy);
+
+          /* Now we want to compute the link below the link. Essentially:
+           *
+           * U^\dagger _\nu (x + \mu - \nu) U^\dagger_\mu (x - \nu)
+           *   U^\dagger_\nu (x - \nu)
+           */
+          // First link is U^\dagger_\nu (x + \mu - \nu)
+          link_coords_copy[link_coords[num_dims]]++;
+          link_coords_copy[planes[i]]--;
+          layout.sanitize_site_coords(link_coords_copy);
+          links_[site_index][6 * i + 3]
+            = layout.get_array_index(link_coords_copy);
+          // Next link is U^\dagger_\mu (x - \nu)
+          link_coords_copy[num_dims] = link_coords_copy[num_dims];
+          link_coords_copy[link_coords[num_dims]]--;
+          layout.sanitize_site_coords(link_coords_copy);
+          links_[site_index][6 * i + 4]
+            = layout.get_array_index(link_coords_copy);
+          // Next link is U_\nu (x - \nu)
+          link_coords_copy[num_dims] = planes[i];
+          layout.sanitize_site_coords(link_coords_copy);
+          links_[site_index][6 * i + 5]
+            = layout.get_array_index(link_coords_copy);
+        }
+      }
     }
 
     template <typename Real, int Nc>
@@ -43,67 +114,18 @@ namespace pyQCD
       auto ret = Action<Real, Nc>::GaugeLink::Zero().eval();
       auto temp_colour_mat = ret;
 
-      auto& layout = gauge_field.layout();
-      Site link_coords = layout.compute_site_coords(site_index);
       auto num_dims = gauge_field.layout().num_dims() - 1;
 
-      // Determine which plane the link does not contribute to.
-      Site planes(num_dims - 1);
-      int j = 0;
-      for (unsigned i = 0; i < num_dims; ++i) {
-        if (link_coords[num_dims] != i) {
-          planes[j++] = i;
-        }
-      }
-
       for (unsigned i = 0; i < num_dims - 1; ++i) {
-        std::vector<int> link_coords_copy(link_coords.size(), 0);
-        std::copy(link_coords_copy.begin(), link_coords_copy.end(),
-          link_coords.begin());
-
-        /* First compute the loop above the link. Essentially we're interested
-         * in:
-         *
-         * U_\nu (x + \mu) U^\dagger_\mu (x + \nu) U^\dagger_\nu (x)
-         */
-        // First link in U_\nu (x + \mu)
-        link_coords_copy[num_dims] = planes[i];
-        link_coords_copy[link_coords[num_dims]]++;
-        layout.sanitize_site_coords(link_coords_copy);
-        temp_colour_mat = gauge_field(link_coords_copy);
-        // Next link is U^\dagger_\mu (x + \nu)
-        link_coords_copy[num_dims] = link_coords[num_dims];
-        link_coords_copy[link_coords[num_dims]]--;
-        link_coords_copy[planes[i]]++;
-        layout.sanitize_site_coords(link_coords_copy);
-        temp_colour_mat *= gauge_field(link_coords_copy).adjoint();
-        // Next link is U^\dagger_\nu (x)
-        link_coords_copy[planes[i]]--;
-        link_coords_copy[num_dims] = planes[i];
-        layout.sanitize_site_coords(link_coords_copy);
-        temp_colour_mat *= gauge_field(link_coords_copy).adjoint();
+        temp_colour_mat = gauge_field[links_[site_index][6 * i]];
+        temp_colour_mat *= gauge_field[links_[site_index][6 * i + 1]].adjoint();
+        temp_colour_mat *= gauge_field[links_[site_index][6 * i + 2]].adjoint();
 
         ret += temp_colour_mat;
 
-        /* Now we want to compute the link below the link. Essentially:
-         *
-         * U^\dagger _\nu (x + \mu - \nu) U^\dagger_\mu (x - \nu)
-         *   U^\dagger_\nu (x - \nu)
-         */
-        // First link is U^\dagger_\nu (x + \mu - \nu)
-        link_coords_copy[link_coords[num_dims]]++;
-        link_coords_copy[planes[i]]--;
-        layout.sanitize_site_coords(link_coords_copy);
-        temp_colour_mat = gauge_field(link_coords_copy).adjoint();
-        // Next link is U^\dagger_\mu (x - \nu)
-        link_coords_copy[num_dims] = link_coords_copy[num_dims];
-        link_coords_copy[link_coords[num_dims]]--;
-        layout.sanitize_site_coords(link_coords_copy);
-        temp_colour_mat *= gauge_field(link_coords_copy).adjoint();
-        // Next link is U_\nu (x - \nu)
-        link_coords_copy[num_dims] = planes[i];
-        layout.sanitize_site_coords(link_coords_copy);
-        temp_colour_mat *= gauge_field(link_coords_copy);
+        temp_colour_mat = gauge_field[links_[site_index][6 * i + 3]].adjoint();
+        temp_colour_mat *= gauge_field[links_[site_index][6 * i + 4]].adjoint();
+        temp_colour_mat *= gauge_field[links_[site_index][6 * i + 5]];
 
         ret += temp_colour_mat;
       }
