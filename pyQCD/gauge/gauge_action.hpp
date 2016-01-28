@@ -15,8 +15,8 @@ namespace pyQCD
     class Action
     {
     public:
-      typedef ColourMatrix <Real, Nc> GaugeLink;
-      typedef LatticeColourMatrix <Real, Nc> GaugeField;
+      typedef ColourMatrix<Real, Nc> GaugeLink;
+      typedef LatticeColourMatrix<Real, Nc> GaugeField;
 
       Action(const Real beta, const Layout& layout) : beta_(beta)
       { }
