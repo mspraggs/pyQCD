@@ -22,10 +22,10 @@ namespace pyQCD
       { }
 
       virtual GaugeLink compute_staples(const GaugeField& gauge_field,
-                                        const Int& site_index) const = 0;
+                                        const Int site_index) const = 0;
 
       virtual Real local_action(const GaugeField& gauge_field,
-                                const Int& site_index) const = 0;
+                                const Int site_index) const = 0;
 
       Real beta() const
       { return beta_; }
