@@ -18,7 +18,8 @@ set (test_SRC
   ${TEST_DIR}/test_heatbath.cpp
   ${TEST_DIR}/test_lattice.cpp
   ${TEST_DIR}/test_layout.cpp
-  ${TEST_DIR}/test_random.cpp)
+  ${TEST_DIR}/test_random.cpp
+  ${TEST_DIR}/test_wilson_action.cpp)
 
 set (benchmark_SRC
   ${BENCH_DIR}/bench_lattice.cpp)
