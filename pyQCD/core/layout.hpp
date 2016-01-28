@@ -63,6 +63,8 @@ namespace pyQCD
     inline Int get_site_index(const Int array_index) const
     { return site_indices_[array_index]; }
     inline Site compute_site_coords(const Int site_index) const;
+    template <typename T>
+    inline void sanitize_site_coords(T& coords) const;
 
     template <typename T = Layout>
     T subset(const SubsetFunc& func) const;
@@ -118,6 +120,15 @@ namespace pyQCD
       site_index_copy /= shape_[i];
     }
     return ret;
+  }
+
+  template <typename T>
+  inline void Layout::sanitize_site_coords(T& coords) const
+  {
+    // Apply periodic boundary conditions to coords
+    for (unsigned i = 0; i < num_dims_; ++i) {
+      coords[i] = mod(coords[i], shape_[i]);
+    }
   }
 
   template <typename T>
