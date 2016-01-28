@@ -27,7 +27,7 @@ namespace pyQCD
       virtual Real local_action(const GaugeField& gauge_field,
                                 const Int site_index) const = 0;
 
-      Real beta() const
+      inline Real beta() const
       { return beta_; }
 
     private:
