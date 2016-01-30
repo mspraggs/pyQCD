@@ -115,16 +115,16 @@ namespace pyQCD
 
       auto num_dims = gauge_field.layout().num_dims() - 1;
 
-      for (unsigned i = 0; i < num_dims - 1; ++i) {
-        temp_colour_mat = gauge_field[links_[site_index][6 * i]];
-        temp_colour_mat *= gauge_field[links_[site_index][6 * i + 1]].adjoint();
-        temp_colour_mat *= gauge_field[links_[site_index][6 * i + 2]].adjoint();
+      for (unsigned i = 0; i < 6 * (num_dims - 1); i += 6) {
+        temp_colour_mat = gauge_field[links_[site_index][i]];
+        temp_colour_mat *= gauge_field[links_[site_index][i + 1]].adjoint();
+        temp_colour_mat *= gauge_field[links_[site_index][i + 2]].adjoint();
 
         ret += temp_colour_mat;
 
-        temp_colour_mat = gauge_field[links_[site_index][6 * i + 3]].adjoint();
-        temp_colour_mat *= gauge_field[links_[site_index][6 * i + 4]].adjoint();
-        temp_colour_mat *= gauge_field[links_[site_index][6 * i + 5]];
+        temp_colour_mat = gauge_field[links_[site_index][i + 3]].adjoint();
+        temp_colour_mat *= gauge_field[links_[site_index][i + 4]].adjoint();
+        temp_colour_mat *= gauge_field[links_[site_index][i + 5]];
 
         ret += temp_colour_mat;
       }
