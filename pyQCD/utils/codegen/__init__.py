@@ -297,6 +297,8 @@ def generate_cython_types(output_path, precision, typedefs, operator_map):
     write_core_template("core.pyx", "core.pyx", output_path,
                         typedefs=typedefs, precision=precision,
                         operator_map=operator_map)
+    write_core_template("core.pxd", "core.pxd", output_path,
+                        typedefs=typedefs, operator_map=operator_map)
 
 
 def generate_qcd(num_colours, precision, representation, dest=None):

@@ -4,19 +4,11 @@ from libcpp.vector cimport vector
 import numpy as np
 
 cimport complex
-cimport layout
-from operators cimport *
-{% for typedef in typedefs %}
-cimport {{ typedef.cmodule }}
-{% endfor %}
+from core cimport {% for td in typedefs %}{{ td.name }}{% if not loop.last %}, {% endif %}{% endfor %}
 
 
 {% for typedef in typedefs %}
 cdef class {{ typedef.name }}:
-    cdef {{typedef.cmodule }}.{{ typedef.cname }}{% if typedef.wrap_ptr %}*{% endif %} instance
-    {% for type, name, init in typedef.cmembers %}
-    cdef {{ type }} {{ name }}
-    {% endfor %}
 
     def __cinit__(self, {{ typedef.ctor_argstring }}):
     {% for type, name, init in typedef.cmembers %}
@@ -90,15 +82,6 @@ cdef class {{ typedef.name }}:
             {% endfor %}
         raise TypeError("Unsupported operand types for {{ typedef.name }}.__{{ funcname }}__: "
                         "{} and {}".format(type(self), type(other)))
-
-        {% endfor %}
-        {% for ret, lhs, rhs in operations[op] %}
-    cdef inline {{ ret.name }} _{{ operator_map[op][0] }}_{{ lhs.name }}_{{ rhs.name }}({{ lhs.name }} self, {{ rhs.name }} other):
-            {% set lattice_name = rhs.get_lattice_name(lhs, "self", "other") %}
-            {% set constructor_args = "{}.lexico_layout.shape()".format(lattice_name) if lattice_name else "" %}
-        cdef {{ ret.name }} out = {{ ret.name }}({{ constructor_args }})
-        out.instance[0] = {{ lhs.accessor("self", False) }} {{ op }} {{ rhs.accessor("other", False) }}
-        return out
 
         {% endfor %}
     {% endfor %}

@@ -4,19 +4,9 @@ from libcpp.vector cimport vector
 import numpy as np
 
 cimport complex
-cimport layout
-from operators cimport *
-cimport colour_matrix
-cimport lattice_colour_matrix
-cimport colour_vector
-cimport lattice_colour_vector
-
+from core cimport ColourMatrix, LatticeColourMatrix, ColourVector, LatticeColourVector
 
 cdef class ColourMatrix:
-    cdef colour_matrix.ColourMatrix* instance
-    cdef int view_count
-    cdef Py_ssize_t buffer_shape[2]
-    cdef Py_ssize_t buffer_strides[2]
 
     def __cinit__(self, ):
         self.view_count = 0
@@ -67,11 +57,6 @@ cdef class ColourMatrix:
         raise TypeError("Unsupported operand types for ColourMatrix.__add__: "
                         "{} and {}".format(type(self), type(other)))
 
-    cdef inline ColourMatrix _add_ColourMatrix_ColourMatrix(ColourMatrix self, ColourMatrix other):
-        cdef ColourMatrix out = ColourMatrix()
-        out.instance[0] = self.instance[0] + other.instance[0]
-        return out
-
     def __mul__(self, other):
         if type(self) is ColourMatrix and type(other) is ColourMatrix:
             return (<ColourMatrix>self)._mul_ColourMatrix_ColourMatrix(<ColourMatrix>other)
@@ -84,36 +69,11 @@ cdef class ColourMatrix:
         raise TypeError("Unsupported operand types for ColourMatrix.__mul__: "
                         "{} and {}".format(type(self), type(other)))
 
-    cdef inline ColourMatrix _mul_ColourMatrix_ColourMatrix(ColourMatrix self, ColourMatrix other):
-        cdef ColourMatrix out = ColourMatrix()
-        out.instance[0] = self.instance[0] * other.instance[0]
-        return out
-
-    cdef inline LatticeColourMatrix _mul_ColourMatrix_LatticeColourMatrix(ColourMatrix self, LatticeColourMatrix other):
-        cdef LatticeColourMatrix out = LatticeColourMatrix(self.lexico_layout.shape())
-        out.instance[0] = self.instance[0] * other.instance[0]
-        return out
-
-    cdef inline ColourVector _mul_ColourMatrix_ColourVector(ColourMatrix self, ColourVector other):
-        cdef ColourVector out = ColourVector()
-        out.instance[0] = self.instance[0] * other.instance[0]
-        return out
-
-    cdef inline LatticeColourVector _mul_ColourMatrix_LatticeColourVector(ColourMatrix self, LatticeColourVector other):
-        cdef LatticeColourVector out = LatticeColourVector(self.lexico_layout.shape())
-        out.instance[0] = self.instance[0] * other.instance[0]
-        return out
-
     def __sub__(self, other):
         if type(self) is ColourMatrix and type(other) is ColourMatrix:
             return (<ColourMatrix>self)._sub_ColourMatrix_ColourMatrix(<ColourMatrix>other)
         raise TypeError("Unsupported operand types for ColourMatrix.__sub__: "
                         "{} and {}".format(type(self), type(other)))
-
-    cdef inline ColourMatrix _sub_ColourMatrix_ColourMatrix(ColourMatrix self, ColourMatrix other):
-        cdef ColourMatrix out = ColourMatrix()
-        out.instance[0] = self.instance[0] - other.instance[0]
-        return out
 
     def __div__(self, other):
         raise TypeError("Unsupported operand types for ColourMatrix.__div__: "
@@ -124,11 +84,6 @@ cdef class ColourMatrix:
                         "{} and {}".format(type(self), type(other)))
 
 cdef class LatticeColourMatrix:
-    cdef lattice_colour_matrix.LatticeColourMatrix* instance
-    cdef layout.Layout* lexico_layout
-    cdef int view_count
-    cdef Py_ssize_t buffer_shape[3]
-    cdef Py_ssize_t buffer_strides[3]
 
     def __cinit__(self, shape):
         self.lexico_layout = new layout.LexicoLayout(shape)
@@ -184,11 +139,6 @@ cdef class LatticeColourMatrix:
         raise TypeError("Unsupported operand types for LatticeColourMatrix.__add__: "
                         "{} and {}".format(type(self), type(other)))
 
-    cdef inline LatticeColourMatrix _add_LatticeColourMatrix_LatticeColourMatrix(LatticeColourMatrix self, LatticeColourMatrix other):
-        cdef LatticeColourMatrix out = LatticeColourMatrix(self.lexico_layout.shape())
-        out.instance[0] = self.instance[0] + other.instance[0]
-        return out
-
     def __mul__(self, other):
         if type(self) is LatticeColourMatrix and type(other) is ColourMatrix:
             return (<LatticeColourMatrix>self)._mul_LatticeColourMatrix_ColourMatrix(<ColourMatrix>other)
@@ -201,36 +151,11 @@ cdef class LatticeColourMatrix:
         raise TypeError("Unsupported operand types for LatticeColourMatrix.__mul__: "
                         "{} and {}".format(type(self), type(other)))
 
-    cdef inline LatticeColourMatrix _mul_LatticeColourMatrix_ColourMatrix(LatticeColourMatrix self, ColourMatrix other):
-        cdef LatticeColourMatrix out = LatticeColourMatrix(other.lexico_layout.shape())
-        out.instance[0] = self.instance[0] * other.instance[0]
-        return out
-
-    cdef inline LatticeColourMatrix _mul_LatticeColourMatrix_LatticeColourMatrix(LatticeColourMatrix self, LatticeColourMatrix other):
-        cdef LatticeColourMatrix out = LatticeColourMatrix(self.lexico_layout.shape())
-        out.instance[0] = self.instance[0] * other.instance[0]
-        return out
-
-    cdef inline LatticeColourVector _mul_LatticeColourMatrix_ColourVector(LatticeColourMatrix self, ColourVector other):
-        cdef LatticeColourVector out = LatticeColourVector(other.lexico_layout.shape())
-        out.instance[0] = self.instance[0] * other.instance[0]
-        return out
-
-    cdef inline LatticeColourVector _mul_LatticeColourMatrix_LatticeColourVector(LatticeColourMatrix self, LatticeColourVector other):
-        cdef LatticeColourVector out = LatticeColourVector(self.lexico_layout.shape())
-        out.instance[0] = self.instance[0] * other.instance[0]
-        return out
-
     def __sub__(self, other):
         if type(self) is LatticeColourMatrix and type(other) is LatticeColourMatrix:
             return (<LatticeColourMatrix>self)._sub_LatticeColourMatrix_LatticeColourMatrix(<LatticeColourMatrix>other)
         raise TypeError("Unsupported operand types for LatticeColourMatrix.__sub__: "
                         "{} and {}".format(type(self), type(other)))
-
-    cdef inline LatticeColourMatrix _sub_LatticeColourMatrix_LatticeColourMatrix(LatticeColourMatrix self, LatticeColourMatrix other):
-        cdef LatticeColourMatrix out = LatticeColourMatrix(self.lexico_layout.shape())
-        out.instance[0] = self.instance[0] - other.instance[0]
-        return out
 
     def __div__(self, other):
         raise TypeError("Unsupported operand types for LatticeColourMatrix.__div__: "
@@ -241,10 +166,6 @@ cdef class LatticeColourMatrix:
                         "{} and {}".format(type(self), type(other)))
 
 cdef class ColourVector:
-    cdef colour_vector.ColourVector* instance
-    cdef int view_count
-    cdef Py_ssize_t buffer_shape[1]
-    cdef Py_ssize_t buffer_strides[1]
 
     def __cinit__(self, ):
         self.view_count = 0
@@ -293,11 +214,6 @@ cdef class ColourVector:
         raise TypeError("Unsupported operand types for ColourVector.__add__: "
                         "{} and {}".format(type(self), type(other)))
 
-    cdef inline ColourVector _add_ColourVector_ColourVector(ColourVector self, ColourVector other):
-        cdef ColourVector out = ColourVector()
-        out.instance[0] = self.instance[0] + other.instance[0]
-        return out
-
     def __mul__(self, other):
         raise TypeError("Unsupported operand types for ColourVector.__mul__: "
                         "{} and {}".format(type(self), type(other)))
@@ -308,11 +224,6 @@ cdef class ColourVector:
         raise TypeError("Unsupported operand types for ColourVector.__sub__: "
                         "{} and {}".format(type(self), type(other)))
 
-    cdef inline ColourVector _sub_ColourVector_ColourVector(ColourVector self, ColourVector other):
-        cdef ColourVector out = ColourVector()
-        out.instance[0] = self.instance[0] - other.instance[0]
-        return out
-
     def __div__(self, other):
         raise TypeError("Unsupported operand types for ColourVector.__div__: "
                         "{} and {}".format(type(self), type(other)))
@@ -322,11 +233,6 @@ cdef class ColourVector:
                         "{} and {}".format(type(self), type(other)))
 
 cdef class LatticeColourVector:
-    cdef lattice_colour_vector.LatticeColourVector* instance
-    cdef layout.Layout* lexico_layout
-    cdef int view_count
-    cdef Py_ssize_t buffer_shape[2]
-    cdef Py_ssize_t buffer_strides[2]
 
     def __cinit__(self, shape):
         self.lexico_layout = new layout.LexicoLayout(shape)
@@ -380,11 +286,6 @@ cdef class LatticeColourVector:
         raise TypeError("Unsupported operand types for LatticeColourVector.__add__: "
                         "{} and {}".format(type(self), type(other)))
 
-    cdef inline LatticeColourVector _add_LatticeColourVector_LatticeColourVector(LatticeColourVector self, LatticeColourVector other):
-        cdef LatticeColourVector out = LatticeColourVector(self.lexico_layout.shape())
-        out.instance[0] = self.instance[0] + other.instance[0]
-        return out
-
     def __mul__(self, other):
         raise TypeError("Unsupported operand types for LatticeColourVector.__mul__: "
                         "{} and {}".format(type(self), type(other)))
@@ -394,11 +295,6 @@ cdef class LatticeColourVector:
             return (<LatticeColourVector>self)._sub_LatticeColourVector_LatticeColourVector(<LatticeColourVector>other)
         raise TypeError("Unsupported operand types for LatticeColourVector.__sub__: "
                         "{} and {}".format(type(self), type(other)))
-
-    cdef inline LatticeColourVector _sub_LatticeColourVector_LatticeColourVector(LatticeColourVector self, LatticeColourVector other):
-        cdef LatticeColourVector out = LatticeColourVector(self.lexico_layout.shape())
-        out.instance[0] = self.instance[0] - other.instance[0]
-        return out
 
     def __div__(self, other):
         raise TypeError("Unsupported operand types for LatticeColourVector.__div__: "
