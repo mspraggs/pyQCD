@@ -16,7 +16,7 @@ void profile_for_type(const T& elem, const std::string& type,
 
   unsigned int n = 100;
   pyQCD::LexicoLayout layout(std::vector<unsigned int>{n});
-  pyQCD::Lattice<T, Alloc> lattice1(layout, elem);
+  pyQCD::Lattice<T> lattice1(layout, elem);
   decltype(lattice1) lattice2(layout, elem);
   decltype(lattice1) lattice3(layout, elem);
   decltype(lattice1) result(layout, elem);
@@ -45,12 +45,11 @@ void profile_view_generation()
   std::cout << "Profiling partition view generation" << std::endl;
   std::cout << "===================================" << std::endl;
 
-  pyQCD::LexicoLayout layout({8, 4, 4, 4, 4});
+  pyQCD::LexicoLayout layout({8, 4, 4, 4});
   pyQCD::Lattice<double> lattice(layout, 0.0);
 
   benchmark([&] () {
-    auto view
-      = lattice.partition<pyQCD::Partition::EVEN, pyQCD::LexicoLayout>();
+    auto view = lattice.site_view(0);
   }, 0, 10000);
 
   std::cout << std::endl;

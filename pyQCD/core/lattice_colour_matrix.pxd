@@ -7,10 +7,8 @@ from layout cimport Layout
 cdef extern from "types.hpp" namespace "python":
     cdef cppclass LatticeColourMatrix:
         LatticeColourMatrix() except +
-        LatticeColourMatrix(const Layout&, const ColourMatrix) except +
+        LatticeColourMatrix(const Layout&, const ColourMatrix, unsigned int site_size) except +
         ColourMatrix& operator[](const unsigned int)
-        ColourMatrix& operator()(const unsigned int)
-        ColourMatrix& operator()(const vector[unsigned int]&)
         unsigned int volume()
         unsigned int num_dims()
         const vector[unsigned int]& lattice_shape()

@@ -21,19 +21,19 @@ class TypeDef(object):
         """Add a statically typed member variable to this type definition"""
         self.cmembers.append((typename, varname, init))
 
-    def add_ctor_arg(self, varname, typename=None):
+    def add_ctor_arg(self, varname, typename=None, default=None):
         """Add an argument to the type's constructor"""
-        self.ctor_args.append((typename, varname))
+        self.ctor_args.append((typename, varname, default))
 
     @property
     def ctor_argstring(self):
         """Create the argument string for this type's constructor"""
         arglist = []
-        for typename, varname in self.ctor_args:
-            if typename:
-                arglist.append("{} {}".format(typename, varname))
-            else:
-                arglist.append(varname)
+        for typename, varname, default in self.ctor_args:
+            arg_substring = "{} ".format(typename) if typename else ""
+            arg_substring += varname
+            arg_substring += "={}".format(default) if default else ""
+            arglist.append(arg_substring)
         return ", ".join(arglist)
 
     @property
@@ -54,12 +54,13 @@ class ContainerDef(TypeDef):
     """Encapsulates container definition and facilitates cython node generation.
     """
 
-    def __init__(self, name, cname, cmodule, size_expr, buffer_ndims,
-                 element_type, init_template):
+    def __init__(self, name, cname, cmodule, size_expr, shape_expr,
+                 buffer_ndims, element_type, init_template):
         """Constructor for ContainerDef object. See help(ContainerDef)"""
         super(ContainerDef, self).__init__(name, cname, cmodule, True)
         self.element_type = element_type
         self.size_expr = size_expr
+        self._shape_expr = shape_expr
         self.structure = [self.__class__.__name__.replace("Def", "")]
         self.init_template = init_template
         if isinstance(element_type, ContainerDef):
@@ -119,6 +120,16 @@ class ContainerDef(TypeDef):
         except AttributeError:
             pass
         return out
+
+    @property
+    def shape_expr(self):
+        """Return expression that corresponds to the shape of the container.
+        Used in the reshaping of numpy buffer."""
+        try:
+            return "{} + {}".format(self._shape_expr,
+                                    self.element_type.shape_expr)
+        except AttributeError:
+            return self._shape_expr
 
     @property
     def init_code(self):
@@ -237,8 +248,8 @@ class MatrixDef(ContainerDef):
         """Constructor for MatrixDef object. See help(MatrixDef)"""
         size = reduce(lambda x, y: x * y, shape)
         super(MatrixDef, self).__init__(
-            name, cname, cmodule, str(size), len(shape), element_type,
-            "{}.{}({}.zeros())".format(cmodule, cname, cmodule))
+            name, cname, cmodule, str(size), str(shape), len(shape),
+            element_type, "{}.{}({}.zeros())".format(cmodule, cname, cmodule))
         self.shape = shape
         self.is_matrix = len(self.shape) == 2
         self.is_square = self.is_matrix and self.shape[0] == self.shape[1]
@@ -260,16 +271,19 @@ class LatticeDef(ContainerDef):
 
     def __init__(self, name, cname, cmodule, element_type):
         """Constructor for LatticeDef object. See help(LatticeDef)"""
+        shape_expr = "tuple(self.lexico_layout.shape()) + (self.site_size,)"
         super(LatticeDef, self).__init__(
-            name, cname, cmodule, "volume()", 1, element_type,
-            "{}.{}(self.lexico_layout[0], {{}})"
+            name, cname, cmodule, "volume() * self.site_size", shape_expr, 1,
+            element_type, "{}.{}(self.lexico_layout[0], {{}}, site_size)"
             .format(cmodule, cname))
 
         shape = element_type.matrix_shape
         self.add_ctor_arg("shape")
+        self.add_ctor_arg("site_size", "int", "1")
         self.add_cmember("layout.Layout*", "lexico_layout",
                          "new layout.LexicoLayout(shape)")
         self.add_cmember("int", "view_count", "0")
+        self.add_cmember("int", "site_size", "site_size")
         self.add_cmember("Py_ssize_t",
                          "buffer_shape[{}]".format(len(shape) + 1))
         self.add_cmember("Py_ssize_t",

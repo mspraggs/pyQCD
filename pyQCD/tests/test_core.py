@@ -13,8 +13,8 @@ def multiply_einsum(a, b):
 @pytest.mark.parametrize(
     "Type,multiply,args",
     [(ColourMatrix, np.dot, ()), (ColourVector, None, ()),
-     (LatticeColourMatrix, multiply_einsum, ([8, 4, 4, 4],)),
-     (LatticeColourVector, None, ([8, 4, 4, 4],))])
+     (LatticeColourMatrix, multiply_einsum, ([8, 4, 4, 4], 4)),
+     (LatticeColourVector, None, ([8, 4, 4, 4], 4))])
 class TestMatrixType(object):
 
     def test_constructor(self, Type, multiply, args):
@@ -37,6 +37,23 @@ class TestMatrixType(object):
         np_mat1[index] = 5.0
         assert np_mat1[index] == 5.0 + 0j
         assert np_mat2[index] == 5.0 + 0j
+
+    def test_as_numpy(self, Type, multiply, args):
+        """Test as_numpy attribute"""
+        mat = Type(*args)
+        np_mat1 = mat.as_numpy
+
+        shape = np_mat1.shape
+        for index in np.ndindex(shape):
+            assert np_mat1[index] == 0j
+
+        if (isinstance(mat, LatticeColourVector) or
+            isinstance(mat, LatticeColourMatrix)):
+            index = (4, 3, 2, 1, 0)
+            np_mat1[index] = np.ones(shape[5:])
+            np_mat2 = np.asarray(mat)
+            np_mat2.dtype = complex
+            assert (np_mat2[1252] == np.ones(shape[5:])).all()
 
     def test_mul(self, Type, multiply, args):
         """Test multiplications"""

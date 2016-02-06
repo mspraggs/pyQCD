@@ -31,10 +31,10 @@ TEST_CASE("Lattice test") {
   pyQCD::LexicoLayout layout({8, 4, 4, 4});
   TestLayout another_layout({8, 4, 4, 4});
 
-  Lattice lattice1(layout, 1.0);
-  Lattice lattice2(layout, 2.0);
+  Lattice lattice1(layout, 1.0, 4);
+  Lattice lattice2(layout, 2.0, 4);
   Lattice bad_lattice(another_layout);
-  for (unsigned int i = 0; i < bad_lattice.volume(); ++i) {
+  for (unsigned int i = 0; i < bad_lattice.size(); ++i) {
     bad_lattice[i] = i;
   }
 
@@ -49,7 +49,7 @@ TEST_CASE("Lattice test") {
 
   SECTION ("Testing scalar assign") {
     lattice1 = 4.0;
-    for (unsigned int i = 0; i < lattice1.volume(); ++i) {
+    for (unsigned int i = 0; i < lattice1.size(); ++i) {
       REQUIRE (lattice1[i] == 4.0);
     }
   }
@@ -62,7 +62,7 @@ TEST_CASE("Lattice test") {
     };
     for (unsigned int i = 0; i < 4; ++i) {
       Lattice array3 = lattice_operators[i](lattice1, lattice2);
-      for (unsigned int j = 0; j < lattice1.volume(); ++j) {
+      for (unsigned int j = 0; j < lattice1.size(); ++j) {
         REQUIRE (array3[j] == scalar_operators[i](1.0, 2.0));
       }
     }
@@ -75,9 +75,9 @@ TEST_CASE("Lattice test") {
       Multiplies::apply<Lattice, double>, Divides::apply<Lattice, double>
     };
     for (unsigned int i = 0; i < 4; ++i) {
-      Lattice array3 = lattice_operators[i](lattice1, 2.0);
-      for (unsigned int j = 0; j < lattice1.volume(); ++j) {
-        REQUIRE (array3[j] == scalar_operators[i](1.0, 2.0));
+      Lattice lattice3 = lattice_operators[i](lattice1, 2.0);
+      for (unsigned int j = 0; j < lattice1.size(); ++j) {
+        REQUIRE (lattice3[j] == scalar_operators[i](1.0, 2.0));
       }
     }
   }
@@ -93,7 +93,7 @@ TEST_CASE("Lattice test") {
     for (unsigned int i = 0; i < 4; ++i) {
       auto lattice3 = lattice1;
       lattice_operators[i](lattice3, lattice2);
-      for (unsigned int j = 0; j < lattice1.volume(); ++j) {
+      for (unsigned int j = 0; j < lattice1.size(); ++j) {
         REQUIRE(lattice3[j] == scalar_operators[i](1.0, 2.0));
       }
     }
@@ -110,7 +110,7 @@ TEST_CASE("Lattice test") {
     for (unsigned int i = 0; i < 4; ++i) {
       auto lattice3 = lattice1;
       lattice_operators[i](lattice3, lattice2);
-      for (unsigned int j = 0; j < lattice1.volume(); ++j) {
+      for (unsigned int j = 0; j < lattice1.size(); ++j) {
         REQUIRE(lattice3[j] == scalar_operators[i](1.0, 2.0));
       }
     }
@@ -119,15 +119,15 @@ TEST_CASE("Lattice test") {
   SECTION("Test accessors") {
     lattice1[0] = 500.0;
     REQUIRE(lattice1(0) == 500.0);
-    REQUIRE(lattice1(std::vector<unsigned int>{0, 0, 0, 0}) == 500.0);
-    lattice1(std::vector<unsigned int>{4, 2, 3, 1}) = 123.0;
+    REQUIRE(lattice1(pyQCD::Site{0, 0, 0, 0}) == 500.0);
+    lattice1(pyQCD::Site{4, 2, 3, 1}) = 123.0;
     REQUIRE(lattice1(301) == 123.0);
-    REQUIRE(lattice1[301] == 123.0);
+    REQUIRE(lattice1[1204] == 123.0);
   }
 
   SECTION("Test properties") {
     REQUIRE(&lattice1.layout() == &layout);
-    REQUIRE(lattice1.volume() == 512);
+    REQUIRE(lattice1.size() == 2048);
     REQUIRE(lattice1.num_dims() == 4);
   }
 
@@ -135,45 +135,19 @@ TEST_CASE("Lattice test") {
     MatrixCompare<Eigen::Matrix3cd> comparison(1e-5, 1e-8);
     decltype(lattice_matrix) result
       = lattice_matrix * (3.0 * Eigen::Matrix3cd::Identity());
-    REQUIRE(result.volume() == lattice_matrix.volume());
+    REQUIRE(result.size() == lattice_matrix.size());
     for (auto& site_matrix : result) {
       comparison(site_matrix, Eigen::Matrix3cd::Identity() * 12.0);
     }
   }
 
   SECTION("Test lattice views") {
-    for (unsigned int i = 0; i < lattice1.volume(); ++i) {
-      lattice1(i) = static_cast<double>(i);
-    }
-    auto view = lattice1.slice<pyQCD::LexicoLayout>({0, 0, 0, -1});
-    REQUIRE (view.size() == 4);
-    for (unsigned int i = 0; i < view.size(); ++i) {
-      REQUIRE(view(i) == i);
-    }
-
-    auto evens
-      = lattice1.partition<pyQCD::Partition::EVEN, pyQCD::LexicoLayout>();
-    REQUIRE (evens.size() == 256);
-    // Test the start of the view
-    for (unsigned int i = 0; i < 4; ++i) {
-      double offset = static_cast<double>(i % 2);
-      for (unsigned int j = 0; j < 2; ++j) {
-        auto index = 2 * i + j;
-        auto value = static_cast<double>(2 * index) + offset;
-        REQUIRE (evens[index] == value);
-      }
-    }
-    // Test the end of the view
-    for (unsigned int i = 124; i < 128; ++i) {
-      double offset = static_cast<double>(i % 2);
-      for (unsigned int j = 0; j < 2; ++j) {
-        auto index = 2 * i + j;
-        auto value = static_cast<double>(2 * index) + offset;
-        REQUIRE (evens[index] == value);
-      }
-    }
-    REQUIRE (evens[254] == 509.0);
-    REQUIRE (evens[255] == 511.0);
+    auto site_view1 = lattice1.site_view(pyQCD::Site{0, 0, 0, 0});
+    auto site_view2 = lattice1.site_view(pyQCD::Site{0, 0, 0, 1});
+    site_view1[0] = 5.0;
+    REQUIRE(lattice1[0] == 5.0);
+    site_view1 = site_view2;// + site_view2;
+    REQUIRE(lattice1[0] == 1.0);
   }
 }
 

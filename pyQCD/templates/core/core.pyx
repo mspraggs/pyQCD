@@ -65,11 +65,12 @@ cdef class {{ typedef.name }}:
         def __get__(self):
             out = np.asarray(self)
             out.dtype = complex
-            return out
+            return out.reshape({{ typedef.shape_expr }})
 
         def __set__(self, value):
             out = np.asarray(self)
             out.dtype = complex
+            out = out.reshape({{ typedef.shape_expr }})
             out[:] = value
 
     {% set operations = typedef.generate_arithmetic_operations(typedefs) %}
