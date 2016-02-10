@@ -1,7 +1,26 @@
 #ifndef PYQCD_LAYOUT_HPP
 #define PYQCD_LAYOUT_HPP
 
-/* This file provides a base Layout classes and derived classes that specify
+/*
+ * This file is part of pyQCD.
+ *
+ * pyQCD is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * pyQCD is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
+ *
+ * Created by Matt Spraggs on 10/02/16.
+ *
+ *
+ * This file provides a base Layout classes and derived classes that specify
  * the layout of lattice sites in memory. These classes are then used in Lattice
  * objects to refer to the correct lattice site within the data_ member
  * variable.
@@ -80,9 +99,12 @@ namespace pyQCD
     Int num_dims_, volume_;
     Site shape_;
     // array_indices_[site_index] -> array_index
-    Site array_indices_;
+    std::vector<Int> array_indices_;
     // site_indices_[array_index] -> site_index
-    Site site_indices_;
+    std::vector<Int> site_indices_;
+
+    // These define
+    std::vector<std::vector<Int>> halo_indices_;
   };
 
 
