@@ -1,5 +1,5 @@
-#ifndef TEST_MATRIX_COMPARE_HPP
-#define TEST_MATRIX_COMPARE_HPP
+#ifndef PYQCD_MATRIX_COMPARE_HPP
+#define PYQCD_MATRIX_COMPARE_HPP
 
 #include <boost/test/unit_test.hpp>
 

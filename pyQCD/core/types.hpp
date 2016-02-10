@@ -1,5 +1,5 @@
-#ifndef TYPES_HPP
-#define TYPES_HPP
+#ifndef PYQCD_TYPES_HPP
+#define PYQCD_TYPES_HPP
 
 #include <complex>
 

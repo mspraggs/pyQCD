@@ -1,5 +1,5 @@
-#ifndef LATTICE_HPP
-#define LATTICE_HPP
+#ifndef PYQCD_LATTICE_HPP
+#define PYQCD_LATTICE_HPP
 
 /* This file declares and defines the Lattice class. This is basically an Array
  * but with a Layout member specifying the relationship between the sites and

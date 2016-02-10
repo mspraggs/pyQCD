@@ -1,5 +1,5 @@
-#ifndef LATTICE_EXPR_HPP
-#define LATTICE_EXPR_HPP
+#ifndef PYQCD_LATTICE_EXPR_HPP
+#define PYQCD_LATTICE_EXPR_HPP
 
 /* This file provides expression templates for the Lattice class, so that
  * temporaries do not need to be created when performing arithmetic operations.

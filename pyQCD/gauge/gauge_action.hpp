@@ -1,5 +1,5 @@
-#ifndef GAUGE_ACTION_HPP
-#define GAUGE_ACTION_HPP
+#ifndef PYQCD_GAUGE_ACTION_HPP
+#define PYQCD_GAUGE_ACTION_HPP
 
 /* This file contains the base implementation of the base gauge action type,
  * upon which all gauge actions are based. */
@@ -36,4 +36,4 @@ namespace pyQCD
   }
 }
 
-#endif // GAUGE_ACTION_HPP
+#endif // PYQCD_GAUGE_ACTION_HPP

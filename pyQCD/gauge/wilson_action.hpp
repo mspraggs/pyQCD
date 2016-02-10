@@ -1,5 +1,5 @@
-#ifndef WILSON_ACTION_HPP
-#define WILSON_ACTION_HPP
+#ifndef PYQCD_WILSON_ACTION_HPP
+#define PYQCD_WILSON_ACTION_HPP
 
 /* Here we implement the Wilson gauge action. */
 
@@ -145,4 +145,4 @@ namespace pyQCD
   }
 }
 
-#endif // WILSON_ACTION_HPP
+#endif // PYQCD_WILSON_ACTION_HPP

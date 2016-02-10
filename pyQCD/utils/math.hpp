@@ -1,5 +1,5 @@
-#ifndef MATH_HPP
-#define MATH_HPP
+#ifndef PYQCD_MATH_HPP
+#define PYQCD_MATH_HPP
 
 /* This file provides basic mathematics functions */
 

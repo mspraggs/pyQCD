@@ -1,5 +1,5 @@
-#ifndef LATTICE_TRAITS_HPP
-#define LATTICE_TRAITS_HPP
+#ifndef PYQCD_LATTICE_TRAITS_HPP
+#define PYQCD_LATTICE_TRAITS_HPP
 
 
 #include "lattice_expr.hpp"

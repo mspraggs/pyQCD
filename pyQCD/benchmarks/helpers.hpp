@@ -1,5 +1,5 @@
-#ifndef HELPERS_HPP
-#define HELPERS_HPP
+#ifndef PYQCD_HELPERS_HPP
+#define PYQCD_HELPERS_HPP
 
 /* Utilities to facilitate benchmarking */
 

@@ -1,5 +1,5 @@
-#ifndef TEST_RANDOM_HPP
-#define TEST_RANDOM_HPP
+#ifndef PYQCD_TEST_RANDOM_HPP
+#define PYQCD_TEST_RANDOM_HPP
 
 #include <random>
 

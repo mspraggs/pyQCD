@@ -1,5 +1,5 @@
-#ifndef RANDOM_HPP
-#define RANDOM_HPP
+#ifndef PYQCD_RANDOM_HPP
+#define PYQCD_RANDOM_HPP
 
 /* This file contains the random number generator used by the rest of the code.
  */

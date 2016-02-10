@@ -1,5 +1,5 @@
-#ifndef LAYOUT_HPP
-#define LAYOUT_HPP
+#ifndef PYQCD_LAYOUT_HPP
+#define PYQCD_LAYOUT_HPP
 
 /* This file provides a base Layout classes and derived classes that specify
  * the layout of lattice sites in memory. These classes are then used in Lattice

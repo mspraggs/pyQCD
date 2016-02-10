@@ -1,5 +1,5 @@
-#ifndef HEATBATH_HPP
-#define HEATBATH_HPP
+#ifndef PYQCD_HEATBATH_HPP
+#define PYQCD_HEATBATH_HPP
 
 /* This file contains the functions necessary to update a single gauge link
  * using the pseudo heatbath algorithm. */

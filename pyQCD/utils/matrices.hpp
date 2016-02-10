@@ -1,5 +1,5 @@
-#ifndef MATRIX_FUNCS_HPP
-#define MATRIX_FUNCS_HPP
+#ifndef PYQCD_MATRICES_HPP
+#define PYQCD_MATRICES_HPP
 
 /* This file contains utility function relating to matrices. */
 
