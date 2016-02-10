@@ -11,6 +11,8 @@
 #include <stdexcept>
 #include <vector>
 
+#include <Eigen/Dense>
+
 #include "detail/lattice_expr.hpp"
 #include "layout.hpp"
 

@@ -9,6 +9,8 @@
 #include <vector>
 
 
+// TODO: Adjust this to put an RNG on each site.
+
 namespace pyQCD {
 
   int get_thread_num();
