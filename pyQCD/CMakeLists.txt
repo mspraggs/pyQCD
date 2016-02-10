@@ -29,7 +29,6 @@ set (core_SRC
   ${SRC_DIR}/core/layout.cpp)
 
 set (utils_SRC
-  ${SRC_DIR}/utils/math.cpp
   ${SRC_DIR}/utils/random.cpp)
 
 find_package (Eigen3 3.0.5 REQUIRED)
