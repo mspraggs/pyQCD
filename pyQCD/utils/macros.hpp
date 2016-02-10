@@ -25,7 +25,7 @@
 
 #include <iostream>
 
-// Custom assert command - cython can process this.
+// Custom assert command - Cython can process this.
 #ifndef NDEBUG
 #define pyQCDassert(expr, exception)                            \
 if (not (expr)) {                                               \
