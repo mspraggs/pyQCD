@@ -1,3 +1,5 @@
+#ifndef PYQCD_MACROS_HPP
+#define PYQCD_MACROS_HPP
 /*
  * This file is part of pyQCD.
  *
@@ -20,8 +22,6 @@
  * This file provides macros to help neaten up code and encapsulate various
  * preprocessor bits and pieces.
  */
-#ifndef PYQCD_MACROS_HPP
-#define PYQCD_MACROS_HPP
 
 #include <iostream>
 
