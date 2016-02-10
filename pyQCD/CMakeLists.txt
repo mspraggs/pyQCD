@@ -25,6 +25,9 @@ set (benchmark_SRC
   ${BENCH_DIR}/bench_lattice.cpp
   ${BENCH_DIR}/bench_wilson_action.cpp)
 
+set (core_SRC
+  ${SRC_DIR}/core/layout.cpp)
+
 set (utils_SRC
   ${SRC_DIR}/utils/math.cpp
   ${SRC_DIR}/utils/random.cpp)
@@ -42,6 +45,9 @@ add_custom_target(all_clion
   SOURCES ${clion_all_headers}
 )
 
+add_library(pyQCDcore SHARED ${core_SRC})
+target_link_libraries(pyQCDcore)
+
 add_library(pyQCDutils SHARED ${utils_SRC})
 target_link_libraries(pyQCDutils)
 
@@ -49,7 +55,7 @@ foreach ( testsourcefile ${test_SRC} )
   string( REPLACE ".cpp" "" testname ${testsourcefile} )
   get_filename_component( testname ${testname} NAME )
   add_executable( ${testname} ${testsourcefile} )
-  target_link_libraries( ${testname} pyQCDutils )
+  target_link_libraries( ${testname} pyQCDutils pyQCDcore )
   add_test( NAME ${testname} COMMAND ${testname} --log_level=all)
 endforeach()
 
@@ -57,5 +63,5 @@ foreach ( benchsourcefile ${benchmark_SRC} )
   string( REPLACE ".cpp" "" benchname ${benchsourcefile} )
   get_filename_component( benchname ${benchname} NAME )
   add_executable( ${benchname} ${benchsourcefile} )
-  target_link_libraries( ${benchname} pyQCDutils )
+  target_link_libraries( ${benchname} pyQCDutils pyQCDcore )
 endforeach()
