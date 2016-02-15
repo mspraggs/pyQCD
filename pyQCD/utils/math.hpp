@@ -25,17 +25,40 @@
 
 #include <complex>
 
+#include "macros.hpp"
+
 
 namespace pyQCD
 {
   const double pi = 3.14159265358979323846264338327950288419716939937510;
   const std::complex<double> I(0.0, 1.0);
 
-  template <typename T>
-  T mod(const T i, const T n)
+  template <typename T, typename U>
+  T mod(const T i, const U n)
   {
     // Computes positive remainder of i divided by n.
     return (i % n + n) % n;
+  }
+
+  template <typename T>
+  T choose(const T n, const T r)
+  {
+    // Compute nCr using the factorial function
+    pyQCDassert((r >= 0 and r <= n),
+                std::invalid_argument("Invalid arguments to choose function."));
+    T k = r;
+    if (k * 2 > n) {
+      k = n - k;
+    }
+    if (k == 0 or k == n) {
+      return static_cast<T>(1);
+    }
+    T ret = n;
+    for (T i = static_cast<T>(2); i < k; ++i) {
+      ret *= (n - i + 1);
+      ret /= i;
+    }
+    return ret;
   }
 }
 
