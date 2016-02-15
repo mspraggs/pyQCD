@@ -36,4 +36,7 @@ if (not (expr)) {                                               \
 #define pyQCDassert(expr, exception)
 #endif
 
+#define PYQCD_TRACE \
+std::cout << "TRACE: " << __FILE__ << ":" << __LINE__ << std::endl;
+
 #endif
