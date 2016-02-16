@@ -82,19 +82,19 @@ namespace pyQCD
           // First link in U_\nu (x + \mu)
           link_coords_copy[num_dims] = planes[i];
           link_coords_copy[link_coords[num_dims]]++;
-          layout.sanitize_site_coords(link_coords_copy);
+          layout.sanitise_site_coords(link_coords_copy);
           links_[site_index][6 * i] = layout.get_array_index(link_coords_copy);
           // Next link is U^\dagger_\mu (x + \nu)
           link_coords_copy[num_dims] = link_coords[num_dims];
           link_coords_copy[link_coords[num_dims]]--;
           link_coords_copy[planes[i]]++;
-          layout.sanitize_site_coords(link_coords_copy);
+          layout.sanitise_site_coords(link_coords_copy);
           links_[site_index][6 * i + 1]
             = layout.get_array_index(link_coords_copy);
           // Next link is U^\dagger_\nu (x)
           link_coords_copy[planes[i]]--;
           link_coords_copy[num_dims] = planes[i];
-          layout.sanitize_site_coords(link_coords_copy);
+          layout.sanitise_site_coords(link_coords_copy);
           links_[site_index][6 * i + 2]
             = layout.get_array_index(link_coords_copy);
 
@@ -106,18 +106,18 @@ namespace pyQCD
           // First link is U^\dagger_\nu (x + \mu - \nu)
           link_coords_copy[link_coords[num_dims]]++;
           link_coords_copy[planes[i]]--;
-          layout.sanitize_site_coords(link_coords_copy);
+          layout.sanitise_site_coords(link_coords_copy);
           links_[site_index][6 * i + 3]
             = layout.get_array_index(link_coords_copy);
           // Next link is U^\dagger_\mu (x - \nu)
           link_coords_copy[num_dims] = link_coords_copy[num_dims];
           link_coords_copy[link_coords[num_dims]]--;
-          layout.sanitize_site_coords(link_coords_copy);
+          layout.sanitise_site_coords(link_coords_copy);
           links_[site_index][6 * i + 4]
             = layout.get_array_index(link_coords_copy);
           // Next link is U_\nu (x - \nu)
           link_coords_copy[num_dims] = planes[i];
-          layout.sanitize_site_coords(link_coords_copy);
+          layout.sanitise_site_coords(link_coords_copy);
           links_[site_index][6 * i + 5]
             = layout.get_array_index(link_coords_copy);
         }
