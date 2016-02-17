@@ -142,8 +142,7 @@ namespace pyQCD
     }
 
     std::vector<Eigen::VectorXi> generate_mpi_offsets(
-      const Int max_mpi_hop, const Int ndims,
-      const std::vector<bool>& need_comms);
+      const Int max_mpi_hop, const std::vector<bool>& need_comms);
   }
 }
 

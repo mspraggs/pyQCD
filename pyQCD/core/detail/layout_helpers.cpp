@@ -52,7 +52,7 @@ namespace pyQCD
     }
 
     template<>
-    std::vector <Site> get_all_sites(SiteIterator& iter)
+    std::vector<Site> get_all_sites(SiteIterator& iter)
     {
       // Generate a std::vector containing all the sites in the iterator
       std::vector <Site> ret(iter.volume(), Site(iter.num_dims()));
@@ -64,7 +64,7 @@ namespace pyQCD
     }
 
     template<>
-    std::vector <Eigen::VectorXi> get_all_sites(SiteIterator& iter)
+    std::vector<IVec> get_all_sites(SiteIterator& iter)
     {
       // Generate a vector of Eigen vectors from the sites in the iterator
       typedef Eigen::VectorXi IVec;
@@ -92,39 +92,48 @@ namespace pyQCD
       return ret;
     }
 
-    std::vector<Eigen::VectorXi> generate_mpi_offsets(
-      const Int max_mpi_hop, const Int ndims,
-      const std::vector<bool>& need_comms)
+    std::vector<IVec> generate_mpi_offsets(
+      const Int max_mpi_hop, const std::vector<bool>& need_comms)
     {
       // Generate all possible Cartesian coordinate offsets for the specified
       // number of dimensions and maximum number of mpi_hops.
+
+      // First work out how many offsets we actually expect to get. To do this
+      // we interpret the number of dimensions that communication needs to
+      // occur in (as dictated by need_comms) as the effective dimension of
+      // a hypercube, and compute the total number of n-cubes at the boundaries
+      // of thise object, where 0 < n <= max_mpi_hop
       Int num_offsets = 0;
+      Int ndims = static_cast<Int>(need_comms.size());
+      Int effective_ndims = static_cast<Int>(std::count(need_comms.begin(),
+                                                        need_comms.end(),
+                                                        true));
       for (Int hop = 1; hop < max_mpi_hop + 1; ++hop) {
         // Here we use the formula
         //   2^(n - m) * (n choose m),
         // for the number of m-cubes on the boundaries of the n-cube layout.
-        num_offsets += choose(ndims, ndims - hop) * std::pow(2, ndims - hop);
+        num_offsets
+          += choose(effective_ndims, effective_ndims - hop) * std::pow(2, hop);
       }
       PYQCD_TRACE
 
       Site shape(ndims, 3);
+      IVec offset(ndims);
       for (Int i = 0; i < ndims; ++i) {
         shape[i] = (need_comms[i]) ? 3 : 1;
+        offset[i] = (need_comms[i]) ? -1 : 0;
       }
       PYQCD_TRACE
       SiteIterator site_iter(shape);
       std::vector<IVec> ret(num_offsets, IVec::Zero(ndims));
       Int i = 0;
       for (auto& site : site_iter) {
-        Int hops = std::accumulate(site.begin(), site.end(), 0u,
-                                   [] (const Int total, const Int n)
-                                   { return total + std::abs(n); });
+        IVec eig_site = UVec::Map(site.data(), ndims).cast<int>() + offset;
+        Int hops = static_cast<Int>(eig_site.squaredNorm());
         if (hops > max_mpi_hop or hops == 0) {
           continue;
         }
-        IVec eig_site
-          = UVec::Map(site.data(), ndims).cast<int>() - IVec::Ones(ndims);
-        ret[i++] = eig_site - Eigen::VectorXi::Ones(ndims);
+        ret[i++] = eig_site;
       }
       PYQCD_TRACE
 

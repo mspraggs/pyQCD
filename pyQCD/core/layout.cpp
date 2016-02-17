@@ -102,8 +102,7 @@ namespace pyQCD
       = (local_shape.array() * mpi_coord.array()).matrix();
     PYQCD_TRACE
 
-    auto mpi_offsets = detail::generate_mpi_offsets(max_mpi_hop, num_dims_,
-                                                    need_comms);
+    auto mpi_offsets = detail::generate_mpi_offsets(max_mpi_hop, need_comms);
     PYQCD_TRACE
 
     buffer_ranks_.resize(mpi_offsets.size());
