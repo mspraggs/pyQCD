@@ -115,7 +115,6 @@ namespace pyQCD
         num_offsets
           += choose(effective_ndims, effective_ndims - hop) * std::pow(2, hop);
       }
-      PYQCD_TRACE
 
       Site shape(ndims, 3);
       IVec offset(ndims);
@@ -123,7 +122,7 @@ namespace pyQCD
         shape[i] = (need_comms[i]) ? 3 : 1;
         offset[i] = (need_comms[i]) ? -1 : 0;
       }
-      PYQCD_TRACE
+
       SiteIterator site_iter(shape);
       std::vector<IVec> ret(num_offsets, IVec::Zero(ndims));
       Int i = 0;
@@ -135,7 +134,6 @@ namespace pyQCD
         }
         ret[i++] = eig_site;
       }
-      PYQCD_TRACE
 
       return ret;
     }

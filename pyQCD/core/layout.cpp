@@ -94,10 +94,10 @@ namespace pyQCD
     MPI_Cart_coords(Communicator::instance().comm(),
                     Communicator::instance().rank(),
                     static_cast<int>(num_dims_), mpi_coord.data());
-    PYQCD_TRACE
+
     detail::IVec local_shape =
       detail::UVec::Map(local_shape_.data(), num_dims_).cast<int>();
-    PYQCD_TRACE
+
     detail::IVec local_origin
       = (local_shape.array() * mpi_coord.array()).matrix();
     PYQCD_TRACE
