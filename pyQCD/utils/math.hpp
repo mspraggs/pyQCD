@@ -47,10 +47,13 @@ namespace pyQCD
     pyQCDassert((r >= 0 and r <= n),
                 std::invalid_argument("Invalid arguments to choose function."));
     T k = r;
+    if (k > n) {
+      return static_cast<T>(0);
+    }
     if (k * 2 > n) {
       k = n - k;
     }
-    if (k == 0 or k == n) {
+    if (k == 0) {
       return static_cast<T>(1);
     }
     T ret = n;
