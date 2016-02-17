@@ -54,7 +54,7 @@ namespace pyQCD
       return static_cast<T>(1);
     }
     T ret = n;
-    for (T i = static_cast<T>(2); i < k; ++i) {
+    for (T i = static_cast<T>(2); i < k + 1; ++i) {
       ret *= (n - i + 1);
       ret /= i;
     }
