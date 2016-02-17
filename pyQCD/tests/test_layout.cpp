@@ -20,19 +20,50 @@
  * Tests for the Layout class.
  */
 
-#define CATCH_CONFIG_MAIN
+#define CATCH_CONFIG_RUNNER
 
 #include <core/layout.hpp>
 
 #include "helpers.hpp"
 
 
+TEST_CASE("MPI offset test") {
+  std::vector<bool> need_comms{true, false, true, false};
+  auto mpi_offsets = pyQCD::detail::generate_mpi_offsets(1, need_comms);
+  REQUIRE(mpi_offsets.size() == 4);
+
+  need_comms = {true, true, false};
+  mpi_offsets = pyQCD::detail::generate_mpi_offsets(2, need_comms);
+  REQUIRE(mpi_offsets.size() == 8);
+
+  need_comms = {true, true, false, true, true};
+  mpi_offsets = pyQCD::detail::generate_mpi_offsets(2, need_comms);
+  REQUIRE(mpi_offsets.size() == 32);
+}
+
 
 TEST_CASE("LexicoLayout test") {
   typedef pyQCD::LexicoLayout Layout;
 
-  Layout layout({8, 4, 4, 4});
+#if 0
+#ifdef USE_MPI
 
+  MPI_Comm comm;
+  int p[] = {2, 2, 1, 1};
+  int periodic[] = {0, 0, 0, 0};
+
+  int err = MPI_Cart_create(MPI_COMM_WORLD, 4, p, periodic, 0, &comm);
+
+  pyQCD::Site partition(p, p + 4);
+
+  pyQCD::Communicator::instance().init(comm);
+
+  Layout layout({8, 4, 4, 4}, partition);
+#else
+  Layout layout({8, 4, 4, 4});
+#endif
+#endif
+/*
   for (int i = 0; i < 512; ++i) {
     REQUIRE (layout.get_array_index(i) == i);
     REQUIRE (layout.get_site_index(i) == i);
@@ -42,4 +73,13 @@ TEST_CASE("LexicoLayout test") {
   REQUIRE (layout.volume() == 512);
   REQUIRE (layout.num_dims() == 4);
   REQUIRE ((layout.shape() == pyQCD::Site{8, 4, 4, 4}));
+*/
+}
+
+
+int main(int argc, char * argv[]) {
+  //MPI_Init(&argc, &argv);
+  int result = Catch::Session().run(argc, argv);
+  //MPI_Finalize();
+  return result;
 }
