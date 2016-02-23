@@ -64,8 +64,9 @@ namespace pyQCD
                                      "than all local shape extents"))
     }
 
-    global_volume_ = detail::compute_volume(shape.begin(), num_dims_);
-    local_volume_ = detail::compute_volume(local_shape_.begin(), num_dims_);
+    global_volume_ = detail::compute_volume(shape.begin(), shape.end(), 1);
+    local_volume_ = detail::compute_volume(local_shape_.begin(),
+                                           local_shape_.end(), 1);
 
     //---------------------- Get some basic MPI info ---------------------------
     initialise_buffers(partition, max_mpi_hop);
@@ -80,13 +81,13 @@ namespace pyQCD
                    [&halo_depth] (const Int index)
                    { return index + 2 * halo_depth; });
     Int local_volume_with_halo
-      = detail::compute_volume(local_shape_with_halo.begin(), num_dims_);
+      = detail::compute_volume(local_shape_with_halo.begin(),
+                               local_shape_with_halo.end(), 1);
     array_indices_local_.resize(local_volume_with_halo);
 
     std::vector<bool> need_comms(num_dims_, true);
-    for (Int i = 0; i < num_dims_; ++i) {
-      need_comms[i] = partition[i] > 1;
-    }
+    std::transform(partition.begin(), partition.end(), need_comms.begin(),
+                   [] (const Int d) { return d > 1; });
 
     std::array<MpiDirection, 2> directions{MpiDirection::BACK,
                                            MpiDirection::FRONT};
@@ -155,7 +156,8 @@ namespace pyQCD
         }
         PYQCD_TRACE
         Int buffer_volume
-          = detail::compute_volume(buffer_shape.data(), num_dims_);
+          = detail::compute_volume(buffer_shape.data(),
+                                   buffer_shape.data() + num_dims_, 1);
         buffer_volumes_[buffer_index] = buffer_volume;
 
         detail::SiteIterator buffer_site_iter(buffer_shape.data(),

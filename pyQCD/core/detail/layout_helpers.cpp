@@ -30,7 +30,7 @@ namespace pyQCD
       : num_dims_(static_cast<Int>(shape.size())), index_(index), shape_(shape),
         current_site_(coord)
     {
-      volume_ = compute_volume(shape.begin(), shape.size());
+      volume_ = compute_volume(shape.begin(), shape.end(), 1u);
     }
 
     SiteIterator::SiteIterator(const Site& shape)

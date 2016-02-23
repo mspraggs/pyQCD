@@ -38,18 +38,11 @@ namespace pyQCD
     typedef Eigen::VectorXi IVec;
     typedef Eigen::Matrix<Int, -1, 1> UVec;
 
-    template<typename T, typename U>
-    auto compute_volume(const T& shape, const U ndims)
-      -> typename std::remove_const<
-           typename std::remove_reference<decltype(shape[0])>::type
-         >::type
+    template<typename Iter, typename Elem>
+    Elem compute_volume(const Iter& begin, const Iter& end, const Elem init)
     {
       // Compute volume of the specified shape
-      typedef typename std::remove_const<
-        typename std::remove_reference<decltype(shape[0])>::type
-      >::type Elem;
-      return std::accumulate(shape, shape + ndims, Elem(1),
-                             std::multiplies<Elem>());
+      return std::accumulate(begin, end, init, std::multiplies<Elem>());
     }
 
     class SiteIterator
@@ -96,10 +89,10 @@ namespace pyQCD
     T get_all_sites(SiteIterator& iter);
 
     template<>
-    std::vector <Site> get_all_sites(SiteIterator& iter);
+    std::vector<Site> get_all_sites(SiteIterator& iter);
 
     template<>
-    std::vector <Eigen::VectorXi> get_all_sites(SiteIterator& iter);
+    std::vector<IVec> get_all_sites(SiteIterator& iter);
 
     template<>
     Eigen::MatrixXi get_all_sites(SiteIterator& iter);
