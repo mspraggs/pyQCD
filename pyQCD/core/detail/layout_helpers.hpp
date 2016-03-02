@@ -55,7 +55,7 @@ namespace pyQCD
 
     public:
       template<typename T>
-      SiteIterator(const T& shape, Int num_dims);
+      SiteIterator(const T& begin, const T& end);
 
       SiteIterator(const Site& shape);
 
@@ -83,8 +83,8 @@ namespace pyQCD
     };
 
     template<typename T>
-    SiteIterator::SiteIterator(const T& iter, Int size)
-      : SiteIterator(Site(iter, iter + size))
+    SiteIterator::SiteIterator(const T& begin, const T& end)
+      : SiteIterator(Site(begin, end))
     { }
 
 
