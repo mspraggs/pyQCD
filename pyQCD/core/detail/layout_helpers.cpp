@@ -25,6 +25,12 @@ namespace pyQCD
 {
   namespace detail
   {
+    auto site_to_ivec(const Site& site)
+      -> decltype(UVec::Map(site.data(), site.size()).cast<int>())
+    {
+      return UVec::Map(site.data(), site.size()).cast<int>();
+    }
+
     SiteIterator::SiteIterator(const Site& shape, const Site& coord,
                                const Int index)
       : num_dims_(static_cast<Int>(shape.size())), index_(index), shape_(shape),

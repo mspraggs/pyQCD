@@ -38,6 +38,9 @@ namespace pyQCD
     typedef Eigen::VectorXi IVec;
     typedef Eigen::Matrix<Int, -1, 1> UVec;
 
+    auto site_to_ivec(const Site& site)
+      -> decltype(UVec::Map(site.data(), site.size()).cast<int>());
+
     template<typename Iter, typename Elem>
     Elem compute_volume(const Iter& begin, const Iter& end, const Elem init)
     {
