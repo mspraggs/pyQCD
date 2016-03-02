@@ -140,8 +140,9 @@ namespace pyQCD
     // the mpi_hop parameter - 1, both previously mentioned. The inner-most
     // std::vector contains the buffer indices associated with that
     std::vector<std::vector<std::vector<Int>>> buffer_map_;
-    // These define the array indices for the halo sites. The first index is the
-    // buffer index, the second is the lexicographic index within that buffer.
+    // These define the array indices for the sites that belong in the halo of
+    // other neighbours. The first index is the buffer index, the second is the
+    // lexicographic index within that buffer.
     std::vector<std::vector<Int>> buffer_indices_;
     // This defines the buffer volumes as the number of lattice sites within the
     // buffer.
