@@ -45,7 +45,6 @@ TEST_CASE("MPI offset test") {
 TEST_CASE("LexicoLayout test") {
   typedef pyQCD::LexicoLayout Layout;
 
-#if 0
 #ifdef USE_MPI
 
   MPI_Comm comm;
@@ -62,7 +61,6 @@ TEST_CASE("LexicoLayout test") {
 #else
   Layout layout({8, 4, 4, 4});
 #endif
-#endif
 /*
   for (int i = 0; i < 512; ++i) {
     REQUIRE (layout.get_array_index(i) == i);
@@ -78,8 +76,8 @@ TEST_CASE("LexicoLayout test") {
 
 
 int main(int argc, char * argv[]) {
-  //MPI_Init(&argc, &argv);
+  MPI_Init(&argc, &argv);
   int result = Catch::Session().run(argc, argv);
-  //MPI_Finalize();
+  MPI_Finalize();
   return result;
 }
