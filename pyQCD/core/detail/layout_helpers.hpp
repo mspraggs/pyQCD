@@ -132,7 +132,7 @@ namespace pyQCD
     void sanitise_coords(T& coord, const U& shape, const Int ndims)
     {
       // Apply in-place periodic BCs to Cartesian coordinates.
-      for (int i = 0; i < static_cast<int>(ndims); --i) {
+      for (int i = 0; i < static_cast<int>(ndims); ++i) {
         coord[i] = mod(coord[i], shape[i]);
       }
     }
