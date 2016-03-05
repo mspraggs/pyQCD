@@ -53,15 +53,18 @@ namespace pyQCD
     //---------------------- Compute some basic layout info --------------------
 
     local_shape_.resize(num_dims_);
+
     for (size_t i = 0; i < num_dims_; ++i) {
       pyQCDassert((shape[i] % partition[i] == 0),
                   std::logic_error("Supplied lattice shape not divisible by "
                                    "MPI partition."))
       local_shape_[i] = shape[i] / partition[i];
-      pyQCDassert((local_shape_[i] > max_mpi_hop),
-                    std::logic_error("Supplied max_mpi_hop must be smaller "
-                                     "than all local shape extents"))
     }
+    auto num_comm_dims = std::count_if(partition.begin(), partition.end(),
+                                       [] (const Int p) { return p > 1; });
+    pyQCDassert((num_comm_dims >= max_mpi_hop),
+                std::logic_error("Supplied max_mpi_hop must be smaller "
+                                   "than all local shape extents"))
 
     global_volume_ = detail::compute_volume(shape.begin(), shape.end(), 1u);
     local_volume_ = detail::compute_volume(local_shape_.begin(),
@@ -86,28 +89,28 @@ namespace pyQCD
      *     halo) to array index;
      *   - from array index to lexicographic index;
      *   - global lexicographic index to local array index (through some
-     *     std::unordered_map or something.
+     *     std::unordered_map or something).
      * - Create a list of array indexes specifying sites that are going to end
      *   up in buffers on neighbouring nodes. Note this is probably going to be
      *   less fun than pulling teeth.
      */
-    Site local_shape_with_halo(num_dims_);
-    PYQCD_TRACE
-    std::transform(local_shape_.begin(), local_shape_.end(),
-                   local_shape_with_halo.begin(),
-                   [this] (const Int index)
-                   { return index + 2 * this->halo_depth_; });
-    PYQCD_TRACE
-    Int local_volume_with_halo
-      = detail::compute_volume(local_shape_with_halo.begin(),
-                               local_shape_with_halo.end(), 1u);
-    array_indices_local_.resize(local_volume_with_halo);
-    site_indices_.resize(local_volume_with_halo);
 
     // Determine dimensions where we need comms.
     std::vector<bool> need_comms(num_dims_, true);
     std::transform(partition.begin(), partition.end(), need_comms.begin(),
                    [] (const Int d) { return d > 1; });
+
+    Site local_shape_with_halo = local_shape_;
+    for (Int i = 0; i < num_dims_; ++i) {
+      if (need_comms[i]) {
+        local_shape_with_halo[i] += 2 * halo_depth_;
+      }
+    }
+    PYQCD_TRACE
+    local_size_ = detail::compute_volume(local_shape_with_halo.begin(),
+                                         local_shape_with_halo.end(), 1u);
+    array_indices_local_.resize(local_size_);
+    site_indices_.resize(local_size_);
     // Get the MPI coordinate of this node.
     detail::IVec mpi_coord(num_dims_);
     MPI_Cart_coords(Communicator::instance().comm(),
@@ -131,7 +134,7 @@ namespace pyQCD
 
     PYQCD_TRACE
     buffer_ranks_.resize(mpi_offsets.size());
-    buffer_indices_.resize(mpi_offsets.size());
+    buffered_site_indices_.resize(mpi_offsets.size());
     buffer_volumes_.resize(mpi_offsets.size());
 
     // Strap yourself in, things are about to get ugly...
@@ -146,6 +149,21 @@ namespace pyQCD
 
     auto& comm = Communicator::instance().comm();
     PYQCD_TRACE
+
+    detail::IVec unbuffered_region_corner = detail::IVec::Zero(num_dims_);
+    std::replace_copy_if(need_comms.begin(), need_comms.end(),
+                         unbuffered_region_corner.data(),
+                         [] (const bool val) { return val; }, halo_depth_);
+    auto unbuffered_site_iter = detail::SiteIterator(local_shape_);
+    Int array_index = 0;
+    for (auto& site : unbuffered_site_iter) {
+      detail::IVec local_site
+        = detail::site_to_ivec(site) + unbuffered_region_corner;
+      Int lex_index = detail::coords_to_lex_index(local_site,
+                                                  local_shape_with_halo,
+                                                  num_dims_);
+      array_indices_local_[lex_index] = array_index++;
+    }
 
     // Now loop through the various MPI offsets and compute the neighbour ranks
     Int buffer_index = 0;
@@ -179,21 +197,16 @@ namespace pyQCD
         }
       }
 
-      std::cout << buffer_volumes_.size() << std::endl;
       buffer_volumes_[buffer_index]
         = detail::compute_volume(buffer_shape.data(),
                                  buffer_shape.data() + num_dims_, 1u);
       PYQCD_TRACE
-      // TODO: Mappings from lexicographic index to array index and vice versa.
       // Here we get the site corresponding to the corner of the buffer. The
       // corner is defined as being that where the coordinates are at their
       // smallest (neglecting periodic BCs).
       // TODO: Combine this with previous loop over dimensions
-      detail::IVec buffer_corner(num_dims_);
-      for (Int dim = 0; dim < num_dims_; ++dim) {
-        buffer_corner[dim] = need_comms[dim] ? halo_depth_ : 0;
-      }
-      detail::IVec buffered_region_corner = buffer_corner;
+      detail::IVec buffer_corner = unbuffered_region_corner;
+      detail::IVec buffered_region_corner = unbuffered_region_corner;
       PYQCD_TRACE
       for (Int dim = 0; dim < num_dims_; ++dim) {
         if (offset[dim] < 0) {
@@ -226,14 +239,15 @@ namespace pyQCD
       buffer_site_iter
         = detail::SiteIterator(buffer_shape.data(),
                                buffer_shape.data() + num_dims_);
-      buffer_indices_[buffer_index].resize(buffer_volumes_[buffer_index]);
+      buffered_site_indices_[buffer_index].resize(
+        buffer_volumes_[buffer_index]);
       Int i = 0;
       for (auto& site : buffer_site_iter) {
         detail::IVec buffered_site
           = buffered_region_corner + detail::site_to_ivec(site);
         Int lexico_index = detail::coords_to_lex_index(buffered_site,
                                                        local_shape, num_dims_);
-        buffer_indices_[buffer_index][i++] = lexico_index;
+        buffered_site_indices_[buffer_index][i++] = lexico_index;
       }
 
       buffer_index++;
@@ -241,16 +255,9 @@ namespace pyQCD
   }
 
 #endif
-  Int Layout::local_to_global_array_index(const Int index) const
-  {
-    // Move from local to global array index
-    auto site_index = site_indices_[index];
-    auto site = compute_site_coords(site_index);
-    return 0;
-  }
 
   Int Layout::compute_axis(const Int dimension, const Layout::MpiDirection dir)
   {
-    return 2 * dimension + (dir == MpiDirection::FRONT) ? 1 : 0;
+    return 2 * dimension + ((dir == MpiDirection::FRONT) ? 1 : 0);
   }
 }
