@@ -39,6 +39,6 @@ if (not (expr)) {                                               \
 #define PYQCD_TRACE \
 std::cout << "TRACE: " << __FILE__ << ":" << __LINE__ << std::endl;
 
-#define PYQCD_DEBUGVAR(v) std::cout << "v = " << v << std::endl;
+#define PYQCD_DEBUGVAR(v) std::cout << #v" = " << v << std::endl;
 
 #endif
