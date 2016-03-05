@@ -99,6 +99,17 @@ TEST_CASE("LexicoLayout test") {
   REQUIRE (layout.get_array_index(0) == 320);
   REQUIRE (layout.get_array_index(14) == 334);
   REQUIRE (layout.get_array_index(383) == 383);
+
+  REQUIRE (layout.buffered_array_indices(0).size() == 32);
+  REQUIRE (layout.buffered_array_indices(1).size() == 64);
+  REQUIRE (layout.buffered_array_indices(4).size() == 16);
+
+  REQUIRE (layout.buffered_array_indices(0)[0] == 272);
+  REQUIRE (layout.buffered_array_indices(0)[10] == 282);
+  REQUIRE (layout.buffered_array_indices(1)[0] == 96);
+  REQUIRE (layout.buffered_array_indices(1)[10] == 106);
+  REQUIRE (layout.buffered_array_indices(4)[0] == 288);
+  REQUIRE (layout.buffered_array_indices(4)[10] == 298);
 #else
   Layout layout({8, 4, 4, 4});
 #endif

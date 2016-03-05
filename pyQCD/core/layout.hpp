@@ -103,6 +103,8 @@ namespace pyQCD
     const std::vector<Int>&
     buffer_indices(const Int axis, const Int mpi_hop) const
     { return buffer_map_[axis][mpi_hop - 1]; }
+    const std::vector<Int>& buffered_array_indices(const Int buffer_index) const
+    { return buffered_site_indices_[buffer_index]; }
 
   private:
     Int num_dims_, local_volume_, local_size_, global_volume_;
