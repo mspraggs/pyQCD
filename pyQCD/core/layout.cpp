@@ -43,9 +43,8 @@ namespace pyQCD
     }
   }
 #else
-  Layout::Layout(const Site& shape, const ArrFunc& compute_array_index,
-                 const Site& partition, const Int halo_depth,
-                 const Int max_mpi_hop)
+  Layout::Layout(const Site& shape, const Site& partition, const Int halo_depth,
+                   const Int max_mpi_hop)
     : num_dims_(static_cast<Int>(shape.size())),
       global_shape_(shape), partition_(partition), halo_depth_(halo_depth)
   {

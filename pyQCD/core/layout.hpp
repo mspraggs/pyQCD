@@ -68,8 +68,7 @@ namespace pyQCD
 #ifndef USE_MPI
     Layout(const Site& shape, const ArrFunc& compute_array_index);
 #else
-    Layout(const Site& shape, const ArrFunc& compute_array_index,
-           const Site& partition, const Int halo_depth = 1,
+    Layout(const Site& shape, const Site& partition, const Int halo_depth = 1,
            const Int max_mpi_hop = 1);
 #endif
     virtual ~Layout() = default;
@@ -175,8 +174,7 @@ namespace pyQCD
 #else
     LexicoLayout(const Site& shape, const Site& partition,
                  const Int halo_depth = 1, const Int max_mpi_hop = 1)
-      : Layout(shape, [] (const Int i) { return i; }, partition, halo_depth,
-               max_mpi_hop)
+      : Layout(shape, partition, halo_depth, max_mpi_hop)
     { }
 #endif
   };
