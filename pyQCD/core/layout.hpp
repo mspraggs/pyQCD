@@ -107,6 +107,7 @@ namespace pyQCD
     { return buffered_site_indices_[buffer_index]; }
 
   private:
+    // TODO: Something to keep track of the MPI ranks for each site
     Int num_dims_, local_volume_, local_size_, global_volume_;
     Site global_shape_, local_shape_, local_shape_with_halo_, partition_;
     // array_indices_[site_index] -> array_index
