@@ -183,7 +183,6 @@ namespace pyQCD
     array_index_start += std::accumulate(buffer_volumes_.begin(),
                                          buffer_volumes_.begin() + buffer_index,
                                          0u);
-    PYQCD_DEBUGVAR(array_index_start);
     auto num_hops = static_cast<Int>(offset.squaredNorm() + 0.5);
 
     detail::IVec local_shape = detail::site_to_ivec(local_shape_);
