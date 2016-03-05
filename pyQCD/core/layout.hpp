@@ -108,7 +108,7 @@ namespace pyQCD
 
   private:
     Int num_dims_, local_volume_, local_size_, global_volume_;
-    Site global_shape_, local_shape_, partition_;
+    Site global_shape_, local_shape_, local_shape_with_halo_, partition_;
     // array_indices_local_[site_index] -> array_index
     std::vector<Int> array_indices_local_;
     // array_indices_global_[site_index] -> array_index
@@ -165,15 +165,19 @@ namespace pyQCD
 
     // Here we specify some convenience functions for halo operations
 
-    // Return -1 if site isn't in a halo
-    template <typename T,
-      typename std::enable_if<not std::is_integral<T>::value>::type*>
-    int get_halo_index(const T& site) const;
-    int get_halo_index(const Int site_index) const;
-
     static Int compute_axis(const Int dimension, const MpiDirection dir);
 
     void initialise_buffers(const Site& partition, const Int max_mpi_hop);
+
+    detail::IVec compute_buffer_shape(const detail::IVec& offset) const;
+
+    void initialise_unbuffered_sites(
+      const detail::IVec& unbuffered_region_corner);
+
+    void handle_offset(const Eigen::VectorXi& offset,
+                       const detail::IVec& unbuffered_region_corner,
+                       const detail::IVec& buffer_shape,
+                       const Int buffer_index);
   };
 
 
