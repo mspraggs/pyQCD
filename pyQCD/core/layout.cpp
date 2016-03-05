@@ -38,7 +38,7 @@ namespace pyQCD
     site_indices_.resize(local_volume_);
     for (Int site_index = 0; site_index < local_volume_; ++site_index) {
       Int array_index = compute_array_index(site_index);
-      array_indices_local_[site_index] = array_index;
+      array_indices_[site_index] = array_index;
       site_indices_[array_index] = site_index;
     }
   }
@@ -107,7 +107,7 @@ namespace pyQCD
 
     local_size_ = detail::compute_volume(local_shape_with_halo_.begin(),
                                          local_shape_with_halo_.end(), 1u);
-    array_indices_local_.resize(local_size_);
+    array_indices_.resize(local_size_);
     site_indices_.resize(local_size_);
     // Get the MPI coordinate of this node.
     detail::IVec mpi_coord(num_dims_);
@@ -211,6 +211,8 @@ namespace pyQCD
         }
       }
 
+    // Now we want to populate array_indices_, site_indices_ and
+    // buffered_site_indices_
     auto buffer_site_iter
         = detail::SiteIterator(buffer_shape.data(),
                                buffer_shape.data() + num_dims_);
@@ -225,7 +227,7 @@ namespace pyQCD
       Int lexico_index = detail::coords_to_lex_index(buffer_site,
                                                      local_shape_with_halo_,
                                                      num_dims_);
-      array_indices_local_[lexico_index] = array_index_start + i;
+      array_indices_[lexico_index] = array_index_start + i;
       site_indices_[array_index_start + i] = lexico_index;
 
       // Similar, but now determine the mapping between the sites that are
@@ -250,7 +252,7 @@ namespace pyQCD
                                                   local_shape_with_halo_,
                                                   num_dims_);
       site_indices_[array_index] = lex_index;
-      array_indices_local_[lex_index] = array_index++;
+      array_indices_[lex_index] = array_index++;
     }
   }
 

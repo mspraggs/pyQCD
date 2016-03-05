@@ -78,7 +78,7 @@ namespace pyQCD
       typename std::enable_if<not std::is_integral<T>::value>::type* = nullptr>
     Int get_array_index(const T& site) const;
     Int get_array_index(const Int site_index) const
-    { return array_indices_local_[site_index]; }
+    { return array_indices_[site_index]; }
     inline Int get_site_index(const Int array_index) const
     { return site_indices_[array_index]; }
     inline Site compute_site_coords(const Int site_index) const;
@@ -109,8 +109,8 @@ namespace pyQCD
   private:
     Int num_dims_, local_volume_, local_size_, global_volume_;
     Site global_shape_, local_shape_, local_shape_with_halo_, partition_;
-    // array_indices_local_[site_index] -> array_index
-    std::vector<Int> array_indices_local_;
+    // array_indices_[site_index] -> array_index
+    std::vector<Int> array_indices_;
     // array_indices_global_[site_index] -> array_index
     std::vector<Int> array_indices_global_;
     // site_indices_[array_index] -> site_index
@@ -209,7 +209,7 @@ namespace pyQCD
       site_index *= global_shape_[i];
       site_index += site[i];
     }
-    return array_indices_local_[site_index];
+    return array_indices_[site_index];
   }
 
   inline Site Layout::compute_site_coords(const Int site_index) const
