@@ -43,21 +43,62 @@ TEST_CASE("MPI offset test") {
 
 
 TEST_CASE("LexicoLayout test") {
-  typedef pyQCD::LexicoLayout Layout;
+  typedef pyQCD::Layout Layout;
 
 #ifdef USE_MPI
 
   MPI_Comm comm;
   int p[] = {2, 2, 1, 1};
-  int periodic[] = {0, 0, 0, 0};
+  int periodic[] = {1, 1, 1, 1};
 
-  int err = MPI_Cart_create(MPI_COMM_WORLD, 4, p, periodic, 0, &comm);
+  MPI_Cart_create(MPI_COMM_WORLD, 4, p, periodic, 1, &comm);
 
   pyQCD::Site partition(p, p + 4);
-
   pyQCD::Communicator::instance().init(comm);
 
-  Layout layout({8, 4, 4, 4}, partition);
+  Layout layout({8, 4, 4, 4}, partition, 1, 2);
+
+  REQUIRE (layout.local_size() == 384);
+  REQUIRE (layout.local_volume() == 128);
+  REQUIRE (layout.global_volume() == 512);
+  REQUIRE ((layout.local_shape() == pyQCD::Site{4, 2, 4, 4}));
+  REQUIRE ((layout.global_shape() == pyQCD::Site{8, 4, 4, 4}));
+
+  REQUIRE (layout.buffer_volume(0) == 32);
+  REQUIRE (layout.buffer_volume(1) == 64);
+  REQUIRE (layout.buffer_volume(4) == 16);
+
+  for (pyQCD::Int axis = 0; axis < 2 * layout.num_dims(); ++axis) {
+    REQUIRE (layout.buffer_indices(axis, 1).size() == ((axis < 4) ? 1 : 0));
+    REQUIRE (layout.buffer_indices(axis, 2).size() == ((axis < 4) ? 2 : 0));
+  }
+  // Test that the buffer_map_ has been constructed correctly, starting with
+  // one hop
+  REQUIRE (layout.buffer_indices(0, 1)[0] == 0);
+  REQUIRE (layout.buffer_indices(2, 1)[0] == 1);
+  REQUIRE (layout.buffer_indices(3, 1)[0] == 2);
+  REQUIRE (layout.buffer_indices(1, 1)[0] == 3);
+  // Now two mpi hops
+  REQUIRE (layout.buffer_indices(0, 2)[0] == 4);
+  REQUIRE (layout.buffer_indices(0, 2)[1] == 5);
+  REQUIRE (layout.buffer_indices(2, 2)[0] == 4);
+  REQUIRE (layout.buffer_indices(2, 2)[1] == 6);
+  REQUIRE (layout.buffer_indices(1, 2)[0] == 6);
+  REQUIRE (layout.buffer_indices(1, 2)[1] == 7);
+  REQUIRE (layout.buffer_indices(3, 2)[0] == 5);
+  REQUIRE (layout.buffer_indices(3, 2)[1] == 7);
+
+  // Now check that the mapping between lexicographic index and array index
+  // is computed correctly
+  // These test the unbuffered site indices (i.e. those that don't exist within
+  // a halo).
+  REQUIRE (layout.get_array_index(80) == 0);
+  REQUIRE (layout.get_array_index(95) == 15);
+  REQUIRE (layout.get_array_index(239) == 95);
+  // These just test that the halo buffers are indexed correctly
+  REQUIRE (layout.get_array_index(0) == 320);
+  REQUIRE (layout.get_array_index(14) == 334);
+  REQUIRE (layout.get_array_index(383) == 383);
 #else
   Layout layout({8, 4, 4, 4});
 #endif

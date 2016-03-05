@@ -85,13 +85,24 @@ namespace pyQCD
     template <typename T>
     inline void sanitise_site_coords(T& coords) const;
 
-    Int local_to_global_array_index(const Int index) const;
-    Int global_to_local_array_index(const Int index) const;
-
+    // !!!!!!!! These are deprecated !!!!!!!!
     Int volume() const { return local_volume_; }
+    Int size() const { return local_size_; }
+    const Site& shape() const { return global_shape_; }
+
+    Int global_volume() const { return global_volume_; }
+    const Site& global_shape() const { return global_shape_; }
+
+    Int local_volume() const { return local_volume_; }
+    Int local_size() const { return local_size_; }
+    const Site& local_shape() const { return local_shape_; }
     Int num_dims() const { return num_dims_; }
-    const std::vector<Int>& shape() const
-    { return global_shape_; }
+
+    Int buffer_volume(const Int buffer_index) const
+    { return buffer_volumes_[buffer_index]; }
+    const std::vector<Int>&
+    buffer_indices(const Int axis, const Int mpi_hop) const
+    { return buffer_map_[axis][mpi_hop - 1]; }
 
   private:
     Int num_dims_, local_volume_, local_size_, global_volume_;
@@ -142,7 +153,7 @@ namespace pyQCD
     // These define the array indices for the sites that belong in the halo of
     // other neighbours. The first index is the buffer index, the second is the
     // lexicographic index within that buffer.
-    std::vector<std::vector<Int>> buffer_indices_;
+    std::vector<std::vector<Int>> buffered_site_indices_;
     // This defines the buffer volumes as the number of lattice sites within the
     // buffer.
     std::vector<Int> buffer_volumes_;
