@@ -110,6 +110,10 @@ TEST_CASE("LexicoLayout test") {
   REQUIRE (layout.buffered_array_indices(1)[10] == 106);
   REQUIRE (layout.buffered_array_indices(4)[0] == 288);
   REQUIRE (layout.buffered_array_indices(4)[10] == 298);
+
+  REQUIRE (layout.site_mpi_rank(0) == 0);
+  REQUIRE (layout.site_mpi_rank(128) == 2);
+  REQUIRE (layout.site_mpi_rank(176) == 3);
 #else
   Layout layout({8, 4, 4, 4});
 #endif
