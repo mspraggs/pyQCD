@@ -92,6 +92,10 @@ namespace pyQCD
 
     Int global_volume() const { return global_volume_; }
     const Site& global_shape() const { return global_shape_; }
+    int site_mpi_rank(const Int site_index) const
+    { return site_mpi_ranks_[site_index]; }
+    bool site_is_here(const Int site_index) const
+    { return site_is_here_[site_index]; }
 
     Int local_volume() const { return local_volume_; }
     Int local_size() const { return local_size_; }
@@ -107,15 +111,24 @@ namespace pyQCD
     { return buffered_site_indices_[buffer_index]; }
 
   private:
-    // TODO: Something to keep track of the MPI ranks for each site
     Int num_dims_, local_volume_, local_size_, global_volume_;
     Site global_shape_, local_shape_, local_shape_with_halo_, partition_;
+    Site local_corner_;
+    // Specifies which dimensions communication is taking place in.
+    std::vector<bool> need_comms_;
     // array_indices_[site_index] -> array_index
     std::vector<Int> array_indices_;
     // array_indices_global_[site_index] -> array_index
     std::vector<Int> array_indices_global_;
     // site_indices_[array_index] -> site_index
     std::vector<Int> site_indices_;
+    // Specifies rank of node where given (unbuffered) site is located.
+    std::vector<int> site_mpi_ranks_;
+    // Specifies whether the site is on this node at all (buffered or
+    // unbuffered)
+    std::vector<bool> site_is_here_;
+
+    int compute_site_mpi_rank(const Int site_index) const;
 
     /********************************* HALOS ***********************************
      * Here we specify the layout of the halo buffers on this node. The halos
@@ -165,20 +178,21 @@ namespace pyQCD
 
 
     // Here we specify some convenience functions for halo operations
-
     static Int compute_axis(const Int dimension, const MpiDirection dir);
 
     void initialise_buffers(const Site& partition, const Int max_mpi_hop);
 
     detail::IVec compute_buffer_shape(const detail::IVec& offset) const;
 
-    void initialise_unbuffered_sites(
-      const detail::IVec& unbuffered_region_corner);
+    void initialise_unbuffered_sites();
 
     void handle_offset(const Eigen::VectorXi& offset,
                        const detail::IVec& unbuffered_region_corner,
                        const detail::IVec& buffer_shape,
                        const Int buffer_index);
+
+    template <typename T>
+    Site local_to_global_coords(const T& site) const;
   };
 
 
@@ -232,6 +246,18 @@ namespace pyQCD
     for (unsigned i = 0; i < num_dims_; ++i) {
       coords[i] = mod(coords[i], global_shape_[i]);
     }
+  }
+
+  template <typename T>
+  Site Layout::local_to_global_coords(const T& site) const
+  {
+    Site ret = local_corner_;
+    for (Int dim = 0; dim < num_dims_; ++dim) {
+      ret[dim] += static_cast<Int>(site[dim])
+                  - (need_comms_[dim] ? halo_depth_ : 0);
+    }
+    detail::sanitise_coords(ret, global_shape_, num_dims_);
+    return ret;
   }
 }
 

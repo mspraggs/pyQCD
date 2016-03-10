@@ -53,12 +53,13 @@ namespace pyQCD
     //---------------------- Compute some basic layout info --------------------
 
     local_shape_.resize(num_dims_);
-
+    need_comms_.resize(num_dims_);
     for (size_t i = 0; i < num_dims_; ++i) {
       pyQCDassert((shape[i] % partition[i] == 0),
                   std::logic_error("Supplied lattice shape not divisible by "
                                    "MPI partition."))
       local_shape_[i] = shape[i] / partition[i];
+      need_comms_[i] = partition[i] > 1;
     }
     auto num_comm_dims = std::count_if(partition.begin(), partition.end(),
                                        [] (const Int p) { return p > 1; });
@@ -69,9 +70,41 @@ namespace pyQCD
     global_volume_ = detail::compute_volume(shape.begin(), shape.end(), 1u);
     local_volume_ = detail::compute_volume(local_shape_.begin(),
                                            local_shape_.end(), 1u);
+    PYQCD_SET_TRACE
+    // Initialise global coordinates of first unbuffered site.
+    detail::IVec mpi_coord(num_dims_);
+    MPI_Cart_coords(Communicator::instance().comm(),
+                    Communicator::instance().rank(), num_dims_,
+                    mpi_coord.data());
+    local_corner_.resize(num_dims_);
+    for (Int dim = 0; dim < num_dims_; ++dim) {
+      local_corner_[dim] = mpi_coord[dim] * local_shape_[dim];
+    }
 
-    //---------------------- Get some basic MPI info ---------------------------
+    local_shape_with_halo_ = local_shape_;
+    for (Int i = 0; i < num_dims_; ++i) {
+      local_shape_with_halo_[i] += need_comms_[i] ? 2 * halo_depth_ : 0;
+    }
+
+    local_size_ = detail::compute_volume(local_shape_with_halo_.begin(),
+                                         local_shape_with_halo_.end(), 1u);
+    array_indices_.resize(local_size_);
+    site_indices_.resize(local_size_);
+
+    site_is_here_.resize(global_volume_, false);
+    // Initialise the sites that don't reside in a halo
+    initialise_unbuffered_sites();
+    // Now initialise the halo sites
     initialise_buffers(partition, max_mpi_hop);
+
+    // Determine mpi rank for each site
+    auto site_iter = detail::SiteIterator(global_shape_);
+    site_mpi_ranks_.resize(global_volume_);
+    for (auto& site : site_iter) {
+      auto site_index = detail::coords_to_lex_index(site, global_shape_,
+                                                    num_dims_);
+      site_mpi_ranks_[site_index] = compute_site_mpi_rank(site_index);
+    }
   }
 
   void Layout::initialise_buffers(const Site& partition, const Int max_mpi_hop)
@@ -91,24 +124,9 @@ namespace pyQCD
      *   - global lexicographic index to local array index (through some
      *     std::unordered_map or something).
      * - Create a list of array indexes specifying sites that are going to end
-     *   up in buffers on neighbouring nodes. Note this is probably going to be
-     *   less fun than pulling teeth.
+     *   up in buffers on neighbouring nodes.
      */
 
-    // Determine dimensions where we need comms.
-    std::vector<bool> need_comms(num_dims_, true);
-    std::transform(partition.begin(), partition.end(), need_comms.begin(),
-                   [] (const Int d) { return d > 1; });
-
-    local_shape_with_halo_ = local_shape_;
-    for (Int i = 0; i < num_dims_; ++i) {
-      local_shape_with_halo_[i] += need_comms[i] ? 2 * halo_depth_ : 0;
-    }
-
-    local_size_ = detail::compute_volume(local_shape_with_halo_.begin(),
-                                         local_shape_with_halo_.end(), 1u);
-    array_indices_.resize(local_size_);
-    site_indices_.resize(local_size_);
     // Get the MPI coordinate of this node.
     detail::IVec mpi_coord(num_dims_);
     MPI_Cart_coords(Communicator::instance().comm(),
@@ -117,7 +135,7 @@ namespace pyQCD
 
     PYQCD_SET_TRACE
 
-    auto mpi_offsets = detail::generate_mpi_offsets(max_mpi_hop, need_comms);
+    auto mpi_offsets = detail::generate_mpi_offsets(max_mpi_hop, need_comms_);
 
     auto offset_sort = [] (const detail::IVec& vec1, const detail::IVec& vec2) {
       return vec1.squaredNorm() < vec2.squaredNorm();
@@ -169,11 +187,31 @@ namespace pyQCD
     }
   }
 
+  int Layout::compute_site_mpi_rank(const Int site_index) const
+  {
+    // Determine the rank of the mpi node that the specified site exists on
+    // (where it isn't in a halo).
+
+    auto site_coords = detail::lex_index_to_coords(site_index, global_shape_,
+                                                   num_dims_);
+    std::vector<int> mpi_coords(num_dims_);
+    for (Int dim = 0; dim < num_dims_; ++dim) {
+      mpi_coords[dim] = site_coords[dim] / partition_[dim];
+    }
+
+    int rank;
+    MPI_Cart_rank(Communicator::instance().comm(), mpi_coords.data(), &rank);
+    return rank;
+  }
+
   void Layout::handle_offset(const Eigen::VectorXi& offset,
                              const detail::IVec& unbuffered_region_corner,
                              const detail::IVec& buffer_shape,
                              const Int buffer_index)
   {
+    // Process the mpi coordinate offset given and use it to add to various
+    // buffer-related variables.
+
     // Here we want to populate buffer_map_, which basically describes how the
     // various buffer indices can be partitioned according to the
     // communication axis and the number of mpi hops.
@@ -187,27 +225,27 @@ namespace pyQCD
     detail::IVec buffer_corner = unbuffered_region_corner;
     detail::IVec buffered_region_corner = unbuffered_region_corner;
     for (Int dim = 0; dim < num_dims_; ++dim) {
-        if (offset[dim] != 0) { // Only interested in cases where comms occurs
-          // Compute the axis for this dimension/offset and use that to add to
-          // the buffer_map_
-          auto dir
-            = (offset[dim] > 0) ? MpiDirection::FRONT : MpiDirection::BACK;
-          auto axis = compute_axis(dim, dir);
-          buffer_map_[axis][num_hops - 1].push_back(buffer_index);
-          // Add/subtract from the buffer_corner coordinate depending on which
-          // direction we're dealing with
-          buffer_corner[dim]
-            += (dir == MpiDirection::BACK) ? -halo_depth_ : local_shape[dim];
-          // If the offset points backwards, this means that the buffered region
-          // on the node that offset points to is facing the forwards direction,
-          // so we need to add the local_shape for the dimension minus the halo
-          // depth in order to get the coordinate for the first site in that
-          // buffered region. I hope that makes sense... :-/
-          if (dir == MpiDirection::BACK) {
-            buffered_region_corner[dim] += local_shape[dim] - halo_depth_;
-          }
+      if (offset[dim] != 0) { // Only interested in cases where comms occurs
+        // Compute the axis for this dimension/offset and use that to add to
+        // the buffer_map_
+        auto dir
+          = (offset[dim] > 0) ? MpiDirection::FRONT : MpiDirection::BACK;
+        auto axis = compute_axis(dim, dir);
+        buffer_map_[axis][num_hops - 1].push_back(buffer_index);
+        // Add/subtract from the buffer_corner coordinate depending on which
+        // direction we're dealing with
+        buffer_corner[dim]
+          += (dir == MpiDirection::BACK) ? -halo_depth_ : local_shape[dim];
+        // If the offset points backwards, this means that the buffered region
+        // on the node that offset points to is facing the forwards direction,
+        // so we need to add the local_shape for the dimension minus the halo
+        // depth in order to get the coordinate for the first site in that
+        // buffered region. I hope that makes sense... :-/
+        if (dir == MpiDirection::BACK) {
+          buffered_region_corner[dim] += local_shape[dim] - halo_depth_;
         }
       }
+    }
 
     // Now we want to populate array_indices_, site_indices_ and
     // buffered_site_indices_
@@ -225,6 +263,10 @@ namespace pyQCD
       Int lexico_index = detail::coords_to_lex_index(buffer_site,
                                                      local_shape_with_halo_,
                                                      num_dims_);
+      auto global_site = local_to_global_coords(buffer_site);
+      Int lex_index = detail::coords_to_lex_index(global_site, global_shape_,
+                                                  num_dims_);
+      site_is_here_[lex_index] = true;
       array_indices_[lexico_index] = array_index_start + i;
       site_indices_[array_index_start + i] = lexico_index;
 
@@ -235,12 +277,15 @@ namespace pyQCD
                                                  local_shape_with_halo_,
                                                  num_dims_);
       buffered_site_indices_[buffer_index][i++] = lexico_index;
-      }
+    }
   }
 
-  void Layout::initialise_unbuffered_sites(
-    const detail::IVec& unbuffered_region_corner)
+  void Layout::initialise_unbuffered_sites()
   {
+    PYQCD_SET_TRACE
+    detail::IVec unbuffered_region_corner
+      = detail::compute_first_unbuffered_site(need_comms_, halo_depth_);
+    PYQCD_SET_TRACE
     auto unbuffered_site_iter = detail::SiteIterator(local_shape_);
     Int array_index = 0;
     for (auto& site : unbuffered_site_iter) {
@@ -249,8 +294,15 @@ namespace pyQCD
       Int lex_index = detail::coords_to_lex_index(local_site,
                                                   local_shape_with_halo_,
                                                   num_dims_);
+      PYQCD_SET_TRACE
       site_indices_[array_index] = lex_index;
       array_indices_[lex_index] = array_index++;
+      PYQCD_SET_TRACE
+
+      auto global_site = local_to_global_coords(local_site);
+      Int global_lex_index
+        = detail::coords_to_lex_index(global_site, global_shape_, num_dims_);
+      site_is_here_[global_lex_index] = true;
     }
   }
 
