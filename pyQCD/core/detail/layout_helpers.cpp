@@ -145,9 +145,9 @@ namespace pyQCD
     }
 
     IVec compute_first_unbuffered_site(const std::vector<bool>& need_comms,
-                                       const Int num_dims, const Int halo_depth)
+                                       const Int halo_depth)
     {
-      IVec ret = IVec::Zero(num_dims);
+      IVec ret = IVec::Zero(need_comms.size());
       std::replace_copy_if(need_comms.begin(), need_comms.end(), ret.data(),
                            [] (const bool val) { return val; }, halo_depth);
       return ret;

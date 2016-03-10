@@ -141,7 +141,7 @@ namespace pyQCD
       const Int max_mpi_hop, const std::vector<bool>& need_comms);
 
     IVec compute_first_unbuffered_site(const std::vector<bool>& need_comms,
-                                           const Int num_dims, const Int halo_depth);
+                                       const Int halo_depth);
   }
 }
 

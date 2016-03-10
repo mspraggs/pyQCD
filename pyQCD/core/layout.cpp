@@ -144,10 +144,8 @@ namespace pyQCD
     PYQCD_SET_TRACE
 
     // Compute the coordinates of the first site that isn't in a halo
-    detail::IVec unbuffered_region_corner
-      = detail::compute_first_unbuffered_site(need_comms, num_dims_,
-                                              halo_depth_);
-    initialise_unbuffered_sites(unbuffered_region_corner);
+    auto unbuffered_region_corner
+      = detail::compute_first_unbuffered_site(need_comms_, halo_depth_);
 
     // Now loop through the various MPI offsets and compute the neighbour ranks
     Int buffer_index = 0;
