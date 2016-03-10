@@ -133,7 +133,7 @@ namespace pyQCD
       std::vector<IVec> ret(num_offsets, IVec::Zero(ndims));
       Int i = 0;
       for (auto& site : site_iter) {
-        IVec eig_site = UVec::Map(site.data(), ndims).cast<int>() + offset;
+        IVec eig_site = detail::site_to_ivec(site) + offset;
         Int hops = static_cast<Int>(eig_site.squaredNorm());
         if (hops > max_mpi_hop or hops == 0) {
           continue;
