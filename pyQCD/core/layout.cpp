@@ -115,7 +115,7 @@ namespace pyQCD
                     Communicator::instance().rank(),
                     static_cast<int>(num_dims_), mpi_coord.data());
 
-    PYQCD_TRACE
+    PYQCD_SET_TRACE
 
     auto mpi_offsets = detail::generate_mpi_offsets(max_mpi_hop, need_comms);
 
@@ -126,7 +126,7 @@ namespace pyQCD
     std::stable_sort(mpi_offsets.begin(), mpi_offsets.end(), offset_sort);
     num_buffers_ = static_cast<Int>(mpi_offsets.size());
 
-    PYQCD_TRACE
+    PYQCD_SET_TRACE
     buffer_ranks_.resize(num_buffers_);
     buffered_site_indices_.resize(num_buffers_);
     buffer_volumes_.resize(num_buffers_);
@@ -141,7 +141,7 @@ namespace pyQCD
     }
 
     auto& comm = Communicator::instance().comm();
-    PYQCD_TRACE
+    PYQCD_SET_TRACE
 
     // Compute the coordinates of the first site that isn't in a halo
     detail::IVec unbuffered_region_corner
@@ -166,7 +166,7 @@ namespace pyQCD
                                  buffer_shape.data() + num_dims_, 1u);
       handle_offset(offset, unbuffered_region_corner, buffer_shape,
                     buffer_index);
-      PYQCD_TRACE
+      PYQCD_SET_TRACE
       buffer_index++;
     }
   }
