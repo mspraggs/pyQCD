@@ -114,6 +114,18 @@ TEST_CASE("LexicoLayout test") {
   REQUIRE (layout.site_mpi_rank(0) == 0);
   REQUIRE (layout.site_mpi_rank(128) == 2);
   REQUIRE (layout.site_mpi_rank(176) == 3);
+
+  REQUIRE (layout.site_is_here(0));
+  REQUIRE (layout.site_is_here(293));
+  REQUIRE (layout.site_is_here(511));
+
+  int rank = pyQCD::Communicator::instance().rank();
+  bool is_here = rank == 0 or rank == 1;
+  REQUIRE (layout.site_is_here(64) == is_here);
+  REQUIRE (layout.site_is_here(101) == is_here);
+  is_here = rank == 2 or rank == 3;
+  REQUIRE (layout.site_is_here(320) == is_here);
+  REQUIRE (layout.site_is_here(357) == is_here);
 #else
   Layout layout({8, 4, 4, 4});
 #endif
