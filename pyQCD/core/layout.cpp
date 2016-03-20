@@ -65,7 +65,7 @@ namespace pyQCD
                                        [] (const Int p) { return p > 1; });
     pyQCDassert((num_comm_dims >= max_mpi_hop),
                 std::logic_error("Supplied max_mpi_hop must be smaller "
-                                   "than all local shape extents"))
+                                   "or equal to number of comms dimensions."))
 
     global_volume_ = detail::compute_volume(shape.begin(), shape.end(), 1u);
     local_volume_ = detail::compute_volume(local_shape_.begin(),
