@@ -28,41 +28,30 @@
 
 namespace pyQCD
 {
-
-#ifndef USE_MPI
-  Layout::Layout(const Site& shape, const Layout::ArrFunc& compute_array_index)
-  {
-    // Constructor create arrays of site/array indices
-    local_volume_ = detail::compute_volume(shape.begin(), shape.size());
-
-    site_indices_.resize(local_volume_);
-    for (Int site_index = 0; site_index < local_volume_; ++site_index) {
-      Int array_index = compute_array_index(site_index);
-      array_indices_[site_index] = array_index;
-      site_indices_[array_index] = site_index;
-    }
-  }
-#else
   Layout::Layout(const Site& shape, const Site& partition, const Int halo_depth,
                    const Int max_mpi_hop)
-    : num_dims_(static_cast<Int>(shape.size())),
+    : use_mpi_(partition.size() > 0), num_dims_(static_cast<Int>(shape.size())),
       global_shape_(shape), partition_(partition), halo_depth_(halo_depth)
   {
     // Initialize the MPI layout and associated halo buffers
 
     //---------------------- Compute some basic layout info --------------------
 
+    if (not use_mpi_) {
+      partition_ = Site(num_dims_, 1);
+    }
+
     local_shape_.resize(num_dims_);
     need_comms_.resize(num_dims_);
     for (size_t i = 0; i < num_dims_; ++i) {
-      pyQCDassert((shape[i] % partition[i] == 0),
+      pyQCDassert((shape[i] % partition_[i] == 0),
                   std::logic_error("Supplied lattice shape not divisible by "
                                    "MPI partition."))
-      local_shape_[i] = shape[i] / partition[i];
+      local_shape_[i] = shape[i] / partition_[i];
       need_comms_[i] = partition[i] > 1;
     }
-    auto num_comm_dims = std::count_if(partition.begin(), partition.end(),
-                                       [] (const Int p) { return p > 1; });
+    auto num_comm_dims = std::count(need_comms_.begin(), need_comms_.end(),
+                                    true);
     pyQCDassert((num_comm_dims >= max_mpi_hop),
                 std::logic_error("Supplied max_mpi_hop must be smaller "
                                    "or equal to number of comms dimensions."))
@@ -73,9 +62,11 @@ namespace pyQCD
     PYQCD_SET_TRACE
     // Initialise global coordinates of first unbuffered site.
     detail::IVec mpi_coord(num_dims_);
+#ifdef USE_MPI
     MPI_Cart_coords(Communicator::instance().comm(),
                     Communicator::instance().rank(), num_dims_,
                     mpi_coord.data());
+#endif
     local_corner_.resize(num_dims_);
     for (Int dim = 0; dim < num_dims_; ++dim) {
       local_corner_[dim] = mpi_coord[dim] * local_shape_[dim];
@@ -95,7 +86,7 @@ namespace pyQCD
     // Initialise the sites that don't reside in a halo
     initialise_unbuffered_sites();
     // Now initialise the halo sites
-    initialise_buffers(partition, max_mpi_hop);
+    initialise_buffers(max_mpi_hop);
 
     // Determine mpi rank for each site
     auto site_iter = detail::SiteIterator(global_shape_);
@@ -107,7 +98,7 @@ namespace pyQCD
     }
   }
 
-  void Layout::initialise_buffers(const Site& partition, const Int max_mpi_hop)
+  void Layout::initialise_buffers(const Int max_mpi_hop)
   {
     /* We need to do a few things here:
      * - Determine some indexing strategy for the various buffers
@@ -129,10 +120,11 @@ namespace pyQCD
 
     // Get the MPI coordinate of this node.
     detail::IVec mpi_coord(num_dims_);
+#ifdef USE_MPI
     MPI_Cart_coords(Communicator::instance().comm(),
                     Communicator::instance().rank(),
                     static_cast<int>(num_dims_), mpi_coord.data());
-
+#endif
     PYQCD_SET_TRACE
 
     auto mpi_offsets = detail::generate_mpi_offsets(max_mpi_hop, need_comms_);
@@ -157,8 +149,9 @@ namespace pyQCD
       axis = compute_axis(dim, MpiDirection::BACK);
       buffer_map_[axis].resize(max_mpi_hop);
     }
-
+#ifdef USE_MPI
     auto& comm = Communicator::instance().comm();
+#endif
     PYQCD_SET_TRACE
 
     // Compute the coordinates of the first site that isn't in a halo
@@ -173,9 +166,10 @@ namespace pyQCD
       // Compute neighbour rank
       detail::IVec neighbour_coords = offset + mpi_coord;
       detail::sanitise_coords(neighbour_coords, partition_, num_dims_);
+#ifdef USE_MPI
       MPI_Cart_rank(comm, neighbour_coords.data(),
                     &buffer_ranks_[buffer_index]);
-
+#endif
       detail::IVec buffer_shape = compute_buffer_shape(offset);
       buffer_volumes_[buffer_index]
         = detail::compute_volume(buffer_shape.data(),
@@ -199,8 +193,10 @@ namespace pyQCD
       mpi_coords[dim] = site_coords[dim] / partition_[dim];
     }
 
-    int rank;
+    int rank = 0;
+#ifdef USE_MPI
     MPI_Cart_rank(Communicator::instance().comm(), mpi_coords.data(), &rank);
+#endif
     return rank;
   }
 
@@ -280,6 +276,7 @@ namespace pyQCD
     }
   }
 
+
   void Layout::initialise_unbuffered_sites()
   {
     PYQCD_SET_TRACE
@@ -306,7 +303,6 @@ namespace pyQCD
     }
   }
 
-#endif
 
   Int Layout::compute_axis(const Int dimension, const Layout::MpiDirection dir)
   {

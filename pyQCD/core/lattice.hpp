@@ -29,16 +29,11 @@ namespace pyQCD
   class Lattice : public LatticeExpr<Lattice<T>, T>
   {
   public:
-#ifdef MPI_VERSION
-#else
-    Lattice(const Layout& layout, const Int site_size = 1)
-      : site_size_(site_size), layout_(&layout)
-    { this->data_.resize(site_size_ * layout.volume()); }
+    Lattice(const Layout& layout, const Int site_size = 1);
     Lattice(const Layout& layout, const T& val, const Int site_size = 1)
       : site_size_(site_size), layout_(&layout),
         data_(site_size_ * layout.volume(), val)
     {}
-#endif
     Lattice(const Lattice<T>& lattice) = default;
     template <typename U1, typename U2>
     Lattice(const LatticeExpr<U1, U2>& expr)
@@ -127,6 +122,14 @@ namespace pyQCD
     const Layout* layout_;
     aligned_vector<T> data_;
   };
+
+
+  template <typename T>
+  Lattice<T>::Lattice(const Layout& layout, const Int site_size = 1)
+    : site_size_(site_size), layout_(&layout)
+  {
+    this->data_.resize(site_size_ * layout.volume());
+  }
 
 
   template <typename T>

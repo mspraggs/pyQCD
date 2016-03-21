@@ -65,12 +65,8 @@ namespace pyQCD
 
     enum class MpiDirection { FRONT, BACK };
 
-#ifndef USE_MPI
-    Layout(const Site& shape, const ArrFunc& compute_array_index);
-#else
-    Layout(const Site& shape, const Site& partition, const Int halo_depth = 1,
-           const Int max_mpi_hop = 1);
-#endif
+    Layout(const Site& shape, const Site& partition = {},
+           const Int halo_depth = 1, const Int max_mpi_hop = 1);
     virtual ~Layout() = default;
 
     // Functions to retrieve array indices and so on.
@@ -111,6 +107,7 @@ namespace pyQCD
     { return buffered_site_indices_[buffer_index]; }
 
   private:
+    bool use_mpi_;
     Int num_dims_, local_volume_, local_size_, global_volume_;
     Site global_shape_, local_shape_, local_shape_with_halo_, partition_;
     Site local_corner_;
@@ -180,7 +177,7 @@ namespace pyQCD
     // Here we specify some convenience functions for halo operations
     static Int compute_axis(const Int dimension, const MpiDirection dir);
 
-    void initialise_buffers(const Site& partition, const Int max_mpi_hop);
+    void initialise_buffers(const Int max_mpi_hop);
 
     detail::IVec compute_buffer_shape(const detail::IVec& offset) const;
 
@@ -199,16 +196,10 @@ namespace pyQCD
   class LexicoLayout : public Layout
   {
   public:
-#ifndef USE_MPI
-    LexicoLayout(const Site& shape)
-      : Layout(shape, [] (const Int i) { return i; })
-    { }
-#else
     LexicoLayout(const Site& shape, const Site& partition,
                  const Int halo_depth = 1, const Int max_mpi_hop = 1)
       : Layout(shape, partition, halo_depth, max_mpi_hop)
     { }
-#endif
   };
 
 
