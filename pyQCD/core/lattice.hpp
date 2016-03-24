@@ -125,7 +125,7 @@ namespace pyQCD
 
 
   template <typename T>
-  Lattice<T>::Lattice(const Layout& layout, const Int site_size = 1)
+  Lattice<T>::Lattice(const Layout& layout, const Int site_size)
     : site_size_(site_size), layout_(&layout)
   {
     this->data_.resize(site_size_ * layout.volume());

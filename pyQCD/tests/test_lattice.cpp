@@ -20,28 +20,18 @@
  * Tests for the Lattice template class.
  */
 
-#define CATCH_CONFIG_MAIN
+#define CATCH_CONFIG_RUNNER
 
 #include <Eigen/Dense>
 
 #include <core/lattice.hpp>
-#include <core/detail/operators.hpp>
 
 #include "helpers.hpp"
 
 typedef pyQCD::Lattice<double> Lattice;
 
-class TestLayout : public pyQCD::Layout
-{
-public:
-  TestLayout(const std::vector<unsigned int>& shape)
-    : pyQCD::Layout(shape, [&] (const unsigned int i)
-  {
-    unsigned int volume = std::accumulate(shape.begin(), shape.end(), 1u,
-      std::multiplies<unsigned int>());
-    return volume - i - 1; })
-  { }
-};
+int partition_arr[] = {2, 2, 1, 1};
+
 
 TEST_CASE("Lattice test") {
   std::vector<std::function<double(const double&, const double&)> >
@@ -50,15 +40,11 @@ TEST_CASE("Lattice test") {
     Multiplies::apply<double, double>, Divides::apply<double, double>
   };
 
-  pyQCD::LexicoLayout layout({8, 4, 4, 4});
-  TestLayout another_layout({8, 4, 4, 4});
+  pyQCD::Site partition(partition_arr, partition_arr + 4);
+  pyQCD::Layout layout({8, 4, 4, 4}, partition, 1, 2);
 
   Lattice lattice1(layout, 1.0, 4);
   Lattice lattice2(layout, 2.0, 4);
-  Lattice bad_lattice(another_layout);
-  for (unsigned int i = 0; i < bad_lattice.size(); ++i) {
-    bad_lattice[i] = i;
-  }
 
   pyQCD::Lattice<Eigen::Matrix3cd> lattice_matrix(
     layout, Eigen::Matrix3cd::Identity() * 4.0);
@@ -140,16 +126,16 @@ TEST_CASE("Lattice test") {
 
   SECTION("Test accessors") {
     lattice1[0] = 500.0;
-    REQUIRE(lattice1(0) == 500.0);
-    REQUIRE(lattice1(pyQCD::Site{0, 0, 0, 0}) == 500.0);
+    REQUIRE(lattice1(80) == 500.0);
+    REQUIRE(lattice1(pyQCD::Site{1, 1, 0, 0}) == 500.0);
     lattice1(pyQCD::Site{4, 2, 3, 1}) = 123.0;
     REQUIRE(lattice1(301) == 123.0);
-    REQUIRE(lattice1[1204] == 123.0);
+    REQUIRE(lattice1[500] == 123.0);
   }
 
   SECTION("Test properties") {
     REQUIRE(&lattice1.layout() == &layout);
-    REQUIRE(lattice1.size() == 2048);
+    REQUIRE(lattice1.size() == 512);
     REQUIRE(lattice1.num_dims() == 4);
   }
 
@@ -164,8 +150,8 @@ TEST_CASE("Lattice test") {
   }
 
   SECTION("Test lattice views") {
-    auto site_view1 = lattice1.site_view(pyQCD::Site{0, 0, 0, 0});
-    auto site_view2 = lattice1.site_view(pyQCD::Site{0, 0, 0, 1});
+    auto site_view1 = lattice1.site_view(pyQCD::Site{1, 1, 0, 0});
+    auto site_view2 = lattice1.site_view(pyQCD::Site{1, 1, 0, 1});
     site_view1[0] = 5.0;
     REQUIRE(lattice1[0] == 5.0);
     site_view1 = site_view2;// + site_view2;
@@ -174,8 +160,26 @@ TEST_CASE("Lattice test") {
 }
 
 TEST_CASE("Non-integral Array types test") {
-  pyQCD::LexicoLayout layout(std::vector<unsigned int>{8, 4, 4, 4});
+
+  pyQCD::Site partition(partition_arr, partition_arr + 4);
+  pyQCD::Layout layout({8, 4, 4, 4}, partition, 1, 2);
+
   pyQCD::Lattice<Eigen::Matrix3cd> array1(layout, Eigen::Matrix3cd::Identity());
   Eigen::Vector3cd vec(1.0, 1.0, 1.0);
   pyQCD::Lattice<Eigen::Vector3cd> vecs = array1 * vec;
+}
+
+
+int main(int argc, char * argv[]) {
+  MPI_Init(&argc, &argv);
+
+  MPI_Comm comm;
+  int periodic[] = {1, 1, 1, 1};
+
+  MPI_Cart_create(MPI_COMM_WORLD, 4, partition_arr, periodic, 1, &comm);
+
+  pyQCD::Communicator::instance().init(comm);
+  int result = Catch::Session().run(argc, argv);
+  MPI_Finalize();
+  return result;
 }
