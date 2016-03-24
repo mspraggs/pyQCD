@@ -93,6 +93,7 @@ TEST_CASE("LexicoLayout test") {
   // These test the unbuffered site indices (i.e. those that don't exist within
   // a halo).
   REQUIRE (layout.get_array_index(80) == 0);
+  REQUIRE (layout.get_array_index(pyQCD::Site{1, 1, 0, 0}) == 0);
   REQUIRE (layout.get_array_index(95) == 15);
   REQUIRE (layout.get_array_index(239) == 95);
   // These just test that the halo buffers are indexed correctly
