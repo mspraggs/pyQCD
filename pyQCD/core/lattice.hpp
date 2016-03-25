@@ -32,7 +32,7 @@ namespace pyQCD
     Lattice(const Layout& layout, const Int site_size = 1);
     Lattice(const Layout& layout, const T& val, const Int site_size = 1)
       : site_size_(site_size), layout_(&layout),
-        data_(site_size_ * layout.volume(), val)
+        data_(site_size_ * layout.local_size(), val)
     {}
     Lattice(const Lattice<T>& lattice) = default;
     template <typename U1, typename U2>
@@ -110,10 +110,10 @@ namespace pyQCD
     LATTICE_OPERATOR_ASSIGN_DECL(/);
 
     unsigned long size() const { return data_.size(); }
-    unsigned int volume() const { return layout_->volume(); }
+    unsigned int local_volume() const { return layout_->local_volume(); }
     unsigned int num_dims() const { return layout_->num_dims(); }
-    const Site& shape() const
-    { return layout_->shape(); }
+    const Site& local_shape() const
+    { return layout_->local_shape(); }
     const Layout& layout() const { return *layout_; }
     Int site_size() const { return site_size_; }
 
@@ -128,23 +128,22 @@ namespace pyQCD
   Lattice<T>::Lattice(const Layout& layout, const Int site_size)
     : site_size_(site_size), layout_(&layout)
   {
-    this->data_.resize(site_size_ * layout.volume());
+    this->data_.resize(site_size_ * layout.local_size());
   }
 
 
   template <typename T>
-  Lattice<T>& Lattice<T>::operator=(
-    const Lattice<T>& lattice)
+  Lattice<T>& Lattice<T>::operator=(const Lattice<T>& lattice)
   {
     if (layout_) {
-      pyQCDassert (lattice.volume() == volume(),
+      pyQCDassert (lattice.size() == size(),
         std::invalid_argument("lattice.volume() != volume()"));
     }
     else {
       layout_ = lattice.layout_;
     }
     if (&lattice != this) {
-      for (unsigned int i = 0; i < volume(); ++i) {
+      for (unsigned int i = 0; i < data_.size(); ++i) {
         (*this)(lattice.layout_->get_site_index(i)) = lattice[i];
       }
     }

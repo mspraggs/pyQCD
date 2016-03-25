@@ -135,7 +135,7 @@ TEST_CASE("Lattice test") {
 
   SECTION("Test properties") {
     REQUIRE(&lattice1.layout() == &layout);
-    REQUIRE(lattice1.size() == 512);
+    REQUIRE(lattice1.size() == 1536);
     REQUIRE(lattice1.num_dims() == 4);
   }
 
