@@ -135,14 +135,14 @@ namespace pyQCD
   template <typename T>
   Lattice<T>& Lattice<T>::operator=(const Lattice<T>& lattice)
   {
-    if (layout_) {
-      pyQCDassert (lattice.size() == size(),
-        std::invalid_argument("lattice.volume() != volume()"));
-    }
-    else {
-      layout_ = lattice.layout_;
-    }
     if (&lattice != this) {
+      if (layout_) {
+        pyQCDassert (lattice.size() == size(),
+          std::invalid_argument("lattice.volume() != volume()"));
+      }
+      else {
+        layout_ = lattice.layout_;
+      }
       for (unsigned int i = 0; i < data_.size(); ++i) {
         (*this)(lattice.layout_->get_site_index(i)) = lattice[i];
       }
