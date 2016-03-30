@@ -104,7 +104,7 @@ namespace pyQCD
     buffer_indices(const Int axis, const Int mpi_hop) const
     { return buffer_map_[axis][mpi_hop - 1]; }
     const std::vector<Int>& buffered_array_indices(const Int buffer_index) const
-    { return buffered_site_indices_[buffer_index]; }
+    { return surface_site_indices_[buffer_index]; }
 
   private:
     bool use_mpi_;
@@ -121,7 +121,7 @@ namespace pyQCD
     std::vector<Int> site_indices_;
     // Specifies rank of node where given (unbuffered) site is located.
     std::vector<int> site_mpi_ranks_;
-    // Specifies whether the site is on this node at all (buffered or
+    // Specifies whether the site is on this node at all (on surface or
     // unbuffered)
     std::vector<bool> site_is_here_;
 
@@ -166,7 +166,7 @@ namespace pyQCD
     // These define the array indices for the sites that belong in the halo of
     // other neighbours. The first index is the buffer index, the second is the
     // lexicographic index within that buffer.
-    std::vector<std::vector<Int>> buffered_site_indices_;
+    std::vector<std::vector<Int>> surface_site_indices_;
     // This defines the buffer volumes as the number of lattice sites within the
     // buffer.
     std::vector<Int> buffer_volumes_;
@@ -184,7 +184,7 @@ namespace pyQCD
     void initialise_unbuffered_sites();
 
     void handle_offset(const Eigen::VectorXi& offset,
-                       const detail::IVec& unbuffered_region_corner,
+                       const detail::IVec& surface_corner,
                        const detail::IVec& buffer_shape,
                        const Int buffer_index);
 
