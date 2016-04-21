@@ -53,8 +53,8 @@ namespace pyQCD
       : Action<Real, Nc>(beta, layout)
     {
       // Determine which link indices belong to which link staples
-      links_.resize(layout.volume());
-      for (unsigned site_index = 0; site_index < layout.volume(); ++site_index)
+      links_.resize(layout.local_size());
+      for (unsigned site_index = 0; site_index < layout.local_size(); ++site_index)
       {
         Site link_coords = layout.compute_site_coords(site_index);
         auto num_dims = layout.num_dims() - 1;

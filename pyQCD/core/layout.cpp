@@ -201,7 +201,7 @@ namespace pyQCD
   }
 
   void Layout::handle_offset(const Eigen::VectorXi& offset,
-                             const detail::IVec& surface_corner,
+                             const detail::IVec& unbuffered_region_corner,
                              const detail::IVec& buffer_shape,
                              const Int buffer_index)
   {
@@ -218,8 +218,8 @@ namespace pyQCD
     auto num_hops = static_cast<Int>(offset.squaredNorm() + 0.5);
 
     detail::IVec local_shape = detail::site_to_ivec(local_shape_);
-    detail::IVec buffer_corner = surface_corner;
-    detail::IVec surface_corner = surface_corner;
+    detail::IVec buffer_corner = unbuffered_region_corner;
+    detail::IVec surface_corner = unbuffered_region_corner;
     for (Int dim = 0; dim < num_dims_; ++dim) {
       if (offset[dim] != 0) { // Only interested in cases where comms occurs
         // Compute the axis for this dimension/offset and use that to add to

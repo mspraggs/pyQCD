@@ -81,11 +81,6 @@ namespace pyQCD
     template <typename T>
     inline void sanitise_site_coords(T& coords) const;
 
-    // !!!!!!!! These are deprecated !!!!!!!!
-    Int volume() const { return local_volume_; }
-    Int size() const { return local_size_; }
-    const Site& shape() const { return global_shape_; }
-
     Int global_volume() const { return global_volume_; }
     const Site& global_shape() const { return global_shape_; }
     int site_mpi_rank(const Int site_index) const
