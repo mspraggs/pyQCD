@@ -178,7 +178,7 @@ namespace pyQCD
 
     void initialise_unbuffered_sites();
 
-    void handle_offset(const Eigen::VectorXi& offset,
+    void handle_offset(const detail::IVec& offset,
                        const detail::IVec& surface_corner,
                        const detail::IVec& buffer_shape,
                        const Int buffer_index);

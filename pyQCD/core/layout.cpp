@@ -112,8 +112,6 @@ namespace pyQCD
      *   - from local lexicographic index (w.r.t. local shape including the
      *     halo) to array index;
      *   - from array index to lexicographic index;
-     *   - global lexicographic index to local array index (through some
-     *     std::unordered_map or something).
      * - Create a list of array indexes specifying sites that are going to end
      *   up in buffers on neighbouring nodes.
      */
@@ -200,7 +198,7 @@ namespace pyQCD
     return rank;
   }
 
-  void Layout::handle_offset(const Eigen::VectorXi& offset,
+  void Layout::handle_offset(const detail::IVec& offset,
                              const detail::IVec& unbuffered_region_corner,
                              const detail::IVec& buffer_shape,
                              const Int buffer_index)
