@@ -30,11 +30,8 @@ namespace pyQCD
   {
   public:
     Lattice(const Layout& layout, const Int site_size = 1);
-    Lattice(const Layout& layout, const T& val, const Int site_size = 1)
-      : site_size_(site_size), layout_(&layout),
-        data_(site_size_ * layout.local_size(), val)
-    {}
-    Lattice(const Lattice<T>& lattice) = default;
+    Lattice(const Layout& layout, const T& val, const Int site_size = 1);
+    Lattice(const Lattice<T>& lattice);
     template <typename U1, typename U2>
     Lattice(const LatticeExpr<U1, U2>& expr)
     {
@@ -44,6 +41,9 @@ namespace pyQCD
       }
       layout_ = &expr.layout();
       site_size_ = expr.site_size();
+      init_mpi_types();
+      init_mpi_status();
+      init_mpi_pointers();
     }
     Lattice(Lattice<T>&& lattice) = default;
 
@@ -118,17 +118,133 @@ namespace pyQCD
     Int site_size() const { return site_size_; }
 
   protected:
+    // Constructor helpers
+    void init_mpi_types();
+    void init_mpi_status();
+    void init_mpi_pointers();
+
+    // Destructor helper
+    void destruct_mpi_types();
+
+    // Member variables
     Int site_size_;
+    bool mpi_types_constructed_;
     const Layout* layout_;
     aligned_vector<T> data_;
+
+    std::vector<T*> comms_buffers_;
+    std::vector<T*> surface_pointers_;
+
+    MPI_Datatype site_mpi_type_;
+    std::vector<MPI_Datatype> buffer_mpi_types_, surface_mpi_types_;
+    std::vector<MPI_Request> send_requests_, recv_requests_;
+    std::vector<MPI_Status> send_status_, recv_status_;
   };
 
 
   template <typename T>
   Lattice<T>::Lattice(const Layout& layout, const Int site_size)
-    : site_size_(site_size), layout_(&layout)
+    : Lattice(layout, T(), site_size)
+  { }
+
+
+  template <typename T>
+  Lattice<T>::Lattice(const Layout& layout,  const T& val, const Int site_size)
+  : site_size_(site_size), layout_(&layout),
+    data_(site_size_ * layout.local_size(), val)
   {
-    this->data_.resize(site_size_ * layout.local_size());
+    init_mpi_types();
+    init_mpi_status();
+    init_mpi_pointers();
+  }
+
+
+  template <typename T>
+  Lattice<T>::Lattice(const Lattice<T>& lattice)
+    : Lattice(lattice.layout(), T(), lattice.site_size_)
+  {
+    data_ = lattice.data_;
+  }
+
+
+  template <typename T>
+  void Lattice<T>::init_mpi_types()
+  {
+    if (mpi_types_constructed_) {
+      return;
+    }
+    // Initialise the MPI_Datatype objects that describe the site type, the
+    // surface types and the buffer types.
+    site_mpi_type_ = MpiType<T>::make(site_size_);
+    MPI_Type_commit(&site_mpi_type_);
+    // May be able to trim the number of these down in future
+    // TODO: Trim these down if possible - there may be duplication
+    buffer_mpi_types_.resize(layout_->num_buffers());
+    surface_mpi_types_.resize(layout_->num_buffers());
+
+    for (unsigned int buffer = 0; buffer < layout_->num_buffers(); ++buffer) {
+      // Construct MPI types for this buffer
+      auto surface_site_indices = layout_->surface_site_offsets(buffer);
+      std::vector<int> blocklengths(surface_site_indices.size(), 1);
+      // Create the types themselves
+      MPI_Type_contiguous(layout_->buffer_volume(buffer), site_mpi_type_,
+                          &buffer_mpi_types_[buffer]);
+      MPI_Type_indexed(static_cast<int>(surface_site_indices.size()),
+                       blocklengths.data(),
+                       static_cast<int*>(surface_site_indices.data()),
+                       site_mpi_type_, &surface_mpi_types_[buffer]);
+      // Commit the types
+      // TODO: Call MPI_Type_free for these types in destructor
+      MPI_Type_commit(&buffer_mpi_types_[buffer]);
+      MPI_Type_commit(&surface_mpi_types_[buffer]);
+    }
+    mpi_types_constructed_ = true;
+  }
+
+
+  template <typename T>
+  void Lattice<T>::init_mpi_status()
+  {
+    // Resize status and request vectors to the number of buffers we have
+    send_requests_.resize(layout_->num_buffers());
+    recv_requests_.resize(layout_->num_buffers());
+    send_status_.resize(layout_->num_buffers());
+    recv_status_.resize(layout_->num_buffers());
+  }
+
+
+  template <typename T>
+  void Lattice<T>::init_mpi_pointers()
+  {
+    // Initialise pointers that point to first array element in data_
+    comms_buffers_.resize(layout_->num_buffers());
+    surface_pointers_.resize(layout_->num_buffers());
+
+    comms_buffers_[0] = data_.data() + layout_->local_volume();
+    surface_pointers_[0] = data_.data() + layout_->surface_site_corner_index(0);
+    for (unsigned int buffer = 1; buffer < layout_->num_buffers(); ++buffer) {
+      comms_buffers_[buffer]
+        = comms_buffers_[buffer - 1] + layout_->buffer_volume(buffer - 1);
+      surface_pointers_[buffer]
+        = data_.data() + layout_->surface_site_corner_index(buffer);
+    }
+  }
+
+
+  template <typename T>
+  void Lattice<T>::destruct_mpi_types()
+  {
+    // Run MPI_Type_free over vector of MPI_Datatype
+    if (mpi_types_constructed_) {
+      MPI_Type_free(&site_mpi_type_);
+      for (auto& type : buffer_mpi_types_) {
+        MPI_Type_free(&type);
+      }
+      for (auto& type : surface_mpi_types_) {
+        MPI_Type_free(&type);
+      }
+    }
+    mpi_types_constructed_ = false;
   }
 
 
@@ -136,12 +252,17 @@ namespace pyQCD
   Lattice<T>& Lattice<T>::operator=(const Lattice<T>& lattice)
   {
     if (&lattice != this) {
+      // TODO: Sort out the logic here - just do a raw assign without checks
       if (layout_) {
         pyQCDassert (lattice.size() == size(),
           std::invalid_argument("lattice.volume() != volume()"));
       }
       else {
+        destruct_mpi_types();
         layout_ = lattice.layout_;
+        init_mpi_types();
+        init_mpi_pointers();
+        init_mpi_status();
       }
       for (unsigned int i = 0; i < data_.size(); ++i) {
         (*this)(lattice.layout_->get_site_index(i)) = lattice[i];
