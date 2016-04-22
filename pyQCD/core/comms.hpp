@@ -27,6 +27,8 @@
 
 #include <mpi.h>
 
+#include "detail/layout_helpers.hpp"
+
 namespace pyQCD {
   class Communicator {
     Communicator();
@@ -36,11 +38,6 @@ namespace pyQCD {
     static Communicator& instance();
 
     void init(MPI_Comm& comm);
-
-    template<typename T>
-    static void send(const T& data);
-    template<typename T>
-    static void recv(const T& data);
 
     int size() const { return size_; }
     int rank() const { return rank_; }
@@ -60,6 +57,58 @@ namespace pyQCD {
   {
     // Ensure that we have an MPI_Datatype instance in mpi_types
   }
+
+  template <typename T>
+  struct MpiType
+  {
+    static MPI_Datatype make(const detail::Int vec_size = 1);
+  };
+
+  template <>
+  struct MpiType<float>
+  {
+    static MPI_Datatype make(const detail::Int vec_size = 1)
+    {
+      MPI_Datatype ret;
+      MPI_Type_contiguous(vec_size, MPI_FLOAT, &ret);
+      return ret;
+    }
+  };
+
+  template <>
+  struct MpiType<double>
+  {
+    static MPI_Datatype make(const detail::Int vec_size = 1)
+    {
+      MPI_Datatype ret;
+      MPI_Type_contiguous(vec_size, MPI_DOUBLE, &ret);
+      return ret;
+    }
+  };
+
+  template <typename T>
+  struct MpiType<std::complex<T>>
+  {
+    static MPI_Datatype make(const detail::Int vec_size = 1)
+    {
+      auto inner_type = MpiType<T>::make();
+      MPI_Datatype ret;
+      MPI_Type_contiguous(vec_size * 2, inner_type, &ret);
+      return ret;
+    }
+  };
+
+  template <typename T, int N, int M>
+  struct MpiType<Eigen::Matrix<T, N, M>>
+  {
+    static MPI_Datatype make(const detail::Int vec_size = 1)
+    {
+      auto inner_type = MpiType<T>::make();
+      MPI_Datatype ret;
+      MPI_Type_contiguous(vec_size * N * M, inner_type, &ret);
+      return ret;
+    }
+  };
 }
 
 #endif
