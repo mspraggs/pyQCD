@@ -29,9 +29,10 @@
 namespace pyQCD
 {
   Layout::Layout(const Site& shape, const Site& partition, const Int halo_depth,
-                   const Int max_mpi_hop)
+                 const Int max_mpi_hop)
     : use_mpi_(partition.size() > 0), num_dims_(static_cast<Int>(shape.size())),
-      global_shape_(shape), partition_(partition), halo_depth_(halo_depth)
+      global_shape_(shape), partition_(partition), halo_depth_(halo_depth),
+      max_mpi_hop_(max_mpi_hop)
   {
     // Initialize the MPI layout and associated halo buffers
 
@@ -136,17 +137,21 @@ namespace pyQCD
 
     PYQCD_SET_TRACE
     buffer_ranks_.resize(num_buffers_);
+    surface_ranks_.resize(num_buffers_);
     surface_site_offsets_.resize(num_buffers_);
     surface_site_corner_indices_.resize(num_buffers_);
     buffer_volumes_.resize(num_buffers_);
 
     // Strap yourself in, things are about to get ugly...
-    buffer_map_.resize(2 * num_dims_);
+    axis_hop_buffer_map_.resize(2 * num_dims_);
+    hop_buffer_map_.resize(2 * num_dims_);
     for (Int dim = 0; dim < num_dims_; ++dim) {
       auto axis = compute_axis(dim, MpiDirection::FRONT);
-      buffer_map_[axis].resize(max_mpi_hop);
+      axis_hop_buffer_map_[axis].resize(max_mpi_hop);
+      hop_buffer_map_[axis].resize(max_mpi_hop);
       axis = compute_axis(dim, MpiDirection::BACK);
-      buffer_map_[axis].resize(max_mpi_hop);
+      axis_hop_buffer_map_[axis].resize(max_mpi_hop);
+      hop_buffer_map_[axis].resize(max_mpi_hop);
     }
 #ifdef USE_MPI
     auto& comm = Communicator::instance().comm();
@@ -163,11 +168,15 @@ namespace pyQCD
       // offset is the Cartesian offset within the MPI grid.
 
       // Compute neighbour rank
-      detail::IVec neighbour_coords = offset + mpi_coord;
+      detail::IVec neighbour_coords = mpi_coord + offset;
+      detail::IVec reverse_neighbour_coords = mpi_coord - offset;
       detail::sanitise_coords(neighbour_coords, partition_, num_dims_);
+      detail::sanitise_coords(reverse_neighbour_coords, partition_, num_dims_);
 #ifdef USE_MPI
       MPI_Cart_rank(comm, neighbour_coords.data(),
                     &buffer_ranks_[buffer_index]);
+      MPI_Cart_rank(comm, reverse_neighbour_coords.data(),
+                    &surface_ranks_[buffer_index]);
 #endif
       detail::IVec buffer_shape = compute_buffer_shape(offset);
       buffer_volumes_[buffer_index]
@@ -207,7 +216,7 @@ namespace pyQCD
     // Process the mpi coordinate offset given and use it to add to various
     // buffer-related variables.
 
-    // Here we want to populate buffer_map_, which basically describes how the
+    // Here we want to populate axis_hop_buffer_map_, which basically describes how the
     // various buffer indices can be partitioned according to the
     // communication axis and the number of mpi hops.
     Int array_index_start = local_volume_;
@@ -222,11 +231,12 @@ namespace pyQCD
     for (Int dim = 0; dim < num_dims_; ++dim) {
       if (offset[dim] != 0) { // Only interested in cases where comms occurs
         // Compute the axis for this dimension/offset and use that to add to
-        // the buffer_map_
+        // the axis_hop_buffer_map_
         auto dir
           = (offset[dim] > 0) ? MpiDirection::FRONT : MpiDirection::BACK;
         auto axis = compute_axis(dim, dir);
-        buffer_map_[axis][num_hops - 1].push_back(buffer_index);
+        axis_hop_buffer_map_[axis][num_hops - 1].push_back(buffer_index);
+        hop_buffer_map_[num_hops - 1].push_back(buffer_index);
         // Add/subtract from the buffer_corner coordinate depending on which
         // direction we're dealing with
         buffer_corner[dim]
@@ -241,6 +251,10 @@ namespace pyQCD
         }
       }
     }
+
+    auto& hb_map = hop_buffer_map_[num_hops - 1];
+    std::sort(hb_map.begin(), hb_map.end());
+    hb_map.erase(std::unique(hb_map.begin(), hb_map.end()), hb_map.end());
 
     // Now we want to populate array_indices_, site_indices_ and
     // surface_site_offsets_

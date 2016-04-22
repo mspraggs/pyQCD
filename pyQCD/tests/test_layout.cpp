@@ -69,24 +69,24 @@ TEST_CASE("LexicoLayout test") {
   REQUIRE (layout.buffer_volume(4) == 16);
 
   for (pyQCD::Int axis = 0; axis < 2 * layout.num_dims(); ++axis) {
-    REQUIRE (layout.buffer_indices(axis, 1).size() == ((axis < 4) ? 1 : 0));
-    REQUIRE (layout.buffer_indices(axis, 2).size() == ((axis < 4) ? 2 : 0));
+    REQUIRE (layout.axis_buffer_indices(axis, 1).size() == ((axis < 4) ? 1 : 0));
+    REQUIRE (layout.axis_buffer_indices(axis, 2).size() == ((axis < 4) ? 2 : 0));
   }
-  // Test that the buffer_map_ has been constructed correctly, starting with
+  // Test that the axis_hop_buffer_map_ has been constructed correctly, starting with
   // one hop
-  REQUIRE (layout.buffer_indices(0, 1)[0] == 0);
-  REQUIRE (layout.buffer_indices(2, 1)[0] == 1);
-  REQUIRE (layout.buffer_indices(3, 1)[0] == 2);
-  REQUIRE (layout.buffer_indices(1, 1)[0] == 3);
+  REQUIRE (layout.axis_buffer_indices(0, 1)[0] == 0);
+  REQUIRE (layout.axis_buffer_indices(2, 1)[0] == 1);
+  REQUIRE (layout.axis_buffer_indices(3, 1)[0] == 2);
+  REQUIRE (layout.axis_buffer_indices(1, 1)[0] == 3);
   // Now two mpi hops
-  REQUIRE (layout.buffer_indices(0, 2)[0] == 4);
-  REQUIRE (layout.buffer_indices(0, 2)[1] == 5);
-  REQUIRE (layout.buffer_indices(2, 2)[0] == 4);
-  REQUIRE (layout.buffer_indices(2, 2)[1] == 6);
-  REQUIRE (layout.buffer_indices(1, 2)[0] == 6);
-  REQUIRE (layout.buffer_indices(1, 2)[1] == 7);
-  REQUIRE (layout.buffer_indices(3, 2)[0] == 5);
-  REQUIRE (layout.buffer_indices(3, 2)[1] == 7);
+  REQUIRE (layout.axis_buffer_indices(0, 2)[0] == 4);
+  REQUIRE (layout.axis_buffer_indices(0, 2)[1] == 5);
+  REQUIRE (layout.axis_buffer_indices(2, 2)[0] == 4);
+  REQUIRE (layout.axis_buffer_indices(2, 2)[1] == 6);
+  REQUIRE (layout.axis_buffer_indices(1, 2)[0] == 6);
+  REQUIRE (layout.axis_buffer_indices(1, 2)[1] == 7);
+  REQUIRE (layout.axis_buffer_indices(3, 2)[0] == 5);
+  REQUIRE (layout.axis_buffer_indices(3, 2)[1] == 7);
 
   // Now check that the mapping between lexicographic index and array index
   // is computed correctly
@@ -128,7 +128,7 @@ TEST_CASE("LexicoLayout test") {
   REQUIRE (layout.site_is_here(320) == (rank == 2 or rank == 3));
   REQUIRE (layout.site_is_here(357) == (rank == 2 or rank == 3));
 #else
-  Layout layout({8, 4, 4, 4});
+  //Layout layout({8, 4, 4, 4});
 #endif
 /*
   for (int i = 0; i < 512; ++i) {

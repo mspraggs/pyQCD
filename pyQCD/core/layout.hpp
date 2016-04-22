@@ -93,16 +93,25 @@ namespace pyQCD
     const Site& local_shape() const { return local_shape_; }
     Int num_dims() const { return num_dims_; }
     Int num_buffers() const { return num_buffers_; }
+    Int max_mpi_hop() const { return max_mpi_hop_; }
 
     Int buffer_volume(const Int buffer_index) const
     { return buffer_volumes_[buffer_index]; }
-    const std::vector<Int>&
-    buffer_indices(const Int axis, const Int mpi_hop) const
-    { return buffer_map_[axis][mpi_hop - 1]; }
+    int buffer_mpi_rank(const Int buffer_index) const
+    { return buffer_ranks_[buffer_index]; }
+    int surface_mpi_rank(const Int buffer_index) const
+    { return surface_ranks_[buffer_index]; }
+    const std::vector<Int>& axis_buffer_indices(const Int axis,
+                                                const Int mpi_hop) const
+    { return axis_hop_buffer_map_[axis][mpi_hop - 1]; }
+    const std::vector<Int>& buffer_indices(const Int mpi_hop) const
+    { return hop_buffer_map_[mpi_hop - 1]; }
     Int surface_site_corner_index(const Int buffer_index) const
     { return surface_site_corner_indices_[buffer_index]; }
     const std::vector<int>& surface_site_offsets(const Int buffer_index) const
     { return surface_site_offsets_[buffer_index]; }
+
+    static Int compute_axis(const Int dimension, const MpiDirection dir);
 
   private:
     bool use_mpi_;
@@ -156,11 +165,17 @@ namespace pyQCD
     // Defines the number of sites the MPI halo. This is enforced to be less
     // than any of the dimensions in the local_shape_, for the sake
     Int halo_depth_;
+    // Maximum MPI hop - just some storage
+    Int max_mpi_hop_;
     // Define the mapping between an axis, the max_mpi_hop and the indices of
     // the buffers. The first index will be the axis, whilst the second index is
     // the mpi_hop parameter - 1, both previously mentioned. The inner-most
-    // std::vector contains the buffer indices associated with that
-    std::vector<std::vector<std::vector<Int>>> buffer_map_;
+    // std::vector contains the buffer indices associated with these parameters.
+    std::vector<std::vector<std::vector<Int>>> axis_hop_buffer_map_;
+    // Define the mapping between the max_mpi_hop and the indices of the
+    // buffers. The first index is the mpi_hop parameter - 1. The inner-most
+    // std::vector contains the buffer indices associated with these parameters.
+    std::vector<std::vector<Int>> hop_buffer_map_;
     // These define the array indices for the sites that belong in the halo of
     // other neighbours. The first index is the buffer index, the second is the
     // lexicographic index of the site within the surface.
@@ -171,10 +186,12 @@ namespace pyQCD
     std::vector<Int> buffer_volumes_;
     // Specifies the ranks of the MPI nodes associated with the buffers.
     std::vector<int> buffer_ranks_;
+    // Similar to buffer_ranks_, but specifies the mpi rank of the node in the
+    // opposite direction within the mpi grid.
+    std::vector<int> surface_ranks_;
 
 
     // Here we specify some convenience functions for halo operations
-    static Int compute_axis(const Int dimension, const MpiDirection dir);
     void initialise_buffers(const Int max_mpi_hop);
     detail::IVec compute_buffer_shape(const detail::IVec& offset) const;
     void initialise_unbuffered_sites();
