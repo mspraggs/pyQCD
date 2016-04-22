@@ -157,6 +157,10 @@ TEST_CASE("Lattice test") {
     site_view1 = site_view2;// + site_view2;
     REQUIRE(lattice1[0] == 1.0);
   }
+
+  SECTION("Test halo swap") {
+    lattice1.halo_swap();
+  }
 }
 
 TEST_CASE("Non-integral Array types test") {

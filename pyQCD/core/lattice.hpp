@@ -96,6 +96,10 @@ namespace pyQCD
       return *this;
     }
 
+    void halo_swap_start(const int dim = -1, const int max_mpi_hop = -1);
+    void halo_swap_wait(const int dim = -1, const int max_mpi_hop = -1);
+    void halo_swap(const int dim = -1, const int max_mpi_hop = -1);
+
 #define LATTICE_OPERATOR_ASSIGN_DECL(op)				                             \
     template <typename U,                                                    \
       typename std::enable_if<                                               \
@@ -126,13 +130,17 @@ namespace pyQCD
     // Destructor helper
     void destruct_mpi_types();
 
+    // Halo swap helpers
+    void halo_swap_buffers_start(const std::vector<Int>& buffers);
+    void halo_swap_buffers_wait(const std::vector<Int>& buffers);
+
     // Member variables
     Int site_size_;
     bool mpi_types_constructed_;
     const Layout* layout_;
     aligned_vector<T> data_;
 
-    std::vector<T*> comms_buffers_;
+    std::vector<T*> buffer_pointers_;
     std::vector<T*> surface_pointers_;
 
     MPI_Datatype site_mpi_type_;
@@ -151,7 +159,7 @@ namespace pyQCD
   template <typename T>
   Lattice<T>::Lattice(const Layout& layout,  const T& val, const Int site_size)
   : site_size_(site_size), layout_(&layout),
-    data_(site_size_ * layout.local_size(), val)
+    data_(site_size_ * layout.local_size(), val), mpi_types_constructed_(false)
   {
     init_mpi_types();
     init_mpi_status();
@@ -217,14 +225,14 @@ namespace pyQCD
   void Lattice<T>::init_mpi_pointers()
   {
     // Initialise pointers that point to first array element in data_
-    comms_buffers_.resize(layout_->num_buffers());
+    buffer_pointers_.resize(layout_->num_buffers());
     surface_pointers_.resize(layout_->num_buffers());
 
-    comms_buffers_[0] = data_.data() + layout_->local_volume();
+    buffer_pointers_[0] = data_.data() + layout_->local_volume();
     surface_pointers_[0] = data_.data() + layout_->surface_site_corner_index(0);
     for (unsigned int buffer = 1; buffer < layout_->num_buffers(); ++buffer) {
-      comms_buffers_[buffer]
-        = comms_buffers_[buffer - 1] + layout_->buffer_volume(buffer - 1);
+      buffer_pointers_[buffer]
+        = buffer_pointers_[buffer - 1] + layout_->buffer_volume(buffer - 1);
       surface_pointers_[buffer]
         = data_.data() + layout_->surface_site_corner_index(buffer);
     }
@@ -269,6 +277,86 @@ namespace pyQCD
       }
     }
     return *this;
+  }
+
+
+  template <typename T>
+  void Lattice<T>::halo_swap_start(const int dim, const int max_mpi_hop)
+  {
+    Int max_mpi_hop_act = (max_mpi_hop < 0)
+                          ? layout_->max_mpi_hop()
+                          : static_cast<Int>(max_mpi_hop);
+    PYQCD_SET_TRACE
+    if (dim > -1) {
+      std::vector<Layout::MpiDirection> dirs{Layout::MpiDirection::FRONT,
+                                             Layout::MpiDirection::BACK};
+      for (auto dir : dirs) {
+        Int axis = Layout::compute_axis(static_cast<Int>(dim), dir);
+        auto& buffers = layout_->axis_buffer_indices(axis, max_mpi_hop_act);
+        halo_swap_buffers_start(buffers);
+      }
+    }
+    else {
+      PYQCD_SET_TRACE
+      auto& buffers = layout_->buffer_indices(max_mpi_hop_act);
+      halo_swap_buffers_start(buffers);
+    }
+  }
+
+
+  template <typename T>
+  void Lattice<T>::halo_swap_wait(const int dim, const int max_mpi_hop)
+  {
+    Int max_mpi_hop_act = (max_mpi_hop < 0)
+                          ? layout_->max_mpi_hop()
+                          : static_cast<Int>(max_mpi_hop);
+
+    if (dim > -1) {
+      std::vector<Layout::MpiDirection> dirs{Layout::MpiDirection::FRONT,
+                                             Layout::MpiDirection::BACK};
+      for (auto dir : dirs) {
+        Int axis = Layout::compute_axis(static_cast<Int>(dim), dir);
+        auto& buffers = layout_->axis_buffer_indices(axis, max_mpi_hop_act);
+        halo_swap_buffers_wait(buffers);
+      }
+    }
+    else {
+      auto& buffers = layout_->buffer_indices(max_mpi_hop_act);
+      halo_swap_buffers_wait(buffers);
+    }
+  }
+
+
+  template <typename T>
+  void Lattice<T>::halo_swap(const int dim, const int max_mpi_hop)
+  {
+    halo_swap_start(dim, max_mpi_hop);
+    halo_swap_wait(dim, max_mpi_hop);
+  }
+
+
+  template <typename T>
+  void Lattice<T>::halo_swap_buffers_start(const std::vector<Int>& buffers)
+  {
+    for (auto buf : buffers) {
+      PYQCD_SET_TRACE
+      MPI_Isend(surface_pointers_[buf], 1, surface_mpi_types_[buf],
+                layout_->buffer_mpi_rank(buf), static_cast<int>(buf),
+                Communicator::instance().comm(), &send_requests_[buf]);
+      MPI_Irecv(buffer_pointers_[buf], 1, buffer_mpi_types_[buf],
+                layout_->surface_mpi_rank(buf), static_cast<int>(buf),
+                Communicator::instance().comm(), &recv_requests_[buf]);
+    }
+  }
+
+
+  template <typename T>
+  void Lattice<T>::halo_swap_buffers_wait(const std::vector<Int>& buffers)
+  {
+    for (auto buf : buffers) {
+      MPI_Wait(&send_requests_[buf], &send_status_[buf]);
+      MPI_Wait(&recv_requests_[buf], &recv_status_[buf]);
+    }
   }
 
 
