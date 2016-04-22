@@ -92,14 +92,17 @@ namespace pyQCD
     Int local_size() const { return local_size_; }
     const Site& local_shape() const { return local_shape_; }
     Int num_dims() const { return num_dims_; }
+    Int num_buffers() const { return num_buffers_; }
 
     Int buffer_volume(const Int buffer_index) const
     { return buffer_volumes_[buffer_index]; }
     const std::vector<Int>&
     buffer_indices(const Int axis, const Int mpi_hop) const
     { return buffer_map_[axis][mpi_hop - 1]; }
-    const std::vector<Int>& buffered_array_indices(const Int buffer_index) const
-    { return surface_site_indices_[buffer_index]; }
+    Int surface_site_corner_index(const Int buffer_index) const
+    { return surface_site_corner_indices_[buffer_index]; }
+    const std::vector<int>& surface_site_offsets(const Int buffer_index) const
+    { return surface_site_offsets_[buffer_index]; }
 
   private:
     bool use_mpi_;
@@ -160,8 +163,9 @@ namespace pyQCD
     std::vector<std::vector<std::vector<Int>>> buffer_map_;
     // These define the array indices for the sites that belong in the halo of
     // other neighbours. The first index is the buffer index, the second is the
-    // lexicographic index within that buffer.
-    std::vector<std::vector<Int>> surface_site_indices_;
+    // lexicographic index of the site within the surface.
+    std::vector<std::vector<int>> surface_site_offsets_;
+    std::vector<Int> surface_site_corner_indices_;
     // This defines the buffer volumes as the number of lattice sites within the
     // buffer.
     std::vector<Int> buffer_volumes_;
@@ -171,13 +175,9 @@ namespace pyQCD
 
     // Here we specify some convenience functions for halo operations
     static Int compute_axis(const Int dimension, const MpiDirection dir);
-
     void initialise_buffers(const Int max_mpi_hop);
-
     detail::IVec compute_buffer_shape(const detail::IVec& offset) const;
-
     void initialise_unbuffered_sites();
-
     void handle_offset(const detail::IVec& offset,
                        const detail::IVec& surface_corner,
                        const detail::IVec& buffer_shape,

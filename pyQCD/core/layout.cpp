@@ -136,7 +136,8 @@ namespace pyQCD
 
     PYQCD_SET_TRACE
     buffer_ranks_.resize(num_buffers_);
-    surface_site_indices_.resize(num_buffers_);
+    surface_site_offsets_.resize(num_buffers_);
+    surface_site_corner_indices_.resize(num_buffers_);
     buffer_volumes_.resize(num_buffers_);
 
     // Strap yourself in, things are about to get ugly...
@@ -217,7 +218,7 @@ namespace pyQCD
 
     detail::IVec local_shape = detail::site_to_ivec(local_shape_);
     detail::IVec buffer_corner = unbuffered_region_corner;
-    detail::IVec surface_corner = unbuffered_region_corner;
+    detail::IVec surface_corner = detail::IVec::Zero(num_dims_);
     for (Int dim = 0; dim < num_dims_; ++dim) {
       if (offset[dim] != 0) { // Only interested in cases where comms occurs
         // Compute the axis for this dimension/offset and use that to add to
@@ -242,13 +243,15 @@ namespace pyQCD
     }
 
     // Now we want to populate array_indices_, site_indices_ and
-    // surface_site_indices_
+    // surface_site_offsets_
     auto buffer_site_iter
         = detail::SiteIterator(buffer_shape.data(),
                                buffer_shape.data() + num_dims_);
     Int i = 0;
-    surface_site_indices_[buffer_index].resize(
-        buffer_volumes_[buffer_index]);
+    surface_site_offsets_[buffer_index].resize(buffer_volumes_[buffer_index]);
+    // TODO: Make this layout independent
+    Int corner_index
+      = detail::coords_to_lex_index(surface_corner, local_shape_, num_dims_);
     for (auto& site : buffer_site_iter) {
       auto site_ivec = detail::site_to_ivec(site);
       // Determine the lexicographic indices of the sites in the buffer, then
@@ -266,12 +269,13 @@ namespace pyQCD
 
       // Similar, but now determine the mapping between the sites that are
       // stored in the buffers of neighbouring mpi nodes
+      // TODO: Make this layout-independent
       detail::IVec surface_site = surface_corner + site_ivec;
-      lexico_index = detail::coords_to_lex_index(surface_site,
-                                                 local_shape_with_halo_,
-                                                 num_dims_);
-      surface_site_indices_[buffer_index][i++] = lexico_index;
+      Int array_index = detail::coords_to_lex_index(surface_site, local_shape_,
+                                                    num_dims_);
+      surface_site_offsets_[buffer_index][i++] = array_index - corner_index;
     }
+    surface_site_corner_indices_[buffer_index] = corner_index;
   }
 
 
