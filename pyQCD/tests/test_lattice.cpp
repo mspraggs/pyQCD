@@ -159,7 +159,23 @@ TEST_CASE("Lattice test") {
   }
 
   SECTION("Test halo swap") {
+    auto rank = pyQCD::Communicator::instance().rank();
+    if (rank == 0) {
+      lattice1(pyQCD::Site{1, 1, 0, 0}) = 144.0;
+    }
     lattice1.halo_swap();
+    if (rank == 2) {
+      REQUIRE(lattice1[1152] == 144.0);
+      REQUIRE(lattice1(pyQCD::Site{5, 1, 0, 0}) == 144.0);
+    }
+    if (rank == 1) {
+      REQUIRE(lattice1[896] == 144.0);
+      REQUIRE(lattice1(pyQCD::Site{1, 3, 0, 0}) == 144.0);
+    }
+    if (rank == 3) {
+      REQUIRE(lattice1[1472] == 144.0);
+      REQUIRE(lattice1(pyQCD::Site{5, 3, 0, 0}) == 144.0);
+    }
   }
 }
 
