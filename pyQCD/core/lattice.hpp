@@ -158,8 +158,8 @@ namespace pyQCD
 
   template <typename T>
   Lattice<T>::Lattice(const Layout& layout,  const T& val, const Int site_size)
-  : site_size_(site_size), layout_(&layout),
-    data_(site_size_ * layout.local_size(), val), mpi_types_constructed_(false)
+  : site_size_(site_size), mpi_types_constructed_(false),
+    layout_(&layout), data_(site_size_ * layout.local_size(), val)
   {
     init_mpi_types();
     init_mpi_status();
@@ -228,13 +228,16 @@ namespace pyQCD
     buffer_pointers_.resize(layout_->num_buffers());
     surface_pointers_.resize(layout_->num_buffers());
 
-    buffer_pointers_[0] = data_.data() + layout_->local_volume();
-    surface_pointers_[0] = data_.data() + layout_->surface_site_corner_index(0);
+    buffer_pointers_[0] = data_.data() + site_size_ * layout_->local_volume();
+    surface_pointers_[0]
+      = data_.data() + site_size_ * layout_->surface_site_corner_index(0);
     for (unsigned int buffer = 1; buffer < layout_->num_buffers(); ++buffer) {
       buffer_pointers_[buffer]
-        = buffer_pointers_[buffer - 1] + layout_->buffer_volume(buffer - 1);
+        = buffer_pointers_[buffer - 1]
+          + site_size_ * layout_->buffer_volume(buffer - 1);
       surface_pointers_[buffer]
-        = data_.data() + layout_->surface_site_corner_index(buffer);
+        = data_.data()
+          + site_size_ * layout_->surface_site_corner_index(buffer);
     }
   }
 
@@ -292,14 +295,18 @@ namespace pyQCD
                                              Layout::MpiDirection::BACK};
       for (auto dir : dirs) {
         Int axis = Layout::compute_axis(static_cast<Int>(dim), dir);
-        auto& buffers = layout_->axis_buffer_indices(axis, max_mpi_hop_act);
-        halo_swap_buffers_start(buffers);
+        for (Int mpi_hop = 1; mpi_hop <= max_mpi_hop_act; ++mpi_hop) {
+          auto& buffers = layout_->axis_buffer_indices(axis, mpi_hop);
+          halo_swap_buffers_start(buffers);
+        }
       }
     }
     else {
       PYQCD_SET_TRACE
-      auto& buffers = layout_->buffer_indices(max_mpi_hop_act);
-      halo_swap_buffers_start(buffers);
+      for (Int mpi_hop = 1; mpi_hop <= max_mpi_hop_act; ++mpi_hop) {
+        auto& buffers = layout_->buffer_indices(mpi_hop);
+        halo_swap_buffers_start(buffers);
+      }
     }
   }
 
@@ -316,13 +323,17 @@ namespace pyQCD
                                              Layout::MpiDirection::BACK};
       for (auto dir : dirs) {
         Int axis = Layout::compute_axis(static_cast<Int>(dim), dir);
-        auto& buffers = layout_->axis_buffer_indices(axis, max_mpi_hop_act);
-        halo_swap_buffers_wait(buffers);
+        for (Int mpi_hop = 1; mpi_hop <= max_mpi_hop_act; ++mpi_hop) {
+          auto& buffers = layout_->axis_buffer_indices(axis, mpi_hop);
+          halo_swap_buffers_wait(buffers);
+        }
       }
     }
     else {
-      auto& buffers = layout_->buffer_indices(max_mpi_hop_act);
-      halo_swap_buffers_wait(buffers);
+      for (Int mpi_hop = 1; mpi_hop <= max_mpi_hop_act; ++mpi_hop) {
+        auto& buffers = layout_->buffer_indices(mpi_hop);
+        halo_swap_buffers_wait(buffers);
+      }
     }
   }
 
@@ -341,10 +352,10 @@ namespace pyQCD
     for (auto buf : buffers) {
       PYQCD_SET_TRACE
       MPI_Isend(surface_pointers_[buf], 1, surface_mpi_types_[buf],
-                layout_->buffer_mpi_rank(buf), static_cast<int>(buf),
+                layout_->buffer_mpi_rank(buf), 1,
                 Communicator::instance().comm(), &send_requests_[buf]);
       MPI_Irecv(buffer_pointers_[buf], 1, buffer_mpi_types_[buf],
-                layout_->surface_mpi_rank(buf), static_cast<int>(buf),
+                layout_->surface_mpi_rank(buf), 1,
                 Communicator::instance().comm(), &recv_requests_[buf]);
     }
   }

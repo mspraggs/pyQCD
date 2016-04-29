@@ -144,14 +144,12 @@ namespace pyQCD
 
     // Strap yourself in, things are about to get ugly...
     axis_hop_buffer_map_.resize(2 * num_dims_);
-    hop_buffer_map_.resize(2 * num_dims_);
+    hop_buffer_map_.resize(max_mpi_hop);
     for (Int dim = 0; dim < num_dims_; ++dim) {
       auto axis = compute_axis(dim, MpiDirection::FRONT);
       axis_hop_buffer_map_[axis].resize(max_mpi_hop);
-      hop_buffer_map_[axis].resize(max_mpi_hop);
       axis = compute_axis(dim, MpiDirection::BACK);
       axis_hop_buffer_map_[axis].resize(max_mpi_hop);
-      hop_buffer_map_[axis].resize(max_mpi_hop);
     }
 #ifdef USE_MPI
     auto& comm = Communicator::instance().comm();
