@@ -1,0 +1,10 @@
+Import("env")
+
+source_files = ["comms.cpp",
+                "layout.cpp",
+                "detail/layout_helpers.cpp"]
+
+env.SharedLibrary(target="pyQCDcore", source=source_files)
+env.Append(RPATH=[Dir(".").abspath])
+env.Append(LIBPATH=[Dir(".").abspath])
+env.Cython('core', LIBS=['pyQCDcore'])

@@ -1,0 +1,106 @@
+import distutils
+import os
+
+import mpi4py
+
+from utils import build
+
+
+cython_builder = Builder(action="cython --cplus $SOURCE",
+                         suffix=".cpp", src_suffix=".pyx")
+
+def cython_pseudo_builder(env, source, *args, **kwargs):
+    code = env.Py2Cpp(source)
+    env.AppendUnique(CPPPATH=[distutils.sysconfig.get_python_inc()])
+    env.SharedLibrary(source, code, LIBPREFIX='', *args, **kwargs)
+
+env = Environment()
+
+platform = env['PLATFORM']
+# TODO: Cross-platform compiler flags
+compiler = env['CXX']
+
+subdirs = ["core", "tests"]
+
+# Set the project name.
+proj_name = 'example'
+
+
+vars = Variables('config.py') # Persistent storage.
+vars.AddVariables(
+    ('CC', 'Set C compiler.'),
+    ('CXX', 'Set CXX compiler.'),
+    EnumVariable('BUILD', 'Set the build type.', 'debug',
+                 allowed_values=('debug', 'optimised')),
+    BoolVariable('PROF', 'Enable profiling.', False),
+    PathVariable('PREFIX', 'Set install location.', '/usr/local',
+                 PathVariable.PathIsDirCreate),
+    BoolVariable('BUILD_STATIC_LIBS', 'Build static libraries.', True),
+    BoolVariable('BUILD_SHARED_LIBS', 'Build shared libraries.', True),
+    BoolVariable('BUILD_TESTS', 'Build unit tests.', True),
+    BoolVariable('BUILD_DOC', 'Build documentation.', False),
+)
+#
+# Create the construction environment we will use.
+#
+
+# Build a list of tools we want included.
+tools = ['default']
+
+# Create the environment.
+current_directory = os.path.realpath(Dir('.').abspath)
+env = Environment(tools=tools, toolpath=['config/tools'], variables=vars,
+                  ENV=os.environ, CXXFLAGS=['-Wall', '-std=c++11'],
+                  BUILDERS={'Py2Cpp': cython_builder})
+env.AddMethod(cython_pseudo_builder, 'Cython')
+env.PrependUnique(CPPPATH=[Dir('.').abspath])
+
+# Add any custom tools here.
+
+# Check if there were any unkown variables on the command line.
+unknown = vars.UnknownVariables()
+if unknown:
+    print 'Unknown variables:', unknown.keys()
+    env.Exit(1)
+
+# Take a snapshot of provided options before we continue.
+vars.Save('config.py', env)
+
+# Generate a help line later use.
+Help(vars.GenerateHelpText(env))
+
+# If the user requested help don't bother continuing with the build.
+if not GetOption('help'):
+
+    #
+    # Perform configuration of the project.
+    #
+
+    # Create our configuration environment, passing the set of custom tests.
+    sconf = env.Configure(custom_tests={"CheckMPI": build.mpi_check,
+                                        "CheckEigen": build.check_eigen})
+
+    # Run our custom tests with any options needed.
+    sconf.CheckMPI()
+    sconf.CheckEigen()
+
+    # Finish the configuration and save it to file.
+    sconf.Finish()
+    vars.Save('config.py', env)
+
+    # Modify the environment based on any of our variables.
+    if env['BUILD'] == 'debug':
+        env.MergeFlags('-g -O0')
+    elif env['BUILD'] == 'optimised':
+        env.MergeFlags('-DNDEBUG -O3')
+    if env['PROF']:
+        env.MergeFlags('-g -pg')
+        env.AppendUnique(LINKFLAGS=['-pg'])
+
+    # Make sure our source code can locate installed headers and
+    # libraries.
+    env['BUILD'] = 'build-' + env['BUILD']
+    env.PrependUnique(LIBPATH=['#' + env['BUILD'] + '/lib'])
+
+    for subdir in subdirs:
+        env.SConscript(os.path.join(subdir, "SConscript"), exports="env")
