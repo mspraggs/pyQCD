@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+import mpi4py
 import numpy as np
 import pytest
 
@@ -10,11 +11,14 @@ def multiply_einsum(a, b):
     """Multiplies Lattice/Array types together using einsum"""
     return np.einsum('...jk,...kl->...jl', a, b)
 
+init_comms([8, 4, 4, 4])
+layout = Layout([8, 4, 4, 4], [2, 2, 1, 1], 1, 1)
+
 @pytest.mark.parametrize(
     "Type,multiply,args",
     [(ColourMatrix, np.dot, ()), (ColourVector, None, ()),
-     (LatticeColourMatrix, multiply_einsum, ([8, 4, 4, 4], 4)),
-     (LatticeColourVector, None, ([8, 4, 4, 4], 4))])
+     (LatticeColourMatrix, multiply_einsum, (layout, 4)),
+     (LatticeColourVector, None, (layout, 4))])
 class TestMatrixType(object):
 
     def test_constructor(self, Type, multiply, args):
@@ -49,11 +53,11 @@ class TestMatrixType(object):
 
         if (isinstance(mat, LatticeColourVector) or
             isinstance(mat, LatticeColourMatrix)):
-            index = (4, 3, 2, 1, 0)
+            index = (3, 1, 2, 1, 0)
             np_mat1[index] = np.ones(shape[5:])
             np_mat2 = np.asarray(mat)
             np_mat2.dtype = complex
-            assert (np_mat2[1252] == np.ones(shape[5:])).all()
+            assert (np_mat2[484] == np.ones(shape[5:])).all()
 
     def test_mul(self, Type, multiply, args):
         """Test multiplications"""

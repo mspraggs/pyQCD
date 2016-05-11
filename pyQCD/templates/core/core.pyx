@@ -1,10 +1,26 @@
 from cpython cimport Py_buffer
 from libcpp.vector cimport vector
 
+from mpi4py import MPI
 import numpy as np
 
+cimport comms
+from comms cimport MPI_Comm
 cimport complex
+from core cimport layout
 from core cimport {% for td in typedefs %}{{ td.name }}{% if not loop.last %}, {% endif %}{% endfor %}
+
+
+def init_comms(comm):
+    cdef size_t comm_ptr = <size_t>MPI._addressof(comm)
+    comms.Communicator.instance().init((<MPI_Comm*>comm_ptr)[0])
+
+
+cdef class Layout:
+
+    def __cinit__(self, shape, partition, halo_depth = 1, max_mpi_hop = 1):
+        self.instance = new layout.Layout(shape, partition, halo_depth,
+                                          max_mpi_hop)
 
 
 {% for typedef in typedefs %}

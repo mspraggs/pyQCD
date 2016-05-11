@@ -9,6 +9,6 @@ cdef extern from "types.hpp" namespace "python":
         LatticeColourVector() except +
         LatticeColourVector(const Layout&, const ColourVector, unsigned int site_size) except +
         ColourVector& operator[](const unsigned int)
-        unsigned int volume()
+        unsigned int local_volume()
         unsigned int num_dims()
         const vector[unsigned int]& lattice_shape()

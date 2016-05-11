@@ -271,17 +271,16 @@ class LatticeDef(ContainerDef):
 
     def __init__(self, name, cname, cmodule, element_type):
         """Constructor for LatticeDef object. See help(LatticeDef)"""
-        shape_expr = "tuple(self.lexico_layout.shape()) + (self.site_size,)"
+        shape_expr = "tuple(self.layout.instance.local_shape()) + (self.site_size,)"
         super(LatticeDef, self).__init__(
-            name, cname, cmodule, "volume() * self.site_size", shape_expr, 1,
-            element_type, "{}.{}(self.lexico_layout[0], {{}}, site_size)"
+            name, cname, cmodule, "local_volume() * self.site_size", shape_expr, 1,
+            element_type, "{}.{}(self.layout.instance[0], {{}}, site_size)"
             .format(cmodule, cname))
 
         shape = element_type.matrix_shape
-        self.add_ctor_arg("shape")
+        self.add_ctor_arg("layout")
         self.add_ctor_arg("site_size", "int", "1")
-        self.add_cmember("layout.Layout*", "lexico_layout",
-                         "new layout.LexicoLayout(shape)")
+        self.add_cmember("Layout", "layout", "layout")
         self.add_cmember("int", "view_count", "0")
         self.add_cmember("int", "site_size", "site_size")
         self.add_cmember("Py_ssize_t",
