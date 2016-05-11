@@ -1,9 +1,11 @@
 from itertools import product
+import subprocess
 import sys
 
 from Cython.Build import cythonize
 from Cython.Compiler.Errors import CompileError
 from setuptools import Extension, setup, find_packages
+from setuptools.command.build_ext import build_ext
 from setuptools.command.test import test as TestCommand
 
 from pyQCD.utils.codegen import CodeGen
@@ -58,6 +60,13 @@ class PyTest(TestCommand):
         sys.exit(errno)
 
 
+# Overridden build command to integrate with SCons
+class SConsBuild(build_ext):
+    def run(self):
+        p = subprocess.Popen(["./scons.py", "-C", "pyQCD"])
+        p.communicate()
+        build_ext.run(self)
+
 setup(
     name='pyQCD',
     version='',
@@ -66,7 +75,7 @@ setup(
     url='http://github.com/mspraggs/pyqcd/',
     author='Matt Spraggs',
     author_email='matthew.spraggs@gmail.com',
-    cmdclass={'codegen': CodeGen, 'test': PyTest},
+    cmdclass={'codegen': CodeGen, 'test': PyTest, 'build_ext': SConsBuild},
     description='pyQCD provides a Python library for running lattice field '
                 'theory simulations on desktop and workstation computers.',
     long_description=long_description,
