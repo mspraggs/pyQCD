@@ -10,6 +10,7 @@ addons:
     packages:
     - cmake
     - libeigen3-dev
+    - libopenmpi-dev
 before_install:
   - pip install pip-accel
 install:
