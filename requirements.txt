@@ -4,5 +4,6 @@ MarkupSafe==0.23
 argparse==1.2.1
 ipython==3.1.0
 numpy==1.9.2
+mpi4py==2.0.0
 py==1.4.27
 pytest==2.7.0
