@@ -24,6 +24,7 @@
  */
 
 #include <complex>
+#include <stdexcept>
 
 #include "macros.hpp"
 
