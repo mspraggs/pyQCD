@@ -8,7 +8,7 @@ case "$MPI_IMPL" in
     then
       echo "Installing OpenMPI 1.6.5"
       wget --no-check-certificate https://www.open-mpi.org/software/ompi/v1.6/downloads/openmpi-1.6.5.tar.gz
-      tar xvf openmpi-1.6.5.tar.gz
+      tar xf openmpi-1.6.5.tar.gz
       mkdir -p openmpi-1.6.5/build
       cd openmpi-1.6.5/build
       ../configure --prefix="$HOME/.local/$MPI_IMPL" > /dev/null 2>&1
@@ -26,4 +26,5 @@ esac
 export PATH=$PATH:$HOME/.local/$MPI_IMPL/bin
 export LIBRARY_PATH=$LIBRARY_PATH:$HOME/.local/$MPI_IMPL/lib
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/.local/$MPI_IMPL/lib
+export CC=mpicc
 export CXX=mpicxx
