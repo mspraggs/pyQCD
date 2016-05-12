@@ -12,7 +12,6 @@ addons:
     packages:
     - cmake
     - libeigen3-dev
-    - libopenmpi-dev
 before_install:
   - export CXX="clang++" CC="clang"
   - sh install-mpi.sh $MPI
