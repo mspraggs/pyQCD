@@ -65,13 +65,12 @@ class SConsBuild(build_ext):
     def run(self):
         p = subprocess.Popen(["./scons.py", "-C", "pyQCD"])
         p.communicate()
-        build_ext.run(self)
 
 setup(
     name='pyQCD',
     version='',
     packages=find_packages(exclude=["*test*"]),
-    ext_modules=[],
+    ext_modules=ext_modules,
     url='http://github.com/mspraggs/pyqcd/',
     author='Matt Spraggs',
     author_email='matthew.spraggs@gmail.com',
