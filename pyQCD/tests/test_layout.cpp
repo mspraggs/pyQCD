@@ -112,7 +112,7 @@ TEST_CASE("LexicoLayout test") {
   REQUIRE (layout.surface_site_offsets(1)[0] == 0);
   REQUIRE (layout.surface_site_offsets(1)[16] == 32);
   REQUIRE (layout.surface_site_offsets(4)[0] == 0);
-  REQUIRE (layout.surface_site_offsets(4)[20] == 10);
+  REQUIRE (layout.surface_site_offsets(4)[9] == 9);
 
   REQUIRE (layout.site_mpi_rank(0) == 0);
   REQUIRE (layout.site_mpi_rank(128) == 2);
