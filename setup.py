@@ -28,10 +28,13 @@ with open("README.md") as f:
     long_description = f.read()
 
 
-extensions = [Extension("pyQCD.core.core", ["pyQCD/core/core.pyx"],
+extensions = [Extension("pyQCD.core.core", ["pyQCD/core/core.pyx",
+                                            "pyQCD/core/comms.cpp",
+                                            "pyQCD/core/layout.cpp",
+                                            "pyQCD/core/detail/layout_helpers.cpp"],
                         language="c++", undef_macros=["NDEBUG"],
                         include_dirs=["./pyQCD", "/usr/include/eigen3"],
-                        extra_compile_args=["-std=c++11"])]
+                        extra_compile_args=["-std=c++11", "-DUSE_MPI"])]
 
 # Do not rebuild on change of extension module in the case where we're
 # regenerating the code (in case of errors)
@@ -74,7 +77,7 @@ setup(
     url='http://github.com/mspraggs/pyqcd/',
     author='Matt Spraggs',
     author_email='matthew.spraggs@gmail.com',
-    cmdclass={'codegen': CodeGen, 'test': PyTest, 'build_ext': SConsBuild},
+    cmdclass={'codegen': CodeGen, 'test': PyTest},
     description='pyQCD provides a Python library for running lattice field '
                 'theory simulations on desktop and workstation computers.',
     long_description=long_description,
