@@ -71,7 +71,7 @@ setup(
     name='pyQCD',
     version='',
     packages=find_packages(exclude=["*test*"]),
-    ext_modules=ext_modules,
+    ext_modules=[],
     url='http://github.com/mspraggs/pyqcd/',
     author='Matt Spraggs',
     author_email='matthew.spraggs@gmail.com',
