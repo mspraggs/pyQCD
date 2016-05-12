@@ -5,6 +5,8 @@ compiler:
 python:
   - "2.7"
 #  - "3.4"
+env:
+  - MPI=openmpi16
 addons:
   apt:
     packages:
@@ -12,18 +14,16 @@ addons:
     - libeigen3-dev
     - libopenmpi-dev
 before_install:
+  - export CXX="clang++" CC="clang"
+  - sh install-mpi.sh $MPI
   - pip install pip-accel
 install:
   - pip-accel install -r requirements.txt
   - "pip install ."
-  - mkdir build
-  - cd build
-  - cmake .. -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
-  - make
-  - cd ..
-script: 
-  - for f in build/pyQCD/test_*; do echo "Running test file ${f}"; ./$f; done
+script:
+  - for f in pyQCD/test_*; do echo "Running test file ${f}"; ./$f; done
   - py.test -vl
 cache:
   directories:
   - $HOME/.pip-accel
+  - $HOME/.local
