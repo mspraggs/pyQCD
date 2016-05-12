@@ -7,7 +7,7 @@ case "$MPI_IMPL" in
     if [ ! -d "$HOME/.local/$MPI_IMPL/bin" ]
     then
       echo "Installing OpenMPI 1.6.5"
-      wget https://www.open-mpi.org/software/ompi/v1.6/downloads/openmpi-1.6.5.tar.gz
+      wget --no-check-certificate https://www.open-mpi.org/software/ompi/v1.6/downloads/openmpi-1.6.5.tar.gz
       tar xvf openmpi-1.6.5.tar.gz
       mkdir -p openmpi-1.6.5/build
       cd openmpi-1.6.5/build
