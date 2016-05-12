@@ -14,7 +14,7 @@ addons:
     - libeigen3-dev
 before_install:
   - export CXX="clang++" CC="clang"
-  - sh install-mpi.sh $MPI
+  - source install-mpi.sh $MPI
   - pip install pip-accel
 install:
   - pip-accel install -r requirements.txt

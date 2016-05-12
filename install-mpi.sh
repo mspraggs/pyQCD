@@ -23,3 +23,4 @@ esac
 export PATH=$PATH:$HOME/.local/$MPI_IMPL/bin
 export LIBRARY_PATH=$LIBRARY_PATH:$HOME/.local/$MPI_IMPL/lib
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/.local/$MPI_IMPL/lib
+export CXX=mpicxx
