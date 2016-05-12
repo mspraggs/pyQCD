@@ -22,8 +22,9 @@ set (test_SRC
   ${TEST_DIR}/test_wilson_action.cpp)
 
 set (benchmark_SRC
-  ${BENCH_DIR}/bench_lattice.cpp
-  ${BENCH_DIR}/bench_wilson_action.cpp)
+  #${BENCH_DIR}/bench_lattice.cpp
+  #${BENCH_DIR}/bench_wilson_action.cpp
+)
 
 set (core_SRC
   ${SRC_DIR}/core/comms.cpp
