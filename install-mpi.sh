@@ -11,7 +11,10 @@ case "$MPI_IMPL" in
       tar xvf openmpi-1.6.5.tar.gz
       mkdir -p openmpi-1.6.5/build
       cd openmpi-1.6.5/build
-      ../configure --prefix="$HOME/.local/$MPI_IMPL" && make && make install
+      ../configure --prefix="$HOME/.local/$MPI_IMPL" > /dev/null 2>&1
+      make > /dev/null 2>&1
+      make install > /dev/null 2>&1
+      cd ../..
     else
       echo "Using cached OpenMPI 1.6.5"
     fi
