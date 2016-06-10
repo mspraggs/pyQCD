@@ -55,21 +55,13 @@ namespace pyQCD
     typedef std::function<bool(const Int)> SubsetFunc;
 
     Layout() = default;
-    Layout(const Site& shape, const ArrFunc& compute_array_index)
+    Layout(const Site& shape)
       : num_dims_(static_cast<Int>(shape.size())),
         shape_(shape)
     {
       // Constructor create arrays of site/array indices
       volume_ = std::accumulate(shape.begin(), shape.end(), 1u,
         std::multiplies<Int>());
-
-      array_indices_.resize(volume_);
-      site_indices_.resize(volume_);
-      for (Int site_index = 0; site_index < volume_; ++site_index) {
-        Int array_index = compute_array_index(site_index);
-        array_indices_[site_index] = array_index;
-        site_indices_[array_index] = site_index;
-      }
     }
     virtual ~Layout() = default;
 
@@ -85,35 +77,33 @@ namespace pyQCD
     template <typename T>
     inline void sanitize_site_coords(T& coords) const;
 
-    template <typename T = Layout>
-    T subset(const SubsetFunc& func) const;
-    template <typename T = Layout>
-    T subset(const SubsetFunc& func, const Int size) const;
-
     Int volume() const { return volume_; }
     Int num_dims() const { return num_dims_; }
     const std::vector<Int>& shape() const
     { return shape_; }
 
-  private:
+  protected:
     Int num_dims_, volume_;
     Site shape_;
     // array_indices_[site_index] -> array_index
     std::vector<Int> array_indices_;
     // site_indices_[array_index] -> site_index
     std::vector<Int> site_indices_;
-
-    // These define
-    std::vector<std::vector<Int>> halo_indices_;
   };
 
 
   class LexicoLayout : public Layout
   {
   public:
-    LexicoLayout(const Site& shape)
-      : Layout(shape, [] (const Int i) { return i; })
-    { }
+    LexicoLayout(const Site& shape) : Layout(shape)
+    {
+      array_indices_.resize(volume_);
+      site_indices_.resize(volume_);
+      for (Int i = 0; i < volume_; ++i) {
+        array_indices_[i] = i;
+        site_indices_[i] = i;
+      }
+    }
   };
 
 
@@ -151,43 +141,6 @@ namespace pyQCD
     for (unsigned i = 0; i < num_dims_; ++i) {
       coords[i] = mod(coords[i], shape_[i]);
     }
-  }
-
-  template <typename T>
-  T Layout::subset(const SubsetFunc& func) const
-  {
-    // Create a layout for a subset of the sites contained within this instance
-    Layout ret;
-    Int j = 0;
-    for (unsigned int i = 0; i < site_indices_.size(); ++i) {
-      if (func(site_indices_[i])) {
-        ret.site_indices_.push_back(site_indices_[i]);
-        ret.array_indices_.push_back(j);
-        j++;
-      }
-    }
-    ret.volume_ = ret.site_indices_.size();
-    return *static_cast<T*>(&ret);
-  }
-
-
-  template <typename T>
-  T Layout::subset(const SubsetFunc& func, const Int size) const
-  {
-    // Create a layout for a subset of the sites contained within this instance
-    Layout ret;
-    ret.site_indices_.resize(size);
-    ret.array_indices_.resize(size);
-    ret.volume_ = size;
-    unsigned int j = 0;
-    for (unsigned int i = 0; i < site_indices_.size(); ++i) {
-      if (func(site_indices_[i])) {
-        ret.site_indices_[j] = site_indices_[i];
-        ret.array_indices_[j] = j;
-        j++;
-      }
-    }
-    return *static_cast<T*>(&ret);
   }
 }
 

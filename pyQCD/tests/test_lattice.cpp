@@ -34,13 +34,15 @@ typedef pyQCD::Lattice<double> Lattice;
 class TestLayout : public pyQCD::Layout
 {
 public:
-  TestLayout(const std::vector<unsigned int>& shape)
-    : pyQCD::Layout(shape, [&] (const unsigned int i)
+  TestLayout(const pyQCD::Site& shape) : pyQCD::Layout(shape)
   {
-    unsigned int volume = std::accumulate(shape.begin(), shape.end(), 1u,
-      std::multiplies<unsigned int>());
-    return volume - i - 1; })
-  { }
+    array_indices_.resize(volume_);
+    site_indices_.resize(volume_);
+    for (pyQCD::Int i = 0; i < volume_; ++i) {
+      array_indices_[i] = volume_ - i - 1;
+      site_indices_[volume_ - i - 1] = i;
+    }
+  }
 };
 
 TEST_CASE("Lattice test") {
