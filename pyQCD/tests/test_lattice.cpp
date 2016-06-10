@@ -72,7 +72,7 @@ TEST_CASE("Lattice test") {
   }
 
   SECTION ("Testing scalar assign") {
-    lattice1 = 4.0;
+    lattice1.fill(4.0);
     for (unsigned int i = 0; i < lattice1.size(); ++i) {
       REQUIRE (lattice1[i] == 4.0);
     }
@@ -163,15 +163,6 @@ TEST_CASE("Lattice test") {
     for (auto& site_matrix : result) {
       comparison(site_matrix, Eigen::Matrix3cd::Identity() * 12.0);
     }
-  }
-
-  SECTION("Test lattice views") {
-    auto site_view1 = lattice1.site_view(pyQCD::Site{0, 0, 0, 0});
-    auto site_view2 = lattice1.site_view(pyQCD::Site{0, 0, 0, 1});
-    site_view1[0] = 5.0;
-    REQUIRE(lattice1[0] == 5.0);
-    site_view1 = site_view2;// + site_view2;
-    REQUIRE(lattice1[0] == 1.0);
   }
 }
 

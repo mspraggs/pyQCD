@@ -22,15 +22,11 @@ namespace pyQCD
   template <typename T>
   using aligned_vector = std::vector<T, Eigen::aligned_allocator<T>>;
 
-  enum class Partition {EVEN, ODD};
-
 
   template <typename T>
   class Lattice : public LatticeExpr<Lattice<T>, T>
   {
   public:
-#ifdef MPI_VERSION
-#else
     Lattice(const Layout& layout, const Int site_size = 1)
       : site_size_(site_size), layout_(&layout)
     { this->data_.resize(site_size_ * layout.volume()); }
@@ -38,7 +34,6 @@ namespace pyQCD
       : site_size_(site_size), layout_(&layout),
         data_(site_size_ * layout.volume(), val)
     {}
-#endif
     Lattice(const Lattice<T>& lattice) = default;
     template <typename U1, typename U2>
     Lattice(const LatticeExpr<U1, U2>& expr)
@@ -73,12 +68,6 @@ namespace pyQCD
     const T& operator()(const U& site, const Int elem = 0) const
     { return this->data_[site_size_ * layout_->get_array_index(site) + elem]; }
 
-    template <typename U>
-    SiteView<T> site_view(const U& site)
-    { return SiteView<T>(*this, site, site_size_); }
-    SiteView<T> site_view(const Int site)
-    { return SiteView<T>(*this, site, site_size_); }
-
     Lattice<T>& operator=(const Lattice<T>& lattice);
     Lattice<T>& operator=(Lattice<T>&& lattice) = default;
     template <typename U1, typename U2>
@@ -95,11 +84,7 @@ namespace pyQCD
       return *this;
     }
 
-    Lattice<T>& operator=(const T& rhs)
-    {
-      data_.assign(data_.size(), rhs);
-      return *this;
-    }
+    void fill(const T& rhs) { data_.assign(data_.size(), rhs); }
 
 #define LATTICE_OPERATOR_ASSIGN_DECL(op)				                             \
     template <typename U,                                                    \
@@ -130,19 +115,12 @@ namespace pyQCD
 
 
   template <typename T>
-  Lattice<T>& Lattice<T>::operator=(
-    const Lattice<T>& lattice)
+  Lattice<T>& Lattice<T>::operator=(const Lattice<T>& lattice)
   {
-    if (layout_) {
-      pyQCDassert (lattice.volume() == volume(),
-        std::invalid_argument("lattice.volume() != volume()"));
-    }
-    else {
-      layout_ = lattice.layout_;
-    }
     if (&lattice != this) {
+      layout_ = lattice.layout_;
       for (unsigned int i = 0; i < volume(); ++i) {
-        (*this)(lattice.layout_->get_site_index(i)) = lattice[i];
+        (*this)[i] = lattice[i];
       }
     }
     return *this;
