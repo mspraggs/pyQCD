@@ -58,26 +58,8 @@ void profile_for_type(const T& elem, const std::string& type,
 }
 
 
-void profile_view_generation()
-{
-  std::cout << "Profiling partition view generation" << std::endl;
-  std::cout << "===================================" << std::endl;
-
-  pyQCD::LexicoLayout layout({8, 4, 4, 4});
-  pyQCD::Lattice<double> lattice(layout, 0.0);
-
-  benchmark([&] () {
-    auto view = lattice.site_view(0);
-  }, 0, 10000);
-
-  std::cout << std::endl;
-}
-
-
 int main(int argc, char* argv[])
 {
-  profile_view_generation();
-
   std::cout << "Profiling lattice arithmetic operations" << std::endl;
   std::cout << "=======================================" << std::endl;
 
