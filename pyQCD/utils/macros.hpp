@@ -36,4 +36,5 @@ if (not (expr)) {                                               \
 #define pyQCDassert(expr, exception)
 #endif
 
+#define PYQCD_DEBUGVAR(expr) std::cout << #expr" = " << expr << std::endl
 #endif
