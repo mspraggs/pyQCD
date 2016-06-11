@@ -363,6 +363,9 @@ class CodeGen(setuptools.Command):
 
     def run(self):
         """Run - pass execution to generate_qcd"""
+        import warnings
+        warnings.warn("The codegen module is terribly designed and needs a "
+                      "rethink.")
         generate_qcd(self.num_colours, self.precision, self.representation)
 
 
