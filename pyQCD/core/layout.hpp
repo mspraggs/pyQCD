@@ -51,13 +51,10 @@ namespace pyQCD
   class Layout
   {
   public:
-    typedef std::function<Int(const Int)> ArrFunc;
-    typedef std::function<bool(const Int)> SubsetFunc;
 
     Layout() = default;
     Layout(const Site& shape)
-      : num_dims_(static_cast<Int>(shape.size())),
-        shape_(shape)
+      : num_dims_(static_cast<Int>(shape.size())), shape_(shape)
     {
       // Constructor create arrays of site/array indices
       volume_ = std::accumulate(shape.begin(), shape.end(), 1u,
