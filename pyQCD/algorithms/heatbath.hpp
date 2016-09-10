@@ -25,6 +25,7 @@
 
 #include <random>
 
+#include <algorithms/update.hpp>
 #include <core/types.hpp>
 #include <gauge/gauge_action.hpp>
 #include <utils/matrices.hpp>
@@ -112,6 +113,35 @@ namespace pyQCD {
       su2_heatbath_update(link, staple, beta_prime, subgroup);
     }
   }
+
+
+  template <typename Real, int Nc>
+  class Heatbath : public Updater<Real, Nc>
+  {
+  public:
+    typedef typename Updater<Real, Nc>::GaugeField GaugeField;
+
+    Heatbath(const Gauge::Action<Real, Nc>& action)
+      : action_(&action)
+    { };
+
+    void update(GaugeField& gauge_field, const unsigned int num_iter) const;
+
+  private:
+    const Gauge::Action<Real, Nc>* action_;
+  };
+
+  template <typename Real, int Nc>
+  void Heatbath<Real, Nc>::update(GaugeField& gauge_field,
+                                  const unsigned int num_iter) const
+  {
+    auto num_links = gauge_field.size();
+    for (unsigned int i = 0; i < num_iter; ++i) {
+      for (unsigned int link = 0; link < num_links; ++link) {
+        heatbath_update(gauge_field, *action_, link);
+      }
+    }
+  };
 }
 
 #endif
