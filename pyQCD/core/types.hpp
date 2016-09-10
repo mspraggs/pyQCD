@@ -35,11 +35,9 @@ namespace pyQCD {
   template <typename T, int N>
   using ColourVector = Eigen::Matrix<std::complex<T>, N, 1>;
   template <typename T, int N>
-  using LatticeColourMatrix
-    = pyQCD::Lattice<ColourMatrix<T, N>>;
+  using LatticeColourMatrix = pyQCD::Lattice<ColourMatrix<T, N>>;
   template <typename T, int N>
-  using LatticeColourVector
-    = pyQCD::Lattice<ColourVector<T, N>>;
+  using LatticeColourVector = pyQCD::Lattice<ColourVector<T, N>>;
 
   template <typename T>
   using SU2Matrix = ColourMatrix<T, 2>;
