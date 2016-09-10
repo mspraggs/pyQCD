@@ -1,10 +1,26 @@
 #ifndef PYQCD_LATTICE_HPP
 #define PYQCD_LATTICE_HPP
 
-/* This file declares and defines the Lattice class. This is basically an Array
- * but with a Layout member specifying the relationship between the sites and
- * the Array index. In addition, there are operator() implementations to access
- * elements using site coordinates or a lexicographic index.
+/*
+ * This file is part of pyQCD.
+ *
+ * pyQCD is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * pyQCD is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
+ *
+ * Created by Matt Spraggs on 10/02/16.
+ *
+ * This file declares and defines the Lattice class, which is the fundamental
+ * class for representing variables on the lattice.
  */
 
 #include <cassert>
