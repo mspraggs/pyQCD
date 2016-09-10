@@ -85,9 +85,9 @@ namespace pyQCD {
     // Perform an SU(2) heatbath update on the given lattice link
     ColourMatrix<Real, Nc> W = link * staple;
     auto A = extract_su2(W, subgroup);
-    auto detA = A.determinant();
-    A /= std::sqrt(detA);
-    Real a = detA.real();
+    auto sqrt_detA = std::sqrt(A.determinant());
+    A /= sqrt_detA;
+    Real a = sqrt_detA.real();
     bool det_is_zero = a < 6.0 * std::numeric_limits<Real>::epsilon();
     auto X = det_is_zero ? random_su2<Real>() : gen_heatbath_su2(a * weight);
     auto N = insert_su2<Nc>((X * A.adjoint()).eval(), subgroup);
@@ -101,7 +101,8 @@ namespace pyQCD {
   {
     // Perform SU(N) heatbath update on the specified lattice link
     auto staple = action.compute_staples(gauge_field, link_index);
-    auto& link = gauge_field(link_index);
+    auto& link = gauge_field(link_index / gauge_field.site_size(),
+                             link_index % gauge_field.site_size());
     Real beta_prime = action.beta() / Nc;
 
     constexpr int num_subgroups = (Nc * (Nc - 1)) / 2;
