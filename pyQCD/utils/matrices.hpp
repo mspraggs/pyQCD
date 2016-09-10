@@ -24,6 +24,7 @@
 
 #include <core/types.hpp>
 #include <utils/math.hpp>
+#include <utils/random.hpp>
 
 
 namespace pyQCD {
@@ -60,15 +61,15 @@ namespace pyQCD {
     // Basically we want to create a random normalised 4-vector from a
     // hyper-spherically symmetric distribution.
     Real coeffs[4];
-    coeffs[0] = dis(gen);
+    coeffs[0] = rng().generate_real(0.0, 1.0);
     // With the first component determined, the magnitude of the remaining
     // three-vector can easily be determined.
     Real three_vec_magnitude = std::sqrt(1 - coeffs[0] * coeffs[0]);
     // The remaining three-vector should then be take from a uniform spherical
     // distribution.
-    Real cos_theta = 2.0 * dis(gen) - 1.0;
+    Real cos_theta = rng().generate_real(-1.0, 1.0);
     Real sin_theta = std::sqrt(1 - cos_theta * cos_theta);
-    Real phi = 2 * pi * dis(gen);
+    Real phi = rng().generate_real(0.0, 2 * pi);
 
     coeffs[1] = three_vec_magnitude * sin_theta * std::cos(phi);
     coeffs[2] = three_vec_magnitude * sin_theta * std::sin(phi);
