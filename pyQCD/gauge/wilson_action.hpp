@@ -163,7 +163,8 @@ namespace pyQCD
     {
       // Compute the contribution to the action from the specified site
       auto staple = compute_staples(gauge_field, site_index);
-      auto link = gauge_field(site_index);
+      auto link = gauge_field(site_index / gauge_field.site_size(),
+                              site_index % gauge_field.site_size());
       return -this->beta() * (link * staple).trace().real() / Nc;
     }
   }
