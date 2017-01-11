@@ -79,14 +79,10 @@ namespace pyQCD
     template <typename U1, typename U2>
     Lattice<T>& operator=(const LatticeExpr<U1, U2>& expr)
     {
-      pyQCDassert ((this->data_.size() == expr.size()),
-                   std::out_of_range("Array::data_"));
       T* ptr = &(this->data_)[0];
-      for (unsigned long i = 0; i < expr.size(); ++i) {
+      for (unsigned long i = 0; i < data_.size(); ++i) {
         ptr[i] = static_cast<T>(expr[i]);
       }
-      layout_ = &expr.layout();
-      site_size_ = expr.site_size();
       return *this;
     }
 
