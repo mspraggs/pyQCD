@@ -51,16 +51,6 @@ namespace pyQCD
         data_(site_size_ * layout.volume(), val)
     {}
     Lattice(const Lattice<T>& lattice) = default;
-    template <typename U1, typename U2>
-    Lattice(const LatticeExpr<U1, U2>& expr)
-    {
-      this->data_.resize(expr.size());
-      for (unsigned long i = 0; i < expr.size(); ++i) {
-        this->data_[i] = static_cast<T>(expr[i]);
-      }
-      layout_ = &expr.layout();
-      site_size_ = expr.site_size();
-    }
     Lattice(Lattice<T>&& lattice) = default;
 
     T& operator[](const int i) { return data_[i]; }
