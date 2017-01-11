@@ -69,13 +69,11 @@ namespace pyQCD
     // Expression subclass for const operations
   public:
     // Need some SFINAE here to ensure no clash with copy/move constructor
-    template <typename std::enable_if<
-      not std::is_same<T, LatticeConst<T> >::value>::type* = nullptr>
     LatticeConst(const T& scalar) : scalar_(scalar) { }
     const T& operator[](const unsigned long i) const { return scalar_; }
 
   private:
-    const T& scalar_;
+    const T scalar_;
   };
 
 
