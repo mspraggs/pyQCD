@@ -31,156 +31,131 @@
 #include <utils/macros.hpp>
 
 #include "../layout.hpp"
-#include "lattice_traits.hpp"
-#include "operators.hpp"
 
 
 namespace pyQCD
 {
   class LatticeObj { };
 
-  // TODO: Eliminate need for second template parameter
-  template <typename T1, typename T2>
-  class LatticeExpr : public LatticeObj
+  namespace detail
   {
-    // This is the main expression class from which all others are derived. It
-    // uses CRTP to escape inheritance. Parameter T1 is the expression type
-    // and T2 is the fundamental type contained in the Lattice. This allows
-    // expressions to be abstracted to a nested hierarchy of types. When the
-    // compiler goes through and does it's thing, the definitions of the
-    // operations within these template classes are all spliced together.
+    template <int... Ints>
+    struct Seq {};
 
+    template <int Size, int... Ints>
+    struct SeqGen : SeqGen<Size - 1, Size - 1, Ints...> {};
+
+    template <int... Ints>
+    struct SeqGen<1, Ints...>
+    {
+      typedef Seq<Ints...> type;
+    };
+  }
+
+
+  template <typename Op, typename... Vals>
+  class LatticeExpr : public std::tuple<Op, Vals...>, LatticeObj
+  {
   public:
-    // CRTP magic - call functions in the Lattice class
-    typename ExprReturnTraits<T1, T2>::type operator[](const int i)
-    { return static_cast<T1&>(*this)[i]; }
-    const typename ExprReturnTraits<T1, T2>::type operator[](const int i) const
-    { return static_cast<const T1&>(*this)[i]; }
-
-    unsigned long size() const { return static_cast<const T1&>(*this).size(); }
-    Int site_size() const { return static_cast<const T1&>(*this).site_size(); }
-    const Layout& layout() const
-    { return static_cast<const T1&>(*this).layout(); }
-
-    operator T1&() { return static_cast<T1&>(*this); }
-    operator T1 const&() const { return static_cast<const T1&>(*this); }
+    using std::tuple<Op, Vals...>::tuple;
   };
+
+
+  template <typename T,
+    typename std::enable_if<std::is_base_of<LatticeObj, T>::value>::type*
+    = nullptr>
+  auto eval(const unsigned int i, const T& lattice_obj)
+    -> decltype(lattice_obj[i])
+  {
+    return lattice_obj[i];
+  }
+
+
+  template <typename Op, typename... Vals, int... Ints>
+  auto eval(const unsigned int i, const LatticeExpr<Op, Vals...>& expr,
+            const detail::Seq<Ints...>)
+    -> decltype(std::get<0>(expr).eval(eval(i, std::get<Ints>(expr))...))
+  {
+    return std::get<0>(expr).eval(eval(i, std::get<Ints>(expr))...);
+  }
+
+
+  template <typename Op, typename... Vals>
+  auto eval(const unsigned int i, const LatticeExpr<Op, Vals...>& expr)
+    -> decltype(
+      eval(i, expr, typename detail::SeqGen<sizeof...(Vals) + 1>::type()))
+  {
+    return eval(i, expr, typename detail::SeqGen<sizeof...(Vals) + 1>::type());
+  }
 
 
   template <typename T>
-  class LatticeConst
-    : public LatticeExpr<LatticeConst<T>, T>
+  class LatticeConst : LatticeObj
   {
-    // Expression subclass for const operations
   public:
-    // Need some SFINAE here to ensure no clash with copy/move constructor
-    template <typename std::enable_if<
-      not std::is_same<T, LatticeConst<T> >::value>::type* = nullptr>
-    LatticeConst(const T& scalar) : scalar_(scalar) { }
-    const T& operator[](const unsigned long i) const { return scalar_; }
+    LatticeConst(const T& value) : value_(value) {}
 
+    const T& operator[](const int) const { return value_; }
   private:
-    const T& scalar_;
+    const T value_;
   };
 
 
-  template <typename T1, typename T2, typename Op>
-  class LatticeUnary
-    : public LatticeExpr<LatticeUnary<T1, T2, Op>,
-        decltype(Op::apply(std::declval<T2>()))>
+  template <typename T, typename U>
+  struct Add
   {
-  public:
-    LatticeUnary(const LatticeExpr<T1, T2>& operand) : operand_(operand) { }
-
-    const decltype(Op::apply(std::declval<T2>()))
-    operator[](const unsigned int i) const { return Op::apply(operand_[i]); }
-
-    unsigned long size() const { return operand_.size(); }
-    const Layout& layout() const { return operand_.layout(); }
-    Int site_size() const { return operand_.site_size(); }
-
-  private:
-    typename OperandTraits<T1>::type operand_;
+    static auto eval(const T& op1, const U& op2) -> decltype(op1 + op2)
+    { return op1 + op2; }
   };
 
 
-  template <typename T1, typename T2, typename T3, typename T4, typename Op>
-  class LatticeBinary
-    : public LatticeExpr<LatticeBinary<T1, T2, T3, T4, Op>,
-        decltype(Op::apply(std::declval<T3>(), std::declval<T4>()))>
+  template <typename T, typename U>
+  struct Sub
   {
-  // Expression subclass for binary operations
-  public:
-    LatticeBinary(const LatticeExpr<T1, T3>& lhs, const LatticeExpr<T2, T4>& rhs)
-      : lhs_(lhs), rhs_(rhs)
-    {
-      pyQCDassert((BinaryOperandTraits<T1, T2>::equal_size(lhs_, rhs_)),
-        std::out_of_range("LatticeBinary: lhs.size() != rhs.size()"));
-      pyQCDassert((BinaryOperandTraits<T1, T2>::equal_layout(lhs_, rhs_)),
-        std::bad_cast());
-    }
-    // Here we denote the actual arithmetic operation.
-    const decltype(Op::apply(std::declval<T3>(), std::declval<T4>()))
-    operator[](const unsigned long i) const
-    { return Op::apply(lhs_[i], rhs_[i]); }
-
-    unsigned long size() const
-    { return BinaryOperandTraits<T1, T2>::size(lhs_, rhs_); }
-    const Layout& layout() const
-    { return BinaryOperandTraits<T1, T2>::layout(lhs_, rhs_); }
-    Int site_size() const
-    { return BinaryOperandTraits<T1, T2>::site_size(lhs_, rhs_); }
-
-  private:
-    // The members - the inputs to the binary operation
-    typename OperandTraits<T1>::type lhs_;
-    typename OperandTraits<T2>::type rhs_;
+    static auto eval(const T& op1, const U& op2) -> decltype(op1 - op2)
+    { return op1 - op2; }
   };
 
-  // Some macros for the operator overloads, as the code is almost
-  // the same in each case. For the scalar multiplies I've used
-  // some SFINAE to disable these more generalized functions when
-  // a LatticeExpr is used.
-#define LATTICE_EXPR_OPERATOR(op, trait)                              \
-  template <typename T1, typename T2, typename T3, typename T4>       \
-  const LatticeBinary<T1, T2, T3, T4, trait>                          \
-  operator op(const LatticeExpr<T1, T3>& lhs,                         \
-    const LatticeExpr<T2, T4>& rhs)                                   \
-  {                                                                   \
-    return LatticeBinary<T1, T2, T3, T4, trait>(lhs, rhs);            \
-  }                                                                   \
-                                                                      \
-                                                                      \
-  template <typename T1, typename T2, typename T3,                    \
-    typename std::enable_if<                                          \
-      not std::is_base_of<LatticeObj, T3>::value>::type* = nullptr>   \
-  const LatticeBinary<T1, LatticeConst<T3>, T2, T3, trait>            \
-  operator op(const LatticeExpr<T1, T2>& lattice, const T3& scalar)   \
-  {                                                                   \
-    return LatticeBinary<T1, LatticeConst<T3>, T2, T3, trait>         \
-      (lattice, LatticeConst<T3>(scalar));                            \
-  }
 
-  // This macro is for the + and * operators where the scalar can
-  // be either side of the operator.
-#define LATTICE_EXPR_OPERATOR_REVERSE_SCALAR(op, trait)               \
-  template <typename T1, typename T2, typename T3,                    \
-    typename std::enable_if<                                          \
-      not std::is_base_of<LatticeObj, T1>::value>::type* = nullptr>   \
-  const LatticeBinary<LatticeConst<T1>, T2, T1, T3, trait>            \
-  operator op(const T1& scalar, const LatticeExpr<T2, T3>& lattice)   \
-  {                                                                   \
-    return LatticeBinary<LatticeConst<T1>, T2, T1, T3, trait>         \
-      (LatticeConst<T1>(scalar), lattice);                            \
+  template <typename T, typename U>
+  struct Mul
+  {
+    static auto eval(const T& op1, const U& op2) -> decltype(op1 * op2)
+    { return op1 * op2; }
+  };
+
+
+  template <typename T, typename U>
+  struct Div
+  {
+    static auto eval(const T& op1, const U& op2) -> decltype(op1 / op2)
+    { return op1 / op2; }
+  };
+
+
+#define PYQCD_EXPR_OP_OVERLOAD(op, functor)\
+  template <typename T, typename U,\
+    typename T_ = typename std::conditional<\
+      std::is_base_of<LatticeObj, T>::value, T, LatticeConst<T>>::type,\
+    typename U_ = typename std::conditional<\
+      std::is_base_of<LatticeObj, U>::value, U, LatticeConst<U>>::type,\
+    typename T__ = decltype(eval(0, std::declval<T_>())),\
+    typename U__ = decltype(eval(0, std::declval<U_>())),\
+    typename std::enable_if<std::is_base_of<LatticeObj, T>::value or\
+                            std::is_base_of<LatticeObj, U>::value, char>::type*\
+      = nullptr>\
+  auto operator op(const T& op1, const U& op2)\
+    -> LatticeExpr<functor<T__, U__>, T_, U_>\
+  {\
+    return LatticeExpr<functor<T__, U__>, T_, U_>(\
+      functor<T__, U__>(), T_(op1), U_(op2));\
   }
 
 
-  LATTICE_EXPR_OPERATOR(+, Plus);
-  LATTICE_EXPR_OPERATOR_REVERSE_SCALAR(+, Plus);
-  LATTICE_EXPR_OPERATOR(-, Minus);
-  LATTICE_EXPR_OPERATOR(*, Multiplies);
-  LATTICE_EXPR_OPERATOR_REVERSE_SCALAR(*, Multiplies);
-  LATTICE_EXPR_OPERATOR(/, Divides);
+  PYQCD_EXPR_OP_OVERLOAD(+, Add)
+  PYQCD_EXPR_OP_OVERLOAD(-, Sub)
+  PYQCD_EXPR_OP_OVERLOAD(*, Mul)
+  PYQCD_EXPR_OP_OVERLOAD(/, Div)
 }
 
 #endif

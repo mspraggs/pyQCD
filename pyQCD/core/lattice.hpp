@@ -40,7 +40,7 @@ namespace pyQCD
 
 
   template <typename T>
-  class Lattice : public LatticeExpr<Lattice<T>, T>
+  class Lattice : LatticeObj
   {
   public:
     Lattice(const Layout& layout, const Int site_size = 1)
@@ -51,16 +51,6 @@ namespace pyQCD
         data_(site_size_ * layout.volume(), val)
     {}
     Lattice(const Lattice<T>& lattice) = default;
-    template <typename U1, typename U2>
-    Lattice(const LatticeExpr<U1, U2>& expr)
-    {
-      this->data_.resize(expr.size());
-      for (unsigned long i = 0; i < expr.size(); ++i) {
-        this->data_[i] = static_cast<T>(expr[i]);
-      }
-      layout_ = &expr.layout();
-      site_size_ = expr.site_size();
-    }
     Lattice(Lattice<T>&& lattice) = default;
 
     T& operator[](const int i) { return data_[i]; }
@@ -86,17 +76,13 @@ namespace pyQCD
 
     Lattice<T>& operator=(const Lattice<T>& lattice);
     Lattice<T>& operator=(Lattice<T>&& lattice) = default;
-    template <typename U1, typename U2>
-    Lattice<T>& operator=(const LatticeExpr<U1, U2>& expr)
+    template <typename Op, typename... Vals>
+    Lattice<T>& operator=(const LatticeExpr<Op, Vals...>& expr)
     {
-      pyQCDassert ((this->data_.size() == expr.size()),
-                   std::out_of_range("Array::data_"));
-      T* ptr = &(this->data_)[0];
-      for (unsigned long i = 0; i < expr.size(); ++i) {
-        ptr[i] = static_cast<T>(expr[i]);
+      T* ptr = &(data_)[0];
+      for (unsigned int i = 0; i < data_.size(); ++i) {
+        data_[i] = eval(i, expr);
       }
-      layout_ = &expr.layout();
-      site_size_ = expr.site_size();
       return *this;
     }
 
@@ -135,7 +121,7 @@ namespace pyQCD
   {
     if (&lattice != this) {
       layout_ = lattice.layout_;
-      for (unsigned int i = 0; i < volume(); ++i) {
+      for (unsigned int i = 0; i < data_.size(); ++i) {
         (*this)[i] = lattice[i];
       }
     }
