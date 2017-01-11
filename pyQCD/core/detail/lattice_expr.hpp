@@ -57,11 +57,6 @@ namespace pyQCD
     const typename ExprReturnTraits<T1, T2>::type operator[](const int i) const
     { return static_cast<const T1&>(*this)[i]; }
 
-    unsigned long size() const { return static_cast<const T1&>(*this).size(); }
-    Int site_size() const { return static_cast<const T1&>(*this).site_size(); }
-    const Layout& layout() const
-    { return static_cast<const T1&>(*this).layout(); }
-
     operator T1&() { return static_cast<T1&>(*this); }
     operator T1 const&() const { return static_cast<const T1&>(*this); }
   };
@@ -95,10 +90,6 @@ namespace pyQCD
     const decltype(Op::apply(std::declval<T2>()))
     operator[](const unsigned int i) const { return Op::apply(operand_[i]); }
 
-    unsigned long size() const { return operand_.size(); }
-    const Layout& layout() const { return operand_.layout(); }
-    Int site_size() const { return operand_.site_size(); }
-
   private:
     typename OperandTraits<T1>::type operand_;
   };
@@ -114,22 +105,11 @@ namespace pyQCD
     LatticeBinary(const LatticeExpr<T1, T3>& lhs, const LatticeExpr<T2, T4>& rhs)
       : lhs_(lhs), rhs_(rhs)
     {
-      pyQCDassert((BinaryOperandTraits<T1, T2>::equal_size(lhs_, rhs_)),
-        std::out_of_range("LatticeBinary: lhs.size() != rhs.size()"));
-      pyQCDassert((BinaryOperandTraits<T1, T2>::equal_layout(lhs_, rhs_)),
-        std::bad_cast());
     }
     // Here we denote the actual arithmetic operation.
     const decltype(Op::apply(std::declval<T3>(), std::declval<T4>()))
     operator[](const unsigned long i) const
     { return Op::apply(lhs_[i], rhs_[i]); }
-
-    unsigned long size() const
-    { return BinaryOperandTraits<T1, T2>::size(lhs_, rhs_); }
-    const Layout& layout() const
-    { return BinaryOperandTraits<T1, T2>::layout(lhs_, rhs_); }
-    Int site_size() const
-    { return BinaryOperandTraits<T1, T2>::site_size(lhs_, rhs_); }
 
   private:
     // The members - the inputs to the binary operation
