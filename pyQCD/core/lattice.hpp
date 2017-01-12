@@ -77,11 +77,11 @@ namespace pyQCD
     Lattice<T>& operator=(const Lattice<T>& lattice);
     Lattice<T>& operator=(Lattice<T>&& lattice) = default;
     template <typename Op, typename... Vals>
-    Lattice<T>& operator=(const LatticeExpr<Op, Vals...>& expr)
+    Lattice<T>& operator=(const detail::LatticeExpr<Op, Vals...>& expr)
     {
       T* ptr = &(data_)[0];
       for (unsigned int i = 0; i < data_.size(); ++i) {
-        data_[i] = eval(i, expr);
+        data_[i] = detail::eval(i, expr);
       }
       return *this;
     }
