@@ -121,8 +121,9 @@ namespace pyQCD
   {
     if (&lattice != this) {
       layout_ = lattice.layout_;
-      for (unsigned int i = 0; i < volume(); ++i) {
-        (*this)[i] = lattice[i];
+      site_size_ = lattice.site_size_;
+      for (unsigned int i = 0; i < data_.size(); ++i) {
+        data_[i] = lattice[i];
       }
     }
     return *this;
