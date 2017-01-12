@@ -29,7 +29,7 @@
 
 #include <Eigen/Dense>
 
-#include "detail/lattice_expr.hpp"
+#include "lattice_expr.hpp"
 #include "layout.hpp"
 
 
