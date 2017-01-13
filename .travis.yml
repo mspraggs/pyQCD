@@ -1,23 +1,26 @@
 language: python
 sudo: false
-compiler:
-  - clang
 python:
   - "2.7"
   - "3.4"
 addons:
   apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    - llvm-toolchain-precise-3.6
     packages:
+    - gcc-5
+    - g++-5
     - cmake
     - libeigen3-dev
 before_install:
   - pip install pip-accel
 install:
   - pip-accel install -r requirements.txt
-  - "CC=clang CXX=clang++ pip install ."
+  - pip install .
   - mkdir build
   - cd build
-  - cmake .. -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+  - cmake ..
   - make VERBOSE=1
   - cd ..
 script: 
