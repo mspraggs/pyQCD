@@ -54,9 +54,6 @@ namespace pyQCD {
   {
     // Generate a random SU(2) matrix using the Pauli basis.
     // TODO: Implement a proper random number generator
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_real_distribution<> dis(0.0, 1.0);
 
     // Basically we want to create a random normalised 4-vector from a
     // hyper-spherically symmetric distribution.
