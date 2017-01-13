@@ -41,7 +41,7 @@ namespace pyQCD {
   public:
     static Random& instance(const size_t num_threads);
 
-    void set_seed(const size_t seed);
+    void set_seed(const std::vector<size_t>& seed);
 
     int generate_int(const int lower, const int upper);
 
@@ -50,7 +50,7 @@ namespace pyQCD {
 
   private:
     size_t num_threads_;
-    std::vector<std::ranlux48> engines_;
+    std::vector<std::mt19937> engines_;
   };
 
   template <typename Real>
