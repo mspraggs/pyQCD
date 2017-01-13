@@ -23,6 +23,7 @@
  */
 
 #include <cmath>
+#include <random>
 
 #include "catch.hpp"
 
