@@ -11,7 +11,6 @@ addons:
     packages:
     - gcc-5
     - g++-5
-    - cmake
     - libeigen3-dev
 before_install:
   - pip install pip-accel
@@ -24,7 +23,7 @@ install:
   - make VERBOSE=1
   - cd ..
 script: 
-  - for f in build/pyQCD/test_*; do echo "Running test file ${f}"; ./$f; done
+  - for f in build/pyQCD/tests/test_*; do echo "Running test file ${f}"; ./$f; done
   - py.test -vl
 cache:
   directories:
