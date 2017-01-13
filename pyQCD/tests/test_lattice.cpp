@@ -25,7 +25,6 @@
 #include <Eigen/Dense>
 
 #include <core/lattice.hpp>
-#include <core/detail/operators.hpp>
 
 #include "helpers.hpp"
 
@@ -46,11 +45,6 @@ public:
 };
 
 TEST_CASE("Lattice test") {
-  std::vector<std::function<double(const double&, const double&)> >
-    scalar_operators{
-    Plus::apply<double, double>, Minus::apply<double, double>,
-    Multiplies::apply<double, double>, Divides::apply<double, double>
-  };
 
   pyQCD::LexicoLayout layout({8, 4, 4, 4});
   TestLayout another_layout({8, 4, 4, 4});
@@ -136,9 +130,10 @@ TEST_CASE("Lattice test") {
 
 TEST_CASE("Non-integral Lattice types test") {
   pyQCD::LexicoLayout layout(std::vector<unsigned int>{8, 4, 4, 4});
-  pyQCD::Lattice<Eigen::Matrix3cd> lattice(
+  pyQCD::Lattice<double> lattice_double(layout, 5.0);
+  pyQCD::Lattice<Eigen::Matrix3cd> lattice_matrix(
     layout, Eigen::Matrix3cd::Identity());
   Eigen::Vector3cd vec(1.0, 1.0, 1.0);
-  pyQCD::Lattice<Eigen::Vector3cd> vecs(lattice.layout());
-  vecs = lattice * vec;
+  pyQCD::Lattice<Eigen::Vector3cd> vecs(lattice_matrix.layout());
+  vecs = lattice_matrix * vec * lattice_double;
 }
