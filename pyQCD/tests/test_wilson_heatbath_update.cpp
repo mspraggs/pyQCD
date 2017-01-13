@@ -41,12 +41,12 @@ TEST_CASE("End-to-end heatbath test with Wilson action")
   pyQCD::Heatbath<double, 3> heatbath_updater(action);
 
   double avg_plaquette = 1.1;
-  for (unsigned int i = 0; i < 10; ++i) {
+  for (unsigned int i = 0; i < 5; ++i) {
     heatbath_updater.update(gauge_field, 1);
     double new_avg_plaquette
         = pyQCD::Gauge::average_plaquette(gauge_field);
     // Statistically it's highly probable there will be a monotonic decrease in
-    // the average plaquette over the first ten updates.
+    // the average plaquette over the first five updates.
     REQUIRE (new_avg_plaquette < avg_plaquette);
     avg_plaquette = new_avg_plaquette;
   }
