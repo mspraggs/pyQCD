@@ -55,13 +55,12 @@ namespace pyQCD
     Real average_plaquette(const LatticeColourMatrix<Real, Nc>& gauge_field)
     {
       Real total = 0.0;
-      // TODO: Compute num ahead of for loops (use sequence equalities)
-      Int num = 0;
+      Int num = gauge_field.num_dims() * (gauge_field.num_dims() - 1) / 2
+        * gauge_field.volume();
       for (Int site = 0; site < gauge_field.volume(); ++site) {
         for (Int mu = 0; mu < gauge_field.num_dims(); ++mu) {
           for (Int nu = mu + 1; nu < gauge_field.num_dims(); ++nu) {
             total += plaquette(gauge_field, site, mu, nu);
-            num++;
           }
         }
       }
