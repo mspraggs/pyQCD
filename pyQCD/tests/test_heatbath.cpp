@@ -113,7 +113,7 @@ TEST_CASE("Heatbath test")
     }
   }
 
-  SECTION ("Testing SU(N) heatbath update") {
+  SECTION ("Testing SU(3) heatbath update") {
 
     typedef pyQCD::ColourMatrix<Real, 3> ColourMatrix;
 
