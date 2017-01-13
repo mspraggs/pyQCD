@@ -24,6 +24,7 @@
 
 #include <algorithms/heatbath.hpp>
 #include <gauge/plaquette.hpp>
+#include <gauge/rectangle.hpp>
 #include <gauge/wilson_action.hpp>
 
 #include "helpers.hpp"
@@ -59,4 +60,9 @@ TEST_CASE("End-to-end heatbath test with Wilson action")
 
   REQUIRE(avg_plaquette < 0.51);
   REQUIRE(avg_plaquette > 0.48);
+
+  double avg_rectangle = pyQCD::Gauge::average_rectangle(gauge_field);
+
+  REQUIRE(avg_rectangle < 0.27);
+  REQUIRE(avg_rectangle > 0.25);
 }
