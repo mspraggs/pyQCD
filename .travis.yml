@@ -18,7 +18,7 @@ install:
   - mkdir build
   - cd build
   - cmake .. -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
-  - make
+  - make VERBOSE=1
   - cd ..
 script: 
   - for f in build/pyQCD/test_*; do echo "Running test file ${f}"; ./$f; done
