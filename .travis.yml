@@ -20,7 +20,7 @@ install:
   - mkdir build
   - cd build
   - cmake .. -DCMAKE_C_COMPILER=gcc-5 -DCMAKE_CXX_COMPILER=g++-5
-  - make VERBOSE=1
+  - make
   - cd ..
 script: 
   - for f in build/pyQCD/tests/test_*; do echo "Running test file ${f}"; ./$f; done
