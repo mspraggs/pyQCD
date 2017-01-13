@@ -10,6 +10,7 @@ CMakeCache.txt
 CMakeFiles/*
 Makefile
 cmake_install.cmake
+cmake-build-*
 push
 install_manifest.txt
 docs/_build/*
