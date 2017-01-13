@@ -6,7 +6,7 @@
  *
  * pyQCD is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * pyQCD is distributed in the hope that it will be useful,
@@ -29,7 +29,7 @@
 
 #include <Eigen/Dense>
 
-#include "detail/lattice_expr.hpp"
+#include "lattice_expr.hpp"
 #include "layout.hpp"
 
 
@@ -40,7 +40,7 @@ namespace pyQCD
 
 
   template <typename T>
-  class Lattice : public LatticeExpr<Lattice<T>, T>
+  class Lattice : LatticeObj
   {
   public:
     Lattice(const Layout& layout, const Int site_size = 1)
@@ -76,12 +76,12 @@ namespace pyQCD
 
     Lattice<T>& operator=(const Lattice<T>& lattice);
     Lattice<T>& operator=(Lattice<T>&& lattice) = default;
-    template <typename U1, typename U2>
-    Lattice<T>& operator=(const LatticeExpr<U1, U2>& expr)
+    template <typename Op, typename... Vals>
+    Lattice<T>& operator=(const detail::LatticeExpr<Op, Vals...>& expr)
     {
-      T* ptr = &(this->data_)[0];
-      for (unsigned long i = 0; i < data_.size(); ++i) {
-        ptr[i] = static_cast<T>(expr[i]);
+      T* ptr = &(data_)[0];
+      for (unsigned int i = 0; i < data_.size(); ++i) {
+        data_[i] = detail::eval(i, expr);
       }
       return *this;
     }
