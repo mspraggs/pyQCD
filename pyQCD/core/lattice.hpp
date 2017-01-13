@@ -79,7 +79,6 @@ namespace pyQCD
     template <typename Op, typename... Vals>
     Lattice<T>& operator=(const detail::LatticeExpr<Op, Vals...>& expr)
     {
-      T* ptr = &(data_)[0];
       for (unsigned int i = 0; i < data_.size(); ++i) {
         data_[i] = detail::eval(i, expr);
       }
