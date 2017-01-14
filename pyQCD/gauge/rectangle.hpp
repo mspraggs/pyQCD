@@ -28,8 +28,8 @@
 
 namespace pyQCD
 {
-  namespace Gauge {
-
+  namespace gauge
+  {
     template <typename Real, int Nc>
     Real rectangle(const LatticeColourMatrix<Real, Nc>& gauge_field,
                    const Int site, const Int mu, const Int nu)

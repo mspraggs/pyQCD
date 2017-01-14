@@ -29,7 +29,7 @@
 
 namespace pyQCD
 {
-  namespace Gauge
+  namespace gauge
   {
     template <typename Real, int Nc>
     class Action

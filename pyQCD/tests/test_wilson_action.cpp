@@ -37,7 +37,7 @@ TEST_CASE("Test Wilson gauge action")
     pyQCD::LexicoLayout layout({8, 4, 4, 4});
     auto identity = ColourMatrix::Identity();
     pyQCD::LatticeColourMatrix<double, 3> gauge_field(layout, identity, 4);
-    pyQCD::Gauge::WilsonAction<double, 3> action(5.0, layout);
+    pyQCD::gauge::WilsonAction<double, 3> action(5.0, layout);
 
     auto staple = action.compute_staples(gauge_field, 0);
 
@@ -64,7 +64,7 @@ TEST_CASE("Test Wilson gauge action")
     pyQCD::LexicoLayout layout({8, 4, 4, 4});
     auto identity = ColourMatrix::Identity();
     pyQCD::LatticeColourMatrix<double, 3> gauge_field(layout, identity, 4);
-    pyQCD::Gauge::WilsonAction<double, 3> action(5.0, layout);
+    pyQCD::gauge::WilsonAction<double, 3> action(5.0, layout);
 
     Real local_action = action.local_action(gauge_field, 0);
     REQUIRE(comp(local_action, -30.0));

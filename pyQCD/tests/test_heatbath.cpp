@@ -28,14 +28,14 @@
 
 
 template <typename Real, int Nc>
-class TestAction : public pyQCD::Gauge::Action<Real, Nc>
+class TestAction : public pyQCD::gauge::Action<Real, Nc>
 {
 public:
-  typedef typename pyQCD::Gauge::Action<Real, Nc>::GaugeLink GaugeLink;
-  typedef typename pyQCD::Gauge::Action<Real, Nc>::GaugeField GaugeField;
+  typedef typename pyQCD::gauge::Action<Real, Nc>::GaugeLink GaugeLink;
+  typedef typename pyQCD::gauge::Action<Real, Nc>::GaugeField GaugeField;
 
   TestAction(const Real beta)
-    : pyQCD::Gauge::Action<Real, Nc>(beta, pyQCD::LexicoLayout({8, 4, 4, 4}))
+    : pyQCD::gauge::Action<Real, Nc>(beta, pyQCD::LexicoLayout({8, 4, 4, 4}))
   { }
 
   GaugeLink compute_staples(const GaugeField& gauge_field,

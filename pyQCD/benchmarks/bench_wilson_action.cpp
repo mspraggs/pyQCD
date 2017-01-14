@@ -16,7 +16,7 @@
  *
  * Created by Matt Spraggs on 10/02/16.
  *
- * Benchmark for Gauge::WilsonAction */
+ * Benchmark for gauge::WilsonAction */
 
 #include <gauge/wilson_action.hpp>
 
@@ -31,7 +31,7 @@ int main()
   auto identity = ColourMatrix::Identity();
   pyQCD::LexicoLayout layout({8, 4, 4, 4, 4});
   pyQCD::LatticeColourMatrix<double, 3> gauge_field(layout, identity);
-  pyQCD::Gauge::WilsonAction<double, 3> action(5.0, layout);
+  pyQCD::gauge::WilsonAction<double, 3> action(5.0, layout);
 
   std::cout << "Benchmarking WilsonAction::compute_staples..." << std::endl;
   benchmark([&] () {
