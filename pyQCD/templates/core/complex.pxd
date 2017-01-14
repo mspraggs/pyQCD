@@ -1,6 +1,8 @@
 cdef extern from "types.hpp" namespace "python":
+    ctypedef {{ precision }} Real
+
     cdef cppclass Complex:
         Complex() except +
-        Complex(const {{ precision }}, const {{ precision }}) except +
-        {{ precision }} real()
-        {{ precision }} imag()
+        Complex(const Real, const Real) except +
+        Real real()
+        Real imag()

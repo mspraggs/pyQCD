@@ -1,6 +1,6 @@
 from libcpp.vector cimport vector
 
-cdef extern from "layout.hpp" namespace "pyQCD":
+cdef extern from "core/layout.hpp" namespace "pyQCD":
     cdef cppclass Layout:
         Layout()
         unsigned int get_array_index(const unsigned int)

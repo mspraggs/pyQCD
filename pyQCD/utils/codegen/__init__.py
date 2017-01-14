@@ -339,6 +339,9 @@ def generate_qcd(num_colours, precision, representation, dest=None):
 
     generate_core_cython_types(dest, precision, type_definitions, operator_map)
 
+    write_template("gauge/types.hpp", "gauge/types.hpp", dest,
+                   num_colours=num_colours)
+
 
 class CodeGen(setuptools.Command):
 

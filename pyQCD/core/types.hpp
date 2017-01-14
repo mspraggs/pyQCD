@@ -1,5 +1,5 @@
-#ifndef PYQCD_TYPES_HPP
-#define PYQCD_TYPES_HPP
+#ifndef PYQCD_CORE_TYPES_HPP
+#define PYQCD_CORE_TYPES_HPP
 /*
  * This file is part of pyQCD.
  *
