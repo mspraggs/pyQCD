@@ -245,25 +245,24 @@ def make_cython_ops(matrices, cpp_ops, precision, scalar_types):
     return out
 
 
-def write_core_template(template_fname, output_fname, output_path,
-                        **template_args):
+def write_template(template_fname, output_fname, output_path, **template_args):
     """Load the specified template from templates/core and render it to core"""
 
-    template = env.get_template("core/{}".format(template_fname))
+    template = env.get_template(template_fname)
     path = os.path.join(output_path, output_fname)
-    print("Writing pyQCD/templates/core/{} to {}".format(template_fname, path))
+    print("Writing pyQCD/templates/{} to {}".format(template_fname, path))
     with open(path, 'w') as f:
         f.write(template.render(**template_args))
 
 
-def generate_cython_types(output_path, precision, typedefs, operator_map):
+def generate_core_cython_types(output_path, precision, typedefs, operator_map):
     """Generate Cython source code for matrix, array and lattice types.
 
-    This function gathers all jinja2 templates in the package templates
-    directory and
+    Code is generated from templates in the package template directory using the
+    jinja2 templating engine.
 
     Args:
-      output_path (str): The output directory in which to put the generated
+      output_path (str): The root output directory in which to put the generated
         code.
       precision (str): The fundamental machine type to be used throughout the
         code (e.g. 'double' or 'float').
@@ -281,24 +280,25 @@ def generate_cython_types(output_path, precision, typedefs, operator_map):
                            t.element_type == typedef), typedefs)[0]
         except IndexError:
             bcast_typedef = None
-        write_core_template(template_fname + ".pxd", typedef.cmodule + ".pxd",
-                            output_path, precision=precision, typedef=typedef,
-                            bcast_typedef=bcast_typedef)
+        write_template("core/{}.pxd".format(template_fname),
+                       "core/{}.pxd".format(typedef.cmodule),
+                       output_path, precision=precision, typedef=typedef,
+                       bcast_typedef=bcast_typedef)
         operations = typedef.generate_arithmetic_operations(typedefs,
                                                             operations)
 
-    write_core_template("types.hpp", "types.hpp", output_path,
-                        typedefs=typedefs, precision=precision)
-    write_core_template("complex.pxd", "complex.pxd", output_path,
-                        precision=precision)
-    write_core_template("operators.pxd", "operators.pxd", output_path,
-                        operations=operations, typedefs=typedefs,
-                        precision=precision)
-    write_core_template("core.pyx", "core.pyx", output_path,
-                        typedefs=typedefs, precision=precision,
-                        operator_map=operator_map)
-    write_core_template("core.pxd", "core.pxd", output_path,
-                        typedefs=typedefs, operator_map=operator_map)
+    write_template("core/types.hpp", "core/types.hpp", output_path,
+                   typedefs=typedefs, precision=precision)
+    write_template("core/complex.pxd", "core/complex.pxd", output_path,
+                   precision=precision)
+    write_template("core/operators.pxd", "core/operators.pxd", output_path,
+                   operations=operations, typedefs=typedefs,
+                   precision=precision)
+    write_template("core/core.pyx", "core/core.pyx", output_path,
+                   typedefs=typedefs, precision=precision,
+                   operator_map=operator_map)
+    write_template("core/core.pxd", "core/core.pxd", output_path,
+                   typedefs=typedefs, operator_map=operator_map)
 
 
 def generate_qcd(num_colours, precision, representation, dest=None):
@@ -337,8 +337,7 @@ def generate_qcd(num_colours, precision, representation, dest=None):
     else:
         dest = src
 
-    generate_cython_types(os.path.join(dest, "core"), precision,
-                          type_definitions, operator_map)
+    generate_core_cython_types(dest, precision, type_definitions, operator_map)
 
 
 class CodeGen(setuptools.Command):
