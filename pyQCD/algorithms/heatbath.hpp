@@ -25,7 +25,6 @@
 
 #include <random>
 
-#include <algorithms/update.hpp>
 #include <core/types.hpp>
 #include <gauge/gauge_action.hpp>
 #include <utils/matrices.hpp>
@@ -116,7 +115,7 @@ namespace pyQCD {
 
 
   template <typename Real, int Nc>
-  class Heatbath : public Updater<Real, Nc>
+  class Heatbath
   {
   public:
     typedef typename Updater<Real, Nc>::GaugeField GaugeField;
