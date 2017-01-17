@@ -118,7 +118,7 @@ namespace pyQCD {
   class Heatbath
   {
   public:
-    typedef typename Updater<Real, Nc>::GaugeField GaugeField;
+    typedef LatticeColourMatrix<Real, Nc> GaugeField;
 
     Heatbath(const gauge::Action<Real, Nc>& action)
       : action_(&action)
