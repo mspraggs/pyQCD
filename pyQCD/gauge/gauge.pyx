@@ -13,5 +13,5 @@ cdef class GaugeAction:
 cdef class WilsonGaugeAction:
 
     def __cinit__(self, float beta, gauge_field):
-        self.instance = new CWilsonGaugeAction(
+        self.instance = new _WilsonGaugeAction(
             beta, (<LatticeColourMatrix?>gauge_field).lexico_layout[0])

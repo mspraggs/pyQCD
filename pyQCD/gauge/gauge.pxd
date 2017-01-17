@@ -3,14 +3,14 @@ from pyQCD.core.layout cimport Layout
 
 
 cdef extern from "types.hpp" namespace "pyQCD::python":
-    cdef cppclass CGaugeAction "pyQCD::python::GaugeAction":
-        CGaugeAction(const Real, const Layout&) except +
+    cdef cppclass _GaugeAction "pyQCD::python::GaugeAction":
+        _GaugeAction(const Real, const Layout&) except +
 
-    cdef cppclass CWilsonGaugeAction "pyQCD::python::WilsonGaugeAction"(CGaugeAction):
-        CWilsonGaugeAction(const Real, const Layout&) except +
+    cdef cppclass _WilsonGaugeAction "pyQCD::python::WilsonGaugeAction"(CGaugeAction):
+        _WilsonGaugeAction(const Real, const Layout&) except +
 
 cdef class GaugeAction:
-    cdef CGaugeAction* instance
+    cdef _GaugeAction* instance
 
 cdef class WilsonGaugeAction(GaugeAction):
     pass
