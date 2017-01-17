@@ -1,4 +1,4 @@
-cdef extern from "types.hpp" namespace "python":
+cdef extern from "globals.hpp" namespace "pyQCD":
     ctypedef {{ precision }} Real
 
     cdef cppclass Complex:

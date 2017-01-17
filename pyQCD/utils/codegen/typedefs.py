@@ -261,9 +261,9 @@ class MatrixDef(ContainerDef):
     def cpptype(self):
         num_colours = self.matrix_shape[0]
         if self.is_matrix:
-            return "pyQCD::ColourMatrix<Real, {}>".format(num_colours)
+            return "ColourMatrix<Real, {}>".format(num_colours)
         else:
-            return "pyQCD::ColourVector<Real, {}>".format(num_colours)
+            return "ColourVector<Real, {}>".format(num_colours)
 
 
 class LatticeDef(ContainerDef):
@@ -293,6 +293,6 @@ class LatticeDef(ContainerDef):
     def cpptype(self):
         num_colours = self.matrix_shape[0]
         if len(self.matrix_shape) > 1:
-            return "pyQCD::LatticeColourMatrix<Real, {}>".format(num_colours)
+            return "LatticeColourMatrix<Real, {}>".format(num_colours)
         else:
-            return "pyQCD::LatticeColourVector<Real, {}>".format(num_colours)
+            return "LatticeColourVector<Real, {}>".format(num_colours)

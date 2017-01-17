@@ -3,7 +3,7 @@ from libcpp.vector cimport vector
 
 import numpy as np
 
-cimport complex
+cimport atomics
 from core cimport {% for td in typedefs %}{{ td.name }}{% if not loop.last %}, {% endif %}{% endfor %}
 
 
@@ -27,7 +27,7 @@ cdef class {{ typedef.name }}:
     {% endfor %}
 
     def __getbuffer__(self, Py_buffer* buffer, int flags):
-        cdef Py_ssize_t itemsize = sizeof(complex.Complex)
+        cdef Py_ssize_t itemsize = sizeof(atomics.Complex)
 
     {% set buffer_iter, buffer_size = typedef.buffer_info("itemsize") %}
     {% for shape, stride in buffer_iter %}

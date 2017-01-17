@@ -4,7 +4,7 @@ from colour_matrix cimport ColourMatrix
 from layout cimport Layout
 
 
-cdef extern from "types.hpp" namespace "python":
+cdef extern from "types.hpp" namespace "pyQCD::python":
     cdef cppclass LatticeColourMatrix:
         LatticeColourMatrix() except +
         LatticeColourMatrix(const Layout&, const ColourMatrix, unsigned int site_size) except +

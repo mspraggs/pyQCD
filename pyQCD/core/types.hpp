@@ -22,10 +22,9 @@
  * Convenience types for QCD.
  */
 
-#include <complex>
-
 #include <Eigen/Dense>
 
+#include <globals.hpp>
 #include "lattice.hpp"
 
 namespace pyQCD {
@@ -35,22 +34,22 @@ namespace pyQCD {
   template <typename T, int N>
   using ColourVector = Eigen::Matrix<std::complex<T>, N, 1>;
   template <typename T, int N>
-  using LatticeColourMatrix = pyQCD::Lattice<ColourMatrix<T, N>>;
+  using LatticeColourMatrix = Lattice<ColourMatrix<T, N>>;
   template <typename T, int N>
-  using LatticeColourVector = pyQCD::Lattice<ColourVector<T, N>>;
+  using LatticeColourVector = Lattice<ColourVector<T, N>>;
 
   template <typename T>
   using SU2Matrix = ColourMatrix<T, 2>;
 }
 
-namespace python {
-  typedef double Real;
-  typedef std::complex<Real> Complex;
-  typedef pyQCD::Lattice<Real> LatticeReal;
-  typedef pyQCD::Lattice<Complex> LatticeComplex;
-  typedef pyQCD::ColourMatrix<Real, 3> ColourMatrix;
-  typedef pyQCD::LatticeColourMatrix<Real, 3> LatticeColourMatrix;
-  typedef pyQCD::ColourVector<Real, 3> ColourVector;
-  typedef pyQCD::LatticeColourVector<Real, 3> LatticeColourVector;
+namespace pyQCD {
+  namespace python {
+    typedef Lattice<Real> LatticeReal;
+    typedef Lattice<Complex> LatticeComplex;
+    typedef ColourMatrix<Real, 3> ColourMatrix;
+    typedef LatticeColourMatrix<Real, 3> LatticeColourMatrix;
+    typedef ColourVector<Real, 3> ColourVector;
+    typedef LatticeColourVector<Real, 3> LatticeColourVector;
+  }
 }
 #endif

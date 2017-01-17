@@ -1,7 +1,7 @@
-from complex cimport Complex
+from atomics cimport Complex
 
 
-cdef extern from "types.hpp" namespace "python":
+cdef extern from "types.hpp" namespace "pyQCD::python":
     cdef cppclass ColourMatrix:
         ColourMatrix() except +
         ColourMatrix(const ColourMatrix&) except +
@@ -9,8 +9,8 @@ cdef extern from "types.hpp" namespace "python":
         Complex& operator()(int, int) except +
 
 
-    cdef ColourMatrix zeros "python::ColourMatrix::Zero"()
-    cdef ColourMatrix ones "python::ColourMatrix::Ones"()
-    cdef ColourMatrix identity "python::ColourMatrix::Identity"()
+    cdef ColourMatrix zeros "pyQCD::python::ColourMatrix::Zero"()
+    cdef ColourMatrix ones "pyQCD::python::ColourMatrix::Ones"()
+    cdef ColourMatrix identity "pyQCD::python::ColourMatrix::Identity"()
     cdef void mat_assign(ColourMatrix&, const int, const int, const Complex)
     cdef void mat_assign(ColourMatrix*, const int, const int, const Complex)

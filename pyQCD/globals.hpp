@@ -1,5 +1,5 @@
-#ifndef PYQCD_GAUGE_TYPES_HPP
-#define PYQCD_GAUGE_TYPES_HPP
+#ifndef PYQCD_GLOBALS_HPP
+#define PYQCD_GLOBALS_HPP
 /*
  * This file is part of pyQCD.
  *
@@ -16,21 +16,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *
- * Created by Matt Spraggs on 14/01/17.
+ * Created by Matt Spraggs on 17/01/17.
  *
- *
- * Convenience types for QCD.
+ * This file contains package-wide variables and type definitions.
  */
 
-#include <core/types.hpp>
-#include <gauge/gauge_action.hpp>
-#include <gauge/wilson_action.hpp>
+#include <complex>
 
-
-namespace python
+namespace pyQCD
 {
-  typedef pyQCD::gauge::Action<Real, {{ num_colours }}> GaugeAction;
-  typedef pyQCD::gauge::WilsonAction<Real, {{ num_colours }}> WilsonGaugeAction;
+  constexpr int num_colours = 3;
+  typedef double Real;
+  typedef std::complex<Real> Complex;
 }
 
-#endif //PYQCD_GAUGE_TYPES_HPP
+#endif //PYQCD_GLOBALS_HPP

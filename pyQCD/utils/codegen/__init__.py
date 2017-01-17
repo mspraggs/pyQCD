@@ -75,7 +75,7 @@ def create_type_definitions(num_rows, num_cols, matrix_name):
 
     lattice_matrix_name = "Lattice{}".format(matrix_name)
 
-    complex_type = typedefs.TypeDef("Complex", "Complex", "complex", False)
+    complex_type = typedefs.TypeDef("Complex", "Complex", "atomics", False)
     shape = (num_rows, num_cols) if num_cols > 1 else (num_rows,)
 
     matrix_def = typedefs.MatrixDef(
@@ -289,7 +289,7 @@ def generate_core_cython_types(output_path, precision, typedefs, operator_map):
 
     write_template("core/types.hpp", "core/types.hpp", output_path,
                    typedefs=typedefs, precision=precision)
-    write_template("core/complex.pxd", "core/complex.pxd", output_path,
+    write_template("core/atomics.pxd", "core/atomics.pxd", output_path,
                    precision=precision)
     write_template("core/operators.pxd", "core/operators.pxd", output_path,
                    operations=operations, typedefs=typedefs,
@@ -339,8 +339,8 @@ def generate_qcd(num_colours, precision, representation, dest=None):
 
     generate_core_cython_types(dest, precision, type_definitions, operator_map)
 
-    write_template("gauge/types.hpp", "gauge/types.hpp", dest,
-                   num_colours=num_colours)
+    write_template("globals.hpp", "globals.hpp", dest,
+                   num_colours=num_colours, precision=precision)
 
 
 class CodeGen(setuptools.Command):

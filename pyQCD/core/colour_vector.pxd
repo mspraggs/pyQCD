@@ -1,7 +1,7 @@
-from complex cimport Complex
+from atomics cimport Complex
 
 
-cdef extern from "types.hpp" namespace "python":
+cdef extern from "types.hpp" namespace "pyQCD::python":
     cdef cppclass ColourVector:
         ColourVector() except +
         ColourVector(const ColourVector&) except +
@@ -9,7 +9,7 @@ cdef extern from "types.hpp" namespace "python":
         Complex& operator[](int) except +
 
 
-    cdef ColourVector zeros "python::ColourVector::Zero"()
-    cdef ColourVector ones "python::ColourVector::Ones"()
+    cdef ColourVector zeros "pyQCD::python::ColourVector::Zero"()
+    cdef ColourVector ones "pyQCD::python::ColourVector::Ones"()
     cdef void mat_assign(ColourVector&, const int, const int, const Complex)
     cdef void mat_assign(ColourVector*, const int, const int, const Complex)

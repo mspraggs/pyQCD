@@ -1,10 +1,10 @@
-cimport complex
+cimport atomics
 {% for typedef in typedefs %}
 cimport {{ typedef.cmodule }}
 {% endfor %}
 
 
-cdef extern from "types.hpp" namespace "python":
+cdef extern from "types.hpp" namespace "pyQCD::python":
 {% for op in operations %}
 {% set opoperations = operations[op] %}
 {% for ret, lhs, rhs in opoperations %}

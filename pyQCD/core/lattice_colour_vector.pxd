@@ -4,7 +4,7 @@ from colour_vector cimport ColourVector
 from layout cimport Layout
 
 
-cdef extern from "types.hpp" namespace "python":
+cdef extern from "types.hpp" namespace "pyQCD::python":
     cdef cppclass LatticeColourVector:
         LatticeColourVector() except +
         LatticeColourVector(const Layout&, const ColourVector, unsigned int site_size) except +

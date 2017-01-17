@@ -3,7 +3,7 @@ from libcpp.vector cimport vector
 
 import numpy as np
 
-cimport complex
+cimport atomics
 from core cimport ColourMatrix, LatticeColourMatrix, ColourVector, LatticeColourVector
 
 cdef class ColourMatrix:
@@ -16,7 +16,7 @@ cdef class ColourMatrix:
         del self.instance
 
     def __getbuffer__(self, Py_buffer* buffer, int flags):
-        cdef Py_ssize_t itemsize = sizeof(complex.Complex)
+        cdef Py_ssize_t itemsize = sizeof(atomics.Complex)
 
         self.buffer_shape[0] = 3
         self.buffer_strides[0] = itemsize
@@ -97,7 +97,7 @@ cdef class LatticeColourMatrix:
         del self.lexico_layout
 
     def __getbuffer__(self, Py_buffer* buffer, int flags):
-        cdef Py_ssize_t itemsize = sizeof(complex.Complex)
+        cdef Py_ssize_t itemsize = sizeof(atomics.Complex)
 
         self.buffer_shape[0] = self.instance[0].volume() * self.site_size
         self.buffer_strides[0] = itemsize * 9
@@ -178,7 +178,7 @@ cdef class ColourVector:
         del self.instance
 
     def __getbuffer__(self, Py_buffer* buffer, int flags):
-        cdef Py_ssize_t itemsize = sizeof(complex.Complex)
+        cdef Py_ssize_t itemsize = sizeof(atomics.Complex)
 
         self.buffer_shape[0] = 3
         self.buffer_strides[0] = itemsize
@@ -249,7 +249,7 @@ cdef class LatticeColourVector:
         del self.lexico_layout
 
     def __getbuffer__(self, Py_buffer* buffer, int flags):
-        cdef Py_ssize_t itemsize = sizeof(complex.Complex)
+        cdef Py_ssize_t itemsize = sizeof(atomics.Complex)
 
         self.buffer_shape[0] = self.instance[0].volume() * self.site_size
         self.buffer_strides[0] = itemsize * 3
