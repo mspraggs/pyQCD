@@ -6,7 +6,7 @@ cdef extern from "types.hpp" namespace "pyQCD::python":
     cdef cppclass _GaugeAction "pyQCD::python::GaugeAction":
         _GaugeAction(const Real, const Layout&) except +
 
-    cdef cppclass _WilsonGaugeAction "pyQCD::python::WilsonGaugeAction"(CGaugeAction):
+    cdef cppclass _WilsonGaugeAction "pyQCD::python::WilsonGaugeAction"(_GaugeAction):
         _WilsonGaugeAction(const Real, const Layout&) except +
 
 cdef class GaugeAction:
