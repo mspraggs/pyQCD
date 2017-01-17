@@ -71,4 +71,10 @@ namespace pyQCD {
     std::uniform_int_distribution<int> dist(lower, upper);
     return dist(engines_[thread]);
   }
+
+
+  Random& rng()
+  {
+    return Random::instance(get_num_threads());
+  }
 }

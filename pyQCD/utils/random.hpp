@@ -62,10 +62,7 @@ namespace pyQCD {
   }
 
 
-  Random& rng()
-  {
-    return Random::instance(get_num_threads());
-  }
+  Random& rng();
 }
 
 #endif
