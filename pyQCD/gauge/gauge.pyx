@@ -1,5 +1,5 @@
 from pyQCD.core.core cimport LatticeColourMatrix
-from pyQCD.core.layout cimport Layout
+from pyQCD.core.layout cimport Layout, LexicoLayout
 
 from gauge cimport GaugeAction, WilsonGaugeAction, _average_plaquette
 
@@ -9,9 +9,10 @@ cdef class GaugeAction:
 
 cdef class WilsonGaugeAction:
 
-    def __cinit__(self, float beta, gauge_field):
-        self.instance = new _WilsonGaugeAction(
-            beta, (<LatticeColourMatrix?>gauge_field).lexico_layout[0])
+    def __cinit__(self, float beta, shape):
+        cdef Layout* layout = new LexicoLayout(shape)
+        self.instance = new _WilsonGaugeAction(beta, layout[0]
+                                               )
 
 def average_plaquette(LatticeColourMatrix gauge_field):
     return _average_plaquette(gauge_field.instance[0])
