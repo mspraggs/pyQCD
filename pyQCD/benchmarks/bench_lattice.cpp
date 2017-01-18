@@ -60,27 +60,30 @@ void profile_for_type(const T& elem, const std::string& type,
 
 int main(int argc, char* argv[])
 {
-  std::cout << "Profiling lattice arithmetic operations" << std::endl;
-  std::cout << "=======================================" << std::endl;
+  std::cout << "Profiling lattice arithmetic operations\n";
+  std::cout << "=======================================\n";
 
-  profile_for_type(1.0, "double", 2, 2);
+  std::cout << "N.B. Flops indicated are double precision flops."
+	    << std::endl;
+  
+  profile_for_type(1.0, "double", 1, 1);
   profile_for_type(std::complex<double>(1.0, 0.0), "std::complex<double>",
-                   4, 12);
+                   2, 6);
   profile_for_type<Eigen::Matrix2d, Eigen::aligned_allocator>(
     Eigen::Matrix2d::Random(), "Eigen::Matrix2d",
-    matadd_flops(2, false, 2), matmul_flops(2, false, 2)
+    matadd_flops(2, false, 1), matmul_flops(2, false, 1)
   );
   profile_for_type<Eigen::Matrix4d, Eigen::aligned_allocator>(
     Eigen::Matrix4d::Random(), "Eigen::Matrix4d",
-    matadd_flops(4, false, 2), matmul_flops(4, false, 2)
+    matadd_flops(4, false, 1), matmul_flops(4, false, 1)
   );
   profile_for_type<Eigen::Matrix2cd, Eigen::aligned_allocator>(
     Eigen::Matrix2cd::Random(), "Eigen::Matrix2cd",
-    matadd_flops(2, true, 2), matmul_flops(2, true, 2)
-  );
+    matadd_flops(2, true, 1), matmul_flops(2, true, 1)
+    );
   profile_for_type<Eigen::Matrix3cd, Eigen::aligned_allocator>(
     Eigen::Matrix3cd::Random(), "Eigen::Matrix3cd",
-    matadd_flops(3, true, 2), matmul_flops(3, true, 2)
+    matadd_flops(3, true, 1), matmul_flops(3, true, 1)
   );
   return 0;
 }
