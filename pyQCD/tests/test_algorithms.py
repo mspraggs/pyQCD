@@ -1,10 +1,14 @@
 from __future__ import absolute_import
 
+import pytest
+
 from pyQCD import algorithms, core, gauge
 
 
-def create_gauge_field(shape):
+@pytest.fixture
+def gauge_field():
     """Generate a cold-start gauge field with the supplied lattice shape"""
+    shape = (8, 4, 4, 4)
     gauge_field = core.LatticeColourMatrix(shape, len(shape))
     gauge_field.as_numpy.fill(0.0)
 
@@ -13,21 +17,22 @@ def create_gauge_field(shape):
 
     return gauge_field
 
+
+@pytest.fixture
+def action():
+    """Create an instance of the Wilson gauge action"""
+    shape = (8, 4, 4, 4)
+    return gauge.WilsonGaugeAction(5.5, shape)
+
+
 class TestHeatbath(object):
 
-    def test_constructor(self):
+    def test_constructor(self, action):
         """Test construction of Heatbath object"""
-
-        # First we need an action
-        # TODO: Put this in a fixture
-        action = gauge.WilsonGaugeAction(5.5, [8, 4, 4, 4])
         heatbath = algorithms.Heatbath(action)
 
-    def test_update(self):
+    def test_update(self, action, gauge_field):
         """Test Heatbath.update method"""
-
-        action = gauge.WilsonGaugeAction(5.5, [8, 4, 4, 4])
-        gauge_field = create_gauge_field([8, 4, 4, 4])
 
         heatbath = algorithms.Heatbath(action)
         heatbath.update(gauge_field, 1)
