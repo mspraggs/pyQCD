@@ -12,6 +12,9 @@ def cold_start(lattice_shape):
     Arguments:
       lattice_shape (iterable): The lattice shape the gauge field should
         exhibit.
+
+    Returns:
+      LatticeColourMatrix: The cold-start gauge field.
     """
     lattice_shape = list(lattice_shape)
     ret = LatticeColourMatrix(lattice_shape, len(lattice_shape))
