@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 import numpy as np
+import pytest
 
 from pyQCD import gauge
 
@@ -9,7 +10,8 @@ class TestGaugeAction(object):
 
     def test_constructor(self):
         """Test constructor of GaugeAction object"""
-        action = gauge.GaugeAction()
+        with pytest.raises(NotImplementedError):
+            action = gauge.GaugeAction()
 
 
 class TestWilsonGaugeAction(object):
