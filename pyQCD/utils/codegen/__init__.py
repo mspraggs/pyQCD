@@ -280,9 +280,6 @@ def generate_core_cython_types(output_path, precision, typedefs, operator_map):
                    typedefs=typedefs, precision=precision)
     write_template("core/atomics.pxd", "core/atomics.pxd", output_path,
                    precision=precision)
-    write_template("core/operators.pxd", "core/operators.pxd", output_path,
-                   operations=operations, typedefs=typedefs,
-                   precision=precision)
     write_template("core/core.pyx", "core/core.pyx", output_path,
                    typedefs=typedefs, precision=precision,
                    operator_map=operator_map)
