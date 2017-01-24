@@ -257,6 +257,9 @@ class MatrixDef(ContainerDef):
         self.add_cmember("Py_ssize_t", "buffer_shape[{}]".format(len(shape)))
         self.add_cmember("Py_ssize_t", "buffer_strides[{}]".format(len(shape)))
 
+        self.def_template = "core/matrix.pxd"
+        self.impl_template = "core/matrix.pyx"
+
     @property
     def cpptype(self):
         num_colours = self.matrix_shape[0]
@@ -288,6 +291,9 @@ class LatticeDef(ContainerDef):
                          "buffer_shape[{}]".format(len(shape) + 1))
         self.add_cmember("Py_ssize_t",
                          "buffer_strides[{}]".format(len(shape) + 1))
+
+        self.def_template = "core/lattice.pxd"
+        self.impl_template = "core/lattice.pyx"
 
     @property
     def cpptype(self):

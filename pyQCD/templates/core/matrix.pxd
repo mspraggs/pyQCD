@@ -1,22 +1,20 @@
-from {{ typedef.element_type.cmodule }} cimport {{ typedef.element_type.cname }}
-
-
 cdef extern from "core/types.hpp" namespace "pyQCD::python":
-    cdef cppclass {{ typedef.cname }}:
-        {{ typedef.cname }}() except +
-        {{ typedef.cname }}(const {{ typedef.cname }}&) except +
-        {{ typedef.cname }} adjoint()
-        {% if typedef.shape|length > 1 %}
+    cdef cppclass _{{ typedef.cname }} "pyQCD::python::{{ typedef.cname }}":
+        _{{ typedef.cname }}() except +
+        _{{ typedef.cname }}(const _{{ typedef.cname }}&) except +
+        _{{ typedef.cname }} adjoint()
+        {% if typedef.buffer_ndims > 1 %}
         {{ typedef.element_type.cname }}& operator()(int, int) except +
         {% else %}
         {{ typedef.element_type.cname }}& operator[](int) except +
         {% endif %}
 
 
-    cdef {{ typedef.cname }} zeros "pyQCD::python::{{ typedef.cname }}::Zero"()
-    cdef {{ typedef.cname }} ones "pyQCD::python::{{ typedef.cname }}::Ones"()
-{% if typedef.is_square %}
-    cdef {{ typedef.cname }} identity "pyQCD::python::{{ typedef.cname }}::Identity"()
-{% endif %}
-    cdef void mat_assign({{ typedef.cname }}&, const int, const int, const Complex)
-    cdef void mat_assign({{ typedef.cname }}*, const int, const int, const Complex)
+    cdef _{{ typedef.cname }} _{{ typedef.cname }}_zeros "pyQCD::python::{{ typedef.cname }}::Zero"()
+    cdef _{{ typedef.cname }} _{{ typedef.cname }}_ones "pyQCD::python::{{ typedef.cname }}::Ones"()
+
+cdef class {{ typedef.cname }}:
+    cdef _{{ typedef.cname }}* instance
+    cdef int view_count
+    cdef Py_ssize_t buffer_shape[{{ typedef.buffer_ndims }}]
+    cdef Py_ssize_t buffer_strides[{{ typedef.buffer_ndims }}]

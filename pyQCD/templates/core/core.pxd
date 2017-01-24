@@ -1,29 +1,28 @@
 from cpython cimport Py_buffer
 
-cimport layout
-from operators cimport *
-{% for typedef in typedefs %}
-cimport {{ typedef.cmodule }}
-{% endfor %}
+from libcpp.vector cimport vector
+
+from atomics cimport Real, Complex
+
+cdef extern from "core/layout.hpp" namespace "pyQCD":
+    cdef cppclass Layout:
+        Layout()
+        unsigned int get_array_index(const unsigned int)
+        unsigned int get_array_index(const vector[unsigned int]&)
+        unsigned int get_site_index(const unsigned int)
+        unsigned int num_dims()
+        unsigned int volume()
+        const vector[unsigned int]& shape()
+
+    cdef cppclass LexicoLayout(Layout):
+        LexicoLayout() except+
+        LexicoLayout(const vector[unsigned int]&) except+
 
 
 {% for typedef in typedefs %}
-cdef class {{ typedef.name }}:
-    cdef {{typedef.cmodule }}.{{ typedef.cname }}{% if typedef.wrap_ptr %}*{% endif %} instance
-    {% for type, name, init in typedef.cmembers %}
-    cdef {{ type }} {{ name }}
-    {% endfor %}
+    {% with typedef = typedef %}
 
-    {% set operations = typedef.generate_arithmetic_operations(typedefs) %}
-    {% for op in operator_map %}
-        {% for ret, lhs, rhs in operations[op] %}
-    cdef inline {{ ret.name }} _{{ operator_map[op][0] }}_{{ lhs.name }}_{{ rhs.name }}({{ lhs.name }} self, {{ rhs.name }} other):
-            {% set lattice_name = rhs.get_lattice_name(lhs, "self", "other") %}
-            {% set constructor_args = "{}.lexico_layout.shape(), self.site_size".format(lattice_name) if lattice_name else "" %}
-        cdef {{ ret.name }} out = {{ ret.name }}({{ constructor_args }})
-        out.instance[0] = {{ lhs.accessor("self", False) }} {{ op }} {{ rhs.accessor("other", False) }}
-        return out
+        {% include typedef.def_template %}
 
-        {% endfor %}
-    {% endfor %}
+    {% endwith %}
 {% endfor %}

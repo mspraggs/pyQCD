@@ -11,18 +11,18 @@ def multiply_einsum(a, b):
     return np.einsum('...jk,...kl->...jl', a, b)
 
 @pytest.mark.parametrize(
-    "Type,multiply,args",
-    [(ColourMatrix, np.dot, ()), (ColourVector, None, ()),
-     (LatticeColourMatrix, multiply_einsum, ([8, 4, 4, 4], 4)),
-     (LatticeColourVector, None, ([8, 4, 4, 4], 4))])
+    "Type,args",
+    [(ColourMatrix, ()), (ColourVector, ()),
+     (LatticeColourMatrix, ([8, 4, 4, 4], 4)),
+     (LatticeColourVector, ([8, 4, 4, 4], 4))])
 class TestMatrixType(object):
 
-    def test_constructor(self, Type, multiply, args):
+    def test_constructor(self, Type, args):
         """Test matrix"""
         mat = Type(*args)
         assert isinstance(mat, Type)
 
-    def test_buffer_protocol(self, Type, multiply, args):
+    def test_buffer_protocol(self, Type, args):
         """Test buffer protocol implementation"""
         mat = Type(*args)
         np_mat1 = np.asarray(mat)
@@ -38,7 +38,7 @@ class TestMatrixType(object):
         assert np_mat1[index] == 5.0 + 0j
         assert np_mat2[index] == 5.0 + 0j
 
-    def test_as_numpy(self, Type, multiply, args):
+    def test_as_numpy(self, Type, args):
         """Test as_numpy attribute"""
         mat = Type(*args)
         np_mat1 = mat.as_numpy
@@ -54,33 +54,6 @@ class TestMatrixType(object):
             np_mat2 = np.asarray(mat)
             np_mat2.dtype = complex
             assert (np_mat2[1252] == np.ones(shape[5:])).all()
-
-    def test_mul(self, Type, multiply, args):
-        """Test multiplications"""
-        shape = Type(*args).as_numpy.shape
-        mat1_data = np.random.rand(*shape)
-        mat2_data = np.random.rand(*shape)
-        mat1, mat2 = Type(*args), Type(*args)
-        mat1.as_numpy = mat1_data
-        mat2.as_numpy = mat2_data
-
-        if multiply:
-            mat3_data = multiply(mat1_data, mat2_data)
-            mat3 = mat1 * mat2
-            assert np.allclose(mat3.as_numpy, mat3_data)
-
-    @pytest.mark.parametrize("op", [lambda x, y: x + y, lambda x, y: x - y])
-    def test_add(self, Type, multiply, args, op):
-        """Test addition"""
-        shape = Type(*args).as_numpy.shape
-        mat1_data = np.random.rand(*shape)
-        mat2_data = np.random.rand(*shape)
-        mat3_data = op(mat1_data, mat2_data)
-        mat1, mat2 = Type(*args), Type(*args)
-        mat1.as_numpy = mat1_data
-        mat2.as_numpy = mat2_data
-        mat3 = op(mat1, mat2)
-        assert np.allclose(mat3.as_numpy, mat3_data)
 
 
 def test_random_colour_matrix():

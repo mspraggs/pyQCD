@@ -1,20 +1,19 @@
 from pyQCD.core.atomics cimport Real
-from pyQCD.core.core cimport lattice_colour_matrix
-from pyQCD.core.layout cimport Layout
+from pyQCD.core cimport core
 
 
 cdef extern from "gauge/types.hpp" namespace "pyQCD::python":
     cdef cppclass _GaugeAction "pyQCD::python::GaugeAction":
-        _GaugeAction(const Real, const Layout&) except +
+        _GaugeAction(const Real, const core.Layout&) except +
 
     cdef cppclass _WilsonGaugeAction "pyQCD::python::WilsonGaugeAction"(_GaugeAction):
-        _WilsonGaugeAction(const Real, const Layout&) except +
+        _WilsonGaugeAction(const Real, const core.Layout&) except +
 
 cdef extern from "gauge/plaquette.hpp" namespace "pyQCD::gauge":
-    cdef Real _average_plaquette "pyQCD::gauge::average_plaquette"(const lattice_colour_matrix.LatticeColourMatrix&) except +
+    cdef Real _average_plaquette "pyQCD::gauge::average_plaquette"(const core._LatticeColourMatrix&) except +
     
 cdef extern from "gauge/rectangle.hpp" namespace "pyQCD::gauge":
-    cdef Real _average_rectangle "pyQCD::gauge::average_rectangle"(const lattice_colour_matrix.LatticeColourMatrix&) except +
+    cdef Real _average_rectangle "pyQCD::gauge::average_rectangle"(const core._LatticeColourMatrix&) except +
 
 cdef class GaugeAction:
     cdef _GaugeAction* instance

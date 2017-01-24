@@ -14,7 +14,7 @@ cdef class GaugeAction:
 cdef class WilsonGaugeAction:
 
     def __cinit__(self, float beta, shape):
-        cdef Layout* layout = new LexicoLayout(shape)
+        cdef const Layout* layout = new LexicoLayout(shape)
         self.instance = new _WilsonGaugeAction(beta, layout[0])
 
     def __init__(self, *args, **kwargs):

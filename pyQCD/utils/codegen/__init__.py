@@ -20,7 +20,7 @@ from .typedefs import LatticeDef
 # Create the jinja2 template environment.
 env = Environment(loader=PackageLoader('pyQCD', 'templates'),
                   trim_blocks=True, lstrip_blocks=True,
-                  extensions=["jinja2.ext.do"])
+                  extensions=["jinja2.ext.do", "jinja2.ext.with_"])
 
 MatrixDefinition = namedtuple("MatrixDefinition",
                               ["num_rows", "num_cols", "matrix_name",
@@ -273,17 +273,6 @@ def generate_core_cython_types(output_path, precision, typedefs, operator_map):
     operations = {'*': [], '/': [], '+': [], '-': []}
 
     for typedef in typedefs:
-        template_fname = typedef.structure[0].lower()
-        try:
-            bcast_typedef = filter(
-                lambda t: (isinstance(t, LatticeDef) and
-                           t.element_type == typedef), typedefs)[0]
-        except IndexError:
-            bcast_typedef = None
-        write_template("core/{}.pxd".format(template_fname),
-                       "core/{}.pxd".format(typedef.cmodule),
-                       output_path, precision=precision, typedef=typedef,
-                       bcast_typedef=bcast_typedef)
         operations = typedef.generate_arithmetic_operations(typedefs,
                                                             operations)
 
