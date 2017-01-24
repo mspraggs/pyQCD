@@ -5,21 +5,16 @@ python:
   - "3.4"
 addons:
   apt:
-    sources:
-    - ubuntu-toolchain-r-test
-    - llvm-toolchain-precise-3.6
     packages:
-    - gcc-5
-    - g++-5
     - libeigen3-dev
 before_install:
   - pip install pip-accel
 install:
   - pip-accel install -r requirements.txt
-  - "CC=gcc-5 CXX=g++-5 pip install ."
+  - "CC=clang CXX=clang++ pip install ."
   - mkdir build
   - cd build
-  - cmake .. -DCMAKE_C_COMPILER=gcc-5 -DCMAKE_CXX_COMPILER=g++-5
+  - cmake .. -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
   - make
   - cd ..
 script: 
