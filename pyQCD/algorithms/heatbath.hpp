@@ -95,9 +95,9 @@ namespace pyQCD {
   }
 
   template <typename Real, int Nc>
-  void heatbath_update(LatticeColourMatrix<Real, Nc>& gauge_field,
-                       const gauge::Action<Real, Nc>& action,
-                       const Int link_index)
+  void heatbath_link_update(LatticeColourMatrix<Real, Nc> &gauge_field,
+                            const gauge::Action<Real, Nc> &action,
+                            const Int link_index)
   {
     // Perform SU(N) heatbath update on the specified lattice link
     auto staple = action.compute_staples(gauge_field, link_index);
@@ -115,32 +115,17 @@ namespace pyQCD {
 
 
   template <typename Real, int Nc>
-  class Heatbath
-  {
-  public:
-    typedef LatticeColourMatrix<Real, Nc> GaugeField;
-
-    Heatbath(const gauge::Action<Real, Nc>& action)
-      : action_(&action)
-    { }
-
-    void update(GaugeField& gauge_field, const unsigned int num_iter) const;
-
-  private:
-    const gauge::Action<Real, Nc>* action_;
-  };
-
-  template <typename Real, int Nc>
-  void Heatbath<Real, Nc>::update(GaugeField& gauge_field,
-                                  const unsigned int num_iter) const
+  void heatbath_update(LatticeColourMatrix<Real, Nc>& gauge_field,
+                       const gauge::Action<Real, Nc>& action,
+                       const unsigned int num_iter)
   {
     auto num_links = gauge_field.size();
     for (unsigned int i = 0; i < num_iter; ++i) {
       for (unsigned int link = 0; link < num_links; ++link) {
-        heatbath_update(gauge_field, *action_, link);
+        heatbath_link_update(gauge_field, action, link);
       }
     }
-  };
+  }
 }
 
 #endif

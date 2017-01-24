@@ -123,7 +123,7 @@ TEST_CASE("Heatbath test")
 
     auto action = TestAction<Real, 3>(5.0);
 
-    pyQCD::heatbath_update(gauge_field, action, 0);
+    pyQCD::heatbath_link_update(gauge_field, action, 0);
 
     auto link = gauge_field(0);
 

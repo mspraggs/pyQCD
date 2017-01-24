@@ -24,15 +24,6 @@ def action():
     shape = (8, 4, 4, 4)
     return gauge.WilsonGaugeAction(5.5, shape)
 
-
-class TestHeatbath(object):
-
-    def test_constructor(self, action):
-        """Test construction of Heatbath object"""
-        heatbath = algorithms.Heatbath(action)
-
-    def test_update(self, action, gauge_field):
-        """Test Heatbath.update method"""
-
-        heatbath = algorithms.Heatbath(action)
-        heatbath.update(gauge_field, 1)
+def test_heatbath_update(action, gauge_field):
+    """Test heatbath_update method"""
+    algorithms.heatbath_update(gauge_field, action, 1)

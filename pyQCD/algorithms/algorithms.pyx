@@ -1,13 +1,9 @@
 from pyQCD.core.core cimport LatticeColourMatrix
 from pyQCD.gauge.gauge cimport GaugeAction
 
-from algorithms cimport Heatbath
+from algorithms cimport _heatbath_update
 
 
-cdef class Heatbath:
-
-    def __cinit__(self, GaugeAction action):
-        self.instance = new _Heatbath(action.instance[0])
-
-    def update(self, LatticeColourMatrix gauge_field, int num_updates):
-        self.instance.update(gauge_field.instance[0], num_updates)
+def heatbath_update(LatticeColourMatrix gauge_field,
+                    GaugeAction action, int num_updates):
+    _heatbath_update(gauge_field.instance[0], action.instance[0], num_updates)
