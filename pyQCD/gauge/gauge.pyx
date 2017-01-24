@@ -1,5 +1,4 @@
-from pyQCD.core.core cimport LatticeColourMatrix
-from pyQCD.core.layout cimport Layout, LexicoLayout
+from pyQCD.core.core cimport LatticeColourMatrix, Layout, LexicoLayout
 
 from gauge cimport GaugeAction, WilsonGaugeAction, _average_plaquette
 
