@@ -1,7 +1,7 @@
 from {{ typedef.element_type.cmodule }} cimport {{ typedef.element_type.cname }}
 
 
-cdef extern from "types.hpp" namespace "pyQCD::python":
+cdef extern from "core/types.hpp" namespace "pyQCD::python":
     cdef cppclass {{ typedef.cname }}:
         {{ typedef.cname }}() except +
         {{ typedef.cname }}(const {{ typedef.cname }}&) except +

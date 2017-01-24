@@ -3,7 +3,7 @@ from pyQCD.core.core cimport lattice_colour_matrix
 from pyQCD.core.layout cimport Layout
 
 
-cdef extern from "types.hpp" namespace "pyQCD::python":
+cdef extern from "gauge/types.hpp" namespace "pyQCD::python":
     cdef cppclass _GaugeAction "pyQCD::python::GaugeAction":
         _GaugeAction(const Real, const Layout&) except +
 

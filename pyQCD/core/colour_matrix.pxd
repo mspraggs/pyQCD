@@ -1,7 +1,7 @@
 from atomics cimport Complex
 
 
-cdef extern from "types.hpp" namespace "pyQCD::python":
+cdef extern from "core/types.hpp" namespace "pyQCD::python":
     cdef cppclass ColourMatrix:
         ColourMatrix() except +
         ColourMatrix(const ColourMatrix&) except +
