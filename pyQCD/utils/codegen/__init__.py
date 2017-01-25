@@ -89,162 +89,6 @@ def create_type_definitions(num_rows, num_cols, matrix_name):
     return [matrix_def, lattice_matrix_def]
 
 
-def get_compatible_variants(matrix_lhs, matrix_rhs):
-    """Returns triplets of compatible variants and return variants
-
-    Args:
-      matrix_lhs (MatrixDefinition): The matrix on the left hand side of the
-        binary operator.
-      matrix_rhs (MatrixDefinition): The matrix on the right hand side of the
-        binary operator.
-
-    Returns:
-      tuple: Resulting matrix shape, allowed variants and permitted operations
-
-      The first element in the tuple will be the shape of the resulting matrix,
-      the second will be a list of three-tuple containing the permitted
-      lhs and rhs types and the corresponding return type.
-    """
-
-    can_sum = ((matrix_lhs.num_cols == matrix_rhs.num_cols)
-               and (matrix_lhs.num_rows == matrix_rhs.num_rows))
-    can_mult = matrix_lhs.num_cols == matrix_rhs.num_rows
-
-    if not (can_mult or can_sum):
-        return (-1, -1), [], False, False
-    else:
-        result_shape = (matrix_lhs.num_rows, matrix_rhs.num_cols)
-
-    pairs = []
-    for variant_lhs, variant_rhs in product(variants, variants):
-        lattice_lhs = 'lattice' in variant_lhs
-        lattice_rhs = 'lattice' in variant_rhs
-        ret_array = 'array' in variant_lhs or 'array' in variant_rhs
-        ret_lattice = lattice_lhs or lattice_rhs
-        ret_variant = (("lattice_" if ret_lattice else "") +
-                       ("array" if ret_array else "matrix"))
-        if lattice_lhs == lattice_rhs:
-            pairs.append((variant_lhs, variant_rhs, ret_variant))
-        elif variant_lhs == 'matrix' or variant_rhs == 'matrix':
-            pairs.append((variant_lhs, variant_rhs, ret_variant))
-
-    return result_shape, pairs, can_sum, can_mult
-
-
-def make_lattice_binary_ops(matrices, matrix_lhs, matrix_rhs):
-    """Create a list of tuples that define possible lattice binary operators
-
-    Args:
-      matrices (list): A list of MatrixDefinition instances.
-      matrix_lhs (MatrixDefinition): The matrix on the lhs of the operation.
-      matrix_rhs (MatrixDefinition): The matrix on the rhs of the operation.
-
-    Returns:
-      list: List of four-tuples containing return value, operands and operator
-    """
-    ops = []
-    ret_shape, variant_triplets, can_sum, can_mult \
-        = get_compatible_variants(matrix_lhs, matrix_rhs)
-    ret_lookup = dict([((m.num_rows, m.num_cols), m) for m in matrices])
-    try:
-        matrix_ret = ret_lookup[ret_shape]
-    except KeyError:
-        return []
-    for vartrip in variant_triplets:
-        lhs_name, rhs_name, ret_name = tuple([
-            getattr(mat, "{}_name".format(var))
-            for mat, var in zip([matrix_lhs, matrix_rhs, matrix_ret], vartrip)
-        ])
-        lhs_lattice = "lattice" in vartrip[0]
-        lhs_array = "array" in vartrip[0]
-        rhs_lattice = "lattice" in vartrip[1]
-        rhs_array = "array" in vartrip[1]
-        can_sub = (
-            (lhs_lattice if rhs_lattice else True) and
-            (lhs_array if rhs_array else True)
-            and can_sum
-        )
-        lhs_broadcast = lhs_array and (rhs_lattice and not lhs_lattice)
-        rhs_broadcast = rhs_array and (lhs_lattice and not rhs_lattice)
-        lhs_name = "{}.{}".format(_camel2underscores(lhs_name), lhs_name)
-        rhs_name = "{}.{}".format(_camel2underscores(rhs_name), rhs_name)
-        ret_name = "{}.{}".format(_camel2underscores(ret_name), ret_name)
-        opcodes = (('*' if can_mult else '') + ('+' if can_sum else '') +
-                   ('-' if can_sub else ''))
-        for op in opcodes:
-            ops.append((ret_name, op, lhs_name, rhs_name,
-                        lhs_broadcast, rhs_broadcast))
-
-    return ops
-
-
-def make_scalar_binary_ops(matrix, precision, scalar_types):
-    """Create a list of tuples that define possible scalar binary operators
-
-    Args:
-      matrix (MatrixDefinition): The matrix to create binary operators for.
-      precision (str): The fundamental machine type used to represent real
-        numbers (e.g. single, float, double).
-      scalar_types (list): The Python numerical types to generate binary
-        operations for (e.g. float, int, etc.).
-
-    Returns:
-      list: List of four-tuples containing return value, operands and operator
-    """
-
-    ops = []
-    cpp_scalar_types = [precision if t == "float" else t for t in scalar_types]
-    cpp_scalar_types.append("complex.Complex")
-
-    for variant in variants:
-        typename = getattr(matrix, "{}_name".format(variant))
-        typename = "{}.{}".format(_camel2underscores(typename), typename)
-
-        for scalar in cpp_scalar_types:
-            ops.extend([
-                (typename, "*", scalar, typename, False, False),
-                (typename, "*", typename, scalar, False, False),
-                (typename, '/', typename, scalar, False, False)])
-    return ops
-
-
-def make_cython_ops(matrices, cpp_ops, precision, scalar_types):
-    """Convert a list of operator tuples from C++ to Cython description
-
-    This means partitionining the list according the matrix type of the
-    operands, in addition to converting the character defining the arithmetic
-    operator to the appropriate Python function name.
-
-    Args:
-      matrices (list): A list of MatrixDefinition instances defining the
-        matrices that the operators should be build for.
-      cpp_ops (list): List of four-tuples specifying the arithmetic operators,
-        as returned by the make_scalar_binary_ops and make_lattice_binary_ops
-        functions.
-      precision (str): The fundamental machine type to be used throughout the
-        code (e.g. 'double' or 'float').
-      scalar_types (list): The Python numerical types to generate binary
-        operations for (e.g. float, int, etc.).
-    """
-
-    scalar_complex_types = scalar_types + ["Complex"]
-
-    out = dict([((getattr(mat, "{}_name".format(var)), op), [])
-                for mat in matrices for var in variants
-                for op in '+-*/'])
-    for ret_type, op, lhs_type, rhs_type, lhs_bcast, rhs_bcast in cpp_ops:
-        ret_type = ret_type.split('.')[-1]
-        lhs_type = lhs_type.split('.')[-1]
-        lhs_type = 'float' if lhs_type == precision else lhs_type
-        rhs_type = rhs_type.split('.')[-1]
-        rhs_type = 'float' if rhs_type == precision else rhs_type
-        key = (lhs_type if lhs_type not in scalar_complex_types else rhs_type,
-               op)
-        out[key].append((ret_type, lhs_type, rhs_type, lhs_bcast, rhs_bcast))
-
-    return out
-
-
 def write_template(template_fname, output_fname, output_path, **template_args):
     """Load the specified template from templates/core and render it to core"""
 
@@ -270,7 +114,6 @@ def generate_core_cython_types(output_path, precision, typedefs, operator_map):
       operator_map (dict): Dictionary relating arithmetic operator characters
         to lists of Python function names that implement them.
     """
-    operations = {'*': [], '/': [], '+': [], '-': []}
 
     write_template("core/types.hpp", "core/types.hpp", output_path,
                    typedefs=typedefs, precision=precision)
@@ -347,7 +190,4 @@ class CodeGen(setuptools.Command):
 
     def run(self):
         """Run - pass execution to generate_qcd"""
-        import warnings
-        warnings.warn("The codegen module is terribly designed and needs a "
-                      "rethink.")
         generate_qcd(self.num_colours, self.precision, self.representation)
