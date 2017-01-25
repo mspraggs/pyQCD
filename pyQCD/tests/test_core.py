@@ -55,20 +55,22 @@ class TestMatrixType(object):
             np_mat2.dtype = complex
             assert (np_mat2[1252] == np.ones(shape[5:])).all()
 
+    def test_random(self, Type, args):
+        """Test generation of random ColourMatrix for conformance with SU(N)"""
 
-def test_random_colour_matrix():
-    """Test generation of random ColourMatrix for conformance with SU(N)"""
+        if not Type is ColourMatrix:
+            return
 
-    mat = random_colour_matrix()
-    mat_view = mat.as_numpy
-    num_colours = mat_view.shape[-1]
+        mat = Type.random()
+        mat_view = mat.as_numpy
+        num_colours = mat_view.shape[-1]
 
-    for i in range(num_colours):
-        for j in range(num_colours):
-            expected_value = 1.0 if i == j else 0.0
-            assert np.allclose(np.vdot(mat_view[i], mat_view[j]),
-                               expected_value)
+        for i in range(num_colours):
+            for j in range(num_colours):
+                expected_value = 1.0 if i == j else 0.0
+                assert np.allclose(np.vdot(mat_view[i], mat_view[j]),
+                                   expected_value)
 
-    assert np.allclose(np.linalg.det(mat_view), 1.0)
-    assert np.allclose(np.dot(mat_view, np.conj(mat_view.T)),
-                       np.identity(num_colours))
+        assert np.allclose(np.linalg.det(mat_view), 1.0)
+        assert np.allclose(np.dot(mat_view, np.conj(mat_view.T)),
+                           np.identity(num_colours))
