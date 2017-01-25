@@ -13,7 +13,7 @@ from string import ascii_lowercase
 from jinja2 import Environment, PackageLoader
 import setuptools
 
-from . import ctags, typedefs
+from . import typedefs
 from .typedefs import LatticeDef
 
 
@@ -351,6 +351,3 @@ class CodeGen(setuptools.Command):
         warnings.warn("The codegen module is terribly designed and needs a "
                       "rethink.")
         generate_qcd(self.num_colours, self.precision, self.representation)
-
-
-env.filters['cpptype'] = ctags.cpptype
