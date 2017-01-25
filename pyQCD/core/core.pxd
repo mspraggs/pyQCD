@@ -31,6 +31,9 @@ cdef extern from "core/types.hpp" namespace "pyQCD::python":
     cdef _ColourMatrix _ColourMatrix_zeros "pyQCD::python::ColourMatrix::Zero"()
     cdef _ColourMatrix _ColourMatrix_ones "pyQCD::python::ColourMatrix::Ones"()
 
+cdef extern from "utils/matrices.hpp" namespace "pyQCD":
+    cdef _ColourMatrix _random_colour_matrix "pyQCD::random_sun<pyQCD::Real, pyQCD::num_colours>"()
+
 cdef class ColourMatrix:
     cdef _ColourMatrix* instance
     cdef int view_count
@@ -64,6 +67,7 @@ cdef extern from "core/types.hpp" namespace "pyQCD::python":
 
     cdef _ColourVector _ColourVector_zeros "pyQCD::python::ColourVector::Zero"()
     cdef _ColourVector _ColourVector_ones "pyQCD::python::ColourVector::Ones"()
+
 
 cdef class ColourVector:
     cdef _ColourVector* instance

@@ -121,6 +121,21 @@ namespace pyQCD {
 
     return ret;
   }
+
+  template <typename Real, int Nc>
+  ColourMatrix<Real, Nc> random_sun()
+  {
+    ColourMatrix<Real, Nc> ret = ColourMatrix<Real, Nc>::Identity();
+
+    constexpr int num_subgroups = (Nc * (Nc - 1)) / 2;
+
+    for (int subgroup = 0; subgroup < num_subgroups; ++subgroup) {
+      auto rand_su2 = random_su2<Real>();
+      ret *= insert_su2<Nc>(rand_su2, subgroup);
+    }
+
+    return ret;
+  }
 }
 
 #endif

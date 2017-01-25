@@ -13,6 +13,11 @@ cdef extern from "core/types.hpp" namespace "pyQCD::python":
     cdef _{{ typedef.cname }} _{{ typedef.cname }}_zeros "pyQCD::python::{{ typedef.cname }}::Zero"()
     cdef _{{ typedef.cname }} _{{ typedef.cname }}_ones "pyQCD::python::{{ typedef.cname }}::Ones"()
 
+{% if typedef.cname == "ColourMatrix" %}
+cdef extern from "utils/matrices.hpp" namespace "pyQCD":
+    cdef _{{ typedef.cname }} _random_colour_matrix "pyQCD::random_sun<pyQCD::Real, pyQCD::num_colours>"()
+{% endif %}
+
 cdef class {{ typedef.cname }}:
     cdef _{{ typedef.cname }}* instance
     cdef int view_count

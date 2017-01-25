@@ -50,3 +50,11 @@ cdef class {{ typedef.name }}:
             out.dtype = complex
             out = out.reshape({{ typedef.shape }})
             out[:] = value
+{% if typedef.cname == "ColourMatrix" %}
+
+    @staticmethod
+    def random():
+        ret = ColourMatrix()
+        ret.instance[0] = _random_colour_matrix()
+        return ret
+{% endif %}

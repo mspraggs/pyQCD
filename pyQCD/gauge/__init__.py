@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 import numpy as np
 
-from pyQCD.core import LatticeColourMatrix, random_colour_matrix
+from pyQCD.core import LatticeColourMatrix, ColourMatrix
 from pyQCD.gauge.gauge import *
 
 
@@ -45,6 +45,6 @@ def hot_start(lattice_shape):
     ret_view = ret.as_numpy
 
     for index in np.ndindex(*(lattice_shape + [len(lattice_shape)])):
-        ret_view[index] = random_colour_matrix().as_numpy
+        ret_view[index] = ColourMatrix.random().as_numpy
 
     return ret

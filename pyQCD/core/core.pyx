@@ -57,6 +57,13 @@ cdef class ColourMatrix:
             out = out.reshape((3, 3))
             out[:] = value
 
+    @staticmethod
+    def random():
+        ret = ColourMatrix()
+        ret.instance[0] = _random_colour_matrix()
+        return ret
+
+
 cdef class LatticeColourMatrix:
 
     def __cinit__(self, shape, int site_size=1):
@@ -157,6 +164,7 @@ cdef class ColourVector:
             out.dtype = complex
             out = out.reshape((3,))
             out[:] = value
+
 
 cdef class LatticeColourVector:
 

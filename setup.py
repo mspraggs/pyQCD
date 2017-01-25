@@ -26,7 +26,8 @@ with open("README.md") as f:
     long_description = f.read()
 
 
-extensions = [Extension("pyQCD.core.core", ["pyQCD/core/core.pyx"],
+extensions = [Extension("pyQCD.core.core", ["pyQCD/core/core.pyx",
+                                            "pyQCD/utils/random.cpp"],
                         language="c++", undef_macros=["NDEBUG"],
                         include_dirs=["./pyQCD", "/usr/include/eigen3"],
                         extra_compile_args=["-std=c++11"]),
