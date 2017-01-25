@@ -12,5 +12,5 @@ cdef class {{ typedef.cname }}:
     cdef Layout* lexico_layout
     cdef int view_count
     cdef int site_size
-    cdef Py_ssize_t buffer_shape[{{ typedef.buffer_ndims }}]
-    cdef Py_ssize_t buffer_strides[{{ typedef.buffer_ndims }}]
+    cdef Py_ssize_t buffer_shape[{{ typedef.element_type.ndims + 1 }}]
+    cdef Py_ssize_t buffer_strides[{{ typedef.element_type.ndims + 1 }}]

@@ -3,7 +3,7 @@ cdef extern from "core/types.hpp" namespace "pyQCD::python":
         _{{ typedef.cname }}() except +
         _{{ typedef.cname }}(const _{{ typedef.cname }}&) except +
         _{{ typedef.cname }} adjoint()
-        {% if typedef.buffer_ndims > 1 %}
+        {% if typedef.ndims > 1 %}
         {{ typedef.element_type.cname }}& operator()(int, int) except +
         {% else %}
         {{ typedef.element_type.cname }}& operator[](int) except +
@@ -16,5 +16,5 @@ cdef extern from "core/types.hpp" namespace "pyQCD::python":
 cdef class {{ typedef.cname }}:
     cdef _{{ typedef.cname }}* instance
     cdef int view_count
-    cdef Py_ssize_t buffer_shape[{{ typedef.buffer_ndims }}]
-    cdef Py_ssize_t buffer_strides[{{ typedef.buffer_ndims }}]
+    cdef Py_ssize_t buffer_shape[{{ typedef.ndims }}]
+    cdef Py_ssize_t buffer_strides[{{ typedef.ndims }}]

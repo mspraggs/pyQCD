@@ -46,10 +46,10 @@ namespace pyQCD {
   namespace python {
     typedef Lattice<Real> LatticeReal;
     typedef Lattice<Complex> LatticeComplex;
-    typedef ColourMatrix<Real, 3> ColourMatrix;
-    typedef LatticeColourMatrix<Real, 3> LatticeColourMatrix;
-    typedef ColourVector<Real, 3> ColourVector;
-    typedef LatticeColourVector<Real, 3> LatticeColourVector;
+    typedef ColourMatrix<Real, num_colours> ColourMatrix;
+    typedef LatticeColourMatrix<Real, num_colours> LatticeColourMatrix;
+    typedef ColourVector<Real, num_colours> ColourVector;
+    typedef LatticeColourVector<Real, num_colours> LatticeColourVector;
   }
 }
 #endif

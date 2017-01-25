@@ -10,11 +10,13 @@ cdef class {{ typedef.name }}:
     def __getbuffer__(self, Py_buffer* buffer, int flags):
         cdef Py_ssize_t itemsize = sizeof(atomics.Complex)
 
-        {% set buffer_iter, buffer_size = typedef.buffer_info("itemsize") %}
-        {% for shape, stride in buffer_iter %}
-        self.buffer_shape[{{ loop.index0 }}] = {{ stride }}
-        self.buffer_strides[{{ loop.index0 }}] = {{ shape }}
-        {% endfor %}
+	{% set last_dim = typedef.shape[1] if typedef.ndims == 2 else typedef.shape[0] %}
+        self.buffer_shape[0] = {{ last_dim }}
+        self.buffer_strides[0] = itemsize
+        {% if typedef.ndims == 2 %}
+        self.buffer_shape[1] = {{ typedef.shape[0] }}
+        self.buffer_strides[1] = itemsize * {{ typedef.shape[0] }}
+        {% endif %}
 
         buffer.buf = <char*>self.instance
 
@@ -22,8 +24,8 @@ cdef class {{ typedef.name }}:
         buffer.format = "{{ num_format }}"
         buffer.internal = NULL
         buffer.itemsize = itemsize
-        buffer.len = {{ buffer_size }}
-        buffer.ndim = {{ typedef.buffer_ndims }}
+        buffer.len = itemsize * {{ typedef.size }}
+        buffer.ndim = {{ typedef.ndims }}
 
         buffer.obj = self
         buffer.readonly = 0
@@ -41,10 +43,10 @@ cdef class {{ typedef.name }}:
         def __get__(self):
             out = np.asarray(self)
             out.dtype = complex
-            return out.reshape({{ typedef.shape_expr }})
+            return out.reshape({{ typedef.shape }})
 
         def __set__(self, value):
             out = np.asarray(self)
             out.dtype = complex
-            out = out.reshape({{ typedef.shape_expr }})
+            out = out.reshape({{ typedef.shape }})
             out[:] = value

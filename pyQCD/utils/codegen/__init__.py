@@ -75,7 +75,7 @@ def create_type_definitions(num_rows, num_cols, matrix_name):
 
     lattice_matrix_name = "Lattice{}".format(matrix_name)
 
-    complex_type = typedefs.TypeDef("Complex", "Complex", "atomics", False)
+    complex_type = typedefs.TypeDef("Complex", "Complex", "atomics")
     shape = (num_rows, num_cols) if num_cols > 1 else (num_rows,)
 
     matrix_def = typedefs.MatrixDef(
@@ -271,10 +271,6 @@ def generate_core_cython_types(output_path, precision, typedefs, operator_map):
         to lists of Python function names that implement them.
     """
     operations = {'*': [], '/': [], '+': [], '-': []}
-
-    for typedef in typedefs:
-        operations = typedef.generate_arithmetic_operations(typedefs,
-                                                            operations)
 
     write_template("core/types.hpp", "core/types.hpp", output_path,
                    typedefs=typedefs, precision=precision)

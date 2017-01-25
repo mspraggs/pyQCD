@@ -13,11 +13,16 @@ cdef class {{ typedef.name }}:
     def __getbuffer__(self, Py_buffer* buffer, int flags):
         cdef Py_ssize_t itemsize = sizeof(atomics.Complex)
 
-        {% set buffer_iter, buffer_size = typedef.buffer_info("itemsize") %}
-        {% for shape, stride in buffer_iter %}
-        self.buffer_shape[{{ loop.index0 }}] = {{ stride }}
-        self.buffer_strides[{{ loop.index0 }}] = {{ shape }}
-        {% endfor %}
+        {% set elem_type = typedef.element_type %}
+        {% set last_dim = elem_type.shape[1] if elem_type.ndims == 2 else elem_type.shape[0] %}
+        self.buffer_shape[0] = self.instance[0].volume() * self.site_size
+        self.buffer_strides[0] = itemsize * {{ elem_type.size }}
+        self.buffer_shape[1] = {{ last_dim }}
+        self.buffer_strides[1] = itemsize
+        {% if elem_type.ndims == 2 %}
+        self.buffer_shape[2] = {{ elem_type.shape[1] }}
+        self.buffer_strides[2] = itemsize * {{ elem_type.shape[0] }}
+        {% endif %}
 
         buffer.buf = <char*>&(self.instance[0][0])
 
@@ -25,8 +30,8 @@ cdef class {{ typedef.name }}:
         buffer.format = "{{ num_format }}"
         buffer.internal = NULL
         buffer.itemsize = itemsize
-        buffer.len = {{ buffer_size }}
-        buffer.ndim = {{ typedef.buffer_ndims }}
+        buffer.len = itemsize * {{ elem_type.size }} * self.instance[0].volume() * self.site_size
+        buffer.ndim = {{ elem_type.ndims + 1 }}
 
         buffer.obj = self
         buffer.readonly = 0
@@ -44,10 +49,10 @@ cdef class {{ typedef.name }}:
         def __get__(self):
             out = np.asarray(self)
             out.dtype = complex
-            return out.reshape({{ typedef.shape_expr }})
+            return out.reshape(tuple(self.lexico_layout.shape()) + (self.site_size,) + {{ typedef.element_type.shape }})
 
         def __set__(self, value):
             out = np.asarray(self)
             out.dtype = complex
-            out = out.reshape({{ typedef.shape_expr }})
+            out = out.reshape(tuple(self.lexico_layout.shape()) + (self.site_size,) + {{ typedef.element_type.shape }})
             out[:] = value

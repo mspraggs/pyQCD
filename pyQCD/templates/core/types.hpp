@@ -47,7 +47,7 @@ namespace pyQCD {
     typedef Lattice<Real> LatticeReal;
     typedef Lattice<Complex> LatticeComplex;
     {% for typedef in typedefs %}
-    typedef {{ typedef.cpptype }} {{ typedef.cname }};
+    typedef {{ typedef.cname }}<Real, num_colours> {{ typedef.cname }};
     {% endfor %}
   }
 }
