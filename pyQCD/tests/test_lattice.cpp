@@ -60,12 +60,6 @@ TEST_CASE("Lattice test") {
   pyQCD::Lattice<Eigen::Matrix3cd> lattice_matrix(
     layout, Eigen::Matrix3cd::Identity() * 4.0);
 
-  SECTION ("Testing lattice iterators") {
-    for (auto elem : lattice1) {
-      REQUIRE (elem == 1.0);
-    }
-  }
-
   SECTION ("Testing scalar assign") {
     lattice1.fill(4.0);
     for (unsigned int i = 0; i < lattice1.size(); ++i) {
@@ -122,8 +116,8 @@ TEST_CASE("Lattice test") {
     pyQCD::Lattice<Eigen::Matrix3cd> result(lattice_matrix.layout());
     result = lattice_matrix * (3.0 * Eigen::Matrix3cd::Identity());
     REQUIRE(result.size() == lattice_matrix.size());
-    for (auto& site_matrix : result) {
-      comparison(site_matrix, Eigen::Matrix3cd::Identity() * 12.0);
+    for (unsigned int i = 0; i < lattice_matrix.size(); ++i) {
+      comparison(lattice_matrix[i], Eigen::Matrix3cd::Identity() * 12.0);
     }
   }
 }

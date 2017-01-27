@@ -43,39 +43,42 @@ namespace pyQCD
   class Lattice : LatticeObj
   {
   public:
+    // Constructors
+
     Lattice(const Layout& layout, const Int site_size = 1)
       : site_size_(site_size), layout_(&layout)
-    { this->data_.resize(site_size_ * layout.volume()); }
+    {
+      data_.resize(site_size_ * layout.volume());
+    }
+
     Lattice(const Layout& layout, const T& val, const Int site_size = 1)
-      : site_size_(site_size), layout_(&layout),
-        data_(site_size_ * layout.volume(), val)
-    {}
+      : Lattice(layout, site_size)
+    {
+      data_.assign(data_.size(), val);
+    }
+    
     Lattice(const Lattice<T>& lattice) = default;
     Lattice(Lattice<T>&& lattice) = default;
+
+    // Element accessors
 
     T& operator[](const int i) { return data_[i]; }
     const T& operator[](const int i) const { return data_[i]; }
 
-    typename aligned_vector<T>::iterator begin() { return data_.begin(); }
-    typename aligned_vector<T>::const_iterator begin() const
-    { return data_.begin(); }
-    typename aligned_vector<T>::iterator end() { return data_.end(); }
-    typename aligned_vector<T>::const_iterator end() const
-    { return data_.end(); }
-
     T& operator()(const Int site, const Int elem = 0)
-    { return this->data_[site_size_ * layout_->get_array_index(site) + elem]; }
+    { return data_[site_size_ * layout_->get_array_index(site) + elem]; }
     const T& operator()(const Int site, const Int elem = 0) const
-    { return this->data_[site_size_ * layout_->get_array_index(site) + elem]; }
+    { return data_[site_size_ * layout_->get_array_index(site) + elem]; }
     template <typename U>
     T& operator()(const U& site, const Int elem = 0)
-    { return this->data_[site_size_ * layout_->get_array_index(site) + elem]; }
+    { return data_[site_size_ * layout_->get_array_index(site) + elem]; }
     template <typename U>
     const T& operator()(const U& site, const Int elem = 0) const
-    { return this->data_[site_size_ * layout_->get_array_index(site) + elem]; }
+    { return data_[site_size_ * layout_->get_array_index(site) + elem]; }
 
-    Lattice<T>& operator=(const Lattice<T>& lattice);
+    Lattice<T>& operator=(const Lattice<T>& lattice) = default;
     Lattice<T>& operator=(Lattice<T>&& lattice) = default;
+
     template <typename Op, typename... Vals>
     Lattice<T>& operator=(const detail::LatticeExpr<Op, Vals...>& expr)
     {
@@ -87,13 +90,9 @@ namespace pyQCD
 
     void fill(const T& rhs) { data_.assign(data_.size(), rhs); }
 
-#define LATTICE_OPERATOR_ASSIGN_DECL(op)				                             \
-    template <typename U,                                                    \
-      typename std::enable_if<                                               \
-		    not std::is_base_of<LatticeObj, U>::value>::type* = nullptr>         \
-    Lattice<T>& operator op ## =(const U& rhs);	                             \
-    template <typename U>                                                    \
-    Lattice<T>& operator op ## =(const Lattice<U>& rhs);
+#define LATTICE_OPERATOR_ASSIGN_DECL(op)\
+    template <typename U>\
+    Lattice<T>& operator op ## =(const U& rhs);
 
     LATTICE_OPERATOR_ASSIGN_DECL(+);
     LATTICE_OPERATOR_ASSIGN_DECL(-);
@@ -115,45 +114,34 @@ namespace pyQCD
   };
 
 
-  template <typename T>
-  Lattice<T>& Lattice<T>::operator=(const Lattice<T>& lattice)
+  namespace detail
   {
-    if (&lattice != this) {
-      layout_ = lattice.layout_;
-      site_size_ = lattice.site_size_;
-      for (unsigned int i = 0; i < data_.size(); ++i) {
-        data_[i] = lattice[i];
-      }
+    template <typename T>
+    auto op_assign_get_rhs(const int i, const T& value)
+      -> decltype(eval(i, value))
+    {
+      return eval(i, value);
     }
-    return *this;
+
+    template <typename T>
+    auto op_assign_get_rhs(const int i, const T& value)
+      -> typename std::enable_if<
+        not std::is_base_of<LatticeObj, T>::value, const T&>::type
+    {
+      return value;
+    }
   }
 
 
-#define LATTICE_OPERATOR_ASSIGN_IMPL(op)                                    \
-  template <typename T>                                                     \
-  template <typename U,                                                     \
-    typename std::enable_if<                                                \
-      not std::is_base_of<LatticeObj, U>::value>::type*>                    \
-  Lattice<T>& Lattice<T>::operator op ## =(const U& rhs)                    \
-  {                                                                         \
-    for (auto& item : data_) {                                              \
-      item op ## = rhs;                                                     \
-    }                                                                       \
-    return *this;                                                           \
-  }                                                                         \
-                                                                            \
-                                                                            \
-  template <typename T>                                                     \
-  template <typename U>                                                     \
-  Lattice<T>&                                                               \
-  Lattice<T>::operator op ## =(const Lattice<U>& rhs)                       \
-  {                                                                         \
-    pyQCDassert (rhs.size() == data_.size(),                                \
-      std::out_of_range("Lattices must be the same size"));                 \
-    for (unsigned long i = 0; i < data_.size(); ++i) {                      \
-      data_[i] op ## = rhs[i];                                              \
-    }                                                                       \
-    return *this;                                                           \
+#define LATTICE_OPERATOR_ASSIGN_IMPL(op)\
+  template <typename T>\
+  template <typename U>\
+  Lattice<T>& Lattice<T>::operator op ## =(const U& rhs)\
+  {\
+    for (unsigned int i = 0; i < data_.size(); ++i) {\
+      data_[i] op ## = detail::op_assign_get_rhs(i, rhs);\
+    }\
+    return *this;\
   }
 
 LATTICE_OPERATOR_ASSIGN_IMPL(+);
