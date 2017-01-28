@@ -23,6 +23,10 @@ include_directories (
   ${EIGEN3_INCLUDE_DIR}
   )
 
+# Workaround to get CLion to recognise all header files
+file (GLOB_RECURSE clion_headers ./*.hpp)
+add_custom_target (all_clion SOURCES ${clion_headers})
+
 add_subdirectory (utils)
 add_subdirectory (benchmarks)
 add_subdirectory (tests)
