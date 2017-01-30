@@ -21,6 +21,20 @@ class TestWilsonGaugeAction(object):
         action = gauge.WilsonGaugeAction(5.5, [8, 8, 8, 8])
 
 
+class TestSymanzikGaugeAction(object):
+
+    def test_constructor(self):
+        """Test constructor of SymanzikGaugeAction"""
+        action = gauge.SymanzikGaugeAction(5.5, [8, 8, 8, 8])
+
+
+class TestIwasakiGaugeAction(object):
+
+    def test_constructor(self):
+        """Test constructor of SymanzikGaugeAction"""
+        action = gauge.IwasakiGaugeAction(5.5, [8, 8, 8, 8])
+
+
 def test_cold_start():
     """Test construction of cold start gauge field"""
 

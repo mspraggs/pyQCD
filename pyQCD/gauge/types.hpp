@@ -24,6 +24,7 @@
 
 #include <globals.hpp>
 #include <gauge/gauge_action.hpp>
+#include <gauge/rectangle_action.hpp>
 #include <gauge/wilson_action.hpp>
 
 
@@ -31,6 +32,7 @@ namespace pyQCD {
   namespace python {
     typedef gauge::Action<Real, 3> GaugeAction;
     typedef gauge::WilsonAction<Real, 3> WilsonGaugeAction;
+    typedef gauge::RectangleAction<Real, 3> RectangleGaugeAction;
   }
 }
 
