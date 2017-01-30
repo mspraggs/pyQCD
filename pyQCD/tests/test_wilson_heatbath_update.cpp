@@ -16,8 +16,8 @@
  *
  * Created by Matt Spraggs on 13/01/17.
  *
- * This file declares and defines the Lattice class, which is the fundamental
- * class for representing variables on the lattice.
+ * End-to-end test of gauge field update using Wilson action and heatbath
+ * algorithm.
  */
 
 #define CATCH_CONFIG_MAIN
