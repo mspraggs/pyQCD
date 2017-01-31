@@ -75,6 +75,8 @@ namespace pyQCD
           for (unsigned i = 0; i < num_dims - 1; ++i) {
             std::vector<int> link_coords_copy(
               link_coords.begin(), link_coords.end());
+            const Int mu = d;
+            const Int nu = planes[i];
 
             /* First compute the loop above the link. Essentially we're
              * interested in:
@@ -82,24 +84,21 @@ namespace pyQCD
              * U_\nu (x + \mu) U^\dagger_\mu (x + \nu) U^\dagger_\nu (x)
              */
             // First link in U_\nu (x + \mu)
-            Int d_copy = planes[i];
-            link_coords_copy[d]++;
+            link_coords_copy[mu]++;
             layout.sanitize_site_coords(link_coords_copy);
-            links_[link_index][6 * i] = layout.get_array_index(
-              link_coords_copy) * num_dims + d_copy;
+            links_[link_index][6 * i]
+              = layout.get_array_index(link_coords_copy) * num_dims + nu;
             // Next link is U^\dagger_\mu (x + \nu)
-            d_copy = d;
-            link_coords_copy[d]--;
-            link_coords_copy[planes[i]]++;
+            link_coords_copy[mu]--;
+            link_coords_copy[nu]++;
             layout.sanitize_site_coords(link_coords_copy);
             links_[link_index][6 * i + 1]
-              = layout.get_array_index(link_coords_copy) * num_dims + d_copy;
+              = layout.get_array_index(link_coords_copy) * num_dims + mu;
             // Next link is U^\dagger_\nu (x)
-            link_coords_copy[planes[i]]--;
-            d_copy = planes[i];
+            link_coords_copy[nu]--;
             layout.sanitize_site_coords(link_coords_copy);
             links_[link_index][6 * i + 2]
-              = layout.get_array_index(link_coords_copy) * num_dims + d_copy;
+              = layout.get_array_index(link_coords_copy) * num_dims + nu;
 
             /* Now we want to compute the staple below the link. Essentially:
              *
@@ -107,22 +106,19 @@ namespace pyQCD
              *   U^\dagger_\nu (x - \nu)
              */
             // First link is U^\dagger_\nu (x + \mu - \nu)
-            link_coords_copy[d]++;
-            link_coords_copy[planes[i]]--;
+            link_coords_copy[mu]++;
+            link_coords_copy[nu]--;
             layout.sanitize_site_coords(link_coords_copy);
             links_[link_index][6 * i + 3]
-              = layout.get_array_index(link_coords_copy) * num_dims + d_copy;
+              = layout.get_array_index(link_coords_copy) * num_dims + nu;
             // Next link is U^\dagger_\mu (x - \nu)
-            d_copy = d;
-            link_coords_copy[d]--;
+            link_coords_copy[mu]--;
             layout.sanitize_site_coords(link_coords_copy);
             links_[link_index][6 * i + 4]
-              = layout.get_array_index(link_coords_copy) * num_dims + d_copy;
+              = layout.get_array_index(link_coords_copy) * num_dims + mu;
             // Next link is U_\nu (x - \nu)
-            d_copy = planes[i];
-            layout.sanitize_site_coords(link_coords_copy);
             links_[link_index][6 * i + 5]
-              = layout.get_array_index(link_coords_copy) * num_dims + d_copy;
+              = layout.get_array_index(link_coords_copy) * num_dims + nu;
           }
         }
       }
