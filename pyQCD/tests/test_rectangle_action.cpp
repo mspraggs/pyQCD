@@ -48,15 +48,23 @@ TEST_CASE("Test Wilson gauge action")
       ColourMatrix rand_mat_2 = ColourMatrix::Random();
       ColourMatrix rand_mat_3 = ColourMatrix::Random();
 
-      pyQCD::Site site{1, 0, 0, 0};
-      gauge_field(site, d) = rand_mat_1;
-      site[0]--;
-      site[d]++;
-      gauge_field(site, 0) = rand_mat_2;
-      site[d]--;
-      gauge_field(site, d) = rand_mat_3;
+      pyQCD::Site site1{1, 0, 0, 0};
+      auto site2 = site1;
+      auto site3 = site1;
+      site2[0] = 0;
+      site2[d] = 1;
+      site3[0] = 0;
+      site3[d] = 0;
+
+      gauge_field(site1, d) = rand_mat_1;
+      gauge_field(site2, 0) = rand_mat_2;
+      gauge_field(site3, d) = rand_mat_3;
 
       staple = action.compute_staples(gauge_field, 0);
+
+      gauge_field(site1, d) = ColourMatrix::Identity();
+      gauge_field(site2, 0) = ColourMatrix::Identity();
+      gauge_field(site3, d) = ColourMatrix::Identity();
 
       ColourMatrix plaquette_link_product
           = rand_mat_1 * rand_mat_2.adjoint() * rand_mat_3.adjoint();
