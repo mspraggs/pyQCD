@@ -43,30 +43,37 @@ TEST_CASE("Test Wilson gauge action")
 
     REQUIRE (mat_comp(staple, -24 * identity));
 
-    ColourMatrix rand_mat_1 = ColourMatrix::Random();
-    ColourMatrix rand_mat_2 = ColourMatrix::Random();
-    ColourMatrix rand_mat_3 = ColourMatrix::Random();
-    gauge_field(pyQCD::Site{1, 0, 0, 0}, 1) = rand_mat_1;
-    gauge_field(pyQCD::Site{0, 1, 0, 0}, 0) = rand_mat_2;
-    gauge_field(pyQCD::Site{0, 0, 0, 0}, 1) = rand_mat_3;
+    for (pyQCD::Int d = 1; d < 4; ++d) {
+      ColourMatrix rand_mat_1 = ColourMatrix::Random();
+      ColourMatrix rand_mat_2 = ColourMatrix::Random();
+      ColourMatrix rand_mat_3 = ColourMatrix::Random();
 
-    staple = action.compute_staples(gauge_field, 0);
+      pyQCD::Site site{1, 0, 0, 0};
+      gauge_field(site, d) = rand_mat_1;
+      site[0]--;
+      site[d]++;
+      gauge_field(site, 0) = rand_mat_2;
+      site[d]--;
+      gauge_field(site, d) = rand_mat_3;
 
-    ColourMatrix plaquette_link_product
-        = rand_mat_1 * rand_mat_2.adjoint() * rand_mat_3.adjoint();
-    ColourMatrix rectangle_link_product_1 = rand_mat_1 * rand_mat_2.adjoint();
-    ColourMatrix rectangle_link_product_2 = rand_mat_1 * rand_mat_3.adjoint();
-    ColourMatrix rectangle_link_product_3
-        = rand_mat_2.adjoint() * rand_mat_3.adjoint();
+      staple = action.compute_staples(gauge_field, 0);
 
-    ColourMatrix plane_0_staples
-        = -7.0 * plaquette_link_product + rectangle_link_product_1
-            + rectangle_link_product_2 + rectangle_link_product_3
-            - 4.0 * identity;
+      ColourMatrix plaquette_link_product
+          = rand_mat_1 * rand_mat_2.adjoint() * rand_mat_3.adjoint();
+      ColourMatrix rectangle_link_product_1 = rand_mat_1 * rand_mat_2.adjoint();
+      ColourMatrix rectangle_link_product_2 = rand_mat_1 * rand_mat_3.adjoint();
+      ColourMatrix rectangle_link_product_3
+          = rand_mat_2.adjoint() * rand_mat_3.adjoint();
 
-    ColourMatrix expected_mat = plane_0_staples - 16.0 * identity;
+      ColourMatrix plane_0_staples
+          = -7.0 * plaquette_link_product + rectangle_link_product_1
+              + rectangle_link_product_2 + rectangle_link_product_3
+              - 4.0 * identity;
 
-    REQUIRE (mat_comp(staple, expected_mat));
+      ColourMatrix expected_mat = plane_0_staples - 16.0 * identity;
+
+      REQUIRE (mat_comp(staple, expected_mat));
+    }
   }
 
   SECTION("Testing local action") {
