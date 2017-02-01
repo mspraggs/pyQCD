@@ -146,7 +146,7 @@ namespace pyQCD
             layout.sanitize_site_coords(link_coords_copy);
             links_[link_index][36 * i + 6]
                 = layout.get_array_index(link_coords_copy) * num_dims + mu;
-            // U_\nu ( x + 2 * \mu)
+            // U_\nu (x + 2 * \mu)
             link_coords_copy[mu]++;
             layout.sanitize_site_coords(link_coords_copy);
             links_[link_index][36 * i + 7]
@@ -158,15 +158,9 @@ namespace pyQCD
             links_[link_index][36 * i + 8]
                 = layout.get_array_index(link_coords_copy) * num_dims + mu;
             // U^\dagger_\mu (x + \nu)
-            link_coords_copy[mu]--;
-            layout.sanitize_site_coords(link_coords_copy);
-            links_[link_index][36 * i + 9]
-                = layout.get_array_index(link_coords_copy) * num_dims + mu;
+            links_[link_index][36 * i + 9] = links_[link_index][36 * i + 1];
             // U^\dagger_\nu (x)
-            link_coords_copy[nu]--;
-            layout.sanitize_site_coords(link_coords_copy);
-            links_[link_index][36 * i + 10]
-                = layout.get_array_index(link_coords_copy) * num_dims + nu;
+            links_[link_index][36 * i + 10] = links_[link_index][36 * i + 2];
 
             /* Now compute the landscape staple orientated above and behind
              * the link, i.e.
@@ -176,18 +170,11 @@ namespace pyQCD
              *   U_\mu (x - \mu)
              */
             // First link is U_\nu (x + \mu)
-            link_coords_copy[mu]++;
-            layout.sanitize_site_coords(link_coords_copy);
-            links_[link_index][36 * i + 11]
-                = layout.get_array_index(link_coords_copy) * num_dims + nu;
+            links_[link_index][36 * i + 11] = links_[link_index][36 * i];
             // U^\dagger_\mu (x + \nu)
-            link_coords_copy[mu]--;
-            link_coords_copy[nu]++;
-            layout.sanitize_site_coords(link_coords_copy);
-            links_[link_index][36 * i + 12]
-                = layout.get_array_index(link_coords_copy) * num_dims + mu;
+            links_[link_index][36 * i + 12] = links_[link_index][36 * i + 1];
             // U^\dagger_\mu (x - \mu + \nu)
-            link_coords_copy[mu]--;
+            link_coords_copy[mu] -= 2;
             layout.sanitize_site_coords(link_coords_copy);
             links_[link_index][36 * i + 13]
                 = layout.get_array_index(link_coords_copy) * num_dims + mu;
@@ -227,26 +214,20 @@ namespace pyQCD
             links_[link_index][36 * i + 19]
                 = layout.get_array_index(link_coords_copy) * num_dims + nu;
             // U^\dagger_\nu (x)
-            link_coords_copy[nu]--;
-            layout.sanitize_site_coords(link_coords_copy);
-            links_[link_index][36 * i + 20]
-                = layout.get_array_index(link_coords_copy) * num_dims + nu;
+            links_[link_index][36 * i + 20] = links_[link_index][36 * i + 2];
 
             /* Now compute the landscape staple orientated below and ahead
              * of the link, i.e.
              *
              * U_\mu (x + \mu) U^\dagger_\nu (x + 2 * \mu - \nu)
              *   U^\dagger_\mu (x  + \mu - \nu) U^\dagger_\mu (x - \nu)
-             *   U_\nu (x - \nu)
+             *   U^\dagger_\nu (x - \nu)
              */
             // First link is U_\mu (x + \mu)
-            link_coords_copy[mu]++;
-            layout.sanitize_site_coords(link_coords_copy);
-            links_[link_index][36 * i + 21]
-                = layout.get_array_index(link_coords_copy) * num_dims + mu;
+            links_[link_index][36 * i + 21] = links_[link_index][36 * i + 6];
             // U^\dagger_\nu (x + 2 * \mu - \nu)
-            link_coords_copy[mu]++;
-            link_coords_copy[nu]--;
+            link_coords_copy[mu] += 2;
+            link_coords_copy[nu] -= 2;
             layout.sanitize_site_coords(link_coords_copy);
             links_[link_index][36 * i + 22]
                 = layout.get_array_index(link_coords_copy) * num_dims + nu;
@@ -256,13 +237,9 @@ namespace pyQCD
             links_[link_index][36 * i + 23]
                 = layout.get_array_index(link_coords_copy) * num_dims + mu;
             // U^\dagger_\mu (x - \nu)
-            link_coords_copy[mu]--;
-            layout.sanitize_site_coords(link_coords_copy);
-            links_[link_index][36 * i + 24]
-                = layout.get_array_index(link_coords_copy) * num_dims + mu;
+            links_[link_index][36 * i + 24] = links_[link_index][36 * i + 4];
             // U^\dagger_\nu (x - \nu)
-            links_[link_index][36 * i + 25]
-                = layout.get_array_index(link_coords_copy) * num_dims + nu;
+            links_[link_index][36 * i + 25] = links_[link_index][36 * i + 5];
 
             /* Now compute the landscape staple orientated below and behind
              * the link, i.e.
@@ -272,17 +249,11 @@ namespace pyQCD
              *   U_\mu (x - \mu)
              */
             // First link is U^\dagger_\nu (x + \mu - \nu)
-            link_coords_copy[mu]++;
-            layout.sanitize_site_coords(link_coords_copy);
-            links_[link_index][36 * i + 26]
-                = layout.get_array_index(link_coords_copy) * num_dims + nu;
+            links_[link_index][36 * i + 26] = links_[link_index][36 * i + 3];
             // U^\dagger_\mu (x - \nu)
-            link_coords_copy[mu]--;
-            layout.sanitize_site_coords(link_coords_copy);
-            links_[link_index][36 * i + 27]
-                = layout.get_array_index(link_coords_copy) * num_dims + mu;
+            links_[link_index][36 * i + 27] = links_[link_index][36 * i + 4];
             // U^\dagger_\mu (x - \mu - \nu)
-            link_coords_copy[mu]--;
+            link_coords_copy[mu] -= 2;
             layout.sanitize_site_coords(link_coords_copy);
             links_[link_index][36 * i + 28]
                 = layout.get_array_index(link_coords_copy) * num_dims + mu;
@@ -291,6 +262,7 @@ namespace pyQCD
                 = layout.get_array_index(link_coords_copy) * num_dims + nu;
             // U_\mu (x - \mu)
             link_coords_copy[nu]++;
+            layout.sanitize_site_coords(link_coords_copy);
             links_[link_index][36 * i + 30]
                 = layout.get_array_index(link_coords_copy) * num_dims + mu;
 
@@ -304,7 +276,7 @@ namespace pyQCD
             link_coords_copy[nu]--;
             layout.sanitize_site_coords(link_coords_copy);
             links_[link_index][36 * i + 31]
-                = layout.get_array_index(link_coords_copy) * num_dims + nu;
+                = links_[link_index][36 * i + 3];
             // U^\dagger_\nu (x + \mu - 2 * \nu)
             link_coords_copy[nu]--;
             layout.sanitize_site_coords(link_coords_copy);
@@ -319,10 +291,7 @@ namespace pyQCD
             links_[link_index][36 * i + 34]
                 = layout.get_array_index(link_coords_copy) * num_dims + nu;
             // U_\nu (x - \nu)
-            link_coords_copy[nu]++;
-            layout.sanitize_site_coords(link_coords_copy);
-            links_[link_index][36 * i + 35]
-                = layout.get_array_index(link_coords_copy) * num_dims + nu;
+            links_[link_index][36 * i + 35] = links_[link_index][36 * i + 5];
           }
         }
       }
