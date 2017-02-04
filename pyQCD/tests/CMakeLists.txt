@@ -9,7 +9,8 @@ set (SRC
   test_wilson_action.cpp
   test_rectangle_action.cpp
   test_wilson_heatbath_update.cpp
-  test_rectangle_heatbath_update.cpp)
+  test_rectangle_heatbath_update.cpp
+  test_hopping_matrix.cpp)
 
 foreach ( testsourcefile ${SRC} )
   string( REPLACE ".cpp" "" testname ${testsourcefile} )
