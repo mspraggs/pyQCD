@@ -3,6 +3,7 @@ project (pyQCD)
 
 set (SRC
   math.cpp
+  matrices.cpp
   random.cpp)
 
 add_library(pyQCDutils SHARED ${SRC})

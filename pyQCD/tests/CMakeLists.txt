@@ -2,6 +2,7 @@ cmake_minimum_required (VERSION 2.8)
 project(pyQCD)
 
 set (SRC
+  test_gamma_matrices.cpp
   test_heatbath.cpp
   test_lattice.cpp
   test_layout.cpp

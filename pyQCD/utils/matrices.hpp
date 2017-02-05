@@ -136,6 +136,8 @@ namespace pyQCD {
 
     return ret;
   }
+
+  std::vector<Eigen::MatrixXcd> generate_gamma_matrices(const int num_dims);
 }
 
 #endif
