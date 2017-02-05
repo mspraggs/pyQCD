@@ -43,7 +43,7 @@ TEST_CASE ("Testing hopping matrix")
 
   auto identity = Eigen::Matrix4cd::Identity();
 
-  pyQCD::aligned_vector<Eigen::Matrix4cd> spin_structures(8, identity);
+  std::vector<Eigen::MatrixXcd> spin_structures(8, identity);
 
   auto hopping_matrix =
       pyQCD::fermions::HoppingMatrix<double, 3, 1>(gauge_field,

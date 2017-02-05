@@ -33,24 +33,26 @@ namespace pyQCD
     {
     public:
       HoppingMatrix(const LatticeColourMatrix <Real, Nc> &gauge_field,
-                    const aligned_vector<Eigen::Matrix4cd>& spin_structures);
+                    const std::vector<Eigen::MatrixXcd>& spin_structures);
 
       void apply_full(LatticeColourVector<Real, Nc>& out,
                       const LatticeColourVector<Real, Nc>& in) const;
 
     private:
       LatticeColourMatrix<Real, Nc> scattered_gauge_field_;
-      aligned_vector<Eigen::Matrix4cd> spin_structures_;
+      std::vector<Eigen::MatrixXcd> spin_structures_;
       std::vector<std::vector<Int>> neighbour_array_indices_;
+      unsigned int num_spins_;
     };
 
 
     template <typename Real, int Nc, unsigned int Nhops>
     HoppingMatrix<Real, Nc, Nhops>::HoppingMatrix(
         const LatticeColourMatrix <Real, Nc> &gauge_field,
-        const aligned_vector<Eigen::Matrix4cd>& spin_structures)
+        const std::vector<Eigen::MatrixXcd>& spin_structures)
       : scattered_gauge_field_(gauge_field.layout(), 2 * gauge_field.num_dims()),
-        spin_structures_(spin_structures)
+        spin_structures_(spin_structures),
+        num_spins_(static_cast<unsigned int>(spin_structures[0].rows()))
     {
       auto& layout = gauge_field.layout();
       auto volume = gauge_field.volume();
@@ -99,19 +101,20 @@ namespace pyQCD
       auto& layout = fermion_in.layout();
       auto ndims = layout.num_dims();
       auto volume = layout.volume();
-      LatticeColourVector<Real, Nc> pre_gather_results(layout, ndims * 4 * 2);
+      LatticeColourVector<Real, Nc> pre_gather_results(
+          layout, ndims * num_spins_ * 2);
 
       for (unsigned arr_index = 0; arr_index < volume; ++arr_index) {
         // TODO: Generalize to arbitrary dimension
         for (unsigned mu = 0; mu < ndims; ++mu) {
-          for (unsigned alpha = 0; alpha < 4; ++alpha) {
-            for (unsigned beta = 0; beta < 4; ++beta) {
+          for (unsigned alpha = 0; alpha < num_spins_; ++alpha) {
+            for (unsigned beta = 0; beta < num_spins_; ++beta) {
               Int local_index = 2 * (ndims * arr_index + mu);
-              pre_gather_results[4 * local_index + 2 * alpha] +=
+              pre_gather_results[num_spins_ * local_index + 2 * alpha] +=
                   spin_structures_[2 * mu].coeff(alpha, beta) *
                   scattered_gauge_field_[local_index] *
                   fermion_in[ndims * arr_index + beta];
-              pre_gather_results[4 * local_index + 2 * alpha + 1] +=
+              pre_gather_results[num_spins_ * local_index + 2 * alpha + 1] +=
                   spin_structures_[2 * mu + 1].coeff(alpha, beta) *
                   scattered_gauge_field_[local_index + 1].adjoint() *
                   fermion_in[ndims * arr_index + beta];
@@ -123,10 +126,11 @@ namespace pyQCD
       fermion_out.fill(ColourVector<Real, Nc>::Zero());
 
       for (unsigned arr_index = 0; arr_index < volume; ++arr_index) {
-        for (unsigned mu = 0; mu < 4; ++mu) {
-          for (unsigned alpha = 0; alpha < 4; ++alpha) {
+        for (unsigned mu = 0; mu < num_spins_; ++mu) {
+          for (unsigned alpha = 0; alpha < num_spins_; ++alpha) {
             auto neighbour_index = neighbour_array_indices_[arr_index][2 * mu];
-            Int gather_index = 2 * (4 * (ndims * arr_index + mu) + alpha);
+            Int gather_index =
+                2 * (num_spins_ * (ndims * arr_index + mu) + alpha);
             fermion_out[ndims * neighbour_index + alpha] +=
                 pre_gather_results[gather_index];
             neighbour_index = neighbour_array_indices_[arr_index][2 * mu + 1];
