@@ -32,8 +32,15 @@ namespace pyQCD
     class HoppingMatrix
     {
     public:
+      HoppingMatrix(const LatticeColourMatrix <Real, Nc> &gauge_field);
+
       HoppingMatrix(const LatticeColourMatrix <Real, Nc> &gauge_field,
                     const std::vector<Eigen::MatrixXcd>& spin_structures);
+
+      void set_spin_structures(const std::vector<Eigen::MatrixXcd>& matrices)
+      {
+        spin_structures_ = matrices;
+      }
 
       void apply_full(LatticeColourVector<Real, Nc>& out,
                       const LatticeColourVector<Real, Nc>& in) const;
@@ -48,11 +55,9 @@ namespace pyQCD
 
     template <typename Real, int Nc, unsigned int Nhops>
     HoppingMatrix<Real, Nc, Nhops>::HoppingMatrix(
-        const LatticeColourMatrix <Real, Nc> &gauge_field,
-        const std::vector<Eigen::MatrixXcd>& spin_structures)
+        const LatticeColourMatrix <Real, Nc> &gauge_field)
       : scattered_gauge_field_(gauge_field.layout(), 2 * gauge_field.num_dims()),
-        spin_structures_(spin_structures),
-        num_spins_(static_cast<unsigned int>(spin_structures[0].rows()))
+        num_spins_(std::pow(2u, gauge_field.num_dims() / 2))
     {
       auto& layout = gauge_field.layout();
       auto volume = gauge_field.volume();
@@ -94,6 +99,16 @@ namespace pyQCD
 
 
     template <typename Real, int Nc, unsigned int Nhops>
+    HoppingMatrix<Real, Nc, Nhops>::HoppingMatrix(
+        const LatticeColourMatrix <Real, Nc> &gauge_field,
+        const std::vector<Eigen::MatrixXcd>& spin_structures)
+      : HoppingMatrix(gauge_field)
+    {
+      set_spin_structures(spin_structures);
+    }
+
+
+    template <typename Real, int Nc, unsigned int Nhops>
     void HoppingMatrix<Real, Nc, Nhops>::apply_full(
         LatticeColourVector<Real, Nc>& fermion_out,
         const LatticeColourVector<Real, Nc>& fermion_in) const
@@ -122,8 +137,6 @@ namespace pyQCD
           }
         }
       }
-
-      fermion_out.fill(ColourVector<Real, Nc>::Zero());
 
       for (unsigned arr_index = 0; arr_index < volume; ++arr_index) {
         for (unsigned mu = 0; mu < num_spins_; ++mu) {
