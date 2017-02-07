@@ -7,8 +7,8 @@ set (SRC
   test_lattice.cpp
   test_layout.cpp
   test_random.cpp
-  test_wilson_action.cpp
-  test_rectangle_action.cpp
+  test_wilson_gauge_action.cpp
+  test_rectangle_gauge_action.cpp
   test_wilson_heatbath_update.cpp
   test_rectangle_heatbath_update.cpp
   test_hopping_matrix.cpp)
