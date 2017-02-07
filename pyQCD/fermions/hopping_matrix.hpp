@@ -42,6 +42,11 @@ namespace pyQCD
         spin_structures_ = matrices;
       }
 
+      void set_spin_structures(std::vector<Eigen::MatrixXcd>&& matrices)
+      {
+        spin_structures_ = matrices;
+      }
+
       void apply_full(LatticeColourVector<Real, Nc>& out,
                       const LatticeColourVector<Real, Nc>& in) const;
 
