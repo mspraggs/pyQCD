@@ -149,10 +149,10 @@ namespace pyQCD
             auto neighbour_index = neighbour_array_indices_[arr_index][2 * mu];
             Int gather_index =
                 2 * (num_spins_ * (ndims * arr_index + mu) + alpha);
-            fermion_out[ndims * neighbour_index + alpha] +=
+            fermion_out[num_spins_ * neighbour_index + alpha] +=
                 pre_gather_results[gather_index];
             neighbour_index = neighbour_array_indices_[arr_index][2 * mu + 1];
-            fermion_out[ndims * neighbour_index + alpha] +=
+            fermion_out[num_spins_ * neighbour_index + alpha] +=
                 pre_gather_results[gather_index + 1];
           }
         }
