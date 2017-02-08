@@ -22,6 +22,7 @@
 #define CATCH_CONFIG_MAIN
 
 #include <fermions/hopping_matrix.hpp>
+#include <utils/matrices.hpp>
 #include <utils/random.hpp>
 
 #include "helpers.hpp"
@@ -35,11 +36,28 @@ TEST_CASE ("Testing hopping matrix")
 
   pyQCD::LexicoLayout layout({8, 4, 4, 4});
 
-  double random_float = pyQCD::rng().generate_real(0.0, 1.0);
-
-  GaugeField gauge_field(layout, GaugeLink::Identity() * random_float, 4);
+  GaugeField gauge_field(layout, GaugeLink::Identity(), 4);
   LatticeFermion fermion_in(layout, SiteFermion::Ones(), 4);
   LatticeFermion fermion_out(layout, 4);
+
+  SiteFermion expected_result = SiteFermion::Zero();
+  for (unsigned d = 0; d < 4; ++d) {
+    auto random_mat = pyQCD::random_sun<double, 3>();
+    double random_double = pyQCD::rng().generate_real(0.0, 1.0);
+    pyQCD::Site site{0, 0, 0, 0};
+    gauge_field(site, d) = random_mat;
+    site[d] = 1;
+    fermion_in(site, 0) *= random_double;
+    expected_result += random_double * random_mat * SiteFermion::Ones();
+
+    random_mat = pyQCD::random_sun<double, 3>();
+    random_double = pyQCD::rng().generate_real(0.0, 1.0);
+    site[d] = layout.shape()[d] - 1;
+    gauge_field(site, d) = random_mat;
+    fermion_in(site, 0) *= random_double;
+    expected_result +=
+        random_double * random_mat.adjoint() * SiteFermion::Ones();
+  }
 
   auto identity = Eigen::Matrix4cd::Identity();
 
@@ -51,10 +69,7 @@ TEST_CASE ("Testing hopping matrix")
 
   hopping_matrix.apply_full(fermion_out, fermion_in);
 
-  Compare<double> comp;
+  MatrixCompare<SiteFermion> comp(1e-5, 1e-8);
 
-  for (unsigned a = 0; a < 3; ++a) {
-    REQUIRE(comp(fermion_out[0][a].real(), 8 * random_float));
-    REQUIRE(comp(fermion_out[0][a].imag(), 0.0));
-  }
+  REQUIRE(comp(fermion_out[0], expected_result));
 }
