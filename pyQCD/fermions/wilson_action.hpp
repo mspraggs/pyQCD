@@ -1,5 +1,5 @@
-#ifndef PYQCD_WILSON_ACTION_HPP
-#define PYQCD_WILSON_ACTION_HPP
+#ifndef PYQCD_FERMION_WILSON_ACTION_HPP
+#define PYQCD_FERMION_WILSON_ACTION_HPP
 /*
  * This file is part of pyQCD.
  *
@@ -81,4 +81,4 @@ namespace pyQCD
   }
 }
 
-#endif //PYQCD_WILSON_ACTION_HPP
+#endif //PYQCD_FERMION_WILSON_ACTION_HPP
