@@ -30,9 +30,9 @@
 
 namespace pyQCD {
   namespace python {
-    typedef gauge::Action<Real, 3> GaugeAction;
-    typedef gauge::WilsonAction<Real, 3> WilsonGaugeAction;
-    typedef gauge::RectangleAction<Real, 3> RectangleGaugeAction;
+    typedef gauge::Action<Real, num_colours> GaugeAction;
+    typedef gauge::WilsonAction<Real, num_colours> WilsonGaugeAction;
+    typedef gauge::RectangleAction<Real, num_colours> RectangleGaugeAction;
   }
 }
 
