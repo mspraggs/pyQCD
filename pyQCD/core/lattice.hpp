@@ -29,6 +29,7 @@
 
 #include <Eigen/Dense>
 
+#include "aligned_allocator.hpp"
 #include "lattice_expr.hpp"
 #include "layout.hpp"
 
@@ -36,7 +37,7 @@
 namespace pyQCD
 {
   template <typename T>
-  using aligned_vector = std::vector<T, Eigen::aligned_allocator<T>>;
+  using aligned_vector = std::vector<T, detail::aligned_allocator<T>>;
 
 
   template <typename T>
