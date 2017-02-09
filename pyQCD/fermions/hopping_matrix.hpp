@@ -125,11 +125,10 @@ namespace pyQCD
           layout, ndims * num_spins_ * 2);
 
       for (unsigned arr_index = 0; arr_index < volume; ++arr_index) {
-        // TODO: Generalize to arbitrary dimension
         for (unsigned mu = 0; mu < ndims; ++mu) {
+          Int local_index = 2 * (ndims * arr_index + mu);
           for (unsigned alpha = 0; alpha < num_spins_; ++alpha) {
             for (unsigned beta = 0; beta < num_spins_; ++beta) {
-              Int local_index = 2 * (ndims * arr_index + mu);
               pre_gather_results[num_spins_ * local_index + 2 * alpha] +=
                   spin_structures_[2 * mu].coeff(alpha, beta) *
                   scattered_gauge_field_[local_index] *
@@ -144,9 +143,9 @@ namespace pyQCD
       }
 
       for (unsigned arr_index = 0; arr_index < volume; ++arr_index) {
-        for (unsigned mu = 0; mu < num_spins_; ++mu) {
+        for (unsigned mu = 0; mu < ndims; ++mu) {
+          auto neighbour_index = neighbour_array_indices_[arr_index][2 * mu];
           for (unsigned alpha = 0; alpha < num_spins_; ++alpha) {
-            auto neighbour_index = neighbour_array_indices_[arr_index][2 * mu];
             Int gather_index =
                 2 * (num_spins_ * (ndims * arr_index + mu) + alpha);
             fermion_out[num_spins_ * neighbour_index + alpha] +=
