@@ -50,7 +50,7 @@ namespace pyQCD
 
     template <typename Real, int Nc>
     WilsonAction<Real, Nc>::WilsonAction(const Real beta, const Layout& layout)
-      : Action<Real, Nc>(beta, layout)
+      : Action<Real, Nc>(beta)
     {
       // Determine which link indices belong to which link staples
       auto num_dims = layout.num_dims();

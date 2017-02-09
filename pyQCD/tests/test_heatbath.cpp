@@ -35,7 +35,7 @@ public:
   typedef typename pyQCD::gauge::Action<Real, Nc>::GaugeField GaugeField;
 
   TestAction(const Real beta)
-    : pyQCD::gauge::Action<Real, Nc>(beta, pyQCD::LexicoLayout({8, 4, 4, 4}))
+    : pyQCD::gauge::Action<Real, Nc>(beta)
   { }
 
   GaugeLink compute_staples(const GaugeField& gauge_field,

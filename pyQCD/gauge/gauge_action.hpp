@@ -38,7 +38,7 @@ namespace pyQCD
       typedef ColourMatrix<Real, Nc> GaugeLink;
       typedef LatticeColourMatrix<Real, Nc> GaugeField;
 
-      Action(const Real beta, const Layout& layout) : beta_(beta)
+      Action(const Real beta) : beta_(beta)
       { }
 
       virtual GaugeLink compute_staples(const GaugeField& gauge_field,

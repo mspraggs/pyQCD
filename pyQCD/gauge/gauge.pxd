@@ -4,7 +4,7 @@ from pyQCD.core cimport core
 
 cdef extern from "gauge/types.hpp" namespace "pyQCD::python":
     cdef cppclass _GaugeAction "pyQCD::python::GaugeAction":
-        _GaugeAction(const Real, const core.Layout&) except +
+        _GaugeAction(const Real) except +
 
     cdef cppclass _WilsonGaugeAction "pyQCD::python::WilsonGaugeAction"(_GaugeAction):
         _WilsonGaugeAction(const Real, const core.Layout&) except +
