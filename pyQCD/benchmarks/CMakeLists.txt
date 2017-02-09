@@ -3,7 +3,8 @@ project(pyQCD)
 
 set (SRC
   bench_lattice.cpp
-  bench_wilson_action.cpp)
+  bench_wilson_action.cpp
+  bench_hopping_matrix.cpp)
 
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -march=native -mtune=native")
 
