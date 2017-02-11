@@ -73,10 +73,32 @@ namespace pyQCD
       // multiply it with the supplied lattice fermion, there won't be frequent
       // cache misses.
       for (unsigned site_index = 0; site_index < volume; ++site_index) {
-        auto site_coords = layout.compute_site_coords(site_index);
         auto arr_index = layout.get_array_index(site_index);
 
         for (unsigned d = 0; d < layout.num_dims(); ++d) {
+
+          scattered_gauge_field_(site_index, 2 * d) =
+              ColourMatrix<double, 3>::Identity();
+          scattered_gauge_field_(site_index, 2 * d + 1) =
+              ColourMatrix<double, 3>::Identity();
+
+          auto site_coords = layout.compute_site_coords(site_index);
+
+          // Move along the lines connecting the current
+          for (unsigned h = 0; h < Nhops; ++h) {
+            site_coords[d] += h - Nhops;
+            layout.sanitize_site_coords(site_coords);
+            scattered_gauge_field_(site_index, 2 * d) *=
+                gauge_field(site_coords, d);
+
+            site_coords[d] += Nhops;
+            layout.sanitize_site_coords(site_coords);
+            scattered_gauge_field_(site_index, 2 * d + 1) *=
+                gauge_field(site_coords, d);
+
+            site_coords[d] -= h;
+          }
+
           // Compute coordinates/indices of the neighbours of the current site
           site_coords[d] -= Nhops;
           layout.sanitize_site_coords(site_coords);
@@ -87,12 +109,6 @@ namespace pyQCD
           auto site_index_plus =
               layout.get_site_index(layout.get_array_index(site_coords));
           site_coords[d] -= Nhops;
-
-          // Distribute the supplied gauge field
-          scattered_gauge_field_(site_index, 2 * d) =
-              gauge_field(site_index_minus, d);
-          scattered_gauge_field_(site_index, 2 * d + 1) =
-              gauge_field(site_index, d);
 
           auto arr_index_minus = layout.get_array_index(site_index_minus);
           auto arr_index_plus = layout.get_array_index(site_index_plus);
