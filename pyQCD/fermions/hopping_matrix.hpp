@@ -47,6 +47,8 @@ namespace pyQCD
         spin_structures_ = matrices;
       }
 
+      unsigned int num_spins() const { return num_spins_; }
+
       void apply_full(LatticeColourVector<Real, Nc>& out,
                       const LatticeColourVector<Real, Nc>& in) const;
 
