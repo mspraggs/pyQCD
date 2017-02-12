@@ -38,6 +38,11 @@ namespace pyQCD
           LatticeColourVector<Real, Nc>& fermion_out,
           const LatticeColourVector<Real, Nc>& fermion_in) const = 0;
 
+      virtual void apply_hermiticity(
+          LatticeColourVector<Real, Nc>& fermion) const = 0;
+      virtual void remove_hermiticity(
+          LatticeColourVector<Real, Nc>& fermion) const = 0;
+
     protected:
       Real mass_;
     };
