@@ -44,6 +44,18 @@ cdef class {{ typedef.name }}:
     def __releasebuffer__(self, Py_buffer* buffer):
         self.view_count -= 1
 
+    def __getitem__(self, index):
+        return self.as_numpy[index]
+
+    def __setitem__(self, index, value):
+        if hasattr(value, 'as_numpy'):
+            self.as_numpy[index] = value.as_numpy
+        else:
+            self.as_numpy[index] = value
+
+    def __getattr__(self, attr):
+        return getattr(self.as_numpy, attr)
+
     property as_numpy:
         """Return a view to this object as a numpy array"""
         def __get__(self):
@@ -56,3 +68,6 @@ cdef class {{ typedef.name }}:
             out.dtype = complex
             out = out.reshape(tuple(self.lexico_layout.shape()) + (self.site_size,) + {{ typedef.element_type.shape }})
             out[:] = value
+
+    def __repr__(self):
+        return self.as_numpy.__repr__()

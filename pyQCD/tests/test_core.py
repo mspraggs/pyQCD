@@ -55,6 +55,28 @@ class TestMatrixType(object):
             np_mat2.dtype = complex
             assert (np_mat2[1252] == np.ones(shape[5:])).all()
 
+    def test_accessors(self, Type, args):
+        """Test __getitem and __setitem__"""
+        mat = Type(*args)
+        num_dims = len(mat.as_numpy.shape)
+        index = (0,) * num_dims
+        value = mat[index]
+
+        assert value == 0j
+
+        mat[index] = 1.0
+
+        assert mat.as_numpy[index] == 1.0
+
+    def test_attributes(self, Type, args):
+        """Test numpy attribute lookup"""
+        mat = Type(*args)
+
+        # Run through a few attributes to compare them with numpy values
+        assert mat.shape == mat.as_numpy.shape
+        assert mat.size == mat.as_numpy.size
+        assert mat.nbytes == mat.as_numpy.nbytes
+
     def test_random(self, Type, args):
         """Test generation of random ColourMatrix for conformance with SU(N)"""
 
