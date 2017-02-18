@@ -25,7 +25,6 @@
 #include <fermions/fermion_action.hpp>
 
 #include "linear_algebra.hpp"
-#include "solution_wrapper.hpp"
 
 
 namespace pyQCD
