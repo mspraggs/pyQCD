@@ -61,12 +61,12 @@ TEST_CASE ("Test of conjugate gradient algorithm")
     auto result = pyQCD::conjugate_gradient(action, src, 1000, 1e-10);
 
     for (int i = 0; i < 3; ++i) {
-      REQUIRE (std::get<0>(result)[0][i].real() == (i == 0 ? 0.5 : 0.0));
-      REQUIRE (std::get<0>(result)[0][i].imag() == 0.0);
+      REQUIRE (result.solution()[0][i].real() == (i == 0 ? 0.5 : 0.0));
+      REQUIRE (result.solution()[0][i].imag() == 0.0);
     }
 
-    REQUIRE (std::get<1>(result) == 0);
-    REQUIRE (std::get<2>(result) == 1);
+    REQUIRE (result.tolerance() == 0);
+    REQUIRE (result.num_iterations() == 1);
   }
 
   SECTION ("Testing Wilson action")
@@ -85,8 +85,8 @@ TEST_CASE ("Test of conjugate gradient algorithm")
     expected[0] = std::complex<double>(0.2522536470229704,
                                        1.1333971980249629e-13);
 
-    REQUIRE (compare(std::get<0>(result)[0], expected));
-    REQUIRE ((std::get<1>(result) < 1e-8 && std::get<1>(result) > 0));
-    REQUIRE (std::get<2>(result) == 69);
+    REQUIRE (compare(result.solution()[0], expected));
+    REQUIRE ((result.tolerance() < 1e-8 && result.tolerance() > 0));
+    REQUIRE (result.num_iterations() == 69);
   }
 }

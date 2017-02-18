@@ -25,12 +25,13 @@
 #include <fermions/fermion_action.hpp>
 
 #include "linear_algebra.hpp"
+#include "solution_wrapper.hpp"
 
 
 namespace pyQCD
 {
   template <typename Real, int Nc>
-  std::tuple<LatticeColourVector<Real, Nc>, Real, Int> conjugate_gradient(
+  SolutionWrapper<Real, Nc> conjugate_gradient(
       const fermions::Action<Real, Nc>& action,
       const LatticeColourVector<Real, Nc>& rhs, const Int max_iterations,
       const Real tolerance)
@@ -79,7 +80,8 @@ namespace pyQCD
 
     action.remove_hermiticity(solution);
 
-    return std::forward_as_tuple(solution, final_residual, final_iterations);
+    return SolutionWrapper<Real, Nc>(std::move(solution), final_residual,
+                                     final_iterations);
   }
 }
 
