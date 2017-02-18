@@ -162,14 +162,16 @@ namespace pyQCD
 
       for (unsigned arr_index = 0; arr_index < volume; ++arr_index) {
         for (unsigned mu = 0; mu < ndims; ++mu) {
-          auto neighbour_index = neighbour_array_indices_[arr_index][2 * mu];
+          auto neighbour_index_plus =
+              neighbour_array_indices_[arr_index][2 * mu];
+          auto neighbour_index_minus =
+              neighbour_array_indices_[arr_index][2 * mu + 1];
           for (unsigned alpha = 0; alpha < num_spins_; ++alpha) {
             Int gather_index =
                 2 * (num_spins_ * (ndims * arr_index + mu) + alpha);
-            fermion_out[num_spins_ * neighbour_index + alpha] +=
+            fermion_out[num_spins_ * neighbour_index_plus + alpha] +=
                 pre_gather_results[gather_index];
-            neighbour_index = neighbour_array_indices_[arr_index][2 * mu + 1];
-            fermion_out[num_spins_ * neighbour_index + alpha] +=
+            fermion_out[num_spins_ * neighbour_index_minus + alpha] +=
                 pre_gather_results[gather_index + 1];
           }
         }
