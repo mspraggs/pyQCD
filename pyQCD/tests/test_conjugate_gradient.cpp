@@ -80,7 +80,7 @@ TEST_CASE ("Test of conjugate gradient algorithm")
 
     auto result = pyQCD::conjugate_gradient(action, src, 1000, 1e-8);
 
-    MatrixCompare<SiteFermion> compare(1e-8, 1e-12);
+    MatrixCompare<SiteFermion> compare(1e-7, 1e-9);
     SiteFermion expected = SiteFermion::Zero();
     expected[0] = std::complex<double>(0.2522536470229704,
                                        1.1333971980249629e-13);
@@ -88,5 +88,12 @@ TEST_CASE ("Test of conjugate gradient algorithm")
     REQUIRE (compare(result.solution()[0], expected));
     REQUIRE ((result.tolerance() < 1e-8 && result.tolerance() > 0));
     REQUIRE (result.num_iterations() == 69);
+
+    LatticeFermion lhs(layout, 4);
+    action.apply_full(lhs, result.solution());
+
+    for (unsigned int i = 0; i < lhs.size(); ++i) {
+      REQUIRE (compare(lhs[i], src[i]));
+    }
   }
 }
