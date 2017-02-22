@@ -74,11 +74,8 @@ namespace pyQCD
       }
 
       chiral_gamma_ = Eigen::MatrixXcd::Identity(num_spins, num_spins);
-
-      for (unsigned long i = 1; i < gammas.size(); ++i) {
-        chiral_gamma_ *= gammas[i];
-      }
-      chiral_gamma_ *= gammas[0];
+      chiral_gamma_.bottomRightCorner(num_spins / 2, num_spins / 2)
+          = -Eigen::MatrixXcd::Identity(num_spins / 2, num_spins / 2);
 
       hopping_matrix_.set_spin_structures(std::move(spin_structures));
     }
