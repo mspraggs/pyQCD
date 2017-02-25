@@ -16,8 +16,17 @@ from core cimport _ColourMatrix, ColourMatrix, _LatticeColourMatrix, LatticeColo
 
 
 cdef class ColourMatrix:
+    """Statically-sized colour matrix of shape (3, 3).
+
+    Supports indexing and attribute lookup akin to the numpy.ndarray type.
+
+    Attributes:
+      as_numpy (numpy.ndarray): A numpy array view onto the underlying buffer
+        containing the lattice data.
+    """
 
     def __cinit__(self):
+        """Constructor for ColourMatrix type. See help(ColourMatrix)."""
         self.instance = new _ColourMatrix(core._ColourMatrix_zeros())
         self.view_count = 0
 
@@ -64,8 +73,9 @@ cdef class ColourMatrix:
         return getattr(self.as_numpy, attr)
 
     property as_numpy:
-        """Return a view to this object as a numpy array"""
         def __get__(self):
+            """numpy.ndarray: A numpy array view onto the underlying data buffer
+            """
             out = np.asarray(self)
             out.dtype = complex
             return out.reshape((3, 3))
@@ -78,6 +88,7 @@ cdef class ColourMatrix:
 
     @staticmethod
     def random():
+        """Generate a random SU(N) ColourMatrix instance with shape (3, 3)."""
         ret = ColourMatrix()
         ret.instance[0] = _random_colour_matrix()
         return ret
@@ -86,8 +97,20 @@ cdef class ColourMatrix:
         return self.as_numpy.__repr__()
 
 cdef class LatticeColourMatrix:
+    """Lattice colour vector of specified shape.
+
+    A LatticeColourMatrix instance is initialised with the specified lattice
+    shape, with the specified number of colour vectors at each site.
+
+    Supports indexing and attribute lookup akin to the numpy.ndarray type.
+
+    Args:
+      shape (tuple-like): The shape of the lattice.
+      site_size (int): The number of colour vectors at each site.
+    """
 
     def __cinit__(self, shape, int site_size=1):
+        """Constructor for LatticeColourMatrix type. See help(LatticeColourMatrix)."""
         self.lexico_layout = new LexicoLayout(shape)
         self.view_count = 0
         self.site_size = site_size
@@ -139,8 +162,9 @@ cdef class LatticeColourMatrix:
         return getattr(self.as_numpy, attr)
 
     property as_numpy:
-        """Return a view to this object as a numpy array"""
         def __get__(self):
+            """numpy.ndarray: A numpy array view onto the underlying data buffer
+            """
             out = np.asarray(self)
             out.dtype = complex
             return out.reshape(tuple(self.lexico_layout.shape()) + (self.site_size,) + (3, 3))
@@ -155,8 +179,17 @@ cdef class LatticeColourMatrix:
         return self.as_numpy.__repr__()
 
 cdef class ColourVector:
+    """Statically-sized colour vector of shape (3,).
+
+    Supports indexing and attribute lookup akin to the numpy.ndarray type.
+
+    Attributes:
+      as_numpy (numpy.ndarray): A numpy array view onto the underlying buffer
+        containing the lattice data.
+    """
 
     def __cinit__(self):
+        """Constructor for ColourVector type. See help(ColourVector)."""
         self.instance = new _ColourVector(core._ColourVector_zeros())
         self.view_count = 0
 
@@ -201,8 +234,9 @@ cdef class ColourVector:
         return getattr(self.as_numpy, attr)
 
     property as_numpy:
-        """Return a view to this object as a numpy array"""
         def __get__(self):
+            """numpy.ndarray: A numpy array view onto the underlying data buffer
+            """
             out = np.asarray(self)
             out.dtype = complex
             return out.reshape((3,))
@@ -217,8 +251,20 @@ cdef class ColourVector:
         return self.as_numpy.__repr__()
 
 cdef class LatticeColourVector:
+    """Lattice colour vector of specified shape.
+
+    A LatticeColourVector instance is initialised with the specified lattice
+    shape, with the specified number of colour vectors at each site.
+
+    Supports indexing and attribute lookup akin to the numpy.ndarray type.
+
+    Args:
+      shape (tuple-like): The shape of the lattice.
+      site_size (int): The number of colour vectors at each site.
+    """
 
     def __cinit__(self, shape, int site_size=1):
+        """Constructor for LatticeColourVector type. See help(LatticeColourVector)."""
         self.lexico_layout = new LexicoLayout(shape)
         self.view_count = 0
         self.site_size = site_size
@@ -268,8 +314,9 @@ cdef class LatticeColourVector:
         return getattr(self.as_numpy, attr)
 
     property as_numpy:
-        """Return a view to this object as a numpy array"""
         def __get__(self):
+            """numpy.ndarray: A numpy array view onto the underlying data buffer
+            """
             out = np.asarray(self)
             out.dtype = complex
             return out.reshape(tuple(self.lexico_layout.shape()) + (self.site_size,) + (3,))

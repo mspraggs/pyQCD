@@ -1,6 +1,16 @@
+{% set is_matrix = typedef.ndims == 2 %}
 cdef class {{ typedef.name }}:
+    """Statically-sized colour {% if is_matrix %}matrix{% else %}vector{% endif %} of shape {{ typedef.shape }}.
+
+    Supports indexing and attribute lookup akin to the numpy.ndarray type.
+
+    Attributes:
+      as_numpy (numpy.ndarray): A numpy array view onto the underlying buffer
+        containing the lattice data.
+    """
 
     def __cinit__(self):
+        """Constructor for {{ typedef.name }} type. See help({{ typedef.name }})."""
         self.instance = new _{{ typedef.cname }}(core._{{ typedef.cname }}_zeros())
         self.view_count = 0
 
@@ -10,7 +20,7 @@ cdef class {{ typedef.name }}:
     def __getbuffer__(self, Py_buffer* buffer, int flags):
         cdef Py_ssize_t itemsize = sizeof(atomics.Complex)
 
-	{% set last_dim = typedef.shape[1] if typedef.ndims == 2 else typedef.shape[0] %}
+	    {% set last_dim = typedef.shape[1] if is_matrix else typedef.shape[0] %}
         self.buffer_shape[0] = {{ last_dim }}
         self.buffer_strides[0] = itemsize
         {% if typedef.ndims == 2 %}
@@ -51,8 +61,9 @@ cdef class {{ typedef.name }}:
         return getattr(self.as_numpy, attr)
 
     property as_numpy:
-        """Return a view to this object as a numpy array"""
         def __get__(self):
+            """numpy.ndarray: A numpy array view onto the underlying data buffer
+            """
             out = np.asarray(self)
             out.dtype = complex
             return out.reshape({{ typedef.shape }})
@@ -62,11 +73,12 @@ cdef class {{ typedef.name }}:
             out.dtype = complex
             out = out.reshape({{ typedef.shape }})
             out[:] = value
-{% if typedef.cname == "ColourMatrix" %}
+{% if is_matrix %}
 
     @staticmethod
     def random():
-        ret = ColourMatrix()
+        """Generate a random SU(N) {{ typedef.name }} instance with shape {{ typedef.shape }}."""
+        ret = {{ typedef.name }}()
         ret.instance[0] = _random_colour_matrix()
         return ret
 {% endif %}
