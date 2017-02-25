@@ -5,11 +5,3 @@ Please edit the files within the template directory of the pyQCD package tree
 and run "python setup.py codegen" in the root of the soruce tree.
 """
 
-cdef extern from "globals.hpp" namespace "pyQCD":
-    ctypedef double Real
-
-    cdef cppclass Complex:
-        Complex() except +
-        Complex(const Real, const Real) except +
-        Real real()
-        Real imag()

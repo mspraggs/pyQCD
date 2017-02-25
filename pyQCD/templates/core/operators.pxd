@@ -1,3 +1,5 @@
+{% include "edit_warning.txt" %}
+
 cimport atomics
 {% for typedef in typedefs %}
 cimport {{ typedef.cmodule }}

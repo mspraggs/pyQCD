@@ -1,3 +1,5 @@
+{% include "edit_warning.txt" %}
+
 cdef extern from "globals.hpp" namespace "pyQCD":
     ctypedef {{ precision }} Real
 

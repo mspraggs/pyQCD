@@ -1,3 +1,5 @@
+{% include "edit_warning.txt" %}
+
 from cpython cimport Py_buffer
 
 from libcpp.vector cimport vector
