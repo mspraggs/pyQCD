@@ -40,38 +40,57 @@ TEST_CASE ("Testing hopping matrix")
   LatticeFermion fermion_in(layout, SiteFermion::Ones(), 4);
   LatticeFermion fermion_out(layout, 4);
 
-  SiteFermion expected_result = SiteFermion::Zero();
-  for (unsigned d = 0; d < 4; ++d) {
-    auto random_mat = pyQCD::random_sun<double, 3>();
-    double random_double = pyQCD::rng().generate_real(0.0, 1.0);
-    pyQCD::Site site{0, 0, 0, 0};
-    gauge_field(site, d) = random_mat;
-    site[d] = 1;
-    fermion_in(site, 0) *= random_double;
-    expected_result += random_double * random_mat * SiteFermion::Ones();
-
-    random_mat = pyQCD::random_sun<double, 3>();
-    random_double = pyQCD::rng().generate_real(0.0, 1.0);
-    site[d] = layout.shape()[d] - 1;
-    gauge_field(site, d) = random_mat;
-    fermion_in(site, 0) *= random_double;
-    expected_result +=
-        random_double * random_mat.adjoint() * SiteFermion::Ones();
-  }
-
   auto identity = Eigen::Matrix4cd::Identity();
-
   std::vector<Eigen::MatrixXcd> spin_structures(8, identity);
-
-  std::vector<std::complex<double>> boundary_phases(4, 1.0);
-
-  auto hopping_matrix =
-      pyQCD::fermions::HoppingMatrix<double, 3, 1>(gauge_field, boundary_phases,
-                                                   spin_structures);
-
-  hopping_matrix.apply_full(fermion_out, fermion_in);
 
   MatrixCompare<SiteFermion> comp(1e-5, 1e-8);
 
-  REQUIRE(comp(fermion_out[0], expected_result));
+  SECTION ("Testing periodic BCs")
+  {
+    SiteFermion expected_result = SiteFermion::Zero();
+    for (unsigned d = 0; d < 4; ++d) {
+      auto random_mat = pyQCD::random_sun<double, 3>();
+      double random_double = pyQCD::rng().generate_real(0.0, 1.0);
+      pyQCD::Site site{0, 0, 0, 0};
+      gauge_field(site, d) = random_mat;
+      site[d] = 1;
+      fermion_in(site, 0) *= random_double;
+      expected_result += random_double * random_mat * SiteFermion::Ones();
+
+      random_mat = pyQCD::random_sun<double, 3>();
+      random_double = pyQCD::rng().generate_real(0.0, 1.0);
+      site[d] = layout.shape()[d] - 1;
+      gauge_field(site, d) = random_mat;
+      fermion_in(site, 0) *= random_double;
+      expected_result +=
+          random_double * random_mat.adjoint() * SiteFermion::Ones();
+    }
+
+    std::vector<std::complex<double>> boundary_phases(4, 1.0);
+
+    auto hopping_matrix =
+        pyQCD::fermions::HoppingMatrix<double, 3, 1>(
+            gauge_field, boundary_phases, spin_structures);
+
+    hopping_matrix.apply_full(fermion_out, fermion_in);
+
+    REQUIRE(comp(fermion_out[0], expected_result));
+  }
+
+  SECTION ("Testing non-trivial BCs")
+  {
+    SiteFermion expected_result = SiteFermion::Ones() * 6.0;
+
+    std::vector<std::complex<double>> boundary_phases(4, 1.0);
+    boundary_phases[0] = -1.0;
+
+    auto hopping_matrix =
+        pyQCD::fermions::HoppingMatrix<double, 3, 1>(
+            gauge_field, boundary_phases, spin_structures);
+
+    hopping_matrix.apply_full(fermion_out, fermion_in);
+
+    REQUIRE(comp(fermion_out[0], expected_result));
+    REQUIRE(comp(fermion_out[1792], expected_result));
+  }
 }
