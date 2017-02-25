@@ -31,7 +31,9 @@ template <typename Real, int Nc>
 class TestAction : public pyQCD::fermions::Action<Real, Nc>
 {
 public:
-  TestAction(const Real mass) : pyQCD::fermions::Action<Real, Nc>(mass) {}
+  TestAction(const Real mass, const int ndims)
+    : pyQCD::fermions::Action<Real, Nc>(mass, std::vector<Real>(ndims, 1.0))
+  {}
 
   void apply_full(pyQCD::LatticeColourVector<Real, Nc>& fermion_out,
                   const pyQCD::LatticeColourVector<Real, Nc>& fermion_in) const
@@ -56,7 +58,7 @@ TEST_CASE ("Test of conjugate gradient algorithm")
 
   SECTION ("Testing simple proportional action")
   {
-    TestAction<double, 3> action(2.0);
+    TestAction<double, 3> action(2.0, 4);
 
     auto result = pyQCD::conjugate_gradient(action, src, 1000, 1e-10);
 
