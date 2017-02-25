@@ -32,7 +32,16 @@ namespace pyQCD
     class Action
     {
     public:
-      Action(const Real mass) : mass_(mass) {}
+      Action(const Real mass, const std::vector<Real>& pi_frac)
+        : mass_(mass)
+      {
+        auto unary_func = [] (const Real pi_angle) {
+          return std::exp(I * pi_angle * (2 * pi));
+        };
+        phases_.resize(pi_frac.size());
+        std::transform(pi_frac.begin(), pi_frac.end(), phases_.begin(),
+                       unary_func);
+      }
 
       virtual void apply_full(
           LatticeColourVector<Real, Nc>& fermion_out,
@@ -45,6 +54,7 @@ namespace pyQCD
 
     protected:
       Real mass_;
+      std::vector<std::complex<Real>> phases_;
     };
   }
 }

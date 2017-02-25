@@ -20,7 +20,7 @@ class TestWilsonFermionAction(object):
         """Test construction of WilsonFermionAction"""
         gauge_field = core.LatticeColourMatrix([8, 4, 4, 4], 4)
 
-        action = fermions.WilsonFermionAction(0.1, gauge_field)
+        action = fermions.WilsonFermionAction(0.1, gauge_field, [0] * 4)
 
     def test_apply_full(self):
         """Test full application of WilsonFermionAction"""
@@ -34,7 +34,7 @@ class TestWilsonFermionAction(object):
         fermion_out = core.LatticeColourVector(lattice_shape, 4)
         fermion_in.as_numpy[1, 0, 0, 0, 2, :] = 1.0
 
-        action = fermions.WilsonFermionAction(0.1, gauge_field)
+        action = fermions.WilsonFermionAction(0.1, gauge_field, [0] * 4)
         action.apply_full(fermion_out, fermion_in)
 
         expected = 0.5 * np.dot(random_gauge_link.as_numpy, np.ones(3))

@@ -41,7 +41,10 @@ TEST_CASE ("Testing Wilson fermion action")
   FermionField psi(layout, SiteFermion::Ones(), 4);
   FermionField eta(layout, 4);
 
-  pyQCD::fermions::WilsonAction<double, 3> wilson_action(0.1, gauge_field);
+  std::vector<double> boundary_phases(4, 0.0);
+  
+  pyQCD::fermions::WilsonAction<double, 3> wilson_action(0.1, gauge_field,
+                                                         boundary_phases);
 
   wilson_action.apply_full(eta, psi);
 
@@ -71,7 +74,8 @@ TEST_CASE ("Testing Wilson fermion action")
       -0.5 * (pyQCD::I * (random_mat - random_mat.adjoint())  +
           random_mat.adjoint()) * SiteFermion::Ones();
 
-  wilson_action = pyQCD::fermions::WilsonAction<double, 3>(0.0, gauge_field);
+  wilson_action = pyQCD::fermions::WilsonAction<double, 3>(0.0, gauge_field,
+                                                           boundary_phases);
 
   wilson_action.apply_full(eta, psi);
 

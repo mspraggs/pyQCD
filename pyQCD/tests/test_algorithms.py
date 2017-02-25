@@ -31,7 +31,7 @@ def test_heatbath_update(action, gauge_field):
 def test_conjugate_gradient(gauge_field):
     """Test conjugate_gradient"""
 
-    action = fermions.WilsonFermionAction(0.1, gauge_field)
+    action = fermions.WilsonFermionAction(0.1, gauge_field, [0] * 4)
     rhs = core.LatticeColourVector([8, 4, 4, 4], 4)
     rhs[0, 0, 0, 0, 0, 0] = 1.0
     results = algorithms.conjugate_gradient(action, rhs, 1000, 1e-10)

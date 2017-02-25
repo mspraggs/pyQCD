@@ -36,7 +36,8 @@ namespace pyQCD
     {
     public:
       WilsonAction(const Real mass,
-                   const LatticeColourMatrix<Real, Nc>& gauge_field);
+                   const LatticeColourMatrix<Real, Nc>& gauge_field,
+                   const std::vector<Real>& boundary_phases);
 
       void apply_full(LatticeColourVector<Real, Nc>& fermion_out,
                       const LatticeColourVector<Real, Nc>& fermion_in) const;
@@ -54,9 +55,10 @@ namespace pyQCD
 
     template <typename Real, int Nc>
     WilsonAction<Real, Nc>::WilsonAction(
-        const Real mass, const LatticeColourMatrix<Real, Nc>& gauge_field)
-      : Action<Real, Nc>(mass),
-        hopping_matrix_(gauge_field)
+        const Real mass, const LatticeColourMatrix<Real, Nc>& gauge_field,
+        const std::vector<Real>& boundary_phases)
+      : Action<Real, Nc>(mass, boundary_phases),
+        hopping_matrix_(gauge_field, this->phases_)
     {
       typedef Eigen::MatrixXcd SpinMat;
 

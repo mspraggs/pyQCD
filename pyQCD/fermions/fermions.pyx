@@ -17,8 +17,10 @@ cdef class FermionAction:
 
 cdef class WilsonFermionAction(FermionAction):
 
-    def __cinit__(self, float mass, LatticeColourMatrix gauge_field):
-        self.instance = new _WilsonFermionAction(mass, gauge_field.instance[0])
+    def __cinit__(self, float mass, LatticeColourMatrix gauge_field,
+                  boundary_phase_angles):
+        self.instance = new _WilsonFermionAction(mass, gauge_field.instance[0],
+                                                 list(boundary_phase_angles))
 
     def __init__(self, *args, **kwargs):
         pass

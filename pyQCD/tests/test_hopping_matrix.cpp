@@ -63,8 +63,10 @@ TEST_CASE ("Testing hopping matrix")
 
   std::vector<Eigen::MatrixXcd> spin_structures(8, identity);
 
+  std::vector<std::complex<double>> boundary_phases(4, 1.0);
+
   auto hopping_matrix =
-      pyQCD::fermions::HoppingMatrix<double, 3, 1>(gauge_field,
+      pyQCD::fermions::HoppingMatrix<double, 3, 1>(gauge_field, boundary_phases,
                                                    spin_structures);
 
   hopping_matrix.apply_full(fermion_out, fermion_in);

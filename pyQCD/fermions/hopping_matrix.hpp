@@ -32,9 +32,11 @@ namespace pyQCD
     class HoppingMatrix
     {
     public:
-      HoppingMatrix(const LatticeColourMatrix <Real, Nc> &gauge_field);
+      HoppingMatrix(const LatticeColourMatrix <Real, Nc>& gauge_field,
+                    const std::vector<std::complex<Real>>& phases);
 
-      HoppingMatrix(const LatticeColourMatrix <Real, Nc> &gauge_field,
+      HoppingMatrix(const LatticeColourMatrix <Real, Nc>& gauge_field,
+                    const std::vector<std::complex<Real>>& phases,
                     const std::vector<Eigen::MatrixXcd>& spin_structures);
 
       void set_spin_structures(const std::vector<Eigen::MatrixXcd>& matrices)
@@ -62,7 +64,8 @@ namespace pyQCD
 
     template <typename Real, int Nc, unsigned int Nhops>
     HoppingMatrix<Real, Nc, Nhops>::HoppingMatrix(
-        const LatticeColourMatrix <Real, Nc> &gauge_field)
+        const LatticeColourMatrix <Real, Nc> &gauge_field,
+        const std::vector<std::complex<Real>>& phases)
       : scattered_gauge_field_(gauge_field.layout(), 2 * gauge_field.num_dims()),
         num_spins_(std::pow(2u, gauge_field.num_dims() / 2))
     {
@@ -79,12 +82,17 @@ namespace pyQCD
 
         for (unsigned d = 0; d < layout.num_dims(); ++d) {
 
-          scattered_gauge_field_(site_index, 2 * d) =
-              ColourMatrix<double, 3>::Identity();
-          scattered_gauge_field_(site_index, 2 * d + 1) =
-              ColourMatrix<double, 3>::Identity();
-
           auto site_coords = layout.compute_site_coords(site_index);
+
+          auto phase_fwd = (site_coords[d] + Nhops >= layout.shape()[d]) ?
+                           phases[d] : std::complex<Real>(1.0);
+          auto phase_bck = (site_coords[d] < Nhops) ?
+                           phases[d] : std::complex<Real>(1.0);
+
+          scattered_gauge_field_(site_index, 2 * d) =
+              ColourMatrix<double, 3>::Identity() * phase_bck;
+          scattered_gauge_field_(site_index, 2 * d + 1) =
+              ColourMatrix<double, 3>::Identity() * phase_fwd;
 
           // Move along the lines connecting the current
           for (unsigned h = 0; h < Nhops; ++h) {
@@ -124,8 +132,9 @@ namespace pyQCD
     template <typename Real, int Nc, unsigned int Nhops>
     HoppingMatrix<Real, Nc, Nhops>::HoppingMatrix(
         const LatticeColourMatrix <Real, Nc> &gauge_field,
+        const std::vector<std::complex<Real>>& phases,
         const std::vector<Eigen::MatrixXcd>& spin_structures)
-      : HoppingMatrix(gauge_field)
+      : HoppingMatrix(gauge_field, phases)
     {
       set_spin_structures(spin_structures);
     }
