@@ -76,7 +76,10 @@ TEST_CASE ("Test of conjugate gradient algorithm")
 
     GaugeField gauge_field(layout, GaugeLink::Identity(), 4);
 
-    pyQCD::fermions::WilsonAction<double, 3> action(0.1, gauge_field);
+    std::vector<double> boundary_rotations(4, 1.0);
+
+    pyQCD::fermions::WilsonAction<double, 3> action(0.1, gauge_field,
+                                                    boundary_rotations);
 
     auto result = pyQCD::conjugate_gradient(action, src, 1000, 1e-8);
 
