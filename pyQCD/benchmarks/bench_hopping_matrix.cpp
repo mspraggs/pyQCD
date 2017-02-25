@@ -32,9 +32,10 @@ int main()
 
   std::vector<Eigen::MatrixXcd>
       spin_structures(8, Eigen::MatrixXcd::Identity(4, 4));
+  std::vector<std::complex<double>> phases(4, 1.0);
 
   pyQCD::fermions::HoppingMatrix<double, 3, 1>
-      hopping_matrix(gauge_field, spin_structures);
+      hopping_matrix(gauge_field, phases, spin_structures);
 
   pyQCD::LatticeColourVector<double, 3> fermion_in(layout, 4);
   pyQCD::LatticeColourVector<double, 3> fermion_out(layout, 4);
