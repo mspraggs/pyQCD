@@ -3,7 +3,12 @@ from __future__ import absolute_import
 import numpy as np
 import pytest
 
-from pyQCD import gauge
+from pyQCD import core, gauge
+
+
+@pytest.fixture
+def layout():
+    return core.LexicoLayout([8, 8, 8, 8])
 
 
 class TestGaugeAction(object):
@@ -16,23 +21,23 @@ class TestGaugeAction(object):
 
 class TestWilsonGaugeAction(object):
 
-    def test_constructor(self):
+    def test_constructor(self, layout):
         """Test construction of WilsonGaugeAction"""
-        action = gauge.WilsonGaugeAction(5.5, [8, 8, 8, 8])
+        action = gauge.WilsonGaugeAction(5.5, layout)
 
 
 class TestSymanzikGaugeAction(object):
 
-    def test_constructor(self):
+    def test_constructor(self, layout):
         """Test constructor of SymanzikGaugeAction"""
-        action = gauge.SymanzikGaugeAction(5.5, [8, 8, 8, 8])
+        action = gauge.SymanzikGaugeAction(5.5, layout)
 
 
 class TestIwasakiGaugeAction(object):
 
-    def test_constructor(self):
+    def test_constructor(self, layout):
         """Test constructor of SymanzikGaugeAction"""
-        action = gauge.IwasakiGaugeAction(5.5, [8, 8, 8, 8])
+        action = gauge.IwasakiGaugeAction(5.5, layout)
 
 
 def test_cold_start():

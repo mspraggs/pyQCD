@@ -13,18 +13,23 @@ cdef class {{ typedef.name }}:
       site_size (int): The number of colour {% if is_matrix %}matrices{% else %}vectors{% endif %} at each site.
     """
 
-    def __cinit__(self, shape, int site_size=1):
+    def __cinit__(self, Layout layout, int site_size=1):
         """Constructor for {{ typedef.name }} type. See help({{ typedef.name }})."""
-        self.lexico_layout = new LexicoLayout(shape)
+        self.layout = layout
+        self.is_buffer_compatible = isinstance(layout, LexicoLayout)
         self.view_count = 0
         self.site_size = site_size
-        self.instance = new _{{ typedef.cname }}(self.lexico_layout[0],  _{{ typedef.element_type.cname }}(_{{ elem_type.cname }}_zeros()), site_size)
+        self.instance = new _{{ typedef.cname }}(layout.instance[0],  _{{ typedef.element_type.cname }}(_{{ elem_type.cname }}_zeros()), site_size)
 
     def __dealloc__(self):
         del self.instance
-        del self.lexico_layout
 
     def __getbuffer__(self, Py_buffer* buffer, int flags):
+        if not self.is_buffer_compatible:
+            raise NotImplementedError("The buffer interface is only available "
+                                      "when a Lattice object uses a "
+                                      "LexicoLayout")
+
         cdef Py_ssize_t itemsize = sizeof(atomics.Complex)
 
         {% set last_dim = elem_type.shape[1] if is_matrix else elem_type.shape[0] %}
@@ -75,12 +80,12 @@ cdef class {{ typedef.name }}:
             """
             out = np.asarray(self)
             out.dtype = complex
-            return out.reshape(tuple(self.lexico_layout.shape()) + (self.site_size,) + {{ elem_type.shape }})
+            return out.reshape(tuple(self.layout.instance.shape()) + (self.site_size,) + {{ elem_type.shape }})
 
         def __set__(self, value):
             out = np.asarray(self)
             out.dtype = complex
-            out = out.reshape(tuple(self.lexico_layout.shape()) + (self.site_size,) + {{ elem_type.shape }})
+            out = out.reshape(tuple(self.layout.instance.shape()) + (self.site_size,) + {{ elem_type.shape }})
             out[:] = value
 
     def __repr__(self):

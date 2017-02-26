@@ -2,7 +2,7 @@ from __future__ import absolute_import
 
 import numpy as np
 
-from pyQCD.core import LatticeColourMatrix, ColourMatrix
+from pyQCD.core import LexicoLayout, LatticeColourMatrix, ColourMatrix
 from pyQCD.gauge.gauge import *
 
 
@@ -14,10 +14,11 @@ def cold_start(lattice_shape):
         exhibit.
 
     Returns:
-      LatticeColourMatrix: The cold-start gauge field.
+      LatticeColourMatrix: A lexicographic, cold-start gauge field.
     """
-    lattice_shape = list(lattice_shape)
-    ret = LatticeColourMatrix(lattice_shape, len(lattice_shape))
+
+    layout = LexicoLayout(lattice_shape)
+    ret = LatticeColourMatrix(layout, len(lattice_shape))
 
     ret_view = ret.as_numpy
     num_colours = ret_view.shape[-1]
@@ -35,12 +36,12 @@ def hot_start(lattice_shape):
         exhibit.
 
     Returns:
-      LatticeColourMatrix: The hot-start gauge field.
+      LatticeColourMatrix: A lexicographic, hot-start gauge field.
     """
-    # TODO: Move the below into Cython/C++ code for speed
 
     lattice_shape = list(lattice_shape)
-    ret = LatticeColourMatrix(lattice_shape, len(lattice_shape))
+    layout = LexicoLayout(lattice_shape)
+    ret = LatticeColourMatrix(layout, len(lattice_shape))
 
     ret_view = ret.as_numpy
 

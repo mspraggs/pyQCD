@@ -16,9 +16,7 @@ def conjugate_gradient(FermionAction action, LatticeColourVector rhs,
     new _SolutionWrapper(_conjugate_gradient(
         action.instance[0], rhs.instance[0], max_iterations, tolerance))
 
-    cdef int num_dims = rhs.instance.num_dims()
-
-    solution = LatticeColourVector(rhs.shape[:num_dims], rhs.shape[num_dims])
+    solution = LatticeColourVector(rhs.layout, rhs.site_size)
     solution.instance[0] = wrapped_solution.solution()
 
     return (solution, wrapped_solution.num_iterations(),

@@ -13,8 +13,8 @@ def multiply_einsum(a, b):
 @pytest.mark.parametrize(
     "Type,args",
     [(ColourMatrix, ()), (ColourVector, ()),
-     (LatticeColourMatrix, ([8, 4, 4, 4], 4)),
-     (LatticeColourVector, ([8, 4, 4, 4], 4))])
+     (LatticeColourMatrix, (LexicoLayout([8, 4, 4, 4]), 4)),
+     (LatticeColourVector, (LexicoLayout([8, 4, 4, 4]), 4))])
 class TestMatrixType(object):
 
     def test_constructor(self, Type, args):

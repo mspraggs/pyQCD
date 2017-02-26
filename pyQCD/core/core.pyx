@@ -13,6 +13,32 @@ import numpy as np
 cimport atomics
 cimport core
 from core cimport _ColourMatrix, ColourMatrix, _LatticeColourMatrix, LatticeColourMatrix, _ColourVector, ColourVector, _LatticeColourVector, LatticeColourVector
+cdef class Layout:
+
+    def __init__(self, *args, **kwargs):
+        raise NotImplementedError("This class is pure-virtual. Please use a "
+                                  "layout class that inherits from it.")
+
+    property shape:
+        def __get__(self):
+            """The layout shape"""
+            return self.instance.shape()
+
+    property ndims:
+        def __get__(self):
+            """The number of dimensions in the layout"""
+            return self.instance.num_dims()
+
+cdef class LexicoLayout(Layout):
+
+    def __cinit__(self, shape):
+        self.instance = new core._LexicoLayout(shape)
+
+    def __deallocate__(self):
+        del self.instance
+
+    def __init__(self, *args, **kwargs):
+        pass
 
 
 cdef class ColourMatrix:
@@ -109,18 +135,23 @@ cdef class LatticeColourMatrix:
       site_size (int): The number of colour vectors at each site.
     """
 
-    def __cinit__(self, shape, int site_size=1):
+    def __cinit__(self, Layout layout, int site_size=1):
         """Constructor for LatticeColourMatrix type. See help(LatticeColourMatrix)."""
-        self.lexico_layout = new LexicoLayout(shape)
+        self.layout = layout
+        self.is_buffer_compatible = isinstance(layout, LexicoLayout)
         self.view_count = 0
         self.site_size = site_size
-        self.instance = new _LatticeColourMatrix(self.lexico_layout[0],  _ColourMatrix(_ColourMatrix_zeros()), site_size)
+        self.instance = new _LatticeColourMatrix(layout.instance[0],  _ColourMatrix(_ColourMatrix_zeros()), site_size)
 
     def __dealloc__(self):
         del self.instance
-        del self.lexico_layout
 
     def __getbuffer__(self, Py_buffer* buffer, int flags):
+        if not self.is_buffer_compatible:
+            raise NotImplementedError("The buffer interface is only available "
+                                      "when a Lattice object uses a "
+                                      "LexicoLayout")
+
         cdef Py_ssize_t itemsize = sizeof(atomics.Complex)
 
         self.buffer_shape[0] = self.instance[0].volume() * self.site_size
@@ -167,12 +198,12 @@ cdef class LatticeColourMatrix:
             """
             out = np.asarray(self)
             out.dtype = complex
-            return out.reshape(tuple(self.lexico_layout.shape()) + (self.site_size,) + (3, 3))
+            return out.reshape(tuple(self.layout.instance.shape()) + (self.site_size,) + (3, 3))
 
         def __set__(self, value):
             out = np.asarray(self)
             out.dtype = complex
-            out = out.reshape(tuple(self.lexico_layout.shape()) + (self.site_size,) + (3, 3))
+            out = out.reshape(tuple(self.layout.instance.shape()) + (self.site_size,) + (3, 3))
             out[:] = value
 
     def __repr__(self):
@@ -263,18 +294,23 @@ cdef class LatticeColourVector:
       site_size (int): The number of colour vectors at each site.
     """
 
-    def __cinit__(self, shape, int site_size=1):
+    def __cinit__(self, Layout layout, int site_size=1):
         """Constructor for LatticeColourVector type. See help(LatticeColourVector)."""
-        self.lexico_layout = new LexicoLayout(shape)
+        self.layout = layout
+        self.is_buffer_compatible = isinstance(layout, LexicoLayout)
         self.view_count = 0
         self.site_size = site_size
-        self.instance = new _LatticeColourVector(self.lexico_layout[0],  _ColourVector(_ColourVector_zeros()), site_size)
+        self.instance = new _LatticeColourVector(layout.instance[0],  _ColourVector(_ColourVector_zeros()), site_size)
 
     def __dealloc__(self):
         del self.instance
-        del self.lexico_layout
 
     def __getbuffer__(self, Py_buffer* buffer, int flags):
+        if not self.is_buffer_compatible:
+            raise NotImplementedError("The buffer interface is only available "
+                                      "when a Lattice object uses a "
+                                      "LexicoLayout")
+
         cdef Py_ssize_t itemsize = sizeof(atomics.Complex)
 
         self.buffer_shape[0] = self.instance[0].volume() * self.site_size
@@ -319,12 +355,12 @@ cdef class LatticeColourVector:
             """
             out = np.asarray(self)
             out.dtype = complex
-            return out.reshape(tuple(self.lexico_layout.shape()) + (self.site_size,) + (3,))
+            return out.reshape(tuple(self.layout.instance.shape()) + (self.site_size,) + (3,))
 
         def __set__(self, value):
             out = np.asarray(self)
             out.dtype = complex
-            out = out.reshape(tuple(self.lexico_layout.shape()) + (self.site_size,) + (3,))
+            out = out.reshape(tuple(self.layout.instance.shape()) + (self.site_size,) + (3,))
             out[:] = value
 
     def __repr__(self):

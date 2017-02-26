@@ -7,13 +7,14 @@ and run "python setup.py codegen" in the root of the source tree.
 
 from cpython cimport Py_buffer
 
+from libcpp cimport bool as bool_t
 from libcpp.vector cimport vector
 
 from atomics cimport Real, Complex
 
 cdef extern from "core/layout.hpp" namespace "pyQCD":
-    cdef cppclass Layout:
-        Layout()
+    cdef cppclass _Layout "pyQCD::Layout":
+        _Layout(const vector[unsigned int]&) except+
         unsigned int get_array_index(const unsigned int)
         unsigned int get_array_index(const vector[unsigned int]&)
         unsigned int get_site_index(const unsigned int)
@@ -21,9 +22,16 @@ cdef extern from "core/layout.hpp" namespace "pyQCD":
         unsigned int volume()
         const vector[unsigned int]& shape()
 
-    cdef cppclass LexicoLayout(Layout):
-        LexicoLayout() except+
-        LexicoLayout(const vector[unsigned int]&) except+
+    cdef cppclass _LexicoLayout "pyQCD::LexicoLayout"(_Layout):
+        _LexicoLayout(const vector[unsigned int]&) except+
+
+
+cdef class Layout:
+    cdef _Layout* instance
+
+
+cdef class LexicoLayout(Layout):
+    pass
 
 
 
@@ -50,7 +58,7 @@ cdef class ColourMatrix:
 cdef extern from "core/types.hpp" namespace "pyQCD::python":
     cdef cppclass _LatticeColourMatrix "pyQCD::python::LatticeColourMatrix":
         _LatticeColourMatrix() except +
-        _LatticeColourMatrix(const Layout&, const _ColourMatrix&, unsigned int site_size) except +
+        _LatticeColourMatrix(const _Layout&, const _ColourMatrix&, unsigned int site_size) except +
         _ColourMatrix& operator[](const unsigned int)
         unsigned int volume()
         unsigned int num_dims()
@@ -58,9 +66,10 @@ cdef extern from "core/types.hpp" namespace "pyQCD::python":
 
 cdef class LatticeColourMatrix:
     cdef _LatticeColourMatrix* instance
-    cdef Layout* lexico_layout
+    cdef public Layout layout
+    cdef bool_t is_buffer_compatible
     cdef int view_count
-    cdef int site_size
+    cdef public int site_size
     cdef Py_ssize_t buffer_shape[3]
     cdef Py_ssize_t buffer_strides[3]
 
@@ -85,7 +94,7 @@ cdef class ColourVector:
 cdef extern from "core/types.hpp" namespace "pyQCD::python":
     cdef cppclass _LatticeColourVector "pyQCD::python::LatticeColourVector":
         _LatticeColourVector() except +
-        _LatticeColourVector(const Layout&, const _ColourVector&, unsigned int site_size) except +
+        _LatticeColourVector(const _Layout&, const _ColourVector&, unsigned int site_size) except +
         _ColourVector& operator[](const unsigned int)
         unsigned int volume()
         unsigned int num_dims()
@@ -93,8 +102,9 @@ cdef extern from "core/types.hpp" namespace "pyQCD::python":
 
 cdef class LatticeColourVector:
     cdef _LatticeColourVector* instance
-    cdef Layout* lexico_layout
+    cdef public Layout layout
+    cdef bool_t is_buffer_compatible
     cdef int view_count
-    cdef int site_size
+    cdef public int site_size
     cdef Py_ssize_t buffer_shape[2]
     cdef Py_ssize_t buffer_strides[2]
