@@ -20,12 +20,19 @@ cdef extern from "core/layout.hpp" namespace "pyQCD":
     cdef cppclass _LexicoLayout "pyQCD::LexicoLayout"(_Layout):
         _LexicoLayout(const vector[unsigned int]&) except+
 
+    cdef cppclass _EvenOddLayout "pyQCD::EvenOddLayout"(_Layout):
+        _EvenOddLayout(const vector[unsigned int]&) except+
+
 
 cdef class Layout:
     cdef _Layout* instance
 
 
 cdef class LexicoLayout(Layout):
+    pass
+
+
+cdef class EvenOddLayout(Layout):
     pass
 
 

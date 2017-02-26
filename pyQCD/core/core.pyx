@@ -40,6 +40,17 @@ cdef class LexicoLayout(Layout):
     def __init__(self, *args, **kwargs):
         pass
 
+cdef class EvenOddLayout(Layout):
+
+    def __cinit__(self, shape):
+        self.instance = new core._EvenOddLayout(shape)
+
+    def __deallocate__(self):
+        del self.instance
+
+    def __init__(self, *args, **kwargs):
+        pass
+
 
 cdef class ColourMatrix:
     """Statically-sized colour matrix of shape (3, 3).
