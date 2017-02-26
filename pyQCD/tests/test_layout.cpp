@@ -44,3 +44,24 @@ TEST_CASE("LexicoLayout test") {
   REQUIRE (layout.is_even_site(0));
   REQUIRE (layout.is_even_site(pyQCD::Site{2, 0, 1, 1}));
 }
+
+TEST_CASE("EvenOddLayout test") {
+  typedef pyQCD::EvenOddLayout Layout;
+
+  Layout layout({8, 4, 4, 4});
+
+  REQUIRE (layout.get_array_index(0) == 0);
+  REQUIRE (layout.get_site_index(0) == 0);
+
+  REQUIRE (layout.get_array_index(1) == 256);
+  REQUIRE (layout.get_site_index(256) == 1);
+
+  REQUIRE (layout.get_array_index(2) == 1);
+  REQUIRE (layout.get_site_index(1) == 2);
+
+  REQUIRE (layout.get_array_index(3) == 257);
+  REQUIRE (layout.get_site_index(257) == 3);
+
+  REQUIRE (layout.get_array_index(4) == 258);
+  REQUIRE (layout.get_site_index(258) == 4);
+}

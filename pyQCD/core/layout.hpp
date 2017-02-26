@@ -111,6 +111,33 @@ namespace pyQCD
   };
 
 
+  class EvenOddLayout : public Layout
+  {
+  public:
+    EvenOddLayout(const Site& shape) : Layout(shape)
+    {
+      array_indices_.resize(volume_);
+      site_indices_.resize(volume_);
+
+      for (Int i = 0; i < volume_; ++i) {
+        auto site_coords = compute_site_coords(i);
+
+        auto coord_sum = std::accumulate(site_coords.begin(),
+                                         site_coords.end(), 0u);
+
+        if (coord_sum % 2 == 0) {
+          array_indices_[i] = i / 2;
+          site_indices_[i / 2] = i;
+        }
+        else {
+          array_indices_[i] = i / 2 + volume_ / 2;
+          site_indices_[i / 2 + volume_ / 2] = i;
+        }
+      }
+    }
+  };
+
+
   template <typename T,
     typename std::enable_if<not std::is_integral<T>::value>::type*>
   inline Int Layout::get_array_index(const T& site) const
