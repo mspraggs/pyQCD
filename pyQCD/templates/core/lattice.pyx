@@ -26,9 +26,7 @@ cdef class {{ typedef.name }}:
 
     def __getbuffer__(self, Py_buffer* buffer, int flags):
         if not self.is_buffer_compatible:
-            raise NotImplementedError("The buffer interface is only available "
-                                      "when a Lattice object uses a "
-                                      "LexicoLayout")
+            return
 
         cdef Py_ssize_t itemsize = sizeof(atomics.Complex)
 
@@ -78,15 +76,37 @@ cdef class {{ typedef.name }}:
         def __get__(self):
             """numpy.ndarray: A numpy array view onto the underlying data buffer
             """
+            if not self.is_buffer_compatible:
+                raise ValueError("The buffer interface is only available when "
+                                 "a Lattice object uses a LexicoLayout.")
             out = np.asarray(self)
             out.dtype = complex
             return out.reshape(tuple(self.layout.instance.shape()) + (self.site_size,) + {{ elem_type.shape }})
 
         def __set__(self, value):
+            if not self.is_buffer_compatible:
+                raise ValueError("The buffer interface is only available when "
+                                 "a Lattice object uses a LexicoLayout.")
             out = np.asarray(self)
             out.dtype = complex
             out = out.reshape(tuple(self.layout.instance.shape()) + (self.site_size,) + {{ elem_type.shape }})
             out[:] = value
+
+    def change_layout(self, Layout layout):
+        if self.view_count != 0:
+            raise ValueError("This object still has active memory views. "
+                             "Delete them first and try again (using del)")
+
+        if layout is self.layout:
+            return
+
+        if layout.shape != self.layout.shape:
+            raise ValueError("Supplied Layout instance does not have the same "
+                             "shape as the currentl layout.")
+
+        self.instance.change_layout(layout.instance[0])
+        self.layout = layout
+        self.is_buffer_compatible = isinstance(layout, LexicoLayout)
 
     def __repr__(self):
         return self.as_numpy.__repr__()

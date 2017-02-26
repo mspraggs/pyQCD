@@ -96,3 +96,18 @@ class TestMatrixType(object):
         assert np.allclose(np.linalg.det(mat_view), 1.0)
         assert np.allclose(np.dot(mat_view, np.conj(mat_view.T)),
                            np.identity(num_colours))
+
+    def test_change_layout(self, Type, args):
+        """Test change of layout for lattice types"""
+
+        if not Type.__name__.startswith("Lattice"):
+            return
+
+        lattice = Type(*args)
+
+        new_layout = EvenOddLayout(args[0].shape)
+
+        lattice.change_layout(new_layout)
+
+        with pytest.raises(ValueError):
+            arr = lattice.as_numpy

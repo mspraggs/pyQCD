@@ -6,6 +6,7 @@ cdef extern from "core/types.hpp" namespace "pyQCD::python":
         unsigned int volume()
         unsigned int num_dims()
         const vector[unsigned int]& lattice_shape()
+        void change_layout(const _Layout&) except +
 
 cdef class {{ typedef.cname }}:
     cdef _{{ typedef.cname }}* instance
