@@ -77,6 +77,8 @@ namespace pyQCD
     const T& operator()(const U& site, const Int elem = 0) const
     { return data_[site_size_ * layout_->get_array_index(site) + elem]; }
 
+    // Assignment operators
+
     Lattice<T>& operator=(const Lattice<T>& lattice) = default;
     Lattice<T>& operator=(Lattice<T>&& lattice) = default;
 
@@ -89,8 +91,6 @@ namespace pyQCD
       return *this;
     }
 
-    void fill(const T& rhs) { data_.assign(data_.size(), rhs); }
-
 #define LATTICE_OPERATOR_ASSIGN_DECL(op)\
     template <typename U>\
     Lattice<T>& operator op ## =(const U& rhs);
@@ -100,13 +100,14 @@ namespace pyQCD
     LATTICE_OPERATOR_ASSIGN_DECL(*);
     LATTICE_OPERATOR_ASSIGN_DECL(/);
 
+    void fill(const T& rhs) { data_.assign(data_.size(), rhs); }
+
     void change_layout(const Layout& new_layout);
 
     unsigned long size() const { return data_.size(); }
     unsigned int volume() const { return layout_->volume(); }
     unsigned int num_dims() const { return layout_->num_dims(); }
-    const Site& shape() const
-    { return layout_->shape(); }
+    const Site& shape() const { return layout_->shape(); }
     const Layout& layout() const { return *layout_; }
     Int site_size() const { return site_size_; }
 
@@ -147,10 +148,10 @@ namespace pyQCD
     return *this;\
   }
 
-LATTICE_OPERATOR_ASSIGN_IMPL(+);
-LATTICE_OPERATOR_ASSIGN_IMPL(-);
-LATTICE_OPERATOR_ASSIGN_IMPL(*);
-LATTICE_OPERATOR_ASSIGN_IMPL(/);
+LATTICE_OPERATOR_ASSIGN_IMPL(+)
+LATTICE_OPERATOR_ASSIGN_IMPL(-)
+LATTICE_OPERATOR_ASSIGN_IMPL(*)
+LATTICE_OPERATOR_ASSIGN_IMPL(/)
 
   template <typename T>
   void Lattice<T>::change_layout(const Layout& new_layout)
