@@ -67,9 +67,9 @@ namespace pyQCD
       typename std::enable_if<not std::is_integral<T>::value>::type* = nullptr>
     inline Int get_array_index(const T& site) const;
     inline Int get_array_index(const Int site_index) const
-    { return array_indices_[site_index]; }
+    { return array_indices_.at(site_index); }
     inline Int get_site_index(const Int array_index) const
-    { return site_indices_[array_index]; }
+    { return site_indices_.at(array_index); }
 
     inline Site compute_site_coords(const Int site_index) const;
     template <typename T>
@@ -145,7 +145,7 @@ namespace pyQCD
       site_index *= shape_[i];
       site_index += site[i];
     }
-    return array_indices_[site_index];
+    return array_indices_.at(site_index);
   }
 
   inline Site Layout::compute_site_coords(const Int site_index) const
@@ -188,7 +188,7 @@ namespace pyQCD
   bool Layout::is_even_array_index(const Int array_index) const
   {
     // Returns true if the site associated with the supplied array index is even
-    return is_even_site(site_indices_[array_index]);
+    return is_even_site(site_indices_.at(array_index));
   }
 }
 
