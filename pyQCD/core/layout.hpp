@@ -70,9 +70,16 @@ namespace pyQCD
     { return array_indices_[site_index]; }
     inline Int get_site_index(const Int array_index) const
     { return site_indices_[array_index]; }
+
     inline Site compute_site_coords(const Int site_index) const;
     template <typename T>
     inline void sanitize_site_coords(T& coords) const;
+
+    template <typename T,
+      typename std::enable_if<not std::is_integral<T>::value>::type* = nullptr>
+    inline bool is_even_site(const T& site) const;
+    inline bool is_even_site(const Int site_index) const;
+    inline bool is_even_array_index(const Int array_index) const;
 
     Int volume() const { return volume_; }
     Int num_dims() const { return num_dims_; }
@@ -138,6 +145,28 @@ namespace pyQCD
     for (unsigned i = 0; i < num_dims_; ++i) {
       coords[i] = mod(coords[i], shape_[i]);
     }
+  }
+
+  template<typename T,
+      typename std::enable_if<not std::is_integral<T>::value>::type*>
+  inline bool Layout::is_even_site(const T& site) const
+  {
+    Int sum = 0;
+    for (unsigned i = 0; i < num_dims_; ++i) {
+      sum += site[i];
+    }
+    return sum % 2 == 0;
+  }
+
+  inline bool Layout::is_even_site(const Int site_index) const
+  {
+    return is_even_site(compute_site_coords(site_index));
+  }
+
+  bool Layout::is_even_array_index(const Int array_index) const
+  {
+    // Returns true if the site associated with the supplied array index is even
+    return is_even_site(site_indices_[array_index]);
   }
 }
 

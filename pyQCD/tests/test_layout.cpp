@@ -41,4 +41,6 @@ TEST_CASE("LexicoLayout test") {
   REQUIRE (layout.volume() == 512);
   REQUIRE (layout.num_dims() == 4);
   REQUIRE ((layout.shape() == pyQCD::Site{8, 4, 4, 4}));
+  REQUIRE (layout.is_even_site(0));
+  REQUIRE (layout.is_even_site(pyQCD::Site{2, 0, 1, 1}));
 }
