@@ -120,6 +120,23 @@ TEST_CASE("Lattice test") {
       comparison(lattice_matrix[i], Eigen::Matrix3cd::Identity() * 12.0);
     }
   }
+
+  SECTION("Test change of layout") {
+
+    for (unsigned int i = 0; i < lattice1.size(); ++i) {
+      lattice1[i] = static_cast<double>(i);
+    }
+
+    lattice1.change_layout(another_layout);
+
+    for (unsigned int i = 0; i < lattice1.volume(); ++i) {
+      for (unsigned int j = 0; j < lattice1.site_size(); ++j) {
+        auto expected =
+            static_cast<double>(4 * (lattice1.volume() - i - 1) + j);
+        REQUIRE(lattice1[4 * i + j] == expected);
+      }
+    }
+  }
 }
 
 TEST_CASE("Non-integral Lattice types test") {
