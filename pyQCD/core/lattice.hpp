@@ -31,6 +31,7 @@
 
 #include "aligned_allocator.hpp"
 #include "lattice_expr.hpp"
+#include "lattice_view.hpp"
 #include "layout.hpp"
 
 
@@ -104,6 +105,9 @@ namespace pyQCD
 
     void change_layout(const Layout& new_layout);
 
+    LatticeView<T> even_sites_view();
+    LatticeView<T> odd_sites_view();
+
     unsigned long size() const { return data_.size(); }
     unsigned int volume() const { return layout_->volume(); }
     unsigned int num_dims() const { return layout_->num_dims(); }
@@ -115,6 +119,10 @@ namespace pyQCD
     Int site_size_;
     const Layout* layout_;
     aligned_vector<T> data_;
+
+  private:
+    template <bool Even>
+    LatticeView<T> make_view();
   };
 
 
@@ -207,6 +215,35 @@ LATTICE_OPERATOR_ASSIGN_IMPL(/)
     }
 
     layout_ = &new_layout;
+  }
+
+  template <typename T>
+  template <bool Even>
+  LatticeView<T> Lattice<T>::make_view()
+  {
+    std::vector<T*> references(data_.size() / 2);
+
+    for (unsigned int i = 0; i < volume(); ++i) {
+      if (layout_->is_even_array_index(i) == Even) {
+        for (unsigned j = 0; j < site_size_; ++j) {
+          references[site_size_ * (i / 2) + j] = &data_[site_size_ * i + j];
+        }
+      }
+    }
+
+    return LatticeView<T>(std::move(references));
+  }
+
+  template <typename T>
+  LatticeView<T> Lattice<T>::even_sites_view()
+  {
+    return make_view<true>();
+  }
+
+  template <typename T>
+  LatticeView<T> Lattice<T>::odd_sites_view()
+  {
+    return make_view<false>();
   }
 }
 

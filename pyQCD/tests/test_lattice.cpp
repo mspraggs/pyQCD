@@ -137,6 +137,26 @@ TEST_CASE("Lattice test") {
       }
     }
   }
+
+  SECTION("Test even and odd site views") {
+
+    for (unsigned int i = 0; i < lattice1.size(); ++i) {
+      lattice1[i] = static_cast<double>(i);
+    }
+
+    auto even_view = lattice1.even_sites_view();
+    auto odd_view = lattice1.odd_sites_view();
+
+    REQUIRE(even_view[0] == 0.0);
+    REQUIRE(even_view[4] == 8.0);
+    REQUIRE(even_view[8] == 20.0);
+    REQUIRE(even_view[12] == 28.0);
+
+    REQUIRE(odd_view[0] == 4.0);
+    REQUIRE(odd_view[4] == 12.0);
+    REQUIRE(odd_view[8] == 16.0);
+    REQUIRE(odd_view[12] == 24.0);
+  }
 }
 
 TEST_CASE("Non-integral Lattice types test") {
