@@ -24,7 +24,7 @@
  * upon which all gauge actions are based.
  */
 
-#include <core/types.hpp>
+#include <core/qcd_types.hpp>
 
 
 namespace pyQCD

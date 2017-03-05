@@ -21,7 +21,7 @@
  * Base class for all gauge action types.
  */
 
-#include <core/types.hpp>
+#include <core/qcd_types.hpp>
 
 
 namespace pyQCD

@@ -115,7 +115,7 @@ def generate_core_cython_types(output_path, precision, typedefs, operator_map):
         to lists of Python function names that implement them.
     """
 
-    write_template("core/types.hpp", "core/types.hpp", output_path,
+    write_template("core/qcd_types.hpp", "core/qcd_types.hpp", output_path,
                    typedefs=typedefs, precision=precision)
     write_template("core/atomics.pxd", "core/atomics.pxd", output_path,
                    precision=precision)

@@ -23,7 +23,7 @@
  * rectangle for a given gauge field.
  */
 
-#include <core/types.hpp>
+#include <core/qcd_types.hpp>
 
 
 namespace pyQCD

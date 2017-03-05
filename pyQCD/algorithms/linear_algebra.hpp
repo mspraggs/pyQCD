@@ -21,7 +21,7 @@
  * Helper functions for LatticeColourVector linear algebra.
  */
 
-#include <core/types.hpp>
+#include <core/qcd_types.hpp>
 
 
 namespace pyQCD

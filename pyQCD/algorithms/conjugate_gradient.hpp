@@ -21,7 +21,7 @@
  * Implementation of the conjugate gradient algorithm.
  */
 
-#include <core/types.hpp>
+#include <core/qcd_types.hpp>
 #include <fermions/fermion_action.hpp>
 
 #include "linear_algebra.hpp"

@@ -21,7 +21,7 @@
  * Wrapper for solution produced by iterative solver algorithms.
  */
 
-#include <core/types.hpp>
+#include <core/qcd_types.hpp>
 
 
 namespace pyQCD

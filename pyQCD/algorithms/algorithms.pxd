@@ -7,8 +7,8 @@ cdef extern from "algorithms/heatbath.hpp" namespace "pyQCD":
         core._LatticeColourMatrix&,
         const gauge._GaugeAction&, const unsigned int)
 
-cdef extern from "algorithms/types.hpp" namespace "pyQCD::python":
-    cdef cppclass _SolutionWrapper "pyQCD::python::SolutionWrapper":
+cdef extern from "algorithms/solution_wrapper.hpp" namespace "pyQCD":
+    cdef cppclass _SolutionWrapper "pyQCD::SolutionWrapper<pyQCD::Real, pyQCD::num_colours>":
         _SolutionWrapper(_SolutionWrapper&&)
         const core._LatticeColourVector& solution() const
         atomics.Real tolerance() const

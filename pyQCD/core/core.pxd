@@ -42,7 +42,7 @@ cdef class EvenOddLayout(Layout):
 
 
 
-cdef extern from "core/types.hpp" namespace "pyQCD":
+cdef extern from "core/qcd_types.hpp" namespace "pyQCD":
     cdef cppclass _ColourMatrix "pyQCD::ColourMatrix<pyQCD::Real, pyQCD::num_colours>":
         _ColourMatrix() except +
         _ColourMatrix(const _ColourMatrix&) except +
@@ -62,7 +62,7 @@ cdef class ColourMatrix:
     cdef Py_ssize_t buffer_shape[2]
     cdef Py_ssize_t buffer_strides[2]
 
-cdef extern from "core/types.hpp" namespace "pyQCD":
+cdef extern from "core/qcd_types.hpp" namespace "pyQCD":
     cdef cppclass _LatticeColourMatrix "pyQCD::LatticeColourMatrix<pyQCD::Real, pyQCD::num_colours>":
         _LatticeColourMatrix() except +
         _LatticeColourMatrix(const _Layout&, const _ColourMatrix&, unsigned int site_size) except +
@@ -81,7 +81,7 @@ cdef class LatticeColourMatrix:
     cdef Py_ssize_t buffer_shape[3]
     cdef Py_ssize_t buffer_strides[3]
 
-cdef extern from "core/types.hpp" namespace "pyQCD":
+cdef extern from "core/qcd_types.hpp" namespace "pyQCD":
     cdef cppclass _ColourVector "pyQCD::ColourVector<pyQCD::Real, pyQCD::num_colours>":
         _ColourVector() except +
         _ColourVector(const _ColourVector&) except +
@@ -99,7 +99,7 @@ cdef class ColourVector:
     cdef Py_ssize_t buffer_shape[1]
     cdef Py_ssize_t buffer_strides[1]
 
-cdef extern from "core/types.hpp" namespace "pyQCD":
+cdef extern from "core/qcd_types.hpp" namespace "pyQCD":
     cdef cppclass _LatticeColourVector "pyQCD::LatticeColourVector<pyQCD::Real, pyQCD::num_colours>":
         _LatticeColourVector() except +
         _LatticeColourVector(const _Layout&, const _ColourVector&, unsigned int site_size) except +

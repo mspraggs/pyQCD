@@ -21,7 +21,7 @@
  * Implementation of 4D hopping matrix.
  */
 
-#include <core/types.hpp>
+#include <core/qcd_types.hpp>
 
 
 namespace pyQCD

@@ -25,7 +25,7 @@
 
 #include <random>
 
-#include <core/types.hpp>
+#include <core/qcd_types.hpp>
 #include <gauge/gauge_action.hpp>
 #include <utils/matrices.hpp>
 #include <utils/random.hpp>

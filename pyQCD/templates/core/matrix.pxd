@@ -1,4 +1,4 @@
-cdef extern from "core/types.hpp" namespace "pyQCD":
+cdef extern from "core/qcd_types.hpp" namespace "pyQCD":
     cdef cppclass _{{ typedef.cname }} "pyQCD::{{ typedef.cname }}<pyQCD::Real, pyQCD::num_colours>":
         _{{ typedef.cname }}() except +
         _{{ typedef.cname }}(const _{{ typedef.cname }}&) except +

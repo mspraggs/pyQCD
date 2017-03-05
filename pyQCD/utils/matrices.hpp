@@ -22,7 +22,7 @@
  * This file contains utility functions relating to matrices.
  */
 
-#include <core/types.hpp>
+#include <core/qcd_types.hpp>
 #include <utils/math.hpp>
 #include <utils/random.hpp>
 

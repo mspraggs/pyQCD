@@ -1,5 +1,5 @@
-#ifndef PYQCD_GAUGE_TYPES_HPP
-#define PYQCD_GAUGE_TYPES_HPP
+#ifndef PYQCD_QCD_TYPES_HPP
+#define PYQCD_QCD_TYPES_HPP
 /*
  * This file is part of pyQCD.
  *
@@ -16,24 +16,29 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *
- * Created by Matt Spraggs on 14/01/17.
+ * Created by Matt Spraggs on 10/02/16.
  *
  *
  * Convenience types for QCD.
  */
 
-#include <globals.hpp>
-#include <gauge/gauge_action.hpp>
-#include <gauge/rectangle_action.hpp>
-#include <gauge/wilson_action.hpp>
+#include <Eigen/Dense>
 
+#include <globals.hpp>
+#include "lattice.hpp"
 
 namespace pyQCD {
-  namespace python {
-    typedef gauge::Action<Real, num_colours> GaugeAction;
-    typedef gauge::WilsonAction<Real, num_colours> WilsonGaugeAction;
-    typedef gauge::RectangleAction<Real, num_colours> RectangleGaugeAction;
-  }
-}
 
-#endif //PYQCD_GAUGE_TYPES_HPP
+  template<typename T, int N>
+  using ColourMatrix = Eigen::Matrix<std::complex<T>, N, N>;
+  template <typename T, int N>
+  using ColourVector = Eigen::Matrix<std::complex<T>, N, 1>;
+  template <typename T, int N>
+  using LatticeColourMatrix = Lattice<ColourMatrix<T, N>>;
+  template <typename T, int N>
+  using LatticeColourVector = Lattice<ColourVector<T, N>>;
+
+  template <typename T>
+  using SU2Matrix = ColourMatrix<T, 2>;
+}
+#endif
