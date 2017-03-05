@@ -31,9 +31,9 @@
 namespace pyQCD
 {
   template <typename Real, int Nc>
-  SolutionWrapper<Real, Nc> conjugate_gradient(
-      const fermions::Action<Real, Nc>& action,
-      const LatticeColourVector<Real, Nc>& rhs, const Int max_iterations,
+  SolutionWrapper<Real, Nc> conjugate_gradient_unprec(
+      const fermions::Action<Real, Nc> &action,
+      const LatticeColourVector<Real, Nc> &rhs, const Int max_iterations,
       const Real tolerance)
   {
     typedef LatticeColourVector<Real, Nc> Fermion;

@@ -60,7 +60,7 @@ TEST_CASE ("Test of conjugate gradient algorithm")
   {
     TestAction<double, 3> action(2.0, 4);
 
-    auto result = pyQCD::conjugate_gradient(action, src, 1000, 1e-10);
+    auto result = pyQCD::conjugate_gradient_unprec(action, src, 1000, 1e-10);
 
     for (int i = 0; i < 3; ++i) {
       REQUIRE (result.solution()[0][i].real() == (i == 0 ? 0.5 : 0.0));
@@ -83,7 +83,7 @@ TEST_CASE ("Test of conjugate gradient algorithm")
     pyQCD::fermions::WilsonAction<double, 3> action(0.1, gauge_field,
                                                     boundary_rotations);
 
-    auto result = pyQCD::conjugate_gradient(action, src, 1000, 1e-8);
+    auto result = pyQCD::conjugate_gradient_unprec(action, src, 1000, 1e-8);
 
     MatrixCompare<SiteFermion> compare(1e-7, 1e-9);
     SiteFermion expected = SiteFermion::Zero();

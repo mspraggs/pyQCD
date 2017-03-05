@@ -10,10 +10,10 @@ def heatbath_update(LatticeColourMatrix gauge_field,
     _heatbath_update(gauge_field.instance[0], action.instance[0], num_updates)
 
 
-def conjugate_gradient(FermionAction action, LatticeColourVector rhs,
-                       int max_iterations, core.Real tolerance):
+def conjugate_gradient_unprec(FermionAction action, LatticeColourVector rhs,
+                              int max_iterations, core.Real tolerance):
     cdef _SolutionWrapper* wrapped_solution =\
-    new _SolutionWrapper(_conjugate_gradient(
+    new _SolutionWrapper(_conjugate_gradient_unprec(
         action.instance[0], rhs.instance[0], max_iterations, tolerance))
 
     solution = LatticeColourVector(rhs.layout, rhs.site_size)
