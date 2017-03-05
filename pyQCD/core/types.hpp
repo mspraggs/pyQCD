@@ -41,15 +41,4 @@ namespace pyQCD {
   template <typename T>
   using SU2Matrix = ColourMatrix<T, 2>;
 }
-
-namespace pyQCD {
-  namespace python {
-    typedef Lattice<Real> LatticeReal;
-    typedef Lattice<Complex> LatticeComplex;
-    typedef ColourMatrix<Real, num_colours> ColourMatrix;
-    typedef LatticeColourMatrix<Real, num_colours> LatticeColourMatrix;
-    typedef ColourVector<Real, num_colours> ColourVector;
-    typedef LatticeColourVector<Real, num_colours> LatticeColourVector;
-  }
-}
 #endif

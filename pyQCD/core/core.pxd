@@ -42,16 +42,16 @@ cdef class EvenOddLayout(Layout):
 
 
 
-cdef extern from "core/types.hpp" namespace "pyQCD::python":
-    cdef cppclass _ColourMatrix "pyQCD::python::ColourMatrix":
+cdef extern from "core/types.hpp" namespace "pyQCD":
+    cdef cppclass _ColourMatrix "pyQCD::ColourMatrix<pyQCD::Real, pyQCD::num_colours>":
         _ColourMatrix() except +
         _ColourMatrix(const _ColourMatrix&) except +
         _ColourMatrix adjoint()
         Complex& operator()(int, int) except +
 
 
-    cdef _ColourMatrix _ColourMatrix_zeros "pyQCD::python::ColourMatrix::Zero"()
-    cdef _ColourMatrix _ColourMatrix_ones "pyQCD::python::ColourMatrix::Ones"()
+    cdef _ColourMatrix _ColourMatrix_zeros "pyQCD::ColourMatrix<pyQCD::Real, pyQCD::num_colours>::Zero"()
+    cdef _ColourMatrix _ColourMatrix_ones "pyQCD::ColourMatrix<pyQCD::Real, pyQCD::num_colours>::Ones"()
 
 cdef extern from "utils/matrices.hpp" namespace "pyQCD":
     cdef _ColourMatrix _random_colour_matrix "pyQCD::random_sun<pyQCD::Real, pyQCD::num_colours>"()
@@ -62,8 +62,8 @@ cdef class ColourMatrix:
     cdef Py_ssize_t buffer_shape[2]
     cdef Py_ssize_t buffer_strides[2]
 
-cdef extern from "core/types.hpp" namespace "pyQCD::python":
-    cdef cppclass _LatticeColourMatrix "pyQCD::python::LatticeColourMatrix":
+cdef extern from "core/types.hpp" namespace "pyQCD":
+    cdef cppclass _LatticeColourMatrix "pyQCD::LatticeColourMatrix<pyQCD::Real, pyQCD::num_colours>":
         _LatticeColourMatrix() except +
         _LatticeColourMatrix(const _Layout&, const _ColourMatrix&, unsigned int site_size) except +
         _ColourMatrix& operator[](const unsigned int)
@@ -81,16 +81,16 @@ cdef class LatticeColourMatrix:
     cdef Py_ssize_t buffer_shape[3]
     cdef Py_ssize_t buffer_strides[3]
 
-cdef extern from "core/types.hpp" namespace "pyQCD::python":
-    cdef cppclass _ColourVector "pyQCD::python::ColourVector":
+cdef extern from "core/types.hpp" namespace "pyQCD":
+    cdef cppclass _ColourVector "pyQCD::ColourVector<pyQCD::Real, pyQCD::num_colours>":
         _ColourVector() except +
         _ColourVector(const _ColourVector&) except +
         _ColourVector adjoint()
         Complex& operator[](int) except +
 
 
-    cdef _ColourVector _ColourVector_zeros "pyQCD::python::ColourVector::Zero"()
-    cdef _ColourVector _ColourVector_ones "pyQCD::python::ColourVector::Ones"()
+    cdef _ColourVector _ColourVector_zeros "pyQCD::ColourVector<pyQCD::Real, pyQCD::num_colours>::Zero"()
+    cdef _ColourVector _ColourVector_ones "pyQCD::ColourVector<pyQCD::Real, pyQCD::num_colours>::Ones"()
 
 
 cdef class ColourVector:
@@ -99,8 +99,8 @@ cdef class ColourVector:
     cdef Py_ssize_t buffer_shape[1]
     cdef Py_ssize_t buffer_strides[1]
 
-cdef extern from "core/types.hpp" namespace "pyQCD::python":
-    cdef cppclass _LatticeColourVector "pyQCD::python::LatticeColourVector":
+cdef extern from "core/types.hpp" namespace "pyQCD":
+    cdef cppclass _LatticeColourVector "pyQCD::LatticeColourVector<pyQCD::Real, pyQCD::num_colours>":
         _LatticeColourVector() except +
         _LatticeColourVector(const _Layout&, const _ColourVector&, unsigned int site_size) except +
         _ColourVector& operator[](const unsigned int)

@@ -1,5 +1,5 @@
-cdef extern from "core/types.hpp" namespace "pyQCD::python":
-    cdef cppclass _{{ typedef.cname }} "pyQCD::python::{{ typedef.cname }}":
+cdef extern from "core/types.hpp" namespace "pyQCD":
+    cdef cppclass _{{ typedef.cname }} "pyQCD::{{ typedef.cname }}<pyQCD::Real, pyQCD::num_colours>":
         _{{ typedef.cname }}() except +
         _{{ typedef.cname }}(const _{{ typedef.cname }}&) except +
         _{{ typedef.cname }} adjoint()
@@ -10,8 +10,8 @@ cdef extern from "core/types.hpp" namespace "pyQCD::python":
         {% endif %}
 
 
-    cdef _{{ typedef.cname }} _{{ typedef.cname }}_zeros "pyQCD::python::{{ typedef.cname }}::Zero"()
-    cdef _{{ typedef.cname }} _{{ typedef.cname }}_ones "pyQCD::python::{{ typedef.cname }}::Ones"()
+    cdef _{{ typedef.cname }} _{{ typedef.cname }}_zeros "pyQCD::{{ typedef.cname }}<pyQCD::Real, pyQCD::num_colours>::Zero"()
+    cdef _{{ typedef.cname }} _{{ typedef.cname }}_ones "pyQCD::{{ typedef.cname }}<pyQCD::Real, pyQCD::num_colours>::Ones"()
 
 {% if typedef.cname == "ColourMatrix" %}
 cdef extern from "utils/matrices.hpp" namespace "pyQCD":
