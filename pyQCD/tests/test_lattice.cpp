@@ -156,6 +156,10 @@ TEST_CASE("Lattice test") {
     REQUIRE(odd_view[4] == 12.0);
     REQUIRE(odd_view[8] == 16.0);
     REQUIRE(odd_view[12] == 24.0);
+
+    lattice3.odd_sites_view() = odd_view - lattice2.odd_sites_view();
+
+    REQUIRE(lattice3[4] == 4.0 - 2.0);
   }
 }
 
