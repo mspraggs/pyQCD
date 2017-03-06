@@ -36,6 +36,16 @@ namespace pyQCD {
     LatticeView(const std::vector<T*>& view_data) : view_data_(view_data) {}
     LatticeView(std::vector<T*>&& view_data) : view_data_(view_data) {}
 
+    template <typename Op, typename... Vals>
+    LatticeView<T>& operator=(const detail::LatticeExpr<Op, Vals...>& expr)
+    {
+      for (unsigned int i = 0; i < view_data_.size(); ++i) {
+        *view_data_[i] = detail::eval(i, expr);
+      }
+
+      return *this;
+    }
+
     T& operator[](const int i) { return *view_data_[i]; }
     const T& operator[](const int i) const { return *view_data_[i]; }
 
