@@ -26,9 +26,8 @@
 
 namespace pyQCD
 {
-  template<typename Real, int Nc>
-  std::complex<Real> dot_fermions(const LatticeColourVector <Real, Nc>& psi,
-                                  const LatticeColourVector <Real, Nc>& eta)
+  template<typename T, typename U>
+  std::complex<Real> dot_fermions(const T& psi, const U& eta)
   {
     std::complex <Real> ret(0.0, 0.0);
     for (Int i = 0; i < psi.size(); ++i) {
