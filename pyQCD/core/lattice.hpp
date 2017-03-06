@@ -107,6 +107,8 @@ namespace pyQCD
 
     LatticeView<T> even_sites_view();
     LatticeView<T> odd_sites_view();
+    LatticeView<const T> even_sites_view() const;
+    LatticeView<const T> odd_sites_view() const;
 
     unsigned long size() const { return data_.size(); }
     unsigned int volume() const { return layout_->volume(); }
@@ -123,6 +125,8 @@ namespace pyQCD
   private:
     template <bool Even>
     LatticeView<T> make_view();
+    template <bool Even>
+    LatticeView<const T> make_const_view() const;
   };
 
 
@@ -235,6 +239,23 @@ LATTICE_OPERATOR_ASSIGN_IMPL(/)
   }
 
   template <typename T>
+  template <bool Even>
+  LatticeView<const T> Lattice<T>::make_const_view() const
+  {
+    std::vector<const T*> references(data_.size() / 2);
+
+    for (unsigned int i = 0; i < volume(); ++i) {
+      if (layout_->is_even_array_index(i) == Even) {
+        for (unsigned j = 0; j < site_size_; ++j) {
+          references[site_size_ * (i / 2) + j] = &data_[site_size_ * i + j];
+        }
+      }
+    }
+
+    return LatticeView<const T>(std::move(references));
+  }
+
+  template <typename T>
   LatticeView<T> Lattice<T>::even_sites_view()
   {
     return make_view<true>();
@@ -244,6 +265,18 @@ LATTICE_OPERATOR_ASSIGN_IMPL(/)
   LatticeView<T> Lattice<T>::odd_sites_view()
   {
     return make_view<false>();
+  }
+
+  template <typename T>
+  LatticeView<const T> Lattice<T>::even_sites_view() const
+  {
+    return make_const_view<true>();
+  }
+
+  template <typename T>
+  LatticeView<const T> Lattice<T>::odd_sites_view() const
+  {
+    return make_const_view<false>();
   }
 }
 
