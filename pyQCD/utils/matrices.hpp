@@ -82,7 +82,7 @@ namespace pyQCD {
     pyQCDassert((index < Nc), std::range_error("SU(2) subgroup index invalid"));
 
     unsigned int tmp = index;
-    for (i = 0; tmp >= 3 - 1 - i; ++i) {
+    for (i = 0; tmp >= Nc - 1 - i; ++i) {
       tmp -= (Nc - 1 - i);
     }
     j = i + 1 + tmp;
