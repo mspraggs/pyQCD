@@ -120,7 +120,7 @@ namespace pyQCD
       site_indices_.resize(volume_);
 
       for (Int i = 0; i < volume_; ++i) {
-        if (is_even_site(compute_site_coords(i))) {
+        if (is_even_site(i)) {
           array_indices_[i] = i / 2;
           site_indices_[i / 2] = i;
         }
