@@ -139,13 +139,19 @@ TEST_CASE("Lattice test") {
   }
 
   SECTION("Test even and odd site views") {
+    pyQCD::EvenOddLayout even_odd_layout(layout.shape());
 
     for (unsigned int i = 0; i < lattice1.size(); ++i) {
       lattice1[i] = static_cast<double>(i);
     }
 
-    auto even_view = lattice1.even_sites_view();
-    auto odd_view = lattice1.odd_sites_view();
+    lattice1.change_layout(even_odd_layout);
+    lattice2.change_layout(even_odd_layout);
+    lattice3.change_layout(even_odd_layout);
+
+    unsigned int half_vol = layout.volume() / 2;
+    auto even_view = lattice1.segment(0, half_vol);
+    auto odd_view = lattice1.segment(half_vol, half_vol);
 
     REQUIRE(even_view[0] == 0.0);
     REQUIRE(even_view[4] == 8.0);
@@ -157,9 +163,10 @@ TEST_CASE("Lattice test") {
     REQUIRE(odd_view[8] == 16.0);
     REQUIRE(odd_view[12] == 24.0);
 
-    lattice3.odd_sites_view() = odd_view - lattice2.odd_sites_view();
+    lattice3.segment(half_vol, half_vol) =
+        odd_view - lattice2.segment(half_vol, half_vol);
 
-    REQUIRE(lattice3[4] == 4.0 - 2.0);
+    REQUIRE(lattice3(1, 0) == 4.0 - 2.0);
   }
 }
 

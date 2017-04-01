@@ -105,10 +105,10 @@ namespace pyQCD
 
     void change_layout(const Layout& new_layout);
 
-    LatticeView<T> even_sites_view();
-    LatticeView<T> odd_sites_view();
-    LatticeView<const T> even_sites_view() const;
-    LatticeView<const T> odd_sites_view() const;
+    LatticeSegmentView<T> segment(const unsigned int offset,
+                                  const unsigned int size);
+    LatticeSegmentView<const T> segment(const unsigned int offset,
+                                        const unsigned int size) const;
 
     unsigned long size() const { return data_.size(); }
     unsigned int volume() const { return layout_->volume(); }
@@ -123,10 +123,6 @@ namespace pyQCD
     aligned_vector<T> data_;
 
   private:
-    template <bool Even>
-    LatticeView<T> make_view();
-    template <bool Even>
-    LatticeView<const T> make_const_view() const;
   };
 
 
@@ -180,7 +176,7 @@ LATTICE_OPERATOR_ASSIGN_IMPL(/)
     for (Int i = 0; i < layout_->volume(); ++i) {
       auto index_old = layout_->get_array_index(i);
       auto index_new = new_layout.get_array_index(i);
-      array_permutations[index_old] = index_new;
+      array_permutations[index_new] = index_old;
     }
 
     // Temporary store for site data to prevent data loss
@@ -222,61 +218,17 @@ LATTICE_OPERATOR_ASSIGN_IMPL(/)
   }
 
   template <typename T>
-  template <bool Even>
-  LatticeView<T> Lattice<T>::make_view()
+  LatticeSegmentView<T> Lattice<T>::segment(const unsigned int offset,
+                                            const unsigned int size)
   {
-    std::vector<T*> references(data_.size() / 2);
-
-    for (unsigned int i = 0; i < volume(); ++i) {
-      if (layout_->is_even_array_index(i) == Even) {
-        for (unsigned j = 0; j < site_size_; ++j) {
-          references[site_size_ * (i / 2) + j] = &data_[site_size_ * i + j];
-        }
-      }
-    }
-
-    return LatticeView<T>(std::move(references));
+    return LatticeSegmentView<T>(&data_[offset * site_size_], size);
   }
 
   template <typename T>
-  template <bool Even>
-  LatticeView<const T> Lattice<T>::make_const_view() const
+  LatticeSegmentView<const T> Lattice<T>::segment(const unsigned int offset,
+                                                  const unsigned int size) const
   {
-    std::vector<const T*> references(data_.size() / 2);
-
-    for (unsigned int i = 0; i < volume(); ++i) {
-      if (layout_->is_even_array_index(i) == Even) {
-        for (unsigned j = 0; j < site_size_; ++j) {
-          references[site_size_ * (i / 2) + j] = &data_[site_size_ * i + j];
-        }
-      }
-    }
-
-    return LatticeView<const T>(std::move(references));
-  }
-
-  template <typename T>
-  LatticeView<T> Lattice<T>::even_sites_view()
-  {
-    return make_view<true>();
-  }
-
-  template <typename T>
-  LatticeView<T> Lattice<T>::odd_sites_view()
-  {
-    return make_view<false>();
-  }
-
-  template <typename T>
-  LatticeView<const T> Lattice<T>::even_sites_view() const
-  {
-    return make_const_view<true>();
-  }
-
-  template <typename T>
-  LatticeView<const T> Lattice<T>::odd_sites_view() const
-  {
-    return make_const_view<false>();
+    return LatticeSegmentView<const T>(&data_[offset * site_size_], size);
   }
 }
 

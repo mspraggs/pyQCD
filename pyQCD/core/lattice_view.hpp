@@ -30,27 +30,30 @@
 namespace pyQCD {
 
   template <typename T>
-  class LatticeView : public LatticeObj
+  class LatticeSegmentView : public LatticeObj
   {
   public:
-    LatticeView(const std::vector<T*>& view_data) : view_data_(view_data) {}
-    LatticeView(std::vector<T*>&& view_data) : view_data_(view_data) {}
+    LatticeSegmentView(T* ptr, const unsigned int size)
+        : ptr_(ptr), size_(size)
+    {}
 
     template <typename Op, typename... Vals>
-    LatticeView<T>& operator=(const detail::LatticeExpr<Op, Vals...>& expr)
+    LatticeSegmentView<T>& operator=(
+        const detail::LatticeExpr<Op, Vals...>& expr)
     {
-      for (unsigned int i = 0; i < view_data_.size(); ++i) {
-        *view_data_[i] = detail::eval(i, expr);
+      for (unsigned int i = 0; i < size_; ++i) {
+        ptr_[i] = detail::eval(i, expr);
       }
 
       return *this;
     }
 
-    T& operator[](const int i) { return *view_data_[i]; }
-    const T& operator[](const int i) const { return *view_data_[i]; }
+    T& operator[](const int i) { return ptr_[i]; }
+    const T& operator[](const int i) const { return ptr_[i]; }
 
   private:
-    std::vector<T*> view_data_;
+    T* ptr_;
+    unsigned int size_;
   };
 }
 
