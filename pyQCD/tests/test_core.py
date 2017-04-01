@@ -111,3 +111,9 @@ class TestMatrixType(object):
 
         with pytest.raises(ValueError):
             arr = lattice.as_numpy
+
+        lattice = Type(*args)
+        arr = lattice.as_numpy
+
+        with pytest.raises(ValueError):
+            lattice.change_layout(new_layout)
