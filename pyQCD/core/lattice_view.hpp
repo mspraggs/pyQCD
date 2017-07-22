@@ -51,6 +51,8 @@ namespace pyQCD {
     T& operator[](const int i) { return ptr_[i]; }
     const T& operator[](const int i) const { return ptr_[i]; }
 
+    unsigned int size() const { return size_; }
+
   private:
     T* ptr_;
     unsigned int size_;
