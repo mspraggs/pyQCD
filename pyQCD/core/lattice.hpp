@@ -221,14 +221,16 @@ LATTICE_OPERATOR_ASSIGN_IMPL(/)
   LatticeSegmentView<T> Lattice<T>::segment(const unsigned int offset,
                                             const unsigned int size)
   {
-    return LatticeSegmentView<T>(&data_[offset * site_size_], size);
+    return LatticeSegmentView<T>(&data_[offset * site_size_],
+                                 size * site_size_);
   }
 
   template <typename T>
   LatticeSegmentView<const T> Lattice<T>::segment(const unsigned int offset,
                                                   const unsigned int size) const
   {
-    return LatticeSegmentView<const T>(&data_[offset * site_size_], size);
+    return LatticeSegmentView<const T>(&data_[offset * site_size_],
+                                       size * site_size_);
   }
 }
 
