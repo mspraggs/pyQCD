@@ -54,10 +54,17 @@ namespace pyQCD
       void apply_full(LatticeColourVector<Real, Nc>& out,
                       const LatticeColourVector<Real, Nc>& in) const;
 
+      void apply_even_odd(LatticeColourVector<Real, Nc>& out,
+                          const LatticeColourVector<Real, Nc>& in) const;
+
+      void apply_odd_even(LatticeColourVector<Real, Nc>& out,
+                          const LatticeColourVector<Real, Nc>& in) const;
+
     private:
       LatticeColourMatrix<Real, Nc> scattered_gauge_field_;
       std::vector<Eigen::MatrixXcd> spin_structures_;
       std::vector<std::vector<Int>> neighbour_array_indices_;
+      std::vector<Int> even_array_indices_, odd_array_indices_;
       unsigned int num_spins_;
     };
 
@@ -73,12 +80,21 @@ namespace pyQCD
       auto volume = gauge_field.volume();
       neighbour_array_indices_ = std::vector<std::vector<Int>>(
           volume, std::vector<Int>(layout.num_dims() * 2));
+      even_array_indices_.reserve(volume / 2);
+      odd_array_indices_.reserve(volume / 2);
 
       // Scatter the supplied gauge field U_\mu (x) so that when we wish to
       // multiply it with the supplied lattice fermion, there won't be frequent
       // cache misses.
       for (unsigned site_index = 0; site_index < volume; ++site_index) {
         auto arr_index = layout.get_array_index(site_index);
+
+        if (layout.is_even_site(site_index)) {
+          even_array_indices_.push_back(arr_index);
+        }
+        else {
+          odd_array_indices_.push_back(arr_index);
+        }
 
         for (unsigned d = 0; d < layout.num_dims(); ++d) {
 
@@ -126,6 +142,9 @@ namespace pyQCD
           neighbour_array_indices_[arr_index][2 * d + 1] = arr_index_plus;
         }
       }
+
+      std::sort(even_array_indices_.begin(), even_array_indices_.end());
+      std::sort(odd_array_indices_.begin(), odd_array_indices_.end());
     }
 
 
@@ -159,11 +178,11 @@ namespace pyQCD
               pre_gather_results[num_spins_ * local_index + 2 * alpha] +=
                   spin_structures_[2 * mu].coeff(alpha, beta) *
                   scattered_gauge_field_[local_index] *
-                  fermion_in[ndims * arr_index + beta];
+                  fermion_in[num_spins_ * arr_index + beta];
               pre_gather_results[num_spins_ * local_index + 2 * alpha + 1] +=
                   spin_structures_[2 * mu + 1].coeff(alpha, beta) *
                   scattered_gauge_field_[local_index + 1].adjoint() *
-                  fermion_in[ndims * arr_index + beta];
+                  fermion_in[num_spins_ * arr_index + beta];
             }
           }
         }
@@ -178,6 +197,108 @@ namespace pyQCD
           for (unsigned alpha = 0; alpha < num_spins_; ++alpha) {
             Int gather_index =
                 2 * (num_spins_ * (ndims * arr_index + mu) + alpha);
+            fermion_out[num_spins_ * neighbour_index_plus + alpha] +=
+                pre_gather_results[gather_index];
+            fermion_out[num_spins_ * neighbour_index_minus + alpha] +=
+                pre_gather_results[gather_index + 1];
+          }
+        }
+      }
+    }
+
+
+    template <typename Real, int Nc, unsigned int Nhops>
+    void HoppingMatrix<Real, Nc, Nhops>::apply_even_odd(
+        LatticeColourVector<Real, Nc>& fermion_out,
+        const LatticeColourVector<Real, Nc>& fermion_in) const
+    {
+      auto& layout = fermion_in.layout();
+      auto ndims = layout.num_dims();
+      auto volume = layout.volume();
+      aligned_vector<ColourVector<Real, Nc>> pre_gather_results(
+          volume * ndims * num_spins_ * 2);
+
+      for (unsigned int i = 0; i < even_array_indices_.size(); ++i) {
+        auto arr_index = even_array_indices_[i];
+        for (unsigned mu = 0; mu < ndims; ++mu) {
+          Int gather_index = 2 * (ndims * i + mu);
+          Int local_index = 2 * (ndims * arr_index + mu);
+          for (unsigned alpha = 0; alpha < num_spins_; ++alpha) {
+            for (unsigned beta = 0; beta < num_spins_; ++beta) {
+              pre_gather_results[num_spins_ * gather_index + 2 * alpha] +=
+                  spin_structures_[2 * mu].coeff(alpha, beta) *
+                  scattered_gauge_field_[local_index] *
+                  fermion_in[num_spins_ * arr_index + beta];
+              pre_gather_results[num_spins_ * gather_index + 2 * alpha + 1] +=
+                  spin_structures_[2 * mu + 1].coeff(alpha, beta) *
+                  scattered_gauge_field_[local_index + 1].adjoint() *
+                  fermion_in[num_spins_ * arr_index + beta];
+            }
+          }
+        }
+      }
+
+      for (unsigned int i = 0; i < even_array_indices_.size(); ++i) {
+        auto arr_index = even_array_indices_[i];
+        for (unsigned mu = 0; mu < ndims; ++mu) {
+          auto neighbour_index_plus =
+              neighbour_array_indices_[arr_index][2 * mu];
+          auto neighbour_index_minus =
+              neighbour_array_indices_[arr_index][2 * mu + 1];
+          for (unsigned alpha = 0; alpha < num_spins_; ++alpha) {
+            Int gather_index =
+                2 * (num_spins_ * (ndims * i + mu) + alpha);
+            fermion_out[num_spins_ * neighbour_index_plus + alpha] +=
+                pre_gather_results[gather_index];
+            fermion_out[num_spins_ * neighbour_index_minus + alpha] +=
+                pre_gather_results[gather_index + 1];
+          }
+        }
+      }
+    }
+
+
+    template <typename Real, int Nc, unsigned int Nhops>
+    void HoppingMatrix<Real, Nc, Nhops>::apply_odd_even(
+        LatticeColourVector<Real, Nc>& fermion_out,
+        const LatticeColourVector<Real, Nc>& fermion_in) const
+    {
+      auto& layout = fermion_in.layout();
+      auto ndims = layout.num_dims();
+      auto volume = layout.volume();
+      aligned_vector<ColourVector<Real, Nc>> pre_gather_results(
+          volume * ndims * num_spins_ * 2);
+
+      for (unsigned int i = 0; i < odd_array_indices_.size(); ++i) {
+        auto arr_index = odd_array_indices_[i];
+        for (unsigned mu = 0; mu < ndims; ++mu) {
+          Int gather_index = 2 * (ndims * i + mu);
+          Int local_index = 2 * (ndims * arr_index + mu);
+          for (unsigned alpha = 0; alpha < num_spins_; ++alpha) {
+            for (unsigned beta = 0; beta < num_spins_; ++beta) {
+              pre_gather_results[num_spins_ * gather_index + 2 * alpha] +=
+                  spin_structures_[2 * mu].coeff(alpha, beta) *
+                  scattered_gauge_field_[local_index] *
+                  fermion_in[num_spins_ * arr_index + beta];
+              pre_gather_results[num_spins_ * gather_index + 2 * alpha + 1] +=
+                  spin_structures_[2 * mu + 1].coeff(alpha, beta) *
+                  scattered_gauge_field_[local_index + 1].adjoint() *
+                  fermion_in[num_spins_ * arr_index + beta];
+            }
+          }
+        }
+      }
+
+      for (unsigned int i = 0; i < odd_array_indices_.size(); ++i) {
+        auto arr_index = odd_array_indices_[i];
+        for (unsigned mu = 0; mu < ndims; ++mu) {
+          auto neighbour_index_plus =
+              neighbour_array_indices_[arr_index][2 * mu];
+          auto neighbour_index_minus =
+              neighbour_array_indices_[arr_index][2 * mu + 1];
+          for (unsigned alpha = 0; alpha < num_spins_; ++alpha) {
+            Int gather_index =
+                2 * (num_spins_ * (ndims * i + mu) + alpha);
             fermion_out[num_spins_ * neighbour_index_plus + alpha] +=
                 pre_gather_results[gather_index];
             fermion_out[num_spins_ * neighbour_index_minus + alpha] +=
