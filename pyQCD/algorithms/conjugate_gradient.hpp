@@ -58,9 +58,8 @@ namespace pyQCD
     Real final_residual = tolerance;
 
     for (Int i = 0; i < max_iterations; ++i) {
-      action.apply_hermiticity(p);
       action.apply_full(Ap, p);
-      action.remove_hermiticity(p);
+      action.apply_hermiticity(Ap);
       std::complex<Real> alpha = prev_residual / dot_fermions(p, Ap);
 
       solution += alpha * p;
@@ -79,7 +78,6 @@ namespace pyQCD
       prev_residual = current_residual;
     }
 
-    action.remove_hermiticity(solution);
     return SolutionWrapper<Real, Nc>(std::move(solution), final_residual,
                                      final_iterations);
   }
