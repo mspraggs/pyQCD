@@ -59,7 +59,7 @@ public:
 };
 
 
-TEST_CASE ("Test of conjugate gradient algorithm")
+TEST_CASE ("Test of unpreconditioned conjugate gradient algorithm")
 {
   typedef pyQCD::ColourVector<double, 3> SiteFermion;
   typedef pyQCD::LatticeColourVector<double, 3> LatticeFermion;
@@ -108,6 +108,51 @@ TEST_CASE ("Test of conjugate gradient algorithm")
     REQUIRE (result.num_iterations() == 69);
 
     LatticeFermion lhs(layout, 4);
+    action.apply_full(lhs, result.solution());
+
+    for (unsigned int i = 0; i < lhs.size(); ++i) {
+      REQUIRE (compare(lhs[i], src[i]));
+    }
+  }
+}
+
+
+TEST_CASE("Testing even-odd preconditioned conjugate gradient algorithm")
+{
+  typedef pyQCD::ColourVector<double, 3> SiteFermion;
+  typedef pyQCD::LatticeColourVector<double, 3> LatticeFermion;
+
+  pyQCD::LexicoLayout lexico_layout({8, 4, 4, 4});
+  pyQCD::EvenOddLayout even_odd_layout({8, 4, 4, 4});
+
+  LatticeFermion src(lexico_layout, SiteFermion::Zero(), 4);
+  src[0][0] = 1.0;
+  src.change_layout(even_odd_layout);
+
+  SECTION ("Testing Wilson action")
+  {
+    typedef pyQCD::ColourMatrix<double, 3> GaugeLink;
+    typedef pyQCD::LatticeColourMatrix<double, 3> GaugeField;
+
+    GaugeField gauge_field(even_odd_layout, GaugeLink::Identity(), 4);
+
+    std::vector<double> boundary_rotations(4, 1.0);
+
+    pyQCD::fermions::WilsonAction<double, 3> action(0.1, gauge_field,
+                                                    boundary_rotations);
+
+    auto result = pyQCD::conjugate_gradient_eoprec(action, src, 1000, 1e-8);
+
+    MatrixCompare<SiteFermion> compare(1e-7, 1e-9);
+    SiteFermion expected = SiteFermion::Zero();
+    expected[0] = std::complex<double>(0.2522536470229704,
+                                       1.1333971980249629e-13);
+
+    REQUIRE (compare(result.solution()[0], expected));
+    REQUIRE ((result.tolerance() < 1e-8 && result.tolerance() > 0));
+    REQUIRE (result.num_iterations() == 29);
+
+    LatticeFermion lhs(even_odd_layout, 4);
     action.apply_full(lhs, result.solution());
 
     for (unsigned int i = 0; i < lhs.size(); ++i) {
