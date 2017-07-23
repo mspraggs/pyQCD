@@ -47,6 +47,40 @@ namespace pyQCD
           LatticeColourVector<Real, Nc>& fermion_out,
           const LatticeColourVector<Real, Nc>& fermion_in) const = 0;
 
+      virtual void apply_even_even_inv(
+          LatticeColourVector<Real, Nc>& fermion_out,
+          const LatticeColourVector<Real, Nc>& fermion_in) const = 0;
+      virtual void apply_odd_odd(
+          LatticeColourVector<Real, Nc>& fermion_out,
+          const LatticeColourVector<Real, Nc>& fermion_in) const = 0;
+      virtual void apply_even_odd(
+          LatticeColourVector<Real, Nc>& fermion_out,
+          const LatticeColourVector<Real, Nc>& fermion_in) const = 0;
+      virtual void apply_odd_even(
+          LatticeColourVector<Real, Nc>& fermion_out,
+          const LatticeColourVector<Real, Nc>& fermion_in) const = 0;
+      virtual void apply_eoprec(
+          LatticeColourVector<Real, Nc>& fermion_out,
+          const LatticeColourVector<Real, Nc>& fermion_in) const
+      {
+        apply_odd_odd(fermion_out, fermion_in);
+
+        ColourVector<Real, Nc> zero_fermion = ColourVector<Real, Nc>::Zero();
+
+        LatticeColourVector<Real, Nc> tmp_fermion1(
+            fermion_in.layout(), zero_fermion,
+            fermion_in.site_size());
+        LatticeColourVector<Real, Nc> tmp_fermion2(
+            fermion_in.layout(), zero_fermion,
+            fermion_in.site_size());
+        apply_even_odd(tmp_fermion1, fermion_in);
+        apply_even_even_inv(tmp_fermion2, tmp_fermion1);
+        tmp_fermion1.fill(zero_fermion);
+        apply_odd_even(tmp_fermion1, tmp_fermion2);
+
+        fermion_out -= tmp_fermion1;
+      }
+
       virtual void apply_hermiticity(
           LatticeColourVector<Real, Nc>& fermion) const = 0;
       virtual void remove_hermiticity(
