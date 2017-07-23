@@ -218,8 +218,8 @@ namespace pyQCD
       aligned_vector<ColourVector<Real, Nc>> pre_gather_results(
           volume * ndims * num_spins_ * 2);
 
-      for (unsigned int i = 0; i < even_array_indices_.size(); ++i) {
-        auto arr_index = even_array_indices_[i];
+      for (unsigned int i = 0; i < odd_array_indices_.size(); ++i) {
+        auto arr_index = odd_array_indices_[i];
         for (unsigned mu = 0; mu < ndims; ++mu) {
           Int gather_index = 2 * (ndims * i + mu);
           Int local_index = 2 * (ndims * arr_index + mu);
@@ -238,8 +238,8 @@ namespace pyQCD
         }
       }
 
-      for (unsigned int i = 0; i < even_array_indices_.size(); ++i) {
-        auto arr_index = even_array_indices_[i];
+      for (unsigned int i = 0; i < odd_array_indices_.size(); ++i) {
+        auto arr_index = odd_array_indices_[i];
         for (unsigned mu = 0; mu < ndims; ++mu) {
           auto neighbour_index_plus =
               neighbour_array_indices_[arr_index][2 * mu];
@@ -269,8 +269,8 @@ namespace pyQCD
       aligned_vector<ColourVector<Real, Nc>> pre_gather_results(
           volume * ndims * num_spins_ * 2);
 
-      for (unsigned int i = 0; i < odd_array_indices_.size(); ++i) {
-        auto arr_index = odd_array_indices_[i];
+      for (unsigned int i = 0; i < even_array_indices_.size(); ++i) {
+        auto arr_index = even_array_indices_[i];
         for (unsigned mu = 0; mu < ndims; ++mu) {
           Int gather_index = 2 * (ndims * i + mu);
           Int local_index = 2 * (ndims * arr_index + mu);
@@ -289,8 +289,8 @@ namespace pyQCD
         }
       }
 
-      for (unsigned int i = 0; i < odd_array_indices_.size(); ++i) {
-        auto arr_index = odd_array_indices_[i];
+      for (unsigned int i = 0; i < even_array_indices_.size(); ++i) {
+        auto arr_index = even_array_indices_[i];
         for (unsigned mu = 0; mu < ndims; ++mu) {
           auto neighbour_index_plus =
               neighbour_array_indices_[arr_index][2 * mu];

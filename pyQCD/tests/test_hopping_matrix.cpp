@@ -114,12 +114,12 @@ TEST_CASE ("Testing hopping matrix")
             gauge_field, boundary_phases, spin_structures);
 
     fermion_out.fill(SiteFermion::Zero());
-    hopping_matrix.apply_odd_even(fermion_out, fermion_in);
+    hopping_matrix.apply_even_odd(fermion_out, fermion_in);
 
     REQUIRE(comp(fermion_out[0], even_fermion_result));
 
     fermion_out.fill(SiteFermion::Zero());
-    hopping_matrix.apply_even_odd(fermion_out, fermion_in);
+    hopping_matrix.apply_odd_even(fermion_out, fermion_in);
 
     REQUIRE(comp(fermion_out[1024], odd_fermion_result));
   }
