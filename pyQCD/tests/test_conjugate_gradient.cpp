@@ -19,8 +19,6 @@
  * Test of the conjugate gradient algorithm.
  */
 
-#define CATCH_CONFIG_MAIN
-
 #include <algorithms/conjugate_gradient.hpp>
 #include <fermions/wilson_action.hpp>
 

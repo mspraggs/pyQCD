@@ -20,8 +20,6 @@
  * Tests for the heatbath update algorithm.
  */
 
-#define CATCH_CONFIG_MAIN
-
 #include <algorithms/heatbath.hpp>
 
 #include "helpers.hpp"

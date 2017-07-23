@@ -20,8 +20,6 @@
  * Tests for the Lattice template class.
  */
 
-#define CATCH_CONFIG_MAIN
-
 #include <Eigen/Dense>
 
 #include <core/lattice.hpp>

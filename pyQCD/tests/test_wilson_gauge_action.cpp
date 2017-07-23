@@ -19,7 +19,6 @@
  *
  * Tests for the Wilson gauge action.
  */
-#define CATCH_CONFIG_MAIN
 
 #include <gauge/wilson_action.hpp>
 

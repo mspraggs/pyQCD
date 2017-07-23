@@ -19,8 +19,6 @@
  * Tests for the Wilson fermion action.
  */
 
-#define CATCH_CONFIG_MAIN
-
 #include <fermions/wilson_action.hpp>
 #include <utils/matrices.hpp>
 

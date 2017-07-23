@@ -20,8 +20,6 @@
  * algorithm.
  */
 
-#define CATCH_CONFIG_MAIN
-
 #include <algorithms/heatbath.hpp>
 #include <gauge/plaquette.hpp>
 #include <gauge/rectangle.hpp>

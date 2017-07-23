@@ -20,8 +20,6 @@
  * Tests for the Layout class.
  */
 
-#define CATCH_CONFIG_MAIN
-
 #include <core/layout.hpp>
 
 #include "helpers.hpp"

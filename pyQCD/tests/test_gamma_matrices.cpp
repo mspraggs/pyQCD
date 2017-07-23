@@ -18,7 +18,6 @@
  *
  * Test of gamma matrix generation
  */
-#define CATCH_CONFIG_MAIN
 
 #include <utils/matrices.hpp>
 

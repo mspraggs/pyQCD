@@ -6,6 +6,7 @@ set (SRC
   test_heatbath.cpp
   test_lattice.cpp
   test_layout.cpp
+  test_main.cpp
   test_random.cpp
   test_wilson_gauge_action.cpp
   test_rectangle_gauge_action.cpp
@@ -15,10 +16,6 @@ set (SRC
   test_wilson_fermion_action.cpp
   test_conjugate_gradient.cpp)
 
-foreach ( testsourcefile ${SRC} )
-  string( REPLACE ".cpp" "" testname ${testsourcefile} )
-  get_filename_component( testname ${testname} NAME )
-  add_executable( ${testname} ${testsourcefile} )
-  target_link_libraries( ${testname} pyQCDutils )
-  add_test( NAME ${testname} COMMAND ${testname} --log_level=all)
-endforeach()
+add_executable(run_tests ${SRC})
+target_link_libraries(run_tests pyQCDutils)
+add_test(run_tests --log_level=all)

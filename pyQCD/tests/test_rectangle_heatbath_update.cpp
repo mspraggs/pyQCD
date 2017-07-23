@@ -20,8 +20,6 @@
  * action and heatbath algorithm.
  */
 
-#define CATCH_CONFIG_MAIN
-
 #include <algorithms/heatbath.hpp>
 #include <gauge/plaquette.hpp>
 #include <gauge/rectangle.hpp>
@@ -30,7 +28,7 @@
 #include "helpers.hpp"
 
 
-TEST_CASE("End-to-end heatbath test with Wilson action")
+TEST_CASE("End-to-end heatbath test with rectangle action")
 {
   typedef pyQCD::gauge::Action<double, 3>::GaugeField GaugeField;
   typedef pyQCD::gauge::Action<double, 3>::GaugeLink GaugeLink;

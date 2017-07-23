@@ -19,8 +19,6 @@
  * Tests for 4D hopping matrix
  */
 
-#define CATCH_CONFIG_MAIN
-
 #include <fermions/hopping_matrix.hpp>
 #include <utils/matrices.hpp>
 #include <utils/random.hpp>

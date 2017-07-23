@@ -19,14 +19,13 @@
  *
  * Tests for the Wilson gauge action.
  */
-#define CATCH_CONFIG_MAIN
 
 #include <gauge/rectangle_action.hpp>
 
 #include "helpers.hpp"
 
 
-TEST_CASE("Test Wilson gauge action")
+TEST_CASE("Test rectangle gauge action")
 {
   typedef double Real;
   typedef pyQCD::ColourMatrix<Real, 3> ColourMatrix;
