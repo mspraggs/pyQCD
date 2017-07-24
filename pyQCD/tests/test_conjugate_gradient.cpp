@@ -103,7 +103,7 @@ TEST_CASE ("Test of unpreconditioned conjugate gradient algorithm")
 
     REQUIRE (compare(result.solution()[0], expected));
     REQUIRE ((result.tolerance() < 1e-8 && result.tolerance() > 0));
-    REQUIRE (result.num_iterations() == 69);
+    REQUIRE ((result.num_iterations() > 67 and result.num_iterations() < 73));
 
     LatticeFermion lhs(layout, 4);
     action.apply_full(lhs, result.solution());
@@ -148,7 +148,7 @@ TEST_CASE("Testing even-odd preconditioned conjugate gradient algorithm")
 
     REQUIRE (compare(result.solution()[0], expected));
     REQUIRE ((result.tolerance() < 1e-8 && result.tolerance() > 0));
-    REQUIRE (result.num_iterations() == 29);
+    REQUIRE ((result.num_iterations() > 27 and result.num_iterations() < 33));
 
     LatticeFermion lhs(even_odd_layout, 4);
     action.apply_full(lhs, result.solution());
