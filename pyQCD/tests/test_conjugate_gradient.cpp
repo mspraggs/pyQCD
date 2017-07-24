@@ -33,27 +33,33 @@ public:
     : pyQCD::fermions::Action<Real, Nc>(mass, std::vector<Real>(ndims, 1.0))
   {}
 
-  void apply_full(pyQCD::LatticeColourVector<Real, Nc>& fermion_out,
-                  const pyQCD::LatticeColourVector<Real, Nc>& fermion_in) const
-  { fermion_out = this->mass_ * fermion_in; }
+  pyQCD::LatticeColourVector<Real, Nc> apply_full(
+      const pyQCD::LatticeColourVector<Real, Nc>& fermion_in) const
+  {
+    auto fermion_out = fermion_in;
+    fermion_out *= this->mass_;
+    return fermion_out;
+  }
 
-  virtual void apply_even_even_inv(
-      pyQCD::LatticeColourVector<Real, Nc>& fermion_out,
-      const pyQCD::LatticeColourVector<Real, Nc>& fermion_in) const {}
-  virtual void apply_odd_odd(
-      pyQCD::LatticeColourVector<Real, Nc>& fermion_out,
-      const pyQCD::LatticeColourVector<Real, Nc>& fermion_in) const {}
-  virtual void apply_even_odd(
-      pyQCD::LatticeColourVector<Real, Nc>& fermion_out,
-      const pyQCD::LatticeColourVector<Real, Nc>& fermion_in) const {}
-  virtual void apply_odd_even(
-      pyQCD::LatticeColourVector<Real, Nc>& fermion_out,
-      const pyQCD::LatticeColourVector<Real, Nc>& fermion_in) const {}
+  pyQCD::LatticeColourVector<Real, Nc> apply_even_even_inv(
+      const pyQCD::LatticeColourVector<Real, Nc>& fermion_in) const
+  { return fermion_in; }
+  pyQCD::LatticeColourVector<Real, Nc> apply_odd_odd(
+      const pyQCD::LatticeColourVector<Real, Nc>& fermion_in) const
+  { return fermion_in; }
+  pyQCD::LatticeColourVector<Real, Nc> apply_even_odd(
+      const pyQCD::LatticeColourVector<Real, Nc>& fermion_in) const
+  { return fermion_in; }
+  pyQCD::LatticeColourVector<Real, Nc> apply_odd_even(
+      const pyQCD::LatticeColourVector<Real, Nc>& fermion_in) const
+  { return fermion_in; }
 
-  void apply_hermiticity(pyQCD::LatticeColourVector<Real, Nc>& fermion) const
-  { }
-  void remove_hermiticity(pyQCD::LatticeColourVector<Real, Nc>& fermion) const
-  { }
+  pyQCD::LatticeColourVector<Real, Nc> apply_hermiticity(
+      const pyQCD::LatticeColourVector<Real, Nc>& fermion) const
+  { return fermion; }
+  pyQCD::LatticeColourVector<Real, Nc> remove_hermiticity(
+      const pyQCD::LatticeColourVector<Real, Nc>& fermion) const
+  { return fermion; }
 };
 
 
@@ -106,7 +112,7 @@ TEST_CASE ("Test of unpreconditioned conjugate gradient algorithm")
     REQUIRE ((result.num_iterations() > 67 and result.num_iterations() < 73));
 
     LatticeFermion lhs(layout, 4);
-    action.apply_full(lhs, result.solution());
+    lhs = action.apply_full(result.solution());
 
     for (unsigned int i = 0; i < lhs.size(); ++i) {
       REQUIRE (compare(lhs[i], src[i]));
@@ -151,7 +157,7 @@ TEST_CASE("Testing even-odd preconditioned conjugate gradient algorithm")
     REQUIRE ((result.num_iterations() > 27 and result.num_iterations() < 33));
 
     LatticeFermion lhs(even_odd_layout, 4);
-    action.apply_full(lhs, result.solution());
+    lhs = action.apply_full(result.solution());
 
     for (unsigned int i = 0; i < lhs.size(); ++i) {
       REQUIRE (compare(lhs[i], src[i]));

@@ -39,26 +39,25 @@ namespace pyQCD
                    const LatticeColourMatrix<Real, Nc>& gauge_field,
                    const std::vector<Real>& boundary_phases);
 
-      void apply_full(LatticeColourVector<Real, Nc>& fermion_out,
-                      const LatticeColourVector<Real, Nc>& fermion_in) const;
-      void apply_even_even_inv(
-          LatticeColourVector<Real, Nc>& fermion_out,
+      LatticeColourVector<Real, Nc> apply_full(
           const LatticeColourVector<Real, Nc>& fermion_in) const;
-      void apply_odd_odd(
-          LatticeColourVector<Real, Nc>& fermion_out,
+      LatticeColourVector<Real, Nc> apply_even_even_inv(
           const LatticeColourVector<Real, Nc>& fermion_in) const;
-      virtual void apply_even_odd(
-          LatticeColourVector<Real, Nc>& fermion_out,
+      LatticeColourVector<Real, Nc> apply_odd_odd(
           const LatticeColourVector<Real, Nc>& fermion_in) const;
-      virtual void apply_odd_even(
-          LatticeColourVector<Real, Nc>& fermion_out,
+      virtual LatticeColourVector<Real, Nc> apply_even_odd(
+          const LatticeColourVector<Real, Nc>& fermion_in) const;
+      virtual LatticeColourVector<Real, Nc> apply_odd_even(
           const LatticeColourVector<Real, Nc>& fermion_in) const;
 
-      void apply_hermiticity(LatticeColourVector<Real, Nc>& fermion) const;
-      void remove_hermiticity(LatticeColourVector<Real, Nc>& fermion) const;
+      LatticeColourVector<Real, Nc> apply_hermiticity(
+          const LatticeColourVector<Real, Nc>& fermion) const;
+      LatticeColourVector<Real, Nc> remove_hermiticity(
+          const LatticeColourVector<Real, Nc>& fermion) const;
 
     private:
-      void multiply_chiral_gamma(LatticeColourVector<Real, Nc>& fermion) const;
+      LatticeColourVector<Real, Nc> multiply_chiral_gamma(
+          const LatticeColourVector<Real, Nc>& fermion) const;
 
       HoppingMatrix<Real, Nc, 1> hopping_matrix_;
       Eigen::MatrixXcd chiral_gamma_;
@@ -95,102 +94,108 @@ namespace pyQCD
     }
 
     template <typename Real, int Nc>
-    void WilsonAction<Real, Nc>::apply_full(
-        LatticeColourVector<Real, Nc>& fermion_out,
+    LatticeColourVector<Real, Nc> WilsonAction<Real, Nc>::apply_full(
         const LatticeColourVector<Real, Nc>& fermion_in) const
     {
-      fermion_out = fermion_in * (4.0 + this->mass_);
-
-      hopping_matrix_.apply_full(fermion_out, fermion_in);
+      auto fermion_out = hopping_matrix_.apply_full(fermion_in);
+      fermion_out += fermion_in * (4.0 + this->mass_);
+      return fermion_out;
     }
 
 
     template <typename Real, int Nc>
-    void WilsonAction<Real, Nc>::apply_even_even_inv(
-        LatticeColourVector<Real, Nc>& fermion_out,
+    LatticeColourVector<Real, Nc> WilsonAction<Real, Nc>::apply_even_even_inv(
         const LatticeColourVector<Real, Nc>& fermion_in) const
     {
+      LatticeColourVector<Real, Nc> fermion_out(
+          fermion_in.layout(), ColourVector<Real, Nc>::Zero(),
+          fermion_in.site_size());
+
       auto half_vol = fermion_in.volume() / 2;
       fermion_out.segment(0, half_vol) =
           fermion_in.segment(0, half_vol) / (4.0 + this->mass_);
+
+      return fermion_out;
     }
 
 
     template <typename Real, int Nc>
-    void WilsonAction<Real, Nc>::apply_odd_odd(
-        LatticeColourVector<Real, Nc>& fermion_out,
+    LatticeColourVector<Real, Nc> WilsonAction<Real, Nc>::apply_odd_odd(
         const LatticeColourVector<Real, Nc>& fermion_in) const
     {
+      LatticeColourVector<Real, Nc> fermion_out(
+          fermion_in.layout(), ColourVector<Real, Nc>::Zero(),
+          fermion_in.site_size());
+
       auto half_vol = fermion_in.volume() / 2;
       fermion_out.segment(half_vol, half_vol) =
           (4.0 + this->mass_) * fermion_in.segment(half_vol, half_vol);
+
+      return fermion_out;
     }
 
 
     template <typename Real, int Nc>
-    void WilsonAction<Real, Nc>::apply_even_odd(
-        LatticeColourVector<Real, Nc>& fermion_out,
+    LatticeColourVector<Real, Nc> WilsonAction<Real, Nc>::apply_even_odd(
         const LatticeColourVector<Real, Nc>& fermion_in) const
     {
-      hopping_matrix_.apply_even_odd(fermion_out, fermion_in);
+      return hopping_matrix_.apply_even_odd(fermion_in);
     }
 
 
     template <typename Real, int Nc>
-    void WilsonAction<Real, Nc>::apply_odd_even(
-        LatticeColourVector<Real, Nc>& fermion_out,
+    LatticeColourVector<Real, Nc> WilsonAction<Real, Nc>::apply_odd_even(
         const LatticeColourVector<Real, Nc>& fermion_in) const
     {
-      hopping_matrix_.apply_odd_even(fermion_out, fermion_in);
+      return hopping_matrix_.apply_odd_even(fermion_in);
     }
 
 
     template <typename Real, int Nc>
-    void WilsonAction<Real, Nc>::multiply_chiral_gamma(
-        LatticeColourVector<Real, Nc>& fermion) const
+    LatticeColourVector<Real, Nc> WilsonAction<Real, Nc>::multiply_chiral_gamma(
+        const LatticeColourVector<Real, Nc>& fermion) const
     {
       Int volume = fermion.volume();
       Int nspins = hopping_matrix_.num_spins();
 
-      for (Int site_index = 0; site_index < volume; ++site_index) {
+      LatticeColourVector<Real, Nc> ret(
+          fermion.layout(), ColourVector<Real, Nc>::Zero(), fermion.site_size());
 
-        aligned_vector<ColourVector<Real, Nc>> sums(
-            nspins, ColourVector<Real, Nc>::Zero());
+      for (Int site_index = 0; site_index < volume; ++site_index) {
 
         for (Int alpha = 0; alpha < nspins; ++alpha) {
           for (Int beta = 0; beta < nspins; ++beta) {
-            sums[alpha] += chiral_gamma_.coeff(alpha, beta)
+            ret[nspins * site_index + alpha] += chiral_gamma_.coeff(alpha, beta)
                            * fermion[nspins * site_index + beta];
           }
         }
-        for (Int alpha = 0; alpha < nspins; ++alpha) {
-          fermion[nspins * site_index + alpha] = sums[alpha];
-        }
       }
+
+      return ret;
     }
 
     template <typename Real, int Nc>
-    void WilsonAction<Real, Nc>::apply_hermiticity(
-        LatticeColourVector<Real, Nc>& fermion) const
+    LatticeColourVector<Real, Nc> WilsonAction<Real, Nc>::apply_hermiticity(
+        const LatticeColourVector<Real, Nc>& fermion) const
     {
       if (fermion.num_dims() % 2 == 1) {
         // TODO: Implement handling of odd number of dimensions
-        return;
+        return fermion;
       }
 
-      multiply_chiral_gamma(fermion);
+      return multiply_chiral_gamma(fermion);
     }
 
 
     template <typename Real, int Nc>
-    void WilsonAction<Real, Nc>::remove_hermiticity(
-        LatticeColourVector<Real, Nc>& fermion) const
+    LatticeColourVector<Real, Nc> WilsonAction<Real, Nc>::remove_hermiticity(
+        const LatticeColourVector<Real, Nc>& fermion) const
     {
       if (fermion.num_dims() % 2 == 1) {
-        return;
+        return fermion;
       }
 
-      multiply_chiral_gamma(fermion);
+      return multiply_chiral_gamma(fermion);
     }
   }
 }

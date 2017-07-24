@@ -37,7 +37,6 @@ TEST_CASE ("Testing hopping matrix")
 
   GaugeField gauge_field(lexico_layout, GaugeLink::Identity(), 4);
   LatticeFermion fermion_in(lexico_layout, SiteFermion::Ones(), 4);
-  LatticeFermion fermion_out(lexico_layout, SiteFermion::Zero(), 4);
 
   auto identity = Eigen::Matrix4cd::Identity();
   std::vector<Eigen::MatrixXcd> spin_structures(8, identity);
@@ -75,7 +74,7 @@ TEST_CASE ("Testing hopping matrix")
         pyQCD::fermions::HoppingMatrix<double, 3, 1>(
             gauge_field, boundary_phases, spin_structures);
 
-    hopping_matrix.apply_full(fermion_out, fermion_in);
+    auto fermion_out = hopping_matrix.apply_full(fermion_in);
 
     REQUIRE(comp(fermion_out[0], even_fermion_result));
   }
@@ -93,7 +92,7 @@ TEST_CASE ("Testing hopping matrix")
         pyQCD::fermions::HoppingMatrix<double, 3, 1>(
             gauge_field, boundary_phases, spin_structures);
 
-    hopping_matrix.apply_full(fermion_out, fermion_in);
+    auto fermion_out = hopping_matrix.apply_full(fermion_in);
 
     REQUIRE(comp(fermion_out[0], expected_result));
     REQUIRE(comp(fermion_out[1792], expected_result));
@@ -104,20 +103,18 @@ TEST_CASE ("Testing hopping matrix")
     std::vector<std::complex<double>> boundary_phases(4, 1.0);
 
     gauge_field.change_layout(even_odd_layout);
-    fermion_out.change_layout(even_odd_layout);
     fermion_in.change_layout(even_odd_layout);
 
     const auto hopping_matrix =
         pyQCD::fermions::HoppingMatrix<double, 3, 1>(
             gauge_field, boundary_phases, spin_structures);
 
-    fermion_out.fill(SiteFermion::Zero());
-    hopping_matrix.apply_even_odd(fermion_out, fermion_in);
+    auto fermion_out = hopping_matrix.apply_even_odd(fermion_in);
 
     REQUIRE(comp(fermion_out[0], even_fermion_result));
 
     fermion_out.fill(SiteFermion::Zero());
-    hopping_matrix.apply_odd_even(fermion_out, fermion_in);
+    fermion_out = hopping_matrix.apply_odd_even(fermion_in);
 
     REQUIRE(comp(fermion_out[1024], odd_fermion_result));
   }

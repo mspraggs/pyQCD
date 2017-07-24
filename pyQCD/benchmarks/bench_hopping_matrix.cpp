@@ -42,6 +42,6 @@ int main()
 
   std::cout << "Benchmarking HoppingMatrix::apply_full..." << std::endl;
   benchmark([&] () {
-    hopping_matrix.apply_full(fermion_out, fermion_in);
+    fermion_out = hopping_matrix.apply_full(fermion_in);
   }, 0, 100);
 }

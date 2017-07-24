@@ -51,14 +51,14 @@ namespace pyQCD
 
       unsigned int num_spins() const { return num_spins_; }
 
-      void apply_full(LatticeColourVector<Real, Nc>& out,
-                      const LatticeColourVector<Real, Nc>& in) const;
+      LatticeColourVector<Real, Nc> apply_full(
+          const LatticeColourVector<Real, Nc>& in) const;
 
-      void apply_even_odd(LatticeColourVector<Real, Nc>& out,
-                          const LatticeColourVector<Real, Nc>& in) const;
+      LatticeColourVector<Real, Nc> apply_even_odd(
+          const LatticeColourVector<Real, Nc>& in) const;
 
-      void apply_odd_even(LatticeColourVector<Real, Nc>& out,
-                          const LatticeColourVector<Real, Nc>& in) const;
+      LatticeColourVector<Real, Nc> apply_odd_even(
+          const LatticeColourVector<Real, Nc>& in) const;
 
     private:
       LatticeColourMatrix<Real, Nc> scattered_gauge_field_;
@@ -160,8 +160,7 @@ namespace pyQCD
 
 
     template <typename Real, int Nc, unsigned int Nhops>
-    void HoppingMatrix<Real, Nc, Nhops>::apply_full(
-        LatticeColourVector<Real, Nc>& fermion_out,
+    LatticeColourVector<Real, Nc> HoppingMatrix<Real, Nc, Nhops>::apply_full(
         const LatticeColourVector<Real, Nc>& fermion_in) const
     {
       auto& layout = fermion_in.layout();
@@ -188,6 +187,9 @@ namespace pyQCD
         }
       }
 
+      LatticeColourVector<Real, Nc> fermion_out(
+          layout, ColourVector<Real, Nc>::Zero(), num_spins_);
+
       for (unsigned arr_index = 0; arr_index < volume; ++arr_index) {
         for (unsigned mu = 0; mu < ndims; ++mu) {
           auto neighbour_index_plus =
@@ -204,12 +206,13 @@ namespace pyQCD
           }
         }
       }
+
+      return fermion_out;
     }
 
 
     template <typename Real, int Nc, unsigned int Nhops>
-    void HoppingMatrix<Real, Nc, Nhops>::apply_even_odd(
-        LatticeColourVector<Real, Nc>& fermion_out,
+    LatticeColourVector<Real, Nc> HoppingMatrix<Real, Nc, Nhops>::apply_even_odd(
         const LatticeColourVector<Real, Nc>& fermion_in) const
     {
       auto& layout = fermion_in.layout();
@@ -238,6 +241,9 @@ namespace pyQCD
         }
       }
 
+      LatticeColourVector<Real, Nc> fermion_out(
+          layout, ColourVector<Real, Nc>::Zero(), num_spins_);
+
       for (unsigned int i = 0; i < odd_array_indices_.size(); ++i) {
         auto arr_index = odd_array_indices_[i];
         for (unsigned mu = 0; mu < ndims; ++mu) {
@@ -255,12 +261,13 @@ namespace pyQCD
           }
         }
       }
+
+      return fermion_out;
     }
 
 
     template <typename Real, int Nc, unsigned int Nhops>
-    void HoppingMatrix<Real, Nc, Nhops>::apply_odd_even(
-        LatticeColourVector<Real, Nc>& fermion_out,
+    LatticeColourVector<Real, Nc> HoppingMatrix<Real, Nc, Nhops>::apply_odd_even(
         const LatticeColourVector<Real, Nc>& fermion_in) const
     {
       auto& layout = fermion_in.layout();
@@ -289,6 +296,9 @@ namespace pyQCD
         }
       }
 
+      LatticeColourVector<Real, Nc> fermion_out(
+          layout, ColourVector<Real, Nc>::Zero(), num_spins_);
+
       for (unsigned int i = 0; i < even_array_indices_.size(); ++i) {
         auto arr_index = even_array_indices_[i];
         for (unsigned mu = 0; mu < ndims; ++mu) {
@@ -306,6 +316,8 @@ namespace pyQCD
           }
         }
       }
+
+      return fermion_out;
     }
   }
 }

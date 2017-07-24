@@ -37,14 +37,13 @@ TEST_CASE ("Testing Wilson fermion action")
 
   GaugeField gauge_field(layout, GaugeLink::Identity(), 4);
   FermionField psi(layout, SiteFermion::Ones(), 4);
-  FermionField eta(layout, 4);
 
   std::vector<double> boundary_phases(4, 0.0);
   
   pyQCD::fermions::WilsonAction<double, 3> wilson_action(0.1, gauge_field,
                                                          boundary_phases);
 
-  wilson_action.apply_full(eta, psi);
+  auto eta = wilson_action.apply_full(psi);
 
   MatrixCompare<SiteFermion> comp(1e-5, 1e-8);
 
@@ -75,7 +74,7 @@ TEST_CASE ("Testing Wilson fermion action")
   wilson_action = pyQCD::fermions::WilsonAction<double, 3>(0.0, gauge_field,
                                                            boundary_phases);
 
-  wilson_action.apply_full(eta, psi);
+  eta = wilson_action.apply_full(psi);
 
   REQUIRE (comp(eta[0], expected));
 }

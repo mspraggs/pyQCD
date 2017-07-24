@@ -41,16 +41,13 @@ namespace pyQCD
     auto& layout = rhs.layout();
     Int num_spins = rhs.site_size();
 
-    Fermion hermitian_rhs = rhs;
-    action.apply_hermiticity(hermitian_rhs);
+    auto hermitian_rhs = action.apply_hermiticity(rhs);
 
-    Fermion r(layout, num_spins), p(layout, num_spins), Ap(layout, num_spins),
-            solution(layout, ColourVector<Real, Nc>::Zero(), num_spins);
+    Fermion solution(layout, ColourVector<Real, Nc>::Zero(), num_spins);
 
-    action.apply_full(r, solution);
-    action.apply_hermiticity(r);
+    auto r = action.apply_hermiticity(action.apply_full(solution));
     r = hermitian_rhs - r;
-    p = r;
+    auto p = r;
 
     Real prev_residual = dot_fermions(r, r).real();
 
@@ -58,8 +55,8 @@ namespace pyQCD
     Real final_residual = tolerance;
 
     for (Int i = 0; i < max_iterations; ++i) {
-      action.apply_full(Ap, p);
-      action.apply_hermiticity(Ap);
+      auto Ap = action.apply_hermiticity(action.apply_full(p));
+
       std::complex<Real> alpha = prev_residual / dot_fermions(p, Ap);
 
       solution += alpha * p;
@@ -99,34 +96,29 @@ namespace pyQCD
     auto hermitian_rhs_odd_view = hermitian_rhs.segment(volume / 2, volume / 2);
 
     // Create preconditioned source
-    {
-      Fermion temp_storage1(layout, ColourVector<Real, Nc>::Zero(), num_spins);
-      Fermion temp_storage2 = temp_storage1;
-      action.apply_even_even_inv(temp_storage1, rhs);
-      action.apply_odd_even(temp_storage2, temp_storage1);
-      hermitian_rhs_odd_view =
-          hermitian_rhs_odd_view - temp_storage2.segment(volume / 2, volume / 2);
-    }
+    hermitian_rhs_odd_view =
+        hermitian_rhs_odd_view -
+            action.apply_odd_even(
+                action.apply_even_even_inv(rhs))
+                .segment(volume / 2, volume / 2);
 
-    action.apply_hermiticity(hermitian_rhs);
+    hermitian_rhs = action.apply_hermiticity(hermitian_rhs);
+    hermitian_rhs_odd_view = hermitian_rhs.segment(volume / 2, volume / 2);
 
     Fermion r(layout, num_spins),
-        p(layout, ColourVector<Real, Nc>::Zero(), num_spins),
-        Ap(layout, ColourVector<Real, Nc>::Zero(), num_spins),
-        solution(layout, ColourVector<Real, Nc>::Zero(), num_spins);
+        p(layout, ColourVector<Real, Nc>::Zero(), num_spins);
 
     // Invert the even sites as they're easy
-    action.apply_even_even_inv(solution, rhs);
+    auto solution = action.apply_even_even_inv(rhs);
 
     // Create some views to the odd sites pertaining to the above fermions
     auto r_odd_view = r.segment(volume / 2, volume / 2);
     auto p_odd_view = p.segment(volume / 2, volume / 2);
-    auto Ap_odd_view = Ap.segment(volume / 2, volume / 2);
-    auto solution_even_view = solution.segment(0, volume / 2);
     auto solution_odd_view = solution.segment(volume / 2, volume / 2);
 
-    action.apply_eoprec(Ap, solution);
-    action.apply_hermiticity(Ap);
+    auto Ap = action.apply_hermiticity(action.apply_eoprec(solution));
+
+    auto Ap_odd_view = Ap.segment(volume / 2, volume / 2);
     r_odd_view = hermitian_rhs_odd_view - Ap_odd_view;
     p = r;
 
@@ -136,8 +128,9 @@ namespace pyQCD
     Real final_residual = tolerance;
 
     for (Int i = 0; i < max_iterations; ++i) {
-      action.apply_eoprec(Ap, p);
-      action.apply_hermiticity(Ap);
+      Ap = action.apply_hermiticity(action.apply_eoprec(p));
+
+      Ap_odd_view = Ap.segment(volume / 2, volume / 2);
       std::complex<Real> alpha = prev_residual / dot_fermions(p_odd_view,
                                                               Ap_odd_view);
 
@@ -158,14 +151,11 @@ namespace pyQCD
     }
 
     // Reverse preconditioning preparation
-    {
-      Fermion temp_storage1(layout, ColourVector<Real, Nc>::Zero(), num_spins);
-      Fermion temp_storage2 = temp_storage1;
-      action.apply_even_odd(temp_storage1, solution);
-      action.apply_even_even_inv(temp_storage2, temp_storage1);
-      solution_even_view =
-          solution_even_view - temp_storage2.segment(0, volume / 2);
-    }
+    auto solution_even_view = solution.segment(0, volume / 2);
+    solution_even_view =
+        solution_even_view -
+            action.apply_even_even_inv(
+                action.apply_even_odd(solution)).segment(0, volume / 2);
 
     return SolutionWrapper<Real, Nc>(std::move(solution), final_residual,
                                      final_iterations);
