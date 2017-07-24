@@ -26,7 +26,7 @@
 
 
 template <typename Real, int Nc>
-class TestAction : public pyQCD::fermions::Action<Real, Nc>
+class TestFermionAction : public pyQCD::fermions::Action<Real, Nc>
 {
 public:
   TestAction(const Real mass, const int ndims)
@@ -69,7 +69,7 @@ TEST_CASE ("Test of unpreconditioned conjugate gradient algorithm")
 
   SECTION ("Testing simple proportional action")
   {
-    TestAction<double, 3> action(2.0, 4);
+    TestFermionAction<double, 3> action(2.0, 4);
 
     auto result = pyQCD::conjugate_gradient_unprec(action, src, 1000, 1e-10);
 
