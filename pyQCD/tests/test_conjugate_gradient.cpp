@@ -29,7 +29,7 @@ template <typename Real, int Nc>
 class TestFermionAction : public pyQCD::fermions::Action<Real, Nc>
 {
 public:
-  TestAction(const Real mass, const int ndims)
+  TestFermionAction(const Real mass, const int ndims)
     : pyQCD::fermions::Action<Real, Nc>(mass, std::vector<Real>(ndims, 1.0))
   {}
 
