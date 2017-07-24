@@ -35,11 +35,10 @@ class TestWilsonFermionAction(object):
         gauge_field.as_numpy[0, 0, 0, 0, 0] = random_gauge_link.as_numpy
 
         fermion_in = core.LatticeColourVector(layout, 4)
-        fermion_out = core.LatticeColourVector(layout, 4)
         fermion_in.as_numpy[1, 0, 0, 0, 2, :] = 1.0
 
         action = fermions.WilsonFermionAction(0.1, gauge_field, [0] * 4)
-        action.apply_full(fermion_out, fermion_in)
+        fermion_out = action.apply_full(fermion_in)
 
         expected = 0.5 * np.dot(random_gauge_link.as_numpy, np.ones(3))
 

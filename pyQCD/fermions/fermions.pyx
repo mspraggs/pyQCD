@@ -10,10 +10,11 @@ cdef class FermionAction:
                                   "instantiated directly. Instantiate a "
                                   "derived class instead.")
 
-    def apply_full(self, LatticeColourVector fermion_out,
-                   LatticeColourVector fermion_in):
-        self.instance.apply_full(fermion_out.instance[0],
-                                 fermion_in.instance[0])
+    def apply_full(self, LatticeColourVector fermion_in):
+        fermion_out = LatticeColourVector(fermion_in.layout, fermion_in.site_size)
+        fermion_out.instance[0] = self.instance.apply_full(
+            fermion_in.instance[0])
+        return fermion_out
 
 cdef class WilsonFermionAction(FermionAction):
 
