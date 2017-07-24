@@ -43,6 +43,7 @@ namespace pyQCD
                        unary_func);
       }
 
+      virtual ~Action() = default;
 
       virtual LatticeColourVector<Real, Nc> apply_full(
           const LatticeColourVector<Real, Nc>& fermion_in) const = 0;
