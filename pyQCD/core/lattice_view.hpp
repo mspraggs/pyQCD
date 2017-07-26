@@ -48,6 +48,16 @@ namespace pyQCD {
       return *this;
     }
 
+
+#define LATTICE_VIEW_OPERATOR_ASSIGN_DECL(op)\
+    template <typename U>\
+    LatticeSegmentView<T>& operator op ## =(const U& rhs);
+
+    LATTICE_VIEW_OPERATOR_ASSIGN_DECL(+);
+    LATTICE_VIEW_OPERATOR_ASSIGN_DECL(-);
+    LATTICE_VIEW_OPERATOR_ASSIGN_DECL(*);
+    LATTICE_VIEW_OPERATOR_ASSIGN_DECL(/);
+
     T& operator[](const int i) { return ptr_[i]; }
     const T& operator[](const int i) const { return ptr_[i]; }
 
@@ -57,6 +67,24 @@ namespace pyQCD {
     T* ptr_;
     unsigned int size_;
   };
+
+
+
+#define LATTICE_VIEW_OPERATOR_ASSIGN_IMPL(op)\
+  template <typename T>\
+  template <typename U>\
+  LatticeSegmentView<T>& LatticeSegmentView<T>::operator op ## =(const U& rhs)\
+  {\
+    for (unsigned int i = 0; i < size_; ++i) {\
+      ptr_[i] op ## = detail::op_assign_get_rhs(i, rhs);\
+    }\
+    return *this;\
+  }
+
+  LATTICE_VIEW_OPERATOR_ASSIGN_IMPL(+)
+  LATTICE_VIEW_OPERATOR_ASSIGN_IMPL(-)
+  LATTICE_VIEW_OPERATOR_ASSIGN_IMPL(*)
+  LATTICE_VIEW_OPERATOR_ASSIGN_IMPL(/)
 }
 
 #endif //PYQCD_LATTICE_VIEW_HPP
