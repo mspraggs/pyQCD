@@ -27,10 +27,10 @@
 
 TEST_CASE ("Testing Wilson fermion action")
 {
-  typedef pyQCD::ColourMatrix<double, 3> GaugeLink;
-  typedef pyQCD::LatticeColourMatrix<double, 3> GaugeField;
-  typedef pyQCD::ColourVector<double, 3> SiteFermion;
-  typedef pyQCD::LatticeColourVector<double, 3> FermionField;
+  using GaugeLink = pyQCD::ColourMatrix<double, 3>;
+  using GaugeField = pyQCD::LatticeColourMatrix<double, 3>;
+  using SiteFermion = pyQCD::ColourVector<double, 3>;
+  using FermionField = pyQCD::LatticeColourVector<double, 3>;
 
   pyQCD::Site shape{8, 4, 4, 4};
   pyQCD::LexicoLayout layout(shape);

@@ -27,7 +27,7 @@
 
 
 TEST_CASE("LexicoLayout test") {
-  typedef pyQCD::LexicoLayout Layout;
+  using Layout = pyQCD::LexicoLayout;
 
   Layout layout({8, 4, 4, 4});
 
@@ -44,7 +44,7 @@ TEST_CASE("LexicoLayout test") {
 }
 
 TEST_CASE("EvenOddLayout test") {
-  typedef pyQCD::EvenOddLayout Layout;
+  using Layout = pyQCD::EvenOddLayout;
 
   Layout layout({8, 4, 4, 4});
 

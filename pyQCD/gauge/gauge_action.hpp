@@ -35,8 +35,8 @@ namespace pyQCD
     class Action
     {
     public:
-      typedef ColourMatrix<Real, Nc> GaugeLink;
-      typedef LatticeColourMatrix<Real, Nc> GaugeField;
+      using GaugeLink = ColourMatrix<Real, Nc>;
+      using GaugeField = LatticeColourMatrix<Real, Nc>;
 
       Action(const Real beta) : beta_(beta) { }
 

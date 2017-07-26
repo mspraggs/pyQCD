@@ -36,7 +36,7 @@ namespace pyQCD
       const LatticeColourVector<Real, Nc>& rhs, const Int max_iterations,
       const Real tolerance)
   {
-    typedef LatticeColourVector<Real, Nc> Fermion;
+    using Fermion = LatticeColourVector<Real, Nc>;
 
     auto& layout = rhs.layout();
     Int num_spins = rhs.site_size();

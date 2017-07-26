@@ -45,19 +45,15 @@ namespace pyQCD
     // to functions, such Seq instances allow integer parameter packs to be
     // used by the function.
     template<int... Ints>
-    struct Seq
-    {
-    };
+    struct Seq {};
 
     template<int Size, int... Ints>
-    struct SeqGen : SeqGen<Size - 1, Size - 1, Ints...>
-    {
-    };
+    struct SeqGen : SeqGen<Size - 1, Size - 1, Ints...> {};
 
     template<int... Ints>
     struct SeqGen<1, Ints...>
     {
-      typedef Seq<Ints...> type;
+      using type = Seq<Ints...>;
     };
 
 
@@ -80,7 +76,7 @@ namespace pyQCD
       typename std::enable_if<std::is_base_of<LatticeObj, T>::value>::type*
       = nullptr>
     auto eval(const unsigned int i, const T& lattice_obj)
-    -> decltype(lattice_obj[i])
+      -> decltype(lattice_obj[i])
     {
       // This function extracts an individual element from an indexable object
       // inheriting from LatticeObj.
@@ -95,7 +91,7 @@ namespace pyQCD
     template<typename Op, typename... Vals, int... Ints>
     auto eval(const unsigned int i, const LatticeExpr<Op, Vals...>& expr,
               const detail::Seq<Ints...>)
-    -> decltype(std::get<0>(expr).eval(eval(i, std::get<Ints>(expr))...))
+      -> decltype(std::get<0>(expr).eval(eval(i, std::get<Ints>(expr))...))
     {
       // This function is responsible for extracting the operands required by
       // the operator Op. Some variadic template magic allows each element with
@@ -109,8 +105,8 @@ namespace pyQCD
 
     template<typename Op, typename... Vals>
     auto eval(const unsigned int i, const LatticeExpr<Op, Vals...>& expr)
-    -> decltype(
-    eval(i, expr, typename detail::SeqGen<sizeof...(Vals) + 1>::type()))
+      -> decltype(
+        eval(i, expr, typename detail::SeqGen<sizeof...(Vals) + 1>::type()))
     {
       // This is the main entry-point for evaluating the supplied expression
       // with the given index i. It is also used to evaluate subexpressions
@@ -184,8 +180,8 @@ namespace pyQCD
     template<typename T, typename U>
     struct ConstCheck
     {
-      typedef typename std::conditional<std::is_same<T, U>::value,
-        const T&, U>::type type;
+      using type = typename std::conditional<std::is_same<T, U>::value,
+        const T&, U>::type;
     };
 
 

@@ -71,7 +71,7 @@ namespace pyQCD
       : Action<Real, Nc>(mass, boundary_phases),
         hopping_matrix_(gauge_field, this->phases_)
     {
-      typedef Eigen::MatrixXcd SpinMat;
+      using SpinMat = Eigen::MatrixXcd;
 
       auto gammas = generate_gamma_matrices(gauge_field.num_dims());
       long num_spins = hopping_matrix_.num_spins();

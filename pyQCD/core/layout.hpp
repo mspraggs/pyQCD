@@ -45,8 +45,8 @@
 
 namespace pyQCD
 {
-  typedef unsigned int Int;
-  typedef std::vector<Int> Site;
+  using Int = unsigned int;
+  using Site = std::vector<Int> ;
 
   class Layout
   {

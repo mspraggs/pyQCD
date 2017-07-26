@@ -27,8 +27,8 @@
 
 TEST_CASE("Test Wilson gauge action")
 {
-  typedef double Real;
-  typedef pyQCD::ColourMatrix<Real, 3> ColourMatrix;
+  using Real = double;
+  using ColourMatrix = pyQCD::ColourMatrix<Real, 3>;
 
   SECTION("Testing computation of staples") {
     MatrixCompare<ColourMatrix> mat_comp(1.0e-8, 1.0e-8);

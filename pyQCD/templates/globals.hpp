@@ -26,8 +26,8 @@
 namespace pyQCD
 {
   constexpr int num_colours = {{ num_colours }};
-  typedef {{ precision }} Real;
-  typedef std::complex<Real> Complex;
+  using Real = {{ precision }};
+  using Complex = std::complex<Real>;
 }
 
 #endif //PYQCD_GLOBALS_HPP

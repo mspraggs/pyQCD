@@ -27,7 +27,7 @@ namespace pyQCD
 {
   std::vector<Eigen::MatrixXcd> generate_gamma_matrices(const int num_dims)
   {
-    typedef Eigen::MatrixXcd Mat;
+    using Mat = Eigen::MatrixXcd;
     int mat_size = static_cast<int>(std::pow(2.0, num_dims / 2));
 
     std::vector<Mat> ret(num_dims, Mat::Zero(mat_size, mat_size));

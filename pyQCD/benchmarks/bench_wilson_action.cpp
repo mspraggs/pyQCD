@@ -25,8 +25,8 @@
 
 int main()
 {
-  typedef double Real;
-  typedef pyQCD::ColourMatrix<Real, 3> ColourMatrix;
+  using Real = double;
+  using ColourMatrix = pyQCD::ColourMatrix<Real, 3>;
 
   auto identity = ColourMatrix::Identity();
   pyQCD::LexicoLayout layout({8, 4, 4, 4, 4});

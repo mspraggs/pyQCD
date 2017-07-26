@@ -26,7 +26,7 @@
 
 #include "helpers.hpp"
 
-typedef pyQCD::Lattice<double> Lattice;
+using Lattice = pyQCD::Lattice<double>;
 
 class TestLayout : public pyQCD::Layout
 {

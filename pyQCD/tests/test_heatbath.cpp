@@ -29,8 +29,8 @@ template <typename Real, int Nc>
 class TestAction : public pyQCD::gauge::Action<Real, Nc>
 {
 public:
-  typedef typename pyQCD::gauge::Action<Real, Nc>::GaugeLink GaugeLink;
-  typedef typename pyQCD::gauge::Action<Real, Nc>::GaugeField GaugeField;
+  using GaugeLink =  typename pyQCD::gauge::Action<Real, Nc>::GaugeLink;
+  using GaugeField = typename pyQCD::gauge::Action<Real, Nc>::GaugeField;
 
   TestAction(const Real beta)
     : pyQCD::gauge::Action<Real, Nc>(beta)
@@ -48,7 +48,7 @@ public:
 };
 
 
-typedef double Real;
+using Real = double;
 
 
 TEST_CASE("Heatbath test")
@@ -91,7 +91,7 @@ TEST_CASE("Heatbath test")
 
     constexpr int Nc = 3;
 
-    typedef pyQCD::ColourMatrix<Real, Nc> ColourMatrix;
+    using ColourMatrix = pyQCD::ColourMatrix<Real, Nc>;
 
     Compare<Real> comp(1.0e-5, 1.0e-8);
     MatrixCompare<ColourMatrix> mat_comp(1.0e-5, 1.0e-8);
@@ -113,7 +113,7 @@ TEST_CASE("Heatbath test")
 
   SECTION ("Testing SU(3) heatbath update") {
 
-    typedef pyQCD::ColourMatrix<Real, 3> ColourMatrix;
+    using ColourMatrix = pyQCD::ColourMatrix<Real, 3>;
 
     auto layout = pyQCD::LexicoLayout({8, 4, 4, 4, 4});
     auto gauge_field

@@ -92,7 +92,7 @@ namespace pyQCD {
   SU2Matrix<Real> extract_su2(const ColourMatrix<Real, Nc> colour_matrix,
                               const unsigned int subgroup)
   {
-    typedef SU2Matrix<Real> Mat;
+    using Mat = SU2Matrix<Real>;
     Mat ret;
 
     unsigned int i, j;

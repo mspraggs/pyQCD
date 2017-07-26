@@ -30,8 +30,8 @@
 
 TEST_CASE("End-to-end heatbath test with rectangle action")
 {
-  typedef pyQCD::gauge::Action<double, 3>::GaugeField GaugeField;
-  typedef pyQCD::gauge::Action<double, 3>::GaugeLink GaugeLink;
+  using GaugeField = pyQCD::gauge::Action<double, 3>::GaugeField;
+  using GaugeLink = pyQCD::gauge::Action<double, 3>::GaugeLink;
 
   pyQCD::LexicoLayout layout({8, 8, 8, 8});
   GaugeField gauge_field(layout, GaugeLink::Identity(), 4);

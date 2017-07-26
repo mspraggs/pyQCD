@@ -65,8 +65,8 @@ public:
 
 TEST_CASE ("Test of unpreconditioned conjugate gradient algorithm")
 {
-  typedef pyQCD::ColourVector<double, 3> SiteFermion;
-  typedef pyQCD::LatticeColourVector<double, 3> LatticeFermion;
+  using SiteFermion = pyQCD::ColourVector<double, 3>;
+  using LatticeFermion = pyQCD::LatticeColourVector<double, 3>;
 
   pyQCD::LexicoLayout layout({8, 4, 4, 4});
 
@@ -90,8 +90,8 @@ TEST_CASE ("Test of unpreconditioned conjugate gradient algorithm")
 
   SECTION ("Testing Wilson action")
   {
-    typedef pyQCD::ColourMatrix<double, 3> GaugeLink;
-    typedef pyQCD::LatticeColourMatrix<double, 3> GaugeField;
+    using GaugeLink = pyQCD::ColourMatrix<double, 3>;
+    using GaugeField = pyQCD::LatticeColourMatrix<double, 3>;
 
     GaugeField gauge_field(layout, GaugeLink::Identity(), 4);
 
@@ -123,8 +123,8 @@ TEST_CASE ("Test of unpreconditioned conjugate gradient algorithm")
 
 TEST_CASE("Testing even-odd preconditioned conjugate gradient algorithm")
 {
-  typedef pyQCD::ColourVector<double, 3> SiteFermion;
-  typedef pyQCD::LatticeColourVector<double, 3> LatticeFermion;
+  using SiteFermion = pyQCD::ColourVector<double, 3>;
+  using LatticeFermion = pyQCD::LatticeColourVector<double, 3>;
 
   pyQCD::LexicoLayout lexico_layout({8, 4, 4, 4});
   pyQCD::EvenOddLayout even_odd_layout({8, 4, 4, 4});
@@ -135,8 +135,8 @@ TEST_CASE("Testing even-odd preconditioned conjugate gradient algorithm")
 
   SECTION ("Testing Wilson action")
   {
-    typedef pyQCD::ColourMatrix<double, 3> GaugeLink;
-    typedef pyQCD::LatticeColourMatrix<double, 3> GaugeField;
+    using GaugeLink = pyQCD::ColourMatrix<double, 3>;
+    using GaugeField = pyQCD::LatticeColourMatrix<double, 3>;
 
     GaugeField gauge_field(even_odd_layout, GaugeLink::Identity(), 4);
 
