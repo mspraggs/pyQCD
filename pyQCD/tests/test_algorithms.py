@@ -31,7 +31,7 @@ def test_heatbath_update(action, gauge_field):
     algorithms.heatbath_update(gauge_field, action, 1)
 
 def test_conjugate_gradient_unprec(gauge_field):
-    """Test conjugate_gradient"""
+    """Test conjugate_gradient_unprec"""
 
     action = fermions.WilsonFermionAction(0.1, gauge_field, [0] * 4)
     rhs = core.LatticeColourVector(gauge_field.layout, 4)
@@ -39,3 +39,22 @@ def test_conjugate_gradient_unprec(gauge_field):
     results = algorithms.conjugate_gradient_unprec(action, rhs, 1000, 1e-10)
 
     assert len(results) == 3
+
+def test_conjugate_gradient_eoprec(gauge_field):
+    """Test conjugate_gradient_eoprec"""
+
+    eo_layout = core.EvenOddLayout(gauge_field.layout.shape)
+
+    rhs = core.LatticeColourVector(gauge_field.layout, 4)
+    rhs[0, 0, 0, 0, 0, 0] = 1.0
+
+    gauge_field.change_layout(eo_layout)
+    rhs.change_layout(eo_layout)
+
+    action = fermions.WilsonFermionAction(0.1, gauge_field, [0] * 4)
+
+    results = algorithms.conjugate_gradient_eoprec(action, rhs, 1000, 1e-10)
+
+    assert len(results) == 3
+    assert results[1] < 1000
+    assert results[2] < 1e-10
