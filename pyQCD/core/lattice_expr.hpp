@@ -187,6 +187,23 @@ namespace pyQCD
       typedef typename std::conditional<std::is_same<T, U>::value,
         const T&, U>::type type;
     };
+
+
+    // Functions to get appropriate value when using operator assignment
+    template <typename T>
+    auto op_assign_get_rhs(const int i, const T& value)
+      -> decltype(eval(i, value))
+    {
+      return eval(i, value);
+    }
+
+    template <typename T>
+    auto op_assign_get_rhs(const int i, const T& value)
+      -> typename std::enable_if<
+          not std::is_base_of<LatticeObj, T>::value, const T&>::type
+    {
+      return value;
+    }
   }
 
 
