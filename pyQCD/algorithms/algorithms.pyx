@@ -1,4 +1,4 @@
-from pyQCD.core.core cimport LatticeColourMatrix, LatticeColourVector
+from pyQCD.core.core cimport EvenOddLayout, LatticeColourMatrix, LatticeColourVector
 from pyQCD.fermions.fermions cimport FermionAction
 from pyQCD.gauge.gauge cimport GaugeAction
 
@@ -13,8 +13,27 @@ def heatbath_update(LatticeColourMatrix gauge_field,
 def conjugate_gradient_unprec(FermionAction action, LatticeColourVector rhs,
                               int max_iterations, core.Real tolerance):
     cdef _SolutionWrapper* wrapped_solution =\
-    new _SolutionWrapper(_conjugate_gradient_unprec(
-        action.instance[0], rhs.instance[0], max_iterations, tolerance))
+        new _SolutionWrapper(_conjugate_gradient_unprec(
+            action.instance[0], rhs.instance[0], max_iterations, tolerance))
+
+    solution = LatticeColourVector(rhs.layout, rhs.site_size)
+    solution.instance[0] = wrapped_solution.solution()
+
+    return (solution, wrapped_solution.num_iterations(),
+            wrapped_solution.tolerance())
+
+
+def conjugate_gradient_eoprec(FermionAction action, LatticeColourVector rhs,
+                              int max_iterations, core.Real tolerance):
+
+    if not isinstance(rhs.layout, EvenOddLayout):
+        raise BufferError("Even-odd preconditioned conjugate gradient requires "
+                          "a fermion action and equation RHS that both use an "
+                          "EvenOddLayout")
+
+    cdef _SolutionWrapper* wrapped_solution =\
+        new _SolutionWrapper(_conjugate_gradient_eoprec(
+            action.instance[0],rhs.instance[0], max_iterations, tolerance))
 
     solution = LatticeColourVector(rhs.layout, rhs.site_size)
     solution.instance[0] = wrapped_solution.solution()

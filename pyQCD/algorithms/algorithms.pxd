@@ -18,3 +18,7 @@ cdef extern from "conjugate_gradient.hpp" namespace "pyQCD":
     cdef _SolutionWrapper _conjugate_gradient_unprec "pyQCD::conjugate_gradient_unprec"(
         const fermions._FermionAction&, const core._LatticeColourVector&,
         const unsigned int, const atomics.Real)
+
+    cdef _SolutionWrapper _conjugate_gradient_eoprec "pyQCD::conjugate_gradient_eoprec"(
+        const fermions._FermionAction&, const core._LatticeColourVector&,
+        const unsigned int, const atomics.Real)
