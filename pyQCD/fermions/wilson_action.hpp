@@ -40,20 +40,20 @@ namespace pyQCD
                    const std::vector<Real>& boundary_phases);
 
       LatticeColourVector<Real, Nc> apply_full(
-          const LatticeColourVector<Real, Nc>& fermion_in) const;
+          const LatticeColourVector<Real, Nc>& fermion_in) const override;
       LatticeColourVector<Real, Nc> apply_even_even_inv(
-          const LatticeColourVector<Real, Nc>& fermion_in) const;
+          const LatticeColourVector<Real, Nc>& fermion_in) const override;
       LatticeColourVector<Real, Nc> apply_odd_odd(
-          const LatticeColourVector<Real, Nc>& fermion_in) const;
-      virtual LatticeColourVector<Real, Nc> apply_even_odd(
-          const LatticeColourVector<Real, Nc>& fermion_in) const;
-      virtual LatticeColourVector<Real, Nc> apply_odd_even(
-          const LatticeColourVector<Real, Nc>& fermion_in) const;
+          const LatticeColourVector<Real, Nc>& fermion_in) const override;
+      LatticeColourVector<Real, Nc> apply_even_odd(
+          const LatticeColourVector<Real, Nc>& fermion_in) const override;
+      LatticeColourVector<Real, Nc> apply_odd_even(
+          const LatticeColourVector<Real, Nc>& fermion_in) const override;
 
       LatticeColourVector<Real, Nc> apply_hermiticity(
-          const LatticeColourVector<Real, Nc>& fermion) const;
+          const LatticeColourVector<Real, Nc>& fermion) const override;
       LatticeColourVector<Real, Nc> remove_hermiticity(
-          const LatticeColourVector<Real, Nc>& fermion) const;
+          const LatticeColourVector<Real, Nc>& fermion) const override;
 
     private:
       LatticeColourVector<Real, Nc> multiply_chiral_gamma(
