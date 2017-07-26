@@ -26,13 +26,13 @@
 
 
 template <typename Real, int Nc>
-class TestAction : public pyQCD::gauge::Action<Real, Nc>
+class TestGaugeAction : public pyQCD::gauge::Action<Real, Nc>
 {
 public:
   using GaugeLink =  typename pyQCD::gauge::Action<Real, Nc>::GaugeLink;
   using GaugeField = typename pyQCD::gauge::Action<Real, Nc>::GaugeField;
 
-  TestAction(const Real beta)
+  TestGaugeAction(const Real beta)
     : pyQCD::gauge::Action<Real, Nc>(beta)
   { }
 
@@ -119,7 +119,7 @@ TEST_CASE("Heatbath test")
     auto gauge_field
       = pyQCD::LatticeColourMatrix<Real, 3>(layout, ColourMatrix::Identity());
 
-    auto action = TestAction<Real, 3>(5.0);
+    auto action = TestGaugeAction<Real, 3>(5.0);
 
     pyQCD::heatbath_link_update(gauge_field, action, 0);
 
