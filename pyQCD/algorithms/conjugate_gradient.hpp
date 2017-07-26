@@ -93,17 +93,13 @@ namespace pyQCD
     Int num_spins = rhs.site_size();
 
     Fermion hermitian_rhs = rhs;
-    auto hermitian_rhs_odd_view = hermitian_rhs.segment(volume / 2, volume / 2);
 
     // Create preconditioned source
-    hermitian_rhs_odd_view =
-        hermitian_rhs_odd_view -
-            action.apply_odd_even(
-                action.apply_even_even_inv(rhs))
-                .segment(volume / 2, volume / 2);
+    hermitian_rhs.segment(volume / 2, volume / 2) -=
+        action.apply_odd_even(
+            action.apply_even_even_inv(rhs)).segment(volume / 2, volume / 2);
 
     hermitian_rhs = action.apply_hermiticity(hermitian_rhs);
-    hermitian_rhs_odd_view = hermitian_rhs.segment(volume / 2, volume / 2);
 
     Fermion r(layout, num_spins),
         p(layout, ColourVector<Real, Nc>::Zero(), num_spins);
@@ -119,7 +115,7 @@ namespace pyQCD
     auto Ap = action.apply_hermiticity(action.apply_eoprec(solution));
 
     auto Ap_odd_view = Ap.segment(volume / 2, volume / 2);
-    r_odd_view = hermitian_rhs_odd_view - Ap_odd_view;
+    r_odd_view = hermitian_rhs.segment(volume / 2, volume / 2) - Ap_odd_view;
     p = r;
 
     Real prev_residual = dot_fermions(r_odd_view, r_odd_view).real();
@@ -135,7 +131,7 @@ namespace pyQCD
                                                               Ap_odd_view);
 
       solution_odd_view = solution_odd_view + alpha * p_odd_view;
-      r_odd_view = r_odd_view - alpha * Ap_odd_view;
+      r_odd_view -= alpha * Ap_odd_view;
 
       Real current_residual = dot_fermions(r_odd_view, r_odd_view).real();
 
@@ -151,11 +147,9 @@ namespace pyQCD
     }
 
     // Reverse preconditioning preparation
-    auto solution_even_view = solution.segment(0, volume / 2);
-    solution_even_view =
-        solution_even_view -
-            action.apply_even_even_inv(
-                action.apply_even_odd(solution)).segment(0, volume / 2);
+    solution.segment(0, volume / 2) -=
+        action.apply_even_even_inv(
+            action.apply_even_odd(solution)).segment(0, volume / 2);
 
     return SolutionWrapper<Real, Nc>(std::move(solution), final_residual,
                                      final_iterations);
