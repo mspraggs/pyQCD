@@ -34,7 +34,7 @@ public:
   {}
 
   pyQCD::LatticeColourVector<Real, Nc> apply_full(
-      const pyQCD::LatticeColourVector<Real, Nc>& fermion_in) const
+      const pyQCD::LatticeColourVector<Real, Nc>& fermion_in) const override
   {
     auto fermion_out = fermion_in;
     fermion_out *= this->mass_;
@@ -42,23 +42,23 @@ public:
   }
 
   pyQCD::LatticeColourVector<Real, Nc> apply_even_even_inv(
-      const pyQCD::LatticeColourVector<Real, Nc>& fermion_in) const
+      const pyQCD::LatticeColourVector<Real, Nc>& fermion_in) const override
   { return fermion_in; }
   pyQCD::LatticeColourVector<Real, Nc> apply_odd_odd(
-      const pyQCD::LatticeColourVector<Real, Nc>& fermion_in) const
+      const pyQCD::LatticeColourVector<Real, Nc>& fermion_in) const override
   { return fermion_in; }
   pyQCD::LatticeColourVector<Real, Nc> apply_even_odd(
-      const pyQCD::LatticeColourVector<Real, Nc>& fermion_in) const
+      const pyQCD::LatticeColourVector<Real, Nc>& fermion_in) const override
   { return fermion_in; }
   pyQCD::LatticeColourVector<Real, Nc> apply_odd_even(
-      const pyQCD::LatticeColourVector<Real, Nc>& fermion_in) const
+      const pyQCD::LatticeColourVector<Real, Nc>& fermion_in) const override
   { return fermion_in; }
 
   pyQCD::LatticeColourVector<Real, Nc> apply_hermiticity(
-      const pyQCD::LatticeColourVector<Real, Nc>& fermion) const
+      const pyQCD::LatticeColourVector<Real, Nc>& fermion) const override
   { return fermion; }
   pyQCD::LatticeColourVector<Real, Nc> remove_hermiticity(
-      const pyQCD::LatticeColourVector<Real, Nc>& fermion) const
+      const pyQCD::LatticeColourVector<Real, Nc>& fermion) const override
   { return fermion; }
 };
 
