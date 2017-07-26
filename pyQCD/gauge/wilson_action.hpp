@@ -38,11 +38,11 @@ namespace pyQCD
 
       typename Action<Real, Nc>::GaugeLink compute_staples(
         const typename Action<Real, Nc>::GaugeField& gauge_field,
-        const Int link_index) const;
+        const Int link_index) const override;
 
       Real local_action(
         const typename Action<Real, Nc>::GaugeField& gauge_field,
-        const Int site_index) const;
+        const Int site_index) const override;
 
     private:
       std::vector<std::vector<Int>> links_;
