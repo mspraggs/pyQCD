@@ -37,13 +37,13 @@ public:
   { }
 
   GaugeLink compute_staples(const GaugeField& gauge_field,
-                            const pyQCD::Int site_index) const
+                            const pyQCD::Int site_index) const override
   {
     return GaugeLink::Identity();
   };
 
   Real local_action(const GaugeField& gauge_field,
-                    const pyQCD::Int site_index) const
+                    const pyQCD::Int site_index) const override
   { return 0.0; }
 };
 
