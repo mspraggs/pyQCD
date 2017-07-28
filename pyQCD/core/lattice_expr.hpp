@@ -124,11 +124,9 @@ namespace pyQCD
       // This class is used to encapsulate constant objects so that expressions
       // such as lattice / 2.0 or lattice * mat can be computed efficiently.
     public:
-      LatticeConst(const T& value) : value_(value)
-      { }
+      LatticeConst(const T& value) : value_(value) { }
 
-      const T& operator[](const int) const
-      { return value_; }
+      const T& operator[](const int) const { return value_; }
 
     private:
       const T value_;
