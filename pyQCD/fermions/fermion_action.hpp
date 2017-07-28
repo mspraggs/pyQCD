@@ -33,12 +33,11 @@ namespace pyQCD
     {
     public:
       Action(const Real mass, const std::vector<Real>& pi_frac)
-        : mass_(mass)
+        : mass_(mass), phases_(pi_frac.size())
       {
-        auto unary_func = [] (const Real pi_angle) {
+        const auto unary_func = [] (const Real pi_angle) {
           return std::exp(I * pi_angle * (2 * pi));
         };
-        phases_.resize(pi_frac.size());
         std::transform(pi_frac.begin(), pi_frac.end(), phases_.begin(),
                        unary_func);
       }
