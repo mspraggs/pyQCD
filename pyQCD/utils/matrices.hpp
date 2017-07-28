@@ -38,6 +38,10 @@ namespace pyQCD {
   const SU2Matrix<double> sigma3
     = (Eigen::MatrixXcd(2, 2) << 1.0, 0.0, 0.0, -1.0).finished();
 
+  template <typename T>
+  using SpinMatrix =
+    Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic>;
+
   template <typename Real, typename U>
   SU2Matrix<Real> construct_su2(const U& coefficients)
   {
