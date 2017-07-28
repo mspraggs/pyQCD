@@ -60,7 +60,7 @@ namespace pyQCD
           const LatticeColourVector<Real, Nc>& fermion) const;
 
       HoppingMatrix<Real, Nc, 1> hopping_matrix_;
-      Eigen::MatrixXcd chiral_gamma_;
+      SpinMatrix<Real> chiral_gamma_;
     };
 
 
@@ -71,13 +71,12 @@ namespace pyQCD
       : Action<Real, Nc>(mass, boundary_phases),
         hopping_matrix_(gauge_field, this->phases_)
     {
-      using SpinMat = Eigen::MatrixXcd;
-
       auto gammas = generate_gamma_matrices<Real>(gauge_field.num_dims());
       long num_spins = hopping_matrix_.num_spins();
 
-      std::vector<SpinMat> spin_structures(
-          2 * gauge_field.num_dims(), SpinMat::Identity(num_spins, num_spins));
+      std::vector<SpinMatrix<Real>> spin_structures(
+          2 * gauge_field.num_dims(),
+          SpinMatrix<Real>::Identity(num_spins, num_spins));
 
       for (unsigned long i = 0; i < gammas.size(); ++i) {
         spin_structures[2 * i] -= gammas[i];
@@ -86,9 +85,9 @@ namespace pyQCD
         spin_structures[2 * i + 1] *= -0.5;
       }
 
-      chiral_gamma_ = Eigen::MatrixXcd::Identity(num_spins, num_spins);
+      chiral_gamma_ = SpinMatrix<Real>::Identity(num_spins, num_spins);
       chiral_gamma_.bottomRightCorner(num_spins / 2, num_spins / 2)
-          = -Eigen::MatrixXcd::Identity(num_spins / 2, num_spins / 2);
+          = -SpinMatrix<Real>::Identity(num_spins / 2, num_spins / 2);
 
       hopping_matrix_.set_spin_structures(std::move(spin_structures));
     }
