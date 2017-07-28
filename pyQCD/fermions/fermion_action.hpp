@@ -55,7 +55,7 @@ namespace pyQCD
           const LatticeColourVector<Real, Nc>& fermion_in) const = 0;
       virtual LatticeColourVector<Real, Nc> apply_odd_even(
           const LatticeColourVector<Real, Nc>& fermion_in) const = 0;
-      virtual LatticeColourVector<Real, Nc> apply_eoprec(
+      LatticeColourVector<Real, Nc> apply_eoprec(
           const LatticeColourVector<Real, Nc>& fermion_in) const
       {
         auto fermion_out = apply_odd_odd(fermion_in);
