@@ -56,6 +56,9 @@ namespace pyQCD
       using type = Seq<Ints...>;
     };
 
+    template <std::size_t N>
+    using make_int_seq = typename SeqGen<N>::type;
+
 
     template<typename Op, typename... Vals>
     class LatticeExpr : public std::tuple<Op, Vals...>, LatticeObj
@@ -106,13 +109,12 @@ namespace pyQCD
     template<typename Op, typename... Vals>
     auto eval(const unsigned int i, const LatticeExpr<Op, Vals...>& expr)
       -> decltype(
-        eval(i, expr, typename detail::SeqGen<sizeof...(Vals) + 1>::type()))
+        eval(i, expr, detail::make_int_seq<sizeof...(Vals) + 1>()))
     {
       // This is the main entry-point for evaluating the supplied expression
       // with the given index i. It is also used to evaluate subexpressions
       // referred to within parent expressions.
-      return eval(i, expr,
-                  typename detail::SeqGen<sizeof...(Vals) + 1>::type());
+      return eval(i, expr, detail::make_int_seq<sizeof...(Vals) + 1>());
     }
 
 
