@@ -37,16 +37,11 @@ namespace pyQCD
 
       HoppingMatrix(const LatticeColourMatrix <Real, Nc>& gauge_field,
                     const std::vector<std::complex<Real>>& phases,
-                    const std::vector<Eigen::MatrixXcd>& spin_structures);
+                    std::vector<Eigen::MatrixXcd> spin_structures);
 
-      void set_spin_structures(const std::vector<Eigen::MatrixXcd>& matrices)
+      void set_spin_structures(std::vector<Eigen::MatrixXcd> matrices)
       {
-        spin_structures_ = matrices;
-      }
-
-      void set_spin_structures(std::vector<Eigen::MatrixXcd>&& matrices)
-      {
-        spin_structures_ = matrices;
+        spin_structures_ = std::move(matrices);
       }
 
       unsigned int num_spins() const { return num_spins_; }
@@ -152,10 +147,10 @@ namespace pyQCD
     HoppingMatrix<Real, Nc, Nhops>::HoppingMatrix(
         const LatticeColourMatrix <Real, Nc> &gauge_field,
         const std::vector<std::complex<Real>>& phases,
-        const std::vector<Eigen::MatrixXcd>& spin_structures)
+        std::vector<Eigen::MatrixXcd> spin_structures)
       : HoppingMatrix(gauge_field, phases)
     {
-      set_spin_structures(spin_structures);
+      set_spin_structures(std::move(spin_structures));
     }
 
 
