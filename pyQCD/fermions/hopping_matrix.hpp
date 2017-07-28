@@ -34,16 +34,8 @@ namespace pyQCD
     {
     public:
       HoppingMatrix(const LatticeColourMatrix <Real, Nc>& gauge_field,
-                    const std::vector<std::complex<Real>>& phases);
-
-      HoppingMatrix(const LatticeColourMatrix <Real, Nc>& gauge_field,
                     const std::vector<std::complex<Real>>& phases,
                     std::vector<SpinMatrix<Real>> spin_structures);
-
-      void set_spin_structures(std::vector<SpinMatrix<Real>> matrices)
-      {
-        spin_structures_ = std::move(matrices);
-      }
 
       unsigned int num_spins() const { return num_spins_; }
 
@@ -68,12 +60,12 @@ namespace pyQCD
     template <typename Real, int Nc, unsigned int Nhops>
     HoppingMatrix<Real, Nc, Nhops>::HoppingMatrix(
         const LatticeColourMatrix <Real, Nc>& gauge_field,
-        const std::vector<std::complex<Real>>& phases)
+        const std::vector<std::complex<Real>>& phases,
+        std::vector<SpinMatrix<Real>> spin_structures)
       : num_spins_(
           static_cast<unsigned int>(std::pow(2, gauge_field.num_dims() / 2))),
         scattered_gauge_field_(gauge_field.layout(), 2 * gauge_field.num_dims()),
-        spin_structures_(2 * gauge_field.num_dims(),
-                         SpinMatrix<Real>::Zero(num_spins_, num_spins_))
+        spin_structures_(std::move(spin_structures))
     {
       auto& layout = gauge_field.layout();
       auto volume = gauge_field.volume();
@@ -144,17 +136,6 @@ namespace pyQCD
 
       std::sort(even_array_indices_.begin(), even_array_indices_.end());
       std::sort(odd_array_indices_.begin(), odd_array_indices_.end());
-    }
-
-
-    template <typename Real, int Nc, unsigned int Nhops>
-    HoppingMatrix<Real, Nc, Nhops>::HoppingMatrix(
-        const LatticeColourMatrix <Real, Nc> &gauge_field,
-        const std::vector<std::complex<Real>>& phases,
-        std::vector<SpinMatrix<Real>> spin_structures)
-      : HoppingMatrix(gauge_field, phases)
-    {
-      set_spin_structures(std::move(spin_structures));
     }
 
 
