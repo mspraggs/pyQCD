@@ -56,6 +56,9 @@ namespace pyQCD
           const LatticeColourVector<Real, Nc>& fermion) const override;
 
     private:
+      std::vector<SpinMatrix<Real>> generate_spin_structures(
+          const unsigned int num_dims) const;
+
       LatticeColourVector<Real, Nc> multiply_chiral_gamma(
           const LatticeColourVector<Real, Nc>& fermion) const;
 
@@ -69,27 +72,15 @@ namespace pyQCD
         const Real mass, const LatticeColourMatrix<Real, Nc>& gauge_field,
         const std::vector<Real>& boundary_phases)
       : Action<Real, Nc>(mass, boundary_phases),
-        hopping_matrix_(gauge_field, this->phases_)
+        hopping_matrix_(
+            gauge_field, this->phases_,
+            std::move(generate_spin_structures(gauge_field.num_dims())))
     {
-      auto gammas = generate_gamma_matrices<Real>(gauge_field.num_dims());
       long num_spins = hopping_matrix_.num_spins();
-
-      std::vector<SpinMatrix<Real>> spin_structures(
-          2 * gauge_field.num_dims(),
-          SpinMatrix<Real>::Identity(num_spins, num_spins));
-
-      for (unsigned long i = 0; i < gammas.size(); ++i) {
-        spin_structures[2 * i] -= gammas[i];
-        spin_structures[2 * i] *= -0.5;
-        spin_structures[2 * i + 1] += gammas[i];
-        spin_structures[2 * i + 1] *= -0.5;
-      }
 
       chiral_gamma_ = SpinMatrix<Real>::Identity(num_spins, num_spins);
       chiral_gamma_.bottomRightCorner(num_spins / 2, num_spins / 2)
           = -SpinMatrix<Real>::Identity(num_spins / 2, num_spins / 2);
-
-      hopping_matrix_.set_spin_structures(std::move(spin_structures));
     }
 
     template <typename Real, int Nc>
@@ -195,6 +186,28 @@ namespace pyQCD
       }
 
       return multiply_chiral_gamma(fermion);
+    }
+
+
+    template <typename Real, int Nc>
+    std::vector<SpinMatrix<Real>>
+    WilsonAction<Real, Nc>::generate_spin_structures(
+        const unsigned int num_dims) const
+    {
+      const auto gammas = generate_gamma_matrices<Real>(num_dims);
+      auto num_spins = static_cast<long>(std::pow(2, num_dims / 2));
+
+      std::vector<SpinMatrix<Real>> spin_structures(
+          2 * num_dims, SpinMatrix<Real>::Identity(num_spins, num_spins));
+
+      for (unsigned long i = 0; i < gammas.size(); ++i) {
+        spin_structures[2 * i] -= gammas[i];
+        spin_structures[2 * i] *= -0.5;
+        spin_structures[2 * i + 1] += gammas[i];
+        spin_structures[2 * i + 1] *= -0.5;
+      }
+
+      return spin_structures;
     }
   }
 }
