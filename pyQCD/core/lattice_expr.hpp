@@ -44,13 +44,13 @@ namespace pyQCD
     // parameter packs, encapsulated within a Seq template type. When passed
     // to functions, such Seq instances allow integer parameter packs to be
     // used by the function.
-    template<int... Ints>
+    template<std::size_t... Ints>
     struct Seq {};
 
-    template<int Size, int... Ints>
+    template<std::size_t Size, std::size_t... Ints>
     struct SeqGen : SeqGen<Size - 1, Size - 1, Ints...> {};
 
-    template<int... Ints>
+    template<std::size_t... Ints>
     struct SeqGen<1, Ints...>
     {
       using type = Seq<Ints...>;
@@ -88,7 +88,7 @@ namespace pyQCD
     }
 
 
-    template<typename Op, typename... Vals, int... Ints>
+    template<typename Op, typename... Vals, std::size_t... Ints>
     auto eval(const unsigned int i, const LatticeExpr<Op, Vals...>& expr,
               const detail::Seq<Ints...>)
       -> decltype(std::get<0>(expr).eval(eval(i, std::get<Ints>(expr))...))
