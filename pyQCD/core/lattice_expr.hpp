@@ -173,18 +173,15 @@ namespace pyQCD
     // created upon construction of a LatticeExpr instance, the LatticeExpr
     // template should contain constant reference types. However, this is
     // problematic in the case where operands should be converted to an instance
-    // of ConstWrapper. This latter case would result in references to a
-    // temporaries. The ConstCheck template below facilitates checking for
-    // operands that must be cast to a ConstWrapper and provides the type they
-    // should be cast to. Thus temporary objects are passed by value and
+    // of LatticeConst. This latter case would result in references to a
+    // temporaries. The forward_ref template alias below facilitates checking
+    // for operands that must be cast to a ConstWrapper and provides the type
+    // they should be cast to. Thus temporary objects are passed by value and
     // dangling references are avoided.
 
-    template<typename T, typename U>
-    struct ConstCheck
-    {
-      using type = typename std::conditional<std::is_same<T, U>::value,
-        const T&, U>::type;
-    };
+    template <typename T, typename U>
+    using forward_ref =
+      typename std::conditional<std::is_same<T, U>::value, const T&, U>::type;
 
 
     // Functions to get appropriate value when using operator assignment
@@ -223,15 +220,17 @@ namespace pyQCD
                             char>::type* = nullptr>\
   auto operator op(const T& op1, const U& op2)\
     -> detail::LatticeExpr<op_struct<T__, U__>,\
-                           typename detail::ConstCheck<T, T_>::type,\
-                           typename detail::ConstCheck<U, U_>::type>\
+                           detail::forward_ref<T, T_>,\
+                           detail::forward_ref<U, U_>>\
   {\
-    return detail::LatticeExpr<op_struct<T__, U__>,\
-                               typename detail::ConstCheck<T, T_>::type,\
-                               typename detail::ConstCheck<U, U_>::type>(\
-      op_struct<T__, U__>(),\
-      typename detail::ConstCheck<T, T_>::type(op1),\
-      typename detail::ConstCheck<U, U_>::type(op2));\
+    using Ret =\
+      detail::LatticeExpr<op_struct<T__, U__>,\
+                          detail::forward_ref<T, T_>,\
+                          detail::forward_ref<U, U_>>;\
+    \
+    return Ret(op_struct<T__, U__>(),\
+               detail::forward_ref<T, T_>(op1),\
+               detail::forward_ref<U, U_>(op2));\
   }
 
 
