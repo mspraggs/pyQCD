@@ -30,9 +30,9 @@ namespace pyQCD
   class SolutionWrapper
   {
   public:
-    SolutionWrapper(LatticeColourVector<Real, Nc>&& solution,
+    SolutionWrapper(LatticeColourVector<Real, Nc> solution,
                     const Real tolerance, const Int num_iterations)
-      : solution_(solution), tolerance_(tolerance),
+      : solution_(std::move(solution)), tolerance_(tolerance),
         num_iterations_(num_iterations)
     { }
     
