@@ -30,8 +30,8 @@ int main()
   const pyQCD::LatticeColourMatrix<double, 3> gauge_field(
       layout, pyQCD::ColourMatrix<double, 3>::Identity(), 4);
 
-  const std::vector<Eigen::MatrixXcd>
-      spin_structures(8, Eigen::MatrixXcd::Identity(4, 4));
+  const std::vector<pyQCD::SpinMatrix<double>>
+      spin_structures(8, pyQCD::SpinMatrix<double>::Identity(4, 4));
   const std::vector<std::complex<double>> phases(4, 1.0);
 
   const pyQCD::fermions::HoppingMatrix<double, 3, 1>

@@ -22,6 +22,7 @@
  */
 
 #include <core/qcd_types.hpp>
+#include <utils/matrices.hpp>
 
 
 namespace pyQCD
@@ -37,9 +38,9 @@ namespace pyQCD
 
       HoppingMatrix(const LatticeColourMatrix <Real, Nc>& gauge_field,
                     const std::vector<std::complex<Real>>& phases,
-                    std::vector<Eigen::MatrixXcd> spin_structures);
+                    std::vector<SpinMatrix<Real>> spin_structures);
 
-      void set_spin_structures(std::vector<Eigen::MatrixXcd> matrices)
+      void set_spin_structures(std::vector<SpinMatrix<Real>> matrices)
       {
         spin_structures_ = std::move(matrices);
       }
@@ -58,7 +59,7 @@ namespace pyQCD
     private:
       unsigned int num_spins_;
       LatticeColourMatrix<Real, Nc> scattered_gauge_field_;
-      std::vector<Eigen::MatrixXcd> spin_structures_;
+      std::vector<SpinMatrix<Real>> spin_structures_;
       std::vector<std::vector<Int>> neighbour_array_indices_;
       std::vector<Int> even_array_indices_, odd_array_indices_;
     };
@@ -66,13 +67,13 @@ namespace pyQCD
 
     template <typename Real, int Nc, unsigned int Nhops>
     HoppingMatrix<Real, Nc, Nhops>::HoppingMatrix(
-        const LatticeColourMatrix <Real, Nc> &gauge_field,
+        const LatticeColourMatrix <Real, Nc>& gauge_field,
         const std::vector<std::complex<Real>>& phases)
       : num_spins_(
           static_cast<unsigned int>(std::pow(2, gauge_field.num_dims() / 2))),
         scattered_gauge_field_(gauge_field.layout(), 2 * gauge_field.num_dims()),
         spin_structures_(2 * gauge_field.num_dims(),
-                         Eigen::MatrixXcd::Zero(num_spins_, num_spins_))
+                         SpinMatrix<Real>::Zero(num_spins_, num_spins_))
     {
       auto& layout = gauge_field.layout();
       auto volume = gauge_field.volume();
@@ -150,7 +151,7 @@ namespace pyQCD
     HoppingMatrix<Real, Nc, Nhops>::HoppingMatrix(
         const LatticeColourMatrix <Real, Nc> &gauge_field,
         const std::vector<std::complex<Real>>& phases,
-        std::vector<Eigen::MatrixXcd> spin_structures)
+        std::vector<SpinMatrix<Real>> spin_structures)
       : HoppingMatrix(gauge_field, phases)
     {
       set_spin_structures(std::move(spin_structures));
