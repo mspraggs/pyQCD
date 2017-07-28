@@ -48,10 +48,9 @@ namespace pyQCD
     // Constructors
 
     Lattice(const Layout& layout, const Int site_size = 1)
-      : site_size_(site_size), layout_(&layout)
-    {
-      data_.resize(site_size_ * layout.volume());
-    }
+      : site_size_(site_size), layout_(&layout),
+        data_(site_size_ * layout.volume())
+    {}
 
     Lattice(const Layout& layout, const T& val, const Int site_size = 1)
       : Lattice(layout, site_size)
@@ -152,11 +151,11 @@ LATTICE_OPERATOR_ASSIGN_IMPL(/)
     }
 
     // Construct permutation array specifying the reordering
-    std::vector<Int> array_permutations(layout_->volume());
+    std::vector<unsigned int> array_permutations(layout_->volume());
 
     for (Int i = 0; i < layout_->volume(); ++i) {
-      auto index_old = layout_->get_array_index(i);
-      auto index_new = new_layout.get_array_index(i);
+      const auto index_old = layout_->get_array_index(i);
+      const auto index_new = new_layout.get_array_index(i);
       array_permutations[index_new] = index_old;
     }
 
@@ -165,20 +164,20 @@ LATTICE_OPERATOR_ASSIGN_IMPL(/)
 
     // Move along the permutation array in order and move data as specified
     // by the permutation
-    for (Int i = 0; i < layout_->volume(); ++i) {
+    for (unsigned int i = 0; i < layout_->volume(); ++i) {
 
       // Save the current site's data for use later
-      site_data_store.assign(&data_[site_size_ * i],
-                             &data_[site_size_ * (i + 1)]);
+      site_data_store.assign(data_.begin() + site_size_ * i,
+                             data_.begin() + site_size_ * (i + 1));
 
-      Int j = i;
+      unsigned int j = i;
 
       // Now we follow the array indices around the list of permutataions,
       // sorting the permutation array in the process. Each time we loop, we
       // check for cycles in the permutations array by checking if we're back
       // at the index i.
       while (true) {
-        Int k = array_permutations[j];
+        const unsigned int k = array_permutations[j];
         array_permutations[j] = j;
 
         // Break if we've completed a cycle.
@@ -186,8 +185,9 @@ LATTICE_OPERATOR_ASSIGN_IMPL(/)
           break;
         }
 
-        std::copy(&data_[site_size_ * k], &data_[site_size_ * (k + 1)],
-                  &data_[site_size_ * j]);
+        std::copy(data_.begin() + site_size_ * k,
+                  data_.begin() + site_size_ * (k + 1),
+                  data_.begin() + site_size_ * j);
         j = k;
       }
 
