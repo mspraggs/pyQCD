@@ -28,14 +28,14 @@ TEST_CASE ("Testing gamma matrix generation")
 {
   MatrixCompare<Eigen::MatrixXcd> comp(1e-5, 1e-8);
 
-  auto gamma_matrices = pyQCD::generate_gamma_matrices(2);
+  auto gamma_matrices = pyQCD::generate_gamma_matrices<double>(2);
 
   REQUIRE (gamma_matrices.size() == 2);
   REQUIRE (comp(gamma_matrices[0], pyQCD::sigma1));
   REQUIRE (comp(gamma_matrices[1], pyQCD::sigma2));
 
   for (int d = 4; d < 12; d += 2) {
-    gamma_matrices = pyQCD::generate_gamma_matrices(d);
+    gamma_matrices = pyQCD::generate_gamma_matrices<double>(d);
 
     REQUIRE (gamma_matrices.size() == d);
 

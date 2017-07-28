@@ -73,7 +73,7 @@ namespace pyQCD
     {
       using SpinMat = Eigen::MatrixXcd;
 
-      auto gammas = generate_gamma_matrices(gauge_field.num_dims());
+      auto gammas = generate_gamma_matrices<Real>(gauge_field.num_dims());
       long num_spins = hopping_matrix_.num_spins();
 
       std::vector<SpinMat> spin_structures(
