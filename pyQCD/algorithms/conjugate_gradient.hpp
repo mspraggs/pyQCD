@@ -128,7 +128,7 @@ namespace pyQCD
       const std::complex<Real> alpha =
           prev_residual / dot_fermions(p_odd_view, Ap_odd_view);
 
-      solution_odd_view = solution_odd_view + alpha * p_odd_view;
+      solution_odd_view += alpha * p_odd_view;
       r_odd_view -= alpha * Ap_odd_view;
 
       const Real current_residual = dot_fermions(r_odd_view, r_odd_view).real();
