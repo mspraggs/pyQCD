@@ -182,6 +182,16 @@ namespace pyQCD
       typename std::conditional<std::is_same<T, U>::value, const T&, U>::type;
 
 
+    // This template alias checks whether a type is derived from LatticeObj.
+    // In such cases, it returns that type. Otherwise, it wraps the type in
+    // LatticeConst and returns that instead.
+
+    template <typename T>
+    using determine_expr_type =
+      typename std::conditional<std::is_base_of<LatticeObj, T>::value,
+          T, detail::LatticeConst<T>>::type;
+
+
     // Functions to get appropriate value when using operator assignment
     template <typename T>
     auto op_assign_get_rhs(const int i, const T& value)
@@ -205,12 +215,8 @@ namespace pyQCD
   // it's ended up a mess anyway).
 #define PYQCD_EXPR_OP_OVERLOAD(op, op_struct)\
   template <typename T, typename U,\
-    typename T_ = typename std::conditional<\
-      std::is_base_of<LatticeObj, T>::value, T,\
-      detail::LatticeConst<T>>::type,\
-    typename U_ = typename std::conditional<\
-      std::is_base_of<LatticeObj, U>::value, U,\
-      detail::LatticeConst<U>>::type,\
+    typename T_ = detail::determine_expr_type<T>,\
+    typename U_ = detail::determine_expr_type<U>,\
     typename T__ = decltype(detail::eval(0, std::declval<T_>())),\
     typename U__ = decltype(detail::eval(0, std::declval<U_>())),\
     typename std::enable_if<std::is_base_of<LatticeObj, T>::value or\
