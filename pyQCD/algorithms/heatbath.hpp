@@ -52,23 +52,26 @@ namespace pyQCD {
     Real lambda_squared = 2.0;
     Real uniform_squared = std::pow(rng().generate_real<Real>(0.0, 1.0), 2);
     while (uniform_squared > 1 - lambda_squared) {
-      Real r0 = 1.0 - rng().generate_real<Real>(0.0, 1.0);
-      Real r1 = 1.0 - rng().generate_real<Real>(0.0, 1.0);
-      Real r2 = 1.0 - rng().generate_real<Real>(0.0, 1.0);
-      lambda_squared
-        = - 1.0 / (2.0 * weight)
-          * (std::log(r0) + std::pow(std::cos(2 * pi * r1), 2) * std::log(r2));
+      const std::array<Real, 3> r {
+          1.0 - rng().generate_real<Real>(0.0, 1.0),
+          1.0 - rng().generate_real<Real>(0.0, 1.0),
+          1.0 - rng().generate_real<Real>(0.0, 1.0)
+      };
+
+      lambda_squared = - 1.0 / (2.0 * weight) *
+          (std::log(r[0]) + std::pow(std::cos(2 * pi * r[1]), 2) *
+                                std::log(r[2]));
       uniform_squared = std::pow(rng().generate_real<Real>(0.0, 1.0), 2);
     }
     coeffs[0] = 1 - 2 * lambda_squared;
     // With the first component determined, the magnitude of the remaining
     // three-vector can easily be determined.
-    Real three_vec_magnitude = std::sqrt(1 - coeffs[0] * coeffs[0]);
+    const Real three_vec_magnitude = std::sqrt(1 - coeffs[0] * coeffs[0]);
     // The remaining three-vector should then be take from a uniform spherical
     // distribution.
-    Real cos_theta = rng().generate_real<Real>(-1.0, 1.0);
-    Real sin_theta = std::sqrt(1 - cos_theta * cos_theta);
-    Real phi = rng().generate_real<Real>(0, 2 * pi);
+    const Real cos_theta = rng().generate_real<Real>(-1.0, 1.0);
+    const Real sin_theta = std::sqrt(1 - cos_theta * cos_theta);
+    const Real phi = rng().generate_real<Real>(0, 2 * pi);
 
     coeffs[1] = three_vec_magnitude * sin_theta * std::cos(phi);
     coeffs[2] = three_vec_magnitude * sin_theta * std::sin(phi);
@@ -85,12 +88,13 @@ namespace pyQCD {
     // Perform an SU(2) heatbath update on the given lattice link
     ColourMatrix<Real, Nc> W = link * staple;
     auto A = extract_su2(W, subgroup);
-    auto sqrt_detA = std::sqrt(A.determinant());
+    const auto sqrt_detA = std::sqrt(A.determinant());
     A /= sqrt_detA;
-    Real a = sqrt_detA.real();
+    const Real a = sqrt_detA.real();
     bool det_is_zero = a < 6.0 * std::numeric_limits<Real>::epsilon();
-    auto X = det_is_zero ? random_su2<Real>() : gen_heatbath_su2(a * weight);
-    auto N = insert_su2<Nc>((X * A.adjoint()).eval(), subgroup);
+    const auto X =
+        det_is_zero ? random_su2<Real>() : gen_heatbath_su2(a * weight);
+    const auto N = insert_su2<Nc>((X * A.adjoint()).eval(), subgroup);
     link = N * link;
   }
 
@@ -100,10 +104,10 @@ namespace pyQCD {
                             const Int link_index)
   {
     // Perform SU(N) heatbath update on the specified lattice link
-    auto staple = action.compute_staples(gauge_field, link_index);
+    const auto staple = action.compute_staples(gauge_field, link_index);
     auto& link = gauge_field(link_index / gauge_field.site_size(),
                              link_index % gauge_field.site_size());
-    Real beta_prime = action.beta() / Nc;
+    const Real beta_prime = action.beta() / Nc;
 
     constexpr int num_subgroups = (Nc * (Nc - 1)) / 2;
 
