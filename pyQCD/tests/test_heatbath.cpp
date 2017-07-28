@@ -100,7 +100,10 @@ TEST_CASE("Heatbath test")
       ColourMatrix link = ColourMatrix::Identity();
       ColourMatrix staple = ColourMatrix::Identity();
 
-      pyQCD::su2_heatbath_update(link, staple, 5.0, subgroup);
+      ColourMatrix link_prod = link * staple;
+      const auto update_matrix =
+          pyQCD::comp_su2_heatbath_mat(link_prod, 5.0, subgroup);
+      link = update_matrix * link;
 
       REQUIRE(comp(link(2 - subgroup, 2 - subgroup).real(), 1.0));
       REQUIRE(comp(link(2 - subgroup, 2 - subgroup).imag(), 0.0));

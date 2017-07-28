@@ -81,12 +81,11 @@ namespace pyQCD {
   }
 
   template <typename Real, int Nc>
-  void su2_heatbath_update(ColourMatrix<Real, Nc>& link,
-                           const ColourMatrix<Real, Nc>& staple,
-                           const Real weight, const unsigned int subgroup)
+  ColourMatrix<Real, Nc> comp_su2_heatbath_mat(
+      const ColourMatrix<Real, Nc>& W, const Real weight,
+      const unsigned int subgroup)
   {
     // Perform an SU(2) heatbath update on the given lattice link
-    ColourMatrix<Real, Nc> W = link * staple;
     auto A = extract_su2(W, subgroup);
     const auto sqrt_detA = std::sqrt(A.determinant());
     A /= sqrt_detA;
@@ -94,8 +93,7 @@ namespace pyQCD {
     bool det_is_zero = a < 6.0 * std::numeric_limits<Real>::epsilon();
     const auto X =
         det_is_zero ? random_su2<Real>() : gen_heatbath_su2(a * weight);
-    const auto N = insert_su2<Nc>((X * A.adjoint()).eval(), subgroup);
-    link = N * link;
+    return insert_su2<Nc>((X * A.adjoint()).eval(), subgroup);
   }
 
   template <typename Real, int Nc>
@@ -113,7 +111,8 @@ namespace pyQCD {
 
     // Here we do the pseudo-heatbath over the subgroups of SU(N)
     for (unsigned int subgroup = 0; subgroup < num_subgroups; ++subgroup) {
-      su2_heatbath_update(link, staple, beta_prime, subgroup);
+      const ColourMatrix<Real, Nc> link_prod = link * staple;
+      link = comp_su2_heatbath_mat(link_prod, beta_prime, subgroup) * link;
     }
   }
 
