@@ -68,7 +68,8 @@ namespace pyQCD
     HoppingMatrix<Real, Nc, Nhops>::HoppingMatrix(
         const LatticeColourMatrix <Real, Nc> &gauge_field,
         const std::vector<std::complex<Real>>& phases)
-      : num_spins_(std::pow(2u, gauge_field.num_dims() / 2)),
+      : num_spins_(
+          static_cast<unsigned int>(std::pow(2, gauge_field.num_dims() / 2))),
         scattered_gauge_field_(gauge_field.layout(), 2 * gauge_field.num_dims()),
         spin_structures_(2 * gauge_field.num_dims(),
                          Eigen::MatrixXcd::Zero(num_spins_, num_spins_))
