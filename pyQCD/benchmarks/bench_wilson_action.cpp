@@ -29,12 +29,12 @@ int main()
   using ColourMatrix = pyQCD::ColourMatrix<Real, 3>;
 
   auto identity = ColourMatrix::Identity();
-  pyQCD::LexicoLayout layout({8, 4, 4, 4, 4});
-  pyQCD::LatticeColourMatrix<double, 3> gauge_field(layout, identity);
-  pyQCD::gauge::WilsonAction<double, 3> action(5.0, layout);
+  const pyQCD::LexicoLayout layout({8, 4, 4, 4, 4});
+  const pyQCD::LatticeColourMatrix<double, 3> gauge_field(layout, identity);
+  const pyQCD::gauge::WilsonAction<double, 3> action(5.0, layout);
 
   std::cout << "Benchmarking WilsonAction::compute_staples..." << std::endl;
   benchmark([&] () {
-    ColourMatrix staple = action.compute_staples(gauge_field, 0);
+    const ColourMatrix staple = action.compute_staples(gauge_field, 0);
   }, 0, 1000000);
 }

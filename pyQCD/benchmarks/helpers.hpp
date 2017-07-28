@@ -43,14 +43,14 @@ unsigned int matadd_flops(
 template <typename Fn>
 void benchmark(Fn func, const long num_flops = 0, const int num_trials = 100)
 {
-  auto start = std::chrono::system_clock::now();
+  const auto start = std::chrono::system_clock::now();
   for (int i = 0; i < num_trials; ++i) {
     func();
   }
-  auto end = std::chrono::system_clock::now();
+  const auto end = std::chrono::system_clock::now();
 
-  std::chrono::duration<double> elapsed_seconds = end - start;
-  double elapsed = elapsed_seconds.count();
+  const std::chrono::duration<double> elapsed_seconds = end - start;
+  const double elapsed = elapsed_seconds.count();
 
   if (num_flops > 0) {
     std::cout << "Performed " << num_flops * num_trials << " flops in "

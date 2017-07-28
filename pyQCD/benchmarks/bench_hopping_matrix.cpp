@@ -26,18 +26,18 @@
 
 int main()
 {
-  pyQCD::LexicoLayout layout({8, 8, 8, 8});
-  pyQCD::LatticeColourMatrix<double, 3> gauge_field(layout, 4);
-  gauge_field.fill(pyQCD::ColourMatrix<double, 3>::Identity());
+  const pyQCD::LexicoLayout layout({8, 8, 8, 8});
+  const pyQCD::LatticeColourMatrix<double, 3> gauge_field(
+      layout, pyQCD::ColourMatrix<double, 3>::Identity(), 4);
 
-  std::vector<Eigen::MatrixXcd>
+  const std::vector<Eigen::MatrixXcd>
       spin_structures(8, Eigen::MatrixXcd::Identity(4, 4));
-  std::vector<std::complex<double>> phases(4, 1.0);
+  const std::vector<std::complex<double>> phases(4, 1.0);
 
-  pyQCD::fermions::HoppingMatrix<double, 3, 1>
+  const pyQCD::fermions::HoppingMatrix<double, 3, 1>
       hopping_matrix(gauge_field, phases, spin_structures);
 
-  pyQCD::LatticeColourVector<double, 3> fermion_in(layout, 4);
+  const pyQCD::LatticeColourVector<double, 3> fermion_in(layout, 4);
   pyQCD::LatticeColourVector<double, 3> fermion_out(layout, 4);
 
   std::cout << "Benchmarking HoppingMatrix::apply_full..." << std::endl;

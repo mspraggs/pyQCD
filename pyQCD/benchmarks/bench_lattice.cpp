@@ -32,12 +32,14 @@ void profile_for_type(const T& elem, const std::string& type,
 {
   std::cout << "Profiling for array type " << type << "." << std::endl;
 
-  unsigned int n = 100;
-  pyQCD::LexicoLayout layout(std::vector<unsigned int>{n});
-  pyQCD::Lattice<T> lattice1(layout, elem);
-  decltype(lattice1) lattice2(layout, elem);
-  decltype(lattice1) lattice3(layout, elem);
-  decltype(lattice1) result(layout, elem);
+  using Lattice = pyQCD::Lattice<T>;
+
+  const unsigned int n = 100;
+  const pyQCD::LexicoLayout layout(std::vector<unsigned int>{n});
+  const Lattice lattice1(layout, elem);
+  const Lattice lattice2(layout, elem);
+  const Lattice lattice3(layout, elem);
+  Lattice result(layout, elem);
 
   std::cout << "Profiling f(x, y, z) = x + y + z:" << std::endl;
   benchmark([&] () {
@@ -58,7 +60,7 @@ void profile_for_type(const T& elem, const std::string& type,
 }
 
 
-int main(int argc, char* argv[])
+int main()
 {
   std::cout << "Profiling lattice arithmetic operations\n";
   std::cout << "=======================================\n";
