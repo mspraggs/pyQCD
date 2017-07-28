@@ -45,7 +45,7 @@ namespace pyQCD {
 
     // Coefficients for the SU(2) basis of Pauli matrices. This final vector
     // will need to be normalised.
-    Real coeffs[4];
+    std::array<Real, 4> coeffs{0.0, 0.0, 0.0, 0.0};
     // Now we need to fill the components of this vector. The first component
     // must be distributed according to
     //   sqrt(1 - x^2) * exp(weight * beta * x)
