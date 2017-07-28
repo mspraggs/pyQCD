@@ -56,11 +56,11 @@ namespace pyQCD
           const LatticeColourVector<Real, Nc>& in) const;
 
     private:
+      unsigned int num_spins_;
       LatticeColourMatrix<Real, Nc> scattered_gauge_field_;
       std::vector<Eigen::MatrixXcd> spin_structures_;
       std::vector<std::vector<Int>> neighbour_array_indices_;
       std::vector<Int> even_array_indices_, odd_array_indices_;
-      unsigned int num_spins_;
     };
 
 
@@ -68,8 +68,10 @@ namespace pyQCD
     HoppingMatrix<Real, Nc, Nhops>::HoppingMatrix(
         const LatticeColourMatrix <Real, Nc> &gauge_field,
         const std::vector<std::complex<Real>>& phases)
-      : scattered_gauge_field_(gauge_field.layout(), 2 * gauge_field.num_dims()),
-        num_spins_(std::pow(2u, gauge_field.num_dims() / 2))
+      : num_spins_(std::pow(2u, gauge_field.num_dims() / 2)),
+        scattered_gauge_field_(gauge_field.layout(), 2 * gauge_field.num_dims()),
+        spin_structures_(2 * gauge_field.num_dims(),
+                         Eigen::MatrixXcd::Zero(num_spins_, num_spins_))
     {
       auto& layout = gauge_field.layout();
       auto volume = gauge_field.volume();
