@@ -53,7 +53,7 @@ namespace pyQCD
     RectangleAction<Real, Nc>::RectangleAction(const Real beta,
                                                const Layout &layout,
                                                const Real c1)
-      : Action<Real, Nc>(beta), c0_(1 - 8.0 * c1), c1_(c1)
+      : Action<Real, Nc>(beta, 2), c0_(1 - 8.0 * c1), c1_(c1)
     {
       // Determine which link indices belong to which link staples.
 

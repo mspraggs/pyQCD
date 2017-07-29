@@ -33,7 +33,7 @@ public:
   using GaugeField = typename pyQCD::gauge::Action<Real, Nc>::GaugeField;
 
   TestGaugeAction(const Real beta)
-    : pyQCD::gauge::Action<Real, Nc>(beta)
+    : pyQCD::gauge::Action<Real, Nc>(beta, 1)
   { }
 
   GaugeLink compute_staples(const GaugeField& gauge_field,

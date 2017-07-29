@@ -38,7 +38,9 @@ namespace pyQCD
       using GaugeLink = ColourMatrix<Real, Nc>;
       using GaugeField = LatticeColourMatrix<Real, Nc>;
 
-      Action(const Real beta) : beta_(beta) { }
+      Action(const Real beta, const unsigned int offset)
+          : beta_(beta), min_site_diag_offset_(offset)
+      { }
 
       virtual ~Action() = default;
 
@@ -48,10 +50,17 @@ namespace pyQCD
       virtual Real local_action(const GaugeField& gauge_field,
                                 const Int site_index) const = 0;
 
+      unsigned int min_site_diag_offset() const
+      { return min_site_diag_offset_; };
+
       inline Real beta() const { return beta_; }
 
     private:
-      Real beta_; // The inverse coupling
+      // The inverse coupling
+      Real beta_;
+      // Min diagonal distance between sites that can have their links updated
+      // simultaneously
+      unsigned int min_site_diag_offset_;
     };
   }
 }
