@@ -133,6 +133,44 @@ namespace pyQCD {
       }
     }
   }
+
+
+  template <typename Real, int Nc>
+  class Heatbath
+  {
+  public:
+    Heatbath(const Layout& layout, const gauge::Action<Real, Nc>& action);
+
+    void update(LatticeColourMatrix<Real, Nc>& gauge_field,
+                const unsigned int num_iter);
+
+  private:
+    RandomWrapper* rngs_;
+    const gauge::Action<Real, Nc>* action_;
+  };
+
+
+  template <typename Real, int Nc>
+  Heatbath<Real, Nc>::Heatbath(const Layout& layout,
+                               const gauge::Action<Real, Nc>& action)
+      : rngs_(&RandomWrapper::instance(layout)), action_(&action)
+  {
+  }
+
+
+  template <typename Real, int Nc>
+  void Heatbath<Real, Nc>::update(LatticeColourMatrix<Real, Nc>& gauge_field,
+                                  const unsigned int num_iter)
+  {
+    const auto num_links = gauge_field.size();
+    const auto site_size = gauge_field.site_size();
+    for (unsigned int i = 0; i < num_iter; ++i) {
+      for (unsigned int link = 0; link < num_links; ++link) {
+        auto& rng = (*rngs_)[link / site_size];
+        heatbath_link_update(rng, gauge_field, *action_, link);
+      }
+    }
+  }
 }
 
 #endif
