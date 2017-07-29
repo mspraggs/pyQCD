@@ -57,7 +57,8 @@ TEST_CASE ("Testing Wilson fermion action")
   psi.fill(SiteFermion::Zero());
 
   pyQCD::Site site{0, 3, 0, 0};
-  auto random_mat = pyQCD::random_sun<double, 3>();
+  pyQCD::RandGenerator rng;
+  auto random_mat = pyQCD::random_sun<double, 3>(rng);
   gauge_field(site, 1) = random_mat;
   psi(site, 3) = SiteFermion::Ones();
   site = {0, 0, 0, 1};

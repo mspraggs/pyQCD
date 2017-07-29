@@ -34,7 +34,7 @@
 namespace pyQCD {
 
   template <typename Real>
-  SU2Matrix<Real> gen_heatbath_su2(const Real weight)
+  SU2Matrix<Real> gen_heatbath_su2(RandGenerator& rng, const Real weight)
   {
     // Generate a random SU(2) matrix distributed according to the distribution
     // exp(0.5 * weight * beta * Re tr(X)). We use the algorithm specified in
@@ -50,18 +50,18 @@ namespace pyQCD {
     // must be distributed according to
     //   sqrt(1 - x^2) * exp(weight * beta * x)
     Real lambda_squared = 2.0;
-    Real uniform_squared = std::pow(rng().generate_real<Real>(0.0, 1.0), 2);
+    Real uniform_squared = std::pow(rng.generate_real<Real>(0.0, 1.0), 2);
     while (uniform_squared > 1 - lambda_squared) {
       const std::array<Real, 3> r {
-          1.0 - rng().generate_real<Real>(0.0, 1.0),
-          1.0 - rng().generate_real<Real>(0.0, 1.0),
-          1.0 - rng().generate_real<Real>(0.0, 1.0)
+          1.0 - rng.generate_real<Real>(0.0, 1.0),
+          1.0 - rng.generate_real<Real>(0.0, 1.0),
+          1.0 - rng.generate_real<Real>(0.0, 1.0)
       };
 
       lambda_squared = - 1.0 / (2.0 * weight) *
           (std::log(r[0]) + std::pow(std::cos(2 * pi * r[1]), 2) *
                                 std::log(r[2]));
-      uniform_squared = std::pow(rng().generate_real<Real>(0.0, 1.0), 2);
+      uniform_squared = std::pow(rng.generate_real<Real>(0.0, 1.0), 2);
     }
     coeffs[0] = 1 - 2 * lambda_squared;
     // With the first component determined, the magnitude of the remaining
@@ -69,9 +69,9 @@ namespace pyQCD {
     const Real three_vec_magnitude = std::sqrt(1 - coeffs[0] * coeffs[0]);
     // The remaining three-vector should then be take from a uniform spherical
     // distribution.
-    const Real cos_theta = rng().generate_real<Real>(-1.0, 1.0);
+    const Real cos_theta = rng.generate_real<Real>(-1.0, 1.0);
     const Real sin_theta = std::sqrt(1 - cos_theta * cos_theta);
-    const Real phi = rng().generate_real<Real>(0, 2 * pi);
+    const Real phi = rng.generate_real<Real>(0, 2 * pi);
 
     coeffs[1] = three_vec_magnitude * sin_theta * std::cos(phi);
     coeffs[2] = three_vec_magnitude * sin_theta * std::sin(phi);
@@ -82,7 +82,7 @@ namespace pyQCD {
 
   template <typename Real, int Nc>
   ColourMatrix<Real, Nc> comp_su2_heatbath_mat(
-      const ColourMatrix<Real, Nc>& W, const Real weight,
+      RandGenerator& rng, const ColourMatrix<Real, Nc>& W, const Real weight,
       const unsigned int subgroup)
   {
     // Perform an SU(2) heatbath update on the given lattice link
@@ -92,12 +92,13 @@ namespace pyQCD {
     const Real a = sqrt_detA.real();
     bool det_is_zero = a < 6.0 * std::numeric_limits<Real>::epsilon();
     const auto X =
-        det_is_zero ? random_su2<Real>() : gen_heatbath_su2(a * weight);
+        det_is_zero ? random_su2<Real>(rng) : gen_heatbath_su2(rng, a * weight);
     return insert_su2<Nc>((X * A.adjoint()).eval(), subgroup);
   }
 
   template <typename Real, int Nc>
-  void heatbath_link_update(LatticeColourMatrix<Real, Nc> &gauge_field,
+  void heatbath_link_update(RandGenerator& rng,
+                            LatticeColourMatrix<Real, Nc> &gauge_field,
                             const gauge::Action<Real, Nc> &action,
                             const Int link_index)
   {
@@ -112,7 +113,7 @@ namespace pyQCD {
     // Here we do the pseudo-heatbath over the subgroups of SU(N)
     for (unsigned int subgroup = 0; subgroup < num_subgroups; ++subgroup) {
       const ColourMatrix<Real, Nc> link_prod = link * staple;
-      link = comp_su2_heatbath_mat(link_prod, beta_prime, subgroup) * link;
+      link = comp_su2_heatbath_mat(rng, link_prod, beta_prime, subgroup) * link;
     }
   }
 
@@ -123,9 +124,12 @@ namespace pyQCD {
                        const unsigned int num_iter)
   {
     auto num_links = gauge_field.size();
+    auto site_size = gauge_field.site_size();
+    auto& random_wrapper = rng(gauge_field.layout());
     for (unsigned int i = 0; i < num_iter; ++i) {
       for (unsigned int link = 0; link < num_links; ++link) {
-        heatbath_link_update(gauge_field, action, link);
+        auto& rng = random_wrapper[link / site_size];
+        heatbath_link_update(rng, gauge_field, action, link);
       }
     }
   }

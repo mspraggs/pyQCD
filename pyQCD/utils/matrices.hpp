@@ -54,7 +54,7 @@ namespace pyQCD {
   }
 
   template <typename Real>
-  SU2Matrix<Real> random_su2()
+  SU2Matrix<Real> random_su2(RandGenerator& rng)
   {
     // Generate a random SU(2) matrix using the Pauli basis.
     // TODO: Implement a proper random number generator
@@ -62,15 +62,15 @@ namespace pyQCD {
     // Basically we want to create a random normalised 4-vector from a
     // hyper-spherically symmetric distribution.
     std::array<Real, 4> coeffs{0.0, 0.0, 0.0, 0.0};
-    coeffs[0] = rng().generate_real(0.0, 1.0);
+    coeffs[0] = rng.generate_real(0.0, 1.0);
     // With the first component determined, the magnitude of the remaining
     // three-vector can easily be determined.
     const Real three_vec_magnitude = std::sqrt(1 - coeffs[0] * coeffs[0]);
     // The remaining three-vector should then be take from a uniform spherical
     // distribution.
-    const Real cos_theta = rng().generate_real(-1.0, 1.0);
+    const Real cos_theta = rng.generate_real(-1.0, 1.0);
     const Real sin_theta = std::sqrt(1 - cos_theta * cos_theta);
-    const Real phi = rng().generate_real(0.0, 2 * pi);
+    const Real phi = rng.generate_real(0.0, 2 * pi);
 
     coeffs[1] = three_vec_magnitude * sin_theta * std::cos(phi);
     coeffs[2] = three_vec_magnitude * sin_theta * std::sin(phi);
@@ -128,14 +128,14 @@ namespace pyQCD {
   }
 
   template <typename Real, int Nc>
-  ColourMatrix<Real, Nc> random_sun()
+  ColourMatrix<Real, Nc> random_sun(RandGenerator& rng)
   {
     ColourMatrix<Real, Nc> ret = ColourMatrix<Real, Nc>::Identity();
 
     constexpr int num_subgroups = (Nc * (Nc - 1)) / 2;
 
     for (int subgroup = 0; subgroup < num_subgroups; ++subgroup) {
-      ret *= insert_su2<Nc>(random_su2<Real>(), subgroup);
+      ret *= insert_su2<Nc>(random_su2<Real>(rng), subgroup);
     }
 
     return ret;

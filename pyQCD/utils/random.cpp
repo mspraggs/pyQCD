@@ -16,6 +16,10 @@
  *
  * Created by Matt Spraggs on 10/02/16.
  */
+
+#include <unordered_map>
+#include <vector>
+
 #include "random.hpp"
 
 
@@ -40,41 +44,48 @@ namespace pyQCD {
   }
 
 
-  Random::Random(const size_t num_threads) : num_threads_(num_threads)
+  RandomWrapper::RandomWrapper(const std::size_t num_rngs)
   {
-    // Initialise one generator for each thread
+    // Initialise the specified number of RandGenerators
+    rngs_.reserve(num_rngs);
+
     std::random_device rd;
-    engines_.resize(num_threads_);
-    for (size_t i = 0; i < num_threads_; ++i) {
-      engines_[i] = std::mt19937(static_cast<size_t>(rd()));
+    for (std::size_t i = 0; i < num_rngs; ++i) {
+      rngs_.emplace_back(rd());
     }
   }
 
-  Random& Random::instance(const size_t num_threads)
+  RandomWrapper& RandomWrapper::instance(const Layout& layout)
   {
-    // Random should be a singleton.
-    static Random ret(num_threads);
-    return ret;
+    // RandomWrapper should be a singleton.
+    static std::unordered_map<unsigned int, std::size_t> map;
+    static std::vector<RandomWrapper> rngs;
+
+    // Create a lattice-shape specific hash
+    const auto& shape = layout.shape();
+    auto hash = static_cast<unsigned int>(shape.size());
+    for (auto extent : shape) {
+      hash ^= extent + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+    }
+
+    if (map.count(hash) == 0) {
+      rngs.push_back(RandomWrapper(layout.volume()));
+      map[hash] = rngs.size() - 1;
+    }
+
+    return rngs[map[hash]];
   }
 
-  void Random::set_seed(const std::vector<size_t>& seed)
+  void RandomWrapper::set_seeds(const std::vector<std::size_t>& seeds)
   {
-    // Set the seed
-    for (size_t i = 0; i < num_threads_; ++i) {
-      engines_[i].seed(seed[get_thread_num()]);
+    for (std::size_t i = 0; i < rngs_.size(); ++i) {
+      rngs_[i].set_seed(seeds.at(i));
     }
   }
 
-  int Random::generate_int(const int lower, const int upper)
-  {
-    int thread = get_thread_num();
-    std::uniform_int_distribution<int> dist(lower, upper);
-    return dist(engines_[thread]);
-  }
 
-
-  Random& rng()
+  RandomWrapper& rng(const Layout& layout)
   {
-    return Random::instance(get_num_threads());
+    return RandomWrapper::instance(layout);
   }
 }

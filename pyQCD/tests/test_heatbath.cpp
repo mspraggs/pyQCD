@@ -53,6 +53,8 @@ using Real = double;
 
 TEST_CASE("Heatbath test")
 {
+  pyQCD::RandGenerator rng;
+
   SECTION ("Test heatbath SU(2) generation") {
 
     Compare<Real> comp(1.0e-5, 1.0e-8);
@@ -61,7 +63,7 @@ TEST_CASE("Heatbath test")
     const unsigned int n = 10000;
     std::vector<Real> x0s(n);
     for (unsigned int i = 0; i < n; ++i) {
-      auto heatbath_su2 = pyQCD::gen_heatbath_su2(5.0);
+      auto heatbath_su2 = pyQCD::gen_heatbath_su2(rng, 5.0);
 
       REQUIRE(mat_comp(heatbath_su2 * heatbath_su2.adjoint(),
         pyQCD::SU2Matrix<Real>::Identity()));
@@ -102,7 +104,7 @@ TEST_CASE("Heatbath test")
 
       ColourMatrix link_prod = link * staple;
       const auto update_matrix =
-          pyQCD::comp_su2_heatbath_mat(link_prod, 5.0, subgroup);
+          pyQCD::comp_su2_heatbath_mat(rng, link_prod, 5.0, subgroup);
       link = update_matrix * link;
 
       REQUIRE(comp(link(2 - subgroup, 2 - subgroup).real(), 1.0));
@@ -124,7 +126,7 @@ TEST_CASE("Heatbath test")
 
     auto action = TestGaugeAction<Real, 3>(5.0);
 
-    pyQCD::heatbath_link_update(gauge_field, action, 0);
+    pyQCD::heatbath_link_update(rng, gauge_field, action, 0);
 
     auto link = gauge_field(0);
 

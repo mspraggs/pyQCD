@@ -26,6 +26,8 @@
 #include <random>
 #include <vector>
 
+#include <core/layout.hpp>
+
 
 // TODO: Adjust this to put an RNG on each site.
 
@@ -34,35 +36,60 @@ namespace pyQCD {
   int get_thread_num();
   int get_num_threads();
 
-  class Random
+
+  class RandGenerator
   {
-    Random(const size_t num_threads);
-
   public:
-    static Random& instance(const size_t num_threads);
-
-    void set_seed(const std::vector<size_t>& seed);
-
-    int generate_int(const int lower, const int upper);
+    RandGenerator() : RandGenerator(std::random_device()()) {}
+    RandGenerator(const std::size_t seed) : engine_(seed) {}
 
     template <typename Real>
     Real generate_real(const Real lower, const Real upper);
 
+    template <typename Int>
+    Int generate_int(const Int lower, const Int upper);
+
+    void set_seed(const std::size_t seed) { engine_.seed(seed); }
   private:
-    size_t num_threads_;
-    std::vector<std::mt19937> engines_;
+    std::mt19937_64 engine_;
   };
 
-  template <typename Real>
-  Real Random::generate_real(const Real lower, const Real upper)
+
+  class RandomWrapper
   {
-    int thread = get_thread_num();
+  public:
+    static RandomWrapper& instance(const Layout& layout);
+
+    void set_seeds(const std::vector<std::size_t>& seeds);
+
+    RandGenerator& operator[](const std::size_t index) { return rngs_[index]; }
+    const RandGenerator& operator[](const std::size_t index) const
+    { return rngs_[index]; }
+
+  private:
+    RandomWrapper(const std::size_t num_rngs);
+
+    std::vector<RandGenerator> rngs_;
+  };
+
+
+  template<typename Real>
+  Real RandGenerator::generate_real(const Real lower, const Real upper)
+  {
     std::uniform_real_distribution<Real> dist(lower, upper);
-    return dist(engines_[thread]);
+    return dist(engine_);
   }
 
 
-  Random& rng();
+  template <typename Int>
+  Int RandGenerator::generate_int(const Int lower, const Int upper)
+  {
+    std::uniform_int_distribution<int> dist(lower, upper);
+    return dist(engine_);
+  }
+
+
+  RandomWrapper& rng(const Layout& layout);
 }
 
 #endif

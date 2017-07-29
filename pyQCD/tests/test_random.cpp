@@ -27,6 +27,7 @@
 
 TEST_CASE("Testing RNG")
 {
+  pyQCD::RandGenerator rng;
 
   Compare<double> comp(1.0e-3, 1.0e-3);
 
@@ -34,7 +35,7 @@ TEST_CASE("Testing RNG")
   double mean = 0.0;
 
   for (unsigned i = 0; i < num_trials; ++i) {
-    auto random = pyQCD::rng().generate_real<double>(0.0, 1.0);
+    auto random = rng.generate_real<double>(0.0, 1.0);
     mean += random;
 
     REQUIRE((random >= 0.0 and random < 1.0));

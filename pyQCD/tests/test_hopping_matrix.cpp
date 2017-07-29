@@ -32,6 +32,8 @@ TEST_CASE ("Testing hopping matrix")
   using GaugeLink = pyQCD::ColourMatrix<double, 3>;
   using GaugeField = pyQCD::LatticeColourMatrix<double, 3>;
 
+  pyQCD::RandGenerator rng;
+
   pyQCD::LexicoLayout lexico_layout({8, 4, 4, 4});
   pyQCD::EvenOddLayout even_odd_layout({8, 4, 4, 4});
 
@@ -46,8 +48,8 @@ TEST_CASE ("Testing hopping matrix")
   SiteFermion even_fermion_result = SiteFermion::Zero();
   SiteFermion odd_fermion_result = 7.0 * SiteFermion::Ones();
   for (unsigned d = 0; d < 4; ++d) {
-    auto random_mat = pyQCD::random_sun<double, 3>();
-    double random_double = pyQCD::rng().generate_real(0.0, 1.0);
+    auto random_mat = pyQCD::random_sun<double, 3>(rng);
+    double random_double = rng.generate_real(0.0, 1.0);
     pyQCD::Site site{0, 0, 0, 0};
     gauge_field(site, d) = random_mat;
     site[d] = 1;
@@ -57,8 +59,8 @@ TEST_CASE ("Testing hopping matrix")
       odd_fermion_result += random_mat.adjoint() * SiteFermion::Ones();
     }
 
-    random_mat = pyQCD::random_sun<double, 3>();
-    random_double = pyQCD::rng().generate_real(0.0, 1.0);
+    random_mat = pyQCD::random_sun<double, 3>(rng);
+    random_double = rng.generate_real(0.0, 1.0);
     site[d] = lexico_layout.shape()[d] - 1;
     gauge_field(site, d) = random_mat;
     fermion_in(site, 0) *= random_double;
