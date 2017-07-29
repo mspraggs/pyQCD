@@ -28,8 +28,8 @@
 
 namespace pyQCD
 {
-  const double pi = 3.14159265358979323846264338327950288419716939937510;
-  const std::complex<double> I(0.0, 1.0);
+  constexpr double pi = 3.14159265358979323846264338327950288419716939937510;
+  constexpr std::complex<double> I(0.0, 1.0);
 
   template <typename T, typename U>
   auto mod(const T i, const U n) -> decltype((i % n + n) % n)
