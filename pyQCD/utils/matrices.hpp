@@ -65,12 +65,12 @@ namespace pyQCD {
     coeffs[0] = rng().generate_real(0.0, 1.0);
     // With the first component determined, the magnitude of the remaining
     // three-vector can easily be determined.
-    Real three_vec_magnitude = std::sqrt(1 - coeffs[0] * coeffs[0]);
+    const Real three_vec_magnitude = std::sqrt(1 - coeffs[0] * coeffs[0]);
     // The remaining three-vector should then be take from a uniform spherical
     // distribution.
-    Real cos_theta = rng().generate_real(-1.0, 1.0);
-    Real sin_theta = std::sqrt(1 - cos_theta * cos_theta);
-    Real phi = rng().generate_real(0.0, 2 * pi);
+    const Real cos_theta = rng().generate_real(-1.0, 1.0);
+    const Real sin_theta = std::sqrt(1 - cos_theta * cos_theta);
+    const Real phi = rng().generate_real(0.0, 2 * pi);
 
     coeffs[1] = three_vec_magnitude * sin_theta * std::cos(phi);
     coeffs[2] = three_vec_magnitude * sin_theta * std::sin(phi);
@@ -134,8 +134,7 @@ namespace pyQCD {
     constexpr int num_subgroups = (Nc * (Nc - 1)) / 2;
 
     for (int subgroup = 0; subgroup < num_subgroups; ++subgroup) {
-      auto rand_su2 = random_su2<Real>();
-      ret *= insert_su2<Nc>(rand_su2, subgroup);
+      ret *= insert_su2<Nc>(random_su2<Real>(), subgroup);
     }
 
     return ret;
@@ -145,20 +144,21 @@ namespace pyQCD {
   std::vector<SpinMatrix<Real>> generate_gamma_matrices(const int num_dims)
   {
     using Mat = SpinMatrix<Real>;
-    auto mat_size = static_cast<unsigned int>(std::pow(2.0, num_dims / 2));
+    const auto mat_size = static_cast<unsigned int>(std::pow(2.0, num_dims / 2));
 
-    std::vector<Mat> ret(num_dims, Mat::Zero(mat_size, mat_size));
-
-    if (num_dims <= 3) {
-      ret[0] = sigma1;
-      ret[1] = sigma2;
-
-      if (num_dims == 3) {
-        ret[2] = sigma3;
-      }
+    if (num_dims < 2) {
+      throw std::logic_error("Bad number of dimensions given to"
+                                 "generate_gamma_matrices");
+    }
+    else if (num_dims == 2) {
+      return std::vector<Mat>{sigma1, sigma2};
+    }
+    else if (num_dims == 3) {
+      return std::vector<Mat>{sigma1, sigma2, sigma3};
     }
     else if (num_dims % 2 == 0) {
-      auto sub_matrices = generate_gamma_matrices<Real>(num_dims - 1);
+      const auto sub_matrices = generate_gamma_matrices<Real>(num_dims - 1);
+      std::vector<Mat> ret(num_dims, Mat::Zero(mat_size, mat_size));
 
       for (int i = 1; i < num_dims; ++i) {
         ret[i].block(0, mat_size / 2, mat_size / 2, mat_size / 2)
@@ -170,16 +170,20 @@ namespace pyQCD {
           = Mat::Identity(mat_size / 2, mat_size / 2);
       ret.front().block(mat_size / 2, 0, mat_size / 2, mat_size / 2)
           = Mat::Identity(mat_size / 2, mat_size / 2);
+
+      return ret;
     }
     else {
-      auto sub_matrices = generate_gamma_matrices<Real>(num_dims - 1);
-      std::copy(sub_matrices.begin(), sub_matrices.end(), ret.begin());
+      auto ret = generate_gamma_matrices<Real>(num_dims - 1);
+      ret.push_back(Mat::Zero(mat_size, mat_size));
+
       ret.back().block(0, 0, mat_size / 2, mat_size / 2)
           = Mat::Identity(mat_size / 2, mat_size / 2);
       ret.back().block(mat_size / 2, mat_size / 2, mat_size / 2, mat_size / 2)
           = -Mat::Identity(mat_size / 2, mat_size / 2);
+
+      return ret;
     }
-    return ret;
   }
 }
 
