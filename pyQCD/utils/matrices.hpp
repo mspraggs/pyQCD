@@ -80,16 +80,17 @@ namespace pyQCD {
   }
 
   template <int Nc>
-  void compute_su2_subgroup_pos(const unsigned int index,
-                                unsigned int& i, unsigned int& j)
+  std::pair<unsigned int, unsigned int> compute_su2_subgroup_pos(
+      const unsigned int index)
   {
     pyQCDassert((index < Nc), std::range_error("SU(2) subgroup index invalid"));
 
-    unsigned int tmp = index;
+    unsigned int i, j, tmp = index;
     for (i = 0; tmp >= Nc - 1 - i; ++i) {
       tmp -= (Nc - 1 - i);
     }
     j = i + 1 + tmp;
+    return std::make_pair(i, j);
   }
 
   template <typename Real, int Nc>
@@ -100,7 +101,7 @@ namespace pyQCD {
     Mat ret;
 
     unsigned int i, j;
-    compute_su2_subgroup_pos<Nc>(subgroup, i, j);
+    std::tie(i, j) = compute_su2_subgroup_pos<Nc>(subgroup);
 
     ret(0, 0) = colour_matrix(i, i);
     ret(0, 1) = colour_matrix(i, j);
@@ -116,7 +117,7 @@ namespace pyQCD {
   {
     ColourMatrix<Real, Nc> ret = ColourMatrix<Real, Nc>::Identity();
     unsigned int i, j;
-    compute_su2_subgroup_pos<Nc>(subgroup, i, j);
+    std::tie(i, j) = compute_su2_subgroup_pos<Nc>(subgroup);
 
     ret(i, i) = su2_matrix(0, 0);
     ret(i, j) = su2_matrix(0, 1);
