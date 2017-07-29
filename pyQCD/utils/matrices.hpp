@@ -61,7 +61,7 @@ namespace pyQCD {
 
     // Basically we want to create a random normalised 4-vector from a
     // hyper-spherically symmetric distribution.
-    Real coeffs[4];
+    std::array<Real, 4> coeffs{0.0, 0.0, 0.0, 0.0};
     coeffs[0] = rng().generate_real(0.0, 1.0);
     // With the first component determined, the magnitude of the remaining
     // three-vector can easily be determined.
