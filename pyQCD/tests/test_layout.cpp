@@ -63,3 +63,28 @@ TEST_CASE("EvenOddLayout test") {
   REQUIRE (layout.get_array_index(4) == 258);
   REQUIRE (layout.get_site_index(258) == 4);
 }
+
+
+TEST_CASE("PartitionCompare test") {
+  using Layout = pyQCD::LexicoLayout;
+
+  Layout layout({8, 4, 4, 4});
+
+  pyQCD::PartitionCompare compare(2, layout);
+
+  REQUIRE(not compare(0, 0));
+
+  for (unsigned int i = 1; i < 10; ++i) {
+    REQUIRE(compare(0, i));
+  }
+
+  REQUIRE(not compare(0, 10));
+
+  for (unsigned int i = 11; i < 34; ++i) {
+    REQUIRE(compare(0, i));
+  }
+
+  REQUIRE(not compare(0, 34));
+
+  REQUIRE(compare(7, 510));
+}
