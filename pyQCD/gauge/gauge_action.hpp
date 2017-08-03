@@ -53,6 +53,9 @@ namespace pyQCD
       unsigned int min_site_diag_offset() const
       { return min_site_diag_offset_; };
 
+      virtual std::vector<Int> participating_sites(
+          const Int index, const Layout& layout) const = 0;
+
       inline Real beta() const { return beta_; }
 
     private:

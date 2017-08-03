@@ -45,6 +45,12 @@ public:
   Real local_action(const GaugeField& gauge_field,
                     const pyQCD::Int site_index) const override
   { return 0.0; }
+
+  std::vector<pyQCD::Int> participating_sites(
+      const pyQCD::Int index, const pyQCD::Layout& layout) const override
+  {
+    return std::vector<pyQCD::Int>{index + 1};
+  }
 };
 
 

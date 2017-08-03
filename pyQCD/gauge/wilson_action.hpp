@@ -44,6 +44,9 @@ namespace pyQCD
         const typename Action<Real, Nc>::GaugeField& gauge_field,
         const Int site_index) const override;
 
+      std::vector<Int> participating_sites(
+          const Int index, const Layout& layout) const override;
+
     private:
       std::vector<std::vector<Int>> links_;
     };
@@ -152,6 +155,7 @@ namespace pyQCD
       return ret;
     }
 
+
     template <typename Real, int Nc>
     Real WilsonAction<Real, Nc>::local_action(
       const typename Action<Real, Nc>::GaugeField& gauge_field,
@@ -162,6 +166,41 @@ namespace pyQCD
       const auto link = gauge_field(site_index / gauge_field.site_size(),
                                     site_index % gauge_field.site_size());
       return -this->beta() * (link * staple).trace().real() / Nc;
+    }
+
+
+    template <typename Real, int Nc>
+    std::vector<Int> WilsonAction<Real, Nc>::participating_sites(
+        const Int index, const Layout& layout) const
+    {
+      const auto num_planes = layout.num_dims() * (layout.num_dims() - 1) / 2;
+
+      std::vector<Int> ret;
+      ret.reserve(num_planes * 4);
+
+      const auto coords = layout.compute_site_coords(index);
+      std::vector<int> working_coords(coords.begin(), coords.end());
+
+      for (unsigned int mu = 1; mu < layout.num_dims(); ++mu) {
+        for (unsigned int nu = 0; nu < mu; ++nu) {
+          working_coords[mu] += 1;
+          layout.sanitize_site_coords(working_coords);
+          ret.push_back(layout.get_array_index(working_coords));
+          working_coords[mu] -= 2;
+          layout.sanitize_site_coords(working_coords);
+          ret.push_back(layout.get_array_index(working_coords));
+          working_coords[mu] += 1;
+          working_coords[nu] += 1;
+          layout.sanitize_site_coords(working_coords);
+          ret.push_back(layout.get_array_index(working_coords));
+          working_coords[nu] -= 2;
+          layout.sanitize_site_coords(working_coords);
+          ret.push_back(layout.get_array_index(working_coords));
+          working_coords[nu] += 1;
+        }
+      }
+
+      return ret;
     }
   }
 }

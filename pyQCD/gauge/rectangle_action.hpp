@@ -43,6 +43,9 @@ namespace pyQCD
           const typename Action<Real, Nc>::GaugeField& gauge_field,
           const Int link_index) const override;
 
+      std::vector<Int> participating_sites(
+          const Int index, const Layout& layout) const override;
+
     private:
       std::vector<std::vector<Int>> links_;
       Real c0_, c1_;
@@ -383,6 +386,92 @@ namespace pyQCD
       auto link = gauge_field(link_index / gauge_field.site_size(),
                               link_index % gauge_field.site_size());
       return -this->beta() * (link * staple).trace().real() / Nc;
+    }
+
+
+    template <typename Real, int Nc>
+    std::vector<Int> RectangleAction<Real, Nc>::participating_sites(
+        const Int index, const Layout& layout) const
+    {
+      const auto num_planes = layout.num_dims() * (layout.num_dims() - 1) / 2;
+
+      std::vector<Int> ret;
+      ret.reserve(num_planes * 4);
+
+      const auto coords = layout.compute_site_coords(index);
+      std::vector<int> working_coords(coords.begin(), coords.end());
+
+      for (unsigned int mu = 1; mu < layout.num_dims(); ++mu) {
+        for (unsigned int nu = 0; nu < mu; ++nu) {
+          // Run through rectangle sites touched by staple of link in current
+          // plane
+
+          // In each plane, move through sites from left to right, top to bottom
+          working_coords[nu] += 2;
+          layout.sanitize_site_coords(working_coords);
+          ret.push_back(layout.get_array_index(working_coords));
+          working_coords[mu] += 1;
+          layout.sanitize_site_coords(working_coords);
+          ret.push_back(layout.get_array_index(working_coords));
+
+          // Next row
+          working_coords[mu] -= 2;
+          working_coords[nu] -= 1;
+          layout.sanitize_site_coords(working_coords);
+          ret.push_back(layout.get_array_index(working_coords));
+          working_coords[mu] += 1;
+          layout.sanitize_site_coords(working_coords);
+          ret.push_back(layout.get_array_index(working_coords));
+          working_coords[mu] += 1;
+          layout.sanitize_site_coords(working_coords);
+          ret.push_back(layout.get_array_index(working_coords));
+          working_coords[mu] += 1;
+          layout.sanitize_site_coords(working_coords);
+          ret.push_back(layout.get_array_index(working_coords));
+
+          // Next row
+          working_coords[mu] -= 3;
+          working_coords[nu] -= 1;
+          layout.sanitize_site_coords(working_coords);
+          ret.push_back(layout.get_array_index(working_coords));
+          working_coords[mu] += 2; // Skip site at which link is located
+          layout.sanitize_site_coords(working_coords);
+          ret.push_back(layout.get_array_index(working_coords));
+          working_coords[mu] += 1;
+          layout.sanitize_site_coords(working_coords);
+          ret.push_back(layout.get_array_index(working_coords));
+
+          // Next row
+          working_coords[mu] -= 3;
+          working_coords[nu] -= 1;
+          layout.sanitize_site_coords(working_coords);
+          ret.push_back(layout.get_array_index(working_coords));
+          working_coords[mu] += 1;
+          layout.sanitize_site_coords(working_coords);
+          ret.push_back(layout.get_array_index(working_coords));
+          working_coords[mu] += 1;
+          layout.sanitize_site_coords(working_coords);
+          ret.push_back(layout.get_array_index(working_coords));
+          working_coords[mu] += 1;
+          layout.sanitize_site_coords(working_coords);
+          ret.push_back(layout.get_array_index(working_coords));
+
+          // Next row
+          working_coords[mu] -= 2;
+          working_coords[nu] -= 1;
+          layout.sanitize_site_coords(working_coords);
+          ret.push_back(layout.get_array_index(working_coords));
+          working_coords[mu] += 1;
+          layout.sanitize_site_coords(working_coords);
+          ret.push_back(layout.get_array_index(working_coords));
+
+          // Reset coordinate
+          working_coords[nu] += 2;
+          working_coords[mu] -= 1;
+        }
+      }
+
+      return ret;
     }
   }
 }
