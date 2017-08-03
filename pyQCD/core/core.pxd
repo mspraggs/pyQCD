@@ -11,6 +11,7 @@ from libcpp cimport bool as bool_t
 from libcpp.vector cimport vector
 
 from atomics cimport Real, Complex
+from pyQCD.utils.utils cimport _RandGenerator
 
 cdef extern from "core/layout.hpp" namespace "pyQCD":
     cdef cppclass _Layout "pyQCD::Layout":
@@ -54,7 +55,7 @@ cdef extern from "core/qcd_types.hpp" namespace "pyQCD":
     cdef _ColourMatrix _ColourMatrix_ones "pyQCD::ColourMatrix<pyQCD::Real, pyQCD::num_colours>::Ones"()
 
 cdef extern from "utils/matrices.hpp" namespace "pyQCD":
-    cdef _ColourMatrix _random_colour_matrix "pyQCD::random_sun<pyQCD::Real, pyQCD::num_colours>"()
+    cdef _ColourMatrix _random_colour_matrix "pyQCD::random_sun<pyQCD::Real, pyQCD::num_colours>"(_RandGenerator& rng)
 
 cdef class ColourMatrix:
     cdef _ColourMatrix* instance

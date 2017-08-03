@@ -78,8 +78,9 @@ cdef class {{ typedef.name }}:
     @staticmethod
     def random():
         """Generate a random SU(N) {{ typedef.name }} instance with shape {{ typedef.shape }}."""
+        cdef _RandGenerator rng
         ret = {{ typedef.name }}()
-        ret.instance[0] = _random_colour_matrix()
+        ret.instance[0] = _random_colour_matrix(rng)
         return ret
 {% endif %}
 

@@ -15,7 +15,7 @@ cdef extern from "core/qcd_types.hpp" namespace "pyQCD":
 
 {% if typedef.cname == "ColourMatrix" %}
 cdef extern from "utils/matrices.hpp" namespace "pyQCD":
-    cdef _{{ typedef.cname }} _random_colour_matrix "pyQCD::random_sun<pyQCD::Real, pyQCD::num_colours>"()
+    cdef _{{ typedef.cname }} _random_colour_matrix "pyQCD::random_sun<pyQCD::Real, pyQCD::num_colours>"(_RandGenerator& rng)
 {% endif %}
 
 cdef class {{ typedef.cname }}:

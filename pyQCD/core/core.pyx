@@ -126,8 +126,9 @@ cdef class ColourMatrix:
     @staticmethod
     def random():
         """Generate a random SU(N) ColourMatrix instance with shape (3, 3)."""
+        cdef _RandGenerator rng
         ret = ColourMatrix()
-        ret.instance[0] = _random_colour_matrix()
+        ret.instance[0] = _random_colour_matrix(rng)
         return ret
 
     def __repr__(self):

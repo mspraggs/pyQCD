@@ -6,6 +6,7 @@ from libcpp cimport bool as bool_t
 from libcpp.vector cimport vector
 
 from atomics cimport Real, Complex
+from pyQCD.utils.utils cimport _RandGenerator
 
 cdef extern from "core/layout.hpp" namespace "pyQCD":
     cdef cppclass _Layout "pyQCD::Layout":
