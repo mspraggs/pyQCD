@@ -23,6 +23,7 @@
  * using the pseudo heatbath algorithm.
  */
 
+#include <array>
 #include <random>
 
 #include <core/qcd_types.hpp>
