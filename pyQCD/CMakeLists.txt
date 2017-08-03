@@ -27,6 +27,7 @@ include_directories (
 file (GLOB_RECURSE clion_headers ./*.hpp)
 add_custom_target (all_clion SOURCES ${clion_headers})
 
+add_subdirectory (core)
 add_subdirectory (utils)
 add_subdirectory (benchmarks)
 add_subdirectory (tests)

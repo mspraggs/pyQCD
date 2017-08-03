@@ -133,6 +133,24 @@ namespace pyQCD
   };
 
 
+  class PartitionCompare
+  {
+  public:
+    PartitionCompare(const unsigned int minor_offset,
+                            const Layout& layout);
+
+    bool operator()(const Int first, const Int second) const;
+
+  private:
+    const Layout* layout_;
+    unsigned int minor_offset_;
+    std::vector<unsigned int> major_remainders_;
+    std::vector<std::vector<unsigned int>> minor_remainders_;
+
+    unsigned int compute_reference(const Int value) const;
+  };
+
+
   template <typename T,
     typename std::enable_if<not std::is_integral<T>::value>::type*>
   inline Int Layout::get_array_index(const T& site) const

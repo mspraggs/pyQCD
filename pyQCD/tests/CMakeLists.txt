@@ -17,5 +17,5 @@ set (SRC
   test_conjugate_gradient.cpp)
 
 add_executable(run_tests ${SRC})
-target_link_libraries(run_tests pyQCDutils)
+target_link_libraries(run_tests pyQCDcore pyQCDutils)
 add_test(run_tests --log_level=all)
