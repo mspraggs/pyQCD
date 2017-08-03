@@ -33,32 +33,21 @@ TEST_CASE("End-to-end heatbath test with Wilson action")
   using GaugeField = pyQCD::gauge::Action<double, 3>::GaugeField;
   using GaugeLink = pyQCD::gauge::Action<double, 3>::GaugeLink;
 
-  pyQCD::LexicoLayout layout({8, 8, 8, 8});
+  pyQCD::LexicoLayout layout({4, 4, 4, 4});
   GaugeField gauge_field(layout, GaugeLink::Identity(), 4);
 
   pyQCD::gauge::WilsonAction<double, 3> action(5.5, layout);
 
-  double avg_plaquette = 1.1;
-  for (unsigned int i = 0; i < 5; ++i) {
-    heatbath_update(gauge_field, action, 1);
-    double new_avg_plaquette = pyQCD::gauge::average_plaquette(gauge_field);
-    // Statistically it's highly probable there will be a monotonic decrease in
-    // the average plaquette over the first five updates.
-    REQUIRE (new_avg_plaquette < avg_plaquette);
-    avg_plaquette = new_avg_plaquette;
-  }
+  pyQCD::Heatbath<double, 3> updater(layout, action);
 
-  for (unsigned int i = 0; i < 9; ++i) {
-    heatbath_update(gauge_field, action, 10);
-  }
+  std::vector<std::size_t> seeds(layout.volume(), 0);
+  std::iota(seeds.begin(), seeds.end(), 0);
+  pyQCD::RandomWrapper::instance(layout).set_seeds(seeds);
 
-  avg_plaquette = pyQCD::gauge::average_plaquette(gauge_field);
+  updater.update(gauge_field, 1);
 
-  REQUIRE(avg_plaquette < 0.51);
-  REQUIRE(avg_plaquette > 0.48);
-
-  double avg_rectangle = pyQCD::gauge::average_rectangle(gauge_field);
-
-  REQUIRE(avg_rectangle < 0.27);
-  REQUIRE(avg_rectangle > 0.25);
+  const double plaquette = pyQCD::gauge::average_plaquette(gauge_field);
+  REQUIRE(plaquette == Approx(0.6658041175210013).epsilon(1e-13));
+  const double rectangle = pyQCD::gauge::average_rectangle(gauge_field);
+  REQUIRE(rectangle == Approx(0.4928116502345678).epsilon(1e-13));
 }
