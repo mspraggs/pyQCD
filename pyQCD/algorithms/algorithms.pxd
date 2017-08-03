@@ -3,6 +3,10 @@ from pyQCD.gauge cimport gauge
 from pyQCD.fermions cimport fermions
 
 cdef extern from "algorithms/heatbath.hpp" namespace "pyQCD":
+    cdef cppclass _Heatbath "pyQCD::Heatbath<pyQCD::Real, pyQCD::num_colours>":
+        _Heatbath(const core._Layout&, const gauge._GaugeAction&)
+        void update(core._LatticeColourMatrix&, const unsigned int)
+
     cdef void _heatbath_update "pyQCD::heatbath_update"(
         core._LatticeColourMatrix&,
         const gauge._GaugeAction&, const unsigned int)
@@ -22,3 +26,6 @@ cdef extern from "conjugate_gradient.hpp" namespace "pyQCD":
     cdef _SolutionWrapper _conjugate_gradient_eoprec "pyQCD::conjugate_gradient_eoprec"(
         const fermions._FermionAction&, const core._LatticeColourVector&,
         const unsigned int, const atomics.Real)
+
+cdef class Heatbath:
+    cdef _Heatbath* instance

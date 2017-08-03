@@ -1,9 +1,17 @@
-from pyQCD.core.core cimport EvenOddLayout, LatticeColourMatrix, LatticeColourVector
+from pyQCD.core.core cimport EvenOddLayout, LatticeColourMatrix, LatticeColourVector, Layout
 from pyQCD.fermions.fermions cimport FermionAction
 from pyQCD.gauge.gauge cimport GaugeAction
 
-from algorithms cimport _heatbath_update
+from algorithms cimport _Heatbath
 
+
+cdef class Heatbath:
+
+    def __init__(self, Layout layout, GaugeAction action):
+        self.instance = new _Heatbath(layout.instance[0], action.instance[0])
+
+    def update(self, LatticeColourMatrix gauge_field, int num_updates):
+        self.instance.update(gauge_field.instance[0], num_updates)
 
 def heatbath_update(LatticeColourMatrix gauge_field,
                     GaugeAction action, int num_updates):

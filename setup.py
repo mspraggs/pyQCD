@@ -27,6 +27,7 @@ with open("README.md") as f:
 
 
 extensions = [Extension("pyQCD.core.core", ["pyQCD/core/core.pyx",
+                                            "pyQCD/core/layout.cpp",
                                             "pyQCD/utils/random.cpp"],
                         language="c++", undef_macros=["NDEBUG"],
                         include_dirs=["./pyQCD", "/usr/include/eigen3"],
@@ -43,6 +44,7 @@ extensions = [Extension("pyQCD.core.core", ["pyQCD/core/core.pyx",
                         extra_compile_args=["-std=c++11"]),
               Extension("pyQCD.algorithms.algorithms",
                         ["pyQCD/algorithms/algorithms.pyx",
+                         "pyQCD/core/layout.cpp",
                          "pyQCD/utils/random.cpp"],
                         language="c++", undef_macros=["NDEBUG"],
                         include_dirs=["./pyQCD", "/usr/include/eigen3"],

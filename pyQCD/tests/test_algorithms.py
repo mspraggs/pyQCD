@@ -26,6 +26,17 @@ def action(layout):
     """Create an instance of the Wilson gauge action"""
     return gauge.WilsonGaugeAction(5.5, layout)
 
+class TestHeatbath(object):
+
+    def test_constructor(self, action, gauge_field):
+        """Test constructor of Heatbath class"""
+        updater = algorithms.Heatbath(gauge_field.layout, action)
+
+    def test_update(self, action, gauge_field):
+        """Test update method"""
+        updater = algorithms.Heatbath(gauge_field.layout, action)
+        updater.update(gauge_field, 1)
+
 def test_heatbath_update(action, gauge_field):
     """Test heatbath_update method"""
     algorithms.heatbath_update(gauge_field, action, 1)
