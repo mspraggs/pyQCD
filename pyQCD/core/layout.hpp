@@ -35,6 +35,7 @@
  * Layout constructor.
  */
 
+#include <algorithm>
 #include <functional>
 #include <numeric>
 #include <type_traits>
@@ -61,6 +62,19 @@ namespace pyQCD
         std::multiplies<Int>());
     }
     virtual ~Layout() = default;
+
+    template <typename Fn>
+    std::vector<std::vector<Int>> partition_sites(
+        const Fn& neighbour_func, const std::vector<Int>& site_indices) const;
+
+    template <typename Fn>
+    std::vector<std::vector<Int>> partition_sites(
+        const Fn& neighbour_func) const
+    {
+      std::vector<Int> sites(volume_);
+      std::iota(sites.begin(), sites.end(), 0);
+      return partition_sites(neighbour_func, sites);
+    }
 
     // Functions to retrieve array indices and so on.
     template <typename T,
@@ -94,6 +108,52 @@ namespace pyQCD
     // site_indices_[array_index] -> site_index
     std::vector<Int> site_indices_;
   };
+
+
+  template<typename Fn>
+  std::vector<std::vector<Int>> Layout::partition_sites(
+      const Fn& neighbour_func, const std::vector<Int>& site_indices) const
+  {
+    // Greedy graph multicolouring algorithm
+
+    std::vector<Int> colour_counts;
+    colour_counts.reserve(100);
+    std::vector<Int> colours(volume_, 0);
+
+    for (const Int site_index : site_indices) {
+      const auto neighbours = neighbour_func(site_index, *this);
+      std::vector<Int> neighbour_colours(neighbours.size());
+
+      std::transform(neighbours.begin(), neighbours.end(),
+                     neighbour_colours.begin(),
+                     [&colours] (const Int i) { return colours[i]; });
+
+      auto result = std::find(neighbour_colours.begin(),
+                              neighbour_colours.end(), colours[site_index]);
+      while (colours[site_index] < 1 or result != neighbour_colours.end()) {
+        colours[site_index] += 1;
+        result = std::find(neighbour_colours.begin(),
+                           neighbour_colours.end(), colours[site_index]);
+      }
+
+      if (colours[site_index] - 1 >= colour_counts.size()) {
+        colour_counts.push_back(0);
+      }
+      colour_counts[colours[site_index] - 1]++;
+    }
+
+    std::vector<std::vector<Int>> partitions(colour_counts.size());
+
+    for (unsigned int i = 0; i < colour_counts.size(); ++i) {
+      partitions[i].reserve(colour_counts[i]);
+    }
+
+    for (unsigned int i = 0; i < volume_; ++i) {
+      partitions[colours[i] - 1].push_back(i);
+    }
+
+    return partitions;
+  }
 
 
   class LexicoLayout : public Layout
