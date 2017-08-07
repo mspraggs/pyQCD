@@ -24,26 +24,6 @@
 
 
 namespace pyQCD {
-
-  int get_thread_num()
-  {
-#if defined(_OPENMP)
-    return omp_get_thread_num();
-#else
-    return 0;
-#endif
-  }
-
-  int get_num_threads()
-  {
-#if defined(_OPENMP)
-    return omp_get_max_threads();
-#else
-    return 1;
-#endif
-  }
-
-
   RandomWrapper::RandomWrapper(const std::size_t num_rngs)
   {
     // Initialise the specified number of RandGenerators

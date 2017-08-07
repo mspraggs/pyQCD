@@ -32,11 +32,6 @@
 // TODO: Adjust this to put an RNG on each site.
 
 namespace pyQCD {
-
-  int get_thread_num();
-  int get_num_threads();
-
-
   class RandGenerator
   {
   public:
