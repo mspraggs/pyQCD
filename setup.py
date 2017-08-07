@@ -26,30 +26,33 @@ with open("README.md") as f:
     long_description = f.read()
 
 
-extensions = [Extension("pyQCD.core.core", ["pyQCD/core/core.pyx",
-                                            "pyQCD/core/layout.cpp",
-                                            "pyQCD/utils/random.cpp"],
-                        language="c++", undef_macros=["NDEBUG"],
-                        include_dirs=["./pyQCD", "/usr/include/eigen3"],
-                        extra_compile_args=["-std=c++11"]),
-              Extension("pyQCD.fermions.fermions",
-                        ["pyQCD/fermions/fermions.pyx",
-                         "pyQCD/utils/matrices.cpp"],
-                        language="c++", undef_macros=["NDEBUG"],
-                        include_dirs=["./pyQCD", "/usr/include/eigen3"],
-                        extra_compile_args=["-std=c++11"]),
-              Extension("pyQCD.gauge.gauge", ["pyQCD/gauge/gauge.pyx"],
-                        language="c++", undef_macros=["NDEBUG"],
-                        include_dirs=["./pyQCD", "/usr/include/eigen3"],
-                        extra_compile_args=["-std=c++11"]),
-              Extension("pyQCD.algorithms.algorithms",
-                        ["pyQCD/algorithms/algorithms.pyx",
-                         "pyQCD/core/layout.cpp",
-                         "pyQCD/utils/random.cpp"],
-                        language="c++", undef_macros=["NDEBUG"],
-                        include_dirs=["./pyQCD", "/usr/include/eigen3"],
-                        extra_compile_args=["-std=c++11"]),
-              ]
+def make_extension(import_path, sources):
+    undef_macros = ["NDEBUG"]
+    include_dirs = ["./pyQCD", "/usr/include/eigen3"]
+    compiler_args = ["-std=c++11"]
+    linker_args = []
+
+    return Extension(import_path, sources, language="c++",
+                     undef_macros=undef_macros, include_dirs=include_dirs,
+                     extra_compile_args=compiler_args,
+                     extra_link_args=linker_args)
+
+extension_sources = {
+    "pyQCD.core.core":
+        ["pyQCD/core/core.pyx", "pyQCD/core/layout.cpp",
+         "pyQCD/utils/random.cpp"],
+    "pyQCD.fermions.fermions":
+        ["pyQCD/fermions/fermions.pyx", "pyQCD/utils/matrices.cpp"],
+    "pyQCD.gauge.gauge":
+        ["pyQCD/gauge/gauge.pyx"],
+    "pyQCD.algorithms.algorithms":
+        ["pyQCD/algorithms/algorithms.pyx", "pyQCD/core/layout.cpp",
+         "pyQCD/utils/random.cpp"]
+}
+
+
+extensions = [make_extension(module, sources)
+              for module, sources in extension_sources.items()]
 
 # Do not rebuild on change of extension module in the case where we're
 # regenerating the code (in case of errors)
