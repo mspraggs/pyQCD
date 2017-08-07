@@ -12,8 +12,8 @@ else ()
 endif()
 
 # Initialize CXXFLAGS.
-set (CMAKE_CXX_FLAGS_DEBUG "-g -Wall -std=c++11")
-set (CMAKE_CXX_FLAGS_RELEASE "-Wall -std=c++11 -O3 -march=native -mtune=native")
+set (CMAKE_CXX_FLAGS_DEBUG "-g -Wall -Wextra -std=c++11")
+set (CMAKE_CXX_FLAGS_RELEASE "-Wall -Wextra -std=c++11 -fopenmp -O3 -march=native -mtune=native")
 # TODO: Multi-compiler/platform support.
 
 find_package (Eigen3 3.0.5 REQUIRED)
