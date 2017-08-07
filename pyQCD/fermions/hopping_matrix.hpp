@@ -54,6 +54,8 @@ namespace pyQCD
       std::vector<SpinMatrix<Real>> spin_structures_;
       std::vector<std::vector<Int>> neighbour_array_indices_;
       std::vector<Int> even_array_indices_, odd_array_indices_;
+      std::vector<std::vector<Int>> neighbour_array_indices_even_;
+      std::vector<std::vector<Int>> neighbour_array_indices_odd_;
     };
 
 
@@ -73,12 +75,17 @@ namespace pyQCD
           volume, std::vector<Int>(layout.num_dims() * 2));
       even_array_indices_.reserve(volume / 2);
       odd_array_indices_.reserve(volume / 2);
+      neighbour_array_indices_even_.resize(volume / 2);
+      neighbour_array_indices_odd_.resize(volume / 2);
+
+      std::vector<Int> even_odd_gather_mapping(volume, 0);
 
       // Scatter the supplied gauge field U_\mu (x) so that when we wish to
       // multiply it with the supplied lattice fermion, there won't be frequent
       // cache misses.
       for (unsigned site_index = 0; site_index < volume; ++site_index) {
         auto arr_index = layout.get_array_index(site_index);
+        even_odd_gather_mapping[arr_index] = site_index / 2;
 
         if (layout.is_even_site(site_index)) {
           even_array_indices_.push_back(arr_index);
@@ -136,6 +143,30 @@ namespace pyQCD
 
       std::sort(even_array_indices_.begin(), even_array_indices_.end());
       std::sort(odd_array_indices_.begin(), odd_array_indices_.end());
+
+      // Run through even and odd site indices and populate
+      // neighbour_array_indices_even_/neighbour_array_indices_odd_. These
+      // can be populated using the information contained in
+      // neighbour_array_indices_, even_array_indices and odd_array_indices_.
+      for (unsigned int i = 0; i < volume / 2; ++i) {
+        const auto even_arr_index = even_array_indices_[i];
+        const auto odd_arr_index = odd_array_indices_[i];
+
+        neighbour_array_indices_even_[i].resize(2 * layout.num_dims());
+        neighbour_array_indices_odd_[i].resize(2 * layout.num_dims());
+
+        for (unsigned int d = 0; d < 2 * layout.num_dims(); ++d) {
+          const auto even_neighbour_arr_index =
+              neighbour_array_indices_[even_arr_index][d];
+          const auto odd_neighbour_arr_index =
+              neighbour_array_indices_[odd_arr_index][d];
+
+          neighbour_array_indices_even_[i][d] =
+              even_odd_gather_mapping[even_neighbour_arr_index];
+          neighbour_array_indices_odd_[i][d] =
+              even_odd_gather_mapping[odd_neighbour_arr_index];
+        }
+      }
     }
 
 
@@ -147,8 +178,9 @@ namespace pyQCD
       auto ndims = layout.num_dims();
       auto volume = layout.volume();
       LatticeColourVector<Real, Nc> pre_gather_results(
-          layout, ndims * num_spins_ * 2);
+          layout, ColourVector<Real, Nc>::Zero(), ndims * num_spins_ * 2);
 
+#pragma omp parallel for
       for (unsigned arr_index = 0; arr_index < volume; ++arr_index) {
         for (unsigned mu = 0; mu < ndims; ++mu) {
           Int local_index = 2 * (ndims * arr_index + mu);
@@ -170,19 +202,22 @@ namespace pyQCD
       LatticeColourVector<Real, Nc> fermion_out(
           layout, ColourVector<Real, Nc>::Zero(), num_spins_);
 
+#pragma omp parallel for
       for (unsigned arr_index = 0; arr_index < volume; ++arr_index) {
         for (unsigned mu = 0; mu < ndims; ++mu) {
-          auto neighbour_index_plus =
-              neighbour_array_indices_[arr_index][2 * mu];
-          auto neighbour_index_minus =
-              neighbour_array_indices_[arr_index][2 * mu + 1];
+          const auto neighbour_index_plus =
+              num_spins_ *
+                  (ndims * neighbour_array_indices_[arr_index][2 * mu] + mu);
+          const auto neighbour_index_minus =
+              num_spins_ *
+                  (ndims * neighbour_array_indices_[arr_index][2 * mu + 1] + mu);
           for (unsigned alpha = 0; alpha < num_spins_; ++alpha) {
-            Int gather_index =
-                2 * (num_spins_ * (ndims * arr_index + mu) + alpha);
-            fermion_out[num_spins_ * neighbour_index_plus + alpha] +=
-                pre_gather_results[gather_index];
-            fermion_out[num_spins_ * neighbour_index_minus + alpha] +=
-                pre_gather_results[gather_index + 1];
+            Int gather_index_plus = 2 * (neighbour_index_plus + alpha);
+            Int gather_index_minus = 2 * (neighbour_index_minus + alpha);
+            fermion_out[num_spins_ * arr_index + alpha] +=
+                pre_gather_results[gather_index_minus];
+            fermion_out[num_spins_ * arr_index + alpha] +=
+                pre_gather_results[gather_index_plus + 1];
           }
         }
       }
@@ -199,8 +234,9 @@ namespace pyQCD
       auto ndims = layout.num_dims();
       auto volume = layout.volume();
       aligned_vector<ColourVector<Real, Nc>> pre_gather_results(
-          volume * ndims * num_spins_ * 2);
+          volume * ndims * num_spins_, ColourVector<Real, Nc>::Zero());
 
+#pragma omp parallel for
       for (unsigned int i = 0; i < odd_array_indices_.size(); ++i) {
         auto arr_index = odd_array_indices_[i];
         for (unsigned mu = 0; mu < ndims; ++mu) {
@@ -224,20 +260,23 @@ namespace pyQCD
       LatticeColourVector<Real, Nc> fermion_out(
           layout, ColourVector<Real, Nc>::Zero(), num_spins_);
 
-      for (unsigned int i = 0; i < odd_array_indices_.size(); ++i) {
-        auto arr_index = odd_array_indices_[i];
+#pragma omp parallel for
+      for (unsigned int i = 0; i < even_array_indices_.size(); ++i) {
+        auto arr_index = even_array_indices_[i];
         for (unsigned mu = 0; mu < ndims; ++mu) {
           auto neighbour_index_plus =
-              neighbour_array_indices_[arr_index][2 * mu];
+              num_spins_ * (ndims * neighbour_array_indices_even_[i][2 * mu]
+                            + mu);
           auto neighbour_index_minus =
-              neighbour_array_indices_[arr_index][2 * mu + 1];
+              num_spins_ * (ndims * neighbour_array_indices_even_[i][2 * mu + 1]
+                            + mu);
           for (unsigned alpha = 0; alpha < num_spins_; ++alpha) {
-            Int gather_index =
-                2 * (num_spins_ * (ndims * i + mu) + alpha);
-            fermion_out[num_spins_ * neighbour_index_plus + alpha] +=
-                pre_gather_results[gather_index];
-            fermion_out[num_spins_ * neighbour_index_minus + alpha] +=
-                pre_gather_results[gather_index + 1];
+            Int gather_index_plus = 2 * (neighbour_index_plus + alpha);
+            Int gather_index_minus = 2 * (neighbour_index_minus + alpha);
+            fermion_out[num_spins_ * arr_index + alpha] +=
+                pre_gather_results[gather_index_minus];
+            fermion_out[num_spins_ * arr_index + alpha] +=
+                pre_gather_results[gather_index_plus + 1];
           }
         }
       }
@@ -254,7 +293,7 @@ namespace pyQCD
       auto ndims = layout.num_dims();
       auto volume = layout.volume();
       aligned_vector<ColourVector<Real, Nc>> pre_gather_results(
-          volume * ndims * num_spins_ * 2);
+          volume * ndims * num_spins_, ColourVector<Real, Nc>::Zero());
 
       for (unsigned int i = 0; i < even_array_indices_.size(); ++i) {
         auto arr_index = even_array_indices_[i];
@@ -279,20 +318,23 @@ namespace pyQCD
       LatticeColourVector<Real, Nc> fermion_out(
           layout, ColourVector<Real, Nc>::Zero(), num_spins_);
 
-      for (unsigned int i = 0; i < even_array_indices_.size(); ++i) {
-        auto arr_index = even_array_indices_[i];
+#pragma omp parallel for
+      for (unsigned int i = 0; i < odd_array_indices_.size(); ++i) {
+        auto arr_index = odd_array_indices_[i];
         for (unsigned mu = 0; mu < ndims; ++mu) {
           auto neighbour_index_plus =
-              neighbour_array_indices_[arr_index][2 * mu];
+              num_spins_ * (ndims * neighbour_array_indices_odd_[i][2 * mu]
+                            + mu);
           auto neighbour_index_minus =
-              neighbour_array_indices_[arr_index][2 * mu + 1];
+              num_spins_ * (ndims * neighbour_array_indices_odd_[i][2 * mu + 1]
+                            + mu);
           for (unsigned alpha = 0; alpha < num_spins_; ++alpha) {
-            Int gather_index =
-                2 * (num_spins_ * (ndims * i + mu) + alpha);
-            fermion_out[num_spins_ * neighbour_index_plus + alpha] +=
-                pre_gather_results[gather_index];
-            fermion_out[num_spins_ * neighbour_index_minus + alpha] +=
-                pre_gather_results[gather_index + 1];
+            Int gather_index_plus = 2 * (neighbour_index_plus + alpha);
+            Int gather_index_minus = 2 * (neighbour_index_minus + alpha);
+            fermion_out[num_spins_ * arr_index + alpha] +=
+                pre_gather_results[gather_index_minus];
+            fermion_out[num_spins_ * arr_index + alpha] +=
+                pre_gather_results[gather_index_plus + 1];
           }
         }
       }
