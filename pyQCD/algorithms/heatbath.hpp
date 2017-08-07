@@ -190,15 +190,17 @@ namespace pyQCD {
   void Heatbath<Real, Nc>::update(LatticeColourMatrix<Real, Nc>& gauge_field,
                                   const unsigned int num_iter)
   {
-    const auto site_size = gauge_field.site_size();
+    const auto num_dims = gauge_field.site_size();
 
     for (unsigned int it = 0; it < num_iter; ++it) {
       for (const auto& partition : site_partitioning_) {
-        for (const Int site : partition) {
-          auto& rng = (*rngs_)[site];
-          for (unsigned int i = 0; i < site_size; ++i) {
-            heatbath_link_update(rng, gauge_field, *action_,
-                                 site_size * site + i);
+        for (unsigned int mu = 0; mu < num_dims; ++mu) {
+#pragma omp parallel for
+          for (unsigned int idx = 0; idx < partition.size(); ++idx) {
+            const auto site = partition[idx];
+            auto& rng = (*rngs_)[site];
+              heatbath_link_update(rng, gauge_field, *action_,
+                                   num_dims * site + mu);
           }
         }
       }

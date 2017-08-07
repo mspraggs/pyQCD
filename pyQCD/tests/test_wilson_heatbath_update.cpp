@@ -47,7 +47,7 @@ TEST_CASE("End-to-end heatbath test with Wilson action")
   updater.update(gauge_field, 1);
 
   const double plaquette = pyQCD::gauge::average_plaquette(gauge_field);
-  REQUIRE(plaquette == Approx(0.6658041175210013).epsilon(1e-13));
+  REQUIRE(plaquette == Approx(0.667267594069949).epsilon(1e-13));
   const double rectangle = pyQCD::gauge::average_rectangle(gauge_field);
-  REQUIRE(rectangle == Approx(0.4928116502345678).epsilon(1e-13));
+  REQUIRE(rectangle == Approx(0.4955249692030583).epsilon(1e-13));
 }
