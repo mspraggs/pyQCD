@@ -85,6 +85,7 @@ namespace pyQCD
     template <typename Op, typename... Vals>
     Lattice<T>& operator=(const detail::LatticeExpr<Op, Vals...>& expr)
     {
+#pragma omp parallel for
       for (unsigned int i = 0; i < data_.size(); ++i) {
         data_[i] = detail::eval(i, expr);
       }
@@ -130,6 +131,7 @@ namespace pyQCD
   template <typename U>\
   Lattice<T>& Lattice<T>::operator op ## =(const U& rhs)\
   {\
+_Pragma("omp parallel for")\
     for (unsigned int i = 0; i < data_.size(); ++i) {\
       data_[i] op ## = detail::op_assign_get_rhs(i, rhs);\
     }\
