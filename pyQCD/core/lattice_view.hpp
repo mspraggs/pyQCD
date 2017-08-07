@@ -41,6 +41,7 @@ namespace pyQCD {
     LatticeSegmentView<T>& operator=(
         const detail::LatticeExpr<Op, Vals...>& expr)
     {
+#pragma omp parallel for
       for (unsigned int i = 0; i < size_; ++i) {
         ptr_[i] = detail::eval(i, expr);
       }
@@ -75,6 +76,7 @@ namespace pyQCD {
   template <typename U>\
   LatticeSegmentView<T>& LatticeSegmentView<T>::operator op ## =(const U& rhs)\
   {\
+_Pragma("omp parallel for")\
     for (unsigned int i = 0; i < size_; ++i) {\
       ptr_[i] op ## = detail::op_assign_get_rhs(i, rhs);\
     }\
