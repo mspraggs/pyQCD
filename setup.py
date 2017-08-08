@@ -1,11 +1,11 @@
+from functools import partial
 from itertools import product
 import sys
 
 from Cython.Build import cythonize
-from Cython.Compiler.Errors import CompileError
 from setuptools import Extension, setup, find_packages
-from setuptools.command.test import test as TestCommand
 
+from pyQCD.utils.build import PyTest
 from pyQCD.utils.codegen import CodeGen
 
 data_dirs = ["pyQCD", "pyQCD/templates"]
@@ -22,20 +22,12 @@ data_paths = ["{}/{}/*{}".format(dr, subdir, suffix)
                                                 suffixes)]
 
 
-with open("README.md") as f:
-    long_description = f.read()
 
+make_extension = partial(Extension, language="c++", undef_macros=["NDEBUG"],
+                         include_dirs=["./pyQCD", "/usr/include/eigen3"],
+                         extra_compile_args=["-std=c++11", "-O3"],
+                         extra_link_args=[])
 
-def make_extension(import_path, sources):
-    undef_macros = ["NDEBUG"]
-    include_dirs = ["./pyQCD", "/usr/include/eigen3"]
-    compiler_args = ["-std=c++11"]
-    linker_args = []
-
-    return Extension(import_path, sources, language="c++",
-                     undef_macros=undef_macros, include_dirs=include_dirs,
-                     extra_compile_args=compiler_args,
-                     extra_link_args=linker_args)
 
 extension_sources = {
     "pyQCD.core.core":
@@ -54,36 +46,18 @@ extension_sources = {
 extensions = [make_extension(module, sources)
               for module, sources in extension_sources.items()]
 
+
 # Do not rebuild on change of extension module in the case where we're
 # regenerating the code (in case of errors)
-if "codegen" in sys.argv:
-    ext_modules = []
-else:
-    ext_modules = cythonize(extensions)
+ext_modules = [] if "codegen" in sys.argv else cythonize(extensions)
 
 
-# Test command for interfacing with py.test
-class PyTest(TestCommand):
-    user_options = [('pytest-args=', 'a', "Arguments for py.test")]
-
-    def initialize_options(self):
-        TestCommand.initialize_options(self)
-        self.pytest_args = []
-
-    def finalize_options(self):
-        TestCommand.finalize_options(self)
-        self.test_args = []
-        self.test_suite = True
-
-    def run_tests(self):
-        import pytest
-        errno = pytest.main(self.pytest_args)
-        sys.exit(errno)
-
+with open("README.md") as f:
+    long_description = f.read()
 
 setup(
     name='pyQCD',
-    version='',
+    version='0.0.0',
     packages=find_packages(exclude=["*test*"]),
     ext_modules=ext_modules,
     url='http://github.com/mspraggs/pyqcd/',
@@ -96,7 +70,7 @@ setup(
     tests_require=['pytest'],
     package_dir={'': '.'},
     package_data={'pyQCD': data_paths},
-    classifiers = [
+    classifiers=[
         'Programming Language :: C++',
         'Programming Language :: Cython',
         'Programming Language :: Python',
