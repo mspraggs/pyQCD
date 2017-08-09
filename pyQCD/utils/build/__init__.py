@@ -1,8 +1,72 @@
+from functools import partial
 import os
 import sys
 import warnings
 
+from Cython.Build import cythonize
+from setuptools import Extension
 from setuptools.command.test import test as TestCommand
+
+from pyQCD.utils.build.build_shared_clib import make_library
+
+
+# Include/library search hints
+file_search_paths = ["/usr/include", "/usr/lib",
+                     "/usr/local/include", "/usr/local/lib",
+                     "/usr/local", "/usr",
+                     "/opt", "/"]
+
+compiler_args = ["-std=c++11", "-O3"]
+linker_args = []
+header_search_files = ["signature_of_eigen3_matrix_library"]
+
+extension_sources = {
+    "pyQCD.core.core": ["pyQCD/core/core.pyx"],
+    "pyQCD.fermions.fermions": ["pyQCD/fermions/fermions.pyx"],
+    "pyQCD.gauge.gauge": ["pyQCD/gauge/gauge.pyx"],
+    "pyQCD.algorithms.algorithms": ["pyQCD/algorithms/algorithms.pyx"]
+}
+
+library_sources = {
+    "pyQCDcore": ["pyQCD/core/layout.cpp"],
+    "pyQCDutils": ["pyQCD/utils/matrices.cpp", "pyQCD/utils/random.cpp"]
+}
+
+
+def generate_include_dirs():
+    """Locate required include directories"""
+    include_dirs = ["./pyQCD"]
+    include_dirs.extend(generate_include_paths(file_search_paths,
+                                               header_search_files))
+    return include_dirs
+
+
+def generate_libraries(argv):
+    """Generate library specifications"""
+    include_dirs = generate_include_dirs()
+    make_lib = partial(make_library, language="c++", output_dir="lib",
+                       undef_macros=["NDEBUG"], include_dirs=include_dirs,
+                       extra_compile_args=compiler_args,
+                       extra_link_args=linker_args)
+
+    return [make_lib(name, src) for name, src in library_sources.items()]
+
+
+def generate_extensions(argv):
+    """Generate Extension instances to feed to build_ext -fi"""
+
+    if "codegen" in argv:
+        return []
+
+    include_dirs = generate_include_dirs()
+    make_extension = partial(Extension, language="c++", undef_macros=["NDEBUG"],
+                             include_dirs=include_dirs,
+                             extra_compile_args=compiler_args,
+                             extra_link_args=linker_args)
+
+    extensions = [make_extension(module, sources)
+                  for module, sources in extension_sources.items()]
+    return cythonize(extensions)
 
 
 def find_file_in_directory(init_dir, filename):
