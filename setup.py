@@ -6,6 +6,8 @@ from Cython.Build import cythonize
 from setuptools import Extension, setup, find_packages
 
 from pyQCD.utils.build import PyTest, generate_include_paths
+from pyQCD.utils.build.build_shared_clib import BuildSharedLib, make_library
+from pyQCD.utils.build.build_ext import BuildExt
 from pyQCD.utils.codegen import CodeGen
 
 # Include/library search hints
@@ -28,29 +30,37 @@ data_paths = ["{}/{}/*{}".format(dr, subdir, suffix)
               for dr, subdir, suffix in product(data_dirs, include_subdirs,
                                                 suffixes)]
 
-# Setup and build extensions
+# Setup libraries and extension modules
 
+compiler_args = ["-std=c++11", "-O3"]
+linker_args = []
 header_search_files = ["signature_of_eigen3_matrix_library"]
 include_dirs = ["./pyQCD"]
 include_dirs.extend(generate_include_paths(file_search_paths,
                                            header_search_files))
 
+make_lib = partial(make_library, language="c++", output_dir="lib",
+                   undef_macros=["NDEBUG"], include_dirs=include_dirs,
+                   extra_compile_args=compiler_args,
+                   extra_link_args=linker_args)
+
+library_sources = {
+    "pyQCDcore": ["pyQCD/core/layout.cpp"],
+    "pyQCDutils": ["pyQCD/utils/matrices.cpp", "pyQCD/utils/random.cpp"]
+}
+
+libraries = [make_lib(name, src) for name, src in library_sources.items()]
+
 make_extension = partial(Extension, language="c++", undef_macros=["NDEBUG"],
                          include_dirs=include_dirs,
-                         extra_compile_args=["-std=c++11", "-O3"],
-                         extra_link_args=[])
+                         extra_compile_args=compiler_args,
+                         extra_link_args=linker_args)
 
 extension_sources = {
-    "pyQCD.core.core":
-        ["pyQCD/core/core.pyx", "pyQCD/core/layout.cpp",
-         "pyQCD/utils/random.cpp"],
-    "pyQCD.fermions.fermions":
-        ["pyQCD/fermions/fermions.pyx", "pyQCD/utils/matrices.cpp"],
-    "pyQCD.gauge.gauge":
-        ["pyQCD/gauge/gauge.pyx"],
-    "pyQCD.algorithms.algorithms":
-        ["pyQCD/algorithms/algorithms.pyx", "pyQCD/core/layout.cpp",
-         "pyQCD/utils/random.cpp"]
+    "pyQCD.core.core": ["pyQCD/core/core.pyx"],
+    "pyQCD.fermions.fermions": ["pyQCD/fermions/fermions.pyx"],
+    "pyQCD.gauge.gauge": ["pyQCD/gauge/gauge.pyx"],
+    "pyQCD.algorithms.algorithms": ["pyQCD/algorithms/algorithms.pyx"]
 }
 
 extensions = [make_extension(module, sources)
@@ -70,10 +80,12 @@ setup(
     version='0.0.0',
     packages=find_packages(exclude=["*test*"]),
     ext_modules=ext_modules,
+    libraries=libraries,
     url='http://github.com/mspraggs/pyqcd/',
     author='Matt Spraggs',
     author_email='matthew.spraggs@gmail.com',
-    cmdclass={'codegen': CodeGen, 'test': PyTest},
+    cmdclass={'codegen': CodeGen, 'test': PyTest, "build_ext": BuildExt,
+              'build_clib': BuildSharedLib},
     description='pyQCD provides a Python library for running lattice field '
                 'theory simulations on desktop and workstation computers.',
     long_description=long_description,
