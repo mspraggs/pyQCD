@@ -28,6 +28,9 @@ ext_modules = generate_extensions(sys.argv)
 with open("README.md") as f:
     long_description = f.read()
 
+with open("install_requires.txt") as f:
+    dependencies = f.read().split()
+
 setup(
     name='pyQCD',
     version='0.0.0',
@@ -42,6 +45,7 @@ setup(
     description='pyQCD provides a Python library for running lattice field '
                 'theory simulations on desktop and workstation computers.',
     long_description=long_description,
+    install_requires=dependencies,
     tests_require=['pytest'],
     package_dir={'': '.'},
     package_data={'pyQCD': data_paths},
