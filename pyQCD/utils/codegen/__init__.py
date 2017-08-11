@@ -115,15 +115,15 @@ def generate_core_cython_types(output_path, precision, typedefs, operator_map):
         to lists of Python function names that implement them.
     """
 
-    write_template("core/qcd_types.hpp", "core/qcd_types.hpp", output_path,
-                   typedefs=typedefs, precision=precision)
-    write_template("core/atomics.pxd", "core/atomics.pxd", output_path,
-                   precision=precision)
-    write_template("core/core.pyx", "core/core.pyx", output_path,
-                   typedefs=typedefs, precision=precision,
-                   operator_map=operator_map)
-    write_template("core/core.pxd", "core/core.pxd", output_path,
-                   typedefs=typedefs, operator_map=operator_map)
+    templates = ["core/qcd_types.hpp", "core/atomics.pxd",
+                 "core/core.pyx", "core/core.pxd"]
+
+    for template in templates:
+        write_template(template, template, output_path,
+                       typedefs=typedefs, precision=precision,
+                       operator_map=operator_map)
+
+    return [os.path.join(output_path, template) for template in templates]
 
 
 def generate_qcd(num_colours, precision, representation, dest=None):
@@ -162,10 +162,15 @@ def generate_qcd(num_colours, precision, representation, dest=None):
     else:
         dest = src
 
-    generate_core_cython_types(dest, precision, type_definitions, operator_map)
+    cython_files = []
+
+    cython_files.extend(generate_core_cython_types(
+        dest, precision, type_definitions, operator_map))
 
     write_template("globals.hpp", "globals.hpp", dest,
                    num_colours=num_colours, precision=precision)
+
+    return [path for path in cython_files if path.endswith(".pyx")]
 
 
 class CodeGen(setuptools.Command):
