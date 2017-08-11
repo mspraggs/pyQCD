@@ -1,6 +1,9 @@
 language: python
 dist: trusty
 sudo: false
+compiler:
+  - clang
+  - gcc
 python:
   - "2.7"
   - "3.4"
