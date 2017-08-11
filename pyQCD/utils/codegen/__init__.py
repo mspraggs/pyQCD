@@ -10,18 +10,22 @@ from itertools import product
 import shutil
 from string import ascii_lowercase
 
-from jinja2 import Environment, PackageLoader
+try:
+    from jinja2 import Environment, PackageLoader
+except ImportError:
+    jinja2 = False
 import setuptools
 
 from . import typedefs
 from .typedefs import LatticeDef
 
 
-# Create the jinja2 template environment.
-env = Environment(loader=PackageLoader('pyQCD', 'templates'),
-                  trim_blocks=True, lstrip_blocks=True,
-                  extensions=["jinja2.ext.do", "jinja2.ext.with_"])
-
+if jinja2:
+    # Create the jinja2 template environment.
+    env = Environment(loader=PackageLoader('pyQCD', 'templates'),
+                      trim_blocks=True, lstrip_blocks=True,
+                      extensions=["jinja2.ext.do", "jinja2.ext.with_"])
+    
 
 def _filter_lib(src, names):
     """Filters out C++ and Cython files from list of names"""
