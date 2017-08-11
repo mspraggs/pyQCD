@@ -3,7 +3,6 @@ import os
 import sys
 import warnings
 
-from Cython.Build import cythonize
 from setuptools import Extension
 from setuptools.command.test import test as TestCommand
 
@@ -21,10 +20,10 @@ linker_args = []
 header_search_files = ["signature_of_eigen3_matrix_library"]
 
 extension_sources = {
-    "pyQCD.core.core": ["pyQCD/core/core.pyx"],
-    "pyQCD.fermions.fermions": ["pyQCD/fermions/fermions.pyx"],
-    "pyQCD.gauge.gauge": ["pyQCD/gauge/gauge.pyx"],
-    "pyQCD.algorithms.algorithms": ["pyQCD/algorithms/algorithms.pyx"]
+    "pyQCD.core.core": ["pyQCD/core/core.cpp"],
+    "pyQCD.fermions.fermions": ["pyQCD/fermions/fermions.cpp"],
+    "pyQCD.gauge.gauge": ["pyQCD/gauge/gauge.cpp"],
+    "pyQCD.algorithms.algorithms": ["pyQCD/algorithms/algorithms.cpp"]
 }
 
 library_sources = {
@@ -55,9 +54,6 @@ def generate_libraries(argv):
 def generate_extensions(argv):
     """Generate Extension instances to feed to build_ext -fi"""
 
-    if "codegen" in argv:
-        return []
-
     include_dirs = generate_include_dirs()
     make_extension = partial(Extension, language="c++", undef_macros=["NDEBUG"],
                              include_dirs=include_dirs,
@@ -66,7 +62,7 @@ def generate_extensions(argv):
 
     extensions = [make_extension(module, sources)
                   for module, sources in extension_sources.items()]
-    return cythonize(extensions)
+    return extensions
 
 
 def find_file_in_directory(init_dir, filename):
