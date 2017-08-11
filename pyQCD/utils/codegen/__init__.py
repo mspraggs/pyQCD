@@ -195,4 +195,20 @@ class CodeGen(setuptools.Command):
 
     def run(self):
         """Run - pass execution to generate_qcd"""
-        generate_qcd(self.num_colours, self.precision, self.representation)
+
+        filepaths = generate_qcd(self.num_colours, self.precision,
+                                 self.representation)
+
+        from Cython.Build.Dependencies import cythonize_one
+        from Cython.Compiler.Main import CompilationOptions
+
+        options = CompilationOptions()
+        options.cplus = True
+
+        for src_path in filepaths:
+            if not src_path.endswith(".pyx"):
+                raise ValueError("Aborted attempt to cythonize file '{}'"
+                                 .format(src_path))
+
+            dest_path = src_path[-3:] + "cpp"
+            cythonize_one(src_path, dest_path, None, False, options=options)
