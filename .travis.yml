@@ -10,6 +10,7 @@ addons:
 before_install:
   - pip install pip-accel
 install:
+  - pip-accel install -r install_requires.txt
   - "CC=clang CXX=clang++ pip install ."
   - mkdir build
   - cd build
