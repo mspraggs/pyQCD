@@ -22,13 +22,6 @@ env = Environment(loader=PackageLoader('pyQCD', 'templates'),
                   trim_blocks=True, lstrip_blocks=True,
                   extensions=["jinja2.ext.do", "jinja2.ext.with_"])
 
-MatrixDefinition = namedtuple("MatrixDefinition",
-                              ["num_rows", "num_cols", "matrix_name",
-                               "array_name", "lattice_matrix_name",
-                               "lattice_array_name"])
-
-variants = ['matrix', 'array', 'lattice_matrix', 'lattice_array']
-
 
 def _filter_lib(src, names):
     """Filters out C++ and Cython files from list of names"""
