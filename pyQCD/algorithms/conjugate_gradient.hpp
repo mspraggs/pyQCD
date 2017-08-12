@@ -63,10 +63,10 @@ namespace pyQCD
       r -= alpha * Ap;
 
       const Real current_residual = dot_fermions(r, r).real();
+      final_residual = std::sqrt(current_residual);
 
-      if (std::sqrt(current_residual) < tolerance) {
+      if (final_residual < tolerance) {
         final_iterations = i + 1;
-        final_residual = std::sqrt(current_residual);
         break;
       }
 
@@ -132,10 +132,10 @@ namespace pyQCD
       r_odd_view -= alpha * Ap_odd_view;
 
       const Real current_residual = dot_fermions(r_odd_view, r_odd_view).real();
+      final_residual = std::sqrt(current_residual);
 
-      if (std::sqrt(current_residual) < tolerance) {
+      if (final_residual < tolerance) {
         final_iterations = i + 1;
-        final_residual = std::sqrt(current_residual);
         break;
       }
 
