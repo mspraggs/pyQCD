@@ -27,20 +27,20 @@
 
 TEST_CASE("Testing RNG")
 {
-  pyQCD::RandGenerator rng;
+  pyQCD::RandGenerator rng(0);
 
   Compare<double> comp(1.0e-3, 1.0e-3);
 
-  unsigned num_trials = 100000;
+  const unsigned int num_trials = 1000;
   double mean = 0.0;
 
-  for (unsigned i = 0; i < num_trials; ++i) {
-    auto random = rng.generate_real<double>(0.0, 1.0);
+  for (unsigned int i = 0; i < num_trials; ++i) {
+    const auto random = rng.generate_real<double>(0.0, 1.0);
     mean += random;
 
     REQUIRE((random >= 0.0 and random < 1.0));
   }
   mean /= num_trials;
 
-  REQUIRE(comp(mean, 0.5));
+  REQUIRE(mean == Approx(0.5076074826010093));
 }
