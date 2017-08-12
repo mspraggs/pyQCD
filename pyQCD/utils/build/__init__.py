@@ -15,8 +15,8 @@ file_search_paths = ["/usr/include", "/usr/lib",
                      "/usr/local", "/usr",
                      "/opt", "/"]
 
-compiler_args = ["-std=c++11", "-O3"]
-linker_args = []
+compiler_args = ["-std=c++11", "-O3", "-fopenmp"]
+linker_args = ["-lgomp"]
 header_search_files = ["signature_of_eigen3_matrix_library"]
 
 extension_sources = {
