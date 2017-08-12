@@ -13,14 +13,16 @@ from string import ascii_lowercase
 try:
     from jinja2 import Environment, PackageLoader
 except ImportError:
-    jinja2 = False
+    with_jinja2 = False
+else:
+    with_jinja2 = True
 import setuptools
 
 from . import typedefs
 from .typedefs import LatticeDef
 
 
-if jinja2:
+if with_jinja2:
     # Create the jinja2 template environment.
     env = Environment(loader=PackageLoader('pyQCD', 'templates'),
                       trim_blocks=True, lstrip_blocks=True,
