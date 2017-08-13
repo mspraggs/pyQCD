@@ -37,6 +37,8 @@ class BuildExt(build_ext):
             ext.library_dirs.extend(libdirs)
 
     def run(self):
+        
+        from pyQCD.utils.build import generate_flags
 
         # Code below is lovingly spliced together from setuptools and distutils
         # build_ext implementations, minus some code
@@ -102,6 +104,14 @@ class BuildExt(build_ext):
             self.compiler.set_runtime_library_dirs(self.rpath)
         if self.link_objects is not None:
             self.compiler.set_link_objects(self.link_objects)
+
+        compile_args, link_args = generate_flags(self.compiler)
+        for ext in self.extensions:
+            ext.extra_compile_args = ext.extra_compile_args or []
+            ext.extra_link_args = ext.extra_link_args or []
+
+            ext.extra_compile_args.extend(compile_args)
+            ext.extra_link_args.extend(link_args)
 
         # Now actually compile and link everything.
         self.build_extensions()
