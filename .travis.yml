@@ -48,34 +48,8 @@ matrix:
         - g++-7
     env: CC=gcc-7; CXX=g++-7
     python: "3.4"
-  - compiler: clang
-    addons:
-      apt:
-        packages:
-        - libeigen3-dev
-    env: CC=clang; CXX=clang++
-    python: "3.4"
-  - compiler: clang
-    addons:
-      apt:
-        packages:
-        - libeigen3-dev
-    env: CC=clang; CXX=clang++; CLANG_LINK=http://llvm.org/releases/3.7.0/clang+llvm-3.7.0-x86_64-linux-gnu-ubuntu-14.04.tar.xz
-    python: "3.4"
-  - compiler: clang
-    addons:
-      apt:
-        packages:
-        - libeigen3-dev
-    env: CC=clang; CXX=clang++; CLANG_LINK=http://llvm.org/releases/3.8.0/clang+llvm-3.8.0-x86_64-linux-gnu-ubuntu-14.04.tar.xz
-    python: "3.4"
 
 before_install:
-  - ls $HOME
-  - if [[ -n "$CLANG_LINK" ]] && [ ! -e $HOME/clang/bin/clang ]; then wget "$CLANG_LINK"; tar xvf `basename $CLANG_LINK`; mkdir $HOME/clang; mv `basename ${CLANG_LINK%.tar.xz}`/* $HOME/clang/; fi
-  - if [[ -n "$CLANG_LINK" ]]; then export PATH=$HOME/clang/bin:$PATH; fi
-  - if [[ -n "$CLANG_LINK" ]]; then export LD_LIBRARY_PATH=$HOME/clang/lib:$LD_LIBRARY_PATH; fi
-  - which $CXX
   - pip install pip-accel
 install:
   - pip-accel install -r install_requires.txt
