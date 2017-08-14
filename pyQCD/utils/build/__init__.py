@@ -15,10 +15,8 @@ file_search_paths = ["/usr/include", "/usr/lib",
                      "/usr/local", "/usr",
                      "/opt", "/"]
 
-# N.B. Only use these lists for flags that are globally compatible (i.e. every
-# supported compiler, every supported platform).
-compiler_args = ["-std=c++11", "-O3"]
-linker_args = []
+compiler_args = ["-std=c++11", "-O3", "-fopenmp"]
+linker_args = ["-lgomp"]
 header_search_files = ["signature_of_eigen3_matrix_library"]
 
 extension_sources = {
@@ -32,26 +30,6 @@ library_sources = {
     "pyQCDcore": ["pyQCD/core/layout.cpp"],
     "pyQCDutils": ["pyQCD/utils/matrices.cpp", "pyQCD/utils/random.cpp"]
 }
-
-
-def generate_flags(compiler):
-    """Generate flags for given compiler"""
-
-    compiler_flags = ["-std=c++11", "-O3"]
-    linker_flags = []
-      
-    args = compiler.compiler
-
-    if "clang" in args[0] or "clang++" in args[0]:
-        compiler_flags.append("-fopenmp=libomp")
-        linker_flags.append("-fopenmp=libomp")
-    else:
-        compiler_flags.append("-fopenmp")
-        linker_flags.append("-lgomp")
-
-    return compiler_flags, linker_flags
-    
-    import IPython; IPython.embed(); raise KeyboardInterrupt
 
 
 def generate_include_dirs():

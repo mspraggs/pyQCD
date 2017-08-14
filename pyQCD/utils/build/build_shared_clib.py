@@ -99,9 +99,6 @@ class BuildSharedLib(Command):
             self.include_dirs = self.include_dirs.split(os.pathsep)
 
     def run(self):
-
-        from pyQCD.utils.build import generate_flags
-        
         if not self.libraries:
             return
 
@@ -121,12 +118,6 @@ class BuildSharedLib(Command):
         if self.undef is not None:
             for macro in self.undef:
                 self.compiler.undefine_macro(macro)
-
-        compile_args, link_args = generate_flags(self.compiler)
-
-        for lib_name, build_info in self.libraries:
-            build_info["extra_compile_args"].extend(compile_args)
-            build_info["extra_link_args"].extend(link_args)
 
         old_inplace, self.inplace = self.inplace, 0
         self.build_libraries(self.libraries)
