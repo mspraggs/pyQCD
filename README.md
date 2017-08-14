@@ -1,6 +1,8 @@
 # pyQCD
 
-[![Travis CI Build Status](https://travis-ci.org/mspraggs/pyQCD.svg?branch=master)](https://travis-ci.org/mspraggs/pyQCD)
+**Master**|[![Travis CI Build Status](https://travis-ci.org/mspraggs/pyQCD.svg?branch=master)](https://travis-ci.org/mspraggs/pyQCD)
+:---:|:---:
+**Development**|[![Travis CI Build Status](https://travis-ci.org/mspraggs/pyQCD.svg?branch=devel)](https://travis-ci.org/mspraggs/pyQCD)
 
 pyQCD is an extensible Python package for building and testing lattice
 field theory measurements on desktop and workstation computers.
