@@ -69,53 +69,57 @@ Create a gauge field on a lattice with spatial extent L = 8 and temporal extent
 T = 16 and update it 100 times using Wilson's gauge action and the heatbath
 algorithm:
 
-    from pyQCD.algorithms import Heatbath
-    from pyQCD.gauge import WilsonGaugeAction, average_plaquette, cold_start
-    
-    # Create a gauge field with all matrices set to the identity, laid out
-    # lexicographically
-    gauge_field = cold_start([16, 8, 8, 8])
-    # Create a Wilson gauge action instance with beta = 5.5
-    action = WilsonGaugeAction(5.5, gauge_field.layout)
-    # Create a heatbath update instance
-    heatbath_updater = Heatbath(gauge_field.layout, action)
-    
-    # Update the gauge field 100 times
-    heatbath_updater.update(gauge_field, 100)
-    # Show link at (t, x, y, z) = (0, 0, 0, 0) and mu = 0
-    print(gauge_field[0, 0, 0, 0, 0])
+```python
+from pyQCD.algorithms import Heatbath
+from pyQCD.gauge import WilsonGaugeAction, average_plaquette, cold_start
+
+# Create a gauge field with all matrices set to the identity, laid out
+# lexicographically
+gauge_field = cold_start([16, 8, 8, 8])
+# Create a Wilson gauge action instance with beta = 5.5
+action = WilsonGaugeAction(5.5, gauge_field.layout)
+# Create a heatbath update instance
+heatbath_updater = Heatbath(gauge_field.layout, action)
+
+# Update the gauge field 100 times
+heatbath_updater.update(gauge_field, 100)
+# Show link at (t, x, y, z) = (0, 0, 0, 0) and mu = 0
+print(gauge_field[0, 0, 0, 0, 0])
+```
     
 Now use the resulting gauge field to solve the Dirac equation using Wilson's
 fermion action and even-odd preconditioned conjugate gradient
 
-    from pyQCD.algorithms import conjugate_gradient_eoprec
-    from pyQCD.core import EvenOddLayout, LatticeColourVector
-    from pyQCD.fermions import WilsonFermionAction
-     
-    # Gauge field must be even-odd partitioned for even-odd solver to work
-    lexico_layout = gauge_field.layout
-    even_odd_layout = EvenOddLayout(lexico_layout.shape)
-    gauge_field.change_layout(even_odd_layout)
-    
-    # Create the Wilson action with dimensionless mass of 0.4 and periodic
-    # boundary conditions
-    fermion_action = WilsonFermionAction(0.4, gauge_field, [0] * 4)
-     
-    # Create a point source
-    rhs = LatticeColourVector(lexico_layout, 4)
-    rhs[0, 0, 0, 0, 0, 0] = 1.0
-    rhs.change_layout(even_odd_layout)
-    
-    # Solve Dirac equation
-    sol, num_iterations, err = conjugate_gradient_eoprec(
-        fermion_action, rhs, 1000, 1e-10)
-    print("Finsihed solving after {} iterations. Solution has error = {}"
-          .format(num_iterations, err))
-     
-    # Change layout of sol back to lexicographic to enable numpy-functionality
-    sol.change_layout(lexico_layout)
-    # Print solution at (t, x, y, z) = (0, 0, 0, 0)
-    print(sol[0, 0, 0, 0])
+```python
+from pyQCD.algorithms import conjugate_gradient_eoprec
+from pyQCD.core import EvenOddLayout, LatticeColourVector
+from pyQCD.fermions import WilsonFermionAction
+
+# Gauge field must be even-odd partitioned for even-odd solver to work
+lexico_layout = gauge_field.layout
+even_odd_layout = EvenOddLayout(lexico_layout.shape)
+gauge_field.change_layout(even_odd_layout)
+
+# Create the Wilson action with dimensionless mass of 0.4 and periodic
+# boundary conditions
+fermion_action = WilsonFermionAction(0.4, gauge_field, [0] * 4)
+
+# Create a point source
+rhs = LatticeColourVector(lexico_layout, 4)
+rhs[0, 0, 0, 0, 0, 0] = 1.0
+rhs.change_layout(even_odd_layout)
+
+# Solve Dirac equation
+sol, num_iterations, err = conjugate_gradient_eoprec(
+    fermion_action, rhs, 1000, 1e-10)
+print("Finsihed solving after {} iterations. Solution has error = {}"
+      .format(num_iterations, err))
+
+# Change layout of sol back to lexicographic to enable numpy-functionality
+sol.change_layout(lexico_layout)
+# Print solution at (t, x, y, z) = (0, 0, 0, 0)
+print(sol[0, 0, 0, 0])
+```
 
 ## Reconfiguring for Different Theories
 
