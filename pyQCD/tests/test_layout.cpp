@@ -29,7 +29,7 @@
 TEST_CASE("LexicoLayout test") {
   using Layout = pyQCD::LexicoLayout;
 
-  Layout layout({8, 4, 4, 4});
+  const Layout layout({8, 4, 4, 4});
 
   for (int i = 0; i < 512; ++i) {
     REQUIRE (layout.get_array_index(i) == i);
@@ -46,7 +46,7 @@ TEST_CASE("LexicoLayout test") {
 TEST_CASE("EvenOddLayout test") {
   using Layout = pyQCD::EvenOddLayout;
 
-  Layout layout({8, 4, 4, 4});
+  const Layout layout({8, 4, 4, 4});
 
   REQUIRE (layout.get_array_index(0) == 0);
   REQUIRE (layout.get_site_index(0) == 0);
@@ -68,9 +68,9 @@ TEST_CASE("EvenOddLayout test") {
 TEST_CASE("PartitionCompare test") {
   using Layout = pyQCD::LexicoLayout;
 
-  Layout layout({8, 4, 4, 4});
+  const Layout layout({8, 4, 4, 4});
 
-  pyQCD::PartitionCompare compare(2, layout);
+  const pyQCD::PartitionCompare compare(2, layout);
 
   REQUIRE(not compare(0, 0));
 

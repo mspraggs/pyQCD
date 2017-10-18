@@ -63,17 +63,17 @@ TEST_CASE("Heatbath test")
 
   SECTION ("Test heatbath SU(2) generation") {
 
-    Compare<Real> comp(1.0e-5, 1.0e-8);
-    MatrixCompare<pyQCD::SU2Matrix<Real>> mat_comp(1.0e-5, 1.0e-8);
+    const Compare<Real> comp(1.0e-5, 1.0e-8);
+    const MatrixCompare<pyQCD::SU2Matrix<Real>> mat_comp(1.0e-5, 1.0e-8);
 
     const unsigned int n = 10000;
     std::vector<Real> x0s(n);
     for (unsigned int i = 0; i < n; ++i) {
-      auto heatbath_su2 = pyQCD::gen_heatbath_su2(rng, 5.0);
+      const auto heatbath_su2 = pyQCD::gen_heatbath_su2(rng, 5.0);
 
       REQUIRE(mat_comp(heatbath_su2 * heatbath_su2.adjoint(),
         pyQCD::SU2Matrix<Real>::Identity()));
-      auto det = heatbath_su2.determinant();
+      const auto det = heatbath_su2.determinant();
       REQUIRE(comp(det.real(), 1.0));
       REQUIRE(comp(det.imag(), 0.0));
 
@@ -81,16 +81,17 @@ TEST_CASE("Heatbath test")
     }
     // Compute the mean and the standard deviation of x0 (coefficient on
     // sigma0).
-    Real mean = std::accumulate(x0s.begin(), x0s.end(), 0.0) / n;
+    const Real mean = std::accumulate(x0s.begin(), x0s.end(), 0.0) / n;
 
     std::vector<Real> square_devs(n);
     std::transform(x0s.begin(), x0s.end(), square_devs.begin(),
       [mean](const Real val) { return (val - mean) * (val - mean); });
-    Real sum_square_devs
-      = std::accumulate(square_devs.begin(), square_devs.end(), 0.0);
-    Real stddev = std::sqrt(sum_square_devs / n);
 
-    Compare<Real> comp_weak(0.005, 0.005);
+    const Real sum_square_devs
+      = std::accumulate(square_devs.begin(), square_devs.end(), 0.0);
+    const Real stddev = std::sqrt(sum_square_devs / n);
+
+    const Compare<Real> comp_weak(0.005, 0.005);
     REQUIRE(comp_weak(mean, 0.7193405813643129));
     REQUIRE(comp_weak(stddev, 0.2257095017580442));
   }

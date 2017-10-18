@@ -28,23 +28,19 @@ TEST_CASE ("Testing gamma matrix generation")
 {
   MatrixCompare<Eigen::MatrixXcd> comp(1e-5, 1e-8);
 
-  auto gamma_matrices = pyQCD::generate_gamma_matrices<double>(2);
+  const auto gamma_matrices_2 = pyQCD::generate_gamma_matrices<double>(2);
 
-  REQUIRE (gamma_matrices.size() == 2);
-  REQUIRE (comp(gamma_matrices[0], pyQCD::sigma1));
-  REQUIRE (comp(gamma_matrices[1], pyQCD::sigma2));
+  REQUIRE (gamma_matrices_2.size() == 2);
+  REQUIRE (comp(gamma_matrices_2[0], pyQCD::sigma1));
+  REQUIRE (comp(gamma_matrices_2[1], pyQCD::sigma2));
 
   for (int d = 4; d < 12; d += 2) {
-    gamma_matrices = pyQCD::generate_gamma_matrices<double>(d);
+    const auto gamma_matrices_d = pyQCD::generate_gamma_matrices<double>(d);
 
-    REQUIRE (gamma_matrices.size() == d);
+    REQUIRE (gamma_matrices_d.size() == d);
 
     for (int i = 0; i < d; ++i) {
-      if (!comp(gamma_matrices[i], gamma_matrices[i].adjoint())) {
-        std::cout << d << ", " << i << std::endl;
-        std::cout << gamma_matrices[i] << std::endl;
-      }
-      REQUIRE (comp(gamma_matrices[i], gamma_matrices[i].adjoint()));
+      REQUIRE (comp(gamma_matrices_d[i], gamma_matrices_d[i].adjoint()));
     }
   }
 }

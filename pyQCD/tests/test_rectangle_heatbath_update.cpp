@@ -33,10 +33,11 @@ TEST_CASE("End-to-end heatbath test with rectangle action")
   using GaugeField = pyQCD::gauge::Action<double, 3>::GaugeField;
   using GaugeLink = pyQCD::gauge::Action<double, 3>::GaugeLink;
 
-  pyQCD::LexicoLayout layout({4, 4, 4, 4});
+  const pyQCD::LexicoLayout layout({4, 4, 4, 4});
   GaugeField gauge_field(layout, GaugeLink::Identity(), 4);
 
-  pyQCD::gauge::RectangleAction<double, 3> action(4.41, layout, -1.0 / 12.0);
+  const pyQCD::gauge::RectangleAction<double, 3> action(4.41, layout,
+                                                        -1.0 / 12.0);
 
   std::vector<std::size_t> seeds(layout.volume(), 0);
   std::iota(seeds.begin(), seeds.end(), 0);

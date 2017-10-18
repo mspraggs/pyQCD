@@ -29,7 +29,7 @@ TEST_CASE("Testing RNG")
 {
   pyQCD::RandGenerator rng(0);
 
-  Compare<double> comp(1.0e-3, 1.0e-3);
+  const Compare<double> comp(1.0e-3, 1.0e-3);
 
   const unsigned int num_trials = 1000;
   double mean = 0.0;

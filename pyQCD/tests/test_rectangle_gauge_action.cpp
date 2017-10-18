@@ -31,23 +31,23 @@ TEST_CASE("Test rectangle gauge action")
   using ColourMatrix = pyQCD::ColourMatrix<Real, 3>;
 
   SECTION("Testing computation of staples") {
-    MatrixCompare<ColourMatrix> mat_comp(1.0e-8, 1.0e-8);
+    const MatrixCompare<ColourMatrix> mat_comp(1.0e-8, 1.0e-8);
 
-    pyQCD::LexicoLayout layout({8, 4, 4, 4});
-    auto identity = ColourMatrix::Identity();
+    const pyQCD::LexicoLayout layout({8, 4, 4, 4});
+    const auto identity = ColourMatrix::Identity();
     pyQCD::LatticeColourMatrix<double, 3> gauge_field(layout, identity, 4);
-    pyQCD::gauge::RectangleAction<double, 3> action(5.0, layout, 1.0);
+    const pyQCD::gauge::RectangleAction<double, 3> action(5.0, layout, 1.0);
 
     auto staple = action.compute_staples(gauge_field, 0);
 
     REQUIRE (mat_comp(staple, -24 * identity));
 
     for (pyQCD::Int d = 1; d < 4; ++d) {
-      ColourMatrix rand_mat_1 = ColourMatrix::Random();
-      ColourMatrix rand_mat_2 = ColourMatrix::Random();
-      ColourMatrix rand_mat_3 = ColourMatrix::Random();
+      const ColourMatrix rand_mat_1 = ColourMatrix::Random();
+      const ColourMatrix rand_mat_2 = ColourMatrix::Random();
+      const ColourMatrix rand_mat_3 = ColourMatrix::Random();
 
-      pyQCD::Site site1{1, 0, 0, 0};
+      const pyQCD::Site site1{1, 0, 0, 0};
       auto site2 = site1;
       auto site3 = site1;
       site2[0] = 0;
@@ -65,33 +65,35 @@ TEST_CASE("Test rectangle gauge action")
       gauge_field(site2, 0) = ColourMatrix::Identity();
       gauge_field(site3, d) = ColourMatrix::Identity();
 
-      ColourMatrix plaquette_link_product
+      const ColourMatrix plaquette_link_product
           = rand_mat_1 * rand_mat_2.adjoint() * rand_mat_3.adjoint();
-      ColourMatrix rectangle_link_product_1 = rand_mat_1 * rand_mat_2.adjoint();
-      ColourMatrix rectangle_link_product_2 = rand_mat_1 * rand_mat_3.adjoint();
-      ColourMatrix rectangle_link_product_3
+      const ColourMatrix rectangle_link_product_1 =
+          rand_mat_1 * rand_mat_2.adjoint();
+      const ColourMatrix rectangle_link_product_2 =
+          rand_mat_1 * rand_mat_3.adjoint();
+      const ColourMatrix rectangle_link_product_3
           = rand_mat_2.adjoint() * rand_mat_3.adjoint();
 
-      ColourMatrix plane_0_staples
+      const ColourMatrix plane_0_staples
           = -7.0 * plaquette_link_product + rectangle_link_product_1
               + rectangle_link_product_2 + rectangle_link_product_3
               - 4.0 * identity;
 
-      ColourMatrix expected_mat = plane_0_staples - 16.0 * identity;
+      const ColourMatrix expected_mat = plane_0_staples - 16.0 * identity;
 
       REQUIRE (mat_comp(staple, expected_mat));
     }
   }
 
   SECTION("Testing local action") {
-    Compare<Real> comp(1.0e-8, 1.0e-8);
+    const Compare<Real> comp(1.0e-8, 1.0e-8);
 
-    pyQCD::LexicoLayout layout({8, 4, 4, 4});
-    auto identity = ColourMatrix::Identity();
-    pyQCD::LatticeColourMatrix<double, 3> gauge_field(layout, identity, 4);
-    pyQCD::gauge::RectangleAction<double, 3> action(5.0, layout, 1.0);
+    const pyQCD::LexicoLayout layout({8, 4, 4, 4});
+    const auto identity = ColourMatrix::Identity();
+    const pyQCD::LatticeColourMatrix<double, 3> gauge_field(layout, identity, 4);
+    const pyQCD::gauge::RectangleAction<double, 3> action(5.0, layout, 1.0);
 
-    Real local_action = action.local_action(gauge_field, 0);
+    const Real local_action = action.local_action(gauge_field, 0);
     REQUIRE(comp(local_action, 120.0));
   }
 }

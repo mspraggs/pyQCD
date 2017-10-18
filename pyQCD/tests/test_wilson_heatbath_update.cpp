@@ -33,7 +33,7 @@ TEST_CASE("End-to-end heatbath test with Wilson action")
   using GaugeField = pyQCD::gauge::Action<double, 3>::GaugeField;
   using GaugeLink = pyQCD::gauge::Action<double, 3>::GaugeLink;
 
-  pyQCD::LexicoLayout layout({4, 4, 4, 4});
+  const pyQCD::LexicoLayout layout({4, 4, 4, 4});
   GaugeField gauge_field(layout, GaugeLink::Identity(), 4);
 
   pyQCD::gauge::WilsonAction<double, 3> action(5.5, layout);

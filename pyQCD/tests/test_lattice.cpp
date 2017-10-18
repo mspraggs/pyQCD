@@ -44,8 +44,8 @@ public:
 
 TEST_CASE("Lattice test") {
 
-  pyQCD::LexicoLayout layout({8, 4, 4, 4});
-  TestLayout another_layout({8, 4, 4, 4});
+  const pyQCD::LexicoLayout layout({8, 4, 4, 4});
+  const TestLayout another_layout({8, 4, 4, 4});
 
   Lattice lattice1(layout, 1.0, 4);
   Lattice lattice2(layout, 2.0, 4);
@@ -110,7 +110,7 @@ TEST_CASE("Lattice test") {
   }
 
   SECTION("Test non-scalar site types") {
-    MatrixCompare<Eigen::Matrix3cd> comparison(1e-5, 1e-8);
+    const MatrixCompare<Eigen::Matrix3cd> comparison(1e-5, 1e-8);
     pyQCD::Lattice<Eigen::Matrix3cd> result(lattice_matrix.layout());
     result = lattice_matrix * (3.0 * Eigen::Matrix3cd::Identity());
     REQUIRE(result.size() == lattice_matrix.size());
@@ -129,7 +129,7 @@ TEST_CASE("Lattice test") {
 
     for (unsigned int i = 0; i < lattice1.volume(); ++i) {
       for (unsigned int j = 0; j < lattice1.site_size(); ++j) {
-        auto expected =
+        const auto expected =
             static_cast<double>(4 * (lattice1.volume() - i - 1) + j);
         REQUIRE(lattice1[4 * i + j] == expected);
       }
@@ -137,7 +137,7 @@ TEST_CASE("Lattice test") {
   }
 
   SECTION("Test even and odd site views") {
-    pyQCD::EvenOddLayout even_odd_layout(layout.shape());
+    const pyQCD::EvenOddLayout even_odd_layout(layout.shape());
 
     for (unsigned int i = 0; i < lattice1.size(); ++i) {
       lattice1[i] = static_cast<double>(i);
@@ -147,9 +147,9 @@ TEST_CASE("Lattice test") {
     lattice2.change_layout(even_odd_layout);
     lattice3.change_layout(even_odd_layout);
 
-    unsigned int half_vol = layout.volume() / 2;
-    auto even_view = lattice1.segment(0, half_vol);
-    auto odd_view = lattice1.segment(half_vol, half_vol);
+    const unsigned int half_vol = layout.volume() / 2;
+    const auto even_view = lattice1.segment(0, half_vol);
+    const auto odd_view = lattice1.segment(half_vol, half_vol);
 
     REQUIRE(even_view[0] == 0.0);
     REQUIRE(even_view[4] == 8.0);
@@ -168,12 +168,12 @@ TEST_CASE("Lattice test") {
   }
 }
 
-TEST_CASE("Non-integral Lattice types test") {
-  pyQCD::LexicoLayout layout(std::vector<unsigned int>{8, 4, 4, 4});
-  pyQCD::Lattice<double> lattice_double(layout, 5.0);
-  pyQCD::Lattice<Eigen::Matrix3cd> lattice_matrix(
+TEST_CASE("Non-fundamental Lattice types test") {
+  const pyQCD::LexicoLayout layout(std::vector<unsigned int>{8, 4, 4, 4});
+  const pyQCD::Lattice<double> lattice_double(layout, 5.0);
+  const pyQCD::Lattice<Eigen::Matrix3cd> lattice_matrix(
     layout, Eigen::Matrix3cd::Identity());
-  Eigen::Vector3cd vec(1.0, 1.0, 1.0);
+  const Eigen::Vector3cd vec(1.0, 1.0, 1.0);
   pyQCD::Lattice<Eigen::Vector3cd> vecs(lattice_matrix.layout());
   vecs = lattice_matrix * vec * lattice_double;
 }

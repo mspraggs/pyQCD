@@ -85,7 +85,7 @@ TEST_CASE ("Testing hopping matrix")
   {
     fermion_in.fill(SiteFermion::Ones());
     gauge_field.fill(GaugeLink::Identity());
-    SiteFermion expected_result = SiteFermion::Ones() * 6.0;
+    const SiteFermion expected_result = SiteFermion::Ones() * 6.0;
 
     std::vector<std::complex<double>> boundary_phases(4, 1.0);
     boundary_phases[0] = -1.0;

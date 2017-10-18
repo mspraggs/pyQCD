@@ -77,7 +77,8 @@ TEST_CASE ("Test of unpreconditioned conjugate gradient algorithm")
   {
     TestFermionAction<double, 3> action(2.0, 4);
 
-    auto result = pyQCD::conjugate_gradient_unprec(action, src, 1000, 1e-10);
+    const auto result =
+        pyQCD::conjugate_gradient_unprec(action, src, 1000, 1e-10);
 
     for (int i = 0; i < 3; ++i) {
       REQUIRE (result.solution()[0][i].real() == (i == 0 ? 0.5 : 0.0));
@@ -100,7 +101,8 @@ TEST_CASE ("Test of unpreconditioned conjugate gradient algorithm")
     pyQCD::fermions::WilsonAction<double, 3> action(0.1, gauge_field,
                                                     boundary_rotations);
 
-    auto result = pyQCD::conjugate_gradient_unprec(action, src, 1000, 1e-8);
+    const auto result =
+        pyQCD::conjugate_gradient_unprec(action, src, 1000, 1e-8);
 
     MatrixCompare<SiteFermion> compare(1e-7, 1e-9);
     SiteFermion expected = SiteFermion::Zero();
@@ -108,7 +110,7 @@ TEST_CASE ("Test of unpreconditioned conjugate gradient algorithm")
                                        1.1333971980249629e-13);
 
     REQUIRE (compare(result.solution()[0], expected));
-    REQUIRE ((result.tolerance() < 1e-8 && result.tolerance() > 0));
+    REQUIRE ((result.tolerance() < 1e-8 and result.tolerance() > 0));
     REQUIRE ((result.num_iterations() > 67 and result.num_iterations() < 73));
 
     LatticeFermion lhs(layout, 4);
@@ -126,8 +128,8 @@ TEST_CASE("Testing even-odd preconditioned conjugate gradient algorithm")
   using SiteFermion = pyQCD::ColourVector<double, 3>;
   using LatticeFermion = pyQCD::LatticeColourVector<double, 3>;
 
-  pyQCD::LexicoLayout lexico_layout({8, 4, 4, 4});
-  pyQCD::EvenOddLayout even_odd_layout({8, 4, 4, 4});
+  const pyQCD::LexicoLayout lexico_layout({8, 4, 4, 4});
+  const pyQCD::EvenOddLayout even_odd_layout({8, 4, 4, 4});
 
   LatticeFermion src(lexico_layout, SiteFermion::Zero(), 4);
   src[0][0] = 1.0;
@@ -138,22 +140,23 @@ TEST_CASE("Testing even-odd preconditioned conjugate gradient algorithm")
     using GaugeLink = pyQCD::ColourMatrix<double, 3>;
     using GaugeField = pyQCD::LatticeColourMatrix<double, 3>;
 
-    GaugeField gauge_field(even_odd_layout, GaugeLink::Identity(), 4);
+    const GaugeField gauge_field(even_odd_layout, GaugeLink::Identity(), 4);
 
-    std::vector<double> boundary_rotations(4, 1.0);
+    const std::vector<double> boundary_rotations(4, 1.0);
 
-    pyQCD::fermions::WilsonAction<double, 3> action(0.1, gauge_field,
-                                                    boundary_rotations);
+    const pyQCD::fermions::WilsonAction<double, 3> action(
+        0.1, gauge_field, boundary_rotations);
 
-    auto result = pyQCD::conjugate_gradient_eoprec(action, src, 1000, 1e-8);
+    const auto result =
+        pyQCD::conjugate_gradient_eoprec(action, src, 1000, 1e-8);
 
-    MatrixCompare<SiteFermion> compare(1e-7, 1e-9);
+    const MatrixCompare<SiteFermion> compare(1e-7, 1e-9);
     SiteFermion expected = SiteFermion::Zero();
     expected[0] = std::complex<double>(0.2522536470229704,
                                        1.1333971980249629e-13);
 
     REQUIRE (compare(result.solution()[0], expected));
-    REQUIRE ((result.tolerance() < 1e-8 && result.tolerance() > 0));
+    REQUIRE ((result.tolerance() < 1e-8 and result.tolerance() > 0));
     REQUIRE ((result.num_iterations() > 27 and result.num_iterations() < 33));
 
     LatticeFermion lhs(even_odd_layout, 4);

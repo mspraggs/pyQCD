@@ -32,20 +32,20 @@ TEST_CASE ("Testing Wilson fermion action")
   using SiteFermion = pyQCD::ColourVector<double, 3>;
   using FermionField = pyQCD::LatticeColourVector<double, 3>;
 
-  pyQCD::Site shape{8, 4, 4, 4};
-  pyQCD::LexicoLayout layout(shape);
+  const pyQCD::Site shape{8, 4, 4, 4};
+  const pyQCD::LexicoLayout layout(shape);
 
   GaugeField gauge_field(layout, GaugeLink::Identity(), 4);
   FermionField psi(layout, SiteFermion::Ones(), 4);
 
-  std::vector<double> boundary_phases(4, 0.0);
+  const std::vector<double> boundary_phases(4, 0.0);
   
   pyQCD::fermions::WilsonAction<double, 3> wilson_action(0.1, gauge_field,
                                                          boundary_phases);
 
   auto eta = wilson_action.apply_full(psi);
 
-  MatrixCompare<SiteFermion> comp(1e-5, 1e-8);
+  const MatrixCompare<SiteFermion> comp(1e-5, 1e-8);
 
   for (unsigned site = 0; site < layout.volume(); ++site) {
     for (unsigned spin = 0; spin < 4; ++spin) {
@@ -58,7 +58,7 @@ TEST_CASE ("Testing Wilson fermion action")
 
   pyQCD::Site site{0, 3, 0, 0};
   pyQCD::RandGenerator rng;
-  auto random_mat = pyQCD::random_sun<double, 3>(rng);
+  const auto random_mat = pyQCD::random_sun<double, 3>(rng);
   gauge_field(site, 1) = random_mat;
   psi(site, 3) = SiteFermion::Ones();
   site = {0, 0, 0, 1};
@@ -68,7 +68,7 @@ TEST_CASE ("Testing Wilson fermion action")
   gauge_field(site, 0) = random_mat;
   psi(site, 2) = SiteFermion::Ones();
 
-  SiteFermion expected =
+  const SiteFermion expected =
       -0.5 * (pyQCD::I * (random_mat - random_mat.adjoint())  +
           random_mat.adjoint()) * SiteFermion::Ones();
 
